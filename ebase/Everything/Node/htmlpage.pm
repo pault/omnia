@@ -28,7 +28,7 @@ sub insert
  # If there is no parent container set, we need a default
  unless($$this{parent_container})
  {
- my $GNC = getNode("general nodelet container", "container");
+ my $GNC = $$this{DB}->getNode("general nodelet container", "container");
  $$this{parent_container} = 0;
  $$this{parent_container} = $GNC if($GNC);
  }
