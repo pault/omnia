@@ -19,7 +19,7 @@ foreach (@params) {
 }
 
 
-if ($query-&gt;param("newsetting") and $query-&gt;param("newval")){
+if ($query-&gt;param("newsetting") ne "" and $query-&gt;param("newval") ne ""){
   my $title = $query-&gt;param("newsetting");
   $title =~ s/\W//g;
   $$SETTINGS{$title} = $query-&gt;param("newval");
