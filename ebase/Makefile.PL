@@ -113,22 +113,28 @@ if(not (getResponse("y") =~ /^y$/i))
 # Create the files based on the install information
 
 WriteMakefile(
-	'NAME'                 => 'Everything',
-	'DISTNAME'             => 'Everything-base',
-	'VERSION_FROM'         => 'Everything.pm',
+	NAME          => 'Everything',
+	DISTNAME      => 'Everything-base',
+	VERSION_FROM  => 'Everything.pm',
 
 	# These are the modules that we require
-	'PREREQ_PM'            => 	{	'Apache'			=> 0.82,
-									'DBI'				=> 1.13,
-									'XML::DOM'			=> 1.27,
-									'XML::Parser'		=> 2.26,
-									'Mysql'				=> 1.2202,
-									'File::Spec'		=> 0.82,
-									'CGI'				=> 2.46,
-									'Test::MockObject'  => 0.11,
-									'Mail::Address'     => 1.53,
-								},
-	'clean'					=> 	{ FILES => 'web/index.pl tables/basenodes.txt' }
+	PREREQ_PM     => {
+		CGI                => 2.46,
+		DBI                => 1.13,
+		Mysql              => 1.2202,
+		Apache             => 0.82,
+		'XML::DOM'         => 1.27,
+		'XML::Parser'      => 2.26,
+		'File::Spec'       => 0.82,
+		'Mail::Address'    => 1.53,
+		'Test::MockObject' => 0.11,
+	},
+	clean         => {
+		FILES => 'web/index.pl tables/basenodes.txt'
+	},
+	test          => {
+		TESTS => 't/*.t t/Everything/*.t'
+	},
 );
 
 0;
