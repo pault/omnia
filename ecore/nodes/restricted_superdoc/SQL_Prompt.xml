@@ -5,7 +5,7 @@
 my $str;
 my $execstr = $query-&gt;param(&quot;sqlquery&quot;);
 
-$str = $query-&gt;start_multipart_form(&quot;POST&quot;,$ENV{script_name}) . &quot;\n&quot;;
+$str = $query-&gt;start_form(&quot;POST&quot;,$ENV{script_name}) . &quot;\n&quot;;
 $str .= $query-&gt;hidden(&quot;displaytype&quot;) . &quot;\n&quot;;
 $str .= $query-&gt;hidden(&quot;node_id&quot;, getId($NODE)) . &quot;\n&quot;;
 $str .= &quot;SQL Query:\n&quot;;
