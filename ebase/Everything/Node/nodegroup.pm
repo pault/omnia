@@ -418,6 +418,36 @@ sub getFieldDatatype
 	return $this->SUPER();
 }
 
+################################################################################
+#	Sub
+#		clone
+#
+#	Purpose
+#		Clone the node!  The normal clone doesn't duplicate members of a
+#		nodegroup, so we have to do it here specifically.
+#
+#	Parameters
+#		$USER - the user trying to clone this node (for permissions)
+#		$newtitle - the new title of the cloned node
+#		$workspace - the id or workspace hash into which this node
+#			should be cloned.  This is primarily for internal purposes
+#			and should not be used normally.  (NOT IMPLEMENTED YET!)
+#
+#   Returns
+#       The newly cloned node, if successful.  undef otherwise.
+#
+sub clone {
+	my $this = shift;
+
+	# we need $USER for Everything::Node::node::clone() _and_ insertIntoGroup
+	my ($USER) = @_;
+	my $NODE = $this->SUPER(@_);
+	return undef unless (defined $NODE);
+	if (defined(my $group = $this->{group})) {
+		$NODE->insertIntoGroup($USER, $group);
+	}
+	return $NODE;
+}
 
 #############################################################################
 # End of package
