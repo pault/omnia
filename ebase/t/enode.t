@@ -78,8 +78,8 @@ $mock->set_series( sqlSelectMany => undef, $mock )
 $result = selectLinks( $mock );
 ($method, $args) = $mock->next_call();
 is( $method, 'sqlSelectMany', 'selectLinks() should select from the database' );
-is( join('-', @$args), "$mock-*-links-from_node=?--11",
-	'... from links table for node_id' );
+is( join('-', ( @$args[0 .. 4], @{ $args->[5] } ) ),
+	"$mock-*-links-from_node=?--11", '... from links table for node_id' );
 is( $result, undef, '... returning if that fails' );
 
 is_deeply( selectLinks( $mock, 'order' ), [ 'bar', 'baz' ],
