@@ -365,20 +365,22 @@ sub sqlSelect
 #
 sub sqlSelectJoined
 {
-	my ($this, $select, $table, $joins, $where, $other) = @_;
+	my ($this, $select, $table, $joins, $where, $other, @bound) = @_;
 
 	my $sql = "SELECT $select ";
 	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
-	foreach (keys %$joins) {
-		$sql .= "LEFT JOIN " . $this->genTableName($_) . " ON " . $$joins{$_} . " ";
+
+	while (my ($join, $column) = each %$joins) {
+		$sql .= "LEFT JOIN " . $this->genTableName($join) . " ON $column ";
 	}
+
 	$sql .= "WHERE $where " if $where;
 	$sql .= $other if $other;
 
-	my $cursor = $this->{dbh}->prepare($sql);
-        
-	return $cursor if($cursor->execute());
-	return undef;
+	my $cursor = $this->{dbh}->prepare($sql) or return;
+
+	$cursor->execute(@bound) or return;
+	return $cursor;
 }
 
 
