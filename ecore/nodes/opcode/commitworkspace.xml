@@ -17,13 +17,18 @@ my $changed = 0;
 foreach ($query->param) {
    next unless /^commit_(\d+)$/;
    my $id = $1;
-   my $N = getNode($id);
-   $DB->{workspace}{nodes}{$id} = "commit";   
-   $N->update($USER);
+   my $val = $query->param($_);
+   next unless $val eq 'commit' or $val eq 'discard';
+   if ($val eq 'commit') {
+     my $N = getNode($id);
+     $DB->{workspace}{nodes}{$id} = "commit";   
+     $N->update($USER);
+   }
    delete $DB->{workspace}{nodes}{$id};
-   #$DB->sqlDelete('revision', "node_id=$id and inside_workspace=".$DB->{workspace}{node_id});
+   $DB->sqlDelete('revision', "node_id=$id and inside_workspace=".$DB->{workspace}{node_id});
    $changed = 1;
 }
+
 
 return 1 unless $changed;
 $DB->{workspace}->setVars($DB->{workspace}{nodes});

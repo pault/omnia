@@ -49,7 +49,7 @@ return "&lt;p>&lt;i>none&lt;/i>" unless keys %$V;
 
 foreach (keys %$V) {
   $str.="&lt;li>";
-  $str.=$query->checkbox("commit_$_", 0, 'yes', "") if $isInWS;
+  $str.=$query->radio_group("commit_$_", ['commit', 'discard', 'unchanged'], 'unchanged')." " if $isInWS;
   $str.= linkNode($_);
 }
 $str.="&lt;br>".$query->submit("trash", "commit changes")."&lt;/FORM>" if $isInWS;

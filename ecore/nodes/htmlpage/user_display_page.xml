@@ -26,7 +26,7 @@ my $str;
 foreach (@$nodes)
 {
   my $id = $_;
-  my $N = getNode($_);
+  my $N = getNode($_, 'light');
   next if($id == getId($NODE));
   $str.="&lt;li>".linkNode($N)."($$N{type}{title})&lt;/li>\n";
 }

@@ -11,6 +11,23 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
+my $wspace = 0;
+my $str;
+$wspace = $DB->{workspace}{node_id} if exists $DB->{workspace};
+
+my $csr = $DB->sqlSelectMany("inside_workspace", "revision", "node_id=$$NODE{node_id}");
+my %WSPACES;
+while ($csr and my ($ws) = $csr->fetchrow) {
+  next if not $ws;
+  next if $ws == $wspace;
+  next if $WSPACES{$ws} == 1;
+  $WSPACES{$ws} = 1;
+  $str.= "This node is in workspace ".linkNode($ws)."&lt;br>";
+}
+$str.="Editing it may cause corruption&lt;br>" if $str;
+$str;
+%]
+[%
 return "Not in workspace" unless $DB->{workspace} and $DB->{workspace}{title};
 my $str;
 
@@ -18,18 +35,19 @@ $str.="You are in workspace ".linkNode($DB->{workspace});
 $str.="&lt;p>&lt;b>This node can not be put in workspace&lt;/b>" unless $NODE->canWorkspace();
 
 if (exists $DB->{workspace}{nodes}{$$NODE{node_id}}) {
-  $str.="&lt;p>Commit changes to "
-     . linkNode($NODE, "", { op=> 'commitworkspace', 
-       "commit_$$NODE{node_id}" => 1, 
-        workspace_id => $DB->{workspace}{node_id}});
-
-
+  $str.="&lt;p>This node is inside your workspace:";
+  $str.="&lt;br>".linkNode($NODE, "Commit", { op=> 'commitworkspace', 
+       "commit_$$NODE{node_id}" => 'commit', 
+        workspace_id => $DB->{workspace}{node_id}}). " changes";
+  $str.="&lt;br>".linkNode($NODE, "Discard", { op => 'commitworkspace',
+       "commit_$$NODE{node_id}" => 'discard',
+       workspace_id => $DB->{workspace}{node_id}}). " changes";
 }
-$str;
 
+$str;
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value"></field>
+  <field name="nltext" type="literal_value">You are in workspace &lt;A HREF="/index.pl?lastnode_id=115&amp;node_id=291">testspace&lt;/a></field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">workspace info</field>
