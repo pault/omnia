@@ -17,7 +17,7 @@ BEGIN {
 
 use TieOut;
 use FakeDBI;
-use Test::More tests => 63;
+use Test::More tests => 65;
 use Test::MockObject;
 
 use_ok( 'Everything' );
@@ -96,29 +96,43 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 	is( $count, 2, '... and only bad links' );
 }
 
-
-# initEverything
+# initEverything()
 {
 	local @Everything::fsErrors = '123';
 	local @Everything::bsErrors = '321';
 	local ($Everything::DB, %Everything::NODEBASES);
 
-	initEverything('onedb', 1);
+	initEverything('onedb', { staticNodetypes => 1 });
 
 	is( join('', @$Everything::DB), 'onedb1', 
 		'initEverything() should create a new database if needed' );
 	is( scalar @Everything::fsErrors, 0, '... and should clear @fsErrors' );
 	is( scalar @Everything::bsErrors, 0, '... and @bsErrors' );
-	
+
 	initEverything('onedb');
 	is( $Everything::DB, $Everything::NODEBASES{onedb}, 
 		'... should reuse NodeBase object with same DB requested' );
-	
+
 	initEverything('twodb');
 	is( scalar keys %Everything::NODEBASES, 2, '... and should cache objects' );
+
+	local (*Everything::NodeBase::mysql::new, *Everything::NodeBase::Pg::new);
+
+	*Everything::NodeBase::mysql::new = sub { 'mysql' };
+	*Everything::NodeBase::Pg::new    = sub { 'Pg' };
+
+	foreach my $type (qw( mysql Pg ))
+	{
+		initEverything( $type, { dbtype => $type } );
+		is( $Everything::NODEBASES{ $type }, $type,
+			"... and should respect allowed db type '$type'" );
+	}
+
+	eval { initEverything( 'threedb', { dbtype => 'badtype' } ) };
+	like($@, qr/Unknown database type 'badtype'/, '... dying given bad dbtype');
 }
 
-# clearFrontside
+# clearFrontside()
 {
 	local @Everything::fsErrors = '123';
 	clearFrontside();
@@ -126,7 +140,7 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 		'clearFrontside() should clear @fsErrors' );
 }
 
-# clearBackside
+# clearBackside()
 {
 	local @Everything::bsErrors = '123';
 	clearBackside();
@@ -159,12 +173,11 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 	my $output = $out->read();
 
 	like( $output, qr/^###/, '... should print if $commandLine is true' );
-	like( $output, qr/Warning: warn.+Error: error.+Code:\ncode/s, 
+	like( $output, qr/Warning: warn.+Error: error.+Code: code/s,
 		'... should print warning, error, and code' );
-
 }
 
-# flushErrorsToBackside
+# flushErrorsToBackside()
 {
 	local (@Everything::fsErrors, @Everything::bsErrors);
 
