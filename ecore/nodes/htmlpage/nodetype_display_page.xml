@@ -103,7 +103,7 @@ $str;
 [%
   if ($$NODE{maxrevisions}) {
     if ($$NODE{maxrevisions} == -1) {
-      return "$$NODE{derived_maxrevisions} (inheirited)";
+      return "$$NODE{derived_maxrevisions} (inherited)";
     } else {
       return $$NODE{maxrevisions};
     }
@@ -117,7 +117,7 @@ $str;
 [%
   if ($$NODE{canworkspace}) {
     if ($$NODE{canworkspace} == -1) {
-       return ($$NODE{derived_canworkspace}?"enabled":"disabled")." (inheirited)";
+       return ($$NODE{derived_canworkspace}?"enabled":"disabled")." (inherited)";
     } else {
        return "enabled";
     }
