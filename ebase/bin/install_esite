@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 
-########################################################################
-#
 use strict;
 
 use DBI;
+use File::Copy;
 use File::Spec;
 use Getopt::Long;
 use Term::ReadKey;
@@ -74,13 +73,17 @@ sub RLquick {
 	$result;
 }
 
-sub checkEdir {
+sub checkEdir
+{
 	my ($dir) = @_;
 
 	return unless $dir;
 	my @reqddirs = qw(nodeballs web images tables);
 	
-	foreach (@reqddirs) { return 0 unless -d $dir."/$_" }
+	foreach (@reqddirs)
+	{
+		return 0 unless -d File::Spec->catdir( $dir, $_ );
+	}
 	return 1;
 }
 
@@ -192,15 +195,17 @@ sub setupSqlUser {
 
 	@OPTIONS{'user', 'password'} = ($user, $pass);
 	return if $user eq 'root';
-	
-	my $csr = $dbh->prepare('select * from user where User='.$dbh->quote($user)." and Host=".$dbh->quote($host));
 
-	$csr->execute;
-	if (my $USR = $csr->fetchrow_hashref()) {
+	my $csr = $dbh->prepare(
+		'select password from user where User = ? and Host = ?' );
+
+	$csr->execute( $user, $host );
+	if (my ($userpass) = $csr->fetchrow())
+	{
 		my $csr2=$dbh->prepare('select PASSWORD('.$dbh->quote($pass).')');
 		$csr2->execute;
 		my ($cp) = $csr2->fetchrow();
-		if ($cp ne $$USR{Password}) {
+		unless ($cp eq $userpass) {
 			print "\nUser '$user' exists, but doesn't match your password!\n";
 			exit 0;
 		}
@@ -296,7 +301,7 @@ sub createIndex
 
 	chmod 0741, $outfile;
 	my $uid = getpwnam( $OPTIONS{owner} );
-	my $gid = getgrgid( $OPTIONS{group} );
+	my $gid = getgrnam( $OPTIONS{group} );
 	chown $uid, $gid, $outfile;
 }
 
@@ -422,8 +427,16 @@ sub main {
 	#create index.pl file
 	createIndex();
 
-	#copy images into web directory
-	system "cp -r $OPTIONS{edir}\/images $OPTIONS{webdir}";
+	# copy images into web directory
+	local *DIR;
+	my $imgdir = File::Spec->catdir( $OPTIONS{edir}, 'images' );
+	if (opendir( DIR, $imgdir ))
+	{
+		while (my $file = readdir( DIR ))
+		{
+			copy(map {File::Spec->catfile($_, $file)} $imgdir,$OPTIONS{webdir});
+		}
+	}
 
 	#set up an "incoming" directory
 	createIncoming(); 
