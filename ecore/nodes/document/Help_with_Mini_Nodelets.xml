@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="document" title="Help with Mini Nodelets">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">&lt;h3> Mini Nodelets&lt;/h3>&lt;p>
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="doctext">&lt;h3> Mini Nodelets&lt;/h3>&lt;p>
 
 &lt;u> Setup&lt;/U>
 &lt;p>
@@ -13,15 +13,15 @@
 &lt;p>
  New Mini nodelets can be created the same way as ordinary nodelets, but must contain the title "&lt;i>TITLE&lt;/i> Mini" in order to work properly. You must then assign the corresponding full sized
  nodelet as this nodelet's "mini nodelet", and edit that nodelet to point to this newly created nodelet as its "mini nodelet." </field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiiii</field>
-  <field name="guestaccess" type="literal_value">iiiii</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">document</field>
-  <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">Help with Mini Nodelets</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">document</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiiii</field>
+  <field type="literal_value" name="guestaccess">iiiii</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">document</field>
+  <field type="literal_value" name="otheraccess">iiiii</field>
+  <field type="literal_value" name="title">Help with Mini Nodelets</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">document</field>
 </NODE>

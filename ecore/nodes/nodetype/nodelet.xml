@@ -1,29 +1,29 @@
 <NODE export_version="0.5" nodetype="nodetype" title="nodelet">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="defaultauthor_permission" type="literal_value">0</field>
-  <field name="defaultauthoraccess" type="literal_value">rwxd</field>
-  <field name="defaultgroup_permission" type="literal_value">0</field>
-  <field type_nodetype="usergroup,nodetype" name="defaultgroup_usergroup" type="noderef">gods</field>
-  <field name="defaultgroupaccess" type="literal_value">--x--</field>
-  <field name="defaultguest_permission" type="literal_value">0</field>
-  <field name="defaultguestaccess" type="literal_value">--x--</field>
-  <field name="defaultother_permission" type="literal_value">0</field>
-  <field name="defaultotheraccess" type="literal_value">--x--</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field type_nodetype="nodetype,nodetype" name="extends_nodetype" type="noderef">node</field>
-  <field type_nodetype="usergroup,nodetype" name="group_usergroup" type="noderef">gods</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="grouptable" type="literal_value"></field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodetype</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="restrict_nodetype" type="literal_value">0</field>
-  <field name="restrictdupes" type="literal_value">1</field>
-  <field name="sqltable" type="literal_value">nodelet</field>
-  <field name="title" type="literal_value">nodelet</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodetype</field>
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="defaultauthor_permission">0</field>
+  <field type="literal_value" name="defaultauthoraccess">rwxd</field>
+  <field type="literal_value" name="defaultgroup_permission">0</field>
+  <field type="noderef" type_nodetype="usergroup,nodetype" name="defaultgroup_usergroup">gods</field>
+  <field type="literal_value" name="defaultgroupaccess">--x--</field>
+  <field type="literal_value" name="defaultguest_permission">0</field>
+  <field type="literal_value" name="defaultguestaccess">--x--</field>
+  <field type="literal_value" name="defaultother_permission">0</field>
+  <field type="literal_value" name="defaultotheraccess">--x--</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="extends_nodetype">node</field>
+  <field type="noderef" type_nodetype="usergroup,nodetype" name="group_usergroup">gods</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="grouptable"></field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodetype</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="restrict_nodetype">0</field>
+  <field type="literal_value" name="restrictdupes">1</field>
+  <field type="literal_value" name="sqltable">nodelet</field>
+  <field type="literal_value" name="title">nodelet</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodetype</field>
 </NODE>

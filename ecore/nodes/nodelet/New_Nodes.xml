@@ -1,16 +1,16 @@
 <NODE export_version="0.5" nodetype="nodelet" title="New Nodes">
-  <field type_nodetype="usergroup,nodetype" name="author_user" type="noderef">gods</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
-  <field name="mini_nodelet" type="literal_value">0</field>
-  <field name="nlcode" type="literal_value">[%my $limit = 15;
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodelet</field>
+  <field type="literal_value" name="mini_nodelet">0</field>
+  <field type="literal_value" name="nlcode">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
 my $str;
@@ -29,26 +29,26 @@ $str;
 
 
 %]</field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?node_id=250&amp;lastnode_id=241">Guest User&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=251&amp;lastnode_id=241">root&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=252&amp;lastnode_id=241">gods&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=234&amp;lastnode_id=241">system settings&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=235&amp;lastnode_id=241">Create a new user&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=236&amp;lastnode_id=241">Duplicates Found&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=237&amp;lastnode_id=241">Everything settings&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=238&amp;lastnode_id=241">Not found&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=239&amp;lastnode_id=241">Permission Denied&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=240&amp;lastnode_id=241">Search Results&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=241&amp;lastnode_id=241">The Default Node&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=242&amp;lastnode_id=241">The Everything Tour&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=243&amp;lastnode_id=241">User settings&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=244&amp;lastnode_id=241">What is my password&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?node_id=245&amp;lastnode_id=241">login&lt;/a>&lt;BR>
+  <field type="literal_value" name="nlgoto">0</field>
+  <field type="literal_value" name="nltext">&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=245">general container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=246">general nodelet container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=247">main container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=248">nodelet container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=249">nodelet outline container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=250">nodeletshadow container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=251">show container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=252">stdcontainer&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=232">links&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=233">mail&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=234">maintenance&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=235">node&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=236">nodegroup&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=237">nodelet&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=238">nodemethod&lt;/a>&lt;BR>
 </field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
-  <field name="title" type="literal_value">New Nodes</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
-  <field name="updateinterval" type="literal_value">60</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>
+  <field type="literal_value" name="title">New Nodes</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodelet</field>
+  <field type="literal_value" name="updateinterval">60</field>
 </NODE>

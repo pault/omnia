@@ -1,16 +1,16 @@
 <NODE export_version="0.5" nodetype="nodelet" title="Links">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
-  <field name="mini_nodelet" type="literal_value">0</field>
-  <field name="nlcode" type="literal_value">[%
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodelet</field>
+  <field type="literal_value" name="mini_nodelet">0</field>
+  <field type="literal_value" name="nlcode">[%
 my @links = @{ $NODE->selectLinks("food") };
 my $str = "";
 
@@ -27,13 +27,13 @@ foreach (@links)
 $str = "&lt;ol>\n" . $str  . "\n&lt;/ol>";
 %]
 </field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;ol>
+  <field type="literal_value" name="nlgoto">0</field>
+  <field type="literal_value" name="nltext">&lt;ol>
 
 &lt;/ol></field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
-  <field name="title" type="literal_value">Links</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
-  <field name="updateinterval" type="literal_value">0</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>
+  <field type="literal_value" name="title">Links</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodelet</field>
+  <field type="literal_value" name="updateinterval">0</field>
 </NODE>

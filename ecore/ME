@@ -1,10 +1,10 @@
 <NODE export_version="0.5" nodetype="nodeball" title="core system">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
   <group>
     <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodetype</member>
     <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">container</member>
@@ -243,8 +243,8 @@
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Everything settings</member>
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">the killing floor</member>
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">What is my password</member>
-    <member type="noderef" type_nodetype="nodemethod,nodetype" supports_nodetype="nodelet,nodetype" name="group_node">insert</member>
-    <member type="noderef" type_nodetype="nodemethod,nodetype" supports_nodetype="htmlpage,nodetype" name="group_node">insert</member>
+    <member supports_nodetype="nodelet,nodetype" type="noderef" type_nodetype="nodemethod,nodetype" name="group_node">insert</member>
+    <member supports_nodetype="htmlpage,nodetype" type="noderef" type_nodetype="nodemethod,nodetype" name="group_node">insert</member>
     <member type="noderef" type_nodetype="mail,nodetype" name="group_node">New User Mail</member>
     <member type="noderef" type_nodetype="document,nodetype" name="group_node">Help with Mini Nodelets</member>
     <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">admin Nodelet Mini</member>
@@ -256,17 +256,18 @@
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Create a new user</member>
     <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">Flush</member>
     <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">Zap</member>
+    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Super Search</member>
   </group>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodeball</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="title" type="literal_value">core system</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodeball</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodeball</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="title">core system</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodeball</field>
   <vars>
-    <var name="author" type="literal_value">Nate Oostendorp and Darrick Brown</var>
-    <var name="description" type="literal_value">The core system of Everything.   (Slightly Less BETA!)</var>
-    <var name="version" type="literal_value">0.9.0.11</var>
+    <var type="literal_value" name="author">Nate Oostendorp and Darrick Brown</var>
+    <var type="literal_value" name="description">The core system of Everything.   (Slightly Less BETA!)</var>
+    <var type="literal_value" name="version">0.9.1.0</var>
   </vars>
 </NODE>

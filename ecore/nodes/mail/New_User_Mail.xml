@@ -1,8 +1,8 @@
 <NODE export_version="0.5" nodetype="mail" title="New User Mail">
-  <field name="attachment_file" type="literal_value">0</field>
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">Hey there.  Welcome to &lt;site_name>.
+  <field type="literal_value" name="attachment_file">0</field>
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="doctext">Hey there.  Welcome to &lt;site_name>.
 
 Here's the skinny:
 
@@ -17,16 +17,16 @@ http://www.whatever.com
 
 love, the management
 &lt;site_url></field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="from_address" type="literal_value"></field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiiii</field>
-  <field name="guestaccess" type="literal_value">iiiii</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">mail</field>
-  <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">New User Mail</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">mail</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="from_address"></field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiiii</field>
+  <field type="literal_value" name="guestaccess">iiiii</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">mail</field>
+  <field type="literal_value" name="otheraccess">iiiii</field>
+  <field type="literal_value" name="title">New User Mail</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">mail</field>
 </NODE>

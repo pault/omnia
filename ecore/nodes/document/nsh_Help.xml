@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="document" title="nsh Help">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">&lt;h3>nsh Commands&lt;/h3>
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="doctext">&lt;h3>nsh Commands&lt;/h3>
 
 &lt;p>The Everything nsh (node shell) command line is a simple command line
 interface for moving and deleting nodes, or changing "directories" to a new
@@ -24,15 +24,15 @@ This only affects the nodes in the current location.
 &lt;p>&lt;b>mv&lt;/b>&lt;br>
 Again, this behaves similar to the UNIX 'mv' command.  It takes a space
 separated list of node names.  The list is the same as 'rm'.</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">document</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="title" type="literal_value">nsh Help</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">document</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">document</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="title">nsh Help</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">document</field>
 </NODE>

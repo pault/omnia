@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="superdoc" title="The Everything Tour">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">Alright.  This is supposed to be a somewhat informal browsing 
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="doctext">Alright.  This is supposed to be a somewhat informal browsing 
 around of the general fetures of the system.  
 &lt;p>First, the general concept of Everything:
 &lt;center>&lt;h3>Nodes and Links&lt;/h3>&lt;/center>
@@ -33,15 +33,15 @@ that it looked pretty simple.  As a matter, there are three lines:&lt;br>
 
 
  </field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">superdoc</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="title" type="literal_value">The Everything Tour</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">superdoc</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">superdoc</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="title">The Everything Tour</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">superdoc</field>
 </NODE>

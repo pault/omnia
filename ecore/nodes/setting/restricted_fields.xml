@@ -1,21 +1,21 @@
 <NODE export_version="0.5" nodetype="setting" title="restricted fields">
-  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">setting</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="title" type="literal_value">restricted fields</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">setting</field>
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">setting</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="title">restricted fields</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">setting</field>
   <vars>
-    <var name="createtime" type="literal_value">1</var>
-    <var name="hits" type="literal_value">1</var>
-    <var name="karma" type="literal_value">1</var>
-    <var name="reputation" type="literal_value">1</var>
+    <var type="literal_value" name="createtime">1</var>
+    <var type="literal_value" name="hits">1</var>
+    <var type="literal_value" name="karma">1</var>
+    <var type="literal_value" name="reputation">1</var>
   </vars>
 </NODE>
