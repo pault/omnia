@@ -24,7 +24,6 @@ sub BEGIN
 		readTag	
 		genBasicTag
 		parseBasicTag
-		indentXML
 	);
 }
 
@@ -33,27 +32,22 @@ sub BEGIN
 my $XML_PARSER_VERSION = 0.5;
 my %UNFIXED_NODES;
 
+
 ###########################################################################
 #	Sub
 #		readTag
 #
-#	Purpose
-#		Quickly reads an xml tag, without parsing the whole document
+#	purpose - to quickly read an xml tag, without parsing the whole document
 #		right now, it doesn't read attributes, only contents.
 #
-#	Parameters
-#		$tag - the tag to read
-#		$xml - the document to look through
-#
-#	Returns
-#		The contents of the tag if found, or a blank string if not.
-#
-sub readTag {
+sub readTag
+{
 	my ($tag, $xml) = @_;
-	if ($xml =~ /\<\s*$tag.*?\>(.*?)\<\s*\/$tag.*?\>/gsi) {
+	
+	if ($xml =~ /\<field\s*name="$tag".*?\>(.*?)\<\/field\>/gsi)
+	{
 		return unMakeXmlSafe($1);
 	}
-
 	"";
 }
 
@@ -130,7 +124,9 @@ sub xml2node
 		ProtocolEncoding => 'ISO-8859-1');
 	my $doc = $XMLPARSER->parse ($xml);
 	my @ids;
-	
+	my $NODE;
+
+
 	# A single XML file may contain multiple nodes (same name/type).  We
 	# iterate through each defined node.
 	my @nodes = $doc->getElementsByTagName("NODE");
@@ -140,7 +136,6 @@ sub xml2node
 		my $title = $node->getAttribute("title");
 		my $type = $node->getAttribute("nodetype");
 		my $version = $node->getAttribute("export_version");
-		my $NODE;
 		my @FIXES;
 
 		if($version > $XML_PARSER_VERSION)
@@ -221,7 +216,7 @@ sub xmlfile2node
 #		content.
 #
 #	Parameters
-#		$XMLGEN - the XML::Generator object used to generate the tag
+#		$doc - the root document node for which this new tag belongs
 #		$tagname - the name of the xml tag
 #		$fieldname - the name of the field
 #		$content - the content of the tag
@@ -233,7 +228,7 @@ sub xmlfile2node
 #
 sub genBasicTag
 {
-	my ($XMLGEN, $tagname, $fieldname, $content) = @_;
+	my ($doc, $tagname, $fieldname, $content) = @_;
 	my $isRef = 0;
 	my $isNum = 0;
 	my $type;
@@ -287,15 +282,26 @@ sub genBasicTag
 	else
 	{
 		# This is just a literal value
-		$data = makeXmlSafe($content);
+		#$data = makeXmlSafe($content);
+		$data = $content;
 		$PARAMS = { name => $fieldname, type => "literal_value" };
 	}
 
-	my $exec = "\$XMLGEN->$tagname(\$PARAMS, \$data)";
+	# Now that we have gathered the attributes and data for this tag, we
+	# need to construct it.
+	my $tag = new XML::DOM::Element($doc, $tagname);
+	my $contents = new XML::DOM::Text($doc, $data);
 
-	$xml = eval($exec);
+	# Set the attributes on the tag.
+	foreach my $param (keys %$PARAMS)
+	{
+		$tag->setAttribute($param, $$PARAMS{$param});
+	}
+
+	# And insert the content into our tag
+	$tag->appendChild($contents);
 	
-	return $xml;
+	return $tag;
 }
 
 
@@ -427,18 +433,6 @@ sub unMakeXmlSafe {
 	return $str;
 }
 
-
-###########################################################################
-sub indentXML
-{
-	my ($xml) = @_;
-
-	# Indent the lines that start with a tag. This way we are not adding
-    # spaces to text contained within the tags. 
-	$xml =~ s/^(\s*<[^\/])/  $1/gm;
-
-	return $xml;
-}
 
 
 ###########################################################################

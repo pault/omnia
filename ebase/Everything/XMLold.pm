@@ -1,4 +1,4 @@
-package Everything::XML;
+package Everything::XMLold;
 
 ############################################################
 #
@@ -301,6 +301,7 @@ sub fixNodes
 			# have all the needed data anyway.
 			my $GROUP = getNode($$fix{node_id});
 			$GROUP->insertIntoGroup(-1, $id);
+			$GROUP->update(-1);
 		}
 		else
 		{
@@ -368,6 +369,7 @@ sub fixNodes
 		}
 
 		$NODE->setVars($TEMPVARS, -1) if($setvars);
+		$NODE->update(-1);
 	}
 }
 
@@ -512,6 +514,7 @@ sub xml2node
 			@$VARS{keys %$OLDVARS} = values %$OLDVARS if($OLDVARS);
 			my $VARNODE = getNode($node_id);
 			$VARNODE->setVars($VARS);
+			$VARNODE->update(-1);
 		}
 
 		# When we were parsing this node from XML, we didn't know what id

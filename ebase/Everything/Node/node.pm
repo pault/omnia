@@ -123,6 +123,10 @@ sub insert
 	undef %$this;
 	@$this{keys %$newNode} = values %$newNode;
 
+	# Cache this node since it has been inserted.  This way the cached
+	# version will be the same as the node in the db.
+	$this->cache();
+	
 	return $node_id;
 }
 
@@ -290,6 +294,7 @@ sub getNodeKeys
 		delete $$keys{reputation};
 		delete $$keys{lockedby_user};
 		delete $$keys{locktime};
+		delete $$keys{lastupdate};
 		
 		foreach my $k (keys %$keys)
 		{
@@ -425,14 +430,34 @@ sub clone
 
 
 #############################################################################
+#	Sub
+#		fieldToXML
+#
+#	Purpose
+#		Given a field of this node (ie title), convert that field into
+#		an XML tag.
+#
+#	Parameters
+#		$DOC - the base XML::DOM::Document object that this tag belongs to
+#		$field - the field of the node to convert
+#		$indent - String that contains the amount this tag will be indented.
+#			node::fieldToXML does not use this.  This is for more complicated
+#			structures that want to have a nice formatting.  This lets them
+#			know how far they are going to be indented so they know how far to
+#			indent their children.
+#
+#	Returns
+#		An XML::DOM::Element object that can be inserted into the parent
+#		structure.
+#		
 sub fieldToXML
 {
-	my ($this, $XMLGEN, $field) = @_;
-	my $xml;
+	my ($this, $DOC, $field, $indent) = @_;
+	my $tag;
 
-	$xml = genBasicTag($XMLGEN, "field", $field, $$this{$field});
+	$tag = genBasicTag($DOC, "field", $field, $$this{$field});
 
-	return $xml;
+	return $tag;
 }
 
 
@@ -606,7 +631,7 @@ sub getIdentifyingFields
 #
 #	Parameters
 #		$IMPORT - the node that we have just imported, and the data that
-#			should be 
+#			should be merged, or overwrite the existing data.
 #		
 sub updateFromImport
 {

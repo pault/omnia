@@ -659,7 +659,7 @@ sub installNodeball {
 		return if($currDir =~ /nodes\/nodetype/);
 		
 		xmlfile2node($file) if $file =~ /\.xml$/;  
-		}, $dir;
+	}, $dir;
 
 	print "Fixing references...\n";
 	fixNodes(1);
@@ -964,7 +964,6 @@ sub main {
 		my $version = readTag('version', $settings_xml);
 		my $author = readTag('author', $settings_xml);
 		my $description = readTag('description', $settings_xml);
-			
 		my $title = readTag('title', $nodeball_xml);
 
 		if ($OPTIONS{verbose}) {

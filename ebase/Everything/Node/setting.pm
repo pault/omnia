@@ -15,6 +15,7 @@ use Everything::Node::node;
 use Everything::Security;
 use Everything::Util;
 use Everything::XML;
+use XML::DOM;
 
 #############################################################################
 sub construct
@@ -100,39 +101,43 @@ sub hasVars
 #		field (hash) that needs to get exported.
 #
 #	Parameters
-#		$XMLGEN - an XML::Generator object used to generate the XML
+#		$DOC - an XML::DOM::Document object that this field belongs to
 #		$field - the field of this node that needs to be exported as XML
+#		$indent - String that contains the amount that this will be indented
+#			(used for formatting purposes)
 #
 #	Returns
-#		The XML for the given field
+#		The XML::DOM::Element that represents this field
 #
 sub fieldToXML
 {
-	my ($this, $XMLGEN, $field) = @_;
-	my $xml;
+	my ($this, $DOC, $field, $indent) = @_;
 
 	if($field eq "vars")
 	{
+		my $VARS = new XML::DOM::Element($DOC, "vars");
 		my $vars = $this->getVars();
 		my @raw = keys %$vars;
 		my @vars = sort { $a cmp $b } @raw;
+		my $tag;
+		my $indentself = "\n" . $indent;
+		my $indentchild = $indentself . "  ";
 
 		foreach my $var (@vars)
 		{
-			$xml .= genBasicTag($XMLGEN, "var", $var, $$vars{$var});
-			$xml .= "\n";
+			$VARS->appendChild(new XML::DOM::Text($DOC, $indentchild));
+			$tag = genBasicTag($DOC, "var", $var, $$vars{$var});
+			$VARS->appendChild($tag);
 		}
 
-		$xml = indentXML($xml);
+		$VARS->appendChild(new XML::DOM::Text($DOC, $indentself));
 
-		$xml = $XMLGEN->vars({}, "\n" . $xml);
+		return $VARS;
 	}
 	else
 	{
-		$xml = $this->SUPER();
+		return $this->SUPER();
 	}
-
-	return $xml;
 }
 
 

@@ -856,13 +856,6 @@ sub evalCode
 
 	$CURRENTNODE ||= $NODE;
 
-	# Remove those pesky 015 octals... (?)
-	$code =~ s/\015//gs;
-
-	# If we define any subroutines in our code, this will prevent
-	# us from getting the "subroutine * redefined" warning.
-	local $^W = 0;
-	
 	# if there are any logged errors when we get here, they have nothing
 	# to do with this.  So, push them to the backside error log for them to
 	# get displayed later.
@@ -931,6 +924,13 @@ sub evalX
 		$EVALX_WARN .= $_[0]
 		 unless $_[0] =~ /^Use of uninitialized value/;
 	};
+	
+	# If the code was ever edited on Windows, the newlines are carriage
+	# return, line feed combos.  We only want \n.  We are removing the \r
+	# (line feed) here.  This should probably be done on the database
+	# insert/update routines so that this Windows crap never even gets
+	# into the database.
+	$EVALX_STR =~ s/\015//gs;
 
 	# If we define any subroutines in our code, this will prevent
     # us from getting the "subroutine * redefined" warning.

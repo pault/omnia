@@ -779,8 +779,8 @@ sub getFileInfo {
 
 	my %info = ();
 
-	$info{title} = readTag 'title', $xml;
-	$info{type} = readTag 'type_nodetype', $xml;
+	$info{title} = readTag('title', $xml);
+	$info{type} = readTag('type_nodetype', $xml);
 	$info{file} = $filename;
 	
 	return \%info;
@@ -855,7 +855,7 @@ sub updateNodeball {
 				die unless $OPTIONS{force};
 			}
 		}
-		xmlfile2node $$N{file};
+		xmlfile2node($$N{file});
 	}
 	
 	fixNodes(0);

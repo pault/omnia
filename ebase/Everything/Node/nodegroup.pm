@@ -13,6 +13,7 @@ package Everything::Node::nodegroup;
 use strict;
 use Everything;
 use Everything::XML;
+use XML::DOM;
 
 
 #############################################################################
@@ -20,7 +21,8 @@ sub construct
 {
 	my ($this) = @_;
 
-	$$this{group} = $this->selectGroupArray();
+	my $group = $this->selectGroupArray();
+	$$this{group} = $group;
 
 	# We could call selectNodegroupFlat() here to have that info ready.
 	# However, since that info may not be needed all the time, we will
@@ -198,11 +200,13 @@ sub updateGroup
 		foreach my $id (@$group)
 		{
 			$$this{DB}->sqlUpdate($table, { orderby => $orderby },
-				{ $table . "_id" => $$this{node_id} , node_id => $id });
+				$table . "_id=$$this{node_id} && node_id=$id");
 
 			$orderby++;
 		}
 	}
+
+	$$this{group} = $group;
 
 	return 1;
 }
@@ -426,6 +430,8 @@ sub insertIntoGroup
 	# Insert the new nodes into the group array at the orderby offset.
 	splice(@$group, $orderby, 0, @$insertref);
 
+	$$this{group} = $group;
+
 	# If a flatgroup exists, it is no longer valid.
 	delete $$this{flatgroup} if(exists $$this{flatgroup});
 
@@ -533,42 +539,64 @@ sub getNodeKeys
 
 
 #############################################################################
+#	Sub
+#		fieldToXML
+#
+#	Purpose
+#		Convert the field that contains the group structure to an XML
+#		format.
+#
+#	Parameters
+#		$DOC - the base XML::DOM::Document object that contains this
+#			structure
+#		$field - the field of the node to convert (if it is not the group
+#			field, we just call SUPER())
+#		$indent - string that contains the spaces that this will be indented
+#
 sub fieldToXML
 {
-	my ($this, $XMLGEN, $field) = @_;
-	my $xml;
+	my ($this, $DOC, $field, $indent) = @_;
 
 	if($field eq "group")
 	{
+		my $GROUP = new XML::DOM::Element($DOC, "group");
 		my $group = $$this{group};
 		my $order = 1;
+		my $tag;
+		my $text;
+		my $title;
+		my $indentself = "\n" . $indent;
+		my $indentchild = $indentself . "  ";
 
 		foreach my $member (@$group)
 		{
 			my $node = $$this{DB}->getNode($member);
 			next unless($node);
 			
-			$xml .= $XMLGEN->member({ orderby => $order,
-				type => "noderef",
-				type_nodetype => "$$node{type}{title},nodetype" },
-				$$node{title});
-
-			$xml .= "\n";
+			$GROUP->appendChild(new XML::DOM::Text($DOC, $indentchild));
 			
+			$tag = new XML::DOM::Element($DOC, "member");
+			$tag->setAttribute("orderby", $order);
+			$tag->setAttribute("type", "noderef");
+			$tag->setAttribute("type_nodetype", "$$node{type}{title},nodetype");
+
+			$title = Everything::XML::makeXmlSafe($$node{title});
+			$text = new XML::DOM::Text($DOC, $title);
+
+			$tag->appendChild($text);
+			$GROUP->appendChild($tag);
+
 			$order++;
 		}
 
-		# Indent the members
-		$xml =~ s/^/  /gm;
-		
-		$xml = $XMLGEN->group({}, "\n" . $xml) . "\n";
+		$GROUP->appendChild(new XML::DOM::Text($DOC, $indentself));
+
+		return $GROUP;
 	}
 	else
 	{
-		$xml = $this->SUPER();
+		return $this->SUPER();
 	}
-
-	return $xml;
 }
 
 
@@ -582,7 +610,6 @@ sub xmlTag
 	{
 		my $fixes = [];
 		my @childFields = $TAG->getChildNodes();
-		print "group - $$this{title}\n";
 
 		foreach my $child (@childFields)
 		{
@@ -613,7 +640,6 @@ sub xmlTag
 			}
 			else
 			{
-				print "  not found - $name\n";
 				$$WHERE{fixBy} = "nodegroup";
 				$$WHERE{orderby} = $orderby;
 
@@ -645,7 +671,6 @@ sub applyXMLFix
 		return $this->SUPER();
 	}
 
-	print "fixing $$this{title} - $$FIX{title}\n";
 	my $NODE = $$this{DB}->getNode($$FIX{title}, $$FIX{type_nodetype});
 
 	unless($NODE)

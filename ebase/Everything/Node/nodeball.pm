@@ -95,11 +95,12 @@ sub hasVars
 #
 sub fieldToXML
 {
-	my ($this, $field) = @_;
+	my ($this, $DOC, $field, $indent) = @_;
 
 	if($field eq 'vars')
 	{
-		return Everything::Node::setting::fieldToXML($this, $field);
+		return Everything::Node::setting::fieldToXML($this, $DOC,
+			$field, $indent);
 	}
 	else
 	{
