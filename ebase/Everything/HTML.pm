@@ -1111,27 +1111,7 @@ sub loginUser
 	my ($user_id, $cookie, $user, $passwd);
 	my $USER_HASH;
 	
-	if ($query->param("op") eq "login")
-	{
-		$user = $query->param("user");
-		$passwd = $query->param("passwd");
-
-		$user_id = confirmUser ($user, crypt ($passwd, $user));
-		
-		# If the user/passwd was correct, set a cookie on the users
-		# browser.
-		$cookie = $query->cookie(-name => "userpass", 
-			-value => $query->escape($user . '|' . crypt ($passwd, $user)), 
-			-expires => $query->param("expires")) if $user_id;
-	}
-	elsif ($query->param("op") eq "logout")
-	{
-		# The user is logging out.  Nuke their cookie.
-		$cookie = $query->cookie(-name => 'userpass', -value => "");
-		$user_id = $HTMLVARS{guest_user};	
-
-	}
-	elsif (my $oldcookie = $query->cookie("userpass"))
+	if(my $oldcookie = $query->cookie("userpass"))
 	{
 		$user_id = confirmUser (split (/\|/, urlDecode ($oldcookie)));
 	}
@@ -1274,50 +1254,22 @@ sub handleUserRequest
 	my $user_id = $$USER{node_id};
 	my $node_id;
 	my $nodename;
-	
-	if ($query->param("op") eq "nuke" && $query->param("node_id"))
-	{
-		$node_id = $query->param("node_id");
-		
-		nukeNode($node_id, $user_id);
+	my $code;
+	my $handled = 0;
 
-		# This should now result in a "Not found" page
-		gotoNode ($node_id, $user_id);
-
-		return;
-	}
-	elsif ($query->param('node'))
+	if ($query->param('node'))
 	{
 		# Searching for a node my string title
 		my $type  = $query->param('type');
 		my $TYPE = getType($type);
 		
-		$nodename = $query->param('node');
-		$nodename =~ tr/[]|<>//d;
-		$nodename =~ s/^\s*|\s*$//g;
-		$nodename =~ s/\s+/ /g;
-		$nodename ="" if $nodename=~/^\W$/;
-		#$nodename = substr ($nodename, 0, 80);
+		$nodename = cleanNodeName($query->param('node'));
 		$query->param("node", $nodename);
 		
 		if ($query->param('op') ne 'new')
 		{
 			nodeName ($nodename, $user_id, $type); 
 		}
-		elsif (canCreateNode($user_id, $DB->getType($type)))
-		{
-			$node_id = insertNode($nodename,$TYPE, $user_id);
-
-			if($node_id == 0)
-			{
-				# It appears that the node already exists.  Get its id.
-				$node_id = sqlSelect("node_id", "node", "title=" .
-					$DB->quote($nodename) . " && type_nodetype=" .
-					$$TYPE{node_id});
-			}
-
-			gotoNode($node_id, $user_id);
-		} 
 		else
 		{
 			gotoNode($HTMLVARS{permission_denied}, $user_id);
@@ -1332,6 +1284,203 @@ sub handleUserRequest
 	{
 		#no node was specified -> default
 		gotoNode($HTMLVARS{default_node}, $user_id);
+	}
+}
+
+
+#############################################################################
+#	Sub
+#		cleanNodeName
+#
+#	Purpose
+#		We limit names of nodes so that they cannot contain certain
+#		characters.  This is so users can't play games with the names
+#		of their nodes.
+#
+#	Parameters
+#		$nodename - the raw name that the user has given
+#
+#	Returns
+#		The name after we have cleaned it up a bit
+#
+sub cleanNodeName
+{
+	my ($nodename) = @_;
+
+	$nodename =~ tr/[]|<>//d;
+	$nodename =~ s/^\s*|\s*$//g;
+	$nodename =~ s/\s+/ /g;
+	$nodename ="" if $nodename=~/^\W$/;
+	#$nodename = substr ($nodename, 0, 80);
+
+	return $nodename;
+}
+
+#############################################################################
+sub clearGlobals
+{
+	$GNODE = "";
+	$USER = "";
+	$VARS = "";
+	$NODELET = "";
+	$THEME = "";
+
+	$query = "";
+}
+
+
+#############################################################################
+sub opNuke
+{
+	my $user_id = $$USER{node_id};
+	my $node_id = $query->param("node_id");
+	
+	nukeNode($node_id, $user_id);
+}
+
+
+#############################################################################
+sub opLogin
+{
+	my $user = $query->param("user");
+	my $passwd = $query->param("passwd");
+	my $user_id;
+	my $cookie;
+
+	$user_id = confirmUser ($user, crypt ($passwd, $user));
+	
+	# If the user/passwd was correct, set a cookie on the users
+	# browser.
+	$cookie = $query->cookie(-name => "userpass", 
+		-value => $query->escape($user . '|' . crypt ($passwd, $user)), 
+		-expires => $query->param("expires")) if $user_id;
+
+	$user_id ||= $HTMLVARS{guest_user};
+
+	$USER = getNodeById($user_id);
+	$VARS = getVars($USER);
+
+	$$USER{cookie} = $cookie if($cookie);
+}
+
+
+#############################################################################
+sub opLogout
+{
+	# The user is logging out.  Nuke their cookie.
+	my $cookie = $query->cookie(-name => 'userpass', -value => "");
+	my $user_id = $HTMLVARS{guest_user};	
+
+	$USER = getNodeById($user_id);
+	$VARS = getVars($USER);
+
+	$$USER{cookie} = $cookie if($cookie);
+}
+
+
+#############################################################################
+sub opNew
+{
+	my $node_id = 0;
+	my $user_id = $$USER{node_id};
+	my $type = $query->param('type');
+	my $TYPE = getType($type);
+	my $nodename = cleanNodeName($query->param('node'));
+	
+	if (canCreateNode($user_id, $DB->getType($type)))
+	{
+		$node_id = insertNode($nodename,$TYPE, $user_id);
+
+		if($node_id == 0)
+		{
+			# It appears that the node already exists.  Get its id.
+			$node_id = sqlSelect("node_id", "node", "title=" .
+				$DB->quote($nodename) . " && type_nodetype=" .
+				$$TYPE{node_id});
+		}
+
+		$query->param("node_id", $node_id);
+		$query->param("node", "");
+	} 
+	else
+	{
+		$query->param("node_id", $HTMLVARS{permission_denied});
+	}
+}
+
+
+#############################################################################
+#	Sub
+#		getOpCode
+#
+#	Purpose
+#		Get the 'op' code for the specified operation.
+#
+sub getOpCode
+{
+	my ($opname) = @_;
+	my $OPNODE = getNode($opname, "opcode");
+	my $code = '"";';
+	
+	$code = $$OPNODE{code} if(defined $OPNODE);
+
+	return $code;
+}
+
+
+#############################################################################
+#	Sub
+#		execOpCode
+#
+#	Purpose
+#		One of the CGI parameters that can be passed to Everything is the
+#		'op' parameter.  "Operations" are discrete pieces of work that are
+#		to be executed before the page is displayed.  They are useful for
+#		providing functionality that can be shared from any node.
+#
+#		By creating an opcode node you can create new ops or override the
+#		defaults.  Just becareful if you override any default operations.
+#		For example, if you override the 'login' op with a broken
+#		implementation you may not be able to log in.
+#
+#	Parameters
+#		None
+#
+#	Returns
+#		Nothing
+#
+sub execOpCode
+{
+	my $op = $query->param('op');
+	my $code;
+	my $handled = 0;
+	
+	return 0 unless(defined $op && $op ne "");
+	
+	$code = getOpCode($op);
+	$handled = eval($code) if(defined $code);
+
+	unless($handled)
+	{
+		# These are built in defaults.  If no 'opcode' nodes exist for
+		# the specified op, we have some default handlers.
+
+		if($op eq 'login')
+		{
+			opLogin()
+		}
+		elsif($op eq 'logout')
+		{
+			opLogout();
+		}
+		elsif($op eq 'nuke')
+		{
+			opNuke();
+		}
+		elsif($op eq 'new')
+		{
+			opNew();
+		}
 	}
 }
 
@@ -1356,9 +1505,9 @@ sub mod_perlInit
 
 
 	#blow away the globals
-	($GNODE, $USER, $VARS, $NODELET,$THEME) = ("", "", "", "","");
+	clearGlobals();
 
-	$query = "";
+	# Initialize our connection to the database
 	Everything::initEverything($db);
 
 	# Get the HTML variables for the system.  These include what
@@ -1370,8 +1519,12 @@ sub mod_perlInit
 	$query = getCGI();
 
 	$USER = loginUser();
-	getTheme();
 
+	# Execute any operations that we may have
+	execOpCode();
+	
+	# Fill out the THEME hash
+	getTheme();
 
 	# Do the work.
 	handleUserRequest();
