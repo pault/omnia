@@ -1036,17 +1036,11 @@ sub htmlcode
 sub do_args {
 	my $args = shift;
 
-	my %interp = (
-		'$NODE' => $GNODE,
-		'$THEME' => $THEME,
-		'$USER' => $USER,
-		'$VARS' => $VARS,
-		'HTMLVARS' => \%HTMLVARS,
-	);
 	my @args = split(/\s*,\s*/, $args);
 	foreach my $arg (@args) {
-		if ($arg =~ /\$(\$?[A-Z]+){(\w+)}/) {
-			$arg = $interp{$1}->{$2};
+		unless($arg =~ /^\$/)
+		{
+			$arg = "'" . $arg . "'";
 		}
 	}
 
@@ -1357,7 +1351,7 @@ sub parseCode
 				if (defined $args) {
 					my @args = do_args($args);
 					if (@args) {
-						$htmlcode .= "'" . join("', '", @args) . "'";
+						$htmlcode .= join(", ", @args);
 					}
 				}
 				$htmlcode .= ") || '' ) . ";

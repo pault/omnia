@@ -56,17 +56,23 @@ sub genObject
 	$vertical ||= 1;
 	$labels ||= 0;
 
-	$html .= "Password: " if($labels);
+	$html .= "<table border=0>\n";
+	$html .= "<tr>\n";
+	$html .= "<td>Password:</td>\n" if($labels);
+	
+	$html .= "<td>";
 	$html .= $query->password_field(-name => $name, -default => '',
 		-size => 10, -maxlength => 20, -override => 1);
+	$html .= "</td>\n";
 
-	$html .= "<br>" if($vertical);
-	$html .= "\n";
+	$html .= "</tr><tr>\n" if($vertical);
 
-	$html .= "Re-Confirm: " if($labels);
+	$html .= "<td>Re-Confirm:</td>\n" if($labels);
+	$html .= "<td>";
 	$html .= $query->password_field(-name => $name . '_confirm',
 		-default => '', -size => 10, -maxlength => 20,
 		-override => 1);
+	$html .= "</td></tr></table>";
 	
 	return $html;
 }

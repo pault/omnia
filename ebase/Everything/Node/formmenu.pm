@@ -116,6 +116,64 @@ sub sortMenu
 
 #############################################################################
 #	Sub
+#		removeItems
+#
+#	Purpose
+#		Sometimes you may want to populate the menu with a general group
+#		of items (addType(), etc), but then you want to remove a certain
+#		subset.  This function allows you to remove those items.
+#
+#	Parameters
+#		$items - an array ref of values to remove from this menu.  The
+#			values pass can include those that this menu does not have.
+#			Trying to remove something the menu does not have will do
+#			nothing.
+#
+#	Returns
+#		A hashref of "value => label" of all the items removed
+#
+sub removeItems
+{
+	my ($this, $items) = @_;
+	my $gLabels = $this->getLabelsHash();
+	my $gValues = $this->getValuesArray();
+	my %remove;
+	my @newValues;
+	my %return;
+
+	foreach (@$items)
+	{
+		$remove{$_} = 1;
+	}
+
+	foreach (@$gValues)
+	{
+		if($remove{$_})
+		{
+			if(exists $$gLabels{$_})
+			{
+				$return{$_} = $$gLabels{$_};
+				delete $$gLabels{$_};
+			}
+			else
+			{
+				$return{$_} = $_;
+			}
+		}
+		else
+		{
+			push @newValues, $_;
+		}
+	}
+
+	$$this{VALUES} = \@newValues;
+
+	return \%return;
+}
+
+
+#############################################################################
+#	Sub
 #		addType
 #
 #	Purpose

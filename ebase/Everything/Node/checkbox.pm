@@ -54,7 +54,6 @@ sub genObject
 	$default ||= "AUTO";
 	$label ||= "";
 
-
 	my $html = $this->SUPER($query, $bindNode,
 		$field . ":$unchecked", $name) . "\n";
 	

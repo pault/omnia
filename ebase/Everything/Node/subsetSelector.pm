@@ -1,8 +1,8 @@
-package Everything::Node::groupEditor;
+package Everything::Node::subsetSelector;
 
 #############################################################################
-#   Everything::Node::groupEditor
-#		Package the implements the base groupEditor functionality.
+#   Everything::Node::subsetSelector
+#		Package the implements the base subsetSelector functionality.
 #
 #   Copyright 2001 Everything Development Inc.
 #   Format: tabs = 4 spaces
@@ -19,7 +19,7 @@ use Everything;
 #		genObject
 #
 #	Purpose
-#		This is called to generate the needed HTML for this groupEditor
+#		This is called to generate the needed HTML for this subsetSelector
 #		form object.  It consists of a list box in a table with buttons
 #		to the right that allow the user to move an item up or down in
 #		the group order, or remove it from the group.
@@ -35,51 +35,76 @@ use Everything;
 #		values of the following order:
 #
 #		$query - the CGI object we use to generate the HTML
-#		$bindNode - a node ref if this groupEditor is to be bound to a field
+#		$bindNode - a node ref if this subsetSelector is to be bound to a field
 #			on a node.  undef if this item is not bound.
 #		$name - the name of the form object.  ie <input type=text name=$name>
 #		$color - a hex string (ie '#ffcc00') for the background color of
 #			this group editor.
 #
 #	Returns
-#		The generated HTML for this groupEditor object
+#		The generated HTML for this subsetSelector object
 #
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $name, $USER, $perm, $color) = getParamArray(
-		"query, bindNode, name, USER, perm, color", @_);
+	my ($query, $bindNode, $field, $name, $default, $size, $color,
+		$srclabel, $destlabel) = 
+		getParamArray(
+		"query, bindNode, field, name, default, size, color, " .
+		"srclabel, destlabel", @_);
 
-	return "No Node to get group from!" unless($bindNode);
-
+	my $select = $$this{DB}->newNode("formmenu");
+	my ($key, $var) = split(':', $field);
+	my $srcname = $name . "_src";
+	
 	$color ||= '#cc99ff';
+	$default ||= 'AUTO';
+	$size ||= 20;
 
-	$this->clearMenu();
+	if($default eq "AUTO" && $bindNode)
+	{
+		if($var)
+		{
+			my $vars = $bindNode->getHash($key);
+			$default = $$vars{$var};
+		}
+		else
+		{
+			$default = $$bindNode{$key};
+		}
+	}
+	
+	my @selected = split(',', $default);
+	my $removed = $this->removeItems(\@selected);
+	$select->addArray(\@selected);
+	$select->addLabels($removed, 0);
+
 	my $html = "<table border='0' bgcolor='$color' cellspacing='0'>\n";
 	$html .= "<tr><td>\n";
 	
-	$html .= $this->SUPER($query, $bindNode, 'GROUP', $name) . "\n";
-	$this->addGroup($bindNode, 1);
-	$html .= $this->genListMenu($query, $name, undef, 20);
+	$html .= "<b><font size=2>$srclabel</font></b><br>\n" if($srclabel);
+	$html .= $this->SUPER($query, $bindNode, $field, $name) . "\n";
+	$html .= $this->genListMenu($query, $srcname, undef, $size);
 
 	# Generate the hidden form field that holds the list of node id's
 	# for us.  This is what we actually get our data from when the
 	# form is submitted.
-	my $group = $$bindNode{group};
-	my $values = join(',', @$group);
-	$html .= $query->hidden(-name => $name . '_values', -value => $values,
+	$html .= $query->hidden(-name => $name . '_values', -value => $default,
 		-override => 1);
 	
-	# This checkbox allows the user to specify if they would like
-	# duplicate nodes (by id) to be removed from the group.  When
-	# working with large nodeballs, you can sometimes add the same
-	# node twice by mistake.  This is a good way to make sure that
-	# there are no duplicates in your group if you don't want any.
+	$html .= "</td><td valign='center' align='center'>\n";
+	$html .= $query->button(-name => $name . "_add", -value => ">>>",
+		-onClick => "selectItem('$srcname', '$name')",
+		-onDblClick => "selectItem('$srcname', '$name')");
 	$html .= "<br>\n";
-	$html .= $query->checkbox(-name => $name . '_dupes',
-		-checked => 0, -value => 'remove',
-		-label => 'Remove Duplicates');
+	$html .= $query->button(-name => $name . "_remove",
+		-value => "<<<",
+		-onClick => "selectItem('$srcname', '$name', 0)", 
+		-onDblClick => "selectItem('$srcname', '$name', 0)") . "\n";
+	$html .= "</td><td>\n";
 
+	$html .= "<b><font size=2>$destlabel</font></b><br>\n" if($destlabel);
+	$html .= $select->genListMenu($query, $name, undef, $size);
 	$html .= "</td><td valign='center' align='center'>\n";
 	$html .= $query->button(-name => $name . "_up", -value => "Up",
 		-onClick => "moveSelectItem('$name', -1)",
@@ -88,9 +113,6 @@ sub genObject
 	$html .= $query->button(-name => $name . "_down", -value => "Down",
 		-onClick => "moveSelectItem('$name', 1)", 
 		-onDblClick => "moveSelectItem('$name', 1)") . "\n";
-	$html .= "<p><br><br><br><br>\n";
-	$html .= $query->button(-name => $name . "_remove", -value => "Remove",
-		-onClick => "moveSelectItem('$name', 0)") . "\n";
 	$html .= "</td></tr></table>\n";
 	
 	return $html;
@@ -132,29 +154,21 @@ sub cgiUpdate
 {
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
 	my $values = $query->param($name . '_values');
-	my @values = split(',', $values);
+	my $field = $this->getBindField($query, $name);
+	my $var;
 
-	if($query->param($name . '_dupes'))
+	($field, $var) = split(':', $field);
+
+	if($var)
 	{
-		# The remove duplicates checkbox was checked.  We need to make
-		# sure there are no duplicates in this group, and remove any
-		# that we find while maintaining the order as best we can.
-		my %found;
-		my @nodupes;
-
-		foreach my $id (@values)
-		{
-			next if($found{$id});
-
-			push @nodupes, $id;
-			$found{$id} = 1;
-		}
-
-		undef @values;
-		push @values, @nodupes;
+		my $vars = $NODE->getHash($field);
+		$$vars{$var} = $values;
+		$NODE->setHash($vars, $field);
 	}
-	
-	$NODE->replaceGroup(\@values, -1);
+	else
+	{
+		$$NODE{$field} = $values;
+	}
 
 	return 1;
 }

@@ -31,7 +31,12 @@ use Everything;
 #		$bindNode - a node ref if this textfield is to be bound to a field
 #			on a node.  undef if this item is not bound.
 #		$field - the field on the node that this textfield is bound to.  If
-#			$bindNode is undef, this is ignored.
+#			$bindNode is undef, this is ignored.  If the name of the field
+#			contains a ':'.  It is assumed that the text preceding the ':'
+#			is the name of the field that contains a hash (retrieved with
+#			Node::getHash()) and the string following the ':' is the name
+#			of the key in the hash.  This way any form object can instantly
+#			edit hash fields by specifying the field name of 'field:key'.
 #		$name - the name of the form object.  ie <input type=text name=$name>
 #
 #	Returns
@@ -125,14 +130,31 @@ sub cgiUpdate
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
 	my $value = $query->param($name);
 	my $field = $this->getBindField($query, $name);
+	my $var;
 
+	# If the stored field name is separated by a ':', this form
+	# object is bound to a hash value.
+	($field, $var) = split(':', $field);
+	
 	# Make sure this is not a restricted field that we cannot update
 	# directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
 	$value ||= "";
+	if($var)
+	{
+		my $vars = $NODE->getHash($field);
 
-	$$NODE{$field} = $value;
+		if($vars)
+		{
+			$$vars{$var} = $value;
+			$NODE->setHash($vars, $field);
+		}
+	}
+	else
+	{
+		$$NODE{$field} = $value;
+	}
 
 	return 1;
 }

@@ -20,7 +20,8 @@ use Everything;
 #
 #	Purpose
 #		This is called to generate the needed HTML for this varstextfield
-#		form object.
+#		form object.  This textfield object can be made to either edit
+#		key name, or the value of a hash entry.
 #
 #	Parameters
 #		Can be passed as either -paramname => value, or an array of 
