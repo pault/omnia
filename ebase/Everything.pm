@@ -49,6 +49,7 @@ sub BEGIN
 		replaceNodegroup
 		insertIntoNodegroup 
 		hasAccess
+		isApproved
 		canCreateNode 
 		canDeleteNode 
 		canUpdateNode 
@@ -106,6 +107,7 @@ sub replaceNode		{ $DB->replaceNode(@_); }
 sub isNodetype		{ $DB->isNodetype(@_); }
 sub isGroup			{ $DB->isGroup(@_); }
 sub inGroup			{ $DB->inGroup(@_); }
+sub isApproved 		{ $DB->isApproved(@_); }
 sub inGroupFast		{ $DB->inGroupFast(@_); }
 sub isGod			{ $DB->isGod(@_); }
 

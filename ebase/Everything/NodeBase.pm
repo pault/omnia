@@ -2377,6 +2377,11 @@ sub inheritPermissions
 	return (join('', @perms));
 }
 
+#############################################################################
+#	DEPRICATED - use inGroup()
+sub isApproved { 
+	my ($this, $NODE, $GROUP) = @_;
+	$this->inGroup($GROUP, $NODE); }
 
 #############################################################################
 #	DEPRICATED - use hasAccess()
