@@ -60,7 +60,9 @@ my @nodelets = @{ $NODE->getNodelets($HTMLVARS{default_nodeletgroup}); };
 my $VARS = $NODE->getVars();
 unless(exists $$VARS{nodelets})
 {
-  $$VARS{nodelets} = join(',', @nodelets);
+  my @execnodelets;
+  foreach (@nodelets) { push @execnodelets, $_ if getNode($_)->hasAccess($NODE, 'x') } 
+  $$VARS{nodelets} = join(',', @execnodelets);
   $NODE->setVars($VARS, $USER);
   $NODE->update($USER);
 }
