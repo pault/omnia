@@ -16,7 +16,6 @@ use Everything;
 use Everything::NodeBase;
 use Everything::XML;
 
-
 sub construct { 1 }
 sub destruct  { 1 }
 
@@ -55,8 +54,8 @@ sub insert
 		# Check to see if we already have a node of this title.
 		my $id = $this->{type}->getId();
 
-		my $DUPELIST = $this->{DB}->sqlSelect('*', 'node', 'title=' .
-			$this->quoteField('title') . ' AND type_nodetype=' . $id);
+		my $DUPELIST = $this->{DB}->sqlSelect('count(*)', 'node', 
+			'title = ? AND type_nodetype = ?', '', [ 'title', $id ] );
 
 		# A node of this name already exists and restrict dupes is
 		# on for this nodetype.  Don't do anything
@@ -71,13 +70,13 @@ sub insert
 		$tableData{$_} = $this->{$_} if exists $this->{$_};
 	}
 	delete $tableData{node_id};
-	$tableData{-createtime} = 'now()';
+	$tableData{-createtime} = $this->{DB}->now();
 
 	# Assign the author_user to whoever is trying to insert this.
 	# Unless, an author has already been specified.
 	$tableData{author_user} ||= $user_id;
 	$tableData{hits} = 0;
-	
+
 	$this->{DB}->sqlInsert('node', \%tableData);
 
 	# Get the id of the node that we just inserted!
@@ -96,7 +95,7 @@ sub insert
 		{
 			$tableData{$_} = $this->{$_} if exists $this->{$_};
 		}
-		
+
 		$this->{DB}->sqlInsert($table, \%tableData);
 	}
 
@@ -112,7 +111,7 @@ sub insert
 	# Cache this node since it has been inserted.  This way the cached
 	# version will be the same as the node in the db.
 	$this->cache();
-	
+
 	return $node_id;
 }
 
@@ -148,7 +147,8 @@ sub update
 	# version will be the same as the node in the db.
 	$this->{DB}->{cache}->incrementGlobalVersion($this);
 	$this->cache();
-	$this->{modified} = $this->{DB}->sqlSelect("now()") unless $nomodified;
+	$this->{modified} = $this->{DB}->sqlSelect( $this->{DB}->now() )
+		unless $nomodified;
 
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
@@ -163,10 +163,10 @@ sub update
 			$VALUES{$field} = $this->{$field} if exists $this->{$field};
 		}
 
-		$this->{DB}->sqlUpdate($table, \%VALUES,
-			$table . "_id=$this->{node_id}");
+		$this->{DB}->sqlUpdate($table, \%VALUES, "${table}_id = ?",
+			[ $this->{node_id} ]);
 	}
-	
+
 	return $this->{node_id};
 }
 
@@ -213,10 +213,10 @@ sub nuke
 	my $id = $this->getId();
 
 	# Remove all links that go from or to this node that we are deleting
-	$this->{DB}->sqlDelete( 'links', "to_node=$id OR from_node=$id" );
+	$this->{DB}->sqlDelete( 'links', 'to_node=? OR from_node=?', [ $id, $id ] );
 
 	# Remove all revisions of this node 
-	$this->{DB}->sqlDelete('revision', "node_id=$this->{node_id}");	
+	$this->{DB}->sqlDelete( 'revision', 'node_id = ?', [ $this->{node_id} ] );	
 
 	# Now lets remove this node from all nodegroups that contain it.  This
 	# is a bit more complicated than removing the links as nodegroup types
@@ -230,8 +230,8 @@ sub nuke
 
 		# This nodetype is a group.  See if this node exists in any of its
 		# tables.
-		my $csr = $this->{DB}->sqlSelectMany($table . "_id", $table,
-			"node_id=$this->{node_id}");
+		my $csr = $this->{DB}->sqlSelectMany( "${table}_id", $table,
+			'node_id = ?', [ $this->{node_id}] );
 
 		if ($csr)
 		{
@@ -249,7 +249,7 @@ sub nuke
 			# Now that we have a list of which group nodes that contains
 			# this node, we are free to delete all rows from the node
 			# table that reference this node.
-			$this->{DB}->sqlDelete( $table, "node_id=$this->{node_id}" );
+			$this->{DB}->sqlDelete($table, 'node_id = ?', [ $this->{node_id} ]);
 
 			foreach (keys %GROUPS)
 			{
@@ -267,7 +267,7 @@ sub nuke
 	my $tableArray = $this->{type}->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
-		$result += $this->{DB}->sqlDelete( $table, $table . "_id=$id" );
+		$result += $this->{DB}->sqlDelete( $table, "${table}_id = ?", [ $id ] );
 	}
 
 	# Now we can remove the nuked node from the cache so we don't get
@@ -541,7 +541,7 @@ sub applyXMLFix
 			my $fixBy = $FIX->{fixBy} || '(no fix by)';
 			Everything::logErrors( '', 
 				"node.pm does not know how to handle fix by '$fixBy'.\n"
-				. "'$FIX->{where}{title}', '$FIX->{where}{type_nodetype}\n" );
+				. "'$FIX->{where}{title}', '$FIX->{where}{type_nodetype}'\n" );
 		}
 		return $FIX;
 	}
@@ -610,7 +610,6 @@ sub commitXMLFixes
 #
 sub getIdentifyingFields
 {
-	return;
 }
 
 
@@ -779,16 +778,15 @@ sub getRevision
 	return 0 unless $revision =~ /^\d+$/;
 
 	my $workspace = 0; 
-	$workspace = $this->{DB}->{workspace}{node_id}
+	$workspace    = $this->{DB}->{workspace}{node_id}
 		if exists $this->{DB}->{workspace};
 
 	my $REVISION = $this->{DB}->sqlSelectHashref('*', 'revision',
-		"node_id=$this->{node_id} and revision_id=$revision and " .
-		"inside_workspace=$workspace");
+		"node_id = ? and revision_id = ? and inside_workspace = ?",
+		'', [ $this->{node_id}, $revision, $workspace ]);
 
 	return 0 unless $REVISION;
 
-	use Everything::XML;
 	my ($RN)      = @{ xml2node($REVISION->{xml}, 'noupdate') };
 	my @copy      = qw( node_id createtime reputation );
 	@$RN{ @copy } = @$this{ @copy };
@@ -831,27 +829,30 @@ sub logRevision
 	# We should never revise a node, even if we are in a workspace.
 	return 0 unless $maxrevisions;
 
-	#we are updating the node -- remove any "redo" revisions 
+	# we are updating the node -- remove any "redo" revisions 
 	
 	if (not $workspace) {
-	    $this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} " .
-			"and revision_id < 0 and inside_workspace=$workspace");
+	    $this->{DB}->sqlDelete('revision',
+			'node_id = ? and revision_id < 0 and inside_workspace = ?',
+			[ $this->{node_id}, $workspace ]);
 	}
 	else
 	{
 		if (exists $this->{DB}->{workspace}{nodes}{$this->{node_id}})
 		{
 			my $rev = $this->{DB}->{workspace}{nodes}{$this->{node_id}};
-	    	$this->{DB}->sqlDelete('revision', "node_id=$this->{node_id} " .
-				"and revision_id > $rev and inside_workspace=$workspace");
+	    	$this->{DB}->sqlDelete('revision',
+				'node_id = ? and revision_id > ? and inside_workspace = ?',
+				[ $this->{node_id}, $rev, $workspace ]);
 		}
 	}
 	
  	my $data = $workspace ?
 		$this->toXML() : $this->{DB}->getNode($this->getId, 'force')->toXML();
 
-	my $rev_id = $DB->sqlSelect("max(revision_id)+1", "revision",
-		"node_id=$$this{node_id} and inside_workspace=$workspace") || 1;
+	my $rev_id = $DB->sqlSelect('max(revision_id)+1', 'revision',
+		'node_id = ? and inside_workspace = ?', '',
+		[ $this->{node_id}, $workspace ]) || 1;
 
     #insert the node as a revision
 	$this->{DB}->sqlInsert('revision', {
@@ -866,12 +867,13 @@ sub logRevision
 
 	my ($numrevisions, $oldest, $newest) = 
 		@{$this->{DB}->sqlSelect('count(*), min(revision_id), max(revision_id)',
-			'revision',
-			"inside_workspace=$workspace and node_id=$this->{node_id}") };
+			'revision', 'inside_workspace = ? and node_id = ?', '',
+			[ $workspace, $this->{node_id} ]) };
 
 	if (not $workspace and $maxrevisions < $numrevisions) {
-		$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} " .
-		"and revision_id=$oldest and inside_workspace=$workspace");
+		$this->{DB}->sqlDelete('revision',
+			'node_id = ? and revision_id = ? and inside_workspace = ?',
+			[ $this->{node_id}, $oldest, $workspace ]);
 	}
 
    return $newest;
@@ -913,7 +915,8 @@ sub undo
 		# workspace
 
 		my $csr = $DB->sqlSelectMany('revision_id', 'revision',
-			"node_id=$$this{node_id} and inside_workspace=$workspace");
+			'node_id = ? and inside_workspace = ?', '',
+			[ $this->{node_id}, $workspace ]);
 		return unless $csr;
 
 		my @revisions;
@@ -944,21 +947,21 @@ sub undo
 			return 0 unless $position >=1;
 			$position--;
 		}
-		$DB->{workspace}{nodes}{$$this{node_id}} = $position;
+		$DB->{workspace}{nodes}{$this->{node_id}} = $position;
 		$DB->{workspace}->setVars($DB->{workspace}{nodes});
 		$DB->{workspace}->update($USER);
 		return 1;
 	}
 
-	my $where  = "node_id=$$this{node_id} and inside_workspace=0";
-	$where    .=" and revision_id < 0" if $redoit;
+	my $where  = "node_id=$this->{node_id} and inside_workspace=0";
+	$where    .= ' and revision_id < 0' if $redoit;
 
-	my $REVISION = $this->{DB}->sqlSelectHashref("*", "revision", $where,
-		"ORDER BY revision_id DESC LIMIT 1");
+	my $REVISION = $this->{DB}->sqlSelectHashref('*', 'revision', $where,
+		'ORDER BY revision_id DESC LIMIT 1');
 
 	return 0 unless $REVISION;
-	return 0 if $redoit and $$REVISION{revision_id} >= 0;
-	return 0 if not $redoit and $$REVISION{revision_id} < 0;
+	return 0 if $redoit and $REVISION->{revision_id} >= 0;
+	return 0 if not $redoit and $REVISION->{revision_id} < 0;
 	return 1 if $test;
 
 	my ($xml, $revision_id) = @$REVISION{qw( xml revision_id )};
@@ -968,13 +971,11 @@ sub undo
 	$REVISION->{xml}         = $this->toXML();
 	$REVISION->{revision_id} = -$revision_id;
 
-	use Everything::XML;
 	my ($NEWNODE) = @{ xml2node($xml) };
 
 	$this->{DB}->sqlUpdate('revision', $REVISION,
-		"node_id=$this->{node_id} and inside_workspace=$workspace " .
-		"and revision_id=$revision_id");
-
+		'node_id = ? and inside_workspace = ? and revision_id = ?',
+		[ $this->{node_id}, $workspace, $revision_id ]);
 	1;
 }
 
@@ -1033,10 +1034,9 @@ sub getWorkspaced
 		if exists $workspace->{cached_nodes}{"$this->{node_id}_$rev"};
 
 	my $RN = $this->getRevision($rev);
-	$workspace->{cached_nodes}{"$this->{node_id}_$rev"} = $RN;
 
-	return $RN if $RN;
-	return;
+	return unless $RN;
+	return $workspace->{cached_nodes}{"$this->{node_id}_$rev"} = $RN;
 }
 
 ##########################################################################
@@ -1088,11 +1088,11 @@ Returns:
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title  = $$this{title} or return;
+	my $title  = $this->{title} or return;
 
 	if ($title =~ tr/[]|<>//) {
 		Everything::logErrors('node name contains invalid characters.  No' .
-			'square or angle brackets or pipes are allowed.', '', '', '');
+			'square or angle brackets or pipes are allowed.');
 			return;
 	}
 
