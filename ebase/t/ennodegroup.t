@@ -179,7 +179,7 @@ is( $args->[1], 'gtable', '... into the right table' );
 is( $args->[2]{gtable_id}, 411, '... associated with the right group' );
 is( $args->[2]{node_id}, 8, '... and the right node_id' );
 
-($method, $args) = $mock->next_call( 13 );
+($method, $args) = $mock->next_call( 15 );
 is( $method, 'sqlUpdate', '... updating each node in group' );
 is( $args->[1], 'gtable', '... in the group table' );
 is( $args->[2]{orderby}, 3, '...with new order' );
