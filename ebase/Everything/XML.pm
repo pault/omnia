@@ -139,7 +139,7 @@ sub xml2node
 		ProtocolEncoding => 'ISO-8859-1'
 	);
 
-	# XML::Parser doen't like it when there is more than one top level
+	# XML::Parser doesn't like it when there is more than one top level
 	# document tag.  If we have an XML file that contains more than one
 	# node, XML::Parser will error on it.  So, to make everything happy,
 	# we just wrap the entire doc in a single tag.  Ya, its a hack, but
@@ -373,7 +373,7 @@ sub parseBasicTag
 		my %WHERE;
 
 		my $len = $ATTRS->getLength();
-		for my $i (0 .. $len)
+		for my $i (0 .. $len - 1)
 		{
 			my $ATTR  = $ATTRS->item($i);
 			next unless $ATTR;
