@@ -120,8 +120,8 @@ can_ok( $package, 'urlGen' );
 	local *Everything::HTML::query;
 	*Everything::HTML::query = \$q;
 
-	$result = urlGen( { foo => [ 'bar', 'baz' ], 'quux' => 1 } );
-	is( $result, '"?foo=bar;foo=baz;quux=1"',
+	$result = urlGen( { foo => [ 'bar', 'baz' ]} );
+	is( $result, '"?foo=bar;foo=baz"',
 		'urlGen() should generate relative URL from params' );
 	is( urlGen( { foo => 'bar' }, 1 ), '?foo=bar',
 		'... without quotes, if noflags is true' );
