@@ -1,13 +1,16 @@
 package Everything::HTML;
 
-############################################################
+#############################################################################
 #
 #	Everything::HTML.pm
+#
+#	Copyright 1999,2000 Everything Development Company
+#
 #		A module for the HTML stuff in Everything.  This
 #		takes care of CGI, cookies, and the basic HTML
 #		front end.
 #
-############################################################
+#############################################################################
 
 use strict;
 use Everything;
@@ -379,11 +382,11 @@ sub getCode
 {
 	my ($funcname, $args) = @_;
 
-	my $CODELIST = $DB->selectNodeWhere ({title=>$funcname},
-		$DB->getType("htmlcode"));
-	return '"";' unless ($CODELIST);
-	my $CODE = $DB->getNodeById($$CODELIST[0]);
-	my $str ='';
+	my $CODE = getNode($funcname, getType("htmlcode"));
+	
+	return '"";' unless (defined $CODE);
+
+	my $str;
 	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
 	$str .= $$CODE{code};
 
@@ -425,7 +428,7 @@ sub getPages
 	my @pages;
 
 	$TYPE = $NODE if (isNodetype($NODE) && $$NODE{extends_nodetype});
-	$TYPE ||= $DB->getType($$NODE{type_nodetype});
+	$TYPE ||= getType($$NODE{type_nodetype});
 
 	push @pages, getPageForType($TYPE, "display");
 	push @pages, getPageForType($TYPE, "edit");
@@ -454,11 +457,10 @@ sub getPageForType
 {
 	my ($TYPE, $displaytype) = @_; 
 	my %WHEREHASH;
-	my $REF;
 	my $PAGE;
 	my $PAGETYPE;
 	
-	$PAGETYPE = $DB->getType("htmlpage");
+	$PAGETYPE = getType("htmlpage");
 	$PAGETYPE or die "HTML PAGES NOT LOADED!";
 
 	# Starting with the nodetype of the given node, We run up the
@@ -472,32 +474,30 @@ sub getPageForType
 		%WHEREHASH = (pagetype_nodetype => $$TYPE{node_id}, 
 				displaytype => $displaytype);
 
-		$REF = $DB->selectNodeWhere(\%WHEREHASH, $PAGETYPE);
+		($PAGE) = getNodeWhere(\%WHEREHASH, $PAGETYPE);
 
-		if(not defined $REF)
+		if(not defined $PAGE)
 		{
 			if($$TYPE{extends_nodetype})
 			{
-				$TYPE = $DB->getType($$TYPE{extends_nodetype});
+				$TYPE = getType($$TYPE{extends_nodetype});
 			}
 			else
 			{
 				# No pages for the specified nodetype were found.
 				# Use the default node display.
-				$REF = $DB->selectNodeWhere (
+				($PAGE) = getNodeWhere (
 						{pagetype_nodetype => getId(getType("node")),
 						displaytype => $displaytype}, 
 						$PAGETYPE);
 
-				$REF or die "No default pages loaded.  " .  
+				$PAGE or die "No default pages loaded.  " .  
 					"Failed on page request for $WHEREHASH{pagetype_nodetype}" .
 					" $WHEREHASH{displaytype}\n";
 			}
 		}
-	} until($REF);
+	} until($PAGE);
 
-	$PAGE = $DB->getNodeById($$REF[0]);
-	
 	return $PAGE;
 }
 
@@ -526,7 +526,7 @@ sub getPage
 	my $TYPE;
 	
 	getRef $NODE;
-	$TYPE = $DB->getType($$NODE{type_nodetype});
+	$TYPE = getType($$NODE{type_nodetype});
 	$displaytype ||= $$VARS{'displaypref_'.$$TYPE{title}}
 	  if exists $$VARS{'displaypref_'.$$TYPE{title}};
 	$displaytype ||= $$THEME{'displaypref_'.$$TYPE{title}}
@@ -550,7 +550,7 @@ sub linkNode {
 
 	return unless $NODE;
 	unless (ref $NODE) {
-		$NODE = $DB->getNodeById($NODE, 'light');
+		$NODE = getNodeById($NODE, 'light');
 	}
 	return unless ref $NODE;	
 	
@@ -624,13 +624,13 @@ sub nodeName
 
 	my @types = $query->param("type");
 	foreach(@types) {
-		$_ = getId($DB->getType($_));
+		$_ = getId(getType($_));
 	}
 	
 	my %selecthash = (title => $node);
 	my @selecttypes = @types;
 	$selecthash{type_nodetype} = \@selecttypes if @selecttypes;
-	my $select_group = $DB->selectNodeWhere(\%selecthash);
+	my $select_group = selectNodeWhere(\%selecthash);
 	my $search_group;
 	my $NODE;
 
@@ -645,12 +645,12 @@ sub nodeName
 		
 		if($search_group && @$search_group > 0)
 		{
-			$NODE = $DB->getNodeById($HTMLVARS{search_group});
+			$NODE = getNodeById($HTMLVARS{search_group});
 			$$NODE{group} = $search_group;
 		}
 		else
 		{
-			$NODE = $DB->getNodeById($HTMLVARS{not_found});	
+			$NODE = getNodeById($HTMLVARS{not_found});	
 		}
 
 		displayPage ($NODE, $user_id);
@@ -665,7 +665,7 @@ sub nodeName
 	else
 	{
 		#we found multiple nodes with that name.  ick
-		my $NODE = $DB->getNodeById($HTMLVARS{duplicate_group});
+		my $NODE = getNodeById($HTMLVARS{duplicate_group});
 		
 		$$NODE{group} = $select_group;
 		displayPage($NODE, $user_id);
@@ -739,8 +739,6 @@ sub embedCode {
 		#this line puts the args in the default array
 		
 		$block = embedCode ('%'. $pre_code . getCode ($func) . '%', @_);
-	
-#		$block =~ s/\[([\%\{\"].*?[\%\}\"])\]/embedCode($1, @_)/egs;
 	} elsif ($char eq '%') {
 		$block =~ s/^\%(.*)\%$/$1/s;
 		$block = evalCode ($block, @_);	
@@ -783,6 +781,7 @@ sub parseCode {
 #	Parameters
 #		code -- the block of code to display
 #		numbering -- set to true if linenumbers are desired
+#
 sub listCode {
 	my ($code, $numbering) = @_;
 	return unless($code); 
@@ -800,22 +799,6 @@ sub listCode {
 	}
 
 	"<PRE>" . join ("\n", @lines) . "</PRE>";
-}
-
-
-
-
-#############################################################################
-#this is a function that you should call on user data 
-sub createNodeLinks {
-	my ($text, $NODE) = @_;
-	return $text;
-	
-	# DPB 08-Dec-99 : This appears to be used by no-one.  If commenting
-	# this out does not cause any problems, lets remove this function.
-	#$NODE ||= $GNODE;
-	#$text =~ s/\[(\w.*?)\]/linkNodeTitle($1, getId($NODE))/;
-	#$text;
 }
 
 
@@ -884,12 +867,13 @@ sub updateNodelet
 	
 	# If we are beyond the update interal, or this thing has never
 	# been generated before, generate it.
-	if((not $currTime or not $interval) or ($currTime > $lastupdate + $interval) || ($lastupdate == 0))
+	if((not $currTime or not $interval) or
+		($currTime > $lastupdate + $interval) || ($lastupdate == 0))
 	{
 		$$NODELET{nltext} = parseCode($$NODELET{nlcode}, $NODELET);
 		$$NODELET{lastupdate} = $currTime; 
 
-		$DB->updateNode($NODELET, -1);
+		updateNode($NODELET, -1);
 	}
 	
 	""; # don't return anything
@@ -913,6 +897,7 @@ sub genContainer {
 	$replacetext;	
 }
 
+
 ############################################################################
 #	Sub	containHtml
 #
@@ -921,14 +906,12 @@ sub genContainer {
 #		hopefully this makes containers easier to use
 #
 #	params
+#		container - title of container
+#		html - html to insert
 #
-#	container - title of container
-#	html - html to insert
-
 sub containHtml {
 	my ($container, $html) =@_;
-	my ($TAINER) = $DB->getNodeWhere({title=>$container},
-		$DB->getType("container"));
+	my ($TAINER) = getNode($container, getType("container"));
 	my $str = genContainer($TAINER);
 
 	$str =~ s/CONTAINED_STUFF/$html/g;
@@ -937,6 +920,18 @@ sub containHtml {
 
 
 #############################################################################
+#	Sub
+#		displayPage
+#
+#	Purpose
+#		This is the meat of displaying a node to the user.  This gets
+#		the display page for the node, inserts it into the appropriate
+#		container, prints the HTML header and then prints the page to
+#		the users browser.
+#
+#	Parameters
+#		$NODE - the node to display
+#		$user_id - the user that is trying to 
 sub displayPage
 {
 	my ($NODE, $user_id) = @_;
@@ -975,17 +970,17 @@ sub gotoNode
 	unless (ref ($node_id) eq 'ARRAY') {
 		# Is there a reason why we are "force"ing this node?
 		# A 'force' causes us not to use the cache.
-		$NODE = $DB->getNodeById($node_id, 'force');
+		$NODE = getNodeById($node_id, 'force');
 	}
 	else {
-		$NODE = $DB->getNodeById($HTMLVARS{search_group});
+		$NODE = getNodeById($HTMLVARS{search_group});
 		$$NODE{group} = $node_id;
 	}
 
-	unless ($NODE) { $NODE = $DB->getNodeById($HTMLVARS{not_found}); }	
+	unless ($NODE) { $NODE = getNodeById($HTMLVARS{not_found}); }	
 	
 	unless (canReadNode($user_id, $NODE)) {
-		$NODE = $DB->getNodeById($HTMLVARS{permission_denied});
+		$NODE = getNodeById($HTMLVARS{permission_denied});
 	}
 	#these are contingencies various things that could go wrong
 
@@ -1019,7 +1014,7 @@ sub gotoNode
 			}	
 		}
 		if ($updateflag) {
-			$DB->updateNode($NODE, $USER); 
+			updateNode($NODE, $USER); 
 			if (getId($USER) == getId($NODE)) { $USER = $NODE; }
 		}
 	}
@@ -1035,11 +1030,11 @@ sub gotoNode
 	if ($displaytype and $displaytype eq "edit") {
 		if (canUpdateNode ($USER, $NODE)) {
 			if (not lockNode($NODE, $USER)) {
-				$NODE = $DB->getNodeById($HTMLVARS{node_locked});
+				$NODE = getNodeById($HTMLVARS{node_locked});
 				$query->param('displaytype', 'display');
 			} 
 		} else {
-			$NODE = $DB->getNodeById($HTMLVARS{permission_denied});
+			$NODE = getNodeById($HTMLVARS{permission_denied});
 			$query->param('displaytype', 'display');
 		}
 	} elsif ($query->param('op') eq "unlock") {
@@ -1054,16 +1049,18 @@ sub gotoNode
 sub confirmUser {
 	my ($nick, $crpasswd) = @_;
 
-	my $USERLIST = $DB->selectNodeWhere({title => $nick}, $DB->getType('user'));
-	
-	my $USER = $DB->getNodeById($$USERLIST[0]);	
+	my $USER = getNode($nick, getType('user'));
 
+	Everything::printLog("passwd: $$USER{passwd}, name: $$USER{title}");
+	
 	if (crypt ($$USER{passwd}, $$USER{title}) eq $crpasswd) {
 		my $rows = $DB->getDatabaseHandle()->do("
 			UPDATE user SET lasttime=now() WHERE
 			user_id=$$USER{node_id}
 			") or die;
-		return $DB->getNodeById($USER, 'force');
+
+		# 'Force' it to make sure we don't get a cached version
+		return getNodeById($USER, 'force');
 	} 
 	return 0;
 }
@@ -1140,7 +1137,7 @@ sub loginUser
 	$user_id ||= $HTMLVARS{guest_user};				
 
 	# Get the user node
-	$USER_HASH = $DB->getNodeById($user_id);	
+	$USER_HASH = getNodeById($user_id);	
 
 	die "Unable to get user!" unless ($USER_HASH);
 
@@ -1279,7 +1276,7 @@ sub handleUserRequest
 	{
 		$node_id = $query->param("node_id");
 		
-		$DB->nukeNode($node_id, $user_id);
+		nukeNode($node_id, $user_id);
 
 		# This should now result in a "Not found" page
 		gotoNode ($node_id, $user_id);
@@ -1290,7 +1287,7 @@ sub handleUserRequest
 	{
 		# Searching for a node my string title
 		my $type  = $query->param('type');
-		my $TYPE = $DB->getType($type);
+		my $TYPE = getType($type);
 		
 		$nodename = $query->param('node');
 		$nodename =~ tr/[]|<>//d;
@@ -1306,12 +1303,12 @@ sub handleUserRequest
 		}
 		elsif (canCreateNode($user_id, $TYPE))
 		{
-			$node_id = $DB->insertNode($nodename,$TYPE, $user_id);
+			$node_id = insertNode($nodename,$TYPE, $user_id);
 
 			if($node_id == 0)
 			{
 				# It appears that the node already exists.  Get its id.
-				$node_id = $DB->sqlSelect("node_id", "node", "title=" .
+				$node_id = sqlSelect("node_id", "node", "title=" .
 					$DB->quote($nodename) . " && type_nodetype=" .
 					$$TYPE{node_id});
 			}

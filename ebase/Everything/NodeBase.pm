@@ -44,7 +44,7 @@ sub BEGIN
 		quote
 		genWhereString
 		);
- }
+}
 
 my $dbases = {};
 my $caches = {};
@@ -398,7 +398,7 @@ sub sqlInsert
 #		To get all matches, use	getNodeWhere which returns an array.
 #
 #	Parameters
-#		$title - the title of the node
+#		$title - the title or numeric ID of the node
 #		$TYPE - the nodetype hash of the node, or the title of the type.
 #
 #	Returns
@@ -412,9 +412,21 @@ sub getNode
 	if (not $TYPE and $title =~ /^\d+$/) {
 		return $this->getNodeById($title);
 	}
-	$TYPE = $this->getType($TYPE) unless(ref $TYPE eq "HASH");
+	
+	if(defined $TYPE)
+	{
+		$TYPE = $this->getType($TYPE) unless(ref $TYPE eq "HASH");
+	}
 
+	$NODE = $this->{cache}->getCachedNodeByName($title, $$TYPE{title});
+	return $NODE if(defined $NODE);
+	
 	($NODE) = $this->getNodeWhere({ "title" => $title }, $TYPE);
+
+	if(defined $NODE)
+	{
+		$this->{cache}->cacheNode($NODE);
+	}
 
 	return $NODE;
 }
@@ -475,22 +487,8 @@ sub getNodeById
 		return $NODE;
 	}
 
-	# Run through the array of tables and add each one to the node.
-	# This is like joining on each table, be we are doing it manually
-	# instead, because we already got the node table info.
-	foreach $table (@{$$NODETYPE{tableArray}})
-	{
-		my $DATA = $this->sqlSelectHashref('*', $table,
-			"$table" . "_id=$$NODE{node_id}");
-		
-		@$NODE{keys %$DATA} = values %$DATA;
-	}
-	
-	# Make sure each field is at least defined to be nothing.
-	foreach (keys %$NODE)
-	{
-		$$NODE{$_} = "" unless defined ($$NODE{$_});
-	}
+	# Get the rest of the info for this node
+	$this->constructNode($NODE);
 
 	# Fill out the group in the node, if its a group node.
 	$this->loadGroupNodeIDs($NODE);
@@ -564,14 +562,32 @@ sub loadGroupNodeIDs
 sub getNodeWhere
 {
 	my ($this, $WHERE, $TYPE, $orderby) = @_;
-	my $idlist = $this->selectNodeWhere($WHERE, $TYPE, $orderby);
 	my $NODE;
 	my @nodelist;
+	my $cursor;
+
+	$cursor = $this->getNodeCursor($WHERE, $TYPE, $orderby);
 	
-	foreach my $node_id (@$idlist)
+	if(defined $cursor)
 	{
-		$NODE = $this->getNodeById($node_id);
-		push @nodelist, $NODE;
+		while($NODE = $cursor->fetchrow_hashref)
+		{
+			# NOTE: This duplicates some stuff from getNodeById().  The
+			# reason that we don't call getNodeById here is pure
+			# performance.  We already have the entire hash.  We just
+			# need the type and any group info.  Calling getNodeById
+			# would result in two extra sql queries that we don't need.
+			
+			# Attach the type to the node
+			$$NODE{type} = $this->getType($$NODE{type_nodetype});
+
+			# Fill out the group, if its a group node.
+			$this->loadGroupNodeIDs($NODE);
+			
+			push @nodelist, $NODE;
+		}
+
+		$cursor->finish();
 	}
 
 	return @nodelist;
@@ -593,6 +609,11 @@ sub getNodeWhere
 #			without a nodetype we don't know what other tables to join
 #			on.
 #		$orderby - the field in which to order the results.
+#		$nodeTableOnly - (performance enhancement) Set to 1 (true) if the
+#			search fields are only in the node table.  This prevents the
+#			database from having to do table joins when they are not needed.
+#			Note that if this is turned on you will not get "complete" nodes,
+#			just the data from the "node" table.
 #
 #	Returns
 #		A refernce to an array that contains the node ids that match.
@@ -600,37 +621,15 @@ sub getNodeWhere
 #
 sub selectNodeWhere
 {
-	my ($this, $WHERE, $TYPE, $orderby) = @_;
+	my ($this, $WHERE, $TYPE, $orderby, $nodeTableOnly) = @_;
 	my $cursor;
 	my $select;
 	my @nodelist;
 	my $node_id;
 	
-
-	$TYPE = $this->getType($TYPE) if((defined $TYPE) && (ref $TYPE ne "HASH"));
-
-	my $wherestr = $this->genWhereString($WHERE, $TYPE, $orderby);
-
-	# We need to generate an sql join command that has the potential
-	# to join on multiple tables.  This way the SQL engine does the
-	# search for us.
-	$select = "SELECT node_id FROM node";
-
-	# Now we need join on the appropriate tables.
-	if((defined $TYPE) && (ref $$TYPE{tableArray}))
-	{
-		my $tableArray = $$TYPE{tableArray};
-		my $table;
-		
-		foreach $table (@$tableArray)
-		{
-			$select .= " LEFT JOIN $table ON node_id=" . $table . "_id";
-		}
-	}
-
-	$select .= " WHERE " . $wherestr if($wherestr);
-	$cursor = $this->{dbh}->prepare($select);
-	if($cursor->execute())
+	$cursor = $this->getNodeCursor($WHERE, $TYPE, $orderby, $nodeTableOnly);
+	
+	if((defined $cursor) && ($cursor->execute()))
 	{
 		while (($node_id) = $cursor->fetchrow) 
 		{
@@ -643,6 +642,115 @@ sub selectNodeWhere
 	return undef unless(@nodelist);
 	
 	return \@nodelist;
+}
+
+
+#############################################################################
+#	Sub
+#		getNodeCursor
+#
+#	Purpose
+#		This returns the sql cursor for node matches.  Users of this object
+#		can call this directly for specific searches, but the more general
+#		functions selectNodeWhere() and getNodeWhere() should be used for
+#		most cases.
+#
+#	Parameters
+#		$WHERE - a hash reference to fieldname/value pairs on which to
+#			restrict the select.
+#		$TYPE - the nodetype to search.  If this is not given, this
+#			will only search the fields on the "node" table since
+#			without a nodetype we don't know what other tables to join
+#			on.
+#		$orderby - the field in which to order the results.
+#		$nodeTableOnly - (performance enhancement) Set to 1 (true) if the
+#			search fields are only in the node table.  This prevents the
+#			database from having to do table joins when they are not needed.
+#			Note that if this is turned on you will not get "complete" nodes,
+#			just the data from the "node" table.
+#
+#	Returns
+#		The sql cursor from the "select".  undef if their was an error
+#		in the search or no matches.  The caller is responsible for calling
+#		finish() on the cursor.
+#		
+sub getNodeCursor
+{
+	my ($this, $WHERE, $TYPE, $orderby, $nodeTableOnly) = @_;
+	my $wherestr;
+	my $cursor;
+	my $select;
+
+	$nodeTableOnly ||= 0;
+
+	$TYPE = $this->getType($TYPE) if((defined $TYPE) && (ref $TYPE ne "HASH"));
+
+	my $wherestr = $this->genWhereString($WHERE, $TYPE, $orderby);
+
+	# We need to generate an sql join command that has the potential
+	# to join on multiple tables.  This way the SQL engine does the
+	# search for us.
+	$select = "SELECT * FROM node";
+
+	# Now we need to join on the appropriate tables.
+	if((! $nodeTableOnly) && (defined $TYPE) && (ref $$TYPE{tableArray}))
+	{
+		my $tableArray = $$TYPE{tableArray};
+		my $table;
+		
+		foreach $table (@$tableArray)
+		{
+			$select .= " LEFT JOIN $table ON node_id=" . $table . "_id";
+		}
+	}
+
+	$select .= " WHERE " . $wherestr if($wherestr);
+	$cursor = $this->{dbh}->prepare($select);
+
+	return $cursor if($cursor->execute());
+	return undef;
+}
+
+
+#############################################################################
+#	Sub
+#		constructNode
+#
+#	Purpose
+#		Given a hash that contains a row of data from the 'node' table,
+#		get its type and "join" on the appropriate tables.  This function
+#		is designed to work in conjuction with simple queries that only
+#		search the node table, but then want a complete node.  (ie do a
+#		search on the node table, find something, now we want the complete
+#		node).
+#
+#	Parameters
+#		$NODE - the incomplete node that should be filled out.
+sub constructNode
+{
+	my ($this, $NODE) = @_;
+	my $TYPE = $this->getType($$NODE{type_nodetype});
+	my $cursor;
+	my $DATA;
+	
+	return 0 unless((defined $TYPE) && (ref $$TYPE{tableArray}));
+
+	$cursor = $this->getNodeCursor({node_id => $$NODE{node_id}}, $TYPE);
+
+	return 0 if(not defined $cursor);
+
+	$DATA = $cursor->fetchrow_hashref();
+	$cursor->finish();
+
+	@$NODE{keys %$DATA} = values %$DATA;
+	
+	# Make sure each field is at least defined to be nothing.
+	foreach (keys %$NODE)
+	{
+		$$NODE{$_} = "" unless defined ($$NODE{$_});
+	}
+
+	return 1;
 }
 
 
@@ -718,6 +826,7 @@ sub updateNode
 	return 1;
 }
 
+
 ############################################################################
 #	sub
 #		replaceNode
@@ -738,6 +847,7 @@ sub replaceNode {
 		$this->insertNode($title, $TYPE, $USER, $DATA);
 	}
 }
+
 
 #############################################################################
 #	Sub
@@ -1449,8 +1559,11 @@ sub deriveType
 			# node, skip these because they are never inherited
 			# anyway. (if more custom fields are added, add them
 			# here.  We don't want to inherit them.)
-			next if( ($field eq "tableArray") ||
-						($field eq "resolvedInheritance") );
+			my %skipfields = (
+				"tableArray" => 1,
+				"resolvedInheritance" => 1 );
+			
+			next if(exists $skipfields{$field});
 			
 			# If a field in a nodetype is '-1', this field is derived from
 			# its parent.
