@@ -11,7 +11,7 @@
 #
 use strict;
 use Everything;
-use Everything::XML;
+use Everything::XMLold;
 
 my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
 my %OPTIONS = ( force => 0, verbose => 0 );
