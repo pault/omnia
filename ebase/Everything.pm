@@ -304,6 +304,7 @@ sub cleanLinks
 sub initEverything
 {
 	my ($db, $options) = @_;
+	$options = {} unless defined $options and UNIVERSAL::isa($options, 'HASH');
 
 	# Make sure that we clear the warnings/errors for this go around.
 	clearFrontside();
