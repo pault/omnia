@@ -1,26 +1,27 @@
-package Everything::Node::nodeball;
+=head1 Everything::Node::nodeball
 
-#############################################################################
-#   Everything::Node::nodeball
-#       Package the implements the base functionality for nodeball
-#
-#   Copyright 2000 - 2003 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
+Package that implements the base functionality for nodeball
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
+package Everything::Node::nodeball;
 
 use strict;
 use Everything;
 use Everything::Node::setting;
 
-#############################################################################
-#	Sub
-#		insert
-#
-#	Purpose
-#		Override the default insert to have the nodeball created with
-#		some defaults.
-#
+=cut
+
+=head2 C<insert>
+
+Override the default insert to have the nodeball created with some defaults.
+
+=cut
+
 sub insert
 {
 	my ($this, $USER) = @_;
@@ -78,17 +79,16 @@ sub hasVars
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		fieldToXML
-#
-#	Purpose
-#		A nodeball has both setting and group type information.  A nodeball
-#		derives from nodegroup, but we also need to handle our setting
-#		info.  The base setting object will handle that and pass the rest
-#		to our parent.
-#
+=head2 C<fieldToXML>
+
+A nodeball has both setting and group type information.  A nodeball derives
+from nodegroup, but we also need to handle our setting info.  The base setting
+object will handle that and pass the rest to our parent.
+
+=cut
+
 sub fieldToXML
 {
 	my ($this, $DOC, $field, $indent) = @_;
