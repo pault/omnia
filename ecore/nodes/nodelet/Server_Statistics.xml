@@ -12,8 +12,8 @@
   <field type="literal_value" name="mini_nodelet">0</field>
   <field type="literal_value" name="nlcode">[{serverstats}]</field>
   <field type="literal_value" name="nlgoto">0</field>
-  <field type="literal_value" name="nltext">Mon Dec 18 16:54:08 PST 2000
-&lt;br>up 98 days 8:37&lt;br>0.70,  0.35,  0.18, &lt;br></field>
+  <field type="literal_value" name="nltext">Sat Dec 30 00:04:03 EST 2000
+&lt;br>up 2 days 2:56&lt;br>0.74,  0.52,  0.35, &lt;br></field>
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>
   <field type="literal_value" name="title">Server Statistics</field>

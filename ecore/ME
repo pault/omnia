@@ -180,6 +180,7 @@
     <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">nodetype hierarchy</member>
     <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">node basicedit page</member>
     <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">SQL Prompt</member>
+    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Everything settings</member>
     <member type="noderef" type_nodetype="htmlsnippet,nodetype" name="group_node">editDefaultPermissions</member>
     <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodemethod</member>
     <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">nodemethod</member>
@@ -188,7 +189,7 @@
     <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodemethod edit page</member>
     <member type="noderef" type_nodetype="container,nodetype" name="group_node">nodelet outline container</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">themeselector</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Login</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Login Nodelet</member>
     <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Epicenter</member>
     <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">location</member>
     <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">symlink</member>
@@ -240,7 +241,6 @@
     <member type="noderef" type_nodetype="mail,nodetype" name="group_node">Password Mail</member>
     <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">massacre</member>
     <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Node Armageddon</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Everything settings</member>
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">the killing floor</member>
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">What is my password</member>
     <member supports_nodetype="nodelet,nodetype" type="noderef" type_nodetype="nodemethod,nodetype" name="group_node">insert</member>
@@ -256,7 +256,8 @@
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Create a new user</member>
     <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">Flush</member>
     <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">Zap</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Super Search</member>
+    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">typeversion</member>
+    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">typeversion controls</member>
   </group>
   <field type="literal_value" name="group_usergroup">-1</field>
   <field type="literal_value" name="groupaccess">iiii-</field>
@@ -267,7 +268,7 @@
   <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodeball</field>
   <vars>
     <var type="literal_value" name="author">Nate Oostendorp and Darrick Brown</var>
-    <var type="literal_value" name="description">The core system of Everything.   (Slightly Less BETA!)</var>
-    <var type="literal_value" name="version">0.9.1.0</var>
+    <var type="literal_value" name="description">The core system of Everything.   (One-Point-Oh Or Bust!)</var>
+    <var type="literal_value" name="version">0.9.1.1</var>
   </vars>
 </NODE>

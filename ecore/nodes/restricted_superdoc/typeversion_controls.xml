@@ -1,0 +1,58 @@
+<NODE export_version="0.5" nodetype="restricted_superdoc" title="typeversion controls">
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="doctext">If nodes of a nodetype aren't
+updated often, you can save some database resources by only checking
+if any nodes of that type have changed instead of checking each node.  
+&lt;p>Good nodetypes to turn typeversion on: [nodetype], [htmlpage], [nodemethod], [htmlcode], [container]
+or anything else which is rarely updated, but frequently read.
+&lt;p>Bad nodes to turn typeversion on: [user], [document] or any nodetypes
+which are frequently updated.
+
+&lt;p>
+[{openform}]
+&lt;INPUT type=hidden name=confirmpage value=1>
+[%
+    my $nodetypes = getNodeWhere({type_nodetype => 1 }, "nodetype");
+    my $str;
+    my %TVERSIONS;
+    my %NEWVERSIONS;
+
+    if (my $csr = $DB->sqlSelectMany("*",'typeversion')) {
+        while (my $N = $csr->fetchrow_hashref) { $TVERSIONS{$$N{typeversion_id}} = 1 }
+        $csr->finish;
+    }
+if (defined $query->param('confirmpage')) {
+    foreach ($query->param) {
+        next unless /^typeify_(\d+)$/;
+        my $n_id = $1;
+        $NEWVERSIONS{$n_id} = 1;
+        if (not $TVERSIONS{$n_id}) {
+            $DB->sqlInsert("typeversion", { typeversion_id=> $n_id, version => 1 });
+        }
+    }
+
+    foreach (keys %TVERSIONS) {
+        $DB->sqlDelete("typeversion", "typeversion_id=$_") unless exists $NEWVERSIONS{$_};
+    }
+} else { %NEWVERSIONS = %TVERSIONS }
+foreach (@$nodetypes) {
+    $str.=$query->checkbox('typeify_'.getId($_), exists($NEWVERSIONS{getId($_)}), 1, $$_{title})."&lt;br>";
+}
+$str;
+%]
+[{closeform}]
+
+</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiiii</field>
+  <field type="literal_value" name="guestaccess">iiiii</field>
+  <field type="literal_value" name="loc_location">0</field>
+  <field type="literal_value" name="otheraccess">iiiii</field>
+  <field type="literal_value" name="title">typeversion controls</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">restricted_superdoc</field>
+</NODE>

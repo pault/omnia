@@ -21,7 +21,7 @@ foreach (@params) {
 
 # update any settings in the node passed through CGI
         if (/setsetting_(\w+)$/) {
-                my $setvalue = $query->param("setsetting_$1")
+                my $setvalue = $query->param("setsetting_$1");
 
 # avoid uninitialized values but don't clobber a valid setting of 0
 				$setvalue = '' unless (defined($setvalue));
@@ -128,15 +128,15 @@ if ($$VARS{hintson}) {
 }
 
 $str;</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
-  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="title" type="literal_value">editvars</field>
-  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">htmlcode</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="title">editvars</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">htmlcode</field>
 </NODE>

@@ -1,7 +1,8 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="showPath">
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="code">my @path;
+  <field type="literal_value" name="code">return unless $HTMLVARS{showlocations};
+my @path;
 my $loc = $$NODE{loc_location};
 my $parentLoc;
 my $top = 0;

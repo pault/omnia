@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="superdoc" title="the killing floor">
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="doctext">Are ya shure you wanna kill all these perty nodes?
+  <field type="literal_value" name="doctext">Are you sure you want to delete the following nodes?
 &lt;p>
 &lt;ol>
 [{openform}]

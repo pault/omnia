@@ -6,7 +6,7 @@
   <field type="literal_value" name="dynamicguest_permission">-1</field>
   <field type="literal_value" name="dynamicother_permission">-1</field>
   <group>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Login</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Login Nodelet</member>
     <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Epicenter</member>
     <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Other Users</member>
     <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">New Nodes</member>

@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="nodelet" title="Login">
+<NODE export_version="0.5" nodetype="nodelet" title="Login Nodelet">
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
   <field type="literal_value" name="dynamicauthor_permission">0</field>
@@ -81,7 +81,7 @@ Don't have an account?&lt;br>
 &lt;/font></field>
   <field type="literal_value" name="otheraccess">-----</field>
   <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>
-  <field type="literal_value" name="title">Login</field>
+  <field type="literal_value" name="title">Login Nodelet</field>
   <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodelet</field>
   <field type="literal_value" name="updateinterval">0</field>
 </NODE>

@@ -27,5 +27,6 @@
     <var type="noderef" type_nodetype="superdoc,nodetype" name="permissionDenied_node">Permission Denied</var>
     <var type="noderef" type_nodetype="themesetting,nodetype" name="preferred_theme">root's default themesettings</var>
     <var type="noderef" type_nodetype="superdoc,nodetype" name="searchResults_node">Search Results</var>
+    <var type="literal_value" name="showlocations">1</var>
   </vars>
 </NODE>

@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="superdoc" title="Everything settings">
+<NODE export_version="0.5" nodetype="restricted_superdoc" title="Everything settings">
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
   <field type="literal_value" name="doctext">[%
@@ -32,7 +32,8 @@ $str;
 [{openform}]
 
 Guest user sees nodelets:[{settingradio:system settings,GUshownodelets}]&lt;br>
-Guest user sees searchform:[{settingradio:system settings,GUshowsearchform}]
+Guest user sees searchform:[{settingradio:system settings,GUshowsearchform}]&lt;br>
+Display Location:[{settingradio:system settings,showlocations}]
 
 [{closeform}]
 &lt;b>Warning!&lt;/b> If you turn off these things for the guest user you
@@ -56,8 +57,8 @@ $str.="&lt;/tr>&lt;/table>";
   <field type="literal_value" name="group_usergroup">-1</field>
   <field type="literal_value" name="groupaccess">iiii-</field>
   <field type="literal_value" name="guestaccess">iiii-</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">superdoc</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">restricted_superdoc</field>
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="literal_value" name="title">Everything settings</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">superdoc</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">restricted_superdoc</field>
 </NODE>
