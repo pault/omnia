@@ -3,8 +3,8 @@
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="nodemethod">my ($this, $USER) = @_;
 
-# might as well make this valid
 my @time = (localtime)[0 .. 5];
+$time[4] += 1;
 $time[5] += 1900;
 $this-&gt;{updatetime} = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @time);
 
