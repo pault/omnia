@@ -251,7 +251,7 @@ sub updateGroup
 	{
 		# There were no additions, nor were any nodes removed.  However,
 		# the order may have changed.  We need to check for that.
-		for my $i (0 .. @$group)
+		for my $i (0 .. $#$group)
 		{
 			$updated = 1, last unless $$group[$i] == $$orgGroup[$i];
 		}
@@ -279,10 +279,10 @@ sub updateGroup
 			# "LIMIT #" on the update, we could just say update 'where
 			# orderby=0 LIMIT 1'.  So, until the database supports that we
 			# need to find the specific one we want using select
-			my $rank = $this->{DB}->sqlSelect("rank", $table, $table .
-				"_id=$this->{node_id} && node_id=$id && orderby=0", "LIMIT 1");
-			
-			my $sql = $table . "_id=$this->{node_id} && node_id=$id && " .
+			my $rank = $this->{DB}->sqlSelect('rank', $table, $table .
+				"_id=$this->{node_id} and node_id=$id and orderby=0",'LIMIT 1');
+
+			my $sql = $table . "_id=$this->{node_id} and node_id=$id and " .
 				"rank=$rank";
 			$this->{DB}->sqlUpdate($table, { orderby => $orderby }, $sql);
 
@@ -741,7 +741,7 @@ sub applyXMLFix
 	{
 		Everything::logErrors( '',
 			"Unable to find '$where->{title}' of type " .
-			"'$where->{type_nodetype}'\n for field '$$where{field}'\n" .
+			"'$where->{type_nodetype}'\n for field '$where->{field}'\n" .
 			" in node '$this->{title}' of type '$this->{type}{title}'"
 		 ) if $printError;
 
