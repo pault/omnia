@@ -2,6 +2,8 @@ Here's the list of perl modules that I installed to make everything work.
 Your system may have some of these already installed.  Otherwise, you 
 can always get the latest version from CPAN <http://cpan.org>.
 
+I highly recommend using 'perl -MCPAN -e shell'
+
 The version numbers are the one that I have...  not necessarily the only
 ones which would work.
 
@@ -14,8 +16,8 @@ These are needed for the Everything::HTML module
 	ApacheDBI (0.82)
 
 These are needed for the Everything::XML module
-	XML-Generator (0.4)
-	XML-Parser (2.26)
+	XML-Parser (2.27)
+	XML-DOM (1.27) 
 
 Everything::MAIL
 	Mail-Sender (0.6.7)

@@ -42,8 +42,8 @@ them in the order listed, otherwise you may get dependency errors.
 ApacheDBI-0.82
 CGI-modules??  (this is commonly installed by default with mod_perl)
 DBI-1.13
-XML-Generator-0.4_1
-XML-Parser-2.26
+XML-DOM-1.27
+XML-Parser-2.27
 MIME-Base64-2.11
 Mail-Sender-0.6.7
 libnet-1.0607
@@ -105,5 +105,4 @@ This will install the base nodes in the system.  Depending on the speed
 of your machine, this can take up to a few minutes.
 
 TA DA!  You should now have a working installation of Everything!
-
 
