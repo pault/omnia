@@ -137,6 +137,7 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">location display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">location edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">mail display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">mail edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node basicedit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node edit page</member>
