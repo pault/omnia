@@ -451,8 +451,8 @@ sub htmlErrorGods
 			$str .= "\n\n<b>Call Stack</b>:\n";
 			$str .= join("\n", reverse(getCallStack()));
 			$str .= "<b>End Call Stack</b>\n";
-			$str.= "</PRE>";
 		}
+		$str.= "</PRE>";
 	}
 	return $str;
 }
@@ -954,7 +954,7 @@ sub AUTOLOAD
 
 		# otherwise, run it through Compil-O-Cache
 		if ($$CODE{code}) {
-			my $code = "sub {\nmy \$NODE = \$GNODE;\n$$CODE{code}\n}";
+			my $code = createAnonSub($$CODE{code});
 			$result = compileCache($code, $CODE, 'code', \@_);
 			return $result if defined $result;
 		}
@@ -1059,13 +1059,14 @@ sub executeCachedCode {
 	if ($code_ref = $CURRENTNODE->{"_cached_$field"}) {
 		if (ref($code_ref) eq 'CODE' and defined &$code_ref) {
 			my $warn;
+			my $NODE = $GNODE;
 			local $SIG{__WARN__} = sub {
 				$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
 			};
 
 			flushErrorsToBackside();
 			
-			my $result = eval ' $code_ref->(@$args) ' || '';
+			my $result = eval { $code_ref->($CURRENTNODE, @$args) } || '';
 			
 			local $SIG{__WARN__} = sub {};
 
@@ -1084,6 +1085,28 @@ sub executeCachedCode {
 	}
 }
 
+
+##############################################################################
+#Sub
+#	createAnonSub
+#
+#	Purpose
+#		for creating compiled code references, we need to create a sub
+#		ref and establish a consistent context (exactly the same as evalX
+#		however, symbols must be rendered at runtime
+#
+#	Arguments
+#		code to be compiled
+#
+sub createAnonSub {
+	my ($code) = @_;
+
+	"sub {
+		my \$CURRENTNODE=shift;
+		my \$NODE=\$GNODE; 
+		$code 
+	}\n";
+}
 
 ###############################################################################
 # Sub
@@ -1108,20 +1131,8 @@ sub compileCache
 {
 	my ($code, $NODE, $field, $args) = @_;
 
-	my $warn;
-	local $SIG{__WARN__} = sub {
-		$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
-	};
+	my $code_ref = evalX $code, $NODE;
 
-	$code =~ s/\015//gs;
-	my $code_ref = eval $code;
-
-	local $SIG{__WARN__} = sub {};
-
-	if ($@) {
-		logErrors('', $@, $$NODE{$field}, $NODE);
-		return;
-	}
 	return unless $code_ref;
 
 	$NODE->{DB}->{cache}->cacheMethod($NODE, $field, $code_ref);
@@ -1155,7 +1166,7 @@ sub nodemethod
 		my $result = executeCachedCode('code', $CURRENTNODE, \@_);
 		return $result if (defined($result));
 
-		my $code = "sub {\nmy \$NODE = \$GNODE;\n$$CURRENTNODE{code}\n}";
+		my $code = "sub {\n$$CURRENTNODE{code}\n}";
 		return compileCache($code, $CURRENTNODE, 'code', \@_);
 	}
 }
@@ -1313,15 +1324,7 @@ sub parseCode
 
 	my $args = [];
 
-	my $sub_text ='sub {
-	my $result;
-	my $NODE = $GNODE;';
-
-	# 'general container' needs this to reparent, other containers may also
-	if ($CURRENTNODE->isOfType('container')) {
-		$sub_text .= 'my $CURRENTNODE = shift;';
-		$args = [$CURRENTNODE];
-	}
+	my $sub_text =' my $result; ';
 
 	# the /s modifier makes . match newlines.  VERY important.
 	for my $chunk (split(/(\[(?:\{.*?\}|\".*?\"|%.*?%|<.*?>)\])/s,
@@ -1377,35 +1380,14 @@ sub parseCode
 	}
 
 	# add newlines so trailing comments don't cause eval() errors
-	$sub_text .= qq|\nreturn \$result;\n}|;
+	$sub_text .= qq|\nreturn \$result;\n|;
 	
+	$sub_text = createAnonSub($sub_text);
+
 	$result = compileCache($sub_text, $CURRENTNODE, $field, $args);
 	return $result if defined $result;
 
-	my $warn;
-	local $SIG{__WARN__} = sub {
-		$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
-	};
-
-	my $sub_ref = eval $sub_text;
-
-	local $SIG{__WARN__} = sub {};
-
-	if (!$sub_ref || $@) {
-		Everything::printLog("Eval error $$CURRENTNODE{title} $field: ($@)\n");
-#		print STDERR listCode($sub_text, 1), "\n";
-	} else {
-		$CURRENTNODE->{DB}->{cache}->cacheMethod($CURRENTNODE,
-			 $field, $sub_ref);
-		$result = $sub_ref->() || '';
-		if ($warn) {
-			print STDERR "Warning for $CURRENTNODE->{title}:\n\t$warn\n";
-#			print STDERR listCode($sub_text, 1), "\n";
-		}
-		return $result;
-	}
-
-	# on failure, use old behavior
+    # on failure, use old behavior
 	return oldparseCode($field, $CURRENTNODE);
 }
 
