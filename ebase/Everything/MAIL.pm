@@ -9,86 +9,91 @@ package Everything::MAIL;
 use strict;
 use Everything;
 
-
-sub BEGIN {
+BEGIN
+{
 	use Exporter ();
 	use vars       qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 	@ISA=qw(Exporter);
-	@EXPORT=qw(
-			node2mail
-			mail2node);
+	@EXPORT=qw( node2mail mail2node );
 }
-
 
 sub node2mail
 {
 	my ($addr, $node) = @_;
-	my @addresses = (ref $addr eq "ARRAY") ? @$addr:($addr);
-	my $user = getNode($$node{author_user});
-	my $subject = $$node{title};
-	my $body = $$node{doctext};
+	my @addresses = (UNIVERSAL::isa( $addr, 'ARRAY') ? @$addr : $addr);
+	my $body    = $node->{doctext};
+	my $user    = getNode($node->{author_user});
+	my $subject = $node->{title};
+
 	use Mail::Sender;
 
 	my $SETTING = getNode('mail settings', 'setting');
 	my ($mailserver, $from);
-	if ($SETTING) {
+
+	if ($SETTING)
+	{
 		my $MAILSTUFF = $SETTING->getVars();
-		$mailserver = $$MAILSTUFF{mailServer};
-		$from = $$MAILSTUFF{systemMailFrom};
-	} else {
-		$mailserver = "localhost";
-		$from = "root\@localhost";
+		($mailserver, $from) = @$MAILSTUFF{qw( mailserver systemMailFrom )};
+	}
+	else
+	{
+		$mailserver = 'localhost';
+		$from       = 'root@localhost';
 	}
 
+	my $sender = Mail::Sender->new({ smtp => $mailserver, from => $from });
 
-	my $sender = new Mail::Sender{smtp => $mailserver, from => $from};
-	$sender->MailMsg({to=>$addr,
-			subject=>$subject,
-			msg => $body});
+	$sender->MailMsg({
+		to      => $addr,
+		msg     => $body,
+		subject => $subject,
+	});
+
 	$sender->Close();                
 }
 
 sub mail2node
 {
-	my ($file) = @_;
-	my @filez = (ref $file eq "ARRAY") ? @$file:($file);
+	my ($files) = @_;
+	$files = [$files] unless UNIVERSAL::isa( $files, 'ARRAY' );
+
 	use Mail::Address;
-	my $line = '';
+
 	my ($from, $to, $subject, $body);
-	foreach(@filez)
+	foreach my $file (@$files)
 	{
-		open FILE,"<$_" or die 'suck!\n';
-		until($line =~ /^Subject\: /)
+		open FILE,"<$file" or die 'suck!\n';
+		my $line = '';
+		until ($line =~ /^Subject\: /)
 		{
-			$line=<FILE>;
-			if($line =~ /^From\:/)       
+			$line = <FILE>;
+			if ($line =~ /^From:/)       
 			{ 
 				my ($addr) = Mail::Address->parse($line);
-				$from = $addr->address;
+				$from      = $addr->address;
 			}
-			if($line =~ /^To\:/)  
+			if ($line =~ /^To:/)  
 			{
 				my ($addr) = Mail::Address->parse($line);
 				$to = $addr->address;
 			}
-			if($line =~ /^Subject\: (.*?)/)
-			{ print "hya!\n"; $subject = $1; }
-			print "blah: $line" if ($line);
+			if ($line =~ /^Subject\: (.*?)/)
+			{
+				$subject = $1;
+			}
+			print "blah: $line" if $line;
 		}
 
-		while(<FILE>)
-		{
-			my $body .= $_;
-		}
+		$body .= $_ while <FILE>;
 
-		my $user = getNode({email=>$to}, getType("user"));
-		my $node = getNode($subject, "mail", "create force");
-		
+		my $user = getNode({ email => $to }, getType('user'));
+		my $node = getNode($subject, 'mail', 'create force');
+
 		$node->insert(-1);
-		$$node{author_user} = getId($user);
-		$$node{from_address} = $from;
-		$$node{doctext} = $body;
-		
+		$node->{doctext}      = $body;
+		$node->{author_user}  = getId($user);
+		$node->{from_address} = $from;
+
 		$node->update(-1);
 	}
 }
