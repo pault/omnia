@@ -40,6 +40,10 @@ Bundle::Everything and CPAN.pm instead, but these will work
 libdbd-mysql-perl
 libxml-perl
 libxml-generator-perl
+libxml-enno-perl
+libdbi-perl
+libxml-parser-perl
+libcgi-perl
 
 once you have those packages, all you need to do is run apacheconfig, 
 answering "yes" to the perl question (though you may want more features).
