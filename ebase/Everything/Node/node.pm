@@ -44,6 +44,9 @@ sub destruct
 #		in the database, this will do nothing, unless the operation is
 #		forced.  If it is forced, it will make another entry (if
 #		duplicates are allowed)
+#
+#	Returns
+#		The node id of the node in the database.  Zero if failure.
 #	
 sub insert
 {

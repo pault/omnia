@@ -15,9 +15,6 @@ use Everything;
 use Everything::NodeCache;
 use Everything::Node;
 
-my $dbases = {};
-my $caches = {};
-
 
 #############################################################################
 #	Sub
@@ -43,37 +40,25 @@ sub new
 {
 	my ($className, $dbname, $staticNodetypes) = @_;
 	my $this = {};
-	my $setCacheSize = 0;
 	
 	bless $this;
 	$staticNodetypes ||= 0;
 
 	# If we have not created a connection to the database for the
 	# one given, do so.
-	if(not exists $dbases->{$dbname})
-	{
-		my $db = {};
 		
-		# A connection to this database does not exist.  Create one.
-		# NOTE!  This has no database password protection!!!
-		$db->{dbh} = DBI->connect("DBI:mysql:$dbname", "root", "");
-		$this->{dbh} = $db->{dbh};
-		
-		die "Unable to get database connection!" unless($db->{dbh});
+	# A connection to this database does not exist.  Create one.
+	# NOTE!  This has no database password protection!!!
+	$this->{dbh} = DBI->connect("DBI:mysql:$dbname", "root", "");
+	
+	die "Unable to get database connection!" unless($this->{dbh});
 
-		$db->{cache} = new Everything::NodeCache($this, 300);
-		$dbases->{$dbname} = $db;
-		
-		$setCacheSize = 1;
-	}
-
-	$this->{dbh} = $dbases->{$dbname}->{dbh};
-	$this->{cache} = $dbases->{$dbname}->{cache};
+	$this->{cache} = new Everything::NodeCache($this, 300);
 	$this->{dbname} = $dbname;
 	$this->{staticNodetypes} = $staticNodetypes;
 	$this->{nodetypeModules} = $this->buildNodetypeModules();
 
-	if($setCacheSize && $this->getType("setting"))
+	if($this->getType("setting"))
 	{
 		my $CACHE = $this->getNode("cache settings", "setting");
 		my $cacheSize = 300;
@@ -84,7 +69,7 @@ sub new
 			my $vars;
 
 			#we have to set this, or it crashes when it calls a getRef
-			$Everything::DB = $this; 
+			#$Everything::DB = $this; 
 									
 			$vars = $CACHE->getVars();
 			$cacheSize = $$vars{maxSize} if(exists $$vars{maxSize});
@@ -449,6 +434,37 @@ sub getNodeById
 	my ($this, $node_id, $selectop) = @_;
 
 	return $this->getNode($node_id, $selectop);
+}
+
+
+#############################################################################
+#	Sub
+#		newNode
+#
+#	Purpose
+#		A more programatically "graceful" way than getNode() to get a node
+#		that does not exist in the database.  This is primarily use when
+#		creating new nodes or needing a node object that just has methods
+#		that you wish to call.
+#
+#	Parameters
+#		$type - a nodetype name, id, or Node object of the type of node
+#			to create
+#		$title - (optional) the title of the node
+#
+#	Returns
+#		The new node.  Note that this node is not in the database.  If
+#		you want to save it to the database, you will need to call insert()
+#		on it.
+#		
+sub newNode
+{
+	my ($this, $type, $title) = @_;
+
+	$title ||= "dummy" . int(rand(1000000));
+	$type = $this->getType($type);
+
+	return $this->getNode($title, $type, 'create force');
 }
 
 

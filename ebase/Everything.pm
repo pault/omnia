@@ -30,6 +30,8 @@ my $VERSION = 0.8;
 use vars qw(@fsErrors);
 use vars qw(@bsErrors);
 
+use vars qw(%NODEBASES);
+
 # Are we being run from the command line?
 use vars qw($commandLine);
 
@@ -277,7 +279,15 @@ sub initEverything
 	clearFrontside();
 	clearBackside();
 
-	$DB = new Everything::NodeBase($db, $staticNodetypes);
+	unless($DB = $NODEBASES{$db})
+	{
+		$DB = new Everything::NodeBase($db, $staticNodetypes);
+
+		# We keep a NodeBase for each database that we connect to. 
+		# That way one machine can handle multiple installations in
+		# multiple databases.
+		$NODEBASES{$db} = $DB;
+	}
 }
 
 

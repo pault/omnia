@@ -149,6 +149,32 @@ sub destruct
 
 #############################################################################
 #	Sub
+#		insert
+#
+#	Purpose
+#		Make new nodetypes derive from 'node' automatically if they do
+#		not have a parent specified.
+#
+#	Returns
+#		The inserted node id
+#
+sub insert
+{
+	my ($this) = @_;
+
+	if((not defined $$this{extends_nodetype}) or
+		($$this{extends_nodetype} == 0))
+	{
+		my $N = $$this{DB}->getType('node');
+		$$this{extends_nodetype} = $$N{node_id};
+	}
+
+	return $this->SUPER();
+}
+
+
+#############################################################################
+#	Sub
 #		update
 #
 #	Purpose

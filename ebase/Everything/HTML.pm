@@ -2057,6 +2057,12 @@ sub opUnlock
 }
 
 
+sub opUpdate
+{
+	
+}
+
+
 #############################################################################
 #	Sub
 #		getOpCode
@@ -2142,6 +2148,10 @@ sub execOpCode
 		elsif($op eq 'new')
 		{
 			opNew();
+		}
+		elsif($op eq 'update')
+		{
+			opUpdate();
 		}
 		elsif($op eq 'unlock')
 		{
