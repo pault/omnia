@@ -90,7 +90,7 @@ sub isGuest
 	my $VARS = $SYS->getVars();
 	return 1 unless($VARS);
 
-	return ($$VARS{default_user} == $$this{node_id});
+	return ($$VARS{guest_user} == $$this{node_id});
 }
 	
 
