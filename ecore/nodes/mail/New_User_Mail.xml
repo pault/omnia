@@ -1,5 +1,4 @@
 <NODE export_version="0.5" nodetype="mail" title="New User Mail">
-  <field name="attachment_file" type="literal_value">0</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">Hey there.  Welcome to &lt;site_name>.
