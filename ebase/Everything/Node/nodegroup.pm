@@ -161,6 +161,8 @@ sub updateGroup
 	return 0 unless($this->hasAccess($USER, 'w'));
 
 	my $group = $$this{group};
+	$group = $this->restrict_type($group);
+
 	my %DIFF;
 	my $table = $this->isGroup();
 	my $updated = 0;
@@ -205,7 +207,7 @@ sub updateGroup
 
 			my $rowsAffected = $$this{DB}->{dbh}->do($sql);
 
-			print "Warning! Wrong number of group members deleted!\n"
+			print STDERR "Warning! Wrong number of group members deleted!\n"
 				if($abs != $rowsAffected);
 
 			$updated = 1;
@@ -481,6 +483,8 @@ sub insertIntoGroup
 	# converts to a list reference w/ 1 element if we get a scalar
 	$insertref = [$insert] unless(ref ($insert) eq "ARRAY");
 
+	$insertref = $this->restrict_type($insertref);
+
 	$len = int(@$group);
 	$orderby ||= $len;
 	$orderby = ($orderby > $len ? $len : $orderby);
@@ -570,6 +574,8 @@ sub replaceGroup
 	$this->hasAccess($USER, "w") or return 0; 
 	
 	$REPLACE = [$REPLACE] if(ref $REPLACE ne "ARRAY");
+
+	$REPLACE = $this->restrict_type($REPLACE);
 
 	# Just replace the group
 	$$this{group} = $REPLACE;
@@ -732,7 +738,7 @@ sub applyXMLFix
 
 	unless($NODE)
 	{
-		print "Error! Unable to find '$$where{title}' of type \n" .
+		print STDERR "Error! Unable to find '$$where{title}' of type \n" .
 			"'$$where{type_nodetype}' for field $$where{field}\n"
 		  	if($printError);
 
@@ -774,7 +780,8 @@ sub clone
 	my ($USER) = @_;
 	my $NODE = $this->SUPER(@_);
 	return undef unless (defined $NODE);
-	if (defined(my $group = $this->{group})) {
+	if (defined(my $group = $this->{group})) 
+	{
 		$NODE->insertIntoGroup($USER, $group);
 	}
 
@@ -784,6 +791,54 @@ sub clone
 	return $NODE;
 }
 
+################################################################################
+#	Sub
+#		restrict_type
+#
+#	Purpose
+#		Some nodegroups can only hold nodes of a certain type.  This takes a
+#		reference to a list of nodes to insert and removes any that don't fit.
+#		It also allows nodegroups that have the same restriction -- a usergroup
+#		can hold user nodes and other usergroups.
+#
+#	Parameters
+#		$groupref - a reference to a list of nodes to insert into the group
+#
+#   Returns
+#       A reference to a list of nodes allowable in this group.
+#
+sub restrict_type {
+    my ($this, $groupref) = @_;
+    my $restricted_type;
+
+	# anything is allowed without a valid restriction
+	my $nodetype = getNode($$this{type_nodetype});
+    return $groupref unless (defined($restricted_type = 
+		$$nodetype{restrict_nodetype}));
+
+    my @cleaned;
+
+    foreach (@$groupref) 
+	{
+        my $node = getNode($_);
+
+		# check if the member matches directly
+        if ($node->{type_nodetype} == $restricted_type) 
+		{
+            push @cleaned, $$node{node_id};
+        } 
+
+		# check if the member is a nodegroup with similar restrictions
+		elsif ($node->isGroup()) 
+		{
+			if ($node->{type}{restrict_nodetype} == $restricted_type) 
+			{
+				push @cleaned, $$node{node_id};
+			}
+		}
+    }
+    return \@cleaned;
+}
 
 #############################################################################
 # End of package
