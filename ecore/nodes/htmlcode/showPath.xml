@@ -8,7 +8,7 @@ my $parentLoc;
 my $top = 0;
 
 # handle root_location
-return '' unless ($loc);
+return '' unless (defined($loc));
 
 # Define 'root_location' to be a sublocation and showPath will not show
 # any directories above that "root" location.
