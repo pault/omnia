@@ -77,8 +77,8 @@ my $node = FakeNode->new();
 	is( $result, "html\na",
 		'... should return concantation of SUPER() and checkbox() calls' );
 
-	genObject( $node, $node );
-	is( $node->{_calls}[-2][3], ':0',
+	genObject( $node, $node, 'bindNode', 'field' );
+	is( $node->{_calls}[-2][3], 'field:0',
 		'... when not provided, $unchecked defaults to 0' );
 	is( $node->{_calls}[-1][6], 1,
 		'... and $checked to 1' );
