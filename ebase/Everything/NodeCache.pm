@@ -207,7 +207,11 @@ sub getCachedNodeByName
 	{
 		$data = $this->{typeCache}{$typename}{$title};
 		$NODE = $this->{nodeQueue}->getItem($data);
-
+	
+		if ($$NODE{title} ne $title) {
+			delete $this->{typeCache}{$typename}{$title};
+			return undef;
+		}
 		return $NODE if($this->isSameVersion($NODE));
 	}
 
