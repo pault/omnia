@@ -158,6 +158,7 @@ sub update
 
 	# Cache this node since it has been updated.  This way the cached
 	# version will be the same as the node in the db.
+	$this->{DB}->{cache}->incrementGlobalVersion($this);
 	$this->cache();
 
 	# We extract the values from the node for each table that it joins

@@ -277,7 +277,7 @@ sub cacheNode
 		
 		# If we are removing a node that already existed, it is because it
 		# has been updated.  We need to increment the global version.
-		$this->incrementGlobalVersion($NODE)
+		#$this->incrementGlobalVersion($NODE)
 	}
 
 	# Add the NODE to the queue.  This puts the newly cached node at the
@@ -317,7 +317,8 @@ sub removeNode
 	# Removing a node for any reason from the cache warrants a version
 	# increment.  Usually when a node is removed from the cache, it is
 	# being deleted.
-	$this->incrementGlobalVersion($NODE);
+	# nate sez -- I think the IGV call in cacheNode takes care of this
+	#$this->incrementGlobalVersion($NODE);
 	
 	return $this->{nodeQueue}->removeItem($data);
 }
