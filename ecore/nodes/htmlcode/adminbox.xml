@@ -45,11 +45,11 @@ foreach my $type (@displaytypes)
 {
   if ($disp eq $type)
   {
-    push @links, "&lt;img src=images/icon_".$type."_current.gif border=0&gt;";
+    push @links, "&lt;img src=images/icon_".$type."_current.gif alt=".$type." border=0&gt;";
   } 
   else
   {
-    push @links, linkNode ($NODE, "&lt;img src=images/icon_".$type.".gif  border=0&gt;", 
+    push @links, linkNode ($NODE, "&lt;img src=images/icon_".$type.".gif  alt=".$type." border=0&gt;", 
       {displaytype =&gt; $type}) . " ";
   }
 }
@@ -62,8 +62,9 @@ $str.="&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1
           "&lt;/td&gt;&lt;/tr&gt;";
 
 
-$str .= "&lt;tr&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;a href='javascript: cloneNode();'&gt;&lt;img src=images/icon_clone.gif border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;td bgcolor='#FFCCCC'&gt;&amp;nbsp;&lt;/td&gt;";
-
+$str .= "&lt;tr&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;a href='javascript: cloneNode();'&gt;&lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;&lt;/td&gt;
+&lt;td bgcolor='#FFCCCC' align=center&gt;";
+$str.= htmlcode('clonetotype')."&lt;/td&gt;";
 # if a user can delete the node, this places a delete icon in the box.
 if($NODE-&gt;hasAccess($USER, "d"))
 {
@@ -76,7 +77,7 @@ $str.="
 		"; }
         }
 &lt;/SCRIPT&gt;
-&lt;td bgcolor='#FF9999' align=center&gt;&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;";
+&lt;td bgcolor='#FF9999' align=center&gt;&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;";
 }
 else
  {

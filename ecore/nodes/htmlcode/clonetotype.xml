@@ -1,0 +1,19 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">my $CLONER=getNode('clone to type','restricted_superdoc');
+my $PARAMS={ "srcnode_id" =&gt; $$NODE{node_id},node_id=&gt;$$CLONER{node_id}};
+my $url=urlGen($PARAMS);
+return "&lt;a href=$url&gt;&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle&gt;&lt;/A&gt;";</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">htmlcode</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">clonetotype</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

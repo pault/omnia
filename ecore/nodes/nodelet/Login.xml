@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii</groupaccess>
 	<guestaccess table="node">--x-</guestaccess>
-	<lastupdate table="nodelet">964215660</lastupdate>
+	<lastupdate table="nodelet">966987079</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%
 my $str = "";
@@ -40,20 +40,22 @@ $query-&gt;hidden("lastnode_id", $query-&gt;param("lastnode_id")) . "\n";
 &lt;/table&gt;
 &lt;font size='2'&gt;
 [%
-$query-&gt;checkbox("expires", "", "+10y", "save me a permanent cookie") . 
+$query-&gt;checkbox("expires", "", "+10y", "save me a cookie") . 
 $query-&gt;submit("login", "Login") .
 $query-&gt;end_form;
 %]
 &lt;p&gt;
 Don't have an account?&lt;br&gt;
-[% linkNodeTitle("Create a new user"); %].
+[% linkNodeTitle("Create a new user"); %]&lt;br&gt;
+[% my $N=getNode("What is my password",'superdoc'); 
+   linkNode($N,"Forgot your password?"); %]
 &lt;/font&gt;</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">
 
 &lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded"&gt;
-&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="178"&gt;
-&lt;INPUT TYPE="hidden" NAME="lastnode_id" VALUE="201"&gt;
+&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="114"&gt;
+
 
 &lt;input type="hidden" name="op" value="login"&gt;
 &lt;table border=0&gt;
@@ -74,7 +76,8 @@ Don't have an account?&lt;br&gt;
 &lt;INPUT TYPE="checkbox" NAME="expires" VALUE="+10y"&gt;save me a permanent cookie
 &lt;INPUT TYPE="submit" NAME="login" VALUE="Login"&gt;&lt;/FORM&gt;
 &lt;p&gt;
-Don't have an account? &lt;a href="/index.pl?node=Create%20a%20new%20user"&gt;Create a new user&lt;/a&gt;.
+Don't have an account?&lt;br&gt;
+&lt;a href="/~paco/temp/index.pl?node=Create%20a%20new%20user"&gt;Create a new user&lt;/a&gt;.
 &lt;/font&gt;</nltext>
 	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">----</otheraccess>

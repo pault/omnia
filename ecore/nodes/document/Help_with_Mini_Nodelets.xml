@@ -23,7 +23,7 @@ not directly compatable with older versions of Everything (pre .9).  You'll need
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiiii</groupaccess>
 	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="literal_value">0</loc_location>
+	<loc_location table="node" type="location">document</loc_location>
 	<otheraccess table="node">iiiii</otheraccess>
 	<title table="node">Help with Mini Nodelets</title>
 	<type_nodetype table="node" type="nodetype">document</type_nodetype>

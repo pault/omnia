@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
 
@@ -48,14 +48,17 @@ my %CLR = (
   nodetype =&gt; "#CC6666",
   htmlpage =&gt; "#CC66CC",
   htmlcode =&gt; "#FF99FF",
-  node =&gt; "#FFFFFF",
+  node =&gt; "#EEEEEE",
   superdoc =&gt; "#6666CC",
   nodegroup =&gt; "#CCCCCC",
   image =&gt; "#33CCFF",
-  default =&gt; '#ffffff',
+  default =&gt; '#AAAAAA',
   container =&gt; '#FFCC99',
   nodelet =&gt; '#CCFFCC',
-  nodeletgroup =&gt; '#99FF99'
+  nodeletgroup =&gt; '#99FF99',
+  location =&gt; '#ccAA33',
+  opcode =&gt; '#AAccAA',
+  nodemethod =&gt; 'CC9999'
 );
 
 my $type = $query-&gt;param('whichtype');

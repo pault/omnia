@@ -1,0 +1,98 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<doctext table="document">[%
+my $str;
+my $src_id = $query-&gt;param("srcnode_id");
+my $newtype = $query-&gt;param("newtype");
+my $newname = $query-&gt;param("newname");
+my $CLONE;
+my $SRCNODE = getNode($src_id);
+if(defined $newname)
+{
+  return "No node to clone!" unless($SRCNODE);
+  return "No name provided!" unless($newname);
+
+  my $NEWTYPE = getType($newtype);
+  if($$NEWTYPE{node_id} != $$SRCNODE{type}{node_id})
+   {
+    # We want to clone this node as a different type
+    my $NEWNODE = getNode($newname, $NEWTYPE, "create force");
+    $str.= "New node of type $$NEWTYPE{title}";
+    # Insert this node into the database.  Doing so will fill out the
+    # fields with the default values.
+    $NEWNODE-&gt;insert($USER);
+
+    # This gets a hashref of the node that contains only the keys that
+    # exist in the database (similar to what you were doing with the
+    # getNodetypeTables() and getFields()).
+    my $nodeKeys = $NEWNODE-&gt;getNodeKeys();
+
+    foreach my $key (keys %$nodeKeys)
+     {
+      # Don't overwrite the id and title
+      next if($key =~ /_id$/);
+      next if($key =~ /^title$/);
+      next if($key =~/^type/);
+
+      # This copies over the fields that are common between the two
+      # nodetypes.
+      $$NEWNODE{$key} = $$SRCNODE{$key} if(exists $$SRCNODE{$key});
+     }
+
+    $NEWNODE-&gt;update($USER);
+
+    $CLONE = $NEWNODE;
+   }
+  else
+   {
+    # Just make an exact clone of this node
+    $CLONE = $SRCNODE-&gt;clone($USER, $newname);
+   }
+
+  $CLONE;  # CLONE is the cloned node. 
+  return "Cloned node at: ".linkNode($CLONE)."&lt;BR&gt;$str";
+}
+else
+{
+  # Then you have some HTML form stuff...
+  $str.="Cloning node ".linkNode($SRCNODE)." of type: ".linkNode($$SRCNODE{type})."&lt;BR&gt;";
+     $str.=htmlcode('openform');
+     $str.="&lt;INPUT TYPE=\"hidden\" name=\"srcnode_id\" value=\"$src_id\"&gt;";
+     $str.="To node with:&lt;BR&gt;";
+     $str.="Title: ".$query-&gt;textfield('newname',$$SRCNODE{title},50,240)."&lt;BR&gt;";
+
+
+     my @idlist;
+     my %items;
+     my $id;
+     my @allTypes = $DB-&gt;getAllTypes();
+     foreach my $N (@allTypes)
+      {
+       $id = getId $N;
+       $items{$id} = $$N{title};
+      }
+
+     foreach $id (keys %items)
+      {
+       push @idlist, $id;
+      }
+
+     @idlist=sort{lc($items{$a}) cmp lc($items{$b})} @idlist;
+     $str.="and type of ".$query-&gt;popup_menu("newtype", \@idlist, "", \%items)."&lt;BR&gt;";
+     $str.=$query-&gt;checkbox('deleteorig',"","on","Delete original node:");
+     $str.=htmlcode('closeform');
+} 
+%]</doctext>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">restricted_superdoc</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">clone to type</title>
+	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+</NODE>

@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">964140140</lastupdate>
+	<lastupdate table="nodelet">966987545</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%
 my $time = `date`;
@@ -16,7 +16,7 @@ $time =~ s/\n.*$//;
 $time;
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Thu Jul 20 20:42:20 EDT 2000</nltext>
+	<nltext table="nodelet">Tue Aug 22 19:39:05 EDT 2000</nltext>
 	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>

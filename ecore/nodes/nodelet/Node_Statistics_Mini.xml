@@ -9,7 +9,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<lastupdate table="nodelet">965779227</lastupdate>
-	<loc_location table="node" type="literal_value">0</loc_location>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">&lt;font size = 1&gt;
 Node ID:[% getId $NODE %]&lt;br&gt;
 Nodetype: [% linkNode ($$NODE{type_nodetype}, "&lt;font color=#FFFFFF&gt;$$NODE{type_nodetype} &lt;/font&gt;"); %]&lt;br&gt;

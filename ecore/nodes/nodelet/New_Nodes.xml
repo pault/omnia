@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">966663056</lastupdate>
+	<lastupdate table="nodelet">966993835</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
@@ -30,21 +30,21 @@ $str;
 
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/~paco/temp2/index.pl?node_id=252&amp;lastnode_id=50"&gt;Help with Mini Nodelets&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=248&amp;lastnode_id=50"&gt;insertMini&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=249&amp;lastnode_id=50"&gt;admin Nodelet Mini&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=250&amp;lastnode_id=50"&gt;Node Statistics Mini&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=251&amp;lastnode_id=50"&gt;Other Users Mini&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=246&amp;lastnode_id=50"&gt;New User Mail&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=238&amp;lastnode_id=50"&gt;Everything 2 Idea List&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=239&amp;lastnode_id=50"&gt;Everything 2 Todo list&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=240&amp;lastnode_id=50"&gt;nsh Help&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=241&amp;lastnode_id=50"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=242&amp;lastnode_id=50"&gt;qauser&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=243&amp;lastnode_id=50"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=226&amp;lastnode_id=50"&gt;massacre&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=227&amp;lastnode_id=50"&gt;Gigantic Code Lister&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~paco/temp2/index.pl?node_id=228&amp;lastnode_id=50"&gt;Gigantic Node Lister&lt;/a&gt;&lt;BR&gt;
+	<nltext table="nodelet">&lt;A HREF="/~paco/temp/index.pl?node_id=243&amp;lastnode_id=55"&gt;restricted fields&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=244&amp;lastnode_id=55"&gt;mail settings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=245&amp;lastnode_id=55"&gt;Everything 2 Idea List&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=246&amp;lastnode_id=55"&gt;Everything 2 Todo list&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=247&amp;lastnode_id=55"&gt;nsh Help&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=248&amp;lastnode_id=55"&gt;Help with Mini Nodelets&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=249&amp;lastnode_id=55"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=250&amp;lastnode_id=55"&gt;qauser&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=251&amp;lastnode_id=55"&gt;root&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=230&amp;lastnode_id=55"&gt;opNSH&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=231&amp;lastnode_id=55"&gt;massacre&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=232&amp;lastnode_id=55"&gt;insertMini&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=233&amp;lastnode_id=55"&gt;Gigantic Code Lister&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=234&amp;lastnode_id=55"&gt;Gigantic Node Lister&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~paco/temp/index.pl?node_id=235&amp;lastnode_id=55"&gt;create node&lt;/a&gt;&lt;BR&gt;
 </nltext>
 	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
