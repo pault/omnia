@@ -26,6 +26,8 @@
     return $symtable if $tier eq &quot;Everything\:\:Node&quot;;
     if($tier =~ /\:([^\:]*)$/){
       my $csr = $DB-&gt;sqlSelectMany(&quot;nodemethod_id&quot;, &quot;nodemethod&quot;,&quot;supports_nodetype=&quot;.getId(getType($1)));
+      return unless $csr;
+
       while(my $nm = $csr-&gt;fetchrow_hashref)
       {
            $nm = getNodeById($nm-&gt;{nodemethod_id});
