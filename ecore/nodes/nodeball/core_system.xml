@@ -49,6 +49,7 @@
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">What is my password</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">login</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">mail settings</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">stopwords</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">createnewnode settings</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">restricted fields</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">system settings</member>

@@ -1,0 +1,23 @@
+<NODE export_version="0.5" nodetype="setting" title="stopwords">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">setting</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">stopwords</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">setting</field>
+  <vars>
+    <var name="a" type="literal_value">1</var>
+    <var name="an" type="literal_value">1</var>
+    <var name="in" type="literal_value">1</var>
+    <var name="of" type="literal_value">1</var>
+    <var name="on" type="literal_value">1</var>
+    <var name="the" type="literal_value">1</var>
+  </vars>
+</NODE>
