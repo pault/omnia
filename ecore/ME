@@ -70,7 +70,6 @@
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">redo</member>
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">undo</member>
     <member name="group_node" supports_nodetype="nodelet,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
-    <member name="group_node" supports_nodetype="htmlpage,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
     <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">all nodelets</member>
     <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">default nodelets</member>
     <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</member>
