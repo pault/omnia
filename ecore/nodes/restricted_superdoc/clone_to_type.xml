@@ -107,7 +107,7 @@ else
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="literal_value">0</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="title" type="literal_value">clone to type</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>
