@@ -519,11 +519,11 @@ sub getNodeByName
 	return $NODE if(defined $NODE);
 
 	$cursor = $this->getDatabaseHandle()->prepare(
-		"select * from node where title=\"$node\" && " .
+		"select * from node where title=? && " .
 		"type_nodetype=" . $$TYPE{node_id});
 
 	return undef unless($cursor);
-	return undef unless($cursor->execute);
+	return undef unless($cursor->execute($node));
 
 	$NODE = $cursor->fetchrow_hashref();
 	$cursor->finish();
