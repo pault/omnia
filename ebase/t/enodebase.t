@@ -331,7 +331,7 @@ is( buildNodetypeModules( $mock ), undef,
 	'buildNodetypeModules() should return with no database cursor' );
 
 is_deeply( buildNodetypeModules( $mock ),
-	{ Everything::Node::user => 1, Everything::Node::nodetype => 1 },
+	{ "Everything::Node::user" => 1, "Everything::Node::nodetype" => 1 },
 	'... returning a hashref of available nodetype names' );
 
 can_ok( $package, 'loadNodetypeModule' );
@@ -348,7 +348,7 @@ can_ok( $package, 'getNode' );
 
 my (@ennew, $ennew);
 $mock->set_always( getNodeByIdNew => { title => 'node by id' })
-	 ->fake_new( Everything::Node => sub { push @ennew, [ @_ ]; $ennew } );
+	 ->fake_new( "Everything::Node" => sub { push @ennew, [ @_ ]; $ennew } );
 $mock->clear();
 
 $ennew = { node_id => 11 };
