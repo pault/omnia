@@ -788,8 +788,11 @@ sub gotoNode
 		my @updatefields = $query->param;
 		my $updateflag;
 
+		my $RESTRICTED = getVars(getNode('restricted fields', 'setting'));
+		$RESTRICTED ||= {};
 		foreach my $field (@updatefields) {
 			if ($field =~ /^$$NODE{type}{title}\_(\w*)$/) {
+				next if exists $$RESTRICTED{$1};	
 				$$NODE{$1} = $query->param($field);
 				$updateflag = 1;
 			}	

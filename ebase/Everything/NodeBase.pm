@@ -22,7 +22,6 @@ sub BEGIN
 	@EXPORT=qw(
 		getCache
 		getDatabaseHandle
-	    getType
 		getAllTypes
 		getNodetypeTables
 		
@@ -36,14 +35,6 @@ sub BEGIN
 		getFields
 		getFieldsHash
 		
-		getNode
-		getNodeById
-		getNodeWhere
-		selectNodeWhere
-		
-		nukeNode 
-		insertNode 
-		updateNode 
 
 		tableExists
 		createNodeTable
@@ -950,9 +941,8 @@ sub getType
 	if(not exists $$TYPE{type})
 	{
 		# We need to assign the "type".
-		if($$TYPE{node_id} == 1)
-		{
-			# This is the base nodetype, it is its own type.
+		if($$TYPE{node_id} == 1) {
+			# This is the nodetype nodetype, it is its own type.
 			$$TYPE{type} = $TYPE;
 		}
 		else

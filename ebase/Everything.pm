@@ -28,6 +28,18 @@ sub BEGIN
 		getRef 
 		getId 
 		getTables
+
+		getNode
+		getNodeById
+		getType
+		getNodeWhere
+		selectNodeWhere
+
+		nukeNode
+		insertNode
+		updateNode
+
+		
 		selectNodegroupFlat 
 		removeFromNodegroup 
 		replaceNodegroup
@@ -62,6 +74,25 @@ use vars qw($dbh);
 my $everythingLog = "/tmp/everything.errlog";
 
 my $VERSION = 0.8;
+
+
+
+#############################################################################
+#
+#   a few wrapper functions for the NodeBase stuff
+#	this allows the $DB to be optional for the general node functions
+#
+sub getNode { $DB->getNode(@_); }
+sub getNodeById { $DB->getNodeById(@_); }
+sub getType { $DB->getType(@_); }
+sub getNodeWhere { $DB->getNodeWhere(@_); }
+sub selectNodeWhere  { $DB->selectNodeWhere(@_); }
+
+sub nukeNode { $DB->nukeNode(@_);}
+sub insertNode { $DB->insertNode(@_); }
+sub updateNode { $DB->updateNode(@_); }
+
+
 
 
 #############################################################################
