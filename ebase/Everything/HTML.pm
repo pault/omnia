@@ -436,7 +436,7 @@ sub htmlErrorGods
 			}
 		}
 
-		$str .= "<b>$error</b><br>\n";
+		$str .= "<p><b>$error</b><br>\n";
 
 		my $count = 1;
 		$str .= "<PRE>";
@@ -447,10 +447,12 @@ sub htmlErrorGods
 
 		# Print the callstack to the browser too, so we can see where this
 		# is coming from.
-		$str .= "\n\n<b>Call Stack</b>:\n";
-		$str .= join("\n", reverse(getCallStack()));
-		$str .= "<b>End Call Stack</b>\n";
-		$str.= "</PRE>";
+		if (exists $$VARS{showCallStack} and $$VARS{showCallStack}) {
+			$str .= "\n\n<b>Call Stack</b>:\n";
+			$str .= join("\n", reverse(getCallStack()));
+			$str .= "<b>End Call Stack</b>\n";
+			$str.= "</PRE>";
+		}
 	}
 	return $str;
 }
@@ -586,7 +588,7 @@ sub getPage
 	
 	# If the displaytype is 'display' and this node has a preferred
 	# htmlpage that it specifically wants, we will use that.
-	if($displaytype eq 'display' && $$NODE{preferred_htmlpage} != -1)
+	if($displaytype eq 'display' && $$NODE{preferred_htmlpage} && $$NODE{preferred_htmlpage} != -1)
 	{
 		my $PREFER = $DB->getNode($$NODE{preferred_html});
 		$PAGE = $PREFER if($PREFER && $PREFER->isOfType('htmlpage'));
@@ -2140,12 +2142,12 @@ sub printHeader
 	{
 		if ($$USER{cookie})
 		{
-			$query->header(-type=> $datatype, 
+			print $query->header(-type=> $datatype, 
 		 		-cookie=>$$USER{cookie});
 		}
 		else
 		{
-			$query->header(-type=> $datatype);
+			print $query->header(-type=> $datatype);
 		}
 	}
 }
