@@ -79,6 +79,7 @@ t/base
 t/ecachequeue.t
 t/ehfcheckbox.t
 t/ehfhiddenfield.t
+t/ehfpermissionmenu.t
 t/ehfpopupmenu.t
 t/ehfradiogroup.t
 t/ehfremovevarcheckbox.t
