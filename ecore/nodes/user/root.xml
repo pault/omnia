@@ -20,7 +20,6 @@ Great hair</doctext>
 	<type_nodetype table="node" type="nodetype">user</type_nodetype>
 	<vars table="setting">
 		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
-		<nodelets >67,72,73,71,64,63,60,65</nodelets>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
 	</vars>
 </NODE>
