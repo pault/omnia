@@ -237,18 +237,23 @@
 		<groupnode229 table="nodegroup" type="location">user</groupnode229>
 		<groupnode230 table="nodegroup" type="location">usergroup</groupnode230>
 		<groupnode231 table="nodegroup" type="location">location</groupnode231>
-		<groupnode232 table="nodegroup" type="user">tester</groupnode232>
-		<groupnode233 table="nodegroup" type="setting">mail settings</groupnode233>
-		<groupnode234 table="nodegroup" type="htmlcode">adminbox</groupnode234>
-		<groupnode235 table="nodegroup" type="htmlcode">settingradio</groupnode235>
-		<groupnode236 table="nodegroup" type="mail">Password Mail</groupnode236>
-		<groupnode237 table="nodegroup" type="nodemethod">insert</groupnode237>
-		<groupnode238 table="nodegroup" type="opcode">massacre</groupnode238>
-		<groupnode239 table="nodegroup" type="restricted_superdoc">Node Armageddon</groupnode239>
-		<groupnode240 table="nodegroup" type="superdoc">Everything settings</groupnode240>
-		<groupnode241 table="nodegroup" type="superdoc">the killing floor</groupnode241>
-		<groupnode242 table="nodegroup" type="superdoc">What is my password</groupnode242>
-		<groupnode243 table="nodegroup" type="nodemethod">insert</groupnode243>
+		<groupnode232 table="nodegroup" type="setting">mail settings</groupnode232>
+		<groupnode233 table="nodegroup" type="htmlcode">adminbox</groupnode233>
+		<groupnode234 table="nodegroup" type="htmlcode">settingradio</groupnode234>
+		<groupnode235 table="nodegroup" type="mail">Password Mail</groupnode235>
+		<groupnode236 table="nodegroup" type="opcode">massacre</groupnode236>
+		<groupnode237 table="nodegroup" type="restricted_superdoc">Node Armageddon</groupnode237>
+		<groupnode238 table="nodegroup" type="superdoc">Everything settings</groupnode238>
+		<groupnode239 table="nodegroup" type="superdoc">the killing floor</groupnode239>
+		<groupnode240 table="nodegroup" type="superdoc">What is my password</groupnode240>
+		<groupnode241 table="nodegroup" type="nodemethod">insert</groupnode241>
+		<groupnode242 table="nodegroup" type="nodemethod">insert2</groupnode242>
+		<groupnode243 table="nodegroup" type="mail">New User Mail</groupnode243>
+		<groupnode244 table="nodegroup" type="document">Help with Mini Nodelets</groupnode244>
+		<groupnode245 table="nodegroup" type="nodelet">admin Nodelet Mini</groupnode245>
+		<groupnode246 table="nodegroup" type="nodelet">Node Statistics Mini</groupnode246>
+		<groupnode247 table="nodegroup" type="nodelet">Other Users Mini</groupnode247>
+		<groupnode248 table="nodegroup" type="opcode">insertMini</groupnode248>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
@@ -260,6 +265,6 @@
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
 		<description >The core system of Everything.   (Slightly Less BETA!)</description>
-		<version >0.9.0.5</version>
+		<version >0.9.0.7</version>
 	</vars>
 </NODE>

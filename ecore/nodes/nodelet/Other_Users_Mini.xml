@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
@@ -8,22 +8,35 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">953104108</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
+	<lastupdate table="nodelet">965779340</lastupdate>
+	<loc_location table="node" type="literal_value">0</loc_location>
 	<nlcode table="nodelet">[%
+
+my $time = 3 * 60;
+my $limit = 30;
+
+my $csr=$DB-&gt;getDatabaseHandle()-&gt;prepare("	
+	SELECT node_id, title FROM node, user
+	WHERE node_id=user_id and
+	type_nodetype=". getId ($DB-&gt;getType('user')) ." and
+	(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)
+	LIMIT $limit");
+
+$csr-&gt;execute or return "SHIT";
 my $str;
-foreach ($query-&gt;param) {
-  $str.="&lt;b&gt;$_&lt;/b&gt;:" . $query-&gt;param($_) . "&lt;br&gt;\n" 
-    unless length ($query-&gt;param($_)) &gt; 30 or not defined $query-&gt;param($_);
+while(my $U = $csr-&gt;fetchrow_hashref) {
+	$str .= linkNode($U, "&lt;font size=1 color=#FFFFFF&gt; $$U{title} \;&lt;/font&gt;");
 }
-$str;
-%]</nlcode>
+$csr-&gt;finish;
+return $str if $str;
+"&lt;i&gt;no users logged in&lt;/i&gt;";
+%] </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet"></nltext>
-	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
+	<nodelet_mini table="nodelet" type="nodelet">Other Users</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">CGI::param</title>
+	<title table="node">Other Users Mini</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
 	<updateinterval table="nodelet">0</updateinterval>
 </NODE>

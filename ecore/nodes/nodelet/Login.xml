@@ -76,6 +76,7 @@ Don't have an account?&lt;br&gt;
 &lt;p&gt;
 Don't have an account? &lt;a href="/index.pl?node=Create%20a%20new%20user"&gt;Create a new user&lt;/a&gt;.
 &lt;/font&gt;</nltext>
+	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">----</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Login</title>

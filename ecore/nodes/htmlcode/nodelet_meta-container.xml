@@ -1,8 +1,8 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">return "you have this off" if $$VARS{nodelets_off};
-
+return if (($$USER{title} eq "Guest User") and not($HTMLVARS{GUshownodelets}) );
 my $str;
 my $align = $$VARS{nodelet_align};
 my @nodelets = split ",",$$VARS{nodelets} if exists ($$VARS{nodelets});

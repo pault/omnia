@@ -15,11 +15,12 @@
 	<page table="htmlpage">title:[{textfield:title}]
 maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 parent container:[{node_menu:parent_container}]&lt;br&gt;
-update interval: [{textfield:updateinterval}] (in seconds)
+update interval: [{textfield:updateinterval}] (in seconds)&lt;br&gt;
+Mini Nodelet: [{node_menu: nodelet_mini, nodelet}]
 &lt;br&gt;
 
 nodelet code:&lt;br&gt;
-[{textarea:nlcode}]&lt;br&gt;
+[{textarea:nlcode}]
 [{submit}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodelet</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>

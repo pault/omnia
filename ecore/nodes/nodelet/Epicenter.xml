@@ -48,6 +48,7 @@ $str = join "&lt;br&gt;\n", @links;
 &lt;A HREF="/index.pl?node_id=173&amp;lastnode_id=0"&gt;system settings&lt;/a&gt;&lt;br&gt;
 &lt;A HREF="/index.pl?node_id=192&amp;lastnode_id=0"&gt;root location&lt;/a&gt;
 &lt;/font&gt;</nltext>
+	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiii</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Epicenter</title>

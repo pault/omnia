@@ -2,7 +2,7 @@
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode"> 	my ($PARAM) = @_;
- 
+return if (($$USER{title} eq "Guest User") and not($HTMLVARS{GUshowsearchform}) ); 
  	my $str = $query-&gt;start_form .
  	$query-&gt;textfield(-name =&gt; "node",
                  -default =&gt; "",

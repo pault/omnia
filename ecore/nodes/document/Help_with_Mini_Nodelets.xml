@@ -1,0 +1,30 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node">-1</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<doctext table="document">&lt;h3&gt; Mini Nodelets&lt;/h3&gt;&lt;p&gt;
+
+&lt;u&gt; Setup&lt;/U&gt;
+&lt;p&gt;
+ Once the Mini Nodelets nodeball (miniball-x.x.x.nbz) has been installed, nodelets with "mini" capaility ought to have a minimize icon appear in the upper right-hand corner. If the image is
+ broken, you may need to manually insert the image (minime.gif) into the images directory in your web directory (public_html or htdocs most likely). This image is included in the
+ in the core system nodeball. 
+&lt;p&gt;
+ If you have an older version or Everything (.0.9.0.0 - .0.9.0.4) you will need to add a nodelet_mini field to the nodelet dbtable. It should be of type int(11) and has no default value. Minball is 
+not directly compatable with older versions of Everything (pre .9).  You'll need to do a little hacking to get it to work.
+&lt;p&gt;
+ &lt;u&gt;New Mini Nodelets &lt;/u&gt;
+&lt;p&gt;
+ New Mini nodelets can be created the same way as ordinary nodelets, but must contain the title "TITLE Mini" in order to work properly. You must then assign the corresponding full sized
+ nodelet as this nodelet's "mini nodelet", and edit that nodelet to point to this newly created nodelet as its "mini nodelet." </doctext>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="literal_value">0</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">Help with Mini Nodelets</title>
+	<type_nodetype table="node" type="nodetype">document</type_nodetype>
+</NODE>

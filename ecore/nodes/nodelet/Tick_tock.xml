@@ -17,6 +17,7 @@ $time;
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">Thu Jul 20 20:42:20 EDT 2000</nltext>
+	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Tick tock</title>

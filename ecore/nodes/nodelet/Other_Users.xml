@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">946339422</lastupdate>
+	<lastupdate table="nodelet">966314594</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">Your fellow noders:&lt;br&gt;
 [%
@@ -33,7 +33,9 @@ return $str if $str;
 "&lt;i&gt;no users logged in&lt;/i&gt;";
 %] </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet"></nltext>
+	<nltext table="nodelet">Your fellow noders:&lt;br&gt;
+&lt;A HREF="/~paco/index.pl?node_id=231&amp;lastnode_id=35"&gt;root&lt;/a&gt;&lt;br&gt; </nltext>
+	<nodelet_mini table="nodelet" type="nodelet">Other Users Mini</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Other Users</title>

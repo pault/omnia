@@ -39,6 +39,7 @@ return "nsh Errors:&lt;br&gt;\n" . $GLOBAL{nsh_errors};
 
 &lt;/font&gt;
 </nltext>
+	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">----</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">nsh</title>

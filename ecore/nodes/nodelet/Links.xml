@@ -31,6 +31,7 @@ $str = "&lt;ol&gt;\n" . $str  . "\n&lt;/ol&gt;";
 	<nltext table="nodelet">&lt;ol&gt;
 
 &lt;/ol&gt;</nltext>
+	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Links</title>

@@ -1,14 +1,18 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<attachment_file table="mail" type="literal_value">0</attachment_file>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">Hey there.  You or someone else has requested a password for your username or e-mail address.  Before you freak out take a few deep breaths and remember it's YOU and not THEM who is getting this password.
+	<doctext table="document">Hey there.  Welcome to &lt;site_name&gt;.
 
-Here's your info:
+Here's the skinny:
 
 username: &lt;user&gt;
 passwd: &lt;passwd&gt;
 real(tm) name: &lt;name&gt;
+
+
+to login go to: 
+http://www.whatever.com
 
 
 love, the management
@@ -19,10 +23,10 @@ love, the management
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<from_address table="mail"></from_address>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
 	<loc_location table="node" type="location">mail</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">Password Mail</title>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">New User Mail</title>
 	<type_nodetype table="node" type="nodetype">mail</type_nodetype>
 </NODE>

@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">946339423</lastupdate>
+	<lastupdate table="nodelet">966661097</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">Node ID:[% getId $NODE %]&lt;br&gt;
 Created on:&lt;br&gt; ["$$NODE{createtime}"]&lt;br&gt;
@@ -16,7 +16,12 @@ Hits: ["$$NODE{hits}"]&lt;br&gt;
 Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
 Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype"))); %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet"></nltext>
+	<nltext table="nodelet">Node ID:47&lt;br&gt;
+Created on:&lt;br&gt; 2000-08-18 23:13:53&lt;br&gt;
+Hits: 11&lt;br&gt;
+Nodetype: &lt;A HREF="/~paco/temp2/index.pl?node_id=19&amp;lastnode_id=47"&gt;superdoc&lt;/a&gt;&lt;br&gt;
+Display page: &lt;br&gt;&lt;A HREF="/~paco/temp2/index.pl?node_id=172&amp;lastnode_id=47"&gt;superdoc display page&lt;/a&gt;</nltext>
+	<nodelet_mini table="nodelet" type="nodelet">Node Statistics Mini</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Node Statistics</title>

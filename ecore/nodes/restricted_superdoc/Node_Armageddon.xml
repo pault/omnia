@@ -138,7 +138,7 @@ $str;
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="literal_value">0</loc_location>
+	<loc_location table="node" type="location">restricted_superdoc</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">Node Armageddon</title>
 	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>

@@ -21,7 +21,8 @@ Supports: [{node_menu:supports_nodetype}]&lt;br&gt;
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{textarea:code}]&lt;/td&gt;
 &lt;td width=10%&gt;&lt;font size=2&gt;[%
-my $N = getNode($$NODE{supports_nodetype});
+my $N;
+ if ($$NODE{supports_nodetype}) {$N = getNode($$NODE{supports_nodetype}) }
 my $str;
 
 return "No Nodetype selected!\n" unless($N);

@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
-	<context table="container">&lt;table border=0 cellpadding=2 cellspacing=1 width=100%&gt;
+	<context table="container">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%&gt;
 [%
   my $bk = $$THEME{nodeletTitleBackground};
   $bk||="images/titletest.gif";
@@ -16,25 +16,52 @@
       my $attr= $$THEME{nodeletTitleFontAttr};
       return $attr if $attr;
       "color=white";
-      %]&gt;["$$NODELET{title}"]
-    &lt;/font&gt;&lt;/B&gt;
+      %]&gt;[%
+       my $str;
+       if ($$NODELET{title}=~/Mini/i)
+        { $str.="CONTAINED_STUFF"; }
+       else
+        { $str.="$$NODELET{title}"; }
+       $str;
+      %]&lt;/font&gt;&lt;/B&gt;
   &lt;/TD&gt;
+[%
+my $str; 
+$str.="&lt;td valign=top bgcolor=";
+if ($$THEME{nodeletBodyColor})
+ { $str.= $$THEME{nodeletTitleColor} ."&gt;"; }
+else
+ { $str.="#CC99FF&gt;";  }
+if ($$NODELET{nodelet_mini})
+ {
+$str.=linkNode($$NODELET{nodelet_mini}, "&lt;img src=images/minime.gif valign=top align=right border=0&gt;", { 'op' =&gt; 'insertMini', 'floyd'=&gt; $$USER{node_id}, 'nodelet' =&gt; $$NODELET{node_id},'node' =&gt; $$NODE{title}})."&lt;/td&gt;"; }
+else
+ { $str.="&amp;nbsp;"; }
+$str;
+%]
 &lt;/TR&gt;
-&lt;TR&gt;
-  &lt;TD bgcolor=[%
-    return $$THEME{nodeletBodyColor} if $$THEME{nodeletBodyColor};
-    "#CCCCCC";
-  %]&gt;
-   &lt;FONT [%
-     my $fa = $$THEME{nodeletBodyFontAttr};
-     return $fa if $fa;
-     "size=2";
-   %]&gt;
-    CONTAINED_STUFF
-   &lt;/FONT&gt;
-  &lt;/TD&gt;
-&lt;/TR&gt;
-&lt;/table&gt;</context>
+[%
+my $str;
+if ($$NODELET{title}=~/Mini/i)
+{ $str.="&lt;/table&gt;"; }
+else
+{ $str.="&lt;TR&gt;&lt;TD colspan=2 bgcolor=";
+  if ($$THEME{nodeletBodyColor})
+   { $str.= $$THEME{nodeletBodyColor}; }
+  else
+   { $str.="#CCCCCC"; }
+  $str.="&gt;&lt;FONT ";
+  my $fa = $$THEME{nodeletBodyFontAttr};
+  if ($fa)
+   { $str.= $fa; } 
+  else
+   { $str.="size=2"; }
+ $str.="&gt; CONTAINED_STUFF &lt;/FONT&gt;&lt;/TD&gt;&lt;/TR&gt;&lt;/table&gt;";
+}
+$str;
+%]
+
+</context>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>

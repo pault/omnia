@@ -15,5 +15,6 @@ CREATE TABLE nodelet (
   parent_container int(11),
   lastupdate int(11) DEFAULT '0' NOT NULL,
   updateinterval int(11) DEFAULT '0' NOT NULL,
+  nodelet_mini int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (nodelet_id)
 );

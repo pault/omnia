@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
@@ -8,22 +8,19 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">953104108</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">[%
-my $str;
-foreach ($query-&gt;param) {
-  $str.="&lt;b&gt;$_&lt;/b&gt;:" . $query-&gt;param($_) . "&lt;br&gt;\n" 
-    unless length ($query-&gt;param($_)) &gt; 30 or not defined $query-&gt;param($_);
-}
-$str;
-%]</nlcode>
+	<lastupdate table="nodelet">965779227</lastupdate>
+	<loc_location table="node" type="literal_value">0</loc_location>
+	<nlcode table="nodelet">&lt;font size = 1&gt;
+Node ID:[% getId $NODE %]&lt;br&gt;
+Nodetype: [% linkNode ($$NODE{type_nodetype}, "&lt;font color=#FFFFFF&gt;$$NODE{type_nodetype} &lt;/font&gt;"); %]&lt;br&gt;
+Display: &lt;font color=White&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype")), "&lt;font color=#FFFFFF&gt;".getPage($NODE, $query-&gt;param("displaytype"))-&gt;{title}."&lt;/font&gt;"); %]
+&lt;/font&gt;</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet"></nltext>
-	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
+	<nodelet_mini table="nodelet" type="nodelet">Node Statistics</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">CGI::param</title>
+	<title table="node">Node Statistics Mini</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
 	<updateinterval table="nodelet">0</updateinterval>
 </NODE>

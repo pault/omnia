@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">-i-i</groupaccess>
 	<guestaccess table="node">-i-i</guestaccess>
-	<lastupdate table="nodelet">966397534</lastupdate>
+	<lastupdate table="nodelet">966314569</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">&lt;table border=0&gt;
  &lt;tr&gt;
@@ -41,12 +41,15 @@ $str .= $query-&gt;textfield(-name =&gt; "node_id",
  &lt;tr&gt;
   &lt;td&gt;
    &lt;font size=2&gt;
-   &lt;a href=[% 
+[%
+my $test = $ENV{HTTP_USER_AGENT};
+if ($test=~ /MSIE/ig)
+ {my $str = "&lt;a href="; 
 my $displaytype = $query-&gt;param('displaytype');
 $displaytype ||= 'display';
-urlGen({ 'node_id' =&gt; getId($NODE),
+$str.=urlGen({ 'node_id' =&gt; getId($NODE),
  'displaytype' =&gt; $displaytype,
- 'containers' =&gt; 'show'}); %]&gt;Show containers&lt;/a&gt;&lt;br&gt;
+ 'containers' =&gt; 'show'})." &gt;Show containers&lt;/a&gt;";} %]&lt;br&gt;
 
    [%
 linkNode(getNode('create node', 'restricted_superdoc'),
@@ -56,39 +59,10 @@ linkNode(getNode('create node', 'restricted_superdoc'),
   &lt;/td&gt;
  &lt;/tr&gt;
 &lt;/table&gt;
+
 [{adminbox}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">
-&lt;script language="javascript"&gt;
-
-function cloneNode()
-{
-  var newname = prompt("Cloning node \"The Default Node\"\nEnter a new name:", "");
-
-  if(newname)
-  {
-    var url = "/~paco/temp2/index.pl?node_id=210&amp;srcnode_id=222&amp;newname=NEWNAME";
-    
-    url = url.replace(/NEWNAME/, newname);
-    url = url.replace(/ /g, "%20");
-    parent.location = url;
-  }
-}
-
-&lt;/script&gt;display |
-&lt;A HREF="/~paco/temp2/index.pl?displaytype=edit&amp;node_id=222&amp;lastnode_id=222"&gt;edit&lt;/a&gt;  |
-&lt;A HREF="/~paco/temp2/index.pl?displaytype=permissions&amp;node_id=222&amp;lastnode_id=222"&gt;permissions&lt;/a&gt; &lt;br&gt;&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;
-&lt;SCRIPT language="javascript"&gt;
-  function confirmDelete(){
-    if(confirm("Delete 'The Default Node'?")){
-      parent.location="/~paco/temp2/index.pl?node_id=222&amp;op=nuke"; }
-        }
-&lt;/SCRIPT&gt;
-&lt;br&gt;&lt;font size=1&gt;
-&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
-&lt;/font&gt;
-
-&lt;table border=0&gt;
+	<nltext table="nodelet">&lt;table border=0&gt;
  &lt;tr&gt;
   &lt;td nowrap&gt;
     &lt;font size=2&gt;
@@ -110,14 +84,43 @@ node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240&gt;
  &lt;tr&gt;
   &lt;td&gt;
    &lt;font size=2&gt;
-   &lt;a href="/~paco/temp2/index.pl?displaytype=display&amp;node_id=222&amp;containers=show"&gt;Show containers&lt;/a&gt;&lt;br&gt;
+&lt;br&gt;
 
-   &lt;A HREF="/~paco/temp2/index.pl?node_id=212&amp;lastnode_id=222"&gt;Create new node&lt;/a&gt;&lt;br&gt;
-   Current node id: 222
+   &lt;A HREF="/~paco/index.pl?node_id=212&amp;lastnode_id=138"&gt;Create new node&lt;/a&gt;&lt;br&gt;
+   Current node id: 138
    &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;
-&lt;/table&gt;</nltext>
+&lt;/table&gt;
+
+
+&lt;script language="javascript"&gt;
+
+function cloneNode()
+{
+  var newname = prompt("Cloning node \"nodelet display page\"\nEnter a new name:", "");
+
+  if(newname)
+  {
+    var url = "/~paco/index.pl?node_id=210&amp;srcnode_id=138&amp;newname=NEWNAME";
+    
+    url = url.replace(/NEWNAME/, newname);
+    url = url.replace(/ /g, "%20");
+    parent.location = url;
+  }
+}
+
+&lt;/script&gt;&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1&gt;
+         &lt;tr bgcolor=#ffffff&gt; 
+           &lt;td bgcolor='#FFCCCC' align='center'&gt;&lt;A HREF="/~paco/index.pl?displaytype=display&amp;node_id=138&amp;lastnode_id=138"&gt;&lt;img src=images/icon_display.gif  border=0&gt;&lt;/a&gt; &lt;/td&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;img src=images/icon_edit_current.gif border=0&gt;&lt;/td&gt;&lt;td bgcolor='#FFCCCC' align='center'&gt;&lt;A HREF="/~paco/index.pl?displaytype=permissions&amp;node_id=138&amp;lastnode_id=138"&gt;&lt;img src=images/icon_permissions.gif  border=0&gt;&lt;/a&gt; &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;a href='javascript: cloneNode();'&gt;&lt;img src=images/icon_clone.gif border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;td bgcolor='#FFCCCC'&gt;&amp;nbsp;&lt;/td&gt;
+&lt;SCRIPT language="javascript"&gt;
+  function confirmDelete(){
+    if(confirm("Delete 'nodelet display page'?")){
+      parent.location="/~paco/index.pl?node_id=138&amp;op=nuke"; }
+        }
+&lt;/SCRIPT&gt;
+&lt;td bgcolor='#FF9999' align=center&gt;&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</nltext>
+	<nodelet_mini table="nodelet" type="nodelet">admin Nodelet Mini</nodelet_mini>
 	<otheraccess table="node">-i-i</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">admin nodelet</title>
