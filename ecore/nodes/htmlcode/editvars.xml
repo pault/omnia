@@ -80,11 +80,12 @@ $str .= &lt;&lt;HEAD;
 HEAD
 
 foreach (@skeys) {
+  my $val = encodeHTML($$SETTINGS{$_});
   $str .= &lt;&lt;SETTING;
 &lt;TR>&lt;TD>&lt;input type="checkbox" name="delsetting_$_">&lt;/td>
 &lt;TD bgcolor="$keyclr">&lt;b>$_&lt;/b>&lt;/TD>
 &lt;TD bgcolor="$valclr">&lt;INPUT TYPE="text" NAME="setsetting_$_"
-VALUE="$$SETTINGS{$_}" size="$valsize">&lt;/TD>
+VALUE="$val" size="$valsize">&lt;/TD>
 SETTING
 
   my ($nodetitle, $nodetype) = ('', '');
