@@ -20,12 +20,12 @@ sub MY::install
 
 	# Create the installation directory
 	$inherited .= "	mkdir $installDir ; \\\n";
-	$inherited .= "	chown -R nobody $installDir ; \\\n";
 	$inherited .= "	cp ./web/index.pl $webDir/index.pl ; \\\n";
 	$inherited .= "	chmod a+x $webDir/index.pl ; \\\n";
 	$inherited .= "	cp -R ./bin $installDir ; \\\n";
 	$inherited .= "	cp -R ./docs $installDir ; \\\n";
 	$inherited .= "	cp -R ./images $installDir ; \\\n";
+	$inherited .= "	chown -R nobody $installDir ; \\\n";
 
 	# We remove any pod file entry for us before installing otherwise we
 	# end up with many pod entries.  Since developers will be running
