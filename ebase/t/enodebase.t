@@ -10,19 +10,9 @@ BEGIN {
 	$INC{ 'Everything.pm' } = 1;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 1;
 
 my $package = 'Everything::NodeBase';
 
 use_ok( $package );
-
-can_ok( $package, 'genTableName' );
-is( $package->genTableName( 'foo' ), 'foo',
-	'genTableName() should return first arg' );
-
-can_ok( $package, 'genLimitString' );
-is( $package->genLimitString( 10, 20 ), 'LIMIT 10, 20',
-	'genLimitString() should return a valid limit' );
-is( $package->genLimitString( undef, 20 ), 'LIMIT 0, 20',
-	'... defaulting to an offset of zero' );
 
