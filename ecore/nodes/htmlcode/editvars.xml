@@ -25,7 +25,7 @@ foreach (@params) {
     # avoid uninitialized values but don't clobber a valid setting of 0
     $setvalue = '' unless (defined($setvalue));
 
-    unless ($setvalue) {
+    unless ($setvalue ne '') {
       my $nodename = $query->param("node name$1") || '';
       my $nodetype = $query->param("node type$1") || '';
 
@@ -49,7 +49,10 @@ foreach (@params)
 
 my $newsetting = $query->param('newsetting') || '';
 if ($newsetting) {
-  my $newval = $query->param('newval') || '';
+  # 0 is valid here, so don't clobber it with a truth test
+  my $newval = $query->param('newval');
+  $newval = '' unless(defined($newval));
+
   my $nodenamenew = $query->param('node namenew') || '';
   my $nodetypenew = $query->param('node typenew') || '';
 
