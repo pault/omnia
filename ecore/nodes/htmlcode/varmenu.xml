@@ -1,37 +1,38 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="varmenu">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</
+field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($var, @TYPES) = @_;
 
 $var or return;
 
-my ($name) = "set$var";
+my ($name) = &quot;set$var&quot;;
 
 @TYPES or return;  #if no explicit types, quit
 
-foreach (@TYPES) { $_ = $DB->getType($_); }  #replace w/ node refs
-my $NODELIST = $DB->selectNodeWhere ({ type_nodetype => \@TYPES },
-  "", "title");
+foreach (@TYPES) { $_ = $DB-&gt;getType($_); }  #replace w/ node refs
+my $NODELIST = $DB-&gt;selectNodeWhere ({ type_nodetype =&gt; \@TYPES },
+  &quot;&quot;, &quot;title&quot;);
 
 my $str;
 
 my (@titlelist, %items);
-$items{"0"} = "(default)";
-	
-push (@titlelist, "0");
+$items{&quot;0&quot;} = &quot;(default)&quot;;
+
+push (@titlelist, &quot;0&quot;);
        foreach my $N (@$NODELIST) {
-                $N = $DB->getNodeById($N, 'light');
+                $N = $DB-&gt;getNodeById($N, 'light');
                 my $id = getId $N;
-		push @titlelist, $id;
-		$items{$id} = $$N{title};
+                push @titlelist, $id;
+                $items{$id} = $$N{title};
         }
 
 my $SELECT = $$VARS{$var};
 
-if (my $q = $query->param("set$var")) {$$VARS{$var} = $q;}
-elsif ($query->param("sexisgood")){ $$VARS{$var}=""; } 
+if (my $q = $query-&gt;param(&quot;set$var&quot;)) {$$VARS{$var} = $q;}
+elsif ($query-&gt;param(&quot;formsubmit&quot;)){ $$VARS{$var}=&quot;&quot;; } 
 
-$query->popup_menu($name, \@titlelist, $SELECT, \%items);</field>
+$query-&gt;popup_menu($name, \@titlelist, $SELECT, \%items);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -39,8 +40,11 @@ $query->popup_menu($name, \@titlelist, $SELECT, \%items);</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">h
+tmlcode</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="title" type="literal_value">varmenu</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">
+htmlcode</field>
 </NODE>
+

@@ -1,141 +1,37 @@
-<NODE export_version="0.5" nodetype="superdoc" title="Create a new user">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+<NODE export_version="0.5" nodetype="htmlpage" title="image upload page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</
+field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">[%
-my $str;
-
-local *generateLogin = sub {
- $query-&gt;start_form
-    .'&lt;INPUT TYPE=&quot;hidden&quot; NAME=&quot;op&quot; VALUE=&quot;newuser&quot;&gt;'
-    .$query-&gt;hidden('node_id', getId($NODE))
-    .'Preferred User Name:
-      &lt;INPUT TYPE=&quot;text&quot; NAME=&quot;nu_name&quot; VALUE=&quot;&quot; MAXLENGTH=&quot;22&quot;&gt;&lt;br&gt;
-      Real&amp;#153; Name:'
-    .$query-&gt;textfield(&quot;nu_realname&quot;, &quot;&quot;, 30)
-    .'&lt;br&gt;Email Address:'
-    .$query-&gt;textfield(&quot;nu_email&quot;, &quot;&quot;, 20)
-    .'&lt;br&gt;'
-    .$query-&gt;submit(&quot;sexisgood&quot;, &quot;submit&quot;)
-    .$query-&gt;end_form;
- };
-
-
-
-if ($$USER{node_id} != $HTMLVARS{guest_user}) {
- # return &quot;You already &lt;i&gt;are&lt;/i&gt; a user -- you don't need an alter-ego...&quot;;
-}
-
-
-
-unless ($query-&gt;param(&quot;op&quot;) eq &quot;newuser&quot;) {
-  $str.=&quot;
-To create a new user on Everything, we need a smattering of information:
-&lt;p&gt;&quot;;  
-
-
-$str .=generateLogin();
-
- $str .= '
-&lt;p&gt;
-&lt;i&gt;&lt;b&gt;Please note:&lt;/b&gt;
-We are not going to send you junk email &quot;member updates&quot;, sell your
-address to spammers, or display your email address for people to see.  
-This email exists so that you can recieve your password, and/or retrieve
-it if you forget.  There may be future email functionality, which
-you will have the option to turn on from your user settings page.  
-&lt;/i&gt;
-
-&lt;p&gt;Forgot your username or password? Click [What is my password|HERE].';
-return $str;
-}
-
-my $realname = $query-&gt;param(&quot;nu_realname&quot;);
-my $email = $query-&gt;param(&quot;nu_email&quot;);
-my $name = $query-&gt;param(&quot;nu_name&quot;);
-
-my $NEWUSER = getNode($name, &quot;user&quot;, &quot;create&quot;);
-
-#generate the passwd and send it out on email.
-my @chars = ( &quot;A&quot; .. &quot;Z&quot;, &quot;a&quot; .. &quot;z&quot;, 0 .. 9);
-my $passwd = join(&quot;&quot;, @chars[ map { rand @chars } ( 1 .. 8 ) ]);
-
-if($NEWUSER-&gt;getId() == -1)
-{
-#check if we have any '_' vs ' ' clashing that could lead to chatterbox conflicts
-my $match=lc($name);
-$match=~s/([a-zA-Z])/'['.$1.uc($1).']'/eg;
-$match=~s/[_ ]/[_ ]/g;
-$match=&quot;^$match\$&quot;;
-my ($closeuser)=$DB-&gt;sqlSelect(&quot;node_id,title&quot;,&quot;node&quot;,&quot;title regexp \&quot;$match\&quot; and type_nodetype=&quot;.getId(getType('user')));
-if($closeuser){
-   return &quot;Sorry, your username clashes with &quot;.linkNode($closeuser)
-    .&quot; which already exists.  Pick a variation, or try another name...&lt;p&gt;\n&quot;.generateLogin();  
-}
-#deny people the power of _ and ' ' at the beginning of usernames
-if($name=~/^[_ ]/){
-    return &quot;Sorry ' ' and '_' are not allowed at the beginning of usernames.  Try again, do not pass go do not collect \$200&lt;P&gt;&quot;.generateLogin();
-}
-if($name=~/[\[\]]/){
-    return &quot;Sorry &amp;#091; and &amp;#093; are not allowed in usernames.  Try again.&lt;P&gt;&quot;.generateLogin();
-}
-   # First, insert the node so it exists in the database
-   my $id = $NEWUSER-&gt;insert(-1);
-
-   # Now fill out the fields with the info that we have
-   $$NEWUSER{realname} = $realname;
-   $$NEWUSER{email} = $email;
-   $$NEWUSER{passwd} = $passwd;
-
-   # And update it
-   $NEWUSER-&gt;update(-1);
-}
-else
-{ my $olduser = getNode($name, 'user');
-   return &quot;Sorry, &quot; . linkNode($olduser) .
-       &quot; already exists.  Pick a variation, or try another name...&lt;p&gt;\n&quot;
-.
-       generateLogin();
-}
-
-$str.=&quot;Your new user account (&quot;
-  .linkNode($NEWUSER)
-  .&quot;) has been created.  You ($email) should be getting an email soon
-telling you your generated password.&quot;;
-
-#send some email;
-my ($n) = getNode('New User Mail', 'mail');
-getRef $n;
-$$n{doctext} =~ s/\&lt;name\&gt;/$$NEWUSER{realname}/g;
-$$n{doctext} =~ s/\&lt;user\&gt;/$$NEWUSER{title}/g;
-$$n{doctext} =~ s/\&lt;passwd\&gt;/$$NEWUSER{passwd}/g;
-$$n{doctext} =~ s/\&lt;site_name\&gt;/$HTMLVARS{site_name}/g;
-$$n{doctext} =~
-s/\&lt;homenode\&gt;/$HTMLVARS{site_url}index\.pl\?node=$$NEWUSER{title}\&amp;type=user/g;
-$$n{doctext} =~ s/\&lt;site_url\&gt;/$HTMLVARS{site_url}/g;
-$$n{doctext} =~
-s/\&lt;login\&gt;/$HTMLVARS{site_url}index\.pl\?node_id=$HTMLVARS{login_node}/g;
-
-
-
-use Everything::MAIL;
-node2mail($$NEWUSER{email},$n);
-
-$str;
-
-
-%]
-
-</field>
+  <field name="displaytype" type="literal_value">upload</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiiii</field>
-  <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">superdoc</field>
-  <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">Create a new user</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">h
+tmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[%
+        $query-&gt;start_multipart_form('POST', $ENV{script_name}) .
+        $query-&gt;hidden('displaytype') .
+        $query-&gt;hidden('node_id', getId $NODE);
+%]
+[{uploadimage:src}]
+[%
+        $query-&gt;submit('formsubmit', 'stumbit') .
+        $query-&gt;end_form();
+%]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodety
+pe">image</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodety
+pe">general container</field>
+  <field name="permissionneeded" type="literal_value">c</field>
+  <field name="title" type="literal_value">image upload page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">
+htmlpage</field>
 </NODE>
 

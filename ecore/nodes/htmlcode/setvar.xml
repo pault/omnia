@@ -1,13 +1,15 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="setvar">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</
+field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($var, $len) = @_;
 $len ||=10;
-if (my $q = $query->param("set$var")) {$$VARS{$var} = $q;}
-if ($query->param("sexisgood") and not $query->param("set$var")){
-	$$VARS{$var}="";
+if (my $q = $query-&gt;param(&quot;set$var&quot;)) {$$VARS{$var} = $q;}
+if ($query-&gt;param(&quot;formsubmit&quot;) and not $query-&gt;param(&quot;set
+$var&quot;)){
+        $$VARS{$var}=&quot;&quot;;
 }
-$query->textfield("set$var", $$VARS{$var}, $len);</field>
+$query-&gt;textfield(&quot;set$var&quot;, $$VARS{$var}, $len);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -15,8 +17,11 @@ $query->textfield("set$var", $$VARS{$var}, $len);</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">h
+tmlcode</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="title" type="literal_value">setvar</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">
+htmlcode</field>
 </NODE>
+
