@@ -1,0 +1,15 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">restricted fields</title>
+	<type_nodetype table="node" type="nodetype">setting</type_nodetype>
+	<vars table="setting">
+		<hits >1</hits>
+		<createtime >1</createtime>
+		<reputation >1</reputation>
+		<karma >1</karma>
+		<vars >1</vars>
+	</vars>
+</NODE>
