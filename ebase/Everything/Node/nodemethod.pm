@@ -11,6 +11,7 @@ package Everything::Node::nodemethod;
 
 
 use strict;
+use Everything::Node;
 
 
 #############################################################################
@@ -31,7 +32,6 @@ sub getIdentifyingFields
 {
 	return ['supports_nodetype'];
 }
-
 
 #############################################################################
 # End of package

@@ -1969,10 +1969,12 @@ sub initForPageLoad
 	# Initialize our connection to the database
 	Everything::initEverything($db, 1);
 
-	# Clear the method cache for searching.  Something may have changed.
-	# This is similar to the resetCache() below.
+	# The nodemethod cache is just to prevent repeated queries for the
+	# same method over and over.  Since nodemethods can be created or
+	# deleted, we need to clear this each time to make sure we get new
+	# changes.
 	Everything::Node::initMethodCache();
-	
+
 	# The cache has a performance enhancement where it will only check
 	# versions once.  This clears the version check cache so that we
 	# will do fresh version checks each page load.
