@@ -124,7 +124,9 @@ WriteMakefile(
 									'XML::Parser'		=> 2.26,
 									'Mysql'				=> 1.2202,
 									'File::Spec'		=> 0.82,
-									'CGI'				=> 2.46
+									'CGI'				=> 2.46,
+									'Test::MockObject'  => 0.09,
+									'Mail::Address'     => 1.53,
 								},
 	'clean'					=> 	{ FILES => 'web/index.pl tables/basenodes.txt' }
 );
