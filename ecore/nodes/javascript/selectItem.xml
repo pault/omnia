@@ -1,0 +1,60 @@
+<NODE export_version="0.5" nodetype="javascript" title="selectItem">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">function selectItem(srcname, destname, add)
+{
+  var src;
+  var dest;
+  if(add == null) add = 1;
+
+  if(add)
+  {
+    src = findFormObject(srcname);
+    dest = findFormObject(destname);
+  }
+  else
+  {
+    src = findFormObject(destname);
+    dest = findFormObject(srcname);
+  }
+
+  if(!src || !dest) return;
+  var sel = src.selectedIndex;
+  if(sel &lt; 0 || sel >= src.length) return;
+
+  var opt = new Option(src.options[sel].text, src.options[sel].value);
+  var len = src.length;
+  for(var i = sel; i &lt; len-1; i++)
+  {
+    src.options[i].value = src.options[i+1].value;
+    src.options[i].text = src.options[i+1].text;
+  }
+
+  src.selectedIndex = src.selectedIndex - 1;
+  if(src.selectedIndex &lt; 0) src.selectedIndex = 0;
+  src.options[len-1] = null;
+
+  var ins = dest.length;
+  dest.options[ins] = opt;
+  dest.selectedIndex = ins;
+
+  maintainValues(destname);
+}
+</field>
+  <field name="comment" type="literal_value">This is used by the groupSelector to move items back and forth between
+the "source" list and the "destination".  It also depends on the
+moveSelectItem() javascript as it uses both the moveSelectItem() and
+the maintainValues() functions.</field>
+  <field name="dynamic" type="literal_value">0</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">javascript</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">selectItem</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
+</NODE>

@@ -16,7 +16,7 @@ $time =~ s/\n.*$//;
 $time;
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">Tue Aug 22 19:39:05 EDT 2000</field>
+  <field name="nltext" type="literal_value">Thu Feb  1 02:46:21 PST 2001</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Tick tock</field>

@@ -13,15 +13,40 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;b>Real Name&lt;/b>: ["$$NODE{realname}"]&lt;br>
-[{nodeFormObject: textfield, realname}]
-
-&lt;p>Change password:&lt;br>[{nodeFormObject: passwdfield, passwd, 1, 1}]
-
-&lt;p>&lt;b>Email Address&lt;/b>: ["$$NODE{email}"]&lt;br>
-[{nodeFormObject: textfield, email, email, 40}]
-&lt;p>&lt;b>User's Bio&lt;/B>: 
+  <field name="page" type="literal_value">&lt;table border=0 cellspacing='10'>
+&lt;tr>
+ &lt;td>
+  &lt;b>Real Name&lt;/b>: ["$$NODE{realname}"]&lt;br>
+  [{nodeFormObject: textfield, realname}]
+ &lt;/td>
+ &lt;td>
+   &lt;b>Email Address&lt;/b>: ["$$NODE{email}"]&lt;br>
+   [{nodeFormObject: textfield, email, email, AUTO, 40, 255}]
+ &lt;/td>
+&lt;/tr>
+&lt;tr>
+  &lt;td>
+  &lt;p>&lt;b>Change password:&lt;/b>&lt;br>[{nodeFormObject: passwdfield, passwd, passwd, 1, 1}]
+ &lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td colspan=2>
+&lt;b>User's Bio&lt;/B>: 
 &lt;p>[{nodeFormObject: textarea, doctext}]
+&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;h4>User Preferences&lt;/h4>
+&lt;p>Theme: [{themeselector}]
+
+&lt;p>
+[{includeJS: findFormObject, moveSelectItem, selectItem}]
+[%
+my $nodelets = $DB->newNode("subsetSelector");
+$nodelets->addType('nodelet', $USER, 'x', 'labels');
+$nodelets->genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
+undef, undef, 'Available Nodelets:', 'Selected Nodelets:');
+%]
 
 &lt;p>
 [{submit}]</field>

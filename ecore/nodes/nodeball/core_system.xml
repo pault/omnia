@@ -25,7 +25,6 @@
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">listmenu</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">location</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">mail</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">maintenance</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodeball</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodegroup</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodelet</member>
@@ -122,7 +121,6 @@
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">image</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">location</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">mail</member>
-    <member name="group_node" type="noderef" type_nodetype="location,nodetype">maintenance</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">node</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodeball</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodegroup</member>
@@ -158,8 +156,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">location display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">location edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">mail display page</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">maintenance display page</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">maintenance edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node basicedit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node edit page</member>
@@ -228,7 +224,7 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">linkVar</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">javascript</member>
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">findFormObject</member>
-    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">moveGroupItem</member>
+    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">moveSelectItem</member>
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">editTitleOwner</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">listNodetypeFields</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">permissionmenu</member>
@@ -260,7 +256,6 @@
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">image</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">links</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">mail</member>
-    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">maintenance</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">node</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">nodegroup</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">nodelet</member>
@@ -287,6 +282,10 @@
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">nodelistcheck</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">the killing floor</member>
     <member name="group_node" type="noderef" type_nodetype="image,nodetype">eicon</member>
+    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">selectItem</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">subsetSelector</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

@@ -12,7 +12,7 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editDefaultPermissions>]
 &lt;table border=0>
  &lt;tr>
@@ -28,7 +28,7 @@
  &lt;tr>
   &lt;td>extends&lt;/td>
   &lt;td>
-  [{nodeFormObject: nodetypemenu, extends_nodetype, extends, 0, $USER, 0,0,0,0}]
+  [{nodeFormObject: nodetypemenu, extends_nodetype, extends, 0, $USER, 0}]
   &lt;/td>
  &lt;/tr>
  &lt;tr>

@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="htmlpage" title="maintenance display page">
+<NODE export_version="0.5" nodetype="htmlpage" title="javascript display page">
   <field name="MIMEtype" type="literal_value">text/html</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
@@ -8,25 +8,20 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">Maintains: 
-[%
-my $N = $DB->getNodeById($$NODE{maintain_nodetype}, 'light');
-linkNode $N;
-%]
-&lt;br>
+  <field name="page" type="literal_value">&lt;b>Comments:&lt;/b>
+[{listcode: comment}]
 
 &lt;p>
-Maintenance operation:["$$NODE{maintaintype}"]
-&lt;p>[{listcode:code}]
-</field>
-  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">maintenance</field>
+&lt;b>Code:&lt;/b>
+[{listcode: code}]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>
-  <field name="title" type="literal_value">maintenance display page</field>
+  <field name="title" type="literal_value">javascript display page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>

@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="htmlpage" title="maintenance edit page">
+<NODE export_version="0.5" nodetype="htmlpage" title="javascript edit page">
   <field name="MIMEtype" type="literal_value">text/html</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
@@ -8,17 +8,26 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;h3>Maintenance code has been deprecated!  Do not use!&lt;/h3>
+  <field name="page" type="literal_value">[&lt;editTitleOwner>]
+&lt;b>Comments:&lt;/b> (these do not get printed in the HTML)&lt;br>
+[{nodeFormObject: textarea, comment, comments, AUTO, 80, 10}]
 
-</field>
-  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">maintenance</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+&lt;p>
+&lt;b>Code:&lt;/b>&lt;br>
+[{nodeFormObject: textarea, code, code, AUTO, 80, 20, off}]
+&lt;br>
+[{nodeFormObject: checkbox, dynamic, dynamic, 1, 0, AUTO, Has embedded Perl}]
+
+&lt;p>
+[{submit}]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
-  <field name="title" type="literal_value">maintenance edit page</field>
+  <field name="title" type="literal_value">javascript edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>

@@ -1,0 +1,82 @@
+<NODE export_version="0.5" nodetype="javascript" title="moveSelectItem">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">function moveSelectItem(name, op)
+{
+  var group = findFormObject(name);
+  if(!group) return;
+  var sel = group.selectedIndex;
+  if((sel &lt; 0) || (sel >= group.length)) return;
+  var tmp;
+
+  if(op)
+  {
+    if(group.length &lt; 2 || (sel+op &lt; 0) || (sel+op >= group.length)) return;
+    var tmpval = group.options[sel+op].value;
+    var tmptext = group.options[sel+op].text;
+
+    group.options[sel+op].value = group.options[sel].value;
+    group.options[sel+op].text = group.options[sel].text;
+    group.options[sel+op].selected = 1;
+
+    group.options[sel].value = tmpval;
+    group.options[sel].text = tmptext;
+    group.options[sel].selected = 0;
+
+    group.selectedIndex = sel+op;
+  }
+  else if(op == 0)
+  {
+    if(len &lt; 1) return;
+    var len = group.length;
+    for(var i = sel; i &lt; len-1; i++)
+    {
+      group.options[i].value = group.options[i+1].value;
+      group.options[i].text = group.options[i+1].text;
+    }
+    group.options[len-1] = null;
+  }
+  maintainValues(name);
+}
+
+function maintainValues(name)
+{
+  var group = findFormObject(name);
+  if(!group) return;
+
+  var valname = name + '_values';
+  var values = findFormObject(valname);
+  if(!values) return;
+  var grouplist = "";
+
+  for(var i = 0; i &lt; group.length; i++)
+  {
+    if(grouplist != "") grouplist += ",";
+    grouplist += group.options[i].value;
+  } 
+
+  values.value = grouplist;
+}</field>
+  <field name="comment" type="literal_value">The is is used by the nodegroup editor to move items in the list up and
+down.  'name' is the name of the &lt;select> list box that contains the
+group list.  'op' is either -1, 0, or 1.  -1 moves the selected item
+up in the list, 1 moves down, and 0 deletes the selected item.
+
+maintainValues() is called by moveSelectItem().  It is used to maintain
+a comma delimited list of node id's in a hidden form field.  This list
+represents the current state of the select.  That way, when the form is
+submitted, the hidden form field contains the list of id's for the
+edited select list.</field>
+  <field name="dynamic" type="literal_value">0</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">javascript</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">moveSelectItem</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
+</NODE>
