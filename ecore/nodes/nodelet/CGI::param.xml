@@ -12,14 +12,19 @@
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
 my $str;
-foreach ($query->param) {
-  $str.="&lt;b>$_&lt;/b>:" . $query->param($_) . "&lt;br>\n" 
-    unless length ($query->param($_)) > 30 or not defined $query->param($_);
+foreach ($query-&gt;param) {
+  next if $_ eq &quot;passwd&quot;;
+  $str.=&quot;&lt;b&gt;$_&lt;/b&gt;:&quot; . $query-&gt;param($_) . &quot;&lt;br&gt;\n&quot;
+    unless length ($query-&gt;param($_)) &gt; 30 or not defined $query-&gt;param($_);
 }
 $str;
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value"></field>
+  <field name="nltext" type="literal_value">&lt;b&gt;node_id&lt;/b&gt;:43&lt;br&gt;
+&lt;b&gt;op&lt;/b&gt;:login&lt;br&gt;
+&lt;b&gt;user&lt;/b&gt;:root&lt;br&gt;
+&lt;b&gt;login&lt;/b&gt;:Login&lt;br&gt;
+</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">CGI::param</field>
