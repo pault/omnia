@@ -1120,7 +1120,7 @@ sub getTables
 {
 	my ($NODE) = @_;
 	getRef $NODE;
-	my @tmpArray = ($$NODE{type}{tableArray});  # Make a copy
+	my @tmpArray = @{ $$NODE{type}{tableArray}};  # Make a copy
 
 	return @tmpArray;
 }

@@ -858,6 +858,7 @@ sub nukeNode
 		$this->{dbh}->do("DELETE FROM $groupTable WHERE " . $groupTable . 
 			"_id=$$NODE{node_id}");
 	}
+	$this->{dbh}->do("DELETE FROM nodegroup WHERE node_id=$$NODE{node_id}");
 	
 	# This will be zero if nothing was deleted from the tables.
 	return $result;
