@@ -52,20 +52,15 @@ sub BEGIN {
 		mod_perlInit);
 }
 
-use vars qw($query);
-use vars qw(%HTMLVARS);
-use vars qw(%GLOBAL);  # This is used for nodes to pass vars back-n-forth
-use vars qw($GNODE);
-use vars qw($USER);
-use vars qw($VARS);
-use vars qw($THEME);
-use vars qw($NODELET);
-use vars qw(%INCJS);
+use vars qw( $query $GNODE $NODELET $THEME $USER $VARS %HTMLVARS %INCJS );
 
+# This is used for nodes to pass vars back-n-forth
+use vars qw( %GLOBAL );
 
 ####### Deprecated functions #############
 sub getVars
 { 
+	deprecate();
 	my ($NODE) = @_;
 	getRef($NODE);
 	return $NODE->getVars();
@@ -73,6 +68,7 @@ sub getVars
 
 sub setVars
 { 
+	deprecate();
 	my ($NODE, $VARS) = @_;
 	getRef($NODE);
 	return $NODE->setVars($VARS, -1);
@@ -80,6 +76,7 @@ sub setVars
 
 sub insertIntoNodegroup
 {
+	deprecate();
 	my ($GROUP, $USER, $insert, $orderby) = @_;
 	getRef($GROUP);
 	return $GROUP->insertIntoGroup($USER, $insert, $orderby);
@@ -87,6 +84,7 @@ sub insertIntoNodegroup
 
 sub replaceNodegroup
 {
+	deprecate();
 	my ($GROUP, $REPLACE, $USER) = @_;
 	getRef($GROUP);
 	return $GROUP->replaceGroup($REPLACE, $USER);
@@ -94,9 +92,34 @@ sub replaceNodegroup
 
 sub removeFromNodegroup
 {
+	deprecate();
 	my ($GROUP, $NODE, $USER) = @_;
 	getRef($GROUP);
 	return $GROUP->removeFromGroup($NODE, $USER);
+}
+
+=cut
+
+deprecate( $level )
+
+For internal use only.
+
+Warns about calling a deprecated function so we can identify and remove the
+callers.
+
+=cut
+
+sub deprecate
+{
+	my $level = shift || 1;
+	my ($package, $filename, $line, $sub) = caller( $level );
+	$sub ||= 'main program';
+
+	my $warning = "Deprecated function '$sub' called";
+	$warning .= " from $filename" if defined $filename;
+	$warning .= " line #$line"  if defined $line;
+
+	Everything::logErrors( $warning );
 }
 
 
