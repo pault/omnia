@@ -1,4 +1,5 @@
 <NODE export_version="0.5" nodetype="htmlpage" title="htmlpage display page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="displaytype" type="literal_value">display</field>
@@ -31,6 +32,10 @@ return "&lt;i>none&lt;/i>";
  &lt;tr>
   &lt;td>&lt;b>displaytype&lt;/b>:&lt;/td>
   &lt;td>["$$NODE{displaytype}"]&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>&lt;b>MIME type&lt;/b>:&lt;/td>
+  &lt;td>["$$NODE{MIMEtype}"]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>theme&lt;/b>:&lt;/td>

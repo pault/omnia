@@ -1,4 +1,5 @@
 <NODE export_version="0.5" nodetype="htmlpage" title="themesetting edit page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="displaytype" type="literal_value">edit</field>

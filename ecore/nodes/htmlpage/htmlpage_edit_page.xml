@@ -1,4 +1,5 @@
 <NODE export_version="0.5" nodetype="htmlpage" title="htmlpage edit page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="displaytype" type="literal_value">edit</field>
@@ -45,6 +46,10 @@ $str;
  &lt;tr>
   &lt;td>&lt;b>displaytype:&lt;/b>&lt;/td>
   &lt;td>[{textfield:displaytype}]&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>&lt;b>MIME type:&lt;/b>&lt;/td>
+  &lt;td>[{textfield:MIMEtype}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>Parent container:&lt;/b>&lt;/td>
