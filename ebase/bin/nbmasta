@@ -13,8 +13,17 @@ use strict;
 use Everything;
 use Everything::XML;
 
-my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
-my %OPTIONS = ( force => 0, verbose => 0 );
+my $usagestr = "Usage: nbmasta [-h SQLHOST] [-u SQLUSER] [-p SQLPASS] [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
+
+
+my %OPTIONS = ( 
+	force => 0, 
+	verbose => 0, 
+	user => 'root', 
+	host => '', 
+	password => '' 
+	);
+
 while (@ARGV and $ARGV[0] =~ s/^\-(.*?)/$1/) {
 	my $arg = shift @ARGV;
 	if ($arg =~ s/^-(.*?)/$1/) {
@@ -22,17 +31,42 @@ while (@ARGV and $ARGV[0] =~ s/^\-(.*?)/$1/) {
 		next;
 	} 
 	$OPTIONS{verbose}++ if ($arg =~ /v/);
+	if ($arg =~ /u/) {
+		$OPTIONS{user} = shift @ARGV;
+	}
+	if ($arg =~ /p/) {
+		$OPTIONS{password} = shift @ARGV;
+	}
+	if ($arg =~ /h/) {
+		$OPTIONS{host} = shift @ARGV;
+	}
 }
 
 if (@ARGV < 3) {
 	print $usagestr; 
 	exit;
 }
-
 my ($function, $nodeball, $database) = @ARGV[0..2];
 
 initEverything($database, 1)
 	or die "couldn't connect to $database";
+
+#############################################################################
+#	Function
+#		buildSqlCmdline
+#
+#	Purpose
+#		This script has to call mysqldump and mysql a few different
+#		times, this function builds the command line options
+#
+sub buildSqlCmdline {
+	my $sql;
+	$sql .= " -u $OPTIONS{user} ";
+	$sql .= " -p$OPTIONS{password} " if $OPTIONS{password};
+	$sql .= " --host=$OPTIONS{host} " if $OPTIONS{host};
+	
+	$sql;
+}
 
 #############################################################################
 #	Function
@@ -55,7 +89,8 @@ sub exportTables {
 	my $mode = 0766;
 	chmod $mode, $dir;
 
-	my $err = `mysqldump -u root -T $dir $args $database $tbstr`;
+	my $sqlcommand = "mysqldump".buildSqlCmdline." -T $dir $args $database $tbstr";
+	my $err = `$sqlcommand`;
 	chomp $err;
 	# do another chmod here so it's not as ugly?
 	$err =~ s/^ *//g;  # clear out any whitespace
@@ -174,6 +209,7 @@ sub getColumns {
 	}
 	\%colhash;
 }
+
 
 ########################################################################
 #	sub
@@ -299,6 +335,7 @@ sub createDir {
 	}
 	return 1;
 }
+
 
 #############################################################################
 #	Function
@@ -594,6 +631,10 @@ sub installNodeball {
 
 	print "Installing nodeball.  Hang on.\n";
 
+	my $script_dir = $dir."/scripts";
+	my $preinst = $script_dir."/preinstall.pl";
+	require $preinst if -f $preinst; 
+	
 	my $tables_dir = $dir."/tables";
 	#import any tables that need it
 	use File::Find;	
@@ -673,11 +714,14 @@ sub installNodeball {
 	fixNodes(1);
 	print "   - Done.\n";
 
+	my $postinst = $script_dir."/postinstall.pl";
+	require $postinst if -f $postinst;
+
 	# install any .pm's that we might have
 	installModules($dir);
 
-	#memo to myself -- we should give warnings if dependant 
-	#nodeballs are not installed
+	#we should give warnings if dependant 
+	#nodeballs are not installed...  but we don't
 }
 
 
@@ -819,6 +863,10 @@ sub updateNodeball {
 	my ($OLDBALL, $NEWBALL, $dir) = @_;
 
 	#check the tables and make sure that they're compatable
+	my $script_dir = $dir ."/scripts";
+	my $preinst = $script_dir ."/preinstall.pl";
+	require $preinst if -f $preinst;
+	
 	my $tabledir = $dir."/tables";
 	unless (not -d $tabledir or checkTables ($tabledir) or $OPTIONS{force}) { 
 		die "your tables weren't exactly alike.  Change your tables in the "
@@ -893,7 +941,10 @@ sub updateNodeball {
 		#$NODE->nuke(-1);
 	}
 	fixNodes(1);
-
+	
+	my $postinst = $script_dir."/postinstall.pl";
+	require $postinst if -f $postinst;
+	
 	installModules($dir);
 	
 	print "$$NEWBALL{title} updated.\n";
