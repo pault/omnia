@@ -8,9 +8,9 @@
   <field name="defaultgroup_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
   <field name="defaultgroupaccess" type="literal_value">iiiii</field>
   <field name="defaultguest_permission" type="literal_value">-1</field>
-  <field name="defaultguestaccess" type="literal_value">iiiii</field>
+  <field name="defaultguestaccess" type="literal_value">---i-</field>
   <field name="defaultother_permission" type="literal_value">-1</field>
-  <field name="defaultotheraccess" type="literal_value">iiiii</field>
+  <field name="defaultotheraccess" type="literal_value">---i-</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
