@@ -21,6 +21,7 @@ sub MY::install
 	# Create the installation directory
 	$inherited .= "	mkdir $installDir ; \\\n";
 	$inherited .= "	cp ./web/index.pl $webDir/index.pl ; \\\n";
+	$inherited .= "	cp -R ./images $webDir/ ; \\\n";
 	$inherited .= "	chmod a+x $webDir/index.pl ; \\\n";
 	$inherited .= "	cp -R ./bin $installDir ; \\\n";
 	$inherited .= "	cp -R ./docs $installDir ; \\\n";

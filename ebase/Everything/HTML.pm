@@ -166,6 +166,8 @@ sub htmlScreen
 	my ($text, $APPROVED) = @_;
 	$APPROVED ||= {};
 
+	if ($text =~ /\<[^>]+$/) { $text .= ">"; } 
+	#this is required in case someone doesn't close a tag
 	$text =~ s/\<\s*(\/?)(\w+)(.*?)\>/tagApprove($1,$2,$3, $APPROVED)/gse;
 	$text;
 }
