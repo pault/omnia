@@ -24,7 +24,7 @@ if ($NODE-&gt;{owner} == $USER-&gt;{node_id}) {
 }
 
 # parse date from MMMM-YY-DD format
-my @months = qw( January February March April May June July
+my @months = qw( null January February March April May June July
 	August September October November December );
 $due_date =~ s/^(\d{4})-(\d{2})-(\d{2})$/$3 $months[$2] $1/;
 
@@ -46,22 +46,30 @@ if ($tu_node-&gt;hasTypeAccess($USER, 'c')) {
 	$str .= qq|&amp;displaytype=edit&amp;parent_task=$$NODE{node_id}"&gt;add comment&lt;/a&gt;&lt;/p&gt;|;
 }
 
-my $comments = getNodeWhere({ parent_task =&gt; $$NODE{node_id} }, 'task_update');
+my %order = (
+	title =&gt; 'title',
+	date =&gt; 'updatetime',
+	type =&gt; 'update_type',
+	author =&gt; 'author_user',
+);
+
+my $sortby;
+unless (defined ($sortby = $query-&gt;param('sortby')) &amp;&amp; 
+	(exists $order{$sortby})) {
+	$sortby = 'date';
+}
+
+my $comments = getNodeWhere({ parent_task =&gt; $$NODE{node_id} }, 'task_update', $order{$sortby});
 return $str . "No Comments!" unless (@$comments);
 
 $str .= '&lt;table border="1" cellpadding="10"&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;';
-for (qw ( title updatetime author type )) {
+
+for (qw( title updatetime author type )) {
 	$str .= qq|&lt;th&gt;&lt;a href="$ENV{SCRIPT_NAME}?node_id=$$NODE{node_id}&amp;sortby=$_"&gt;$_&lt;/a&gt;&lt;/th&gt;|;
 }
 $str .= '&lt;th&gt;comment&lt;/th&gt;&lt;/tr&gt;';
 
-my $sortby;
-unless (defined ($sortby = $query-&gt;param('sortby')) &amp;&amp; 
-	(exists $comments-&gt;[0]{$sortby})) {
-	$sortby = 'date';
-}
-
-foreach my $comment (sort { $a-&gt;{$sortby} &lt;=&gt; $b-&gt;{$sortby} } @$comments) {
+foreach my $comment (@$comments) {
 	my $author = linkNode($comment-&gt;{author_user});
 	my $time = join(" on ", (reverse split(" ", $comment-&gt;{updatetime})));
 	$time =~ s/(\d{4})-(\d{2})-(\d{2})/$3 $months[$2] $1/;
