@@ -37,6 +37,7 @@ else
 foreach (@nodelets)
 { 
   next unless($_ eq $$old{node_id});
+  next unless $mini-&gt;hasAccess($USER, &quot;x&quot;);
   $_ = $$mini{node_id};
 }
 
