@@ -4,25 +4,60 @@
   <field name="code" type="literal_value">my ($limit) = @_;
 
 $limit ||= 90000;
-my $str = '';
-my @noShow = ('table', 'type_nodetype', 'passwd');
+my $spill=50;
+my $maxlist=20;
+my $str = &quot;&lt;table&gt;&quot;;
+my %noShow = map {$_ =&gt; 1} ('table','passwd');
+foreach my $key (sort keys %$NODE) {
+  next if $noShow{$key} || $key =~ /^_/;
+  next unless defined($$NODE{$key});
 
-foreach my $key (keys %$NODE) {
-  unless ((grep /^$key$/, @noShow) || $key =~ /^_/) {
-	next unless defined($$NODE{$key});
-    $str .= "&lt;li>&lt;B>$key: &lt;/B>";
-    
-    if ($key &amp;&amp; $key =~ /\_/ &amp;&amp; !($key =~ /\_id/))
-    {
-       $str .= linkNode $$NODE{$key}, "" if($$NODE{$key});
-       $str .= "none" unless($$NODE{$key});
-    }			
-    elsif ($$NODE{$key} and ref $$NODE{$key} eq "HASH") {
-      $str .= linkNode $$NODE{$key}, "", {lastnode => getId ($NODE)};
-    } else {$str .= $$NODE{$key} if (length ($$NODE{$key}) &lt; $limit);}	
-  $str .= "&lt;BR>\n";
+  my $keyref = ref $$NODE{$key};
+  my $val = encodeHTML($$NODE{$key});
+  next if &quot;$val&quot; eq &quot;-1&quot;;
+  next if $val eq &quot;&quot;;
+  next if $val =~ /^\s+$/;
+
+  if ($key &amp;&amp; $key =~ /\_/ &amp;&amp; !($key =~ /\_id/))
+  {
+    $val = (($$NODE{$key})?(linkNode($val)):(&quot;&lt;em&gt;none&lt;/em&gt;&quot;));
+  }elsif( length($val) &gt; $spill)
+  {
+    $val = (substr $val,0,$spill).&quot;...&quot;;
   }
+
+  $str .= &quot;&lt;tr&gt;&quot;;
+  $str.=&quot;&lt;td&gt;&lt;b&gt;$key: &lt;/b&gt;  &lt;small&gt;$val&lt;/small&gt;&quot;;
+  if($keyref eq &quot;ARRAY&quot;)
+  {
+     my $len = scalar(@{$$NODE{$key}})-1;
+     $len = $maxlist if $len &gt; $maxlist;
+     $str.=&quot;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;ul&gt;&quot;;
+     for(0..$len)
+     {
+       $str.=&quot;&lt;li&gt;&lt;small&gt;&quot;.$$NODE{$key}[$_].&quot;&lt;/small&gt;&lt;/li&gt;&quot;;
+     }
+     $str.=&quot;&lt;/ul&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;;
+  }
+
+  if($keyref eq &quot;HASH&quot;)
+  {
+     $str.=&quot;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;ul&gt;&quot;;
+     my $i=1;
+     foreach(sort keys %{$$NODE{$key}})
+     {
+        $i++; last if $i &gt; $maxlist;
+       $str.=&quot;&lt;li&gt;&lt;small&gt;$_ =&amp;gt; &quot;.$$NODE{$key}-&gt;{$_}.&quot;&lt;/small&gt;&lt;/li&gt;&quot;;
+     }
+     $str.=&quot;&lt;/ul&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;;
+  }
+
+  $str.=&quot;&lt;/td&gt;&quot;;
+  $str.=&quot;&lt;td align=\&quot;right\&quot;&gt;&lt;small&gt;($keyref)&lt;/small&gt;&lt;/td&gt;&quot; if $keyref;
+				
+  $str.=&quot;&lt;/tr&gt;&quot;;
 }
+$str.=&quot;&lt;/table&gt;&quot;;
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
