@@ -17,5 +17,6 @@
     <var name="hits" type="literal_value">1</var>
     <var name="karma" type="literal_value">1</var>
     <var name="reputation" type="literal_value">1</var>
+    <var name="type_nodetype" type="literal_value">1</var>
   </vars>
 </NODE>
