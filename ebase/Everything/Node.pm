@@ -175,9 +175,8 @@ sub AUTOLOAD
 
 	if (defined $METHOD)
 	{
-		my $warn;
-		my $code;
-		my $N;
+		my ($warn, $code, $N);
+		my $error = '';
 
 		# When we search for a method, on type X, we may find it on
 		# one of its parent types.  So, we want to make sure we set
@@ -186,8 +185,7 @@ sub AUTOLOAD
 		$this->{SUPERtype} = $METHOD->{SUPERtype};
 
 		local $SIG{__WARN__} = sub {
-			$warn .= $_[0]
-				unless $_[0] =~ /^Use of uninitialized value/;
+			$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
 		};
 
 		if ($METHOD->{type} eq 'nodemethod')
@@ -198,8 +196,10 @@ sub AUTOLOAD
 			$code   = $N->{code};
 			$code   =~ tr/\015//d;
 			$result = eval($code);
+			$error  = $@;
 		}
-		elsif ($METHOD->{type} eq 'pm')
+
+		if ($error or $METHOD->{type} eq 'pm')
 		{
 			# We didn't find a method in node form.  Execute the default in
 			# the corresponding .pm.
