@@ -1,7 +1,10 @@
 #!/usr/bin/perl -w 
 
 use strict;
-use Everything::HTML; 
+use Everything::HTML;
+
+# >>> Extra Packages
+# <<< Extra Packages
 
 mod_perlInit "#DB_NAME#";
 
