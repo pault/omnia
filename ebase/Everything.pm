@@ -2,7 +2,7 @@ package Everything;
 
 #############################################################################
 #	Everything perl module.  
-#	Copyright 1999 - 2002 Everything Development
+#	Copyright 1999 - 2003 Everything Development
 #	http://www.everydevel.com
 #
 #	Format: tabs = 4 spaces
@@ -15,8 +15,6 @@ package Everything;
 
 use strict;
 use DBI;
-use Everything::NodeBase::mysql;
-use Everything::NodeBase::Pg;
 
 use vars qw($DB $VERSION);
 
@@ -43,8 +41,8 @@ sub BEGIN
 	@EXPORT=qw(
 		$DB
 		getParamArray
-		getRef 
-		getId 
+		getRef
+		getId
 		getTables
 
 		getNode
@@ -54,7 +52,7 @@ sub BEGIN
 		selectNodeWhere
 
 		initEverything
-		searchNodeName 
+		searchNodeName
 
 		clearFrontside
 		clearBackside
@@ -72,7 +70,7 @@ sub BEGIN
 		@fsErrors
 		@bsErrors
         );
-	
+
 	# This will be true if we are being run from a command line, in which
 	# case all errors should be printed to STDOUT
 	$commandLine = (-t STDIN && -t STDOUT) ? 1 : 0;
@@ -98,19 +96,22 @@ sub printErr {
 	print STDERR $_[0]; 
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getTime
-#
-#	Purpose
-#		Quickie function to get a date and time string in a nice format.
-#
-#	Parameters
-#		$long - Pass 1 (true) if you want the time format in a nice text
-#			based format (ie 13:45 Wed Mar 15 2000).  If false or undef,
-#			the format will be numeric only (ie 13:45 03-15-2000)
-#
+=head2 C<getTime>
+
+Quickie function to get a date and time string in a nice format.
+
+=over 4
+
+=item C<$long>
+
+Pass 1 (true) if you want the time format in a nice text based format (ie 13:45
+Wed Mar 15 2000).  If false or undef, the format will be numeric only (ie 13:45
+03-15-2000)
+
+=cut
+
 sub getTime
 {
 	my ($long) = @_;
@@ -311,19 +312,19 @@ sub initEverything
 	clearFrontside();
 	clearBackside();
 
-	my %types = (
-		mysql => 'Everything::NodeBase::mysql',
-		Pg    => 'Everything::NodeBase::Pg',
-	);
-
 	return if exists $NODEBASES{$db} and $DB = $NODEBASES{db};
 
-	my $dbtype = $options->{dbtype} || 'mysql';
+	my $dbtype  = $options->{dbtype} || 'mysql';
+	my $package = 'Everything::NodeBase::' . $dbtype;
 
-	die "Unknown database type '$options->{dbtype}'\n"
-		unless exists $types{ $dbtype };
-	
-	$DB = $types{ $dbtype }->new( $db, $options->{staticNodetypes} );
+	(my $module = $package . '.pm' ) =~ s!::!/!g;
+
+	eval {
+		require $module;
+		$DB = $package->new( $db, $options->{staticNodetypes} );
+	};
+
+	die "Unknown database type '$options->{dbtype}': $@" if $@;
 
 	# We keep a NodeBase for each database that we connect to. 
 	# That way one machine can handle multiple installations in
