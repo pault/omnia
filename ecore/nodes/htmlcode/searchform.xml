@@ -1,16 +1,17 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="searchform">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value"> 	my ($PARAM) = @_;
-return if (($$USER{title} eq "Guest User") and not($HTMLVARS{GUshowsearchform}) ); 
- 	my $str = $query->start_form .
- 	$query->textfield(-name => "node",
-                 -default => "",
-                 -size => 50,
-                 -maxlength => 80) .
- 	$query->submit("go_button", "go");
+  <field name="code" type="literal_value">my ($PARAM) = @_;
+return if (($$USER{node_id} == $HTMLVARS{guest_user}) and 
+		not($HTMLVARS{GUshowsearchform}) ); 
+my $str = $query->start_form .
+	$query->textfield(-name => "node",
+		-default => "",
+		-size => 50,
+		-maxlength => 80) .
+	$query->submit("go_button", "go");
  
- 	$str.= $query->end_form unless $PARAM eq 'noendform';
+$str.= $query->end_form unless $PARAM eq 'noendform';
 
 $str;
  </field>
