@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="themeselector">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $menu = $DB->newNode("formmenu");
+  <field name="code" type="literal_value">my $menu = newFormObject('FormMenu');
 my $html = $menu->genObject($query, $NODE, 'vars:preferred_theme', "settheme");
 
 $menu->addType('theme',$USER, 'x');

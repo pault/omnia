@@ -36,12 +36,12 @@ foreach my $key (@keys)
 {
   $html .= "&lt;tr>&lt;td colspan=3>New Key/Value:&lt;/td>&lt;/tr>\n" if($key eq "NEWFIELD");
   $html .= "&lt;tr>&lt;td bgcolor='$removeColor'>";
-  $html .= bindFormObject('removeVarCheckbox', $N, $varsfield, $key)
+  $html .= bindFormObject('RemoveVarCheckbox', $N, $varsfield, $key)
     if($key ne "NEWFIELD");
   $html .= "&lt;/td>&lt;td bgcolor='$keyColor' nowrap>";
-  $html .= bindFormObject('varstextfield', $N, $varsfield, $key, 1);
+  $html .= bindFormObject('VarsTextField', $N, $varsfield, $key, 1);
   $html .= "&lt;/td>&lt;td bgcolor='$valueColor' nowrap>\n";
-  $html .= bindFormObject('varstextfield', $N, $varsfield, $key, 0);
+  $html .= bindFormObject('VarsTextField', $N, $varsfield, $key, 0);
   $html .= " " . linkVar($key, $$vars{$key});
   $html .= " &lt;/td>&lt;/tr>\n";
 }

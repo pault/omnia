@@ -15,38 +15,38 @@
   <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
   <field name="page" type="literal_value">&lt;table border=0>
  &lt;tr>
-  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td align=left>[{nodeFormObject: textfield, title}]&lt;/td>
+  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td align=left>[{nodeFormObject: TextField, title}]&lt;/td>
   &lt;td rowspan=9>&lt;font size=2>
   [{listNodetypeFields: $$NODE{pagetype_nodetype}}]
   &lt;/font>&lt;/td>
  &lt;tr>
   &lt;td>&lt;b>Owner:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: authormenu, author_user}]&lt;/td>
+  &lt;td>[{nodeFormObject: AuthorMenu, author_user}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>Pagetype:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: nodetypemenu, pagetype_nodetype, pagetype}]&lt;/td>
+  &lt;td>[{nodeFormObject: NodetypeMenu, pagetype_nodetype, pagetype}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>displaytype:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: textfield, displaytype, dadisplaytype}]&lt;/td>
+  &lt;td>[{nodeFormObject: TextField, displaytype, thedisplaytype}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>MIME type:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: textfield, MIMEtype}]&lt;/td>
+  &lt;td>[{nodeFormObject: TextField, MIMEtype}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>Parent container:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: typemenu, parent_container, parentContainer, container}]&lt;/td>
+  &lt;td>[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>Theme:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: typemenu, ownedby_theme, theme, theme, AUTO, $USER, r, 0}]&lt;/td>
+  &lt;td>[{nodeFormObject: TypeMenu, ownedby_theme, theme, theme, AUTO, $USER, r, 0}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>Permission needed:&lt;/b>&lt;/td>
   &lt;td>[%
-my $menu = $DB->newNode('formmenu');
+my $menu = newFormObject('FormMenu');
 my $html = $menu->genObject($query, $NODE, "permissionneeded",
    "permissionneeded");
 $menu->addHash({ 'r' => "read", "w" => "write",
@@ -58,7 +58,7 @@ $html;
  &lt;tr>
   &lt;td colspan=2>
 &lt;FONT SIZE=2>&lt;b>Edit the page:&lt;/b>&lt;/FONT>&lt;br>
-[{nodeFormObject: textarea, page, thepage, AUTO, 80, 20, off}]
+[{nodeFormObject: TextArea, page, page, AUTO, 80, 20, off}]
   &lt;/td>
  &lt;/tr>
 &lt;/table>

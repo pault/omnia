@@ -8,8 +8,8 @@ my $str;
 my @links;
 
 
-push @links, linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op => 'logout'});
-push @links, linkNode ($USER);
+push @links, linkNode ($HTMLVARS{default_node}, "Log $$USER{title} out", {op => 'logout'});
+push @links, linkNode ($USER, "Edit $$USER{title}'s settings", { 'displaytype' => 'edit' });
 
 my $EN = getNode('epicenter nodes', 'nodegroup');
 foreach (@{ $$EN{group} }) {

@@ -29,13 +29,13 @@ $GLOBAL{permColorDark} = $$THEME{permColorDark}
  &lt;tr>
   &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>author&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultauthoraccess, dauthorr, r}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultauthoraccess, dauthorr, r}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultauthoraccess, dauthorw, w}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultauthoraccess, dauthorw, w}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultauthoraccess, dauthorx, x}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultauthoraccess, dauthorx, x}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultauthoraccess, dauthord, d}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultauthoraccess, dauthord, d}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>n/a&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:author,1}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
@@ -47,7 +47,7 @@ if($inherit &amp;&amp; $inherit > 0)
    my $N = $DB->getNode($inherit);
    $inherittxt = $$N{title};
 }
-nodeFormObject('typemenu', 'defaultauthor_permission', 'defauthorperm',
+nodeFormObject('TypeMenu', 'defaultauthor_permission', 'defauthorperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
   &lt;/td>
@@ -57,7 +57,7 @@ nodeFormObject('typemenu', 'defaultauthor_permission', 'defauthorperm',
 [%
 my $parentType = getNode($$NODE{extends_nodetype});
 my $defgroup = getNode($$parentType{derived_defaultgroup_usergroup});
-my $menu = $DB->newNode("popupmenu");
+my $menu = newFormObject("PopupMenu");
 
 $menu->addHash({ "inherit ($$defgroup{title})" => -1 }, 1);
 $menu->addHash({ "None" => 0 }, 1);
@@ -65,15 +65,15 @@ $menu->addType("usergroup", $USER, 'w', 'labels');
 $menu->genObject($query, $NODE, "defaultgroup_usergroup", "defgroup");
 %]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultgroupaccess, dgroupr, r}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultgroupaccess, dgroupr, r}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultgroupaccess, dgroupw, w}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultgroupaccess, dgroupw, w}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultgroupaccess, dgroupx, x}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultgroupaccess, dgroupx, x}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultgroupaccess, dgroupd, d}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultgroupaccess, dgroupd, d}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultgroupaccess, dgroupc, c}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultgroupaccess, dgroupc, c}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:group,1}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
 [%
@@ -84,7 +84,7 @@ if($inherit &amp;&amp; $inherit > 0)
    my $N = $DB->getNode($inherit);
    $inherittxt = $$N{title};
 }
-nodeFormObject('typemenu', 'defaultgroup_permission', 'defgroupperm',
+nodeFormObject('TypeMenu', 'defaultgroup_permission', 'defgroupperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
   &lt;/td>
@@ -92,26 +92,27 @@ nodeFormObject('typemenu', 'defaultgroup_permission', 'defgroupperm',
  &lt;tr>
   &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>other&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultotheraccess, dotherr, r}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultotheraccess, dotherr, r}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultotheraccess, dotherw, w}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultotheraccess, dotherw, w}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultotheraccess, dotherx, x}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultotheraccess, dotherx, x}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultotheraccess, dotherd, d}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultotheraccess, dotherd, d}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultotheraccess, dotherc, c}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:other,1}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultotheraccess, dotherc, c}]&lt;/td>
+
+  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:group,1}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
 [%
-my $inherit = $$NODE{derived_defaultother_permission};
+my $inherit = $$NODE{derived_defaultgroup_permission};
 my $inherittxt = "None";
 if($inherit &amp;&amp; $inherit > 0)
 {
    my $N = $DB->getNode($inherit);
    $inherittxt = $$N{title};
 }
-nodeFormObject('typemenu', 'defaultother_permission', 'defotherperm',
+nodeFormObject('TypeMenu', 'defaultgroup_permission', 'defgroupperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
   &lt;/td>
@@ -119,15 +120,15 @@ nodeFormObject('typemenu', 'defaultother_permission', 'defotherperm',
  &lt;tr>
   &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>guest&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultguestaccess, dguestr, r}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultguestaccess, dguestr, r}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultguestaccess, dguestw, w}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultguestaccess, dguestw, w}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultguestaccess, dguestx, x}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultguestaccess, dguestx, x}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultguestaccess, dguestd, d}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultguestaccess, dguestd, d}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: permissionmenu, defaultguestaccess, dguestc, c}]&lt;/td>
+    [{nodeFormObject: PermissionMenu, defaultguestaccess, dguestc, c}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:guest,1}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
 [%
@@ -138,13 +139,12 @@ if($inherit &amp;&amp; $inherit > 0)
    my $N = $DB->getNode($inherit);
    $inherittxt = $$N{title};
 }
-nodeFormObject('typemenu', 'defaultguest_permission', 'defguestperm',
+nodeFormObject('TypeMenu', 'defaultguest_permission', 'defguestperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
   &lt;/td>
  &lt;/tr>
 &lt;/table>
-
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

@@ -13,15 +13,25 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]&lt;br>
-parent container:
-[{nodeFormObject: typemenu, parent_container, parentContainer, container}]&lt;br>
-update interval: [{nodeFormObject: textfield, updateinterval}] (in seconds)&lt;br>
-Mini Nodelet:
-[{nodeFormObject: typemenu, mini_nodelet, mininodelet, nodelet, AUTO, $USER, r, 0}]
-&lt;br>
+  <field name="page" type="literal_value">[&lt;editTitleOwner>]
+
+&lt;table border=0>
+&lt;tr>
+ &lt;td>parent container:&lt;/td>
+ &lt;td>[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td>
+&lt;/tr>
+&lt;tr>
+ &lt;td>update interval:&lt;/td>
+ &lt;td>[{nodeFormObject: TextField, updateinterval}] (in seconds)&lt;/td>
+&lt;/tr>
+&lt;tr>
+ &lt;td>Mini Nodelet:&lt;/td>
+ &lt;td>[{nodeFormObject: TypeMenu, mini_nodelet, mininodelet, nodelet, AUTO, $USER, r, 0}]&lt;/td>
+&lt;/tr>
+&lt;/table>
+
 nodelet code:&lt;br>
-[{nodeFormObject: textarea, nlcode, nlcode, AUTO, 80, 20, off}]
+[{nodeFormObject: TextArea, nlcode, nlcode, AUTO, 80, 20, off}]
 
 &lt;p>
 [{submit}]</field>

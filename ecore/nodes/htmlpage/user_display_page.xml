@@ -13,28 +13,14 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">was last logged in: [{parsetime:lasttime}]
+  <field name="page" type="literal_value">user since: [{parsetime: createtime}]&lt;br>
+was last logged in: [{parsetime:lasttime}]
+&lt;p>
+&lt;b>Real Name:&lt;/b> ["$$NODE{realname}"]&lt;br>
+&lt;b>Email:&lt;/b> ["$$NODE{email}"]
+
 &lt;p>
 [{parselinks:doctext}]
-&lt;p>
- 
-
-[%
-my $nodes = $DB->selectNodeWhere({author_user => getId($NODE)},
-  undef, undef, undef, undef, undef, 'nodetableonly');
-my $str;
-foreach (@$nodes)
-{
-  my $id = $_;
-  my $N = getNode($_, 'light');
-  next if($id == getId($NODE));
-  $str.="&lt;li>".linkNode($N)."($$N{type}{title})&lt;/li>\n";
-}
-
-$str = "Nodes authored by $$NODE{title}:&lt;ul>".$str."&lt;/ul>"
-  ."&lt;br>(".int(@$nodes)." in total)" if $str;
-$str ||= "&lt;i>no nodes maintianed by $$NODE{title}&lt;/i>\n";
-%]
 
 &lt;p>
 [%

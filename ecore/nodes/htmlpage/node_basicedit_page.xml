@@ -41,7 +41,7 @@ foreach $field (keys %titletype)
 
   if($titletype{$field} =~ /int/)
   {
-    $obj = $DB->newNode("textfield");
+    $obj = newFormObject('TextField');
     $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 15, 15);
   }
   elsif($titletype{$field} =~ /char\((.*)\)/)
@@ -49,23 +49,23 @@ foreach $field (keys %titletype)
     my $size = 80;
     $size = $1 if($size > $1);
 
-    $obj = $DB->newNode("textfield");
+    $obj = newFormObject('TextField');
     $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", $size, $size);
   }
   elsif($titletype{$field} =~ /text/)
   {
-    $obj = $DB->newNode("textarea");
+    $obj = newFormObject('TextArea');
     $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 80, 20, "off");
   }
   elsif($titletype{$field} =~ /datetime/)
   {
-    $obj = $DB->newNode("textfield");
+    $obj = newFormObject('TextField');
     $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 19, 19);
   }
   else
   {
     # This is for the unknown field types.
-    $obj = $DB->newNode("textfield");
+    $obj = newFormObject('TextField');
     $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 80, 255);
   }
 

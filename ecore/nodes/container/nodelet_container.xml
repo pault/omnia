@@ -2,12 +2,11 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%>
-[%
+&lt;tr[%
   my $bk = $$THEME{nodeletTitleBackground};
   $bk||="images/titletest.gif";
-  return "&lt;TR background=\"$bk\">" if $bk;
-  "&lt;TR>";
-%]
+  return "background='$bk'" if $bk;
+%]>
  &lt;TD bgcolor=[%
    return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
     "#CC99FF";

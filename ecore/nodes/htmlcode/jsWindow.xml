@@ -1,0 +1,48 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="jsWindow">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">#############################################################################
+#   Purpose
+#       Opens a new popup window with JavaScript
+#
+#   Notes
+#       It can be used like:
+#   &lt;a href="[%jsWindow('win1', 'http://something.com', 640, 480)%]">link&lt;/a>
+#
+#   Parameters
+#       $name - the name of the new window
+#       $url - the URL for the new window
+#       $width - the width of the window (in pixels)
+#       $height - the height of the window (in pixels)
+#       $scroll - (optional) true or false if you want scrollbars.
+#           Defaults to "yes".
+#
+#   Returns
+#       The string that can be used as a link href.
+#
+my ($name, $url, $width, $height, $scroll) = @_;
+my @params;
+my $params;
+
+# We want scrollbars by default
+$scroll ||= 1;
+
+push @params, 'width=$width' if($width);
+push @params, 'height=$height' if($height);
+push @params, 'scrollbars=yes' if($scroll);
+$params = join(',', @params);
+
+return "window.open('$url','$name','$params')";
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">jsWindow</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>

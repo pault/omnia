@@ -16,10 +16,10 @@
   <field name="page" type="literal_value">[&lt;editTitleOwner>]
 
 &lt;b>Parent container:&lt;/b>
-[{nodeFormObject: typemenu, parent_container, parentContainer, container}]&lt;br>
+[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;br>
 
 container html:&lt;br>
-[{nodeFormObject: textarea, context}]
+[{nodeFormObject: TextArea, context}]
 &lt;p>
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>

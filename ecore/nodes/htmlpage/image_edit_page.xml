@@ -17,19 +17,19 @@
 &lt;table border=0>
 &lt;tr>
   &lt;td>&lt;b>&lt;font size=2>source:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: textfield, src}]&lt;/td>
+  &lt;td>[{nodeFormObject: TextField, src}]&lt;/td>
 &lt;/tr>
 &lt;tr>
   &lt;td>&lt;b>&lt;font size=2>alt:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: textfield, alt}]&lt;/td>
+  &lt;td>[{nodeFormObject: TextField, alt}]&lt;/td>
 &lt;/tr>
 &lt;tr>
   &lt;td>&lt;b>&lt;font size=2>thumbnail source:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: textfield, thumbsrc}]&lt;/td>
+  &lt;td>[{nodeFormObject: TextField, thumbsrc}]&lt;/td>
 &lt;/tr>
 &lt;tr>
   &lt;td>&lt;b>&lt;font size=2>description:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: textarea, description}]&lt;/td>
+  &lt;td>[{nodeFormObject: TextArea, description}]&lt;/td>
 &lt;/tr>
 &lt;/table>
 &lt;p>

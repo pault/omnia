@@ -7,7 +7,6 @@
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">The Default Node</member>
-    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">User settings</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Everything settings</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Gigantic Node Lister</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Super Search</member>

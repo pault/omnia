@@ -6,7 +6,7 @@
 [{openform}]
 
 [%
-my $menu = $DB->newNode('formmenu');
+my $menu = newFormObject("FormMenu");
 my $type = $query->param('whichtype');
 my $group = $query->param('whichgroup');
 my $str;

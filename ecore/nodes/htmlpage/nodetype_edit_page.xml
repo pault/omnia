@@ -17,31 +17,31 @@
 &lt;table border=0>
  &lt;tr>
   &lt;td>sqltable&lt;/td>&lt;td>
-   [{nodeFormObject: textfield, sqltable, sqltable, AUTO, 30, 255}]
+   [{nodeFormObject: TextField, sqltable, sqltable, AUTO, 30, 255}]
    [{displayInherited:sqltable}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>grouptable&lt;/td>&lt;td>
-   [{nodeFormObject: textfield, grouptable, grouptable, AUTO, 30, 255}]
+   [{nodeFormObject: TextField, grouptable, grouptable, AUTO, 30, 255}]
    [{displayInherited:grouptable}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>extends&lt;/td>
   &lt;td>
-  [{nodeFormObject: nodetypemenu, extends_nodetype, extends, 0, $USER, 0}]
+  [{nodeFormObject: NodetypeMenu, extends_nodetype, extends, 0, $USER, 0}]
   &lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>restrict nodetype(groups)&lt;/td>
   &lt;td>
-  [{nodeFormObject: nodetypemenu, restrict_nodetype, restrict, 0 ,$USER, 0}]
+  [{nodeFormObject: NodetypeMenu, restrict_nodetype, restrict, 0 ,$USER, 0}]
     [{displayInherited:restrict_nodetype}] &lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>restrict duplicate titles&lt;/td>
   &lt;td>
 [%
-my $menu = $DB->newNode("popupmenu");
+my $menu = newFormObject('PopupMenu');
 $menu->addHash({ 'yes' => 1, 'no' => 0, inherit => -1}, 1);
 $menu->genObject($query, $NODE, 'restrictdupes', 'restrictdupes', $$NODE{restrictdupes});
 %]
@@ -49,7 +49,7 @@ $menu->genObject($query, $NODE, 'restrictdupes', 'restrictdupes', $$NODE{restric
  &lt;/tr>
  &lt;tr>
    &lt;td>Maximum Revisions (for Undo)&lt;/td>
-   &lt;td>[{nodeFormObject: textfield, maxrevisions}]&lt;/td>
+   &lt;td>[{nodeFormObject: TextField, maxrevisions}]&lt;/td>
  &lt;/tr>
 &lt;/table>
 &lt;p>[{submit}]</field>

@@ -16,7 +16,7 @@
   <field name="page" type="literal_value">[&lt;editTitleOwner>]
 [{listcode:doctext}]
 &lt;p>&lt;FONT SIZE=2>&lt;b>Edit the document text:&lt;/b>&lt;/FONT>&lt;br>
-[{nodeFormObject: textarea, doctext}]
+[{nodeFormObject: TextArea, doctext}]
 
 &lt;p>[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>

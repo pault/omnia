@@ -15,7 +15,7 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editTitleOwner>]
 &lt;b>Replacement settings for&lt;/b>:
-[{nodeFormObject: typemenu, parent_theme, parenttheme, theme}]&lt;br>
+[{nodeFormObject: TypeMenu, parent_theme, parenttheme, theme}]&lt;br>
 
 [{editvars}]
 

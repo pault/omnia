@@ -15,13 +15,13 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editTitleOwner>]
 Supports:
-[{nodeFormObject: nodetypemenu, supports_nodetype, supportstype}]&lt;br>
+[{nodeFormObject: NodetypeMenu, supports_nodetype, supportstype}]&lt;br>
 
 &lt;table width=100%>
 &lt;tr>
 &lt;td width=90%>
 &lt;p>&lt;FONT SIZE=2>&lt;b>Edit the code:&lt;/b>&lt;/FONT>&lt;br>
-[{nodeFormObject: textarea, code, code, AUTO, 80, 20, off}]&lt;/td>
+[{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]&lt;/td>
 &lt;td width=10%>&lt;font size=2>[{listNodetypeFields: $$NODE{supports_nodetype}}]&lt;/font>&lt;/td>
  &lt;/tr>
 &lt;/table>

@@ -7,10 +7,9 @@
 # to a node and will just create a simple form object.
 
 my $objectType = shift @_;
-my $formObject = $DB->newNode($objectType);
+my $formObject = newFormObject($objectType);
 
-die "Unknown FormObject '$objectType' in htmlcode 'formObject"
-  unless($formObject);
+return "" unless($formObject);
 
 # The undef's are the "bindNode" and the field it binds on.  Since
 # we are not binding on anything, just undef there.

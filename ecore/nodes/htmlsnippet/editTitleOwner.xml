@@ -3,9 +3,9 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">&lt;table border=0>
 &lt;tr>
-  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: textfield, title}]&lt;/td>
+  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: TextField, title}]&lt;/td>
 &lt;/tr>&lt;tr>
-  &lt;td>&lt;b>Owner:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: authormenu, author_user}]&lt;/td>
+  &lt;td>&lt;b>Owner:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: AuthorMenu, author_user}]&lt;/td>
 &lt;/tr>
 &lt;/table></field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

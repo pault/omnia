@@ -14,7 +14,7 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
   <field name="page" type="literal_value">&lt;b>location name:&lt;/b>
-[{nodeFormObject: textfield, title}]
+[{nodeFormObject: TextField, title}]
 
 &lt;p>[{submit}]
 </field>

@@ -17,22 +17,22 @@
 &lt;tr>
  &lt;td>
   &lt;b>Real Name&lt;/b>: ["$$NODE{realname}"]&lt;br>
-  [{nodeFormObject: textfield, realname}]
+  [{nodeFormObject: TextField, realname}]
  &lt;/td>
  &lt;td>
    &lt;b>Email Address&lt;/b>: ["$$NODE{email}"]&lt;br>
-   [{nodeFormObject: textfield, email, email, AUTO, 40, 255}]
+   [{nodeFormObject: TextField, email, email, AUTO, 40, 255}]
  &lt;/td>
 &lt;/tr>
 &lt;tr>
   &lt;td>
-  &lt;p>&lt;b>Change password:&lt;/b>&lt;br>[{nodeFormObject: passwdfield, passwd, passwd, 1, 1}]
+  &lt;p>&lt;b>Change password:&lt;/b>&lt;br>[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]
  &lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td colspan=2>
 &lt;b>User's Bio&lt;/B>: 
-&lt;p>[{nodeFormObject: textarea, doctext}]
+&lt;p>[{nodeFormObject: TextArea, doctext}]
 &lt;/td>
 &lt;/tr>
 &lt;/table>
@@ -42,7 +42,8 @@
 &lt;p>
 [{includeJS: findFormObject, moveSelectItem, selectItem}]
 [%
-my $nodelets = $DB->newNode("subsetSelector");
+use Everything::HTML::FormObject::SubsetSelector;
+my $nodelets = newFormObject('SubsetSelector');
 $nodelets->addType('nodelet', $USER, 'x', 'labels');
 $nodelets->genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
 undef, undef, 'Available Nodelets:', 'Selected Nodelets:');

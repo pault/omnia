@@ -10,19 +10,15 @@
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">node</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">setting</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">installdir</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">FormObject</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">checkbox</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">container</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">dbtable</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">document</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">file</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">formmenu</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">image</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">javascript</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">listmenu</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">location</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">mail</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodeball</member>
@@ -31,20 +27,14 @@
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodeletgroup</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">opcode</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">passwdfield</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">permission</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">popupmenu</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">radiogroup</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">superdoc</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">symlink</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">textarea</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">textfield</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">theme</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">themesetting</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">user</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">usergroup</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">utility</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">workspace</member>
     <member name="group_node" type="noderef" type_nodetype="usergroup,nodetype">gods</member>
     <member name="group_node" type="noderef" type_nodetype="user,nodetype">Guest User</member>
@@ -215,11 +205,8 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">password_field</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">reportFormError</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">varstextfield</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">removeVarCheckbox</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">includeJS</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">javascript</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">groupEditor</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">insertJavascript</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">linkVar</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">javascript</member>
@@ -227,11 +214,7 @@
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">moveSelectItem</member>
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">editTitleOwner</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">listNodetypeFields</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">permissionmenu</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">updateFormContainer</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">authormenu</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodetypemenu</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">typemenu</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">searchform</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">serverstats</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingradio</member>
@@ -285,7 +268,7 @@
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">selectItem</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript edit page</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">subsetSelector</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">jsWindow</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

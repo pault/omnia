@@ -4,9 +4,9 @@
   <field name="code" type="literal_value">my $objectType = shift @_;
 my $bindNode = shift @_;
 
-my $formObject = $DB->newNode($objectType);
+my $formObject = newFormObject($objectType);
 
-die "Unknown FormObject '$objectType'" unless($formObject);
+return "" unless($formObject);
 
 $bindNode = $DB->getNode($bindNode);
 unshift @_, ($query, $bindNode);

@@ -15,13 +15,13 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editTitleOwner>]
 &lt;b>Comments:&lt;/b> (these do not get printed in the HTML)&lt;br>
-[{nodeFormObject: textarea, comment, comments, AUTO, 80, 10}]
+[{nodeFormObject: TextArea, comment, comments, AUTO, 80, 10}]
 
 &lt;p>
 &lt;b>Code:&lt;/b>&lt;br>
-[{nodeFormObject: textarea, code, code, AUTO, 80, 20, off}]
+[{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]
 &lt;br>
-[{nodeFormObject: checkbox, dynamic, dynamic, 1, 0, AUTO, Has embedded Perl}]
+[{nodeFormObject: Checkbox, dynamic, dynamic, 1, 0, AUTO, Has embedded Perl}]
 
 &lt;p>
 [{submit}]</field>

@@ -2,10 +2,10 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $objectType = shift @_;
+my $formObject = newFormObject($objectType);
 
-my $formObject = $DB->newNode($objectType);
+return "" unless($formObject);
 
-die "Unknown FormObject '$objectType'" unless($formObject);
 unshift @_, ($query, $NODE);
 return $formObject->genObject(@_); </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

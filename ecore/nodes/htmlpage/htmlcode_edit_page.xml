@@ -17,7 +17,7 @@
 &lt;p>
 [{listcode:code}]
 &lt;p>&lt;FONT SIZE=2>&lt;b>Edit the code:&lt;/b>&lt;/FONT>&lt;br>
-[{nodeFormObject: textarea, code, code, AUTO, 80, 20, off}]&lt;br>
+[{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]&lt;br>
 &lt;p>
 [{submit}]
 </field>
