@@ -896,7 +896,6 @@ sub evalX
 		
 	my $result = eval($EVALX_CODE);
 
-	local $SIG{__WARN__} = sub { };
 
 	# Log any errors that we get so that we may display them later.
 	logErrors($EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE);
@@ -1055,16 +1054,16 @@ sub executeCachedCode {
 	my ($field, $CURRENTNODE, $args) = @_;
 	$args ||= [];
 
-	my ($warn, $code_ref);
+	my $code_ref;
 	
-	local $SIG{__WARN__} = sub {
-		$warn .= $_[0];
-	};
-
 	if ($code_ref = $CURRENTNODE->{"_cached_$field"}) {
 		if (ref($code_ref) eq 'CODE' and defined &$code_ref) {
+			my $warn;
+			local $SIG{__WARN__} = sub {
+				$warn .= $_[0];
+			};
 			my $result = $code_ref->(@$args) || '';
-			print STDERR "Error in $$CURRENTNODE{title}:\n\t$warn\n" if ($warn);
+			logErrors($warn, '', $$CURRENTNODE{$field},	$CURRENTNODE) if $warn;
 			return $result;
 		}
 	}
@@ -1097,24 +1096,14 @@ sub compileCache
 	$code =~ s/\015//gs;
 	my $code_ref = eval $code;
 
-	if ($@ or !($code_ref)) {
-		print STDERR "Error compiling $$NODE{type} $$NODE{title}!\n$@\n";
-#		print STDERR "$code\n";
-	} else {
-		my $s = $NODE->{DB}->{cache}->cacheMethod($NODE, $field, $code_ref);
-#		print STDERR "Compiled $$NODE{type} $$NODE{title} okay!\n" if ($s);
-		my $warn;
-		local $SIG{__WARN__} = sub {
-			$warn .= $_[0];
-		};
-		my $result = $code_ref->(@$args) || '';
-		if ($warn) {
-			print STDERR "--\nWarning for $$NODE{title}:\n";
-			print STDERR "$warn(" . join(', ', @$args) . ")\n";
-			print STDERR listCode($code, 1), "\n";
-		}
-		return $result;
+	if ($@) {
+		logErrors('', $@, $$NODE{$field}, $NODE);
+		return;
 	}
+	return unless $code_ref;
+
+	$NODE->{DB}->{cache}->cacheMethod($NODE, $field, $code_ref);
+	return executeCachedCode($field, $NODE, $args);
 }
 
 
@@ -1299,75 +1288,68 @@ sub parseCode
 	my $result = executeCachedCode($field, $CURRENTNODE);
 	return $result if (defined($result));
 
-	my $sub_text =<<'	SUB';
-	sub {
-		my $NODE = $GNODE;
-		return
-	SUB
+	my $args = [];
+
+	my $sub_text ='sub {
+	my $result;
+	my $NODE = $GNODE;';
+
+	# 'general container' needs this to reparent, other containers may also
+	if ($CURRENTNODE->isOfType('container')) {
+		$sub_text .= 'my $CURRENTNODE = shift;';
+		$args = [$CURRENTNODE];
+	}
 
 	# the /s modifier makes . match newlines.  VERY important.
 	for my $chunk (split(/(\[(?:\{.*?\}|\".*?\"|%.*?%|<.*?>)\])/s,
 		$$CURRENTNODE{$field})) {
 		next unless $chunk =~ /\S/;
 
+		$sub_text .= "\n\t";
 		my ($start, $code, $end);
 		if (($start, $code, $end) = $chunk =~ /^\[([%"<{])(.+?)([%">}])\]$/s) { 
 		# embedded code
 			$code =~ s!"!\"!g;
 
 			# htmlcode turns into a function call:
-			#	( htmlcode('arg1', 'arg2') || '')
+			#	( $htmlcode('arg1', 'arg2') || '')
 			if ($start eq '{') {
 				my ($func, $args) = split(/\s*:\s*/, $code);
-				$sub_text .= "( $func(";
+				$sub_text .= "\$result .= ( eval { $func(";
 				if (defined $args) {
 					my @args = do_args($args);
 					$sub_text .= join(", ", @args) if (@args);
 				}
-				$sub_text .= ") || '' ) . ";
+				$sub_text .= ") } || '' );";
 
 			# htmlsnippets turn into simpler function calls:
 			#	htmlsnippet('snippetname')
 			} elsif ($start eq '<') {
-				$sub_text .= "htmlsnippet('$code') . ";
+				$sub_text .= "\$result .= eval {htmlsnippet('$code')} || '';\n";
 
 			# embedded code needs a dedicated block to work unmodified:
 			#	( eval { return 'foo'; } || '' )
 			} elsif ($start eq '"' or $start eq '%') {
-				$sub_text .= "( eval {\n$code\n} || '' ) . ";
+				$sub_text .= "\$result .= ( eval {\n$code\n} || '' );\n";
 			}
+			$sub_text .= qq|\nlogErrors('', \$\@, '', { title => 
+				'$$CURRENTNODE{title}', node_id => '$$CURRENTNODE{node_id}' }) 
+				if (\$\@);\n|;
 
 		# raw text, needs to be quoted -- the quoting should work correctly
 		# as there's no need to escape quotes in raw HTML sections anyway
 		} else {
 			next unless ($chunk =~ /\S/);
 			$chunk =~ s!\"!\\"!g;
-			$sub_text .= qq|"$chunk" . |;
+			$sub_text .= qq|\$result .= "$chunk";\n|;
 		}
 	}
 
 	# add newlines so trailing comments don't cause eval() errors
-	$sub_text .= qq|\n"";\n}|;
+	$sub_text .= qq|\nreturn \$result;\n}|;
 	
-	my $warn;
-	local $SIG{__WARN__} = sub {
-		$warn .= $_[0];
-	};
-
-	my $sub_ref = eval $sub_text;
-	if (!$sub_ref || $@) {
-		Everything::printLog("Eval error $$CURRENTNODE{title} $field: ($@)\n");
-#		print STDERR listCode($sub_text, 1), "\n";
-	} else {
-		$CURRENTNODE->{DB}->{cache}->cacheMethod($CURRENTNODE,
-			 $field, $sub_ref);
-		$result = $sub_ref->() || '';
-		if ($warn) {
-			print STDERR "Warning for $CURRENTNODE->{title}:\n\t$warn\n";
-#			print STDERR listCode($sub_text, 1), "\n";
-		}
-		return $result;
-	}
+	$result = compileCache($sub_text, $CURRENTNODE, $field, $args);
+	return $result if defined $result;
 
 	# on failure, use old behavior
 	return oldparseCode($field, $CURRENTNODE);
