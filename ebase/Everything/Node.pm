@@ -1119,6 +1119,13 @@ sub getHash
 		return;
 	}
 
+	# some code depends on having the reference stored in cache, even
+	# if hashified field is empty
+	unless ($this->{$field}) {
+		my %empty;
+		return $this->{$store} = \%empty;
+	}
+	
 	# We haven't retrieved the hash yet... do it.
 	my %vars = map { split /=/ } split (/&/, $this->{$field});
 

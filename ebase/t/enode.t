@@ -104,7 +104,7 @@ like( $le[0][0], qr/nofield.+does not exist.+11.+title/,
 	'... with the appropriate message' );
 
 $mock->{falsefield} = 0;
-is( getHash( $mock, 'falsefield' ), undef, '... returning if value is false' );
+is_deeply( getHash( $mock, 'falsefield' ), { }, '... returning hash even if value is false' );
 
 $mock->{realfield} = 'foo=bar&baz=quux&blat= ';
 {
