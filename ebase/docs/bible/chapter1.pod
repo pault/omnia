@@ -1,0 +1,238 @@
+Unrenderable sub-phrasal element u: ignoring
+Unrenderable sub-phrasal element u: ignoring
+=head1 Login as root and change root password
+
+The root account in a fresh installation of Everything has no password.
+Anyone who knows this will have free reign over the system. Before you
+log on to play with the system, your first duty is to change the root
+password. (For the truly paranoid, edit your httpd.conf to restrict
+access to trusted machines while you set up the system.)
+
+Fire up a web browser and point it at your site to see the friendly
+Everything interface. The login nodelet lives in the upper right hand
+corner, right below a large blue 'e' graphic. Type 'root' in the Login:
+box and hit Login.
+
+You will know this has worked if you see a different set of nodelets.
+Root has access to many administrative functions. Ignore these for now.
+
+Password changes occur at home nodes. Root has one, curiously named
+'root'. Type 'root' in the search box and hit Go. (Choose the root node
+of the 'user' type if you hit the multiple results page. You can also
+follow the link on the word 'you' if you see "Maintained by you" on one
+of these nodes.) You should see root's home node. The default text
+reads:
+
+	He's the god of gods -- instant access. Unlimited power. Great hair.
+
+Bask in the glow of healthy respect, then look for the admin nodelet.
+It should have replaced the login nodelet, in the upper right corner.
+Follow the 'edit' link. In lieu of that, edit the URL in your web
+browser and append the following:
+
+ &displaytype=edit
+
+Editing a user node is similar to editing a normal document with a few
+extra fields. Real Name and Email address are self explanatory,
+existing only for administrative use. (For example, you may forget your
+password and wish to have it mailed.) For now, we only need the two
+boxes labelled Change password. Choose a good password, and type it
+carefully in both boxes. Hit submit. A warning message will appear
+above the boxes if the passwords do not match.
+
+If they do match, Everything will update the database with your new
+password, prompting you to login again. You must do so, or you will be
+logged out when you load a new page. Follow the login link to the
+superdoc, or use the login nodelet if it appears), entering 'root' and
+your new password. Don't save a cookie, as it will allow anyone with
+access to your web browser to assume rootpowers, and will make it more
+difficult to use a normal account for testing.
+
+Congratulations, you've made your first executive change as root. There
+will be many more to come.
+
+=head1 Change text on the front page
+
+The next task is to add some content to your site. We'll start by
+editing the first page new users see: the default node.
+
+Two rules govern all document text in Everything. First, all documents,
+being nodes, have titles and unique id numbers. Second, document text
+can contain basic HTML markup and links to other nodes.
+
+=head2 Basic linking
+
+Everything and the web in general depend on numerous, high-quality
+links between nodes and pages. By making it easy to create links,
+Everything promotes the idea of node interconnectedness. Link quality
+comes with practice.
+
+A basic link points to another node by title. To link to a node, simply
+put its title between [square brackets]. Simple enough?
+
+=head2 Link to the root user
+
+To demonstrate linking, go to The Default Node. You must be root for
+this exercise. If you're on the successful login screen, there's
+probably a link there. Otherwise, type 'The Default Node' into the
+search box and hit Go. (Shortcut: hit Go without typing anything.) Find
+the admin nodelet, and hit the edit link, just as before.
+
+This document has some different form fields. Title reflects the
+document title, while the editor or owner of this node goes in the
+Maintainer field. Don't change these, yet. The important element of
+this page is the large text area marked "Edit the document text:".
+
+By default, it contains some Zelazny-esque prose with minimal HTML
+markup and a link to some guy named nate. (See the square brackets?)
+Let's add a simple line. Click in the text box right after [nate]. Hit
+Enter, then type:
+
+	root was here.
+
+That ought to show them, but don't stop yet. Put square brackets around
+'root', just as those around 'nate'. Hit the charmingly misspelled
+'stumbit' button to save changes.
+
+To see the results, return to display mode. In the admin nodelet,
+follow the display link. You'll switch between these views often.
+
+When the page loads, note that it now includes our text, and 'root'
+links to your home node. Follow it to verify, then return to the
+Default Node. We'll fix the formatting briefly. First, return to edit
+mode on the Default Node.
+
+=head2 Link to a document that does not exist yet
+
+Perhaps explaining the Zelazny reference, Everything allows users to
+link to a non-existent node -- by name. Once named, it can be created.
+Putting aside debates over Platonic ideals, let's link to a document as
+yet uncreated.
+
+Return to the document textarea of the Default Node, right after our
+new graffiti. Add the following text:
+
+	see [my first new node]
+
+Submit the page, then use the admin nodelet to enter display mode. The
+formatting won't win any awards, but the link should be available.
+
+=head1 Create a new document
+
+Click through the link to 'my first new node'. It won't be found unless
+someone's followed this tutorial before. The Search Results page will
+list nodes with similar titles. It will also allow you to create new
+nodes with that title, giving you different nodetype possibilities.
+Root has the ability to create nodes of any installed type. Choose
+'document' for this one. (Different types of nodes have different
+attributes and roles. A document is a simple node that normal users can
+read, create, and edit.)
+
+=head2 Click through on a document that does not exist yet
+
+Following the document link actually creates and displays a blank node
+called 'my first new node'. Congratulations, you've created a new node.
+If you were to return to the Default Node and follow the link again,
+you'd skip the 'Search Results' page, ending up at this blank document.
+If you put 'my first new node' in the search box, you'd return here as
+well. Wasn't that easy?
+
+=head2 Editing a document
+
+The next thing you need is some killer content. Switch to edit mode,
+and you'll see the Title, Owner, and Edit boxes again.
+
+We need some document text. Let's use a nice haiku, or at least, three
+lines of five syllables, seven syllables, and five syllables. Here's
+the text:
+
+	default links point true
+	the journey begins right here
+	this, my first new node
+
+Submit it and go to the display view. The content is there, but it
+looks terrible. The linebreaks have disappeared -- everything is
+crammed on one line. (There aren't any links, either.)
+
+=head2 Basic HTML primer
+
+To make your writeups look good, you'll have to know a bit of HTML.
+Don't worry -- it's not much more difficult than making links.
+
+The basic unit of HTML is called a tag. A tag is just a little note
+that says, "Hey, do something right here!" Think of them as sticky
+notes your web browser read, react to, and discard before you see it.
+You see only the effect.
+
+To fix the line break problem in our haiku, go back to the edit page.
+Put a E<lt>br*gt; tag at the end of every line. Yes, that's less-than,
+br, greater-than. (You've seen these already at 'the Default Node'.)
+You don't need one at the end of the last line, but we'll put it there
+to be consistent. Submit and display the node.
+
+What an improvement! E<lt>brE<gt> must stand for line BReak or
+something like that. Each E<lt>brE<gt> corresponds to one tap of the
+Enter key. To use two linebreaks at once, just use two tags, like so:
+E<lt>brE<gt>E<lt>brE<gt>.
+
+Another useful tag is the E<lt>pE<gt> or paragraph tag. Similar to
+E<lt>brE<gt> , it separates paragraphs with a blank line. (It does more
+than that, but this is the basic idea.) If you were to remove the last
+E<lt>brE<gt> tag from the haiku, replace it with a E<lt>pE<gt> tag,
+adding the line:
+
+	What are you waiting for?
+
+You would see this in action. Try it!
+
+Most HTML tags have an opening and closing form. They wrap around bits
+of text (or other tags) like wrapping paper or parenthesis. For
+example, the E<lt>strongE<gt> and E<lt>bE<gt> (for Bold) tags usually
+display text with a heavier font stroke weight. (They make the text
+bold.) Let's demonstrate by editing our new node once again. This time,
+add:
+
+	<strong>Make more nodes!</strong>
+
+Displaying the page shows the nice effect. The tags affect anything
+between them -- whether text or another tag. If you forget a closing
+tag, the effect will continue through your text. Always close your tags
+-- the closing tag starts with a forward slash -- always, always.
+
+For reference, you can achieve an italics effect with E<lt>iE<gt> or
+E<lt>emE<gt>. Underline is E<lt>uE<gt>. To display the word 'wheeeeee'
+in bold and italics (note the order of the closing tags):
+
+	<b><i>wheeeeeeE</i></b>
+
+This merely scratches the surface of HTML, but will improve the look of
+your nodes immensely. Keep experimenting to discover more. (Most of us
+learned HTML with the 'View Source' or 'Page View' option in our web
+browsers.
+
+The last thing to fix is the lack of links in our document. In the
+haiku, the phrase 'default links' refers to 'The Default Node'. That
+will do. If we put square brackets around 'default', it will lead to
+the Search Results page. We could make another node named default, but
+that's not the same. A better approach is to link to 'The Default Node'
+but show 'default links' as the text. It makes sense when you see it.
+
+Editing the page again, change the first line to read:
+
+	[The Default Node|default links] point true<br />
+
+Submit and display. The text is the same, but 'default links' is now
+clickable. Follow it to The Default Node. Impressive.
+
+First, the square brackets mark it as a link. Next comes the title of
+the destination node. The twist is the pipe character (found on the
+backslash key, if you're still hunting). It tells the engine "What's on
+the left of me is the destination, and what's on the right of me is
+what I want you to call it right here." It creates a link that says
+"default links" but goes to The Default Node. Remember, that's:
+
+	[<destination node title>|<displayed name>]
+
+Without a pipe and an alternate title, the link name will be the name
+of the linked node. With a pipe and an alternate title, the link name
+can be anything.

@@ -1,0 +1,1124 @@
+=head1 Form Objects
+
+Form objects take most of the burden out of editing node data. They can
+bind to a node and node field, displaying the contents of that field
+and updating a node in the database automatically. Even better, they
+can produce complex forms from simple parameters. This does not
+preclude manual form coding, but it can reduce the work involved.
+
+=head2 general philosophy
+
+Form objects fulfill a few simple requirements:
+
+=over
+
+=item * Updating node data should be simple.
+
+=item * Nodes should only be updated in the database once per page
+load.
+
+=item * Updates should respect node permissions.
+
+=item * Forms objects bound to node data should handle updates
+transparently.
+
+=back
+
+=head2 the 'update' opcode
+
+The heart of form objects is the 'update' opcode. It tells the Engine
+to activate opUpdate() in Everything::HTML. This function recreates
+form objects from hidden CGI parameters, updating their bound nodes
+with new data.
+
+First, opUpdate() checks for the 'opupdate_preprocess' parameter. If
+present, this contains the name of an htmlcode node. It takes no
+parameters. The Engine executes the htmlcode, discarding the return
+value. Nothing in the core currently uses this feature.
+
+Next, opUpdate() collects all binding parameters. These take the form
+formbind_E<lt>objectTypeE<gt>_E<lt>objectNameE<gt>. It attepts to
+create a form object of I<objectType>, then calls cgiVerify() on the
+new object. If the verification fails, an error message keyed on
+I<objectName> will be placed into $GLOBAL{VERIFYFAILED}. The function
+will return unless all verifications succeed.
+
+Looping through the binding parameters again, opUpdate() looks for
+updatable form objects. It calls cgiUpdate() on each. Since multiple
+objects can bind to different fields on the same node, it defers the
+actual node update() call until it has processed each form object.
+Also, the Engine calls logRevision() on each node before update() to
+allow undoable changes.
+
+Three parameters remain, 'opupdate_redirect', 'opupdate_displaytype',
+and 'opupdate_postprocess'. The first two redirect the Engine to a
+different node if the update succeeds. The last refers to a
+post-processing htmlcode to call. Finally, opUpdate() returns 1 to
+indicate success.
+
+=head2 general syntax
+
+Form Objects can exist in two different states. Normally, objects bind
+to a specific node and node field, drawing data from the field.
+Changing the value of the object's widget changes the node. Standalone
+objects are not bound to a node. Instead, they function just like
+normal HTML widgets. Both types of Form Objects use the same interface.
+
+All Form Objects descend from the Everything::HTML::FormObject class.
+The base FormObject should never be instantiated directly as it only
+exists to provide a common interface. Core Form Objects live in the
+Everything/HTML/FormObject directory. Create a new object with the
+newFormObject() function in Everything::HTML or one of the
+'bindFormObject', 'nodeFormObject', and 'formObject' htmlcode nodes.
+Note that object names are case sensitive. Any object requiring a hash
+or list reference as an argument to genObject() cannot be generated
+through htmlcode. Default offenders are RadioGroup, ListMenu,
+PopupMenu, and anything that descends from FormMenu.
+
+All object methods support two different methods of passing parameters.
+You may use an ordered list or a hash of name/value pairs. (Note that
+this is not a hash reference.) This second method is more verbose but
+much more flexible, as the order of arguments does nto matter. Keys
+must have a leading '-' character, and the Engine will ignore
+misspelled or unexpected keys.
+
+For example, the genObject() method of Everything::Node::textfield has
+a signature of ($query, $bindNode, $field, $name, $default, $size,
+$maxlen). Using the first approach, a call might be:
+
+	$tf->genObject($query, $NODE, 'doctext', 'AUTO', '20', '255');
+
+The second approach produces:
+
+	$tf->genObject(-query => $query, -bindNode => $NODE, -size => 20,
+		-field => 'doctext', -default => 'AUTO', -maxlen => 255);
+
+This can save time when using generated parameter lists.
+
+All bound Form Objects must generate a hidden field so that opUpdate()
+can recreate the objects and their bindings. These fields have a name
+and value as follows, respectively:
+
+	formbind_<Object Type>_<parameter name>
+
+	<execution order>:<bound node_id>:<bound field>
+
+I<Object Type> contains the class name of the Form Object, and
+I<parameter name> the name of the CGI parameter containing data for
+this Form Object.
+
+I<Execution order> contains a two digit integer. Objects with lower
+numbers here execute first. This allows a value to be updated in
+'system settings' before its key is renamed. The default value here is
+50, and objects set it automatically. I<Bound node_id> contains the
+node_id of the bound node, and I<bound field> contains the name of the
+bound node field within that node.
+
+The I<bound field> section can contain extra data as desired. When the
+bound field contains a Perl hash (for example, the 'vars' field of a
+'setting' node), the field name can take the form
+I<E<lt>fieldE<gt>>:I<E<lt>keyE<gt>>. The Engine handles these updates
+automatically.
+
+=head2 Form Object Htmlcode
+
+The core distribution includes some htmlcode nodes to simplify Form
+Object use. If you choose not to use them, at least use their code for
+examples.
+
+I<doUpdate>
+
+produces HTML form elements necessary to activate the update opcode. It
+sets 'op', 'displaytype', and 'node_id' as hidden parameters. This
+takes four optional arguments:
+
+=over
+
+=item * redirectNode, a node_id or node object to display if the update
+succeeds.
+
+=item * redirectDisplay, the displaytype to use when displaying the
+redirectNode. (This parameter does not require a redirectNode -- you
+can redirect to a 'display' htmlpage for the current node.)
+
+=item * preprocess, the name of an htmlcode node to run before
+processing the update request.
+
+=item * postprocess, the name of an htmlcode node to run after
+processing the request.
+
+=back
+
+I<nodeFormObject>
+
+creates a form object bound to the current node (the contents of
+$NODE), passing $query and $NODE. The first argument must be the name
+of the object type to create (ie, 'RadioGroup' or 'TextField'). Consult
+the object's documentation for the remaining arguments to pass to
+genObject(). If this fails, it will return a blank string. Otherwise,
+it will return the HTML fields necessary for the object. Note that
+FormMenu descendants cannot be generated through this htmlcode.
+
+I<bindFormObject>
+
+creates a form object bound to a specified node, passing $query and a
+node object to genObject(). This has a second required parameter, the
+node_id or node object to which to bind to the form object. As with
+'nodeFormObject', consult the documentation for the requested object's
+genObject() method for the other arguments. FormMenu descendants cannot
+be generated through this htmlcode, either.
+
+I<formObject>
+
+creates a standalone node. It takes one parameter, the type of the Form
+Object to create. It passes $query, undef, and undef to the Object's
+genObject() method along with its remaining arguments. Otherwise, it
+behaves identically to the previous htmlcode nodes.
+
+I<reportFormError>
+
+displays an error message from the form objects in a page. It takes one
+optional parameter, the form name of an object to check for errors.
+This displays a specific failure message, if the object failed. Without
+the name, it displays a generic error message if anything failed, or a
+blank string if all objects updated successfully.
+
+=head2 general methods
+
+The FormObject parent class provides several methods used to generate
+and coordinate node updates. All form objects descend from this class,
+and most override at least genObject() to handle widget-specific data
+needs.
+
+I<genObject>
+
+creates and returns hidden HTML fields to recreate a form object during
+the update portion of a request. This is usually the first method
+called on a new object. It takes four parameters, based on the desired
+state:
+
+=over
+
+=item * a CGI object used to generate HTML (generally the global
+$query)
+
+=item * an optional node_id or node object to which to bind. If this is
+to be a standalone Form Object, use 'undef'.
+
+=item * the name of a field on the node to which to bind. Use 'undef'
+to stand alone. If the field contains vars, pass "vars:key" to bind to
+a particular key/value pair within the vars field.
+
+=item * the name of the form field in HTML. This becomes the 'name'
+parameter of the 'input' tag.
+
+=back
+
+I<cgiVerify>
+
+checks that the current user has permission to update the bound node.
+The Engine calls this in opUpdate(). It takes three parameters:
+
+=over
+
+=item * the CGI object with incoming form data (the global $query)
+
+=item * the name of the field containing data to use
+
+=item * the user attempting the update (generally the global $USER)
+
+=back
+
+It returns a hashref with two fields, 'node' and 'failed'. The 'node'
+field contains the node_id of the bound node, if any, and 'failed'
+contains an error message describing the verification failure. In
+general, this checks for write permission on a bound node. Future Form
+Objects may perform additional checks.
+
+I<cgiUpdate>
+
+updates the bound node. The Engine calls this for all verified Form
+Objects. It takes four parameters:
+
+=over
+
+=item * the CGI object containing incoming parameters
+
+=item * the name of the form field containing data for this object
+
+=item * the node object to which this form object is bound
+
+=item * a flag to skip access checking (users with gods access can
+modify any value)
+
+=back
+
+It returns true on success, false on failure. Note that this only
+modifies the node in memory, not in the database. However, opUpdate()
+calls update() on each modified node.
+
+I<genBindField>
+
+generates hidden HTML fields to store the node and field binding
+information. This is a helper function for genObject, taking the same
+parameters. When unbound, it returns an empty string. Bound, it returns
+a hidden parameter of the form:
+
+	formbind_<form object type>_<name>=<bound node_id>:<bound field>
+
+I<getBindNode>
+
+retrieves the node to which this object has bound. This is a helper
+function for cgiVerify(). It takes two parameters, the CGI object
+containing incoming data and the associated form name. It returns the
+bound node object, or undef on failure.
+
+I<getBindField>
+
+determines the field on the node to which this object has bound. This
+is a helper function for cgiUpdate(). It takes two parameters, the CGI
+object containing incoming data and the associated form name. It
+returns the name of the bound field, if it exists, or undef otherwise.
+
+=head2 Simple Form Objects
+
+The core system provides Form Objects corresponding to the basic HTML
+form widgets. Depending on the information allowed in a widget, the
+associated objects may provide additional methods to add and to extract
+data. The following Form Objects share names with the HTML widgets they
+produce.
+
+=head3 TextArea
+
+I<genObject>
+
+Generates HTML for a textarea. In addition to the four parameters of
+the parent implementation, this takes the following arguments, all of
+which are required:
+
+=over
+
+=item * the default value of the widget. If set to 'AUTO', the Engine
+will use the current value of the bound field in the bound node.
+Without a bound node, it uses the empty string.
+
+=item * the width, in columns, of the textarea.
+
+=item * the height, in rows, of the textarea.
+
+=item * the textarea's line wrapping style. In HTML 4.0, the choices
+are 'off', 'hard', 'physical', 'soft', or 'virtual'.
+
+=back
+
+=head3 PasswdField
+
+Password fields behave slightly differently from normal Form Objects.
+While they may be bound to a node field (such as the passwd field of a
+user node), for security purposes they never send passwords to the
+client in HTML. In addition, this object creates two password boxes,
+prompting the user to verify a password change.
+
+I<genObject>
+
+Generates HTML to produce a password field, which masks typed
+characters. In addition to the parameters of the parent implementation,
+this takes one extra optional argument. Pass a true value to stack the
+two fields vertically. Otherwise they will be arranged horizontally.
+
+I<cgiVerify>
+
+Checks that the two passwords match, that the passwords are at least
+four characters long, and that the user has permission to update a
+bound node, if one exists. This will set an appropriate error message
+on failure.
+
+I<cgiUpdate>
+
+Updates the bound node field with the new data. It returns,
+successfully, if the user has passed a blank string, indicating no
+password change.
+
+=head3 Checkbox
+
+I<genObject>
+
+In addition to the parameters of the parent implementation, this takes
+the following arguments:
+
+=over
+
+=item * the value sent when the checkbox is checked. The default is 1.
+
+=item * the value sent when the checbox is not checked. The default is
+0.
+
+=item * the default value of the checkbox. Available options are 1
+(checked), 0 (unchecked), and 'AUTO' (use the bound node's field
+value).
+
+=item * a string used as a label for this checkbox.
+
+=back
+
+=head3 TextField
+
+I<genObject>
+
+In addition to the parameters of the parent implementation, this takes
+the following arguments:
+
+=over
+
+=item * the default value of this field. If set to 'AUTO', the Engine
+will use the value of the bound node field, or a blank string if no
+node is bound.
+
+=item * the width, in characters, of the textfield. The default is 20.
+
+=item * the maximum number of characters the textfield can contain. The
+default is 255.
+
+=back
+
+=head2 Complex Form Objects
+
+Form Objects that produce menus inherit from FormMenu, itself a
+descendant of FormObject.
+
+=head3 FormMenu
+
+FormMenu provides a standard API to add form elements, values, and
+labels. It should not be called directly. Instead, it provides only
+base functionality in the following methods:
+
+I<getValuesArray>
+
+Helper function, returns an anonymous array of menu values stored in
+this object.
+
+I<getLabelsHash>
+
+Helper function, returns an anonymous hash associating labels with
+values for this object.
+
+I<clearMenu>
+
+Completely resets this object, clearing its contained menus and values.
+
+I<sortMenu>
+
+Sorts the menu values by specific criteria. It takes the following
+parameters:
+
+=over
+
+=item * the sorting criteria, one of 'labels', 'labels reverse',
+'values', and 'values reverse'. Note that choosing 'labels' sorts the
+values by their associated values. This method only sorts values.
+
+=item * an optional array reference containing values to sort. If
+provided, this will not modify the objects values, instead sorting the
+provided array.
+
+=item * an optional hash reference associating labels and values. This
+is only necessary when sorting an external array by 'labels' or 'labels
+reverse'.
+
+=back
+
+This returns a reference to an array of the sorted results. It also
+updates the values in the object, unless it sorted an external array.
+
+I<removeItems>
+
+Removes a subset of values from the menu. This takes one parameter, a
+reference to an array of values to remove. Any values in the array not
+present in the menu's array will be ignored. It returns a reference to
+a hash of value/label pairs for all of the removed items.
+
+I<addType>
+
+Adds all nodes of a given type to the menu. For example, this shows all
+available nodetypes within 'Create a new node'. It takes the following
+parameters:
+
+=over
+
+=item * the string name of the nodetype to use.
+
+=item * the user attempting this operation. If passed, only those nodes
+to which the user has access will be displayed. This is an optional
+parameter.
+
+=item * a string specifying the permissions the user should have to
+display a node. This is required if a user has been passed.
+
+=item * the sorting order of the values, one of 'labels', 'labels
+reverse', 'values', and 'values reverse'.
+
+=back
+
+It returns true for success, false otherwise.
+
+I<addGroup>
+
+Adds all nodes from a group to the menu. It takes the following
+parameters:
+
+=over
+
+=item * the group node object
+
+=item * the user attempting the operation. If specified, the menu will
+include only those nodes in the group to which the user has access.
+This is optional.
+
+=item * the permissions needed to display a node. This is only useful
+when passing a user, and is required then.
+
+=item * the sorting order for the group, one of 'labels', 'labels
+reverse', 'values', and 'values reverse'.
+
+=back
+
+This also returns true on success and false on failure.
+
+I<addHash>
+
+Adds values and labels from a hash to the menu. It takes the following
+parameters:
+
+=over
+
+=item * a reference to a hash of values and labels to add.
+
+=item * a flag indicating that the hash keys are the labels. This is an
+optional parameter. Normally, the hash keys are the menu values and the
+hash values are the displayed labels. A true value for this parameter
+reverses this.
+
+=item * the order by which to sort the values, one of 'labels', 'labels
+reverse', 'values', and 'values reverse'. If unspecified, the values
+will display in hash order.
+
+=back
+
+This returns true on success and false on failure.
+
+I<addArray>
+
+Adds an array of values to the menu. It takes one parameter, a
+reference to the array to add. This returns true on success, false
+otherwise. The values will appear in the same order they appear in the
+array.
+
+I<addLabels>
+
+Adds new labels to the menu. This takes the following parameters:
+
+=over
+
+=item * A reference to a hash which associates labels with values. By
+default, the hash keys are the form values, and the hash values are the
+form labels.
+
+=item * An optional flag indicating that the hash keys are the form
+labels.
+
+=back
+
+It returns true on success, false on failure.
+
+I<genPopupMenu>
+
+Generates and returns HTML for a popup menu widget. This takes the
+following parameters:
+
+=over
+
+=item * the CGI object to use when generating HTML
+
+=item * the name of the produced form item
+
+=item * the selected option, one of the values in the values array
+
+=back
+
+I<genListMenu>
+
+Generates HTML for a scrolling list menu widget. It takes the following
+parameters:
+
+=over
+
+=item * the CGI object to use to generate HTML
+
+=item * the name of the produced form item
+
+=item * the default selected value. This can be a single value, a
+reference to an array of values, or a blank string indicating no
+default value.
+
+=item * the number of visible options. This is optional and defaults to
+6.
+
+=item * an optional flag indicating whether or not this widget should
+allow multiple selections. The default is false.
+
+=back
+
+I<genObject>
+
+Inherited from parent method. Nothing to see here.
+
+=head3 RadioGroup
+
+I<genObject>
+
+Generates HTML for a group of radio buttons. In addition to the
+parameters of the parent implementation, this takes the following
+arguments:
+
+=over
+
+=item * the default selected value. A value of 'AUTO' selects the
+current value of the bound node field, or the empty string if no node
+is bound.
+
+=item * a flag to format the radio buttons vertically. (If true, it
+inserts a E<lt>brE<gt> tag between each button.)
+
+=back
+
+=head3 ListMenu
+
+When bound to a node field, this Object expects the displayable values
+to be stored in a comma-delimited string.
+
+I<genObject>
+
+Generates HTML for a scrolling list menu widget. Besides the parameters
+of the parent method, this takes the following arguments:
+
+=over
+
+=item * the default value of the object. This may be a scalar or a
+reference to an array of multiple selected values. Choosing 'AUTO' will
+use the values of the bound node field. If this Object is unbound,
+choosing 'AUTO' will produce no default selection.
+
+=item * a flag to show multiple selections.
+
+=item * a reference to an array containing the values to use for the
+menu.
+
+=item * the height of the menu in rows.
+
+=item * an optional hashref associating values with displayed labels.
+
+=item * the sorting criteria for the values, one of 'labels', 'labels
+reverse', 'values', or 'values reverse'.
+
+=back
+
+I<cgiUpdate>
+
+Updates the bound node object in memory. This takes the same arguments
+as its parent implementation. It exists to store the selected values as
+a comma separated list in the node.
+
+=head3 PopupMenu
+
+I<genObject>
+
+Generates HTML for a popup form menu. This takes one argument besides
+those of the parent method, the default selection. The selected value
+must be present in the values array. As usual, 'AUTO' will use the
+current value in the bound node field, or no selection if the Object is
+not bound to a node.
+
+=head2 Specific Complex Objects
+
+=head3 VarsTextField
+
+The VarsTextField form object allows easy editing of hash data stored
+in nodes. See the 'system settings' superdoc for a living example. This
+object provides a mechanism to update values and rename keys. (When
+modifying a key and a value, the value must update first to prevent
+duplicate keys.)
+
+I<genObject>
+
+This method takes slightly different parameters from the parent
+implementation.
+
+=over
+
+=item * the CGI object to use to create HTML
+
+=item * the node containing settings to modify (should be a node
+object)
+
+=item * the node field containing the settings
+
+=item * the name of the key in the settings hash to modify
+
+=item * a flag which, if true, indicates that the generated field
+should edit the key. If false, this will create widgets to edit the
+associated value.
+
+=item * the default value of the field. If set to 'AUTO' or
+unspecified, it defaults to the current value in the node field.
+
+=item * the width, in characters, of the field. It defaults to 20.
+
+=item * the maximum allowed length of the data, in characters. It
+defaults to 255.
+
+=back
+
+Note that generating a value editing will also generate a popup menu
+from which users can select a node for that value by nodetype and title
+or node_id. This will also allow a literal value for the value.
+
+I<cgiUpdate>
+
+Besides checking for update access, this resolves values with nodes
+selected by type and title or id. It also handles key renaming,
+updating the hash in the node object.
+
+=head3 AuthorMenu
+
+Generates a text field and a popup menu used to specify a user name or
+select a user group. Though it produces two widgets, a selected user
+group will override any user name.
+
+I<genObject>
+
+Besides the four parameters of the parent implementation, this function
+takes two optional arguments:
+
+=over
+
+=item * the default value for the name textfield. This defaults to the
+current value of the bound node field if it contains a user node.
+
+=item * the default value of the menu. This defaults to the current
+value of the bound node field if it does not contain a user node.
+
+=back
+
+I<cgiVerify>
+
+Besides checking permissions, this verifies that the requested user
+exists on the system. This only occurs when the user has selected
+'specify user' and has provided a user name.
+
+=head3 GroupEditor
+
+This object allows deletion and reordering of group elements. It
+requires two JavaScript helper functions, findFormObject and
+moveGroupItem. Use the 'includeJS' htmlcode to add them:
+
+	[{includeJS: findFormObject, moveGroupItem}]
+
+I<genObject>
+
+The parameter list for this method differs from the parent
+implementation! Because this object modifies a group, it does not need
+a bound field name. Instead, it takes the following arguments:
+
+=over
+
+=item * the CGI object used to generate HTML
+
+=item * the node to which to bind
+
+=item * the name to use for the form field
+
+=item * an optional hex string used as the background color of the
+editor.
+
+=back
+
+I<cgiUpdate>
+
+This method updates the bound node with the reordered list of nodes. It
+can also remove duplicate nodes in the group.
+
+=head3 PermissionMenu
+
+Generates a menu to edit a node permission field. Calling it for the
+'r' permission creates a menu with options of 'Read', 'Disable', and
+'Inherit'.
+
+I<genObject>
+
+In addition to the parameters of the parent implementation, this takes
+the following arguments:
+
+=over
+
+=item * a permission to modify, one of 'r', 'w', 'x', 'd', or 'c'.
+
+=item * the default selected value. If 'AUTO' or unspecified and the
+object is bound to a node, this will use the current value of the bound
+node field.
+
+=back
+
+The resulting hidden bind field will have the permission appended to
+the value. This method returns a blank string if passed an invalid
+permission.
+
+I<cgiUpdate>
+
+If no value has been passed, this method sets the appropriate
+permission to 'inherit'. Otherwise, it updates the permission element
+of the permission string in the bound node.
+
+=head3 TypeMenu
+
+Displays a menu of nodes of a selected nodetype. The available nodes
+can be constrained by user access permissions. As some nodetypes may
+have thousands of nodes, this can produce large menus.
+
+I<genObject>
+
+In addition to the parameters required by the parent implementation,
+this takes the following arguments:
+
+=over
+
+=item * the name of the nodetype from which to list nodes. The default
+value is 'nodetype'.
+
+=item * the default value of the form field. If 'AUTO' or unspecified,
+and the object is bound to a node, it will use the current value of the
+bound node field.
+
+=item * the user performing this operation. If specified, only nodes to
+which this user has the following argument's access will be displayed.
+
+=item * the permission needed to list the node, one of 'r', 'w', 'd',
+'x', or 'c'. This defaults to 'r'.
+
+=item * an optional flag to display a 'None' option
+
+=item * an optional flag to display the 'Inherit' option
+
+=item * an optional string of text used to clarify the Inherit option,
+ie "inherit ($inherittxt)".
+
+=back
+
+I<addTypes>
+
+Adds the types to the menu. This is a helper method for genObject(),
+and adds the 'None' and 'Inherit' options if desired. It takes the
+following parameters:
+
+=over
+
+=item * the name of the nodetype to add
+
+=item * the user to check for access
+
+=item * the access needed to display a node
+
+=item * an optional flag to show the 'None' option
+
+=item * an optional flag to show the 'Inherit' option
+
+=item * the optional text for the inherit label
+
+=back
+
+Overriding this method could allow a Form Object to insert nodes in
+different orders or to add other options to the menu.
+
+=head3 NodetypeMenu
+
+This object displays all available nodetypes in a popup menu. Arranging
+nodes by inheritance hierarchy, it lists child nodetypes under their
+parents, with visual cues to show their relationships. It descends from
+TypeMenu.
+
+I<genObject>
+
+Besides the parameters of the parent implementation, this method takes
+the following arguments:
+
+=over
+
+=item * a flag to omit utility nodetypes. Since these nodes cannot be
+created, they are not appropriate for many applications. By default,
+this flag is false.
+
+=item * the user attempting the operation. It provided, the menu will
+only show those nodetypes for which the user has create permission.
+
+=item * an optional flag to show a 'none' option
+
+=item * an optional flag to show an 'inherit' option, indicating that
+the value of this field should be set to the value of the nodetype
+field.
+
+=back
+
+I<addTypes>
+
+Adds installed nodetypes to the menu in lexically sorted order. This
+skips all types for which the user does not have create permissions. It
+also respects the flag to omit 'utility' nodetypes.
+
+=over
+
+=item * the nodetype to display
+
+=item * an optional user node used to check access permissions
+
+=item * the permissions needed to display a node. This defaults to
+'read' permission and is only useful when a user node has been passed.
+
+=item * an optional flag to show a 'none' option
+
+=item * an optional flag to show an 'inherit' option, indicating that
+the value of this field should be set to the value of the nodetype
+field.
+
+=back
+
+I<createTree>
+
+Helper function for addTypes(). This creates an inheritance tree,
+modifying nodetype labels by adding visual data to show inheritance. It
+takes two parameters, a reference to an array of nodetypes and the
+node_id of the current parent node. (Pass '0' as the second argument to
+show a complete tree.)
+
+=head3 SubsetSelector
+
+This produces a group editing box allowing reordering and removal. It
+requires client-side JavaScript to work. The following htmlcode will
+suffice:
+
+	[{includeJS: findFormObject, moveGroupItem }]
+
+I<genObject>
+
+Besides the parameters of the parent implementation, this takes the
+following arguments:
+
+=over
+
+=item * the default selected value. If this node is bound, 'AUTO' or an
+unspecified value will display the appropriate element of the bound
+node field.
+
+=item * the number of visible lines in the menu box. The default is 20.
+
+=item * a hex string to use for the editor's background color. The
+default is '#cc99ff'.
+
+=item * an optional string to use as a label for the source menu
+
+=item * an optional string to use as a label for the destination menu
+
+=back
+
+If the form field to which to bind contains hash values, select a key
+to which to bind by passing "field:key" as the field parameter.
+
+I<cgiUpdate>
+
+Besides checking for permissions, this updates the node in memory. It
+can update a hash value if necessary.
+
+=head2 Unbound Form Objects
+
+Though they really show off when bound to nodes, unbound form objects
+work perfectly well. Pass 'undef' instead of a node and bind field and
+genObject() will return standard HTML. The Engine will not read the
+data during the Update operation, but it is available through CGI.pm.
+
+As an example, consider the following code from Taskball's 'task lister
+preferences' superdoc, renumbered slightly:
+
+ 1:	my $order = $query->param('order') || $VARS->{'task_list_sort_order'};
+ 2:	$order = 0 unless (defined($order) and ($order =~ /^[01]$/));
+ 3:	
+ 4:	$VARS->{'task_list_sort_order'} = $order ? 1 : '';
+ 5:	
+ 6:	my $popupmenu = newFormObject('PopupMenu');
+ 7:	$popupmenu->addHash({ 1 => 'Reverse', 0 => 'Normal' });
+ 8:	my $sort_order = $popupmenu->genObject($query, undef, undef, 'order', $order);
+
+Lines 1 and 2 ensure that $order contains a valid value. It may come
+from the 'order' parameter or from user settings. If neither exists, or
+if the current value is invalid, the default is 0.
+
+Line 4 updates the user settings with the current value of $order,
+which is now a boolean. If false, the 'task_list_sort_order' variable
+will be deleted. We could store the value of $order directly, but this
+approach stores only the necessary settings.
+
+Lines 6 through 8 create a PopupMenu Form Object, add data, then
+generate the HTML to display. The newFormObject() method creates an
+object of the requested type, if possible. PopupMenu inherits from
+FormMenu, so a simple addHash() call populates the object with the
+desired values and labels. Note the parameters to genObject() -- no
+bound node or field, the parameter name from line 1, and $order as the
+default value.
+
+Form Objects can often be reused within a page. Simply call genObject()
+with new parameters. Beware that objects that extend 'FormMenu' contain
+instance data. Call clearMenu() on these before adding menu items.
+
+=head2 writing your own
+
+If the included Form Objects don't meet your needs, create a new
+object. These can be arbitrarily complex, but they must fit the
+existing interface. At the very least, this means overriding
+genObject() and possibly cgiUpdate().
+
+As a practical example, we'll consider the DateMenu object. It supports
+Taskball's task and task_update nodetypes, which store their data in
+YYYY-MM-DD format. Each component of the date needs an individual popup
+menu, and the update logic should only allow valid date components.
+Extending FormMenu allows all this to be done with only two methods.
+
+The basic package header is very simple. It declares our new package
+and sets up inheritance:
+
+	package Everything::HTML::FormObject::DateMenu;
+	use strict;
+	 
+	use Everything;
+	use Everything::HTML::FormObject::FormMenu;
+	use vars qw( @ISA );
+	@ISA = ('Everything::HTML::FormObject::FormMenu');
+
+=head2 genObject
+
+This method will generate the HTML for our three popup menus. It must
+handle binding and non-binding accurately.
+
+  1:	my $this = shift;
+  2:	my ($query, $bindNode, $field, $name, $range) =
+  3:		getParamArray('query, bindNode, field, name, range', @_);
+  4:	my $html = $this->SUPER($query, $bindNode, $field, $name) . "\n";
+  5:	$range ||= 5;
+  6:
+  7:	my ($year, $month, $day);
+  8:
+  9:	# month and day can't have leading zeroes or they won't be selected
+ 10:	# properly
+ 11:	if (defined($bindNode) and exists($bindNode->{$field})) {
+ 12:		($year, $month, $day) = split(/-/, $bindNode->{$field});
+ 13:		$month += 0;
+ 14:		$day += 0;
+ 15:	} else {
+ 16:		($year, $month, $day) = (localtime)[5, 4, 3];
+ 17:		$year += 1900;
+ 18:		$month++;
+ 19:	}
+ 20:
+ 21:	$this->addArray([1 .. 31]);
+ 22:	$html .= $this->genPopupMenu($query, $name . '_day', $day);
+ 23:	$this->clearMenu();
+ 24:
+ 25:	my %months;
+ 26:	@months{(1 .. 12)} = qw( January February March April May June July August
+ 27:	September October November December );
+ 28:
+ 29:	$this->addArray([ 1 .. 12 ]);
+ 30:	$this->addLabels(\%months);
+ 31:	$html .= $this->genPopupMenu($query, $name . '_month', $month);
+ 32:	$this->clearMenu();
+ 33:
+ 34:	$this->addArray([($year - $range) .. ($year + $range)]);
+ 35:	$html .= $this->genPopupMenu($query, $name . '_year', $year);
+ 36:	
+ 37:	return $html;
+
+Lines 1 through 4 set up the method arguments. The getParamArray() call
+handles parameters passed as a list or as a hashref. Calling the parent
+method in line 4 produces HTML necessary to bind this object to a node.
+If this object isn't bound, it will return nothing, so it's a safe
+call. Line 5 sets a default value for the year range.
+
+Lines 11 through 14 handle the binding case. The bound field
+corresponds to the 'DATE' column type in MySQL, so splitting on '-'
+provides the correct components. Lines 13 and 14 force Perl to
+interpret the $month and $date variables in numerical context. Leading
+zeroes will subtly break the indexing scheme later in the code.
+
+Lines 15 through 19 use the current date for the unbound case. For
+convenience sake, we add 1900 to get a four digit $year and increment
+$month. MySQL uses an index of '1' for January while Perl prefers '0'.
+We'll use '1'.
+
+Lines 21 through 23 add the day selector, named $name plus '_day'. Its
+possible values are 1 through 31. The addArray(), genPopupMenu(), and
+clearMenu() functions come from the FormMenu object. Note the
+repetition of clearMenu().
+
+Lines 25 through 32 add the month selector. This widget will be called
+$name plus '_month' in the HTML form. The addArray() and addLabels()
+calls fill in the menu values and labels, respectively. Using addHash()
+with %months would accomplish the same thing in one step, but the best
+sorting option puts November and December right after January. It's
+better to supply the value ordering explicitly. Again, clearMenu()
+removes the labels and values after use.
+
+Lines 34 and 35 add the year selector. Finally, $range comes into play,
+showing each year from $range before the current year to $range years
+in the future. As expected, this widget will have the name $name plus
+'_year'.
+
+Line 37 returns the generated HTML.
+
+=head2 cgiUpdate
+
+This method updates a bound node with new data. Before changing the
+node, we'll sanitize data against accidental and maliciously invalid
+data.
+
+  1:	my ($this, $query, $name, $bindNode, $overrideVerify) = @_;
+  2:	my ($year, $month, $day);
+  3:
+  4:	my $field = $this->getBindField($query, $name);
+  5:	return 0 unless ($overrideVerify or $bindNode->verifyFieldUpdate($field));
+  6:	$year = $query->param($name . '_year');
+  7:	$month = $query->param($name . '_month');
+  8:	$day = $query->param($name . '_day');
+  9:
+ 10:	return 0 unless ($day =~ /^(?:0?[1-9]|[12][0-9]|3[01])$/);
+ 11:	return 0 unless ($month =~ /^(?:0?[1-9]|1[0-2])$/);
+ 12:	return 0 unless ($year =~ /^\d{4}$/);
+ 13:
+ 14:	$bindNode->{$field} = sprintf("$year-%02d-%02d", $month, $day);
+ 15:	return 1;
+
+Lines 1 and 2 declare and populate our variables. This method has the
+same signature as its parent.
+
+Line 4 checks to see if the bound field can be updated. If the user has
+gods access, $overrideVerify will be true, and the check doesn't
+matter.
+
+Lines 5 through 7 pull in the associated parameters.
+
+Lines 9 through 11 perform the field verification. $day must be a
+number from 1 to 31. $month must be a number between 1 and 12. If
+either is a single digit number, it may have a leading zero. $year must
+simply be a four digit number. Note that nothing currently verifies the
+month day against the month -- this is not difficult to add, but takes
+some time to account for leap years correctly. If any verification
+fails, the function returns a false value without updating the node.
+
+Lines 14 and 15 represent success. The sprintf() call formats a string
+as the database expects it and modifies the node field. opUpdate() in
+Everything::HTML will call update() on the node later.

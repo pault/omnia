@@ -1,0 +1,191 @@
+=head1 Settings and Deeper Edits
+
+=head2 The Elusive Site Settings
+
+Everything uses setting nodes to store configuration information. Of
+the core setting nodes, 'system settings' is extra special. For each
+request, the Engine copies its contents into the %HTMLVARS global hash.
+Any code section of any node can use these settings to modify its
+behavior.
+
+Most of the option in 'system settings' point to nodes to use for
+certain operations. For example, the 'default_node' contains the
+node_id of a node to display when no other node has been selected. In
+effect, this is the site's front page. Other options, such as
+'GUshowsearchform' act as flags. This particular setting governs the
+visibility of the upper search box for the guest user.
+
+=head2 Editing Site Settings
+
+Adding a new setting is as easy as editing the settings node and adding
+a new key and value at the bottom of the page. The popup menu in the
+value section allows you to specify what type of value is provided. The
+'Literal value' selection indicates that the value does not refer to a
+node. Otherwise, you may select a value by title and nodetype, choosing
+the appropriate nodetype from the menu.
+
+It is also possible to rename a setting. Change its name in the name
+box, and the Engine will update things seamlessly. To remove a setting,
+simply check the leftmost checkbox. Beware that removing or renaming
+core settings may have detrimental effects on the system.
+
+=head2 Node Revisions Save Lives
+
+Everything also supports a useful feature called Node Revisions. In
+brief, this means that certain nodetypes maintain a stack of node
+changes. Users in the gods group can undo and redo recent changes.
+
+Revision ability can be disabled on a nodetype basis. By default, most
+nodetypes support 1000 levels of undo. Setting this to zero disables
+revision in general, while a value of -1 indicates that the value
+should be inherited from the parent nodetype.
+
+=head2 How Revisions Work
+
+When a node is updated, the Engine takes the current node data and stores it in
+the 'revision' dbtable. Using the 'undo' or 'redo' buttons on the 'Admin
+Nodelet' will call undo() on $NODE. This removes the appropriate revision from
+the stack, updates the revision table accordingly, and replaces the current
+$NODE with the requested revision. Note that performing an 'undo' will make a
+'redo' possible, to reinstate the changes that have just been undone.
+
+=head2 Revision Best Practices
+
+There are a few caveats to working with revisions. Editing a node that
+has been undone will remove an possible redo operations. Revisions also
+are much slower than normal node operations. Not only does it involve
+extra work in the database, but repeated revisions will remove any
+benefits for Compil-o-Cached nodes. It is best only to enable revisions
+for important system nodetypes, such as htmlcode and containers. Since
+these nodes are not often updated, they can afford occasional
+performance hits. Perhaps the best option is to edit important nodes
+only in workspaces.
+
+If you are concerned about database size, reduce the number of allowed
+revisions. For a normal site, with few immediate modifications, 100 is
+sufficient. Advanced users can run a weekly cron job to delete old
+revisions. The 'tstamp' field of the revision dbtable holds the
+revision entry time. Removing all entries older than a certain date
+could reduce database size considerably.
+
+=head2 Revisions for Programmers
+
+Programmatically, most access to revisions should go through the node
+method undo(), located in Everything::Node::node. This method is
+available for all descendants of the 'node' nodetype, provided they do
+not override it. It takes two optional parameters. The first argument
+is a redo flag. If true, undo() will instead perform a redo operation.
+The second argument is a test flag. If true, undo() will not return a
+boolean value indicating whether or not the operation can be performed.
+It will not do anything.
+
+All revision data lives in the revision dbtable. Each time someone
+modifies a node, the Engine calls logRevision() before updating the
+node in the database. The logRevision() method, also found in
+Everything::Node::node, exports the node to XML, storing it and some
+administrative data in the revision table. This allows nodes to be
+restored with the same mechanism used to import nodeballs. This
+serialization and unserialization slows down revised nodes.
+
+=head2 Workspaces are Freedom
+
+A workspace is a sort of private sandbox that can contain modified
+nodes. Only the users in the workspace can see the changes. To all
+other users, the nodes have not changed. This allows developers and
+administrators to experiment with new views and behaviors on a running
+system without disrupting current users. Note also that when updating
+or importing a nodeball, any collisions that cannot be merged safely
+will be put in a unique workspace. This allows the administrator to
+perform critical updates manually, testing them sufficiently. Note that
+the way workspaces work allows for testing of a single system component
+with the rest of the system as is. That is, workspaced changes to the
+'main container' affect all nodes displayed while in the workspace.
+
+=head2 Working with Workspaces
+
+To use a workspace, create a new workspace node. From the workspace
+node, enter the workspace with the 'Join workspace' link. This will add
+a new nodelet named 'workspace info', providing a link to the current
+active workspace and commit and discard operations for workspaced
+nodes.
+
+Any node edited while in a workspace will be added to the workspace, if
+its nodetype allows it. (By default, workspaces and nodemethods cannot
+be workspaced.) Any further edits will only be visible to users in the
+workspace until the edited node is commited to the regular database.
+Note that node versioning works within workspaces exactly as it does
+outside of workspaces -- the logRevision() and undo() methods have code
+to handle this special case.
+
+Nodes can exist in a workspace indefinitely, but at some point they
+should be commited to the normal database or discarded. Both operations
+are available through the 'workspace info' nodelet or from the
+workspace node. Both operations use the 'commitworkspace' opcode.
+Performing a commit loads the current version of the node from the
+workspace, calling update() on it to modify the standard database
+version. A delete simply removes the node and its data from the
+revision table and the workspace node.
+
+=head2 How Workspaces Work
+
+Workspace nodes derive from the 'setting' nodetype. Each node in the
+workspace has a slot in the setting, where the key is the node_id and
+the value is the number of the current active revision. As with node
+revisions, the database and Engine must perform some additional magic.
+Workspaced nodes live in the revision table just like revised nodes,
+but they use the 'inside_workspace' field to differentiate them.
+
+As these nodes must undergo a serialization/deserialization process,
+accessing nodes in a workspace accrues a speed penalty. If
+Compil-O-Cache is active, it will use the old mechanism for any
+parsable content within workspaced nodes. (This is by design -- using
+C-o-C on virtual nodes could slow things down more than the standard
+multi-eval() approach.)
+
+=head2 Workspace Best Practices
+
+Workspaces are the best place to edit a live system, especially when
+modifying a node with embedded code or HTML. A misplaced tag or a
+missing parenthesis could cause errors confusing normal users. Consider
+creating a testing user with default permissions, giving it access to
+the testing workspace. This will allow developers to view their changes
+through the eyes of a normal user while keeping changes out of sight of
+others.
+
+=head2 Workspaces for Programmers
+
+Everything::NodeBase has two special methods to deal with workspaces.
+The first is joinWorkspace(). It takes the node_id of a workspace to
+join. It will remove the current user from any existing workspace, then
+attempt to join the requested one. If the argument is zero, it will
+remove the user from the workspace. It returns -1 on failure and 1 on
+success.
+
+The getNodeWorkspace() method fetches any nodes matching certain
+criteria inside the workspace. It's a helper for getNode(), and should
+not be called directly.
+
+Everything::Node::node provides three methods for working with
+workspaces, canWorkspace(), getWorkspaced(), and updateWorkspaced().
+All nodetypes that store data in the database should have these
+available.
+
+The canWorkspace() method checks to see if the current node is allowed
+to be put in a workspace. This is set on the nodetype node, and can be
+inherited from a parent nodetype. It returns 1 if the node can be
+workspaced, 0 otherwise.
+
+When fetching a node in a workspace, Everything::Nodebase::getNode()
+calls getWorkspaced(). As this is an object method, it operates on the
+standard node, that is, the node object built from the normal database
+tables. This fetches the appropriate revision from the database,
+returning it. If the node cannot be found or built, this will return
+undef or a blank string. Note that this caches all found nodes in a
+special per-workspace cache. This method exists so it can be overridden
+in derived types, as necessary.
+
+The updateWorkspaced() method handles node updating while in a
+workspace. It logs a revision, updating the current revision number for
+the node in the workspace. If the updates succeed, this will return the
+node_id of the current node, or undef for failure. This also exists in
+case a derived nodetype needs to do something special.

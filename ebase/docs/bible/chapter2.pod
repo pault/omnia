@@ -1,0 +1,239 @@
+=pod
+
+When you've mastered editing nodes and making writeups, the next task
+as root is to remodel your site. Perhaps you prefer O'Reilly Perl Blue,
+Larry Wall Chartreuse, or Film Noir Everydevel to the standard reddish
+tint. Besides changing the colors, you may wish to rearrange
+information or add graphics.
+
+By separating the presentation (HTML) from content (node data), the
+Engine makes it possible to create multiple, unique looks for your
+site. Users can pick and choose from the available options according to
+their preferences. You'll have to edit a few nodes and come up with new
+graphics on your own, but this is fairly easy.
+
+=head1 Arranging the nodelets
+
+Before we jump into a sea of changes, we need to prepare our workspace
+-- root's nodelets. Node Statistics displays information about the
+current node. It comes in handy when editing containers and display
+pages. Let's put it right below the admin nodelet. To do that, we must
+edit root's currently active node group ('system nodelets' by default).
+Verify this at 'user settings' under the "Nodelet group" option.
+
+Enter edit mode on 'system nodelets'. (This exercise requires
+JavaScript.) You will see a box listing the nodelets in this group in
+order, followed by four buttons. Highlight 'Node Statistics' and hit
+the up button until it is second from the top. You must hit Save to
+register your changes with the server. Do so, and the nodelets should
+change to match the new order.
+
+This is also the place to add nodelets to a nodeletgroup, assuming you
+have the addables in the 'Node Bucket'. You can delete nodelets here as
+well. Just remember, you must Save changes from the browser to the
+server, if you want to keep them.
+
+=head1 Changing the corner GIF
+
+The happy little blue e in the top right corner stands for Everything.
+Unless you're pawning yourself off as Everything3.com, this is a good
+candidate for replacement. Modifying this takes slightly more work than
+changing nodelet order, while demonstrating a powerful feature of the
+Engine.
+
+Go to the Default node. Look in the Node Statistics nodelet for the
+Display page. It should be 'superdoc display page'. Follow the link
+there, and remember this technique.
+
+Ignore most of the information here, for now. The important field is
+Parent container. The value here is something called 'general
+container'. A container does just what the name implies. The Engine
+uses the superdoc display page to display a superdoc. Before sending
+that information to users, it puts it in a general container. Follow
+that link.
+
+The general container also has a parent container, 'main container'.
+Follow the link one more time. The main container also has a parent,
+but looking at its contents reveals the HTML for the top search bar and
+our little blue friend, "images/e.gif".
+
+If you feel especially lazy, replace e.gif in the images directory with
+your own image. The right way to change the image is by editing the
+main container HTML. Enter edit mode.
+
+I've already created an image and placed it into the images directory
+as 'fw.gif'. To use it instead if e.gif, I simply changed the src
+attribute of the img tag. Do whatever is appropriate for your purposes,
+hit submit, and visit any other node to see the change. (It may display
+after you hit submit, but the old container text may still be in the
+cache.)
+
+If the new image does not display, check your spelling and file
+permissions. Examine the web server's error log for telltale warnings.
+
+=head1 Changing the themesettings
+
+After changing the corner image, let's modify the color scheme. Site
+colors live in theme nodes. User colors come from settings in the
+'default theme' node in the absence of more specific values. (The
+'default theme' is the default due to its presence in 'system
+settings', not because it has the word default in its title.)
+
+Rather than modifying the default node, let's take a different
+approach. Head to the 'default theme' and hit the 'clone' link. This
+will prompt you for a new node name with a JavaScript window. Call it
+'new theme'.
+
+Congratulations, you've just cloned your first node. Follow the link to
+'new theme'. Like any good clone, this is a duplicate of the original.
+Only the title, id, and create time have changed. We want to edit the
+settings, so enter edit mode.
+
+The settings edit page bears some explanation. Mark settings for
+removal with the leftmost checkbox -- select as many as you like. (Just
+beware that removing things installed with ebase or ecore may break
+parts of your site.) The setting and value columns correspond to the
+keys and values of a Perl hash (or a word and definition in a
+dictionary). Ignore the Auto Set Value column for now. You can add a
+setting with the blank boxes at the bottom of the list. The submit
+button will remove any checked settings, add a new setting, and change
+any old settings with one press. Finally, there may be a group editing
+box, if it applies to your node.
+
+We can customize quite a bit without adding new settings. Begin by
+changing the author field to your name. If you have HTML experience,
+you'll feel right at home with most of these settings.
+
+The body color settings control the color of the background, links, and
+text. Nodelet fields apply only to nodelets, of course. Attr (short for
+'attribute') fields provide finer-grained control over E<lt>fontE<gt>
+and E<gt>tableE<lt> tags -- you can specify a font size or a table
+width with normal HTML attributes.
+
+Container settings determine the node containing HTML to wrap around
+the various nodes. For example, the main container provides our image
+and the top search box. You can get very creative with this, but leave
+it as is for now.
+
+Two types of settings remain. NodeletTitleBackground points to a
+background image to tile in nodelet title bars. To use an image,
+specify its relative path, without quotes. Otherwise, leave it set to
+two double quotes, or the option will disappear. Finally, version lets
+you track the number of times this theme has changed. Submit your
+changes when you're satisfied. It's time to test them, so note the id
+of this node in the admin nodelet and visit 'system settings'.
+
+=head1 Changing the default theme
+
+Now that you're comfortable editing settings, change the default theme
+node id to point to 'new theme'. Use the node_id you noted in the last
+section. You can also use the Auto Set Value column to specify a node
+by title and type. Be sure to remove the node_id in the value column if
+you do -- the setting edit page prefers that value.
+
+To make more changes, return to 'new theme'. If your root user uses the
+default theme (check 'user settings'), you'll see the changes as the
+page reloads. For best results, log out and admire your site through
+the eyes of a guest user.
+
+=head1 A word about themesettings
+
+Themesettings strongly resemble themes, inheriting and overriding
+values of a parent theme. One might create a new themesetting with only
+one setting -- a background color of 'ffff00', or yellow. Declaring it
+as a child of the default theme and selecting it in user settings would
+produce pages with a yellow background and all other settings as
+normal.
+
+Creating a themesetting instead of a theme allows rapid, incremental
+changes, and user customization within certain parameters. For example,
+a Big themesetting could increase contrast and use a larger nodelet
+text size for visually impaired readers.
+
+Themesetting variables are the same as those of themes, and the
+creation and editing processes are the same. Beware that setting
+"Replacement settings for" to 'none' caused a fatal error in my
+testing. Themesettings need parents, unless they provide all necessary
+theme variables.
+
+=head1 Turning off features
+
+While modifying your site, you may discover certain features to be
+inappropriate for your purposes. You might not want guest users
+creating new accounts, or using the search box. You may wish to disable
+or remove a nodelet. Everything provides easy and quick ways to
+accomplish these, while allowing more complex adjustments.
+
+=head2 Limiting the Guest User's options
+
+Some Everything sites need access restrictions, like Hemos.net and
+Oostendorp.net. Only a few people need the power to login and to change
+nodes.
+
+Since everyone begins as a guest user, the quickest chokepoint is to
+limit the guest user's actions. Start at the 'system settings' node.
+Here you will find "GUshownodelets", which allows or prevents guest
+users from seeing nodelets, and "GUshowsearchform", which governs the
+presence of the search box. Set both to zero. (Deleting them also
+works, but reduces your options in the future.)
+
+Without accounts, no one will be able to gain greater permissions. The
+next barrier is at the 'Create a New User' node. Go there, and follow
+the permissions link from the Admin Nodelet. Disable read permission
+for the guest user.
+
+Saavy users can still fake GET and POST requests, but cannot log in
+without accounts. To disable logins altogether, you might disable guest
+read permission on the login superdoc. This will prevent you (as root)
+from logging in without having a persistent cookie set, editing the
+database, or building your own query string of the form:
+
+	?op=login&user=root&passwd=OOPS
+
+Nothing prevents any user with a valid account from doing the same.
+
+=head2 Removing nodelets
+
+With guest users unable to create accounts, the 'Login nodelet' serves
+no purpose. If you've not locked down your server, you may wish to trim
+the guest user nodelet list. Showing 'Other Users' and 'Personal
+Nodelet' makes little sense for guests.
+
+By default, the guest user uses the 'default nodelets' nodeletgroup.
+Clone it to 'GU default nodelets' and go there. Edit the group,
+removing and rearranging the members as you prefer. Save your changes,
+and remember the node_id of this nodegroup.
+
+Go to 'system settings' and change the default_nodeletgroup value to
+point to 'GU default nodelets'. Logged-in users will also see these
+nodelets, unfortunately. You could have them visit 'user settings' to
+change their preferred Nodelet group, or modify the 'create a new user'
+superdoc to change this field in a new user node.
+
+=head2 Removing the search box, redux
+
+The other way to remove the search box has no subtlety, but
+demonstrates a powerful engine feature. Go to the 'main container' and
+enter edit mode. This node contains mostly HTML, with three htmlsnippet
+references.
+
+The first call ([{searchform:noendform}]) displays the familiar search
+box and Go button, topping every page. To disable it temporarily, wrap
+it in an HTML comment and press Submit:
+
+	<!-- [{searchform:noendform}] -->
+
+The resulting page will display the changes. Nearly every page in
+Everything goes through this container. (Hopefully you still have the
+admin nodelet available so you can undo your changes. If not, try the
+following URL:
+
+	http://hostname?node=main%20container&displaytype=edit
+
+Adjust as necessary.
+
+=head2 Removing all nodelets, redux
+
+Getting rid of all nodelets is just as easy. Comment out [{nodelet
+meta-container}] and submit. A small change in the right container can
+change the look of your site tremendously. What power.

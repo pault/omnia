@@ -1,0 +1,291 @@
+=head1 Permissions in Everything
+
+Everything has a fine-grained permissions system that allows the right
+people to change system behavior, exercise editorial control, and
+create new content. You can allow anyone with an account to make node
+after node, or you can produce a read-only system, giving gods access
+to a trusted few.
+
+For the most part, the default setup is sufficient if you want a
+collaborative installation like Everything 2 or PerlMonks. As you make
+your own nodetypes and include more people, you will need to understand
+the basics of permissions.
+
+The single most important fact about Everything permissions is that
+they follow normal node and nodetype inheritance lines. For example, if
+the document nodetype gives a user read access, he will have read
+access to any document nodetype, if it does not have special
+permissions.
+
+=head2 The Basic Permissions
+
+There are five basic permissions. Each node has a permission field for
+each of the four classes of users. Two nodes of the same type with the
+same data can have their permissions set completely differently.
+
+Permissions are stored in the node table in the authoraccess,
+groupaccess, otheraccess, and guestaccess fields. They take the form
+'rwxdc', where permissions are specified by their letters listed below.
+A single dash (B<->) indicates that the user does not have the
+permission specified, while an i (B<i>) means that this permission is
+inherited from the parent nodetype.
+
+=over 4
+
+=item * read (B<r>)
+
+this marks whether a user can access -- but not change -- a node's
+content. Htmlpages for the 'display' displaytype generally require read
+access. Viewing a superdoc (causing the execution of its code) requires
+read permission.
+
+=item * write (B<w>)
+
+this permission allows users to modify node content and to update a
+node in the database. Htmlpages providing the 'edit' displaytype
+generally require write access. Editing node permissions and modifying
+groups requires write access. For editors, adding a node to the Node
+Bucket appears to need write permission.
+
+=item * delete (B<d>)
+
+delete access permits a user to remove nodes from the database. The
+'nuke' operation is permanent and quick, so beware. In the core system,
+this power is reserved for root and members of the gods usergroup.
+Authors generally do not have delete access.
+
+=item * execute (B<x>)
+
+execute access is needed for htmlcode, htmlsnippets, opCodes, and
+nodelets. Without it, the user will see no results. In addition, users
+need execute permission on a location to add a node or a symlink.
+
+=item * create (B<c>)
+
+a special type of permission, this governs whether a user can create a
+new node of the specified nodetype. This permission is only valid for
+nodetype nodes. It means nothing on any other type of node, because you
+can only create nodes of a nodetype. Without create permission, the
+user cannot insert a node into the database.
+
+=back
+
+=head2 User Classes
+
+=over
+
+=item * author
+
+the user who owns this node. The user who creates a node becomes the
+author_user. Gods can change this field, to give the node to another
+user. This is the only user class that does not have a field for
+'create' permission.
+
+=item * group
+
+a usergroup that has special access to this node. On a collaborative
+system, you might set up an editors usergroup charged with eliminating
+typos from document nodes. Set the group field of the document nodetype
+to 'editors' and allow write access. Any users in the editors group
+will be able to edit document nodes that inherit permissions from the
+document nodetype node.
+
+=item * other
+
+logged-in users who do not have author or group access to this node.
+This class covers the average user. In general, this class has read and
+execute permissions on most content nodes and no permissions for
+anything else. It does have create permissions on some content
+nodetypes.
+
+=item * guest
+
+users without an account or users who are not logged in. This class has
+limited access, with no create permissions.
+
+=back
+
+=head2 Editing node permissions
+
+By default, freshly created nodes inherit all permissions from the
+parent nodetype. Any changes made to the type permissions will apply to
+the nodes immediately. In general, type settings are appropriate for
+nodes. It is much easier to maintain an installation by managing
+permissions from the nodetype node than it is to update each node by
+itself. (Create a new nodetype, like restricted_superdoc, with
+different permissions, or put all of the appropriate nodes in a
+nodegroup and use an external script to loop through and change all of
+the members.)
+
+The 'permissions' displaytype allows administrators to edit node
+permissions. Follow the link from the Admin Nodelet or pass the
+displaytype=permissions CGI parameter. This will produce a table
+showing user permissions for each of the user classes.
+
+Each slot can contain one of two special value. The 'none' option
+indicates that the current user class does not have the listed
+permission. The 'inherit' option indicates that the current user class
+has the permission set in the parent nodetype for this slot.
+
+The leftmost column lists the user classes. As described above, each
+user must fit into at least one of these. The permissions on this row
+apply to that user class. Note that there is no slot for 'create'
+permission -- this is only modifiable when editing type permissions on
+a nodetype node.
+
+The group cell includes a slot to set group access. It lists all
+available usergroups. Choose the usergroup, if any, that should have
+special access to this node. In this slot, the 'inherit' value also
+displays the usergroup set in the parent nodetype. (This is usually the
+'gods' usergroup, in the ecore nodeball.)
+
+The Parent Settings column displays the nodetype node settings for the
+associated user class. Fields are shown in 'rwxdc' order. As in the
+database fields, the letter indicates the permission is granted, while
+a single dash indicates that the permission is denied. The Engine
+resolves inherited permissions by walking up the hierarchy, displaying
+the derived permissions instead of leaving administrators guessing as
+to the actual permissions for a field.
+
+The Dynamic column allows the selection of a permission node which can
+generate permissions. As with the other slots, 'inherit' will use any
+value set in the parent nodetype. Any dynamic permission node selected
+will override values set in the other slots for this user class.
+
+=head2 Editing nodetype permissions (inheritance)
+
+To edit nodetype permissions, simply edit the nodetype node. (Using a
+'permissions' displaytype will only allow you to edit the permissions
+of the nodetype node itself.) Be sure to note the note produced by the
+editDefaultPermissions htmlcode.
+
+The form to edit type permissions resembles the node permissions form.
+There is one addition, the create field. As expected, it does not apply
+to the author user class. (There can be no author_user on a node until
+it has been created.)
+
+Type permissions do inherit, however they do not inherit from a the
+nodetype node of this nodetype. Rather, they inherit from the parent
+nodetype. For example, document nodes inherit permissions from the
+document nodetype. The type permissions of the document nodetype
+inherit from the type permissions set in the node nodetype.
+
+=head2 Usergroups
+
+As your site grows, you may need to delegate rights and
+responsibilities to other users. Rather than giving out the
+administrative password, you can create a usergroup with access to
+specific nodes, especially superdocs. This will allow you to assign
+permissions on a group basis, bestow or revoke user permissions by
+adding to or removing from a group, and track changes by user name. (If
+everyone logs in as 'root', any logging you do will be credited to
+'root' and not a more specific username.)
+
+Adding users to a group is very simple. Create your usergroup. Add the
+user nodes for that group to the 'Node Bucket' node. Visit the new
+usergroup node and add the user nodes from the Node Bucket. To give a
+group special access to a node or nodetype, visit the permission page
+of the node (or the edit page for the nodetype). Select the new group
+in the first column of the second row, modifying the access permissions
+as desired. Changes should take place immediately.
+
+The Engine recognizes one special usergroup included with the core
+system. Every user listed at the top level of the gods usergroup as
+well as the root user has complete access to the entire system. The
+hasAccess method of Node grants these permissions. Note that if the
+gods usergroup contains usergroups, users in the nested groups will not
+have these powers. Also note that passing '-1' instead of $USER to
+hasAccess will grant superuser power. This is only appropriate when
+scripting Everything or when setting up the system before any users can
+be logged in. It is a security risk when used in user-accessible code.
+
+The final power for organizing users and permissions is storing groups
+in groups. This allows you to create usergroups based on organizational
+criteria, storing them in usergroups based on functional criteria. For
+example, the 'site editors' group could have access to a restricted
+superdoc that temporarily hides certain nodes from regular users. The
+editors group may contain other groups, 'trusted users', 'corporate
+nitpickers', and 'techies'. These three groups have more specific
+permissions on other nodes, but members of each can use the restricted
+superdoc.
+
+=head2 Checking Permissions
+
+While the Engine internals adhere to Everything permissions very
+strictly, user interface code ought to take advantage of the permission
+API. Only present users with options they can execute successfully. For
+example, the 'duplicates found' node only shows nodes the current user
+can read. Displaying a link to a nodetype node which he cannot read
+anyway will only produce confusion.
+
+The hasAccess method, located in the Everything::Node package and
+available on any node object, checks a user permissions against the
+current node. Many htmlpages have code like the following:
+
+	return '' unless ($NODE->hasAccess($USER, 'r'));
+
+The first parameter is a user node, or the special value '-1'. As
+mentioned earlier, this is inappropriate in user-accessible code. The
+second parameter is a string containing all the modes to check, any
+combination of 'rwxdc'. The Engine will determine the user's best
+relationship to $NODE, preferring the 'author' class to group access.
+Again, root and gods automatically have all permissions. This method
+returns a true or false value.
+
+Occasionally, code must check permissions on an uncreated node. The
+nodetype package provides hasTypeAccess() for these situations. The
+clone secton of the 'adminbar' htmlcode has a construct like the
+following:
+
+	if ($NODE->{type}->hasTypeAccess($USER, 'c')) {
+		clone();
+	}
+
+This method checks type permissions -- the default permissions for
+nodes of the nodetype. It is only available to nodetype nodes. The
+arguments and return value are the same as those of hasAccess(). It is
+more efficient to test for create access with hasTypeAccess() than with
+hasAccess(), though both work.
+
+The most exotic and powerful unit of permissions is the permission
+node. The permission nodetype extends htmlcode. Permission nodes
+contain embedded code which generate dynamic permissions. Anything the
+normal permission system cannot do may be possible with a permission
+node.
+
+Permission code executes in the NodeBase package, but has access to the
+normal globals like $USER and $NODE. It takes no arguments and should
+return a string containing all of the allowed permission characters. A
+permission node associated with a regular node will override static
+permission settings.
+
+You can also call a permission node separately, if the permission does
+not apply to a particular node:
+
+	if ($NODE->{DB}->hasPermission($USER, $permission_title, $mode)) {
+		# do something
+	}
+
+This is an easy way to hide or grant new user powers based on
+experience. The permission code might be:
+
+	return 'x' if ($$USER{experience} > 100);
+	return '-';
+
+You can even create your own permission symbols, returning them from
+the permission node and checking for them in the hasPermission call.
+The canVote permission may return 'v' if the user has permission to
+vote.
+
+Besides voting, other options for permission nodes include:
+
+=over
+
+=item * limiting access during or after business hours
+
+=item * implementing a quota system for certain operations -- users can
+only use expensive database searches once or twice a day
+
+=item * blocking node creation while the database backup runs
+
+=back
