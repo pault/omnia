@@ -127,6 +127,7 @@ WriteMakefile(
 		'XML::Parser'      => 2.26,
 		'File::Spec'       => 0.82,
 		'Mail::Address'    => 1.53,
+		'Mail::Sender'     => 0,
 		'Test::MockObject' => 0.11,
 	},
 	clean         => {
