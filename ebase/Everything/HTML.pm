@@ -26,9 +26,9 @@ sub BEGIN {
 	@EXPORT=qw(
 		$DB
 		%HTMLVARS
+		%GLOBAL
 		$query
 		jsWindow
-		createNodeLinks
 		parseLinks
 		htmlScreen
 		htmlFormatErr
@@ -40,14 +40,13 @@ sub BEGIN {
 		getPageForType
 		linkNode
 		linkNodeTitle
-		nodeName
+		searchForNodeByName
 		evalCode
 		htmlcode
 		embedCode
 		displayPage
 		gotoNode
 		confirmUser
-		urlDecode
 		encodeHTML
 		decodeHTML
 		mod_perlInit);
@@ -55,6 +54,7 @@ sub BEGIN {
 
 use vars qw($query);
 use vars qw(%HTMLVARS);
+use vars qw(%GLOBAL);  # This is used for nodes to pass vars back-n-forth
 use vars qw($GNODE);
 use vars qw($USER);
 use vars qw($VARS);
@@ -71,40 +71,65 @@ use vars qw($NODELET);
 #		determines whether or not a tag (and it's specified attributes)
 #		are approved or not.  Returns the cleaned tag.  Used by htmlScreen
 #
-sub tagApprove {
+#	Parameters
+#		$close - either '/' or '' (nothing).  Determines if the tag is the
+#			opening or closing tag.
+#		$tag - the name of the tag (ie "font")
+#		$attr - the attributes of the tag (ie "size=1 color=red")
+#		$APPROVED - a hash of approved tags, where the keys are the names
+#			of the tags and the values are a comma delimited string of
+#			allowed attributes.  ie:
+#			{ "font" => "size,color" }
+#
+#	Returns
+#		The tag with any unapproved attributes removed.  If the tag itself
+#		is not approved, "" (nothing) will be returned.
+#
+sub tagApprove
+{
 	my ($close, $tag, $attr, $APPROVED) = @_;
 
 	$tag = uc($tag) if (exists $$APPROVED{uc($tag)});
 	$tag = lc($tag) if (exists $$APPROVED{lc($tag)});
 
-	if (exists $$APPROVED{$tag}) {
+	if (exists $$APPROVED{$tag})
+	{
 		my @aprattr = split ",", $$APPROVED{$tag};
 		my $cleanattr;
-		foreach (@aprattr) {
+		foreach (@aprattr)
+		{
 			if (($attr =~ /\b$_\b(\='.*?')/) or
 				($attr =~ /\b$_\b(\=".*?")/) or
-				($attr =~ /\b$_\b(\=\S*)?/)) {
-				$cleanattr.=" ".$_.$1;
+				($attr =~ /\b$_\b(\=\S*)?/))
+			{
+				$cleanattr .= " " . $_ . $1;
 			}
 		}
-		"<".$close.$tag.$cleanattr.">";
-	} else { ""; }
+		
+		return "<".$close.$tag.$cleanattr.">";
+	} 
+
+	return "";
 }
 
 #############################################################################
-#	sub
+#	Sub
 #		htmlScreen
 #
-#	purpose
+#	Purpose
 #		screen out html tags from a chunk of text
 #		returns the text, sans any tags that aren't "APPROVED"		
 #
-#	params
-#		text -- the text to filter
+#	Params
+#		text -- the text/html to filter
 #		APPROVED -- ref to hash where approved tags are keys.  Null means
 #			all HTML will be taken out.
 #
-sub htmlScreen {
+#	Returns
+#		The text stripped of any HTML tags that are not approved.
+#
+sub htmlScreen
+{
 	my ($text, $APPROVED) = @_;
 	$APPROVED ||= {};
 
@@ -270,7 +295,8 @@ sub htmlErrorUsers
 	# Print the error to the log instead of the browser.  That way users
 	# do see all the messy perl code.
 	my $error = "Server Error (#" . $errorId . ")\n";
-	$error .= "User: $$USER{title}\n";
+	$error .= "User: ";
+	$error .= "$$USER{title}\n" if(ref $USER eq "HASH");
 	$error .= "User agent: " . $query->user_agent() . "\n" if defined $query;
 	$error .= "Code:\n$code\n";
 	$error .= "Error:\n$err\n";
@@ -386,10 +412,18 @@ sub urlGen {
 sub getCode
 {
 	my ($funcname, $args) = @_;
-
+	my $user = $USER;
 	my $CODE = getNode($funcname, getType("htmlcode"));
 	
-	return '"";' unless (defined $CODE);
+	# If no user has been loaded yet, we default to the "super user".
+	# This sounds scary, but the only time where $USER is not defined
+	# is before we log the user in.  Only basic setup code gets run
+	# before the user gets logged in.
+	$user ||= -1;
+	
+	# If the user is not allowed to execute this code, we don't want to
+	# show anything.
+	return '"";' unless ((defined $CODE) && (hasAccess($CODE, $user, "x")));
 
 	my $str;
 	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
@@ -549,25 +583,43 @@ sub getPage
 
 
 #############################################################################
-sub linkNode {
+#	Sub
+#		linkNode
+#
+#	Purpose
+#		This creates a <a href> link to the specified node.
+#
+#	Parameters
+#		$NODE - the node to create a link to
+#		$title - the title of the link (<a href="...">title</a>)
+#		$PARAMS - a hashref that contains any CGI parameters to add
+#			to the URL.  (ie { 'op' => 'logout' })
+#
+#	Returns
+#		An '<a href="...">title</a>' HTML link to the given node.
+#
+sub linkNode
+{
 	my ($NODE, $title, $PARAMS) = @_;
-	#getRef $NODE;	
 
-	return unless $NODE;
-	unless (ref $NODE) {
-		$NODE = getNodeById($NODE, 'light');
-	}
-	return unless ref $NODE;	
+	return "" unless $NODE;
+
+	# We do this instead of calling getRef, because we only need the node
+	# table data to create the link.
+	$NODE = getNodeById($NODE, 'light') unless (ref $NODE);
+
+	return "" unless ref $NODE;	
 	
-	if ($NODE == -1) {return "<a>$title</a>";}
 	$title ||= $$NODE{title};
 	$$PARAMS{node_id} = getId $NODE;
 	my $tags = "";
 
 	$$PARAMS{lastnode_id} = getId ($GNODE) unless exists $$PARAMS{lastnode_id};
-	#any params that have a "-" preceding 
-	#get added to the anchor tag rather than the URL
-	foreach my $key (keys %$PARAMS) {
+
+	# any params that have a "-" preceding 
+	# get added to the anchor tag rather than the URL
+	foreach my $key (keys %$PARAMS)
+	{
 		next unless ($key =~ /^-/); 
 		my $pr = substr $key, 1;
 		$tags .= " $pr=\"$$PARAMS{$key}\""; 
@@ -579,7 +631,27 @@ sub linkNode {
 
 
 #############################################################################
-sub linkNodeTitle {
+#	Sub
+#		linkNodeTitle
+#
+#	Purpose
+#		Given a node title, create an HTML link to that node.
+#
+#	Notes
+#		This creates a link pointing a node with a specific title.  If
+#		there exists more than one node in the system, the result of
+#		following the link will result in a "duplicates found".  If you
+#		know the exact node you want to go to, you should use linkNode()
+#		instead.
+#
+#	Parameters
+#		$nodename - the name of the node to go to.
+#		$lastnode - id of the node that you are currently on (used for
+#			building links)
+#		$title - the title of the link as seen from the browser.
+#
+sub linkNodeTitle
+{
 	my ($nodename, $lastnode, $title) = @_;
 
 	($nodename, $title) = split /\|/, $nodename;
@@ -598,7 +670,7 @@ sub linkNodeTitle {
 
 #############################################################################
 #	Sub
-#		nodeName
+#		searchForNodeByName
 #
 #	Purpose
 #		This looks for a node by the given name.  If it finds something,
@@ -611,24 +683,13 @@ sub linkNodeTitle {
 #	Returns
 #		nothing
 #
-sub nodeName
+sub searchForNodeByName
 {
 	my ($node, $user_id) = @_;
 
-	if (my $KW = getNode ('keyword settings', 'setting')) {
-		my $WORDS = getVars $KW;	
-		my $title = lc($node) ."_node";
-		#please note -- this means that keywords must be in lower case...
-
-		if (exists $$WORDS{$title}) {
-			gotoNode($$WORDS{$title}, $user_id);
-			return;
-		}
-	}
-
-
 	my @types = $query->param("type");
-	foreach(@types) {
+	foreach(@types)
+	{
 		$_ = getId(getType($_));
 	}
 	
@@ -658,7 +719,7 @@ sub nodeName
 			$NODE = getNodeById($HTMLVARS{not_found});	
 		}
 
-		displayPage ($NODE, $user_id);
+		gotoNode ($NODE, $user_id);
 	}
 	elsif (@$select_group == 1)
 	{
@@ -673,29 +734,61 @@ sub nodeName
 		my $NODE = getNodeById($HTMLVARS{duplicate_group});
 		
 		$$NODE{group} = $select_group;
-		displayPage($NODE, $user_id);
+		gotoNode($NODE, $user_id);
 	}
 }
 
 
 #############################################################################
-#this function takes a bit of code to eval 
-#and returns it return value.
+#	Sub
+#		evalCode
 #
-#it also formats errors found in the code for HTML
-sub evalCode {
+#	Purpose
+#		This is a wrapper for the standard eval.  This way we can trap eval
+#		errors and warnings and do something appropriate with them.
+#
+#		The scope of variables are:
+#			$NODE is the node we are trying to display (the main node)
+#			$CURRENTNODE is the node in which this code is embeded.  Like
+#				a nodelet for example.
+#
+#		This differentiates the main node from where this code is coming
+#		from, which allows the code to work on the two different items.
+#
+#	Parameters
+#		$code - the code to be evaled
+#		$CURRENTNODE - the context in which this code is being evaled.  For
+#			example, if this code is coming from a nodelet, CURRENTNODE
+#			would be the nodelet.
+#
+#	Returns
+#		The result of the evaled code.  If there were any errors, the
+#		return string will be the error nicely HTML formatted for easy
+#		display.
+#
+sub evalCode
+{
 	my ($code, $CURRENTNODE) = @_;
 	#these are the vars that will be in context for the evals
 
+	# Make sure that $NODE is the node we are displaying.
 	my $NODE = $GNODE;
 	my $warnbuf = "";
+
+	$CURRENTNODE ||= $NODE;
 
 	local $SIG{__WARN__} = sub { 
 		$warnbuf .= $_[0] 
 		 unless $_[0] =~ /^Use of uninitialized value/;
 	};
 
+	# Remove those pesky 015 octals... (?)
 	$code =~ s/\015//gs;
+
+	# If we define any subroutines in our code, this will prevent
+	# us from getting the "subrouting * redefined" warning.
+	local $^W = 0;
+	
 	my $str = eval $code;
 
  	local $SIG{__WARN__} = sub {};
@@ -704,49 +797,91 @@ sub evalCode {
 }
 
 #########################################################################
-#	sub htmlcode
+#	Sub
+#		htmlcode
 #
-#	purpose
+#	Purpose
 #		allow for easy use of htmlcode functions in embedded perl
 #		[{textfield:title,80}] would become:
 #		htmlcode('textfield', 'title,80');
 #
-#	args
+#	Parameters
 #		func -- the function name
 #		args -- the arguments in a comma delimited list
 #
+#	Returns
+#		The result from the evaled code
 #
-sub htmlcode {
+sub htmlcode
+{
 	my ($func, $args) = @_;
 	my $code = getCode($func, $args);
 	evalCode($code) if($code);
 }
 
+
 #############################################################################
-#a wrapper function.
-sub embedCode {
-	my $block = shift @_;
+#	Sub
+#		embedCode
+#
+#	Purpose
+#		This takes code in the form of [%...%], [{...}], [<...>], or
+#		["..."] and evals the internal code.
+#
+#	Parameters
+#		block - The block of code to eval.  It must be of one of the forms
+#			described above.
+#		$CURRENTNODE - the node in which this code is coming from.  Some
+#			code may need to know this (nodelets that modify themselves).
+#			If not defined, this will default to the main node we are
+#			trying to display
+#
+#	Returns
+#		The eval-ed result of the code.
+#
+sub embedCode
+{
+	my ($block, $CURRENTNODE) = @_;
 
 	my $NODE = $GNODE;
 	
-	$block =~ /^(\W)/;
-	my $char = $1;
-	
-	if ($char eq '"') {
-		$block = evalCode ($block . ';', @_);	
-	} elsif ($char eq '{') {
-		#take the arguments out
+	if ($block =~ /^".*"$/)
+	{
+		# This is used to eval data that a user may have entered.  It is
+		# wrapped in quotes so that variables are evaled, but if they
+		# contain code, that code is not evaled.  This prevents users from
+		# hacking the system by having node titles like:
+		# 	$DB->do("drop table nodes")
+		$block = evalCode ($block . ';', $CURRENTNODE);	
+	}
+	elsif ($block =~ /^\{(.*)\}$/s)
+	{
+		# This is htmlcode.  We need to get the htmlcode node and
+		# create a [%...%] block out of its code and pass it back to
+		# this function.
 		
-		$block =~ s/^\{(.*)\}$/$1/s;
-		my ($func, $args) = split /\s*:\s*/, $block;
+		my ($func, $args) = split /\s*:\s*/, $1;
 		$args ||= "";
-		my $pre_code = "\@\_ = split (/\\s*,\\s*/, \"$args\"); ";
-		#this line puts the args in the default array
+
+		# This line puts the args in the default array
+		my $pre_code = "\@\_ = split (/\\s*,\\s*/, \"$args\");\n";
 		
-		$block = embedCode ('%'. $pre_code . getCode ($func) . '%', @_);
-	} elsif ($char eq '%') {
-		$block =~ s/^\%(.*)\%$/$1/s;
-		$block = evalCode ($block, @_);	
+		$block = embedCode ('%'. $pre_code . getCode ($func) . '%', 
+			$CURRENTNODE);
+	}
+	elsif ($block =~ /^\%(.*)\%$/s)
+	{
+		$block = evalCode ($1, $CURRENTNODE);	
+	}
+	elsif ($block =~ /^<(.*)>$/s)
+	{
+		my $snippet = getNode($1, "htmlsnippet");
+
+		# User must have execute permissions for this to be embedded.
+		if((defined $snippet) && hasAccess($snippet, $USER, "x"))
+		{
+			$block = parseCode($$snippet{code});
+		}
 	}
 	
 	# Block needs to be defined, otherwise the search/replace regex
@@ -758,21 +893,42 @@ sub embedCode {
 
 
 #############################################################################
-sub parseCode {
+#	Sub
+#		parseCode
+#
+#	Purpose
+#		Given the text from a node that is to be displayed, parse out the
+#		code blocks and eval them.
+#
+#		NOTE!!! This is a full parse and eval.  You do NOT NOT NOT want to
+#		call this on text that an untrusted user can modify.  You don't
+#		want users creating nodes with [% `rm -rf /*` %] in their code.
+#		Calling this on untrusted user text is a security breach.
+#
+#	Parameters
+#		$text - the text to be parsed for the code blocks
+#		$CURRENTNODE - the node which this text is coming from.  Used for
+#			scope purposes.
+#
+sub parseCode
+{
 	my ($text, $CURRENTNODE) = @_;
 
-	# the order is:  
+	# the embedding styles are:  
 	# [% %]s -- full embedded perl
 	# [{ }]s -- calls to the code database
+	# [< >]s -- embedded HTML
 	# [" "]s -- embedded code strings
-	#
 	# this is important to know when you are writing pages -- you 
 	# always want to print user data through [" "] so that they
 	# cannot embed arbitrary code...
 	#
 	# someday I'll come up with a better way to do that...
 
-	$text =~ s/\[([\%\{\"].*?[\%\}\"])\]/embedCode($1, $CURRENTNODE)/egs;
+	# Note!!!  This is not perfect.  This will match stuff like [%..}].
+	# We should probably fix it such that we make sure that the start and
+	# end delimiters actually match.  DPB 08-Mar-00.
+	$text =~ s/\[([\%\{\"\<].*?[\%\}\"\>])\]/embedCode($1, $CURRENTNODE)/egs;
 	$text;
 }
 
@@ -787,7 +943,8 @@ sub parseCode {
 #		code -- the block of code to display
 #		numbering -- set to true if linenumbers are desired
 #
-sub listCode {
+sub listCode
+{
 	my ($code, $numbering) = @_;
 	return unless($code); 
 
@@ -808,7 +965,17 @@ sub listCode {
 
 
 #############################################################################
-sub quote {
+#	Sub
+#		quote
+#
+#	Purpose
+#		Not sure.  It seems that nothing uses this.  Nate?
+#
+#	Parameters
+#		$text - the text to encode
+#
+sub quote
+{
 	my ($text) = @_;
 
 	$text =~ s/([\W])/sprintf("&#%03u", ord $1)/egs;
@@ -945,7 +1112,8 @@ sub genContainer
 #		container - title of container
 #		html - html to insert
 #
-sub containHtml {
+sub containHtml
+{
 	my ($container, $html) =@_;
 	my ($TAINER) = getNode($container, getType("container"));
 	my $str = genContainer($TAINER);
@@ -968,6 +1136,7 @@ sub containHtml {
 #	Parameters
 #		$NODE - the node to display
 #		$user_id - the user that is trying to 
+#
 sub displayPage
 {
 	my ($NODE, $user_id) = @_;
@@ -980,7 +1149,34 @@ sub displayPage
 
 	die "NO PAGE!" unless $page;
 
+	# If the user does not have the needed permission to view this
+	# node through the desired htmlpage, we send them to the permission
+	# denied node.
+	unless(hasAccess($NODE, $USER, $$PAGE{permissionneeded}))
+	{
+		# Make sure the display type is set to display.  Otherwise we
+		# may get stuck in an infinite loop of permission denied.
+		$query->param("displaytype", "display");
+
+		gotoNode($HTMLVARS{permission_denied});
+		return;
+	}
+
+	if ($$PAGE{permissionneeded} eq "w")
+	{
+		# If this is an "edit" page.  We need to lock the node while
+		# this user is editing.
+		if (not lockNode($NODE, $USER))
+		{
+			# Someone else already has a lock on this node, go to the
+			# "node locked" node.
+			$query->param('displaytype', 'display');
+			gotoNode($HTMLVARS{node_locked});
+		}
+	}
+
 	$page = parseCode($page, $NODE);
+
 	if ($$PAGE{parent_container}) {
 		my $container = genContainer($$PAGE{parent_container}); 
 		$container =~ s/CONTAINED_STUFF/$page/s;
@@ -989,40 +1185,38 @@ sub displayPage
 	
 	setVars $USER, $VARS;
 	
+	# Print the appropriate MIME type header so that browser knows what
+	# kind of data is coming down the pipe.
 	printHeader($$NODE{datatype});
 	
-	# We are done.  Print the page to the browser.
+	# We are done.  Print the page (or data) to the browser.
 	$query->print($page);
 }
 
 
 #############################################################################
-#the function where we go when we actually know which $NODE we want to view
+#	Sub
+#		gotoNode
+#
+#	Purpose
+#		Once we know the exact node that we want to go to, we call this
+#		function.  
+#
+#	Parameters
+#		node_id - the node we want to go to.
+#
 sub gotoNode
 {
-	my ($node_id, $user_id) = @_;
-
-	my $NODE = {};
-	unless (ref ($node_id) eq 'ARRAY') {
-		# Is there a reason why we are "force"ing this node?
-		# A 'force' causes us not to use the cache.
-		$NODE = getNodeById($node_id, 'force');
-	}
-	else {
-		$NODE = getNodeById($HTMLVARS{search_group});
-		$$NODE{group} = $node_id;
-	}
+	my ($node_id) = @_;
+	my $NODE = getNodeById($node_id);
 
 	unless ($NODE) { $NODE = getNodeById($HTMLVARS{not_found}); }	
 	
-	unless (canReadNode($user_id, $NODE)) {
-		$NODE = getNodeById($HTMLVARS{permission_denied});
-	}
-	#these are contingencies various things that could go wrong
-
-	if (canUpdateNode($user_id, $NODE)) {
+	# Once we know the exact node, we may have some incoming updates we
+	# need to take care of.  THIS WILL BE MOVING TO THE "update" OPCODE!
+	if (canUpdateNode($USER, $NODE)) {
 		if (my $groupadd = $query->param('add')) {
-			insertIntoNodegroup($NODE, $user_id, $groupadd,
+			insertIntoNodegroup($NODE, getId($USER), $groupadd,
 				$query->param('orderby'));
 		}
 		
@@ -1034,7 +1228,7 @@ sub gotoNode
 				push @newgroup, $item;
 			}
 
-			replaceNodegroup ($NODE, \@newgroup, $user_id);
+			replaceNodegroup ($NODE, \@newgroup, getId($USER));
 		}
 
 		my @updatefields = $query->param;
@@ -1049,6 +1243,7 @@ sub gotoNode
 				$updateflag = 1;
 			}	
 		}
+		
 		if ($updateflag) {
 			updateNode($NODE, $USER); 
 			if (getId($USER) == getId($NODE)) { $USER = $NODE; }
@@ -1058,68 +1253,74 @@ sub gotoNode
 	updateHits ($NODE);
 	updateLinks ($NODE, $query->param('lastnode_id')) if $query->param('lastnode_id');
 
-	my $displaytype = $query->param("displaytype");
-
-	#if we are accessing an edit page, we want to make sure user
-	#has rights -- also, lock the page
-	#we unlock the page on command as well...
-	if ($displaytype and $displaytype eq "edit") {
-		if (canUpdateNode ($USER, $NODE)) {
-			if (not lockNode($NODE, $USER)) {
-				$NODE = getNodeById($HTMLVARS{node_locked});
-				$query->param('displaytype', 'display');
-			} 
-		} else {
-			$NODE = getNodeById($HTMLVARS{permission_denied});
-			$query->param('displaytype', 'display');
-		}
-	} elsif ($query->param('op') eq "unlock") {
-		unlockNode ($USER, $NODE);
-	}
-
-	displayPage($NODE, $user_id);
+	displayPage($NODE);
 }
 
 
 #############################################################################
-sub confirmUser {
+#	Sub
+#		confirmUser
+#
+#	Purpose
+#		Given a username and the passwd they entered in encrypted form,
+#		verify that the passwd/username combo is correct.
+#
+#	Parameters
+#		$nick - the user name
+#		$crpasswd - the passwd that the user entered, encrypted
+#
+#	Returns
+#		The USER node if everything checks out.  undef if the
+#		username/passwd combo failed.
+#
+sub confirmUser
+{
 	my ($nick, $crpasswd) = @_;
-
 	my $USER = getNode($nick, getType('user'));
+	my $genCrypt = crypt($$USER{passwd}, $$USER{title});
 
-	Everything::printLog("passwd: $$USER{passwd}, name: $$USER{title}");
-	
-	if (crypt ($$USER{passwd}, $$USER{title}) eq $crpasswd) {
+	if ($genCrypt eq $crpasswd)
+	{
 		my $rows = $DB->getDatabaseHandle()->do("
 			UPDATE user SET lasttime=now() WHERE
 			user_id=$$USER{node_id}
-			") or die;
+			");
 
 		# 'Force' it to make sure we don't get a cached version
+		# DPB 03-01-00 - not sure why we force.  If it has been updated,
+		# the cache will know and reload it.
 		return getNodeById($USER, 'force');
 	} 
-	return 0;
+
+	return undef;
 }
 
 
 #############################################################################
-sub parseLinks {
+#	Sub
+#		parseLinks
+#
+#	Purpose
+#		This finds any [...] blocks in the text and creates a link to
+#		the node named in the brackets.
+#
+#		NOTE - we should add some setting to only allow links to
+#		certain types of nodes.  Obviously, if a user puts [node] in
+#		their text, you don't want it to link to the "node" nodetype.
+#
+#	Parameters
+#		$text - the text in which to search for [...] links
+#		$NODE - The node that contains this link.  Used for "lastnode".
+#
+#	Returns
+#		The text with the [...] replaced with the appropriate links.
+#
+sub parseLinks
+{
 	my ($text, $NODE) = @_;
 
-	Everything::printLog("parseLinks");
 	$text =~ s/\[(.*?)\]/linkNodeTitle ($1, $NODE)/egs;
 	$text;
-}
-
-
-#############################################################################
-sub urlDecode {
-	foreach my $arg (@_) {
-		tr/+/ / if $_;
-		$arg =~ s/\%(..)/chr(hex($1))/ge;
-	}
-
-	$_[0];
 }
 
 
@@ -1146,11 +1347,11 @@ sub loginUser
 	
 	if(my $oldcookie = $query->cookie("userpass"))
 	{
-		$user_id = confirmUser (split (/\|/, urlDecode ($oldcookie)));
+		$user_id = confirmUser (split (/\|/, unescape($oldcookie)));
 	}
-	
+
 	# If all else fails, use the guest_user
-	$user_id ||= $HTMLVARS{guest_user};				
+	$user_id ||= $HTMLVARS{guest_user};
 
 	# Get the user node
 	$USER_HASH = getNodeById($user_id);	
@@ -1228,13 +1429,14 @@ sub getTheme {
 		$THEME = getVars $TS;
 	}
 
+
 	#we must also check the user's settings for any replacements over the theme
 	foreach (keys %$THEME) {
 		if (exists $$VARS{"theme".$_}) {
 			$$THEME{$_} = $$VARS{"theme".$_};
 		}
 	}
-	#$THEME= {};
+	
 	1;
 }
 
@@ -1260,11 +1462,15 @@ sub printHeader
 	# default to plain html
 	$datatype ||= "text/html";
 	
-	if($ENV{SCRIPT_NAME}) {
-		if ($$USER{cookie}) {
+	if($ENV{SCRIPT_NAME})
+	{
+		if ($$USER{cookie})
+		{
 			$query->header(-type=> $datatype, 
 		 		-cookie=>$$USER{cookie});
-		} else {
+		}
+		else
+		{
 			$query->header(-type=> $datatype);
 		}
 	}
@@ -1277,7 +1483,7 @@ sub printHeader
 #
 #	Purpose
 #		This check the CGI information to find out what the user is trying
-#		to do and executes their request.
+#		to do and execute their request.
 #
 #	Parameters
 #		None.  Uses the global package variables.
@@ -1299,23 +1505,16 @@ sub handleUserRequest
 		$nodename = cleanNodeName($query->param('node'));
 		$query->param("node", $nodename);
 		
-		if ($query->param('op') ne 'new')
-		{
-			nodeName ($nodename, $user_id, $type); 
-		}
-		else
-		{
-			gotoNode($HTMLVARS{permission_denied}, $user_id);
-		}
+		searchForNodeByName($nodename, $user_id, $type); 
 	}
 	elsif ($node_id = $query->param('node_id'))
 	{
-		#searching by ID
+		# searching by ID
 		gotoNode($node_id, $user_id);
 	}
 	else
 	{
-		#no node was specified -> default
+		# no node was specified -> default
 		gotoNode($HTMLVARS{default_node}, $user_id);
 	}
 }
@@ -1328,7 +1527,8 @@ sub handleUserRequest
 #	Purpose
 #		We limit names of nodes so that they cannot contain certain
 #		characters.  This is so users can't play games with the names
-#		of their nodes.
+#		of their nodes.  For example, we don't want "hello there" and
+#		"hello      there" to be different nodes.
 #
 #	Parameters
 #		$nodename - the raw name that the user has given
@@ -1352,6 +1552,8 @@ sub cleanNodeName
 #############################################################################
 sub clearGlobals
 {
+	undef %GLOBAL;
+
 	$GNODE = "";
 	$USER = "";
 	$VARS = "";
@@ -1443,6 +1645,13 @@ sub opNew
 
 
 #############################################################################
+sub opUnlock
+{
+	unlockNode ($USER, $query->param('node_id'));
+}
+
+
+#############################################################################
 #	Sub
 #		getOpCode
 #
@@ -1514,6 +1723,10 @@ sub execOpCode
 		{
 			opNew();
 		}
+		elsif($op eq 'unlock')
+		{
+			opUnlock();
+		}
 	}
 }
 
@@ -1547,7 +1760,11 @@ sub mod_perlInit
 	# pages to show when a node is not found (404-ish), when the
 	# user is not allowed to view/edit a node, etc.  These are stored
 	# in the dbase to make changing these values easy.	
-	%HTMLVARS = %{ eval (getCode('set_htmlvars')) };
+	my $vars = eval(getCode('set_htmlvars'));
+	if($vars ne "")
+	{
+		%HTMLVARS = %{ eval (getCode('set_htmlvars')) };
+	}
 
 	$query = getCGI();
 

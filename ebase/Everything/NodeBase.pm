@@ -17,33 +17,7 @@ use Everything::NodeCache;
 sub BEGIN
 {
 	use Exporter ();
-	use vars	   qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA=qw(Exporter);
-	@EXPORT=qw(
-		getCache
-		getDatabaseHandle
-		getAllTypes
-		getNodetypeTables
-		
-		sqlDelete
-		sqlInsert
-		sqlUpdate
-		sqlSelect
-		sqlSelectMany
-		sqlSelectHashref
-		
-		getFields
-		getFieldsHash
-
-		tableExists
-		createNodeTable
-		dropNodeTable
-		addFieldToTable
-		dropFieldFromTable
-
-		quote
-		genWhereString
-		);
+	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 }
 
 my $dbases = {};
@@ -110,8 +84,8 @@ sub new
 		{
 			my $vars;
 
+			#we have to set this, or it crashes when it calls a getRef
 			$Everything::DB = $this; 
-				#we have to set this, or it crashes when it calls a getRef
 									
 			$vars = Everything::getVars($CACHE);
 			$cacheSize = $$vars{maxSize} if(exists $$vars{maxSize});
@@ -170,10 +144,10 @@ sub getCache
 #		sqlDelete
 #
 #	Purpose
-#		Quickie wrapper for deleting a row from a specified table.
+#		Quickie wrapper for deleting a row or rows from a specified table.
 #
 #	Parameters
-#		from - the sql table to delete the row from
+#		table - the sql table to delete the row from
 #		where - what the sql query should match when deleting.
 #
 #	Returns
@@ -181,11 +155,11 @@ sub getCache
 #
 sub sqlDelete
 {
-	my ($this, $from, $where) = @_;
+	my ($this, $table, $where) = @_;
 
 	$where or return;
 
-	my $sql = "DELETE FROM $from WHERE $where";
+	my $sql = "DELETE FROM $table WHERE $where";
 
 	return 1 if($this->{dbh}->do($sql));
 
@@ -203,7 +177,7 @@ sub sqlDelete
 #
 #	Parameters
 #		select - what colums to return from the select (ie "*")
-#		from - the table to do the select on
+#		table - the table to do the select on
 #		where - the search criteria
 #		other - any other sql options thay you may wan to pass
 #
@@ -214,8 +188,8 @@ sub sqlDelete
 #
 sub sqlSelect
 {
-	my($this, $select, $from, $where, $other) = @_;
-	my $cursor = $this->sqlSelectMany($select, $from, $where, $other);
+	my($this, $select, $table, $where, $other) = @_;
+	my $cursor = $this->sqlSelectMany($select, $table, $where, $other);
 	my @result;
 	
 	return undef if(not defined $cursor);
@@ -238,7 +212,7 @@ sub sqlSelect
 #
 #	Parameters
 #		select - what colums to return from the select (ie "*")
-#		from - the table to do the select on
+#		table - the table to do the select on
 #		where - the search criteria
 #		other - any other sql options thay you may wan to pass
 #
@@ -248,10 +222,10 @@ sub sqlSelect
 #
 sub sqlSelectMany
 {
-	my($this, $select, $from, $where, $other) = @_;
+	my($this, $select, $table, $where, $other) = @_;
 
 	my $sql="SELECT $select ";
-	$sql .= "FROM $from " if $from;
+	$sql .= "FROM $table " if $table;
 	$sql .= "WHERE $where " if $where;
 	$sql .= "$other" if $other;
 
@@ -274,7 +248,7 @@ sub sqlSelectMany
 #		
 #	Parameters
 #		select - what colums to return from the select (ie "*")
-#		from - the table to do the select on
+#		table - the table to do the select on
 #		where - the search criteria
 #		other - any other sql options thay you may wan to pass
 #
@@ -283,8 +257,8 @@ sub sqlSelectMany
 #	
 sub sqlSelectHashref
 {
-	my ($this, $select, $from, $where, $other) = @_;
-	my $cursor = $this->sqlSelectMany($select, $from, $where, $other);
+	my ($this, $select, $table, $where, $other) = @_;
+	my $cursor = $this->sqlSelectMany($select, $table, $where, $other);
 	my $hash;
 	
 	if(defined $cursor)
@@ -522,7 +496,7 @@ sub loadGroupNodeIDs
 	my $groupTable;
 
 	# If this node is a group node, add the nodes in its group to its array.
-	if ($groupTable = $this->isGroup($$NODE{type}))
+	if ($groupTable = $this->isGroup($NODE))
 	{
 		my $cursor;
 		my $nid;
@@ -728,6 +702,11 @@ sub getNodeCursor
 #
 #	Parameters
 #		$NODE - the incomplete node that should be filled out.
+#
+#	Returns
+#		True (1) if successful, false (0) otherwise.  If success, the node
+#		hash past in will now be a complete node.
+#
 sub constructNode
 {
 	my ($this, $NODE) = @_;
@@ -783,7 +762,7 @@ sub updateNode
 	$this->getRef($NODE);
 	return 0 unless ($this->canUpdateNode($USER, $NODE)); 
 
-	# This node has just been updated.  Do any maintenance if needed.
+	# This node is about to be updated.  Do any maintenance if needed.
 	$this->nodeMaintenance($NODE, 'update before');
 	
 	$tableArray = $$NODE{type}{tableArray};
@@ -828,25 +807,47 @@ sub updateNode
 }
 
 
-############################################################################
-#	sub
+##############################################################################
+#	Sub
 #		replaceNode
 #
-#	purpose
-#		given insertNode information, test whether or not the node is there
-#		if it is, update it, otherwise insert the node as new
+#	Purpose
+#		Given insertNode information, test whether or not the node is there
+#		If it is, update it, otherwise insert the node as new.
 #
-sub replaceNode {
+#	Parameters
+#		$title - the title of the node
+#		$TYPE - the nodetype of the node we are looking for
+#		$USER - the user trying to do this (used for authorization)
+#		$DATA - a hashref that contains the information of the node to be
+#			updated/inserted
+#
+#	Returns
+#		1 (true) if the node was inserted or updated successfully.  0 (false)
+#		if the user did not have permissions to do this action.
+#
+sub replaceNode
+{
 	my ($this, $title, $TYPE, $USER, $DATA) = @_;
 
-	if (my $N = $this->getNode($title, $TYPE)) {
-		if ($this->canUpdateNode($USER,$N)) {
+	if (my $N = $this->getNode($title, $TYPE))
+	{
+		if ($this->canUpdateNode($USER,$N))
+		{
 			@$N{keys %$DATA} = values %$DATA if $DATA;
 			$this->updateNode($N, $USER);
+
+			return 1;
 		}
-	} else { 
+	} 
+	elsif($this->canCreateNode($USER, $TYPE))
+	{ 
 		$this->insertNode($title, $TYPE, $USER, $DATA);
+
+		return 1;
 	}
+
+	return 0;
 }
 
 
@@ -884,8 +885,6 @@ sub insertNode
 		return 0;
 	}
 
-	$this->nodeMaintenance($NODE, 'create before');
-
 	if ($$TYPE{restrictdupes})
 	{ 
 		# Check to see if we already have a node of this title.
@@ -899,6 +898,9 @@ sub insertNode
 			return 0;
 		}
 	}
+
+	# We are about to create a new node.  Do any maintenance for this type.
+	$this->nodeMaintenance($NODE, 'create before');
 
 	$this->sqlInsert("node", 
 			{title => $title, 
@@ -961,7 +963,7 @@ sub nukeNode
 	
 	$this->getRef($NODE, $USER);
 	
-	return unless ($this->canDeleteNode($USER, $NODE));
+	return 0 unless ($this->canDeleteNode($USER, $NODE));
 
 	# This node is about to be deleted.  Do any maintenance if needed.
 	$this->nodeMaintenance($NODE, 'delete before');
@@ -988,13 +990,12 @@ sub nukeNode
 
 	# If this node is a group node, we will remove all of its members
 	# from the group table.
-	if($groupTable = $this->isGroup($$NODE{type}))
+	if($groupTable = $this->isGroup($NODE))
 	{
 		# Remove all group entries for this group node
 		$this->{dbh}->do("DELETE FROM $groupTable WHERE " . $groupTable . 
 			"_id=$$NODE{node_id}");
 	}
-	$this->{dbh}->do("DELETE FROM nodegroup WHERE node_id=$$NODE{node_id}");
 	
 	$this->nodeMaintenance($NODE, 'delete after');
 
@@ -1074,7 +1075,8 @@ sub getType
 	if(not exists $$TYPE{type})
 	{
 		# We need to assign the "type".
-		if($$TYPE{node_id} == 1) {
+		if($$TYPE{node_id} == 1)
+		{
 			# This is the nodetype nodetype, it is its own type.
 			$$TYPE{type} = $TYPE;
 		}
@@ -1097,7 +1099,7 @@ sub getType
 		# by caching the completed nodes.
 		$this->{cache}->cacheNode($TYPE, 1) if($this->{staticNodetypes});
 	}
-	
+
 	return $TYPE;
 }
 
@@ -1287,29 +1289,26 @@ sub dropNodeTable
 	# These are the tables that we don't want to drop.  Dropping one
 	# of these, could cause the entire system to break.  If you really
 	# want to drop one of these, do it from the command line.
-	my @nodrop = (
-		"container",
-		"document",
-		"htmlcode",
-		"htmlpage",
-		"image",
-		"links",
-		"maintenance",
-		"node",
-		"nodegroup",
-		"nodelet",
-		"nodetype",
-		"note",
-		"rating",
-		"user" );
+	my $nodrop = {
+		"container" => 1,
+		"document" => 1,
+		"htmlcode" => 1,
+		"htmlpage" => 1,
+		"image" => 1,
+		"links" => 1,
+		"maintenance" => 1,
+		"node" => 1,
+		"nodegroup" => 1,
+		"nodelet" => 1,
+		"nodetype" => 1,
+		"note" => 1,
+		"rating" => 1,
+		"user" => 1 };
 
-	foreach (@nodrop)
+	if(exists $$nodrop{$table})
 	{
-		if($_ eq $table)
-		{
-			printLog("WARNING! Attempted to drop core table $table!");
-			return 0;
-		}
+		printLog("WARNING! Attempted to drop core table $table!");
+		return 0;
 	}
 	
 	return 0 unless($this->tableExists($table));
@@ -1576,6 +1575,11 @@ sub deriveType
 			{
 				$$NODETYPE{$field} = $$PARENT{$field};
 			}
+			elsif($field =~ /default.*access/)
+			{
+				$$NODETYPE{$field} = $this->inheritPermissions(
+					$$NODETYPE{$field}, $$PARENT{$field});
+			}
 			elsif(($field eq "sqltablelist") && ($$PARENT{$field} ne ""))
 			{
 				# Inherited sqltables are added onto the list.  Derived
@@ -1805,7 +1809,7 @@ sub nodeMaintenance
 	{
 		$node_id = $this->getId($node_id);
 		my $args = "\@\_ = \"$node_id\";\n";
-		Everything::HTML::embedCode("%" . $args . $code . "%", @_);
+		Everything::HTML::embedCode("%" . $args . $code . "%");
 	}
 }
 
@@ -1880,13 +1884,37 @@ sub getRef
 sub isNodetype
 {
 	my ($this, $NODE) = @_;
+
+	$this->isOfType($NODE, 'nodetype');
+}
+
+
+#############################################################################
+#	Sub
+#		isOfType
+#
+#	Purpose
+#		Checks to see if a node is of a given type.
+#
+#	Parameters
+#		$NODE - the node to check
+#		$type - the type name, type id, or type hash to check against
+#
+#	Returns
+#		true if the node is of the given type, false otherwise.
+#
+sub isOfType
+{
+	my ($this, $NODE, $type) = @_;
+
 	$this->getRef($NODE);
 	
 	return 0 if (not ref $NODE);
 
 	# If this node's type is a nodetype, its a nodetype.
-	my $TYPE = $this->getType("nodetype");
-	return ($$NODE{type_nodetype} == $$TYPE{node_id});
+	$type = $this->getType($type) if(ref $type ne "HASH");
+
+	return ($$NODE{type_nodetype} == $$type{node_id});
 }
 
 
@@ -1895,23 +1923,24 @@ sub isNodetype
 #		isGroup
 #
 #	Purpose
-#		Check to see if a nodetpye is a group.  Groups have a value
-#		in the grouptable field.
+#		Check to see if a node is a group.  Groups have a value
+#		in the grouptable field of their nodetype.
 #
 #	Parameters
-#		$NODETYPE - the node hash or hashreference to a nodetype node.
+#		$NODE - the node id or hashreference to a node that we wish to
+#			if it is a group node.
 #
 #	Returns
-#		The name of the grouptable if the nodetype is a group, 0 (false)
+#		The name of the grouptable if the node is a group, 0 (false)
 #		otherwise.
 #
 sub isGroup
 {
-	my ($this, $NODETYPE) = @_;
+	my ($this, $NODE) = @_;
 	my $groupTable;
-	$this->getRef($NODETYPE);
 	
-	$groupTable = $$NODETYPE{grouptable};
+	$this->getRef($NODE);
+	$groupTable = $$NODE{type}{grouptable};
 
 	return $groupTable if($groupTable);
 
@@ -1920,85 +1949,536 @@ sub isGroup
 
 
 #############################################################################
-sub canCreateNode {
-	#returns true if nothing is set
-	my ($this, $USER, $TYPE) = @_;
-	$this->getRef($TYPE);
+#	Sub
+#		hasPermission
+#
+#	Purpose
+#		This does dynamic permission calculations using the specified
+#		permissions node.  The permissions node contains code that will
+#		calculate what permissions a user has.  For example, if a user
+#		has certain flags on, the code may enable or disable write
+#		permissions.  This is also a great way of abstracting permissions
+#		and assigning them to actions.  In your code you can say
+#		  if(hasPermission($USER, undef, 'allow vote', "x")
+#		  {
+#			 ... show voting stuff ...
+#		  }
+#
+#		The code in 'allow vote' could be something like:
+#		  return "x" if($$USER{experience} > 100)
+#		  return "-";
+#
+#	Parameters
+#		$USER - the user that we want to check for access.
+#		$NODE - the node that the user is trying to access.  This can be
+#			undef, if the check does not involve a node (like the example
+#			above.
+#		$permission - the name of the permission node that contains the
+#			code we want to run.
+#		$modes - what modes are necessary
+#
+#	Returns
+#		1 (true), if the user has the needed permissions, 0 (false)
+#		otherwise
+#
+sub hasPermission
+{
+	my ($this, $USER, $NODE, $permission, $modes) = @_;
+	my $PERM = $this->getNode($permission, 'permission');
+	my $perms;
 
-	return 1 unless $$TYPE{writers_user};	
-	$this->isApproved ($USER, $$TYPE{writers_user});
+	return 0 unless($PERM);
+
+	$perms = eval($$PERM{code});
+
+	return $this->checkPermissions($perms, $modes);
 }
 
-
 #############################################################################
-sub canDeleteNode {
-	#returns false if nothing is set (except for SU)
-	my ($this, $USER, $NODE) = @_;
-	$this->getRef($NODE);
+#	Sub
+#		hasAccess
+#
+#	Purpose
+#		This checks to see if the given user has the necessary permissions
+#		to access the given node.
+#
+#	Note
+#		Passing "c" (create) as one of the modes to a node that is not a
+#		nodetype does nothing.  You can only create nodes of a nodetype.
+#		So, when you want to see if a user has permission to create a node,
+#		you need to pass the nodetype of the node that they wish to create
+#
+#	Parameters
+#		$NODE - the node we are checking access for
+#		$USER - the user trying to access the node
+#		$modes - the access modes to check for.  This is a string that
+#			contain one or more of any of the following characters in any
+#			order:
+#			'r' (read), 'w' (write), 'd' (delete), 'c' (create),
+#			'x' (execute).  For example, "rw" would return 1 (true) if
+#			the user has read AND write permissions to the node.  Note that
+#			order does not matter.  "rw" will return the same result as "wr".
+#
+#	Returns
+#		1 (true) if the user has access to all modes given.  0 (false)
+#		otherwise.  The user must have access for all modes given for this to
+#		return true.  For example, if the user has read, write and delete
+#		permissions, and the modes passed were "wrx", the return would be
+#		0 since the user does not have the "execute" permission.
+#
+sub hasAccess
+{
+	my ($this, $NODE, $USER, $modes) = @_;
 
-	return 0 if((not defined $NODE) || ($NODE == 0));
-	return $this->isApproved($USER, $$NODE{type}{deleters_user});
-}
-
-
-#############################################################################
-sub canUpdateNode {
-	my ($this, $USER, $NODE) = @_;
-	$this->getRef($NODE);
+	# -1 is a way of specifying "super user".
+	return 1 if($USER eq "-1");
 	
-	return 0 if((not defined $NODE) || ($NODE == 0));
-	return $this->isApproved ($USER, $$NODE{author_user});
-}
-
-
-#############################################################################
-sub canReadNode { 
-	#returns true if nothing is set
-	my ($this, $USER, $NODE) = @_;
+	# Gods always have access to everything
+	return 1 if($this->isGod($USER));
 
 	$this->getRef($NODE);
+	$this->getRef($USER);
 
-	return 0 if((not defined $NODE) || ($NODE == 0));
-	return 1 unless $$NODE{type}{readers_user};	
-	$this->isApproved($USER, $$NODE{type}{readers_user});
+	# Figure out what permissions this user has for this node.
+	my $perms = $this->getUserPermissions($NODE, $USER);
+
+	return $this->checkPermissions($perms, $modes);
 }
 
 
 #############################################################################
 #	Sub
-#		isApproved
+#		checkPermissions
 #
 #	Purpose
-#		Checks to see if the given user is approved within a given group 
+#		Given the permissions that a user has, and the permissions that
+#		they need, return true or false indicating that they have or
+#		do not have the needed permissions
 #
 #	Parameters
-#		$user - reference to a user node hash  (-1 if super user)
-#		$NODE - reference to a nodegroup that the user might be in 
+#		$perms - the permissions that the user has
+#		$modes - the permissions that they need
 #
 #	Returns
-#		true if the user is authorized, false otherwise
+#		1 (true) if the user has all the needed permissions.  0 (false)
+#		otherwise
 #
-sub isApproved
+sub checkPermissions
 {
-	my ($this, $USER, $NODE) = @_;	
-
-	return 0 if(not defined $USER);
-	return 0 if(not defined $NODE);
-
-	return 1 if($this->isGod($USER));
-
-	my $user_id = $this->getId($USER);
-	return 1 if ($user_id == $this->getId($NODE));
-
-	#you're always approved if it's yourself...
-
-	foreach my $approveduser (@{ $this->selectNodegroupFlat($NODE) })
-	{
-		return 1 if ($user_id == $this->getId($approveduser)); 
-	}
+	my ($this, $perms, $modes) = @_;
 	
+	# We remove any allowed permissions from the given modes.  We need to do
+	# this dymanically (evaled) because tr/// does not interpret variables.
+	# So, we need to create some code on the fly.
+	my $dynamic = "\$modes =~ tr/$perms//d;";
+	
+	eval($dynamic);
+
+	# If our string is empty, the user has all the needed permissions.
+	return 1 if($modes eq "");
+
 	return 0;
 }
+
+
+#############################################################################
+#	Sub
+#		getUserPermissions
+#
+#	Purpose
+#		Given the user and a node, this will return what permissions the
+#		user has on that node.
+#
+#	Parameters
+#		NODE - The node for which we wish to check permissions
+#		USER - The user that to get permissions for.
+#
+#	Returns
+#		A string that contains the permission flags that the user has access.
+#		For example, if the user can read and write to the node, the return
+#		value will be "rw".  If the user has no permissions for the node, an
+#		empty string ("") will be returned.
+#
+sub getUserPermissions
+{
+	my ($this, $NODE, $USER) = @_;
+	my $perms = $this->getDynamicPermissions($NODE, $USER);
+	
+	if(not defined $perms)
+	{
+		my $class = $this->getUserNodeRelation($USER, $NODE);
+		$perms = $this->getDefaultPermissions($NODE, $class);
+	}
+	
+	# Remove any '-' chars and spaces, we only want the permissions of those
+	# that are on.
+	$perms =~ s/[\-\ ]//g;
+
+	return $perms;
+}
+
+
+#############################################################################
+#	Sub
+#		getUserNodeRelation
+#
+#	Purpose
+#		Every user has some relation to every node.  They are either the
+#		"author", in the "group", a "guest" user, or "other".  This will
+#		return the relation the given user has with the given node.
+#
+#	Parameters
+#		$USER - the user
+#		$NODE - the node
+#
+#	Returns
+#		Either "author", "group", "guest", or "other" which can be used to
+#		get the appropriate permissions for the user.
+#
+sub getUserNodeRelation
+{
+	my ($this, $USER, $NODE) = @_;
+	my $class;
+	my $userId;
+	my $sysSettings = Everything::getVars(
+		$this->getNode('system settings', 'setting'));
+	my $guest = $$sysSettings{guest_user};
+	
+	$this->getRef($USER);
+	$this->getRef($NODE);
+	
+	$userId = $this->getId($USER);
+	
+	# Determine how this user relates to this node.  Is the user
+	# the author, in the group, "others", or guest user?
+	if($userId == $$NODE{author_user})
+	{
+		$class = "author";
+	}
+	elsif($userId == $guest)
+	{
+		$class = "guest";
+	}
+	else
+	{
+		my $usergroup = $this->deriveUsergroup($NODE);
+		
+		if(($usergroup > 0) && $this->inGroup($usergroup, $USER))
+		{
+			$class = "group";
+		}
+		else
+		{
+			# If the user is not the author, in the group, or the guest user
+			# for the system, they must be "other".
+			$class = "other";
+		}
+	}
+
+	return $class;
+}
+
+
+#############################################################################
+#	Sub
+#		deriveUsergroup
+#
+#	Purpose
+#		The usergroup of a node can inherit from its type (specify -1).
+#		This returns the group of the node.  Either what it has specified,
+#		or what its nodetype defaults to.
+#
+#	Parameters
+#		$NODE - the node in which to get the usergroup for.
+#
+#	Returns
+#		The node id of the usergroup
+#
+sub deriveUsergroup
+{
+	my ($NODE) = @_;
+
+	if($$NODE{group_usergroup} != -1)
+	{
+		return $$NODE{group_usergroup};
+	}
+	else
+	{
+		return $$NODE{type}{defaultgroup_usergroup};
+	}
+}
+
+
+#############################################################################
+#	Sub
+#		getDefaultPermissions
+#
+#	Purpose
+#		This takes the given node and returns the permissions for the given
+#		class of users.
+#
+#	Parameters
+#		$NODE - the node to get the permissions for
+#		$class - the class of permissions to get.  Either "author", "group",
+#			"guest", or "other".  This can be obtained from calling
+#			getUserNodeRelation().
+#
+#	Returns
+#		A hashref that contains the strings of the permissions.  The
+#		strings can contain any of these characters "rwxdc-".
+#
+sub getDefaultPermissions
+{
+	my ($this, $NODE, $class) = @_;
+	my $TYPE = $$NODE{type};
+	my $perms;
+	my $parentPerms;
+	my $field = $class . "access";
+	
+	$perms = $$NODE{$field};
+	$parentPerms = $this->getDefaultTypePermissions($TYPE, $class);
+	$perms = $this->inheritPermissions($perms, $parentPerms);
+
+	return $perms;
+}
+
+
+#############################################################################
+#	Sub
+#		getDynamicPermissions
+#
+#	Purpose
+#		You can specify a "permission" node to calculate the permissions
+#		for a node.  This checks to see if there is a permission for the
+#		node.  If so, it evals the permission code and returns the
+#		generated permissions.
+#
+#	Parameters
+#		$NODE - the node we need to get the permissions for
+#		$USER - the user that is trying gain access
+#
+#	Returns
+#		The permissions flags generated by the permission code
+#
+sub getDynamicPermissions
+{
+	my ($this, $NODE, $USER) = @_;
+	my $class = $this->getUserNodeRelation($USER, $NODE);
+	my $perms;
+
+	my $permission = $$NODE{"dynamic".$class."_permission"};
+
+	if($permission == -1)
+	{
+		$permission = $$NODE{type}{"default".$class."_permission"};
+	}
+
+	if($permission > 0)
+	{
+		my $PERM = $this->getNodeById($permission);
+
+		if($PERM)
+		{
+			$perms = eval($$PERM{code});
+		}
+	}
+	
+	return $perms;
+}
+
+
+#############################################################################
+#	Sub
+#		getDefaultTypePermissions
+#
+#	Purpose
+#		This gets the default permissions for the given nodetype.  This
+#		is NOT the permissions for the nodetype itself.  Rather, these
+#		are the permissions that nodes of this type inherit from.  Hence,
+#		the default TYPE permissions.
+#
+#	Parameters
+#		$TYPE - the name, id, or hash of the nodetype to get the default
+#			permissions for.
+#		$class - the class of user.  Either "author", "group", "guest",
+#			or "other".  This can be obtained by calling
+#			getUserNodeRelation().
+#
+#	Returns
+#		A string that contains the default permissions of the given
+#		nodetype.
+#
+sub getDefaultTypePermissions
+{
+	my ($this, $TYPE, $class) = @_;
+
+	# getType() derives nodetypes automatically.  So we just need to get
+	# the type and then return the appropriate field.
+	$TYPE = $this->getType($TYPE) unless(ref $TYPE eq "HASH");
+
+	my $field = "default" . $class . "access";
+
+	return $$TYPE{$field};
+}
+
+
+#############################################################################
+#	Sub
+#		inheritPermissions
+#
+#	Purpose
+#		This is just a utility function that takes two strings and combines
+#		them in a way such that any 'i' (inherit) flags in the child
+#		permssions get over written by the corresponding parent permission.
+#
+#	Parameters
+#		$child - the child permissions
+#		$parent - the parent permissions
+#
+#	Returns
+#		A string that contains the merged
+#
+sub inheritPermissions
+{
+	my ($this, $child, $parent) = @_;
+	my @childperms = split '', $child;
+	my @parentperms = split '', $parent;
+    my @perms;
+	
+	foreach my $i (0..@parentperms)
+	{
+		if($childperms[$i] eq "i")
+		{
+			# We inherit the parent's setting.
+			push @perms, $parentperms[$i]
+		}
+		else
+		{
+			# use the child setting.
+			push @perms, $childperms[$i];
+		}
+	}
+
+	return (join('', @perms));
+}
+
+
+#############################################################################
+#	DEPRICATED - use hasAccess()
+sub canCreateNode
+{
+	my ($this, $USER, $TYPE) = @_;
+	return $this->hasAccess($TYPE, $USER, "c");
+}
+
+
+#############################################################################
+#	DEPRICATED - use hasAccess()
+sub canDeleteNode
+{
+	my ($this, $USER, $NODE) = @_;
+	return $this->hasAccess($NODE, $USER, "d");
+}
+
+
+#############################################################################
+#	DEPRICATED - use hasAccess()
+sub canUpdateNode
+{
+	my ($this, $USER, $NODE) = @_;
+	return $this->hasAccess($NODE, $USER, "w");
+}
+
+
+#############################################################################
+#	DEPRICATED - use hasAccess()
+sub canReadNode
+{ 
+	my ($this, $USER, $NODE) = @_;
+	return $this->hasAccess($NODE, $USER, "r");
+}
+
+
+#############################################################################
+#	Sub
+#		inGroupFast
+#
+#	Purpose
+#		This just does a brute force check (which happens to be the fastest)
+#		to see if a particular node is in a group.
+#
+#	NOTE!!!
+#		This only works for groups that do NOT contain sub groups.  If the
+#		group contains sub groups, you will need to use inGroup()
+#
+#	Parameters
+#		GROUP - node id or node hash of the the group in question
+#		NODE - the node id or node hash of the node that we wish to check for
+#			group membership
+#
+#	Returns
+#		1 (true) if the given node is in the group.  0 (false) otherwise.
+#
+sub inGroupFast
+{
+	my ($this, $GROUP, $NODE) = @_;
+	my $table;
+	
+	# Make sure the group node is really a group, and get its group table.
+	if(($table = $this->isGroup($GROUP)))
+	{
+		my $groupId = $this->getId($GROUP);
+		my $nodeId = $this->getId($NODE);
+		my @match = $this->sqlSelect("node_id", $table,
+			$table . "_id=$groupId && node_id=$nodeId" );
+
+		# Note this does not handle sub groups.  If the group contains
+		# sub groups you will need to use inGroup
+		return 1 if(@match > 0);
+	}
+
+	return 0;
+}
+
+
+#############################################################################
+#	Sub
+#		inGroup
+#
+#	Purpose
+#		This checks to see if the given node belongs to the given group.
+#		This will check all sub groups.  If you know for a fact that your
+#		group does not contain sub groups, you will probably want to call
+#		inGroupFast() instead as it will be significantly faster in most
+#		cases.
+#
+#	Parameters
+#		GROUP - node id or node hash of the the group in question
+#		NODE - the node id or node hash of the node that we wish to check for
+#			group membership
+#
+#	Returns
+#		1 (true) if the given node is in the group.  0 (false) otherwise.
+#
+sub inGroup
+{
+	my ($this, $GROUP, $NODE) = @_;
+	my $members;
+	my $id = $this->getId($NODE);
+
+	return 0 if(not defined $GROUP);
+	return 0 if(not defined $NODE);
+
+	$members = $this->selectNodegroupFlat($GROUP);
+
+	foreach my $member (@$members)
+	{
+		return 1 if($this->getId($member) == $id);
+	}
+
+	return 0;
+}
+
 
 
 #############################################################################
@@ -2019,27 +2499,14 @@ sub isApproved
 sub isGod
 {
 	my ($this, $USER) = @_;
-	my $user_id;
-	my $usergroup;
 	my $GODS;
-	my $godsgroup;
-	my $god;  # he's my god too...
 
+	# -1 is our internal flag for "superuser"
 	return 1 if($USER == -1);
 
-	$this->getRef($USER);
+	($GODS) = $this->getNode("gods", $this->getType("usergroup"));
 
-	$user_id = $this->getId($USER);
-	$usergroup = $this->getType("usergroup");
-	($GODS) = $this->getNode("gods", $usergroup);
-	$godsgroup = $this->selectNodegroupFlat($GODS);
-	
-	foreach $god (@$godsgroup)
-	{
-		return 1 if ($user_id == $this->getId($god));
-	}
-
-	return 0;
+	return $this->inGroup($GODS, $USER);
 }
 
 
@@ -2095,7 +2562,7 @@ sub flattenNodegroup
 
 	$this->getRef($NODE);
 	
-	if ($this->isGroup($$NODE{type}))
+	if ($this->isGroup($NODE))
 	{
 		# return if we have already been through this group.  Otherwise,
 		# we will get stuck in infinite recursion.
@@ -2124,6 +2591,12 @@ sub flattenNodegroup
 #	Purpose
 #		This will insert a node(s) into a nodegroup.
 #
+#		NOTE!  It appears that inserting into a nodegroup does not
+#		update the node itself (the node is added to the group, but
+#		the group node is left untouched).  This prevents other httpd
+#		processes from knowing that the group has been updated, which
+#		means they will probably have stale group info.
+#
 #	Parameters
 #		NODE - the group node to insert the nodes.
 #		USER - the user trying to add to the group (used for authorization)
@@ -2139,25 +2612,14 @@ sub insertIntoNodegroup
 	my ($this, $NODE, $USER, $insert, $orderby) = @_;
 	$this->getRef($NODE);
 	my $insertref;
-	my $TYPE;
 	my $groupTable;
 	my $rank;	
 
 
 	return undef unless($this->canUpdateNode ($USER, $NODE)); 
 	
-	$TYPE = $$NODE{type};
-	$groupTable = $this->isGroup($TYPE);
-
-	# We need a nodetype, darn it!
-	if(not defined $TYPE)
-	{
-		return 0;
-	}
-	elsif(not $groupTable)
-	{
-		return 0;
-	}
+	# Make sure this is a group node!
+	return undef unless($groupTable = $this->isGroup($NODE));
 
 	if(ref ($insert) eq "ARRAY")
 	{
@@ -2169,7 +2631,7 @@ sub insertIntoNodegroup
 	}
 	else
 	{
-		#converts to a list reference w/ 1 element if we get a scalar
+		# converts to a list reference w/ 1 element if we get a scalar
 		$insertref = [$insert];
 	}
 	
@@ -2223,7 +2685,7 @@ sub insertIntoNodegroup
 		undef $orderby;
 	}
 	
-	#we should also refresh the group list ref stuff
+	# we should also refresh the group list ref stuff
 	$_[1] = $this->getNodeById($NODE, 'force'); #refresh the group
 }
 
@@ -2252,7 +2714,7 @@ sub removeFromNodegroup
 	my $groupTable;
 	my $success;
 	
-	($groupTable = $this->isGroup($$GROUP{type})) or return; 
+	($groupTable = $this->isGroup($$GROUP)) or return; 
 	$this->canUpdateNode($USER, $GROUP) or return; 
 
 	my $node_id = $this->getId($NODE);
@@ -2263,7 +2725,7 @@ sub removeFromNodegroup
 	if($success)
 	{
 		# If the delete did something, we need to refresh this group node.	
-		$_[1] = $this->getNodeById($GROUP, 'force'); #refresh the group
+		$_[1] = $this->getNodeById($GROUP, 'force');
 	}
 
 	return $_[1];
@@ -2292,7 +2754,7 @@ sub replaceNodegroup
 	my $groupTable;
 
 	$this->canUpdateNode($USER, $GROUP) or return; 
-	($groupTable = $this->isGroup($$GROUP{type})) or return; 
+	($groupTable = $this->isGroup($GROUP)) or return; 
 	
 	$this->sqlDelete ($groupTable, $groupTable . "_id=$$GROUP{node_id}");
 

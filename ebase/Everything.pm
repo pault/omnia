@@ -29,6 +29,9 @@ sub BEGIN
 		getId 
 		getTables
 
+		unescape
+		escape
+
 		getNode
 		getNodeById
 		getType
@@ -45,6 +48,7 @@ sub BEGIN
 		removeFromNodegroup 
 		replaceNodegroup
 		insertIntoNodegroup 
+		hasAccess
 		canCreateNode 
 		canDeleteNode 
 		canUpdateNode 
@@ -65,6 +69,7 @@ sub BEGIN
 		getCallStack
 		printErr
 		printLog
+		logHash
         );
  }
 
@@ -100,8 +105,16 @@ sub replaceNode		{ $DB->replaceNode(@_); }
 
 sub isNodetype		{ $DB->isNodetype(@_); }
 sub isGroup			{ $DB->isGroup(@_); }
+sub inGroup			{ $DB->inGroup(@_); }
+sub inGroupFast		{ $DB->inGroupFast(@_); }
 sub isGod			{ $DB->isGod(@_); }
-sub isApproved		{ $DB->isApproved(@_); }
+
+sub hasAccess		{ $DB->hasAccess(@_); }
+sub canCreateNode 	{ $DB->canCreateNode(@_); }
+sub canDeleteNode	{ $DB->canDeleteNode(@_); }
+sub canUpdateNode	{ $DB->canUpdateNode(@_); }
+sub canReadNode		{ $DB->canReadNode(@_); }
+
 
 #############################################################################
 sub printErr {
@@ -115,6 +128,8 @@ sub printErr {
 #
 #	Purpose
 #		Quickie function to get a date and time string in a nice format.
+#		NOTE!  This needs to use a perl function rather than a system
+#		call to be more portable!
 #
 sub getTime
 {
@@ -244,7 +259,8 @@ sub escape
 #		An array of strings to convert
 #
 #	Returns
-#		Nothing useful.  The array elements are changed.
+#		The first item in the array.  Basically good for doing:
+#			$url = unescape($url);
 #
 sub unescape
 {
@@ -254,7 +270,7 @@ sub unescape
 		$arg =~ s/\%(..)/chr(hex($1))/ge;
 	}
 	
-	1;
+	return $_[0];
 }
 
 
@@ -328,33 +344,6 @@ sub setVars
 	$DB->updateNode($NODE, $superuser);
 }
 
-
-#############################################################################
-sub canCreateNode
-{
-	return $DB->canCreateNode(@_);
-}
-
-
-#############################################################################
-sub canDeleteNode
-{
-	return $DB->canDeleteNode(@_);
-}
-
-
-#############################################################################
-sub canUpdateNode
-{
-	return $DB->canUpdateNode(@_);
-}
-
-
-#############################################################################
-sub canReadNode
-{ 
-	return $DB->canReadNode(@_);
-}
 
 
 #############################################################################
@@ -810,6 +799,46 @@ sub getCallStack
 	pop @callStack;
 
 	return @callStack;
+}
+
+
+#############################################################################
+sub logCallStack
+{
+	my @callStack = getCallStack();
+	my $func;
+	my $str = "Call Stack:\n";
+	
+	pop @callStack;
+
+	while($func = pop @callStack)
+	{
+		$str .= $func . "\n";
+	}
+
+	printLog($str);
+}
+
+
+#############################################################################
+#	Sub
+#		logHash
+#
+#	Purpose
+#		Debugging function for dumping the contents of a hash to the log
+#		file in a nice readable format.
+#
+sub logHash
+{
+	my ($hash) = @_;
+	my $str = "$hash\n";
+
+	foreach (keys %$hash)
+	{
+		$str .= "$_ = $$hash{$_}\n";
+	}
+
+	printLog($str);
 }
 
 

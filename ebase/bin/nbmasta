@@ -523,8 +523,13 @@ sub checkDeps {
 			next unless ($key =~ /_(\w+)$/ and $1 ne "id"); 
 			next unless ($$NODE{$key});
 			next if ($nodes{$$NODE{$key}});	#eliminate if it's in our dependancies
-			next if exists($inCore{$$NODE{$key}}); #eliminate it if it's in the core node
-				#warning: this doesn't take into account different core versions
+			#warning: this doesn't take into account different core versions
+			#eliminate it if it's in the core node
+			next if exists($inCore{$$NODE{$key}});
+
+			# Also skip it if it is a -1.  -1 is a flag that it "inherits"
+			# (mostly used by nodetypes).
+			next if($$NODE{$key} eq "-1");
 
 			
 			my $N = getNodeById ($$NODE{$key});	
