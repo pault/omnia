@@ -279,6 +279,7 @@
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">nodelistcheck</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">the killing floor</member>
     <member name="group_node" type="noderef" type_nodetype="image,nodetype">eicon</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">uploadimage settings</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

@@ -6,39 +6,55 @@
 # generates an input file field, and sets the field to the URL 
 
 my ($field) =@_;
+
+my $S = getNode('uploadimage settings', 'setting');
+$S or return "can't find uploadimage settings!";
+
+my $V = $S->getVars;
+
 my $str ="";
 my $name = $field."_file";
-my $tmpfile = '/tmp/everythingimage' . rand(10000); 
+
+my $imagedir = $$V{uploadimagedir};
+return "You need to specify the incoming image directory as 'uploadimagedir' in ".linkNode($S).".  Make sure
+it is a directory under your Apache's root directory, and writeable by the
+nobody user." if not $imagedir or $imagedir =~ /^\#/;
+
+$imagedir .= "/" unless $imagedir =~ /\/$/;
 
 
-my $imagedir = '/home/httpd/html/every2/images/incoming';
 #you probably need to change this field
+my $imageurl = $$V{uploadimageURL};
+return "You need to specify the incoming image directory's URL as 'uploadimageURL' in ".linkNode($S).".  Make sure
+it is the path to $imagedir through Apache." if not $imagedir or $imagedir =~ /^\#/;
 
-my $imageurl = 'images/incoming/';
+$imageurl .= "/" unless $imageurl =~ /\/$/;
+
 
 if ($query->param($name)) {
   my ($fname) = $query->param($name);
   my $imgname = $fname;
   $imgname =~ s/\s/\_/gs;
   $imgname =~  s/.*[\/|\\]([\w|\.|\-]*)$/$1/;
+  my $outfile = $imagedir.$imgname;
+
   
   $str.= "'". $query->uploadInfo($fname)->{"Content-Type"}."'!";
 	
-  open OUTFILE, ">$tmpfile";
+  $str.= "&lt;br>warning, this image clobbered an image by the same name!" if -e $outfile;
+  open OUTFILE, ">$outfile";
   my ($buf, $size);
-  while (read($fname, $buf, 1024)) { 
-    #$size+=$bytes;
+  while (my $bytes = read($fname, $buf, 1024)) { 
+    $size+=$bytes;
     print OUTFILE $buf;
   }
   close OUTFILE;
 
-  `mv $tmpfile $imagedir/$imgname`;
   $$NODE{$field} = $imageurl.$imgname;
   $NODE->update($USER);
- # $str.="$size bytes recieved!";
+  # $str.="$size bytes recieved!";
 } else {
   $str.=$query->filefield($name);
-  $str .= "&lt;br>NOTE: Image directory is hard-coded in htmlcode:uploadimage&lt;br>";
 }
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
