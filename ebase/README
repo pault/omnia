@@ -13,12 +13,31 @@ Everything system.  Nodeballs are somewhat similar to RPMs or DEB
 packages.  They allow you install specific functionality to your
 Everything system.
 
+The nodeball utility is nbmasta, which is in the scripts directory.  It's 
+very simple to use:
+
+nbmasta import (nodeball file or directory) DATABASE
+
+nbmasta export "name_of_nodeball" DATABASE
+
+-- by default, files with the .nbz extention are used -- but these files
+are gzipped tarballs, so if you want to see the innards, merely
+tar -xvzf them.
 
 Installation
 
 See the various "readme" files.  You will need to make sure you have
 the appropriate perl modules installed, along with making sure that
 you have apache, mod_perl and mysql set up appropriately.
+
+the various files are:
+
+DEBIAN_SETUP -- information on installing your system primarily with debs
+REDHAT_SETUP -- also for other flavors of Linux.  Required packages
+HTTPCONF_SETUP -- the lines you will need in your httpd.conf file for E to work
+PERLMOD_SETUP -- a list of required perl modules
+
+to do the base install
 
 > perl Makefile.PL
 > make
@@ -27,6 +46,9 @@ you have apache, mod_perl and mysql set up appropriately.
 Running 'perl Makefile.PL' will ask you some questions about how you
 want to install the system.  By default, it will install it on the
 machine.  You will need to run 'make install' as root.
+
+After you have installed a default database you will need to add the core 
+system, as well as whatever nodeballs you want. 
 
 If you are only a mortal user on the system (no root access), you
 can specify alternate directories to install where you have write
