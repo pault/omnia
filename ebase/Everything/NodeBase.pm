@@ -292,21 +292,21 @@ sub getCache
 #	Parameters
 #		table - the sql table to delete the row from
 #		where - what the sql query should match when deleting.
+#		bound - an array reference of bound variables
 #
 #	Returns
 #		0 (false) if the sql command fails, 1 (true) if successful.
 #
 sub sqlDelete
 {
-	my ($this, $table, $where) = @_;
+	my ($this, $table, $where, $bound) = @_;
+	$bound ||= [];
 
-	$where or return;
+	return unless $where;
 
 	my $sql = "DELETE FROM ". $this->genTableName($table) . " WHERE $where";
-
-	return 1 if($this->{dbh}->do($sql));
-
-	return 0;
+	my $sth = $this->{dbh}->prepare( $sql );
+	return $sth->execute( @$bound );
 }
 
 
@@ -331,17 +331,14 @@ sub sqlDelete
 #
 sub sqlSelect
 {
-	my($this, $select, $table, $where, $other) = @_;
-	my $cursor = $this->sqlSelectMany($select, $table, $where, $other);
-	my @result;
+	my $this = shift;
+	return unless my $cursor = $this->sqlSelectMany(@_);
 	
-	return undef if(not defined $cursor);
-
-	@result = $cursor->fetchrow();
+	my @result = $cursor->fetchrow();
 	$cursor->finish();
 	
-	return $result[0] if(scalar @result == 1);
-	return undef if(scalar @result == 0);
+	return $result[0] if @result == 1;
+	return if @result == 0;
 	return \@result;
 }
 
@@ -398,6 +395,7 @@ sub sqlSelectJoined
 #		table - the table to do the select on
 #		where - the search criteria
 #		other - any other sql options that you may want to pass
+# 		bound - any bound values for placeholders 
 #
 #	Returns
 #		The sql cursor of the select.  Call fetchrow() on it to get
@@ -405,17 +403,18 @@ sub sqlSelectJoined
 #
 sub sqlSelectMany
 {
-	my($this, $select, $table, $where, $other) = @_;
+	my($this, $select, $table, $where, $other, $bound) = @_;
 
-	my $sql="SELECT $select ";
-	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
-	$sql .= "WHERE $where " if $where;
-	$sql .= "$other" if $other;
+	$bound ||= [];
 
-	my $cursor = $this->{dbh}->prepare($sql);
+	my $sql = "SELECT $select ";
+	$sql   .= "FROM " . $this->genTableName($table) . " " if $table;
+	$sql   .= "WHERE $where " if $where;
+	$sql   .= $other if $other;
+
+	my $cursor = $this->{dbh}->prepare($sql) or return;
 	
-	return $cursor if($cursor->execute());
-	return undef;
+	return $cursor if $cursor->execute( @$bound );
 }
 
 
@@ -440,16 +439,11 @@ sub sqlSelectMany
 #	
 sub sqlSelectHashref
 {
-	my ($this, $select, $table, $where, $other) = @_;
-	my $cursor = $this->sqlSelectMany($select, $table, $where, $other);
-	my $hash;
-	
-	if(defined $cursor)
-	{
-		$hash = $cursor->fetchrow_hashref();
-		$cursor->finish();
-	}
+	my $this   = shift;
+	my $cursor = $this->sqlSelectMany(@_) or return;
+	my $hash   = $cursor->fetchrow_hashref();
 
+	$cursor->finish();
 	return $hash;
 }
 
