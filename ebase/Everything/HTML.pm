@@ -1358,7 +1358,12 @@ sub parseCode
 
 	# add newlines so trailing comments don't cause eval() errors
 	$sub_text .= qq|\nreturn \$result;\n}|;
-	
+
+	my $warn;
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0];
+	};
+
 	$result = compileCache($sub_text, $CURRENTNODE, $field, $args);
 	return $result if defined $result;
 
