@@ -75,11 +75,9 @@ sub insert
 	$tableData{author_user} ||= $user_id;
 	$tableData{hits} = 0;
 
-
-	#Fix location hell 
-	my $loc = $$this{DB}->getNode($$this{type}{title}, "location");
+	# Fix location hell 
+	my $loc = $this->{DB}->getNode($this->{type}{title}, "location");
 	$tableData{loc_location} = $loc->getId() if $loc;
-
 
 	$this->{DB}->sqlInsert('node', \%tableData);
 

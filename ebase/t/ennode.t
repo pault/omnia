@@ -102,7 +102,6 @@ is( join('-', @$args[1 .. 4]), 'count(*)-node-title = ? AND type_nodetype = ?-',
 	'... counting from node matching title and type' );
 is( join('-', @{ $args->[5] }), 'title-5', '... passing title and type' );
 
-
 $mock->{getNode} = [ { key => 'value' } ];
 $mock->{foo} = 11;
 
@@ -110,7 +109,7 @@ delete $mock->{type}{restrictdupes};
 $mock->set_true( 'hasAccess' )
 	 ->set_list( getFields => 'foo' )
 	 ->set_always( getTableArray => [ 'table' ] )
-	 ->set_always( getNode => {} )
+	 ->set_series( getNode => 0, {} )
 	 ->set_always( sqlSelect => 87 )
 	 ->set_true( 'sqlInsert' )
 	 ->set_always( now => 'now' )
@@ -122,7 +121,7 @@ $mock->{node_id} = 0;
 ok( defined($result = insert($mock, 'user')), 
 	'... but should return node_id if no dupes exist' );
 
-($method, $args) = $mock->next_call( 5 );
+($method, $args) = $mock->next_call( 6 );
 is( $method, 'sqlInsert', '... inserting base node' );
 
 is( $args->[1], 'node', '... into the node table' );
