@@ -2,7 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"># Include the javascript needed to make this object work
-includeJS('findFormObject', 'moveGroupItem');
+includeJS('findFormObject', 'moveSelectItem');
 
 # Make the object!
 return nodeFormObject('groupEditor', 'daGroup');</field>
