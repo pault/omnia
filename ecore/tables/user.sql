@@ -15,5 +15,6 @@ CREATE TABLE user (
   email varchar(40),
   lasttime datetime,
   karma int(11) DEFAULT '0',
+  inside_workspace int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (user_id)
 );

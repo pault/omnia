@@ -12,7 +12,7 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
   <field name="page" type="literal_value">&lt;p>&lt;b>Default permissions for nodes of this type:&lt;/b>&lt;br>
 &lt;table cellspacing=1 cellpadding=3>
  &lt;tr>
@@ -113,6 +113,18 @@ $str;
   }
 
 %]
+&lt;p>  &lt;b>Can be changed in a workspace:&lt;/b>
+[%
+  if ($$NODE{canworkspace}) {
+    if ($$NODE{canworkspace} == -1) {
+       return ($$NODE{derived_canworkspace}?"enabled":"disabled")." (inheirited)";
+    } else {
+       return "enabled";
+    }
+  } else {
+    return "&lt;i>disabled&lt;/i>";
+  }
+%]
 &lt;p> &lt;b>Relevant pages:&lt;/b>&lt;br>
 
 [%
@@ -146,7 +158,8 @@ local *getModuleFunctions = sub {
     }
     my @modfuncs;
 
-    use Devel::Peek "CvGV";
+    require Devel::Peek;
+    Devel::Peek->import("CvGV");
     foreach(keys %stash) {
         my $glob = CvGV(\&amp;{$stash{$_}});
 

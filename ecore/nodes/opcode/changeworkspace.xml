@@ -1,6 +1,20 @@
-<NODE export_version="0.5" nodetype="dbtable" title="revision">
+<NODE export_version="0.5" nodetype="opcode" title="changeworkspace">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my $N = $query->param('node_id');
+return unless $N;
+$N = getNode $N;
+return unless $$N{type}{title} eq 'workspace' and $N->hasAccess($USER, 'x');
+
+if (my $tf = $query->param('workspace_me')) {
+  if ($tf eq 'true') {
+    $$USER{inside_workspace} = $$N{node_id};
+   } elsif ($tf eq 'false') {
+    $$USER{inside_workspace} = 0;
+   }
+   $USER->update($USER);
+}
+1;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -10,6 +24,6 @@
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="literal_value">0</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">revision</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">dbtable</field>
+  <field name="title" type="literal_value">changeworkspace</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
 </NODE>

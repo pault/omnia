@@ -1,0 +1,44 @@
+<NODE export_version="0.5" nodetype="opcode" title="commitworkspace">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">#in order to commit a workspace, you must be on the workspace node
+#you must also be "inside" the workspace
+
+my $WS;
+$WS = $query->param("workspace_id");
+$WS ||= $query->param("node_id");
+return unless $WS;
+$WS = getNode ($WS);
+
+return unless $$WS{node_id} == $DB->{workspace}{node_id};
+return unless $WS->hasAccess($USER, 'x');
+
+my $changed = 0;
+foreach ($query->param) {
+   next unless /^commit_(\d+)$/;
+   my $id = $1;
+   my $N = getNode($id);
+   $DB->{workspace}{nodes}{$id} = "commit";   
+   $N->update($USER);
+   delete $DB->{workspace}{nodes}{$id};
+   #$DB->sqlDelete('revision', "node_id=$id and inside_workspace=".$DB->{workspace}{node_id});
+   $changed = 1;
+}
+
+return 1 unless $changed;
+$DB->{workspace}->setVars($DB->{workspace}{nodes});
+$DB->{workspace}->update($USER);
+
+1;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">commitworkspace</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
+</NODE>

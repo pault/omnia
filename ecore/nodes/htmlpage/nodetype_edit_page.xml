@@ -40,6 +40,11 @@
    &lt;td>Maximum Revisions (for Undo)&lt;/td>
    &lt;td>[{textfield:maxrevisions}]&lt;/td>
  &lt;/tr>
+ &lt;tr>
+  &lt;td>Can be changed in a workspace?&lt;/td>
+  &lt;td>[{node_menu:canworkspace,-yes_1,-no_0,-parent_-1}]
+    [{displayInherited:workspace}] &lt;/td>
+ &lt;/tr>
 &lt;/table>
 &lt;p>[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
