@@ -1,11 +1,9 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="nodeletMetaContainer">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</
-field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">return &quot;you have this off&quot; 
 if $$VARS{nodelets_off};
-return if (($$USER{title} eq &quot;Guest User&quot;) and not($HTMLVARS{GUshowno
-delets}) );
+return if (($$USER{title} eq &quot;Guest User&quot;) and not($HTMLVARS{GUshownodelets}) );
 my $str;
 
 my @nodelets = @{ $USER-&gt;getNodelets($HTMLVARS{default_nodeletgroup}) };
@@ -13,8 +11,7 @@ my @nodelets = @{ $USER-&gt;getNodelets($HTMLVARS{default_nodeletgroup}) };
 return &quot;no nodelets!&quot; unless @nodelets;
 
 if ($$THEME{nodeletMCTableAttr}){
-  $str .= &quot;&lt;TABLE &quot;.$$THEME{nodeletMCTableAttr}.&quot;&gt;\n&quot;
-;
+  $str .= &quot;&lt;TABLE &quot;.$$THEME{nodeletMCTableAttr}.&quot;&gt;\n&quot;;
 } else {
   $str .= &quot;&lt;TABLE width=150 cellpadding=1 cellspacing=1&gt;\n&quot;;
 }
@@ -23,8 +20,7 @@ foreach (@nodelets)
 {
   my $NODELET = $DB-&gt;getNodeById($_);
   my $nl = insertNodelet($NODELET);
-  $str .= &quot;&lt;tr&gt;&lt;td&gt;&quot; . $nl . &quot;&lt;/td&gt;&lt;/tr&gt;
-\n&quot; if($nl);
+  $str .= &quot;&lt;tr&gt;&lt;td&gt;&quot; . $nl . &quot;&lt;/td&gt;&lt;/tr&gt;\n&quot; if($nl);
 }
 
 $str .=&quot;&lt;/TABLE&gt;&quot;;
@@ -36,11 +32,9 @@ $str;</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">h
-tmlcode</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="title" type="literal_value">nodeletMetaContainer</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">
-htmlcode</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>
 

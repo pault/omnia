@@ -1,6 +1,5 @@
 <NODE export_version="0.5" nodetype="opcode" title="insertMini">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root<
-/field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $old;
 my $mini;
@@ -20,8 +19,7 @@ if ($$SETTINGS{nodelets})
 }
 else
 {
-  my $NODELETGROUP = getNode($$SETTINGS{nodelet_group}) if exists $$SETTINGS{n
-odelet_group};
+  my $NODELETGROUP = getNode($$SETTINGS{nodelet_group}) if exists $$SETTINGS{nodelet_group};
 
   if ($NODELETGROUP and $$NODELETGROUP{type}{title} eq 'nodeletgroup')
   {        
@@ -54,11 +52,9 @@ return 1;</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">
-opcode</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">opcode</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="title" type="literal_value">insertMini</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype"
->opcode</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
 </NODE>
 

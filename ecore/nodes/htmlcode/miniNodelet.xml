@@ -3,25 +3,25 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($mini, $align, $valign, $image) = @_;
 
-return "" unless($mini);
+return &quot;&quot; unless($mini);
 
 my $str;
-my $display = $query->param('displaytype');
+my $display = $query-&gt;param('displaytype');
 
 $display ||= 'display';
-$image ||= "images/minime.gif";
+$image ||= &quot;images/minime.gif&quot;;
 
-$str .= "&lt;image src='$image'";
-$str .= " valign='$valign'" if($valign);
-$str .= " align='$align'" if($align);
-$str .= " border=0>";
+$str .= &quot;&lt;image src='$image'&quot;;
+$str .= &quot; valign='$valign'&quot; if($valign);
+$str .= &quot; align='$align'&quot; if($align);
+$str .= &quot; border=0&gt;&quot;;
 
-$mini = $DB->getNode($mini);
+$mini = $DB-&gt;getNode($mini);
 
-return "" unless($$mini{mini_nodelet});
+return &quot;&quot; unless($$mini{mini_nodelet});
+return &quot;&quot; unless(getNodeById($$mini{mini_nodelet})-&gt;hasAccess($USER, &quot;x&quot;));
 
-my $link = linkNode($NODE, $str, { 'op' => 'insertMini',
-  'nodelet' => $$mini{node_id}, 'displaytype' => $display } );
+my $link = linkNode($NODE, $str, { 'op' =&gt; 'insertMini','nodelet' =&gt; $$mini{node_id}, 'displaytype' =&gt; $display } ); 
 
 $link;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
@@ -36,3 +36,4 @@ $link;</field>
   <field name="title" type="literal_value">miniNodelet</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>
+
