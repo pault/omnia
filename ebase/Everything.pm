@@ -155,10 +155,14 @@ sub printLog
 	# prefix the date a time on the log entry.
 	$entry = "$time: $entry\n";
 
+	local *ELOG;
 	if(open(ELOG, ">> $everythingLog"))
 	{
 		print ELOG $entry;
-		close(ELOG);
+	}
+	else
+	{
+		warn "Everything log '$everythingLog' could not be opened: $!\n";
 	}
 
 	return 1;
@@ -176,8 +180,13 @@ sub clearLog
 {
 	my $time = getTime();
 
+	local *ELOG;
 	if (open(ELOG, "> $everythingLog")) {	
 		print ELOG "$time: Everything log cleared";
+	}
+	else
+	{
+		warn "Everything log '$everythingLog' could not be opened: $!\n";
 	}
 }
 
