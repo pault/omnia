@@ -9,6 +9,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">[{displayvars}]</page>

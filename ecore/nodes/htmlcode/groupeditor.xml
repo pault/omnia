@@ -21,8 +21,8 @@ function swapUp()
 {
     with (document.forms[$id].elements[0]) {
         x=selectedIndex;
-        if(x == -1) { return; }
-        if(options.length &gt; 0) {
+        if(x == -1 || x == 0) { return; }
+        if(options.length &gt; 1) {  // We need at least 2 to do a swap
                 tmp = new Option(options[x].text, options[x].value);
                 options[x] = options[x-1];
                 options[x-1] = tmp;
@@ -58,14 +58,6 @@ function deleteOp()
         options[x-1].selected = true;
     }
 }
-function zoomOp()
-{
-    with (document.forms[$id].elements[0]) {
-        if(selectedIndex == -1) { return; }
-        window.open('index.pl?node_id=' + options[selectedIndex].value,
-                'hernandez','');
-    }
-}
 
 &lt;/SCRIPT&gt;";
 
@@ -73,36 +65,36 @@ $str .= "&lt;FORM METHOD=\"GET\" NAME=\"$id\" onSubmit=\"saveForm()\"&gt;";
 
 my $GROUP = $$NODE{group};
 
-        $GROUP ||= [];
+$GROUP ||= [];
 
-        #generate the select box
-        $str .= " &lt;SELECT NAME=\"group\" size=7&gt;\n";
-        foreach my $item (@$GROUP) {
-                my $ITEM = $DB-&gt;getNodeById($item, 'light');
+my $size = (@$GROUP)/10;
 
-                $str .= " &lt;OPTION VALUE=\"" . getId ($ITEM) . "\"&gt;$$ITEM{title}\n";
-        }
-        $str .= "&lt;/SELECT&gt;&lt;BR&gt;";
+$size = 10 if($size &lt; 10);
 
-        #generate the hidden elements
-        for (my $i = 0; $i &lt; (5 + @$GROUP); $i++) {
-                $str .= "&lt;INPUT type=hidden name=$i value=\"\"&gt;\n";
-        }
+#generate the select box
+$str .= " &lt;SELECT NAME=\"group\" size=$size&gt;\n";
+foreach my $item (@$GROUP) {
+  my $ITEM = getNode($item, 'light');
+  $str .= " &lt;OPTION VALUE=\"" . getId ($ITEM) . "\"&gt;$$ITEM{title}\n";
+}
+$str .= "&lt;/SELECT&gt;&lt;BR&gt;";
 
-	$str .= $query-&gt;hidden('node_id', getId $NODE) .
-		$query-&gt;hidden('displaytype');
+#generate the hidden elements
+for (my $i = 0; $i &lt; (5 + @$GROUP); $i++) {
+  $str .= "&lt;INPUT type=hidden name=$i value=\"\"&gt;\n";
+}
 
+$str .= $query-&gt;hidden('node_id', getId $NODE) .
+  $query-&gt;hidden('displaytype');
+
+$str .= $query-&gt;button(-name =&gt; "Delete", -onClick =&gt; "deleteOp();") . "\n";
+$str .= $query-&gt;button(-name =&gt; "Up", -onClick =&gt; "swapUp();") . "\n";
+$str .= $query-&gt;button(-name =&gt; "Down", -onClick =&gt; "swapDn();") . "\n";
 $str .= '
-
-&lt;A HREF="javascript:deleteOp();"&gt;delete&lt;/A&gt;
-&lt;A HREF="javascript:swapUp();"&gt;up&lt;/A&gt;
-&lt;A HREF="javascript:swapDn();"&gt;down&lt;/A&gt;
-&lt;A HREF="javascript:zoomOp();"&gt;view&lt;/A&gt;
-
 &lt;INPUT TYPE=submit BORDER=0 
         VALUE="Save" onClick="javascript:saveForm()"&gt;';
 
-#$str .= "&lt;/FORM&gt;";
+$str .= "&lt;/FORM&gt;";
 
 $str;</code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
@@ -112,6 +104,7 @@ $str;</code>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlcode</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">groupeditor</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>

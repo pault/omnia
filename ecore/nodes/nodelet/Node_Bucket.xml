@@ -1,0 +1,80 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<lastupdate table="nodelet">965588410</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
+	<nlcode table="nodelet">[%
+return "" unless($NODE-&gt;hasAccess($USER, "w"));
+
+my $PARAMS = { op =&gt; 'addBucket', "bnode_" . $$NODE{node_id} =&gt; 1 };
+linkNode($NODE, "Add '$$NODE{title}'", $PARAMS);
+%]
+
+[%
+$query-&gt;start_multipart_form("POST", $ENV{script_name}) .
+$query-&gt;hidden("displaytype") .
+$query-&gt;hidden("node_id", $$NODE{node_id}) .
+$query-&gt;hidden(-name =&gt; "op", -default =&gt; "bucketop", -override =&gt; 1);
+%]
+
+[%
+my @bnodes = split ',', $$VARS{nodebucket};
+my $isLoc = $NODE-&gt;isOfType("location");
+my $isGroup = $NODE-&gt;isGroup();
+my $str;
+
+return "Empty&lt;br&gt;\n" unless(@bnodes);
+
+foreach my $node (@bnodes)
+{
+  getRef($node);
+
+  # Can't use CGI::checkbox here because it insists on having a label...
+  $str .= "&lt;INPUT TYPE='checkbox' NAME='bnode_$$node{node_id}' " .
+     "VALUE='ON' UNCHECKED&gt;";
+  $str .= linkNode($node) . "&lt;br&gt;\n";
+}
+
+$str .= "&lt;font size=1&gt;\n";
+
+$str .= "&lt;INPUT TYPE='checkbox' NAME='dropexec' VALUE='ON' CHECKED&gt;" .
+  "Execute and drop&lt;br&gt;\n" if($isLoc or $isGroup);
+
+if($isLoc)
+{
+  $str .= $query-&gt;submit( -name =&gt; "bmove", -value =&gt; "Move" ) . "\n";
+  $str .= $query-&gt;submit( -name =&gt; "bsymlink", -value =&gt; "Symlink" ) . "\n";
+}
+elsif($isGroup)
+{
+  $str .= $query-&gt;submit( -name =&gt; "bgroupadd", -value =&gt; "Add to Group") ."\n";
+}
+
+$str .= $query-&gt;submit( -name =&gt; "bdrop", -value =&gt; "Drop" ) . "\n";
+
+$str .= "&lt;/font&gt;\n";
+$str .= $query-&gt;end_form;
+
+$str;
+%]</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=199&amp;bnodes=199&amp;lastnode_id=199&amp;op=addBucket"&gt;Add 'Node Bucket'&lt;/a&gt;
+
+&lt;FORM METHOD="POST"  ENCTYPE="multipart/form-data"&gt;
+&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="199"&gt;&lt;INPUT TYPE="hidden" NAME="op" VALUE="bucketop"&gt;
+
+Empty&lt;br&gt;
+</nltext>
+	<otheraccess table="node">iiii-</otheraccess>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
+	<title table="node">Node Bucket</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

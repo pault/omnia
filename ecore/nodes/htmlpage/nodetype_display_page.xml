@@ -9,6 +9,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;br&gt;
@@ -22,8 +23,9 @@
   &lt;td bgcolor=#cccccc&gt;Author:&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultauthoraccess}"]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
-my $TYPE = getType($$NODE{node_id});
-$$TYPE{defaultauthoraccess};
+my $TYPE = getType($$NODE{extends_nodetype});
+return $$TYPE{derived_defaultauthoraccess} if($TYPE);
+"";
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
@@ -42,24 +44,27 @@ $str;
 %]&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultgroupaccess}"]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
-my $TYPE = getType($$NODE{node_id});
-$$TYPE{defaultgroupaccess};
+my $TYPE = getType($$NODE{extends_nodetype});
+return $$TYPE{derived_defaultgroupaccess} if($TYPE);
+"";
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor=#cccccc&gt;Other:&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultotheraccess}"]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
-my $TYPE = getType($$NODE{node_id});
-$$TYPE{defaultotheraccess};
+my $TYPE = getType($$NODE{extends_nodetype});
+return $$TYPE{derived_defaultotheraccess} if($TYPE);
+"";
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor=#cccccc&gt;Guest:&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultguestaccess}"]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
-my $TYPE = getType($$NODE{node_id});
-$$TYPE{defaultguestaccess};
+my $TYPE = getType($$NODE{extends_nodetype});
+return $$TYPE{defaultguestaccess} if($TYPE);
+"";
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
 &lt;/table&gt;

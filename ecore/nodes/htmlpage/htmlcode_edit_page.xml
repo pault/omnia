@@ -9,12 +9,14 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">title:[{textfield:title}] maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 [{listcode:code}]
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
-[{textarea:code}]
+[{textarea:code}]&lt;br&gt;
+[{submit}]
 </page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">htmlcode</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>

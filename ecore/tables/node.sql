@@ -26,6 +26,7 @@ CREATE TABLE node (
   dynamicother_permssion int(11) DEFAULT '-1' NOT NULL,
   dynamicguest_permission int(11) DEFAULT '-1' NOT NULL,
   group_usergroup int(11) DEFAULT '-1' NOT NULL,
+  loc_location int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (node_id),
   KEY title (title,type_nodetype),
   KEY author (author_user),

@@ -9,6 +9,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<lastupdate table="nodelet">946339467</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%
   my $limit = $HTMLVARS{personalNodeletLimit};
   $limit||=10;

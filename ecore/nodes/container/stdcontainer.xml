@@ -15,6 +15,7 @@ CONTAINED_STUFF
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">container</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="container" type="literal_value">0</parent_container>
 	<title table="node">stdcontainer</title>

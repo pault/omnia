@@ -1,0 +1,131 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">my $nsh = $query-&gt;param("nsh");
+
+return unless($nsh &amp;&amp; $nsh ne "");
+
+my $nodes;
+my $NODE = getNode($query-&gt;param("node_id"));
+my $cmdline = parseNSH($nsh);
+
+return "" unless($cmdline &amp;&amp; @$cmdline &gt; 0);
+
+my $cmd = shift @$cmdline;
+
+if($cmd =~ /^cd$/i)
+{
+  my $startLoc;
+  my $dest = shift @$cmdline;
+
+  if($dest =~ /^\//)
+  {
+    # This is an absolute path. Start at the root.
+    $startLoc = 0;
+    $dest =~ s/^\///;
+  }
+  elsif($NODE-&gt;isOfType("location"))
+  {
+    $startLoc = $$NODE{node_id};
+  }
+  else
+  {
+    $startLoc = $$NODE{loc_location};
+  }
+
+  $startLoc = getNode($startLoc);
+
+  my @locs = split '/', $dest;
+  my $location = getType("location");
+  
+  foreach my $loc (@locs)
+  {
+    if($loc eq "..")
+    {
+      $startLoc = $startLoc-&gt;getParentLocation();
+    }
+    else
+    { 
+      $startLoc = getNode({ title =&gt; $loc, loc_location =&gt; $$startLoc{node_id} },
+        $location);
+    }
+
+    unless($startLoc)
+    {
+      $GLOBAL{nsh_errors} = "Unknown path: $dest";
+      return;
+    }
+  }
+
+  # We found what they specified!  Go there!
+  $query-&gt;param("node_id", $$startLoc{node_id}); 
+}
+elsif($cmd =~ /^rm$/i)
+{
+  $GLOBAL{nsh_errors} = "Command 'rm' not implemented"; 
+  return;
+}
+elsif($cmd =~ /^mv$/i)
+{
+  $GLOBAL{nsh_errors} = "Command 'mv' not implemented"; 
+  return;
+
+  my @nodes;
+
+  # The last one is where to move them to...
+  while(@$cmdline &gt; 1)
+  {
+    push @nodes, @{ getNodesFromPath(shift @$cmdline) };
+  }
+}
+else
+{
+  $GLOBAL{nsh_errors} = "Unknown command: $cmd";
+}
+
+
+# Parses our "command line"
+sub parseNSH
+{
+  my ($cmdline) = @_;
+  my @files;
+  my $count = 0;  # just to prevent any possible infinite loops...
+  
+  $cmdline =~ s/^([^ ]+) //;
+
+  push @files, $1;  # the command
+
+  # Convert 2 or more spaces into one space
+  $cmdline =~ s/ +/ /g;
+
+  while($cmdline ne "" &amp;&amp; $count &lt; 30)
+  {
+    if($cmdline =~ /^["']/)
+    {
+      $cmdline =~ s/^(["'])([^"']*)["']//;
+      push @files, $2;
+    }
+    else
+    {
+      $cmdline =~ s/^([^ ]*)//;
+      push @files, $1;
+    }
+
+    $cmdline =~ s/^ //;
+    $count++;
+  }
+
+  return \@files;
+}</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii</groupaccess>
+	<guestaccess table="node">----</guestaccess>
+	<loc_location table="node" type="location">opcode</loc_location>
+	<otheraccess table="node">----</otheraccess>
+	<title table="node">opNSH</title>
+	<type_nodetype table="node" type="nodetype">opcode</type_nodetype>
+</NODE>

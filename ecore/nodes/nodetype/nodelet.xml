@@ -19,6 +19,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<grouptable table="nodetype"></grouptable>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">nodetype</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<restrict_nodetype table="nodetype" type="literal_value">0</restrict_nodetype>
 	<restrictdupes table="nodetype">1</restrictdupes>

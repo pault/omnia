@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
 
@@ -10,16 +10,36 @@ use Everything::FormMenu;
 
 my $menu = new Everything::FormMenu();
 my $type = $query-&gt;param('whichtype');
+my $group = $query-&gt;param('whichgroup');
+my $str;
+
 $type ||= "alltypes";
+$group ||= "nogroup";
 
 $menu-&gt;addHash({ "alltypes" =&gt; "All Types"});
 $menu-&gt;addType('nodetype', 1);
 
-$menu-&gt;writePopupHTML($query, "whichtype", $type);
+$str .= $menu-&gt;writePopupHTML($query, "whichtype", $type);
+
+$menu = new Everything::FormMenu();
+$menu-&gt;addHash({ "nogroup" =&gt; "No group" });
+$menu-&gt;addType('nodegroup', 1);
+$menu-&gt;addType('nodeball', 1);
+
+$str .= $menu-&gt;writePopupHTML($query, "whichgroup", $group);
+
+$str .= $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
+
+$str;
 %]
 
 [{closeform}]
 
+[{openform}]
+[%
+$query-&gt;hidden(-name =&gt; 'op', -default =&gt; 'addBucket', -override =&gt; 1) .
+$query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
+%]
 [%
 my %CLR = (
   document =&gt; "#AAAAcc",
@@ -87,25 +107,7 @@ $nav .= "&lt;/td&gt;&lt;/tr&gt;";
 
 #construct the table
 my $str = "&lt;TABLE width=100% border=0&gt;";
-my $NODEGROUP;
-
-if ($$VARS{group}) {
-  my $GR = getNode($$VARS{group}, 'light');
-
-  if($GR-&gt;hasAccess($USER, 'w'))
-  {
-    $NODEGROUP = $GR;
-    $str .=
-      "&lt;SCRIPT language=\"javascript\"&gt;
-      function updateMyGroup(nodeid) {
-        window.open('" .
-        urlGen({node_id =&gt; $$VARS{group},
-        displaytype =&gt; 'editor'}, "noquotes") .
-        "&amp;add='+nodeid+'" .  "','". $$VARS{group} ."', '');	
-      }
-      &lt;/SCRIPT&gt;";
-  }
-}
+my $NODEGROUP = getNode($query-&gt;param('whichgroup'));
 
 $str .= $nav;
 $str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;/tr&gt;";
@@ -113,10 +115,14 @@ $str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&
 for (my $i=0; $i &lt; @$ref; $i++)
 {
   my $N = getNode($$ref[$i], 'light');
-  $str .= "&lt;tr&gt;&lt;td align=left&gt;" . getId($N);
-  if ($NODEGROUP &amp;&amp; (not $NODEGROUP-&gt;inGroupFast($N)))
+
+  $str .= "&lt;tr&gt;&lt;td&gt;&lt;font size=1&gt;";
+  $str .= "&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' UNCHECKED&gt;";
+  $str .= "&lt;/font&gt;";
+  $str .= getId($N);
+  if ($NODEGROUP &amp;&amp; ($NODEGROUP-&gt;inGroupFast($N)))
   {
-    $str .= "&lt;font size=1&gt;&lt;A href=\"javascript:updateMyGroup(".getId($N).")\"&gt;add to &amp;quot;$$NODEGROUP{title}&amp;quot;&lt;/a&gt;&lt;/font&gt;";
+    $str .= " is in '$$NODEGROUP{title}'";
   }
 
   $str .= "&lt;/td&gt;&lt;td bgcolor=#DDCCCC&gt;" . linkNode ($N) .
@@ -128,6 +134,11 @@ $str .= $nav;
 	
 $str .= "&lt;/TABLE&gt;";
 $str;
+%]
+
+[{submit:addtonb,Add checked to Node Bucket}]
+[%
+$query-&gt;endform;
 %]</doctext>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
@@ -136,6 +147,7 @@ $str;
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">restricted_superdoc</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">Gigantic Node Lister</title>
 	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>

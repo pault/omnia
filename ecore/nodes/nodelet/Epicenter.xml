@@ -8,7 +8,8 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii</groupaccess>
 	<guestaccess table="node">ii-i</guestaccess>
-	<lastupdate table="nodelet">964240161</lastupdate>
+	<lastupdate table="nodelet">965436349</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">&lt;font size=2&gt;
 [%
 linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op =&gt; 'logout'});
@@ -30,19 +31,22 @@ push @links, linkNode ($GCL) if($GCL-&gt;hasAccess($USER, 'r'));
 my $ss = getNode('system settings', getType('setting'));
 push @links, linkNode ($ss) if ($ss-&gt;hasAccess($USER, "r"));
 
+my $rootloc = getNode(0);
+push @links, linkNode($rootloc, "Root Location") if($rootloc-&gt;hasAccess($USER, "r"));
+
 $str = join "&lt;br&gt;\n", @links;
 %]
 &lt;/font&gt;</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">&lt;font size=2&gt;
-&lt;A HREF="/index.pl?node_id=178&amp;lastnode_id=200&amp;op=logout"&gt;log root out&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=179&amp;lastnode_id=0&amp;op=logout"&gt;log root out&lt;/a&gt;&lt;br&gt;
 
-&lt;A HREF="/index.pl?node_id=187&amp;lastnode_id=200"&gt;root&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=188&amp;lastnode_id=0"&gt;root&lt;/a&gt;&lt;br&gt;
 &lt;a href="/index.pl?node=user%20settings"&gt;user settings&lt;/a&gt;&lt;br&gt;
-&lt;A HREF="/index.pl?node_id=165&amp;lastnode_id=200"&gt;Gigantic Node Lister&lt;/a&gt;&lt;br&gt;
-&lt;A HREF="/index.pl?node_id=164&amp;lastnode_id=200"&gt;Gigantic Code Lister&lt;/a&gt;&lt;br&gt;
-&lt;A HREF="/index.pl?node_id=172&amp;lastnode_id=200"&gt;system settings&lt;/a&gt;&lt;br&gt;
-&lt;A HREF="/index.pl?node_id=178&amp;lastnode_id=200"&gt;The Default Node&lt;/a&gt;
+&lt;A HREF="/index.pl?node_id=166&amp;lastnode_id=0"&gt;Gigantic Node Lister&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=165&amp;lastnode_id=0"&gt;Gigantic Code Lister&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=173&amp;lastnode_id=0"&gt;system settings&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=192&amp;lastnode_id=0"&gt;root location&lt;/a&gt;
 &lt;/font&gt;</nltext>
 	<otheraccess table="node">iiii</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>

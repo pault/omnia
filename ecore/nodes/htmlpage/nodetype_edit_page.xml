@@ -9,6 +9,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">[&lt;editDefaultPermissions&gt;]
@@ -34,7 +35,8 @@
   &lt;td&gt;[{node_menu:restrictdupes,-yes_1,-no_0,-parent_-1}]
     [{displayInherited:restrictdupes}] &lt;/td&gt;
  &lt;/tr&gt;
-&lt;/table&gt;</page>
+&lt;/table&gt;
+&lt;p&gt;[{submit}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>

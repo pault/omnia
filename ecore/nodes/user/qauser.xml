@@ -11,6 +11,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<karma table="user">0</karma>
+	<loc_location table="node" type="location">user</loc_location>
 	<nick table="user"></nick>
 	<otheraccess table="node">iiii-</otheraccess>
 	<realname table="user">QA user</realname>

@@ -9,11 +9,31 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">&lt;table border=0&gt;
  &lt;tr&gt;
-  &lt;td&gt;&lt;b&gt;Title:&lt;/b&gt;&lt;/td&gt;&lt;td&gt;[{textfield:title}]&lt;/td&gt;
+  &lt;td&gt;&lt;b&gt;Title:&lt;/b&gt;&lt;/td&gt;&lt;td align=left&gt;[{textfield:title}]&lt;/td&gt;
+  &lt;td rowspan=9&gt;
+[%
+my $N = getType($$NODE{pagetype_nodetype});
+
+return "No Pagetype selected" unless($N);
+
+my $str = "Fields:&lt;br&gt;";
+$str .= "&lt;li&gt;";
+$str .= join "\n&lt;li&gt;", $DB-&gt;getFields;
+
+my $tables = $N-&gt;getTableArray(1);
+
+return "" unless($tables &amp;&amp; int(@$tables) &gt; 0);
+foreach (@$tables) {
+  $str .="\n&lt;li&gt;";
+  $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);
+}
+$str;
+%]&lt;/font&gt;&lt;/td&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Maintained by:&lt;/b&gt;&lt;/td&gt;
   &lt;td&gt;[{node_menu:author_user,user,usergroup}]&lt;/td&gt;
@@ -45,37 +65,14 @@ $menu-&gt;writePopupHTML($query, $$NODE{type}{title} .
   "_permissionneeded", $$NODE{permissionneeded});
 %]&lt;/td&gt;
  &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td colspan=2&gt;
+&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the page:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
+[{textarea:page}]
+  &lt;/td&gt;
+ &lt;/tr&gt;
 &lt;/table&gt;
-
-&lt;table width=100%&gt;
-&lt;tr&gt;
-&lt;td width=90% valign='top'&gt;
-&lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the page:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
-[{textarea:page}]&lt;/td&gt;
-&lt;td width=10%&gt;&lt;font size=2&gt;[%
-my $N = getType($$NODE{pagetype_nodetype});
-
-return "No Pagetype selected" unless($N);
-
-my $str;
-$str .= "&lt;li&gt;";
-$str .= join "\n&lt;li&gt;", $DB-&gt;getFields;
-
-my $tables = $N-&gt;getTableArray(1);
-
-return "" unless($tables &amp;&amp; int(@$tables) &gt; 0);
-foreach (@$tables) {
-  $str .="\n&lt;li&gt;";
-  $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);
-}
-$str;
-
-
-
-%]&lt;/font&gt;&lt;/td&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-</page>
+[{submit}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">htmlpage</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>

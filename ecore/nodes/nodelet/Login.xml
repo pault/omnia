@@ -9,6 +9,7 @@
 	<groupaccess table="node">iiii</groupaccess>
 	<guestaccess table="node">--x-</guestaccess>
 	<lastupdate table="nodelet">964215660</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%
 my $str = "";
 if ($query-&gt;param('op') eq 'login') { 

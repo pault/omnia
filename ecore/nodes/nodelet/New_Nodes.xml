@@ -8,7 +8,8 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">964301101</lastupdate>
+	<lastupdate table="nodelet">965785752</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
@@ -29,21 +30,21 @@ $str;
 
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=200&amp;lastnode_id=178"&gt;Epicenter&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=198&amp;lastnode_id=178"&gt;themeselector&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=197&amp;lastnode_id=178"&gt;Login&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=196&amp;lastnode_id=178"&gt;nodelet outline container&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=191&amp;lastnode_id=178"&gt;nodemethod edit page&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=190&amp;lastnode_id=178"&gt;nodemethod display page&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=180&amp;lastnode_id=178"&gt;User settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=181&amp;lastnode_id=178"&gt;login&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=182&amp;lastnode_id=178"&gt;user variables&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=183&amp;lastnode_id=178"&gt;default theme&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=184&amp;lastnode_id=178"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=185&amp;lastnode_id=178"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=186&amp;lastnode_id=178"&gt;qauser&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=187&amp;lastnode_id=178"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=188&amp;lastnode_id=178"&gt;gods&lt;/a&gt;&lt;BR&gt;
+	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=240&amp;lastnode_id=179"&gt;Gigantic Node Lister OLD&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=239&amp;lastnode_id=179"&gt;adminbarOLD&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=238&amp;lastnode_id=179"&gt;groupeditor&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=236&amp;lastnode_id=179"&gt;submit&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=209&amp;lastnode_id=179"&gt;nodetype&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=210&amp;lastnode_id=179"&gt;node&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=211&amp;lastnode_id=179"&gt;setting&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=212&amp;lastnode_id=179"&gt;container&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=213&amp;lastnode_id=179"&gt;dbtable&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=214&amp;lastnode_id=179"&gt;document&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=215&amp;lastnode_id=179"&gt;file&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=216&amp;lastnode_id=179"&gt;htmlpage&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=217&amp;lastnode_id=179"&gt;htmlsnippet&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=218&amp;lastnode_id=179"&gt;image&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=219&amp;lastnode_id=179"&gt;mail&lt;/a&gt;&lt;BR&gt;
 </nltext>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>

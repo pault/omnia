@@ -19,6 +19,7 @@
 	<groupaccess table="node">rwxd</groupaccess>
 	<grouptable table="nodetype"></grouptable>
 	<guestaccess table="node">----</guestaccess>
+	<loc_location table="node" type="location">nodetype</loc_location>
 	<otheraccess table="node">----</otheraccess>
 	<restrict_nodetype table="nodetype" type="literal_value">0</restrict_nodetype>
 	<restrictdupes table="nodetype">0</restrictdupes>

@@ -1,0 +1,36 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">my @path;
+my $loc = $$NODE{loc_location};
+my $parentLoc;
+my $top = 0;
+
+# Define 'root_location' to be a sublocation and showPath will not show
+# any directories above that "root" location.
+$top = $HTMLVARS{root_location} if(exists $HTMLVARS{root_location});
+
+do
+{
+  $parentLoc = getNode($loc);
+  unshift @path, linkNode($parentLoc);
+
+  $loc = $$parentLoc{loc_location};
+}until($$parentLoc{node_id} == 0 || $$parentLoc{node_id} == $top);
+
+my $pathStr = join ' &gt; ', @path;
+
+$pathStr .= " &gt;" if($pathStr ne "");
+return $pathStr;</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlcode</loc_location>
+	<otheraccess table="node">iiii-</otheraccess>
+	<title table="node">showPath</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

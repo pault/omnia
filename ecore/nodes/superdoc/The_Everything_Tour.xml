@@ -40,6 +40,7 @@ that it looked pretty simple.  As a matter, there are three lines:&lt;br&gt;
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">superdoc</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">The Everything Tour</title>
 	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>

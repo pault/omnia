@@ -9,6 +9,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">&lt;b&gt;Real Name&lt;/b&gt;: ["$$NODE{realname}"]&lt;br&gt;
@@ -17,7 +18,9 @@
 
 &lt;p&gt;&lt;b&gt;Email Address&lt;/b&gt;: ["$$NODE{email}"]&lt;br&gt;[{textfield:email,40}]
 &lt;p&gt;&lt;b&gt;User's Bio&lt;/B&gt;: 
-&lt;p&gt;[{textarea:doctext}]</page>
+&lt;p&gt;[{textarea:doctext}]
+&lt;br&gt;
+[{submit}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">user</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>

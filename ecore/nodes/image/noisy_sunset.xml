@@ -10,6 +10,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">image</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<src table="image">http://oostendorp.net/gimpart/noisy_sunset.jpg</src>
 	<thumbsrc table="image"></thumbsrc>

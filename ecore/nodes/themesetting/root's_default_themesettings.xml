@@ -8,6 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">ii-i</groupaccess>
 	<guestaccess table="node">ii-i</guestaccess>
+	<loc_location table="node" type="location">themesetting</loc_location>
 	<otheraccess table="node">ii-i</otheraccess>
 	<parent_theme table="themesetting" type="theme">default theme</parent_theme>
 	<title table="node">root's default themesettings</title>

@@ -57,6 +57,7 @@ $str;</code>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlcode</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">editvars</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>

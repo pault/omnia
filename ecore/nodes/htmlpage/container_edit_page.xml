@@ -9,6 +9,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">title:[{textfield:title}]
@@ -17,7 +18,9 @@ maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 Parent container:[{node_menu:parent_container}]&lt;br&gt;
 
 
-container html:&lt;br&gt;[{textarea:context}]</page>
+container html:&lt;br&gt;
+[{textarea:context}]&lt;br&gt;
+[{submit}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">container</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>

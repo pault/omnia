@@ -9,6 +9,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">&lt;b&gt;[%linkNode($NODE, "Upload the image", {displaytype=&gt;'upload'});%]&lt;br&gt;
@@ -16,6 +17,7 @@
 &lt;b&gt;&lt;font size=2&gt;alt:&lt;/font&gt;&lt;/b&gt;[{textfield:alt}]&lt;br&gt;
 &lt;b&gt;&lt;font size=2&gt;thumbnail source:&lt;/b&gt;&lt;/font&gt;[{textfield:thumbsrc}]&lt;br&gt;
 &lt;b&gt;&lt;font size=2&gt;description:&lt;/font&gt;&lt;br&gt;&lt;/b&gt;[{textarea:description}]&lt;br&gt;
+[{submit}]
 </page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">image</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>

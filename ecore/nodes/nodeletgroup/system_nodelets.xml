@@ -7,15 +7,18 @@
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group >
 		<groupnode1 table="nodegroup" type="nodelet">admin nodelet</groupnode1>
-		<groupnode2 table="nodegroup" type="nodelet">Epicenter</groupnode2>
-		<groupnode3 table="nodegroup" type="nodelet">Other Users</groupnode3>
-		<groupnode4 table="nodegroup" type="nodelet">Node Statistics</groupnode4>
-		<groupnode5 table="nodegroup" type="nodelet">CGI::param</groupnode5>
-		<groupnode6 table="nodegroup" type="nodelet">Server Statistics</groupnode6>
+		<groupnode2 table="nodegroup" type="nodelet">nsh</groupnode2>
+		<groupnode3 table="nodegroup" type="nodelet">Node Bucket</groupnode3>
+		<groupnode4 table="nodegroup" type="nodelet">Epicenter</groupnode4>
+		<groupnode5 table="nodegroup" type="nodelet">Other Users</groupnode5>
+		<groupnode6 table="nodegroup" type="nodelet">Node Statistics</groupnode6>
+		<groupnode7 table="nodegroup" type="nodelet">CGI::param</groupnode7>
+		<groupnode8 table="nodegroup" type="nodelet">Server Statistics</groupnode8>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">nodeletgroup</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">system nodelets</title>
 	<type_nodetype table="node" type="nodetype">nodeletgroup</type_nodetype>

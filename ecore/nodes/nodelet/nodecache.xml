@@ -9,6 +9,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<lastupdate table="nodelet">945154868</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">Total nodes in cache: 
 [%  sprintf "%d", $DB-&gt;getCache()-&gt;getCacheSize(); %] &lt;br&gt;
 

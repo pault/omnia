@@ -19,8 +19,8 @@ linkNode($default, "&lt;img border=0 src=images/e.gif&gt;");
 &lt;table width="100%"&gt;
  &lt;tr&gt;  
   &lt;td width=100% valign=top&gt;
-   &lt;h3&gt;["$$NODE{title}"]&lt;/h3&gt;
-   &lt;font size=2&gt;Maintained by
+   &lt;h3&gt;[{showPath}] ["$$NODE{title}"]&lt;/h3&gt;
+   &lt;p&gt;&lt;font size=2&gt;Maintained by
    [%
    if ($$NODE{author_user} != getId ($USER)) {
 	return linkNode ($$NODE{author_user});
@@ -43,6 +43,7 @@ linkNode($default, "&lt;img border=0 src=images/e.gif&gt;");
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">container</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="container" type="container">stdcontainer</parent_container>
 	<title table="node">main container</title>

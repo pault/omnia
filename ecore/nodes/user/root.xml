@@ -12,19 +12,14 @@ Great hair</doctext>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<karma table="user">30</karma>
+	<loc_location table="node" type="location">user</loc_location>
 	<nick table="user"></nick>
 	<otheraccess table="node">iiii-</otheraccess>
 	<realname table="user">Super user</realname>
 	<title table="node">root</title>
 	<type_nodetype table="node" type="nodetype">user</type_nodetype>
 	<vars table="setting">
-		<nodelet_textclr ></nodelet_textclr>
 		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
-		<nodelet_headerclr ></nodelet_headerclr>
-		<nodelet_align ></nodelet_align>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
-		<nodelets_off ></nodelets_off>
-		<group ></group>
-		<personal_nodelet ></personal_nodelet>
 	</vars>
 </NODE>

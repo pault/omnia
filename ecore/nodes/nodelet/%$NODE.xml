@@ -9,6 +9,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<lastupdate table="nodelet">945154868</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[{displayNODE:30}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet"></nltext>

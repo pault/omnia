@@ -9,15 +9,15 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">&lt;h4&gt;title&lt;/h4&gt;[{textfield:title}]
 &lt;h4&gt;maintainer:&lt;/h4&gt;[{node_menu:author_user,user,usergroup}]
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the document text:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
-
-
 [{textarea:doctext}]
-</page>
+
+&lt;p&gt;[{submit}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">superdoc</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>

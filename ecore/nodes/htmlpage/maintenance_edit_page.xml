@@ -9,9 +9,12 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">title:[{textfield:title}] maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
+	<page table="htmlpage">&lt;h3&gt;Maintenance code has been deprecated!  Do not use!&lt;/h3&gt;
+
+title:[{textfield:title}] maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 Maintains: [{node_menu:maintain_nodetype}]&lt;br&gt;
 maintaintype:[{textfield:maintaintype}](create, update, or delete)&lt;br&gt;
 

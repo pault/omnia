@@ -1,0 +1,92 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">
+if($query-&gt;param("bmove"))
+{
+  my $loc = getNode($query-&gt;param("node_id"));
+
+  return unless($loc &amp;&amp; $loc-&gt;isOfType("location") &amp;&amp;
+    $loc-&gt;hasAccess($USER, "x"));
+
+  foreach my $param ($query-&gt;param)
+  {
+    next unless($param =~ /^bnode_(.*)$/);
+
+    my $id = $1;
+    my $node = getNode($id);
+   
+    next unless($node);
+
+    $$node{loc_location} = $$loc{node_id};
+    $node-&gt;update($USER);
+  }
+}
+elsif($query-&gt;param("bsymlink"))
+{
+  my $loc = getNode($query-&gt;param("node_id"));
+  my $sym = getType("symlink");
+  return unless($loc &amp;&amp; $loc-&gt;isOfType("location") &amp;&amp;
+    $loc-&gt;hasAccess($USER, "x") &amp;&amp; $sym-&gt;hasTypeAccess($USER, "c"));
+
+  foreach my $param ($query-&gt;param)
+  {
+    next unless($param =~ /^bnode_(.*)$/);
+
+    my $id = $1;
+    my $node = getNode($id);
+   
+    next unless($node);
+
+    my $symlink = getNode($$node{title}, "symlink", "create force");
+
+    $$symlink{symlink_node} = $$node{node_id};
+    $$symlink{loc_location} = $$loc{node_id};
+
+    $symlink-&gt;insert($USER);
+  }
+}
+elsif($query-&gt;param("bgroupadd"))
+{
+  my $group = getNode($query-&gt;param("node_id"));
+
+  return unless($group &amp;&amp; $group-&gt;isGroup() &amp;&amp; $group-&gt;hasAccess($USER, "w"));
+
+  foreach my $param ($query-&gt;param)
+  {
+    next unless($param =~ /^bnode_(.*)$/);
+
+    # For some reason, passing $1 here causes the function to receive undef.
+    # Probably has something to do with default vars.  So, we need to assign
+    # what we found to a scoped var.
+    my $insert = $1;
+    $group-&gt;insertIntoGroup($USER, $insert);
+  }
+}
+
+if($query-&gt;param("bdrop") or $query-&gt;param("dropexec"))
+{
+  my $bucket = $$VARS{nodebucket};
+  foreach my $param ($query-&gt;param)
+  {
+    next unless($param =~ /^bnode_(.*)$/);
+
+    # Remove the numeric id from the bucket list
+    $bucket =~ s/$1,?//;
+    $bucket =~ s/,$//;
+  }
+
+  $$VARS{nodebucket} = $bucket;
+}</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">opcode</loc_location>
+	<otheraccess table="node">iiii-</otheraccess>
+	<title table="node">bucketOp</title>
+	<type_nodetype table="node" type="nodetype">opcode</type_nodetype>
+</NODE>

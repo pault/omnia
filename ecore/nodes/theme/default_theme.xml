@@ -11,6 +11,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iixi</groupaccess>
 	<guestaccess table="node">ii-i</guestaccess>
+	<loc_location table="node" type="location">theme</loc_location>
 	<otheraccess table="node">iixi</otheraccess>
 	<title table="node">default theme</title>
 	<type_nodetype table="node" type="nodetype">theme</type_nodetype>

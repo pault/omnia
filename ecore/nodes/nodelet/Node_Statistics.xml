@@ -9,6 +9,7 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<lastupdate table="nodelet">946339423</lastupdate>
+	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">Node ID:[% getId $NODE %]&lt;br&gt;
 Created on:&lt;br&gt; ["$$NODE{createtime}"]&lt;br&gt;
 Hits: ["$$NODE{hits}"]&lt;br&gt;
