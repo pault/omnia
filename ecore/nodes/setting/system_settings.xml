@@ -23,7 +23,6 @@
     <var name="generalNodelet_container" type="noderef" type_nodetype="container,nodetype">nodelet container</var>
     <var name="generalParent_container" type="noderef" type_nodetype="container,nodetype">main container</var>
     <var name="guest_user" type="noderef" type_nodetype="user,nodetype">Guest User</var>
-    <var name="noCompile" type="literal_value">1</var>
     <var name="nodeLocked_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</var>
     <var name="nodedeleted_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</var>
     <var name="nodelet_group" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</var>

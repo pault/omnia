@@ -14,9 +14,9 @@ use strict;
 use Everything;
 use Everything::HTML;
 
-use Everything::HTML::FormObject::FormMenu;
+use Everything::HTML::FormObject;
 use vars qw(@ISA);
-@ISA = ("Everything::HTML::FormObject::FormMenu");
+@ISA = ("Everything::HTML::FormObject");
 
 #############################################################################
 #	Sub
@@ -57,36 +57,30 @@ use vars qw(@ISA);
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $txtdefault, $menudefault) =
+	my ($query, $bindNode, $field, $name, $default) =
 		getParamArray(
-		"query, bindNode, field, name, txtdefault, menudefault", @_);
+		"query, bindNode, field, name, default", @_);
 	
 	$name ||= $field;
 
 	my $html = $this->SUPER::genObject($query, $bindNode, $field, $name) . "\n";
-	
-	$this->addHash({ 'specify user' => -1 }, 1);
-	$this->addType('usergroup', -1, 'r', 'labels');
 	
 	if($bindNode)
 	{
 		my $author = $DB->getNode($$bindNode{$field});
 		if($author && $author->isOfType('user'))
 		{
-			$txtdefault ||= $$author{title};
-			$menudefault ||= -1;
+			$default ||= $$author{title};
 		}
 		elsif($author)
 		{
-			$txtdefault ||= "";
-			$menudefault ||= $$author{node_id};
+			$default ||= "";
 		}
 	}
 
-	$html .= $query->textfield(-name => $name . '_input',
-		-default => $txtdefault, -size => 15, -maxlength => 255,
+	$html .= $query->textfield(-name => $name,
+		-default => $default, -size => 15, -maxlength => 255,
 		-override => 1) . "\n";
-	$html .= $this->genPopupMenu($query, $name, $menudefault);
 
 	return $html;
 }
@@ -107,10 +101,9 @@ sub cgiVerify
 	my $author = $query->param($name);
 	my $result = {};
 
-	if($author == -1)
+	if($author)
 	{
-		my $authorname = $query->param($name . '_input');
-		my $AUTHOR = $DB->getNode($authorname, 'user');
+		my $AUTHOR = $DB->getNode($author, 'user');
 
 		if($AUTHOR)
 		{
@@ -120,7 +113,7 @@ sub cgiVerify
 		}
 		else
 		{
-			$$result{failed} = "User '$authorname' does not exist!";
+			$$result{failed} = "User '$author' does not exist!";
 		}
 	}
 	

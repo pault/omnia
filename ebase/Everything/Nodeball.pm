@@ -579,8 +579,8 @@ sub absPath {
 	}ex;
 
 	#make the file abs path
-	use File::Spec;
-	return File::Spec->rel2abs($file);
+	use File::Spec::Unix;
+	return File::Spec::Unix->rel2abs($file);
 }
 
 ############################################################################

@@ -82,6 +82,7 @@ sub genObject
 	$select->addLabels($removed, 0);
 
 	$color = "bgcolor='$color'" if($color);
+	$color ||= "";
 	my $html = "<table border='0' $color cellspacing='0'>\n";
 	$html .= "<tr><td>\n";
 	

@@ -1060,13 +1060,17 @@ sub executeCachedCode {
 		if (ref($code_ref) eq 'CODE' and defined &$code_ref) {
 			my $warn;
 			local $SIG{__WARN__} = sub {
-				$warn .= $_[0];
+				$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
 			};
+
 			flushErrorsToBackside();
 			
-			
 			my $result = eval ' $code_ref->(@$args) ' || '';
-			logErrors($warn, $@, $$CURRENTNODE{$field},	$CURRENTNODE) if $warn or $@;
+			
+			local $SIG{__WARN__} = sub {};
+
+			logErrors($warn, $@, $$CURRENTNODE{$field},	$CURRENTNODE)
+				if $warn or $@;
 	
     		my $errors = getFrontsideErrors();
 
@@ -1104,8 +1108,15 @@ sub compileCache
 {
 	my ($code, $NODE, $field, $args) = @_;
 
+	my $warn;
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
+	};
+
 	$code =~ s/\015//gs;
 	my $code_ref = eval $code;
+
+	local $SIG{__WARN__} = sub {};
 
 	if ($@) {
 		logErrors('', $@, $$NODE{$field}, $NODE);
@@ -1164,7 +1175,8 @@ sub nodemethod
 #	Returns
 #		The HTML from the snippet
 #
-sub htmlsnippet {
+sub htmlsnippet
+{
 	my ($snippet) = @_;
 	my $node = getNode($snippet, 'htmlsnippet');
 	my $html = '';
@@ -1351,23 +1363,34 @@ sub parseCode
 		# as there's no need to escape quotes in raw HTML sections anyway
 		} else {
 			next unless ($chunk =~ /\S/);
-			$chunk =~ s!\"!\\"!g;
-			$sub_text .= qq|\$result .= "$chunk";\n|;
+
+			# Use single quotes!!!  We need to wrap this chunk of text in
+			# single quotes because we do not want perl to be evaluating
+			# anything outside our embedded code.  If this is wrapped in
+			# double quotes, things like \n, \t, $hello, and anything the
+			# raw text contained that perl would recognize would be evaled
+			# and we don't want that.  Raw text is raw text and should
+			# be left alone.
+			$chunk =~ s!\'!\\'!g;
+			$sub_text .= qq|\$result .= '$chunk';\n|;
 		}
 	}
 
 	# add newlines so trailing comments don't cause eval() errors
 	$sub_text .= qq|\nreturn \$result;\n}|;
-
-	my $warn;
-	local $SIG{__WARN__} = sub {
-		$warn .= $_[0];
-	};
-
+	
 	$result = compileCache($sub_text, $CURRENTNODE, $field, $args);
 	return $result if defined $result;
 
+	my $warn;
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
+	};
+
 	my $sub_ref = eval $sub_text;
+
+	local $SIG{__WARN__} = sub {};
+
 	if (!$sub_ref || $@) {
 		Everything::printLog("Eval error $$CURRENTNODE{title} $field: ($@)\n");
 #		print STDERR listCode($sub_text, 1), "\n";

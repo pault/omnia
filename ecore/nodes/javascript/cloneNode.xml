@@ -3,8 +3,7 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">function cloneNode()
 {
-  var newname = prompt("Cloning node '["$$NODE{title}"]'\nEnter a new name:",
-    "["$$NODE{title}2"]");
+  var newname = prompt("Cloning node '["$$NODE{title}"]'\nEnter a new name:", "");
 
   if(newname)
   {
