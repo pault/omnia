@@ -1043,7 +1043,7 @@ sub embedCode
 		my @args;
 		$args ||= "";
 
-		@args = split(/\s*,\s*/, $args) if($args);
+		@args = map { quotemeta($_) } split(/\s*,\s*/, $args) if($args);
 
 		$args = join("', '", @args);
 		$args = "'" . $args . "'" if($args);
@@ -1244,7 +1244,8 @@ sub insertNodelet
 	# If the user can't "execute" this nodelet, we don't let them see it!
 	return undef unless($NODELET->hasAccess($USER, "x"));
 	
-	my $html = genContainer($$NODELET{parent_container}) 
+	my $html;
+	$html = genContainer($$NODELET{parent_container}) 
 		if $$NODELET{parent_container};
 
 	# Make sure the nltext is up to date
