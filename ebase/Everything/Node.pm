@@ -986,22 +986,21 @@ sub selectLinks
 {
 	my ($this, $orderby) = @_;
 
-	my $obstr = "";
-	my @links;
-	my $cursor;
-	
-	$obstr = " ORDER BY $orderby" if $orderby;
+	my $obstr = $orderby ? " ORDER BY $orderby" : '';
 
-	$cursor = $$this{DB}->sqlSelectMany ("*", 'links',
-		"from_node=". $$this{node_id} .  $obstr); 
-	
+	my $cursor = $this->{DB}->sqlSelectMany( '*', 'links',
+		'from_node=?', $obstr, $this->{node_id} ); 
+
+	return unless $cursor;
+
+	my @links;
 	while (my $linkref = $cursor->fetchrow_hashref())
 	{
 		push @links, $linkref;
 	}
-	
-	$cursor->finish;
-	
+
+	$cursor->finish();
+
 	return \@links;
 }
 
