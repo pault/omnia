@@ -21,7 +21,10 @@ foreach (@params) {
 
 # update any settings in the node passed through CGI
         if (/setsetting_(\w+)$/) {
-                my $setvalue = $query->param("setsetting_$1") || '';
+                my $setvalue = $query->param("setsetting_$1")
+
+# avoid uninitialized values but don't clobber a valid setting of 0
+				$setvalue = '' unless (defined($setvalue));
 
                 unless ($setvalue) {
                         my $nodename = $query->param("node name$1") || '';
@@ -91,8 +94,8 @@ SETTING
         unless ($$SETTINGS{$_} =~ /\D/) {
                 my $tempnode = getNodeById($$SETTINGS{$_});
                 if ($tempnode) {
-                        $nodetitle = $$tempvar{title}; 
-                        $nodetype = $$tempvar{type}{title};
+                        $nodetitle = $$tempnode{title}; 
+                        $nodetype = $$tempnode{type}{title};
                 }
         }
 
