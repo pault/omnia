@@ -2,15 +2,14 @@ package Everything::Util;
 
 #############################################################################
 #	Everything perl module.  
-#	Copyright 2000 Everything Development
-#	http://www.everydevel.com
+#	Copyright 2000 - 2002 Everything Development Company
+#	http://www.everydevel.com/
 #
 #	Format: tabs = 4 spaces
 #
 #############################################################################
 
 use strict;
-
 
 sub BEGIN
 {
@@ -23,6 +22,7 @@ sub BEGIN
         );
 }
 
+use URI::Escape ();
 
 #############################################################################
 #	Sub
@@ -39,14 +39,7 @@ sub BEGIN
 #	Returns
 #		Then escaped string
 #
-sub escape
-{
-	my ($esc) = @_;
-
-	$esc =~ s/(\W)/sprintf("%%%02x",ord($1))/ge;
-	
-	return $esc;
-}
+*escape		= *URI::Escape::uri_escape;
 
 
 #############################################################################
@@ -63,16 +56,7 @@ sub escape
 #		The first item in the array.  Basically good for doing:
 #			$url = unescape($url);
 #
-sub unescape
-{
-	foreach my $arg (@_)
-	{
-		$arg =~ tr/+/ /;
-		$arg =~ s/\%(..)/chr(hex($1))/ge;
-	}
-	
-	return $_[0];
-}
+*unescape	= *URI::Escape::uri_unescape;
 
 
 #############################################################################
