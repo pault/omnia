@@ -825,15 +825,15 @@ sub restrict_type {
 		# check if the member matches directly
         if ($node->{type_nodetype} == $restricted_type) 
 		{
-            push @cleaned, $$node{node_id};
+            push @cleaned, $_;
         } 
 
 		# check if the member is a nodegroup with similar restrictions
-		elsif ($node->isGroup()) 
+		elsif (defined($node->{type}{restrict_nodetype}))
 		{
 			if ($node->{type}{restrict_nodetype} == $restricted_type) 
 			{
-				push @cleaned, $$node{node_id};
+				push @cleaned, $_;
 			}
 		}
     }
