@@ -19,6 +19,7 @@ foreach (@links)
   next if ($$_{linktype});
 
   my $N = getNode($$_{to_node}, 'light');
+  next unless $N;
   $str .= "  &lt;li>".linkNode($N)."($$N{type}{title})&lt;/li>\n" if $N->hasAccess($USER, 'r');  
 }
 
