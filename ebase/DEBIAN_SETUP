@@ -1,0 +1,46 @@
+If your using Debian, you have a powerful ally: apt-get.  I installed a 
+Debian 2.1 (slink) base install, and then used apt-get install to get the 
+following packages.  The whole thing is pretty tight (~200 megs), and has 
+everything you need to run mod_perl/apache scripts.
+
+Of course, I was at work.  You could probably get by using the following 
+packages on the latest distro CD...
+
+optional: a few devel that I use(d).  You may or may not need these.
+
+psmisc
+bin86
+make
+gcc
+sudo
+libncurses4-dev
+libc6-dev
+vim
+cvs
+cvs-buildpackage
+analog
+ssh
+
+required stuff (at least these are the ones that I run):
+
+mysql-base
+mysql-doc
+mysql-server
+apache
+apache-common
+apache-dev
+apache-doc
+libapache-mod-perl
+libdbd-mysql-perl
+libmysqlclient6-dev
+
+
+once you have those packages, all you need to do is run apacheconfig, 
+answering "yes" to the perl question (though you may want more features).
+
+Then take a look at HTTPCONF_SETUP and PERLMOD_SETUP to see what other
+stuff you need to do to make it work!
+
+
+if you have any information that would be useful in using Everything on
+Debian, email Nate Oostendorp <nate@oostendorp.net>...

@@ -1,0 +1,60 @@
+Everything Base
+
+This is the base to the Everything system.  This sets up the install
+directory and creates the basic database needed to "boot-strap" the
+system.  Once the base is installed, you will need to install the
+ecore nodeball.
+
+
+Nodeballs
+
+What is a nodeball?  A nodeball is a "package" of nodes for your
+Everything system.  Nodeballs are somewhat similar to RPMs or DEB
+packages.  They allow you install specific functionality to your
+Everything system.
+
+
+Installation
+
+See the various "readme" files.  You will need to make sure you have
+the appropriate perl modules installed, along with making sure that
+you have apache, mod_perl and mysql set up appropriately.
+
+> perl Makefile.PL
+> make
+> make install
+
+Running 'perl Makefile.PL' will ask you some questions about how you
+want to install the system.  By default, it will install it on the
+machine.  You will need to run 'make install' as root.
+
+If you are only a mortal user on the system (no root access), you
+can specify alternate directories to install where you have write
+permissions.  Since you cannot copy the perl modules (Everything.pm
+and the Everything directory) to the proper perl system directories,
+you will need to copy them somewhere else and specify that directory
+in the index.pl file by adding the line:
+
+use lib "path_to_directory_that_contains_Everything";
+
+before "use Everything::HTML".  Otherwise, the Everything modules
+will not be found.
+
+After you have Everything installed, you may want to add the bin
+directory in the Everything install to your path so you have access
+to the scripts needed to maintain your Everything system.
+
+
+Uninstall
+
+> make realclean (as root)
+
+Note that executing 'make realclean' will remove everything.  This
+includes the perl modules and the associated database.  After this
+is executed the Everything system will not exist.  Don't execute it
+unless you really mean it.  I'm serious.
+
+
+Other Information
+
+For more information see http://www.everydevel.com

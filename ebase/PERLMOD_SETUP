@@ -1,0 +1,29 @@
+Here's the list of perl modules that I installed to make everything work.
+Your system may have some of these already installed.  Otherwise, you 
+can always get the latest version from CPAN <http://cpan.org>.
+
+The version numbers are the one that I have...  not necessarily the only
+ones which would work.
+
+These are required modules to get Everything to work (it uses Mysql)
+	DBI (1.13)
+	Msql-Mysql-modules (1.2202)
+
+These are needed for the Everything::HTML module 
+	CGI
+	ApacheDBI (0.82)
+
+These are needed for the Everything::XML module
+	XML-Generator (0.4)
+	XML-Parser (2.26)
+
+
+each of these is simple to install from a tar.gz file:
+
+tar -xvzf MODULE.tar.gz
+cd MODULE/
+perl Makefile.PL
+make
+make test  (sometimes)
+make install (as root)
+

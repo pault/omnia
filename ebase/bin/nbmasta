@@ -1,0 +1,605 @@
+#!/usr/bin/perl -w 
+
+########################################################################
+#
+#	nbmasta
+#
+#	"Nodeball Masta" -- the utility for managing nodeballs 
+#
+#	handles all importing, exporting, and updating of nodeballs
+#	for the everything system, via XML files, and .nbz files
+#
+use strict;
+use Everything;
+use Everything::XML;
+use Everything::HTML;
+
+my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
+my %OPTIONS = ( force => 0, verbose => 0 );
+while (@ARGV and $ARGV[0] =~ s/^\-(.*?)/$1/) {
+	my $arg = shift @ARGV;
+	if ($arg =~ s/^-(.*?)/$1/) {
+		$OPTIONS{$arg}++ if exists ($OPTIONS{$arg});
+		next;
+	} 
+	$OPTIONS{verbose}++ if ($arg =~ /v/);
+}
+
+if (@ARGV < 3) {
+	print $usagestr; 
+	exit;
+}
+
+my ($function, $nodeball, $database) = @ARGV[0..2];
+
+sqlConnect($database)
+	or die "couldn't connect to $database";
+loadTypes;
+
+#############################################################################
+#	Function
+#		exportTables
+#
+#	Purpose
+#		This dumps the table structures in the given database using the
+#		mysqldump utility.  We do not dump the table row data, since we
+#		are using XML to store the database info.
+#
+sub exportTables {
+	my ($tables, $dir) = @_;
+	my $args = "--lock-tables --no-data";
+
+	my $tbstr;
+	foreach (@$tables) { $tbstr.=$_." "; }
+
+	# We need to make the directory writable, because mysql may be
+	# running as the mysql user rather than root, and it will need
+	# write permissions.
+	`chmod a+wr $dir`;
+
+	my $err = `mysqldump -u root -T $dir $args $database $tbstr`;
+	chomp $err;
+	$err =~ s/^ *//g;  # clear out any whitespace
+
+	if($err ne "") {
+		print "mysqldump errors:\n" . $err;
+		die unless $OPTIONS{force};
+	}
+}
+
+###########################################################################
+#	sub
+#		createDir
+#
+#	purpose
+#		create a new directory.  If you can, else barf
+#
+sub createDir {
+	my ($dir) = @_;
+	unless (-e $dir or $OPTIONS{force}) {
+		my $result = `mkdir $dir`;
+		die "error creating $dir -- do you have the correct permissions?" 
+			if ($result and not $OPTIONS{force});
+	} else {
+		die "$dir already exists" unless $OPTIONS{force};	
+	}
+	1;
+}
+
+#############################################################################
+#	Function
+#		exportNodes
+#
+#	Purpose
+#		This function constructs our everything nodes (table joins, etc)
+#		and exports each node in XML format into its own file.  The node
+#		XML files are put in directories based on their nodetypes.  For
+#		example, the node "root" will be exported to nodes/user/root.xml.
+#
+#	params
+#		nodes - ref to an array of nodes	
+#		basedir - the dir to export them to
+#		loud - print a message for each node	
+
+sub exportNodes {
+	my ($nodes, $basedir, $loud) = @_;
+	my %nodetypes=();
+	my %nodeindex=();
+	my @nodefiles=();
+	for(my $i =0; $i < @$nodes;$i++) {
+		$_ = $$nodes[$i];
+		push @{ $nodetypes{$$_{type}{title}} }, getId($_); 
+		$nodeindex{getId($_)}=$i;
+	}
+	
+	foreach my $NODETYPE (keys %nodetypes) {
+		my $dir = $NODETYPE;
+		
+		# convert spaces to '_'. We don't want spaces in the file name.
+		$dir =~ s/ /_/g;
+		$dir = $basedir.'/'.$dir; 
+		createDir $dir unless (-e $dir);	
+		foreach my $NODE (@{ $nodetypes{$NODETYPE} }) {
+			getRef ($NODE);
+			my $file = $$NODE{title};
+			$file =~ s/ /_/g;
+			$file.=".xml";
+			
+			print "$$NODE{title} ($$NODE{type}{title}) --> $file\n"
+				if $OPTIONS{verbose};
+			$file = $dir."/".$file; 
+			open(FILE, ">".$file) 
+				or die "couldn't create $file in $dir - do we have permission?";
+			print FILE node2xml($NODE);
+			close(FILE);
+			$nodefiles[$nodeindex{getId($NODE)}]= $file;
+		}	
+	}
+	@nodefiles;
+}
+
+########################################################################
+#	sub
+#		printSettings
+#
+#	purpose
+#		print the settings of the current nodeball
+#
+sub printSettings {
+	my ($VARS) = @_;
+
+	foreach (keys %$VARS) {
+		print "$_ :\t$$VARS{$_}\n";	
+	}
+	print "\n";
+}
+
+#######################################################################
+#	sub
+#		createNodeball
+#
+#	purpose
+#		take a given directory, and tar-gzip it -- as a nodeball
+#
+#	params
+#		dir - directory of stuff
+#		NODEBALL - filename to create file for
+#
+sub createNodeball {
+	my ($dir, $NODEBALL) = @_;
+
+	my $VARS = getVars ($NODEBALL);
+	my $version=$$VARS{version};
+	
+	my $filename = $$NODEBALL{title};
+	$filename =~ s/ /_/g;
+	$filename .= "-$version" if $version;
+	$filename .=".nbz";
+	use Cwd;
+	my $cwd = getcwd;
+	$cwd .= '/'.$filename;
+
+	chdir $dir;
+	
+	
+	`tar -cvzf $cwd *`;
+	chdir getcwd;
+
+	print "\n$filename created\n";
+}
+
+###########################################################################
+#	sub
+#		expandNodeball
+#
+#	purpose
+#		take a tar-gziped nodeball and expand it to a dir in /tmp
+#		return the directory
+
+sub expandNodeball {
+	my ($nbfile) = @_;
+
+	my $dir = "/tmp/everything".int(rand(1000));
+	createDir($dir);	
+
+	use Cwd;
+	my $cwd = getcwd;
+	
+	#make the file abs path
+	$nbfile = $cwd."/".$nbfile unless ($nbfile =~ /^\//);
+	$nbfile = absPath ($nbfile);
+	
+	chdir $dir;
+	my @files = `tar -xvzf $nbfile`;
+	if ($OPTIONS{verbose}) {
+		foreach (@files) {print $_;}
+	}
+
+	chdir $cwd;
+	$dir;
+}
+
+############################################################################
+#	sub
+#		absPath
+#
+#	get the absolute path of the file or directory
+#
+sub absPath {
+	my ($file) = @_;
+
+	use Cwd;
+	my $cwd = getcwd;
+	
+	#make the file abs path
+	$file = $cwd."/".$file unless ($file =~ /^\//);
+	$file;
+}
+
+############################################################################
+#	sub 
+#		cleanUpDir
+#
+#	purpose
+#		removes a specified directory
+#
+sub cleanUpDir {
+	my ($dir) = @_;
+	#don't let this bite you in the ass
+
+	`rm -r $dir`;
+}
+
+#############################################################################
+#	sub
+#		checkDeps
+#
+#	purpose	
+#		checks dependancies of a node for the given nodeball
+#		if there is a dependant node, not in core or in a referenced
+#		nodeball dependancy, we can throw a warning during export
+#
+#	params
+#		NODEBALL -- the nodeball 
+sub checkDeps {
+	my ($NODEBALL) = @_;
+	
+	my %nodes;
+	local *buildDeplist = sub {
+		my ($NB)=@_;
+		getRef($NB);
+		return if $nodes{getId($NB)};
+		$nodes{getId($NB)}=1;
+		foreach (@{ $$NB{group} }) {
+			getRef $_;
+			next unless ref $_;
+			$nodes{getId($_)} = 1;
+			if ($$_{type}{title} eq 'nodeball') {
+				buildDeplist($_);
+			}
+		}
+	};
+	buildDeplist($NODEBALL);
+	
+	foreach my $NODE (@{ $$NODEBALL{group} }) {	
+		next unless ref $NODE;
+		foreach my $key (keys %$NODE) {
+			next unless ($key =~ /_(\w+)$/ and $1 ne "id"); 
+			next unless ($$NODE{$key});
+			next if ($nodes{$$NODE{$key}});	#eliminate if it's in our dependancies
+			next if isCore($$NODE{$key});	#eliminate it if it's in core
+			my $N = getNodeById ($$NODE{$key});	
+			print "$$N{title} ($$N{type}{title}) is referenced by $$NODE{title}, but is not included as a dependancy\n";
+		}
+	}
+}
+
+############################################################################
+#	sub
+#		installNodeball
+#
+sub installNodeball {
+	my ($dir) = @_;
+
+	my $tables_dir = $dir."/tables";
+	#import any tables that need it
+	use File::Find;	
+
+	find sub {
+		my ($file) = $File::Find::name;
+			if ($file =~ /sql$/) {
+				`mysql -u root $database < $file`
+			}
+		}, $tables_dir;
+
+
+	my $nodetypes_dir = $dir."/nodes/nodetype";
+	
+	
+	find sub {
+		my ($file) = $File::Find::name;
+		xmlfile2node($file) if $file =~ /\.xml$/;  
+		}, $nodetypes_dir if -e $nodetypes_dir;
+	fixNodes(0);
+
+	loadTypes;
+
+	find sub  {
+		my ($file) = $File::Find::name;
+		xmlfile2node($file) if $file =~ /\.xml$/;  
+		}, $dir;
+	fixNodes(1);
+
+	#memo to myself -- we should give warnings if dependant 
+	#nodeballs are not installed
+
+}
+
+#########################################################################
+#	sub
+#		getFileInfo
+#
+#	purpose
+#		get the title and type of the node for the file we describe
+#		returns a hash of the following fields:
+#		type -- the nodes type (string)
+#		title -- the node's title (string)
+#		file -- the filename
+#
+sub getFileInfo {
+	my ($filename) = @_;
+
+	return unless -e $filename and $filename =~ /xml$/;
+	
+	open XMLFILE, $filename;
+	my $xml = join "", <XMLFILE>;
+	close XMLFILE;
+
+	my %info = ();
+
+	$info{title} = readTag 'title', $xml;
+	$info{type} = readTag 'type_nodetype', $xml;
+	$info{file} = $filename;
+	
+	\%info;
+}
+
+
+
+############################################################################
+#	sub 
+#		updateNodeball
+#
+#	purpose
+#		we already have this nodeball in the system, and we need to figure
+#		out which files to add, remove, and update
+
+sub updateNodeball {
+	my ($OLDBALL, $dir) = @_;
+
+	#check the tables and make sure that they're compatable
+	my $tabledir = $dir."/tables";
+#	if (-e $tabledir) {
+#		my @tables = getTables ($tabledir);		
+#		
+#		foreach (@tables) {
+#			if (not checkTables(getFieldsHash($$_{name}), $$_{fields})) {
+#				die "Your tables are different than the package that is going "
+#				  ."to be installed.  Ugh\n";
+#			}
+#		}
+#	}
+
+	my $nodesdir = $dir."/nodes";
+	my @nodes = ();
+	
+	use File::Find;
+	find sub {
+			my $file = $File::Find::name;
+			my $info = getFileInfo $file;
+			push @nodes, $info if $info;
+	  	}, $nodesdir;
+
+	#check to make sure all dependancies are installed
+
+	
+	#create a hash of the old nodegroup -- better lookup times
+	my (%oldgroup);
+	foreach my $id (@{ $$OLDBALL{group} }) {
+		($oldgroup{$id}) = getNodeById $id;
+	}
+
+	my $new_nbfile;
+	foreach my $N (@nodes) {
+		if ($$N{type} eq "nodeball" and $$N{title} eq $$OLDBALL{title}) {
+			$new_nbfile = $$N{file};	
+			next;
+		}
+		#we'll take care of this later
+		
+		#we need to get the id of nodes --- 
+		#also check any deps	
+		my ($OLDNODE) = getNodeWhere({title=>$$N{title}}, $NODETYPES{$$N{type}});
+		if ($OLDNODE) {
+			if ($oldgroup{getId($OLDNODE)}) {
+				delete $oldgroup{getId($OLDNODE)};
+			} 
+			next if ($$N{type} eq 'nodeball'); #good 
+			#we should actually be checking version info on dependancies
+		
+		} else {
+			if ($$N{type} eq 'nodeball') {
+				print "shoot!  Your nodeball says it needs $$N{title}.  You need to go get that.";
+				die unless $OPTIONS{force};
+			}
+		}
+		xmlfile2node $$N{file};
+	}
+	
+	fixNodes(0);
+	#fix broken dependancies
+
+	#insert the new nodeball
+	my $NB  = xmlfile2node $new_nbfile;
+	getRef($NB);
+	#find the unused nodes and remove them
+	foreach (values %oldgroup) {
+		#we should probably confirm this
+		nukeNode $_, -1; 
+	}
+	fixNodes(1);
+	print "$$NB{title} updated.\n";
+}
+
+
+############################################################################
+#	sub 
+#		removeNodeball
+#
+#	purpose
+#		kill the sucka!
+#
+sub removeNodeball {
+	my ($DOOMEDBALL) = @_;
+
+	#we should also check dependancies -- am I in any other nodeballs?
+	my (@NODEBALLS) = getNodeWhere( { 1 => 1 }, $NODETYPES{nodeball});
+	foreach my $NB (@NODEBALLS) {
+		foreach (@{ $$NB{group} }) {
+			if (getId($_) == getId($DOOMEDBALL)) {
+				my $DEPENDANT = getNodeById ($_);
+				my $VARS=getVars $DEPENDANT;
+				die "Nodeball \"$$DEPENDANT{title}\" ($$VARS{version}) depends on $$DOOMEDBALL{title}\n"
+				  ." remove \"$$DEPENDANT{title}\" first, or use --force\n"
+				  unless ($OPTIONS{force});
+			}
+		}
+	}
+
+
+	unless ($OPTIONS{force}) {
+		print "Are you sure you want to remove $$DOOMEDBALL{title}?\n";
+		my $yesno = <STDIN>;
+		exit unless ($yesno =~ /^y/i);
+	}
+	
+	foreach (@{ $$DOOMEDBALL{group} }) {
+		my $N = getNodeById($_);
+		next if ($$N{type}{title} eq "nodeball"); #don't remove dependancies
+		print "removing \"$$N{title}\" ($$N{type}{title})...\n"
+			if $OPTIONS{verbose};
+		nukeNode($N, -1) or die "huh?  I can't nuke $$N{title}!!!" ;
+	}
+
+	nukeNode $DOOMEDBALL, -1;
+	print "$$DOOMEDBALL{title} removed\n";
+}
+
+#############################################################################
+#
+#	main function
+#
+sub main {
+	
+	if ($function eq "import") {
+		my ($nbfile) = $nodeball;
+
+		my ($dir, $cleanme) = ("", "");
+		if (-d $nbfile) {
+			$dir = absPath($nbfile);
+			
+		} else {
+			$dir = expandNodeball $nbfile;
+			$cleanme = 1;	
+		}
+
+		open NODEBALL, $dir."/ME" 
+			or die "Can't find the nodeball link -- try running in -V and make sure it's not empty\n";
+		my $nodeball_xml = join '', <NODEBALL>;
+		close NODEBALL;	
+		
+		my $settings_xml = readTag ('vars', $nodeball_xml);
+		my $version = readTag('version', $settings_xml);
+		my $author = readTag('author', $settings_xml);
+		my $description = readTag('description', $settings_xml);
+			
+		my $title = readTag('title', $nodeball_xml);
+
+		if ($OPTIONS{verbose}) {
+			print "\n\ntitle: $title\nversion: $version\nauthor: $author\ndescription:$description\n";
+
+		}
+
+		my ($OLDBALL) = getNodeWhere({title=>$title}, $NODETYPES{nodeball});
+		if ($OLDBALL) {
+			#we have the same nodeball already installed
+			my $VARS = getVars $OLDBALL;
+			my @oldversion = split /\./, $$VARS{version};
+			my @newversion = split /\./, $version;
+
+			for (my $i=0; $i < @oldversion; $i++) {
+				die "Your current version of $title ($$VARS{version}) is newer\n"
+				."than the version that you are trying to install ($version). \n" 
+				."Do --force if you want to force this." 
+					if $oldversion[$i] > $newversion[$i] and not $OPTIONS{force}; 	
+			}
+			die "Your version of $title ($$VARS{version}) is up to date\n"
+				."according to the version number, at least.\n"
+				."Do --force if you want to force it anyway.\n" 
+				if ($version eq $$VARS{version} and not $OPTIONS{force});
+			
+			updateNodeball ($OLDBALL, $dir);
+			cleanUpDir($dir) if $cleanme;
+			exit;
+		} 
+		installNodeball ($dir);
+		cleanUpDir($dir) if $cleanme;
+	
+	} elsif ($function eq "export") {
+		my ($NB) = getNodeWhere({title=>$nodeball}, $NODETYPES{nodeball});
+		$NB or die "no nodeball $nodeball exists for export!\n";
+	
+		printSettings (getVars $NB);
+		checkDeps ($NB);
+
+		my $dir = "/tmp/everything".int(rand(1000));
+		createDir ($dir);
+		
+		my @tables;
+		foreach my $NODE (@{ $$NB{group} }) {
+			getRef ($NODE);
+			if ($$NODE{type}{title} eq "dbtable") {
+				push @tables, $$NODE{title};
+			}
+		}
+		
+		if (@tables) {
+			print "exporting table @tables\n";
+			my $tabledir .= $dir . "/tables";
+			createDir $tabledir;
+			exportTables (\@tables, $tabledir);	
+  		}
+
+		my $basedir .= $dir ."/nodes"; 
+		createDir($basedir);
+		my @FILES = exportNodes ([$NB, @{ $$NB{group} }], $basedir, 1);
+		
+		my $melink = $dir."/ME";
+		my $mefile = $FILES[0];
+		$mefile =~ s/^$dir/\./;	
+		use Cwd; my $cwd = getcwd;
+		chdir $dir;
+		`ln $mefile $melink`;
+		chdir $cwd;
+		
+		createNodeball($dir, $NB);
+		cleanUpDir ($dir);
+	} elsif ($function eq "remove") {
+		my ($NB) = getNodeWhere({title=>$nodeball}, $NODETYPES{nodeball});
+		$NB or die "There isn't a \"$nodeball\" nodeball installed on this system!";
+		removeNodeball ($NB);
+	} else {
+		print $usagestr;
+	}
+}
+main;

@@ -1,0 +1,27 @@
+I'm running Everything on a REDHAT 6.0 box -- a Sony Viao p266 with 96 megs.
+Actually, I would really like to upgrade this box to debian -- but haven't
+had the time yet.
+
+Here's the RPM's which I recommend to be installed on the system:
+
+MySQL-3.22.25-1.i386.rpm        
+MySQL-bench-3.22.25-1.i386.rpm 
+MySQL-client-3.22.25-1.i386.rpm
+MySQL-devel-3.22.25-1.i386.rpm 
+sudo-1.5.6p2-1.i386.rpm
+apache-1.3.6-7.i386.rpm
+mod_perl-1.19-2.rpm
+
+there might be some play in the versions -- this is just what I used...
+
+I also re-made my apache by hand for various optimizations.  You shouldn't
+need to do this unless your Everything server is under quite a load.
+
+I put these on a pretty robust install -- but these should at least let
+you know of any dependencies that they have when you rpm -i them.  
+If you have any more information on running Everything on Red Hat email
+Nate Oostendorp <nate@blockstackers.com>...
+
+other stuff you need to do to set up is mentioned in HTTPD_CONF and PERLMOD_CONF
+the default mod_perl rpm installs as an apache loadable module.  
+

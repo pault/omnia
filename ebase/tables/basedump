@@ -1,0 +1,57 @@
+# MySQL dump 6.4
+#
+# Host: localhost    Database: everything
+#--------------------------------------------------------
+# Server version	3.22.27
+
+#
+# Table structure for table 'node'
+#
+CREATE TABLE node (
+  node_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  type_nodetype int(11) DEFAULT '0' NOT NULL,
+  title char(240) DEFAULT '' NOT NULL,
+  author_user int(11) DEFAULT '0' NOT NULL,
+  createtime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  hits int(11) DEFAULT '0',
+  reputation int(11) DEFAULT '0' NOT NULL,
+  lockedby_user int(11) DEFAULT '0' NOT NULL,
+  locktime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  core char(1) DEFAULT '0',
+  package int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (node_id),
+  KEY title (title,type_nodetype),
+  KEY author (author_user),
+  KEY type (type_nodetype)
+);
+
+#
+# Dumping data for table 'node'
+#
+
+INSERT INTO node VALUES (1,1,'nodetype',-1,'1999-11-01 07:31:32',0,0,0,'0000-00-00 00:00:00','R',0);
+INSERT INTO node VALUES (2,1,'node',-1,'1999-11-01 07:31:32',0,0,0,'0000-00-00 00:00:00','R',0);
+
+#
+# Table structure for table 'nodetype'
+#
+CREATE TABLE nodetype (
+  nodetype_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  readers_user int(11) DEFAULT '0',
+  writers_user int(11) DEFAULT '0',
+  deleters_user int(11) DEFAULT '0',
+  restrict_nodetype int(11) DEFAULT '0',
+  extends_nodetype int(11) DEFAULT '0',
+  restrictdupes int(11) DEFAULT '0',
+  sqltable char(255),
+  grouptable char(40) DEFAULT '',
+  PRIMARY KEY (nodetype_id)
+);
+
+#
+# Dumping data for table 'nodetype'
+#
+
+INSERT INTO nodetype VALUES (1,-1,-1,-1,0,2,1,'nodetype','');
+INSERT INTO nodetype VALUES (2,-1,-1,-1,0,0,0,'','');
+

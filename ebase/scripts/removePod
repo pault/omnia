@@ -1,0 +1,14 @@
+#!/usr/bin/perl -w
+
+my $podfile = $ARGV[0];
+exit if($podfile eq "");
+
+open FILE, $podfile;
+my $str = join "", <FILE>;
+close FILE; 
+
+$str =~ s/^=head2[^\n]*L<Everything>.*?=back\n\n//gsm;
+
+open FILE, "> $podfile"; 
+print FILE $str; 
+close FILE;
