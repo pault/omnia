@@ -33,7 +33,7 @@
     <var name="nodeletBodyColor" type="literal_value">#FFFFFF</var>
     <var name="nodeletBodyFontAttr" type="literal_value">size=2</var>
     <var name="nodeletMCTableAttr" type="literal_value">width=150 cellpadding=1 cellspacing=1</var>
-    <var name="nodeletOutlineColor" type="literal_value">#FFFFFF</var>
+    <var name="nodeletOutlineColor" type="literal_value">#000000</var>
     <var name="nodeletParent_container" type="noderef" type_nodetype="container,nodetype">nodelet container</var>
     <var name="nodeletTitleBackground" type="literal_value">&quot;&quot;</var>
     <var name="nodeletTitleColor" type="literal_value">#CC99FF</var>
