@@ -1062,8 +1062,19 @@ sub executeCachedCode {
 			local $SIG{__WARN__} = sub {
 				$warn .= $_[0];
 			};
-			my $result = $code_ref->(@$args) || '';
-			logErrors($warn, '', $$CURRENTNODE{$field},	$CURRENTNODE) if $warn;
+			flushErrorsToBackside();
+			
+			
+			my $result = eval ' $code_ref->(@$args) ' || '';
+			logErrors($warn, $@, $$CURRENTNODE{$field},	$CURRENTNODE) if $warn or $@;
+	
+    		my $errors = getFrontsideErrors();
+
+	    	if (int(@$errors) > 0) {
+		 		$result .= htmlFormatErr($errors, $CURRENTNODE);
+			}
+			clearFrontside();
+
 			return $result;
 		}
 	}
