@@ -30,13 +30,16 @@ function cloneNode()
 
 &lt;/script&gt;";
 
-$str = $script;
 
 $disp ||= "display";
 
 # If you want to have other default display links in the
 # adminbar, add them to this array.
-my @displaytypes = ("display", "edit", "permissions" );
+my @displaytypes = ("display");
+
+push @displaytypes, ("edit",'permissions') if $NODE-&gt;hasAccess($USER,'w');
+
+
 
 foreach my $type (@displaytypes)
 {
@@ -52,7 +55,9 @@ foreach my $type (@displaytypes)
 }
 
 $str .= join " |\n", @links;
-$str .= "&lt;br&gt;&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;";
+$str = "" if $str eq 'display';
+
+$str .= "&lt;br&gt;".$script."&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;" if $NODE-&gt;{type}-&gt;hasTypeAccess($USER, 'c');
 
 $str.="
 &lt;SCRIPT language=\"javascript\"&gt;

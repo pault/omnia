@@ -9,7 +9,11 @@ my ($field) =@_;
 my $str ="";
 my $name = $field."_file";
 my $tmpfile = '/tmp/everythingimage' . rand(10000); 
+
+
 my $imagedir = '/home/httpd/html/every2/images/incoming';
+#you probably need to change this field
+
 my $imageurl = 'images/incoming/';
 
 if ($query-&gt;param($name)) {
@@ -28,7 +32,7 @@ if ($query-&gt;param($name)) {
 
   `mv $tmpfile $imagedir/$imgname`;
   $$NODE{$field} = $imageurl.$imgname;
-  $DB-&gt;updateNode ($NODE, $USER);
+  $NODE-&gt;update($USER);
  # $str.="$size bytes recieved!";
 } else {
   $str.=$query-&gt;filefield($name);

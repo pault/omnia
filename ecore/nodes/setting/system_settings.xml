@@ -20,8 +20,8 @@
 		<default_theme type="theme">default theme</default_theme>
 		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
-		<default_node type="superdoc">The Default Node</default_node>
 		<generalParent_container type="container">main container</generalParent_container>
+		<default_node type="superdoc">The Default Node</default_node>
 		<GUshownodelets >1</GUshownodelets>
 		<default_nodeletgroup type="nodeletgroup">default nodelets</default_nodeletgroup>
 		<searchResults_node type="superdoc">Search Results</searchResults_node>

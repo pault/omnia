@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">972555007</lastupdate>
+	<lastupdate table="nodelet">973219924</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
@@ -33,15 +33,15 @@ $str;
 	<nltext table="nodelet">&lt;A HREF="/~oostendo/index.pl?node_id=248&amp;lastnode_id=241"&gt;default theme&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=249&amp;lastnode_id=241"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=250&amp;lastnode_id=241"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=251&amp;lastnode_id=241"&gt;qauser&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=252&amp;lastnode_id=241"&gt;root&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~oostendo/index.pl?node_id=251&amp;lastnode_id=241"&gt;root&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~oostendo/index.pl?node_id=252&amp;lastnode_id=241"&gt;qauser&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=253&amp;lastnode_id=241"&gt;tester&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=254&amp;lastnode_id=241"&gt;gods&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=234&amp;lastnode_id=241"&gt;system settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=235&amp;lastnode_id=241"&gt;Create a new user&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=236&amp;lastnode_id=241"&gt;Duplicates Found&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=237&amp;lastnode_id=241"&gt;Everything settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=238&amp;lastnode_id=241"&gt;Not found&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~oostendo/index.pl?node_id=235&amp;lastnode_id=241"&gt;Not found&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~oostendo/index.pl?node_id=236&amp;lastnode_id=241"&gt;Create a new user&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~oostendo/index.pl?node_id=237&amp;lastnode_id=241"&gt;Duplicates Found&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/~oostendo/index.pl?node_id=238&amp;lastnode_id=241"&gt;Everything settings&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=239&amp;lastnode_id=241"&gt;Permission Denied&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=240&amp;lastnode_id=241"&gt;Search Results&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/~oostendo/index.pl?node_id=241&amp;lastnode_id=241"&gt;The Default Node&lt;/a&gt;&lt;BR&gt;

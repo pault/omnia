@@ -32,6 +32,7 @@ linkNode($default, "&lt;img border=0 src=images/e.gif&gt;");
   &lt;/td&gt;
   &lt;td width=1 valign=top align=right&gt;
    &lt;!-- nodelets start here --&gt;
+   [% $USER-&gt;isGod? "" : htmlcode('adminbar') %]
    [{nodelet meta-container}]
   &lt;/td&gt;
  &lt;/tr&gt;

@@ -12,7 +12,8 @@
 	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">[{uploadimage:src}]</page>
+	<page table="htmlpage">[{uploadimage:src}]
+[% $query-&gt;submit('sexisgood', 'stumbit'); %]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">image</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">c</permissionneeded>
