@@ -13,7 +13,7 @@ package Everything::Node;
 #		However, if the method is not used by all nodetypes, it must
 #		go in its own package.
 #
-#	Copyright 2000 Everything Development Inc.
+#	Copyright 2000 - 2003 Everything Development Inc.
 #	Format: tabs = 4 spaces
 #
 #############################################################################
@@ -1049,29 +1049,28 @@ sub getHash
 {
 	my ($this, $field) = @_;
 	my $store = "hash_" . $field;
-	
-	return $$this{$store} if(exists $$this{$store});
+
+	return $this->{$store} if exists $this->{$store};
+
+	unless (exists $this->{$field})
+	{
+		Everything::logErrors( "Node::getHash:\t'$field' field does not " .
+			"exist for node $this->{node_id}, '$this->{title}'");
+		return;
+	}
+
+	return unless $this->{$field};
 
 	# We haven't retrieved the hash yet... do it.
-	my %vars;
+	my %vars = map { split /=/ } split (/&/, $this->{$field});
 
-	unless (exists $$this{$field})
-	{
-		warn ("Node::getHash:\t'$field' field does not exist for node " .
-			"$$this{node_id}, '$$this{title}'");
-		return undef;
-	}
-	return undef unless ($$this{$field}); 	
-	%vars = map { split /=/ } split (/&/, $$this{$field});
 	foreach (keys %vars)
 	{
 		$vars{$_} = Everything::Util::unescape($vars{$_});
-		$vars{$_} = "" unless ($vars{$_} =~ /\S/);
+		$vars{$_} = '' unless $vars{$_} =~ /\S/;
 	}
 
-	$$this{$store} = \%vars;
-
-	return $$this{$store};
+	return $this->{$store} = \%vars;
 }
 
 
