@@ -61,6 +61,7 @@ elsif($query->param("bgroupadd"))
     # what we found to a scoped var.
     my $insert = $1;
     $group->insertIntoGroup($USER, $insert);
+	$group->update($USER);
   }
 }
 
