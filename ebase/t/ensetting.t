@@ -164,8 +164,12 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 	is( $patch, 'w', 
 		'... should call patchXMLwhere() with "where" field of FIX' );
 
+	$node->{title}           = 'node title';
+	$node->{nodetype}{title} = 'nodetype title';
+
 	local *STDOUT;
 	my $out = tie *STDOUT, 'TieOut';
+
 	applyXMLFix($node, { 
 		field			=> 'field',
 		fixBy			=> 'setting', 
