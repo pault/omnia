@@ -4,7 +4,7 @@ package Everything::Node::nodegroup;
 #   Everything::Node::nodegroup
 #       Package the implements the base nodegroup functionality
 #
-#   Copyright 2000 Everything Development Inc.
+#   Copyright 2000 - 2002 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
@@ -750,14 +750,16 @@ sub applyXMLFix
 	}
 
 	my $where = Everything::XML::patchXMLwhere($$FIX{where});
-	my $TYPE = $$where{type_nodetype};
-	my $NODE = $$this{DB}->getNode($where, $TYPE);
+	my $TYPE  = $$where{type_nodetype};
+	my $NODE  = $$this{DB}->getNode($where, $TYPE);
 
-	unless($NODE)
+	unless ($NODE)
 	{
-		print STDERR "Error! Unable to find '$$where{title}' of type \n" .
-			"'$$where{type_nodetype}' for field $$where{field}\n"
-		  	if($printError);
+		Everything::logErrors( '',
+			"Unable to find '$$where{title}' of type '$$where{type_nodetype}'\n"
+			. "for field '$$where{field}'\nin node '$this->{title}' of type " 
+			. "'$this->{type}{title}'"
+		 ) if $printError;
 
 		return $FIX;
 	}
