@@ -11,7 +11,7 @@ BEGIN
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More tests => 220;
+use Test::More tests => 222;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -324,30 +324,25 @@ can_ok( $package, 'joinWorkspace' );
 can_ok( $package, 'buildNodetypeModules' );
 
 $mock->set_series( sqlSelectMany => 0, $mock )
-	 ->set_series( fetchrow_array => qw( user nodetype blah ) );
+	 ->set_series( fetchrow_array => qw( user nodetype blah ) )
+	 ->set_series( loadNodetypeModule => 1, 1, 0 );
 
 is( buildNodetypeModules( $mock ), undef,
 	'buildNodetypeModules() should return with no database cursor' );
 
-{
-	local *Everything::import;
-	*Everything::import = sub
-	{
-		my $caller = caller;
-		no strict 'refs';
-		*{ $caller . '::DB' } = \$mock;
-	};
-
-	@le = ();
-	$result = buildNodetypeModules( $mock );
-}
-
-is_deeply( $result,
+is_deeply( buildNodetypeModules( $mock ),
 	{ Everything::Node::user => 1, Everything::Node::nodetype => 1 },
 	'... returning a hashref of available nodetype names' );
 
-is( @le, 1, '... logging error if load fails' );
-like( $le[0][1], qr/Can't locate.+blah\.pm/, '... with require error' );
+can_ok( $package, 'loadNodetypeModule' );
+ok( loadNodetypeModule( $mock, 'Everything::NodeBase' ),
+	'loadNodetypeModule() should return true if module is loaded' );
+
+@le = ();
+ok( loadNodetypeModule( $mock, 'Everything::Node::user' ),
+	'... or if module can be loaded' );
+ok( ! loadNodetypeModule( $mock, 'Everything::Node::blah' ),
+	'... but false if it cannot' );
 
 can_ok( $package, 'getNode' );
 can_ok( $package, 'getNodeByName' );
