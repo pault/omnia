@@ -96,7 +96,6 @@
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Tick tock</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">nodecache</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">nsh</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">personal nodelet</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">workspace info</member>
