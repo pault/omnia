@@ -4,7 +4,7 @@ package Everything::Node::setting;
 #   Everything::Node::setting
 #       Package the implements the base functionality for setting
 #
-#   Copyright 2000 Everything Development Inc.
+#   Copyright 2000 - 2002 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
@@ -208,8 +208,10 @@ sub applyXMLFix
 	unless($NODE)
 	{
 		Everything::logErrors('', 
-		"Error! Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'"
-			. "\nfor field $$FIX{field}\n", '', '') if($printError);
+			"Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'\n" .
+			"for field '$$FIX{field}' in '$this->{title}'" .
+			"of type '$this->{nodetype}{title}'"
+		) if $printError;
 		return $FIX;
 	}
 
