@@ -1,39 +1,40 @@
 <NODE export_version="0.5" nodetype="container" title="nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%>
+  <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%&gt;
 &lt;tr[%
   my $bk = $$THEME{nodeletTitleBackground};
-  $bk||="images/titletest.gif";
-  return "background='$bk'" if $bk;
-%]>
+  $bk||=&quot;images/titletest.gif&quot;;
+  return &quot;background='$bk'&quot; if $bk;
+%]&gt;
  &lt;td bgcolor=[%
    return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
-    "#CC99FF";
-  %]>
+    &quot;#CC99FF&quot;;
+  %]&gt;
   [% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
-    &lt;B>&lt;font [%
+    &lt;B&gt;&lt;font [%
       my $attr= $$THEME{nodeletTitleFontAttr};
       return $attr if $attr;
-      "color=white";
-      %]>["$$NODELET{title}"]&lt;/font>&lt;/B>
-  &lt;/td>
-&lt;/tr>
-&lt;tr>
+      &quot;color=white&quot;;
+      %]&gt;[&quot;$$NODELET{title}&quot;]&lt;/font&gt;&lt;/B&gt;
+  &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
  &lt;td [%
 my $bgcol = $$THEME{nodeletBodyColor};
-$bgcol ||= "#CCCCCC";
-"bgcolor='$bgcol'";
-%]>
+$bgcol ||= &quot;#CCCCCC&quot;;
+&quot;bgcolor='$bgcol'&quot;;
+%]&gt;
 &lt;FONT [%
 my $fa = $$THEME{nodeletBodyFontAttr};
-$fa ||= "size=2";
+$fa ||= &quot;size=2&quot;;
 $fa;
-%]>
+%]&gt;
 CONTAINED_STUFF
-&lt;/td>
-&lt;/tr>
-&lt;/table>
+&lt;/FONT&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
 
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
