@@ -750,8 +750,8 @@ sub getUserRelation
 	{
 		my $usergroup = $this->deriveUsergroup();
 		
-		my $GROUP = $$this{DB}->getNode($usergroup);
-		if($GROUP && $GROUP->inGroup($USER))
+		$usergroup = $$this{DB}->getNode($usergroup) if $usergroup;
+		if($usergroup && $usergroup->inGroup($USER))
 		{
 			$class = "group";
 		}
