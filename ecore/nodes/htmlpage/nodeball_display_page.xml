@@ -18,8 +18,8 @@
 } else {
 	my $GROUP = $$NODE{group};
 	my $str;
-	foreach my $N  (@$GROUP) {
-		$N = $DB->getNodeById($N, 'light');
+	foreach (@$GROUP) {
+		my $N = $DB->getNodeById($_, 'light');
 		$str .= "&lt;li>" . linkNode ($N) . "($$N{type}{title})";
 	}
 	$str;
