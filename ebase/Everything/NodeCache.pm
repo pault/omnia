@@ -42,8 +42,6 @@ package Everything::NodeCache;
 
 use strict;
 use Everything::CacheQueue;
-use Everything::NodeBase;
-
 
 sub BEGIN
 {

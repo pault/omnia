@@ -11,7 +11,7 @@ package Everything::NodeBase;
 
 use strict;
 use DBI;
-use Everything;
+use Everything ();
 use Everything::NodeCache;
 use Everything::Node;
 
@@ -405,7 +405,7 @@ sub sqlSelectMany
 	$sql   .= $other if $other;
 
 	my $cursor = $this->{dbh}->prepare($sql) or return;
-	
+
 	return $cursor if $cursor->execute( @$bound );
 }
 

@@ -19,7 +19,7 @@ package Everything::Node;
 #############################################################################
 
 use strict;
-use Everything;
+use Everything ();
 use Everything::Util;
 use XML::DOM;
 
