@@ -19,7 +19,9 @@ my $imageurl = 'images/incoming/';
 if ($query->param($name)) {
   my ($fname) = $query->param($name);
   my $imgname = $fname;
-  $imgname =~ s/[\/\\]([\w|\.]*)$/$1/;
+  $imgname =~ s/\s/\_/gs;
+  $imgname =~  s/.*[\/|\\]([\w|\.|\-]*)$/$1/;
+  
   $str.= "'". $query->uploadInfo($fname)->{"Content-Type"}."'!";
 	
   open OUTFILE, ">$tmpfile";
