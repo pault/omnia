@@ -1042,22 +1042,30 @@ sub getFieldsHash
 	my $field;
 	my @fields;
 	my $value;
-
+	
 	$getHash = 1 if(not defined $getHash);
 	$table ||= "node";
 
-	my $cursor = $this->{dbh}->prepare_cached("show columns from $table");
+	my $DBTABLE = $this->getNode($table, 'dbtable');
+	$DBTABLE ||= {};
+	unless  (exists $$DBTABLE{Fields}) {
+		my $cursor = $this->{dbh}->prepare_cached("show columns from $table");
 
-	$cursor->execute;
-	while ($field = $cursor->fetchrow_hashref)
-	{
-		$value = ( ($getHash == 1) ? $field : $$field{Field});
-		push @fields, $value;
+		$cursor->execute;
+		while ($field = $cursor->fetchrow_hashref)
+		{
+			push @fields, $field;
+		}
+		$cursor->finish();
+		$$DBTABLE{Fields} = \@fields;
 	}
 
-	$cursor->finish();
+    if (not $getHash) {
+		return map { $$_{Field} } @{ $$DBTABLE{Fields} };
+	} else {
+      	return @{ $$DBTABLE{Fields} };
+	}
 
-	return @fields;
 }
 
 

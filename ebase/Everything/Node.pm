@@ -421,14 +421,29 @@ sub getNodeMethod
 sub functionExists
 {
 	my ($modname, $funcname) = @_;
-	my $check = "
-	use $modname;
-	$modname->can('$funcname');
-	";
-
-	return eval($check);
+	my $found = 0;
+	my $inc_name = $modname . '.pm';
+	$inc_name =~ s!::!/!g;
+	if (exists($INC{$inc_name})) {
+		$found = $modname->can($funcname);
+	} else {
+		foreach my $lib (@INC) {
+			if (-e "$lib/$inc_name") {
+				$found = 1;
+				last;
+			}
+		}
+		if ($found) {
+			eval "use $modname;";
+			if ($@) {
+				$found = 0;
+			} else {
+				$found = $modname->can($funcname);
+			}
+		}
+	}
+	return $found;
 }
-
 
 #############################################################################
 #	Sub
