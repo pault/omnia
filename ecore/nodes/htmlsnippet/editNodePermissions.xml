@@ -20,7 +20,11 @@
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td nowrap bgcolor=#cccccc&gt;group 
-      [{node_menu:defaultgroup_usergroup,usergroup}]&lt;/td&gt;
+[%
+my $defgroup = getNode($$NODE{type}{defaultgroup_usergroup});
+
+htmlcode("node_menu", "group_usergroup,usergroup,-inherit ($$defgroup{title})_-1");
+%]&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;[{editPermissions:group}]&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;[{displayInheritedPermissions:group}]&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;[{editDynamicPermissions:group}]&lt;/td&gt;

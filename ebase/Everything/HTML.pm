@@ -1944,8 +1944,10 @@ sub opNew
 	$query->param("node_id", $$NEWNODE{node_id});
 	$query->param("node", "");
 	
-	if($NEWNODE->getId() == 0)
+	if($NEWNODE->getId() < 1)
 	{
+		$GLOBAL{permissionDenied} = "You do not have permission to create " .
+			"a node of type '$$NEWNODE{type}{title}'.";
 		$query->param("node_id", $HTMLVARS{permissionDenied_node});
 	}
 }

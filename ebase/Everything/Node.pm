@@ -591,14 +591,62 @@ sub hasAccess
 
 	# -1 is a way of specifying "super user".
 	return 1 if($USER eq "-1");
-	
+
 	# Gods always have access to everything
 	return 1 if($USER->isGod());
 
-	# Figure out what permissions this user has for this node.
-	my $perms = $this->getUserPermissions($USER);
+	my $create = 0;
+	my $result = -1;
 
-	return Everything::Security::checkPermissions($perms, $modes);
+	# We need to check for create permissions separately
+	$create = 1 if($modes =~ s/c//i);
+
+	if($modes ne "")
+	{
+		# Figure out what permissions this user has for this node.
+		my $perms = $this->getUserPermissions($USER);
+
+		$result = Everything::Security::checkPermissions($perms, $modes);
+	}
+
+	if($create)
+	{
+		# If one of the flags was the create flag we need to check it
+		# against the permissions that are *not* the author permissions.
+		# This is because author permissions do not have create flags.
+		# Its kind of a chicken/egg thing.  How can you be the author
+		# if its not created yet?  If it is created and you are the
+		# author, why do you need to check (its already created!)?
+		# So to get around this, we set the author user to be something
+		# non-existant to force it to use one of the other permission
+		# classes.
+		my $author = $$this{author_user};
+		my $cresult = 0;
+
+		$$this{author_user} = 0;
+
+		my $perms = $this->getUserPermissions($USER);
+
+		$modes = "c";
+		$cresult = Everything::Security::checkPermissions($perms, $modes);
+
+		# Set the author back
+		$$this{author_user} = $author;
+
+		if($result != -1)
+		{
+			# We need to combine the 2 results (they both must be true)
+			$result = ($result && $cresult);
+		}
+		else
+		{
+			# This was a check on create only...
+			$result = $cresult;
+		}
+	}
+
+	return $result;
+
 }
 
 

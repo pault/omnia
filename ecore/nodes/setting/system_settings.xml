@@ -16,14 +16,14 @@
 		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
 		<notFound_node type="superdoc">Not found</notFound_node>
 		<guest_user type="user">Guest User</guest_user>
-		<default_theme type="theme">default theme</default_theme>
-		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
+		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
+		<default_theme type="theme">default theme</default_theme>
 		<default_node type="superdoc">The Default Node</default_node>
 		<generalParent_container type="container">main container</generalParent_container>
 		<default_nodeletgroup type="nodeletgroup">default nodelets</default_nodeletgroup>
-		<searchResults_node type="superdoc">Search Results</searchResults_node>
 		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
+		<searchResults_node type="superdoc">Search Results</searchResults_node>
 		<duplicatesFound_node type="superdoc">Duplicates Found</duplicatesFound_node>
 	</vars>
 </NODE>

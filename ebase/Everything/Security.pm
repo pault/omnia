@@ -74,6 +74,10 @@ sub checkPermissions
 {
 	my ($perms, $modes) = @_;
 	
+	# if no modes are passed in, we have nothing to check against.  For
+	# security purposes, we will return false.  We need something to check!
+	return 0 if($modes eq "");
+	
 	# We remove any allowed permissions from the given modes.  We need to do
 	# this dymanically (evaled) because tr/// does not interpret variables.
 	# So, we need to create some code on the fly.

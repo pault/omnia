@@ -12,10 +12,9 @@ my @aprtypes;
 
   my %approvedtypes;
   foreach my $NODETYPE ($DB-&gt;getAllTypes()) {
-  #	if (canCreateNode ($USER, $NODETYPE)) {
-		$approvedtypes{$$NODETYPE{title}} = $NODETYPE; 
-		#I have to do it in this kinda strange way to remove dupes...
-  #	}
+    if ($NODETYPE-&gt;hasTypeAccess($USER, "c")) {
+		$approvedtypes{$$NODETYPE{title}} = $NODETYPE;
+    }
   }
   return unless %approvedtypes;
   @aprtypes = sort {$a cmp $b} keys(%approvedtypes);

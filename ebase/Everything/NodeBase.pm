@@ -488,6 +488,17 @@ sub getNode
 			$$NODE{node_id} = -1;
 			$$NODE{title} = $node;
 			$$NODE{type_nodetype} = $this->getId($ext);
+
+			# Give the dummy node pemssions to inherit everything
+			$$NODE{authoraccess} = "iiii";
+			$$NODE{groupaccess} = "iiiii";
+			$$NODE{otheraccess} = "iiiii";
+			$$NODE{guestaccess} = "iiiii";
+			$$NODE{group_usergroup} = -1;
+			$$NODE{dynamicauthor_permission} = -1;
+			$$NODE{dynamicgroup_permission} = -1;
+			$$NODE{dynamicother_permission} = -1;
+			$$NODE{dynamicguest_permission} = -1;
 		}
 	}
 
