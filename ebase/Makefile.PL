@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 
 
 my $installDir = "/usr/local/everything";
-my $webDir = "/usr/local/apache/htdoc";
+my $webDir = "/usr/local/apache/htdocs";
 my $dbname = "everything";
 
 sub MY::install
@@ -15,11 +15,13 @@ sub MY::install
 
 	# Create the basic database
 	$inherited .= "	echo \"create database $dbname\" | mysql -u root ; \\\n";
-	$inherited .= "	cat ./tables/basedump | mysql -u root $dbname ; \\\n";
+	$inherited .= "	cat ./tables/*.sql | mysql -u root $dbname ; \\\n";
+	$inherited .= "	cat ./tables/*.txt | mysql -u root $dbname ; \\\n";
 
 	# Create the installation directory
 	$inherited .= "	mkdir $installDir ; \\\n";
-	$inherited .= "	cp ./web/index.pl $webDir ; \\\n";
+	$inherited .= "	cp ./web/index.pl $webDir/index.pl ; \\\n";
+	$inherited .= "	chmod a+x $webDir/index.pl ; \\\n";
 	$inherited .= "	cp -R ./bin $installDir ; \\\n";
 	$inherited .= "	cp -R ./docs $installDir ; \\\n";
 
@@ -71,7 +73,7 @@ sub insertPaths
 
 	$file =~ s/#INSTALL_DIR#/$installDir/g;
 	$file =~ s/#WEB_DIR#/$webDir/g;
-	$file =~ s/#DB_NAME#/$dbName/g;
+	$file =~ s/#DB_NAME#/$dbname/g;
 
 	open(FILE, "> $outfile");
 	print FILE $file;
@@ -100,7 +102,9 @@ if(not (getResponse("y") =~ /^y$/i))
 	exit 0;
 }
 
+# Create the files based on the install information
 insertPaths("web/index.in", "web/index.pl");
+insertPaths("tables/basenodes.in", "tables/basenodes.txt");
 
 WriteMakefile(
 	'NAME'                 => 'Everything',
@@ -114,7 +118,7 @@ WriteMakefile(
 									'XML::Parser'		=> 2.26,
 									'Mysql'				=> 1.2202
 								},
-	'clean'					=> 	{ FILES => 'web/index.pl' }
+	'clean'					=> 	{ FILES => 'web/index.pl tables/basenodes.txt' }
 );
 
 0;

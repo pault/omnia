@@ -15,6 +15,7 @@ use Everything::XML;
 use Everything::HTML;
 
 my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
+
 my %OPTIONS = ( force => 0, verbose => 0 );
 while (@ARGV and $ARGV[0] =~ s/^\-(.*?)/$1/) {
 	my $arg = shift @ARGV;
