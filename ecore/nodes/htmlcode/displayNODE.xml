@@ -5,7 +5,7 @@
 
 $limit ||= 90000;
 my $str = '';
-my @noShow = ('table', 'type_nodetype');
+my @noShow = ('table', 'type_nodetype', 'passwd');
 
 foreach my $key (keys %$NODE) {
   unless ((grep /^$key$/, @noShow) || $key =~ /^_/) {
