@@ -694,16 +694,20 @@ sub linkNode
 sub linkNodeTitle
 {
 	my ($nodename, $lastnode, $title) = @_;
+	my ($name, $linktitle) = split /\|/, $nodename;
 
-	($nodename, $title) = split /\|/, $nodename;
-	$title ||= $nodename;
-	$nodename =~ s/\s+/ /gs;
+	if ($title && $linktitle)
+	{
+		logErrors("Node '$nodename' has both title and linktitle", '', '', '');
+	}
+
+	$title ||= $linktitle || $name;
+	$name =~ s/\s+/ /gs;
 	
-	my $urlnode = $query->escape($nodename);
-	my $str = "";
-	$str .= "<a href=\"$ENV{SCRIPT_NAME}?node=$urlnode";
-	if ($lastnode) { $str .= "&lastnode_id=" . getId($lastnode);}
-	$str .= "\">$title</a>";
+	my $urlnode = $query->escape($name);
+	my $str = qq|<a href="$ENV{SCRIPT_NAME}?node=$urlnode|;
+	$str .= "&lastnode_id=" . getId($lastnode) if ($lastnode);
+	$str .= qq|">$title</a>|;
 
 	return $str;
 }
