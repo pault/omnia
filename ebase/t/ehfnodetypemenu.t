@@ -13,7 +13,7 @@ use vars qw( $DB );
 package main;
 
 use vars qw( $AUTOLOAD );
-use Test::More 'no_plan';
+use Test::More tests => 41;
 use Test::MockObject;
 
 my $package = 'Everything::HTML::FormObject::NodetypeMenu';
@@ -195,10 +195,9 @@ my $package = 'Everything::HTML::FormObject::NodetypeMenu';
 
     createTree( $mock, $types, 1 );
 
-    my( $method, $args ) = $mock->next_call;
+    my ( $method, $args ) = $mock->next_call;
     is( $method, 'createTree', 'createTree() should call createTree()' );
-    is_deeply( $args, [ $mock, $types, 2 ],
-      '... passing it $types, node_id' );
+    is_deeply( $args, [ $mock, $types, 2 ], '... passing it $types, node_id' );
 
     ( $method, $args ) = $mock->next_call;
     is_deeply( [ $method, @$args ], [ 'createTree', $mock, $types, 3 ],
@@ -206,7 +205,6 @@ my $package = 'Everything::HTML::FormObject::NodetypeMenu';
 
     ( $method, $args ) = $mock->next_call;
     ok( !$method, '... but no more' );
-    
 
     $mock->set_always( 'createTree', [ { label => 'v1' }, { label => 'v2' } ] );
     my $result = createTree( $mock, $types, undef );
@@ -214,13 +212,9 @@ my $package = 'Everything::HTML::FormObject::NodetypeMenu';
     ( $method, $args ) = $mock->next_call;
     is( $$args[2], 1, '... $current defaults to 0' );
 
-    is_deeply( $result, 
-      [ 
-        { label => ' + zero', value => 1 },
-        { label => ' - -v1' },
-        { label => ' - -v2' }
-      ],
-      '... should return correct nodetype tree' );
+    is_deeply( $result,
+      [ { label => ' + zero', value => 1 }, { label => ' - -v1' },
+          { label => ' - -v2' } ], '... should return correct nodetype tree' );
 }
 
 sub AUTOLOAD {
