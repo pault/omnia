@@ -1,12 +1,13 @@
 <NODE export_version="0.5" nodetype="container" title="nodelet outline container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table width=100% cellspacing=0 cellpadding=1 border=0>
-&lt;tr>
- &lt;td bgcolor='#000000' width='100%'>
+  <field name="context" type="literal_value">&lt;table width=100% cellspacing=0 cellpadding=1 border=0&gt;
+&lt;tr&gt;
+ &lt;td bgcolor='[&quot;$$THEME{nodeletOutlineColor}&quot;]' width='100%'&gt;
    CONTAINED_STUFF
- &lt;/td>
-&lt;/table></field>
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -20,3 +21,4 @@
   <field name="title" type="literal_value">nodelet outline container</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
 </NODE>
+
