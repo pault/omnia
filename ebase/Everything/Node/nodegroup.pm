@@ -210,9 +210,16 @@ sub updateGroup
 
 			# diff is negative, so we need to remove abs($diff) number
 			# of entries.
-			my $deleted = $this->{DB}->sqlDelete(
-				$table, $table . "_id=" . $this->{node_id} .
-				" AND node_id=$node LIMIT $abs");
+			my $maxrank = $this->{DB}->sqlSelect( 'max(rank)', $table,
+				"${table}_id=? and node_id=?", "limit $abs" );
+
+			next unless $maxrank;
+
+			my $count = $maxrank - $abs;
+
+			my $deleted = $this->{DB}->sqlDelete( $table,
+				"${table}_id = ? AND node_id = ? and rank > ?",
+				[ $this->{node_id}, $node, $count ] );
 	
 			Everything::logErrors(
 				"Wrong number of group members deleted! $deleted"
