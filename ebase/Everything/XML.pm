@@ -294,7 +294,8 @@ sub xml2node{
 		#we already have the nodetype for this loaded...
 		my $title = $$NODE{title};
 		my %data = ();
-		my $tableArray = $$TYPE{tableArray};
+		my @ta = @{ $$TYPE{tableArray} };
+		my $tableArray = \@ta;
 		
 		my @fields;
 		my $table;
@@ -540,7 +541,7 @@ sub noderef2xml {
 	my ($tag, $node_id, $PARAMS) = @_;
 	$PARAMS ||= {};
 
-	my $POINTED_TO = $DB->selectNode($node_id);
+	my $POINTED_TO = $DB->getNodeById($node_id);
 	my ($title, $typetitle, $TYPE);
 
 	if (keys %$POINTED_TO) {
@@ -606,7 +607,7 @@ sub node2xml
 	my (%fieldtable); 
 
 	foreach my $table (@tables) {
-		my @fields = getFields $table;
+		my @fields = $DB->getFields($table);
 		foreach (@fields) { 
 			$fieldtable{$_} = $table if (exists $$N{$_}); 
 		}	
