@@ -1,14 +1,15 @@
 #!/usr/bin/perl -w
 
 my $podfile = $ARGV[0];
-exit if($podfile eq "");
+exit if $podfile eq '';
 
-open FILE, $podfile;
-my $str = join "", <FILE>;
+local ($\, *FILE);
+open FILE, $podfile or die "Couldn't read from '$podfile': $!\n";
+my $str = <FILE>;
 close FILE; 
 
 $str =~ s/^=head2[^\n]*L<Everything>.*?=back\n\n//gsm;
 
-open FILE, "> $podfile"; 
+open  FILE, "> $podfile" or die "Couldn't open destination '$podfile': $!\n";
 print FILE $str; 
 close FILE;
