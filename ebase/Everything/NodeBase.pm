@@ -94,6 +94,7 @@ sub new
 		$this->{cache}->setCacheSize($cacheSize);
 	}
 
+	$this->{cache}->clearSessionCache;
 	return $this;
 }
 
@@ -2520,7 +2521,7 @@ sub isGod
 
 	($GODS) = $this->getNode("gods", $this->getType("usergroup"));
 
-	return $this->inGroup($GODS, $USER);
+	return $this->inGroupFast($GODS, $USER);
 }
 
 

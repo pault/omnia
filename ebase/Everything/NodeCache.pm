@@ -61,6 +61,7 @@ sub BEGIN
 }
 
 
+
 #############################################################################
 #	Sub
 #		new
@@ -85,13 +86,14 @@ sub new
 	
 	$this->{maxSize} = $maxSize;
 	$this->{nodeBase} = $nodeBase;
-
+	
 	$this->{nodeQueue} = new Everything::CacheQueue();
 
 	# We will keep different hashes for ids and name/type combos
 	$this->{typeCache} = {};
 	$this->{idCache} = {};
 	$this->{version} = {};
+	$this->{sessionCache} = {};
 	
 	if(not $this->{nodeBase}->tableExists("version"))
 	{
@@ -111,6 +113,11 @@ sub new
 	return $this;
 }
 
+
+sub clearSessionCache {
+	my ($this) = @_;
+	$this->{sessionCache} = {};
+}
 
 #############################################################################
 #	Sub
@@ -461,6 +468,10 @@ sub getGlobalVersion
 sub isSameVersion
 {
 	my ($this, $NODE) = @_;
+
+	return 1 if exists $this->{sessionCache}->{$$NODE{node_id}};
+	$this->{sessionCache}->{$$NODE{node_id}} = 1;
+	
 	my $ver = $this->getGlobalVersion($NODE);
 	
 	return 1 if($ver == $this->{version}{$$NODE{node_id}});
