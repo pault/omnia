@@ -38,7 +38,7 @@ use Everything::Node;
 #
 sub new
 {
-	my ($className, $dbname, $staticNodetypes) = @_;
+	my ($className, $db, $staticNodetypes) = @_;
 	my $this = {};
 	
 	bless $this;
@@ -48,8 +48,12 @@ sub new
 	# one given, do so.
 		
 	# A connection to this database does not exist.  Create one.
-	# NOTE!  This has no database password protection!!!
-	$this->{dbh} = DBI->connect("DBI:mysql:$dbname", "root", "");
+	my ($dbname, $user, $pass, $host) = split ":", $db;
+	$user ||= "root";
+	$pass ||= "";
+	$host ||= "localhost";
+	
+	$this->{dbh} = DBI->connect("DBI:mysql:$dbname:$host", $user, $pass);
 	
 	die "Unable to get database connection!" unless($this->{dbh});
 

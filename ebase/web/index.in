@@ -6,5 +6,6 @@ use Everything::HTML;
 # >>> Extra Packages
 # <<< Extra Packages
 
+#syntax is "dbname[:user:passwd:host]"
 mod_perlInit "#DB_NAME#";
 
