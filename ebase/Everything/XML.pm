@@ -340,7 +340,6 @@ sub parseBasicTag
 	$contents = unMakeXmlSafe($contents);
 
 	my $ATTRS = $TAG->getAttributes();
-	print $TAG->toString() . "\n" unless(defined $$ATTRS{name});
 	my $type = $$ATTRS{type}->getValue();
 	my $name = $$ATTRS{name}->getValue();
 
