@@ -1359,7 +1359,7 @@ sub parseCode
 				$sub_text .= "\$result .= ( eval {\n$code\n} || '' );\n";
 			}
 			$sub_text .= qq|\nlogErrors('', \$\@, '', { title => 
-				'$$CURRENTNODE{title}', node_id => '$$CURRENTNODE{node_id}' }) 
+				'\Q$$CURRENTNODE{title}\E', node_id => '$$CURRENTNODE{node_id}' }) 
 				if (\$\@);\n|;
 
 		# raw text, needs to be quoted -- the quoting should work correctly
