@@ -2,13 +2,13 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $menu = newFormObject('FormMenu');
-my $html = $menu->genObject($query, $NODE, 'vars:preferred_theme', "settheme");
+my $html = $menu-&gt;genObject($query, $NODE, 'vars:preferred_theme', &quot;settheme&quot;);
 
-$menu->addType('theme',$USER, 'x');
-$menu->addType('themesetting', $USER, 'x');
-$menu->sortMenu('labels');
+$menu-&gt;addType('theme',$NODE, 'x');
+$menu-&gt;addType('themesetting', $NODE, 'x');
+$menu-&gt;sortMenu('labels');
 
-$html .= $menu->genPopupMenu($query, "settheme", $$VARS{preferred_theme});
+$html .= $menu-&gt;genPopupMenu($query, &quot;settheme&quot;, $$VARS{preferred_theme});
 
 return $html;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
