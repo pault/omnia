@@ -1539,6 +1539,9 @@ sub hasPermission
 }
 
 
+# if the database returns odd column names, override this to fix them
+sub fix_node_keys {}
+
 #############################################################################
 #	DEPRECATED - use hasAccess()
 sub canCreateNode
