@@ -34,6 +34,7 @@ sub BEGIN
 		getType
 		getNodeWhere
 		selectNodeWhere
+		selectNode
 
 		nukeNode
 		insertNode
@@ -87,6 +88,7 @@ sub getNodeById { $DB->getNodeById(@_); }
 sub getType { $DB->getType(@_); }
 sub getNodeWhere { $DB->getNodeWhere(@_); }
 sub selectNodeWhere  { $DB->selectNodeWhere(@_); }
+sub selectNode { $DB->getNodeById(@_); }
 
 sub nukeNode { $DB->nukeNode(@_);}
 sub insertNode { $DB->insertNode(@_); }

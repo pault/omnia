@@ -1490,6 +1490,7 @@ sub deriveType
 sub getNodetypeTables
 {
 	my ($this, $TYPE) = @_;
+	$TYPE = getNodeById($TYPE) unless ref $TYPE;
 	my $tables;
 	my @tablelist;
 	my @nodupes;
