@@ -343,7 +343,6 @@ sub getNodeMethod
 		# First check to see if a nodemethod exists for this type.
 		$METHOD = $$this{DB}->getNodeWhere( { 'title' => $func,
 			'supports_nodetype' => $$TYPE{node_id} }, $METHODTYPE );
-
 		$METHOD = shift @$METHOD;
 	}
 

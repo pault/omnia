@@ -106,9 +106,62 @@ sub joinWorkspace {
 	$this->{workspace} = $WORKSPACE;
 	$this->{workspace}{nodes} = $WORKSPACE->getVars;
 	$this->{workspace}{nodes} ||= {};
+	$this->{workspace}{cached_nodes} = {};
+
+	
 	1;
 }
 
+##########################################################################
+#
+#	sub 
+#		getNodeWorkspace
+#
+#	purpose
+#		helper funciton for getNode's workspace functionality.  Given
+#		a $WHERE hash ( field => value, or field => [value1, value2, value3])
+#		return a list of nodes in the workspace which fullfill this query
+#
+#	params
+#		$WHERE -- where hash, similar to getNodeWhere
+#		$TYPE -- type discrimination (optional)
+#
+sub getNodeWorkspace {
+	my ($this, $WHERE, $TYPE) = @_;
+	my @results;
+	$TYPE = $this->getType($TYPE) if $TYPE;
+
+	sub cmpval {
+		my ($val1, $val2) = @_;
+
+		if (ref $val1 eq "Everything::Node") { $val1 = $$val1{node_id}; }
+		if (ref $val2 eq "Everything::Node") { $val2 = $$val2{node_id}; }
+
+		$val1 eq $val2;
+	}
+
+	#we need to iterate through our workspace
+	foreach (keys %{ $this->{workspace}{nodes} }) {
+		my $N = $this->getNode($_);
+		next if $TYPE and $$N{type}{node_id} != $$TYPE{node_id};
+
+		my $match = 1;
+		foreach (keys %$WHERE) {
+			if (ref $$WHERE{$_} eq 'ARRAY') {
+				my $matchor = 0;
+				foreach my $orval (@{ $$WHERE{$_} }) {
+					$matchor = 1 if cmpval($$N{$_}, $orval);
+				}
+				$match = 0 unless $matchor;
+			} else {
+				$match = 0 unless cmpval($$N{$_}, $$WHERE{$_});
+			}
+		}
+		push @results, $N if $match;
+	}
+
+	\@results;
+}
 
 ############################################################################
 #	Sub
@@ -552,9 +605,35 @@ sub getNode
 	elsif($ref eq "HASH")
 	{
 		# This a "where" select
+		
 		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2);
-		return (shift @$nodeArray) if(@$nodeArray > 0);
-		return undef;
+		if (exists $this->{workspace}) {
+			my $wspaceArray = $this->getNodeWorkspace($node, $ext);
+			#the nodes we get back are unordered, must be merged
+			#with the workspace.  Also any nodes which were in the 
+			#nodearray, and the workspace, but not the wspace array
+			#must be removed
+
+			my @results;
+			foreach (@$nodeArray) { 
+				push @results, $_ unless exists $this->{workspace}{nodes}{$$_{node_id}} 
+			}
+			push @results, @$wspaceArray;
+			return undef unless @results;
+			my $orderby = $ext2;
+
+			$orderby ||= "node_id";
+			my $desc = 0;
+			if ($orderby =~ s/\s+(asc|desc)//i) {
+				$desc = 1 if $1 =~ /desc/i;
+			}
+			@results = sort {$$a{$orderby} cmp $$b{$orderby}} @results;
+			@results = reverse @results if $desc;
+			return shift @results;
+		} else { 
+			return (shift @$nodeArray) if(@$nodeArray > 0);
+			return undef;
+		}
 	}
 	elsif($node =~ /^\d+$/)
 	{
@@ -602,7 +681,6 @@ sub getNode
 	$NODE = new Everything::Node($NODE, $this, $cache);
 
 	if (exists($$this{workspace}) and exists($$this{workspace}{nodes}{$$NODE{node_id}}) and $$this{workspace}{nodes}{$$NODE{node_id}}) {
-
 		my $WS = $NODE->getWorkspaced();
 		return $WS if $WS;
 	}
@@ -663,7 +741,6 @@ sub getNodeByName
 sub getNodeZero
 {
 	my ($this) = @_;
-	
 	unless(exists $$this{nodezero})
 	{
 		$$this{nodezero} = $this->getNode("/", "location", "create force");

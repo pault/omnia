@@ -621,8 +621,10 @@ sub resetCache
 	#nodemethods MUST be typeversioned	
 	my $nodemethod_id = $this->{nodeBase}->sqlSelect('node_id', 'node', 'title="nodemethod"');
 	if ($nodemethod_id and not $this->{typeVersion}{$nodemethod_id}) {
+		unless (exists($newVersion{$nodemethod_id})) {
 		$this->{nodeBase}->sqlInsert('typeversion', { typeversion_id => $nodemethod_id, 
 			version => 1 });
+		}
 		$this->{typeVersion}{$nodemethod_id} = 1;
 	}
 

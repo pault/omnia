@@ -330,7 +330,6 @@ sub parseBasicTag
 {
 	my ($TAG, $fixBy) = @_;
 	my %PARSEDTAG;
-	my %WHERE;
 	
 	# Our contents is always the first TEXT_NODE object... just convert
 	# it to a string, which is what we want anyway.  XML::Parser parses
@@ -371,10 +370,13 @@ sub parseBasicTag
 		patchXMLwhere(\%WHERE);
 
 		my $TYPE = getType($WHERE{type_nodetype});
-		my $NODEREF = getNode(\%WHERE, $TYPE);
-		if($NODEREF)
+		delete $WHERE{type_nodetype};	
+
+		my $NODEID;
+		$NODEID = selectNodeWhere(\%WHERE, $TYPE);
+		if($NODEID)
 		{
-			$PARSEDTAG{$name} = $$NODEREF{node_id};
+			$PARSEDTAG{$name} = $$NODEID[0];
 		}
 		else
 		{

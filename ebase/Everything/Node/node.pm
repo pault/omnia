@@ -882,7 +882,13 @@ sub getWorkspaced {
     #check to see if we should be returning a workspaced version of such
 
 	my $rev = $this->{DB}->{workspace}{nodes}{$$this{node_id}};
+	if (exists $this->{DB}->{workspace}{cached_nodes}{"$$this{node_id}_$rev"}) {
+		return $this->{DB}->{workspace}{cached_nodes}{"$$this{node_id}_$rev"}
+	}
+
+	
 	my $RN = $this->getRevision($rev);
+	$this->{DB}->{workspace}{cached_nodes}{"$$this{node_id}_$rev"} = $RN;
 	return $RN if $RN;
 
 	"";

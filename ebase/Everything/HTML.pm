@@ -1043,7 +1043,7 @@ sub embedCode
 		my @args;
 		$args ||= "";
 
-		@args = map { quotemeta($_) } split(/\s*,\s*/, $args) if($args);
+		@args = split(/\s*,\s*/, $args) if($args);
 
 		$args = join("', '", @args);
 		$args = "'" . $args . "'" if($args);
