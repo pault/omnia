@@ -132,9 +132,9 @@ sub tagApprove {
 		my @aprattr = split ",", $$APPROVED{$tag};
 		my $cleanattr;
 		foreach (@aprattr) {
-			if (($attr =~ /\b$_\b\='(.+?)'/) or
-					($attr =~ /\b$_\b\="(.+?)"/) or
-					($attr =~ /\b$_\b\="?'?(\S*)\b/)) {
+			if (($attr =~ /\b$_\b\='(\w+?)'/) or
+					($attr =~ /\b$_\b\="(\w+?)"/) or
+					($attr =~ /\b$_\b\="?'?(\w*)\b/)) {
 				$cleanattr.=" ".$_.'="'.$1.'"';
 			}
 		}
@@ -1079,12 +1079,16 @@ sub parseCode
 	# always want to print user data through [" "] so that they
 	# cannot embed arbitrary code...
 	#
-	# someday I'll come up with a better way to do that...
+	$text=~s/
+	 \[
+	 (
+	 \{.*?\}
+	 |".*?"
+	 |%.*?%
+	 )
+	 \]
+	  /embedCode($1,$CURRENTNODE)/egsx;
 
-	# Note!!!  This is not perfect.  This will match stuff like [%..}].
-	# We should probably fix it such that we make sure that the start and
-	# end delimiters actually match.  DPB 08-Mar-00.
-	$text =~ s/\[([\%\{\"\<].*?[\%\}\"\>])\]/embedCode($1, $CURRENTNODE)/egs;
 	$text;
 }
 
