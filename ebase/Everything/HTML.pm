@@ -2683,7 +2683,7 @@ sub setHTMLVARS
 #
 sub updateNodeData
 {
-	warn("Using updateNodeData() (deprecated!).  Stop that!");
+	#warn("Using updateNodeData() (deprecated!).  Stop that!");
 	my $node_id = $query->param('node_id');
 
 	return undef unless($node_id);
