@@ -10,23 +10,16 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics Mini</field>
-  <field name="nlcode" type="literal_value">Node ID:[% getId $NODE %]&lt;br>
-Created on:&lt;br> ["$$NODE{createtime}"]&lt;br>
-Last modified:&lt;br> [%
-	return "&lt;i>never&lt;/i>" unless ($$NODE{modified} and
+  <field name="nlcode" type="literal_value">Node ID:[% getId $NODE %]&lt;br&gt;
+Created on:&lt;br&gt; [&quot;$$NODE{createtime}&quot;]&lt;br&gt;
+Last modified:&lt;br&gt; [%
+	return &quot;&lt;i&gt;never&lt;/i&gt;&quot; unless ($$NODE{modified} and
 		$$NODE{modified} =~ /[1-9]/);
 		$$NODE{modified}
-%]&lt;br>
-&lt;Hits: ["$$NODE{hits}"]&lt;br>
-Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br>
-Display page: &lt;br>[% linkNode (getPage($NODE, $query->param("displaytype"))); %]</field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">Node ID:258&lt;br>
-Created on:&lt;br> 2001-02-09 12:33:27&lt;br>
-Last modified:&lt;br> &lt;i>never&lt;/i>&lt;br>
-&lt;Hits: 10&lt;br>
-Nodetype: &lt;A HREF="/index.pl?node_id=24&amp;lastnode_id=258">superdoc&lt;/a>&lt;br>
-Display page: &lt;br>&lt;A HREF="/index.pl?node_id=154&amp;lastnode_id=258">superdoc display page&lt;/a></field>
+%]&lt;br&gt;
+&lt;Hits: [&quot;$$NODE{hits}&quot;]&lt;br&gt;
+Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
+Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param(&quot;displaytype&quot;))); %]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Node Statistics</field>

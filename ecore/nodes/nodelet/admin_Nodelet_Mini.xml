@@ -11,39 +11,9 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</field>
   <field name="nlcode" type="literal_value">[&lt;adminbox&gt;]</field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">
-
-&lt;table width=100% border=0 cellpadding=3 bgcolor=#ffffff cellspacing=1&gt;
-  &lt;tr bgcolor=#ffffff&gt; 
-    &lt;td bgcolor='#999999' align='center'&gt;
-      &lt;img src=images/icon_display_current.gif alt=display border=0&gt;
-    &lt;/td&gt;
-    &lt;td bgcolor='#666666' align='center'&gt;
-      &lt;A HREF=&quot;/index.pl?lastnode_id=92&amp;node_id=92&amp;displaytype=edit&quot;&gt;&lt;img src=images/icon_edit.gif  alt=edit border=0&gt;&lt;/a&gt; 
-    &lt;/td&gt;
-    &lt;td bgcolor='#999999' align='center'&gt;
-      &lt;A HREF=&quot;/index.pl?lastnode_id=92&amp;node_id=92&amp;displaytype=permissions&quot;&gt;&lt;img src=images/icon_permissions.gif  alt=permissions border=0&gt;&lt;/a&gt; 
-    &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td bgcolor='#666666' align='center'&gt;
-      &lt;a href='javascript: cloneNode();'&gt;
-       &lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;
-    &lt;/td&gt;
-    &lt;td bgcolor='#999999' align=center&gt;
-      &lt;a href=&quot;/index.pl?node_id=70&amp;srcnode_id=92&quot;&gt;&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle&gt;&lt;/A&gt;
-    &lt;/td&gt;
-   &lt;td bgcolor='#666666' align=center&gt;
-&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;
-    &lt;/td&gt;
-  &lt;/tr&gt;
-
-&lt;/table&gt;</field>
   <field name="otheraccess" type="literal_value">ii-i-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">admin Nodelet Mini</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="updateinterval" type="literal_value">0</field>
 </NODE>
-

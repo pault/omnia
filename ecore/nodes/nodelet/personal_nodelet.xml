@@ -10,15 +10,15 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
- <field name="nlcode" type="literal_value">[%
+  <field name="nlcode" type="literal_value">[%
   return if ($$USER{node_id} == $HTMLVARS{guest_user});
   my $limit = $HTMLVARS{personalNodeletLimit} || 10;
 
   my @nodes;
-  @nodes = split("&lt;br>",$$VARS{personal_nodelet}) if ($$VARS{personal_nodelet});
-  if (my $n = $query->param("addpersonalnodelet")) {
+  @nodes = split(&quot;&lt;br&gt;&quot;,$$VARS{personal_nodelet}) if ($$VARS{personal_nodelet});
+  if (my $n = $query-&gt;param(&quot;addpersonalnodelet&quot;)) {
     $n = getNodeById $n;
-    $$VARS{personal_nodelet} .= '&lt;br>'.$$n{title}
+    $$VARS{personal_nodelet} .= '&lt;br&gt;'.$$n{title}
       if @nodes &lt; $limit;
     push @nodes, $$n{title};
   }
@@ -27,18 +27,16 @@
   my $str;
   my $i=0;
   foreach (@nodes) {
-    $str.=linkNodeTitle($_)."&lt;br>\n";
-    last if $i++ >= 10;
+    $str.=linkNodeTitle($_).&quot;&lt;br&gt;\n&quot;;
+    last if $i++ &gt;= 10;
   }
 
-  $str.="\n&lt;p align=right>"
-    .linkNode($NODE, "add \"$$NODE{title}\"", {addpersonalnodelet => getId($NODE)})
+  $str.=&quot;\n&lt;p align=right&gt;&quot;
+    .linkNode($NODE, &quot;add \&quot;$$NODE{title}\&quot;&quot;, {addpersonalnodelet =&gt; getId($NODE)})
     if @nodes &lt; $limit;
   $str;
 
 %]</field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value"></field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">personal nodelet</field>

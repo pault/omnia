@@ -10,19 +10,9 @@
   <field name="guestaccess" type="literal_value">ii-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
-  <field name="nlcode" type="literal_value">&lt;font size=2>
-[{titlebar:&lt;br>}]
-&lt;/font></field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;font size=2>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;op=logout&amp;node_id=54">log root out&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=45">root&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=54">The Default Node&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=56">User settings&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=64">Everything settings&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=65">Gigantic Node Lister&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=53">Super Search&lt;/a>
-&lt;/font></field>
+  <field name="nlcode" type="literal_value">&lt;font size=2&gt;
+[{titlebar:&lt;br&gt;}]
+&lt;/font&gt;</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Epicenter</field>

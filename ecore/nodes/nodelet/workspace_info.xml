@@ -13,41 +13,39 @@
   <field name="nlcode" type="literal_value">[%
 my $wspace = 0;
 my $str;
-$wspace = $DB->{workspace}{node_id} if exists $DB->{workspace};
+$wspace = $DB-&gt;{workspace}{node_id} if exists $DB-&gt;{workspace};
 
-my $csr = $DB->sqlSelectMany("inside_workspace", "revision", "node_id=$$NODE{node_id}");
+my $csr = $DB-&gt;sqlSelectMany(&quot;inside_workspace&quot;, &quot;revision&quot;, &quot;node_id=$$NODE{node_id}&quot;);
 my %WSPACES;
-while ($csr and my ($ws) = $csr->fetchrow) {
+while ($csr and my ($ws) = $csr-&gt;fetchrow) {
   next if not $ws;
   next if $ws == $wspace;
   next if $WSPACES{$ws} == 1;
   $WSPACES{$ws} = 1;
-  $str.= "This node is in workspace ".linkNode($ws)."&lt;br>";
+  $str.= &quot;This node is in workspace &quot;.linkNode($ws).&quot;&lt;br&gt;&quot;;
 }
-$str.="Editing it may cause corruption&lt;br>" if $str;
+$str.=&quot;Editing it may cause corruption&lt;br&gt;&quot; if $str;
 $str;
 %]
 [%
-return "Not in workspace" unless $DB->{workspace} and $DB->{workspace}{title};
+return &quot;Not in workspace&quot; unless $DB-&gt;{workspace} and $DB-&gt;{workspace}{title};
 my $str;
 
-$str.="You are in workspace ".linkNode($DB->{workspace});
-$str.="&lt;p>&lt;b>This node can not be put in workspace&lt;/b>" unless $NODE->canWorkspace();
+$str.=&quot;You are in workspace &quot;.linkNode($DB-&gt;{workspace});
+$str.=&quot;&lt;p&gt;&lt;b&gt;This node can not be put in workspace&lt;/b&gt;&quot; unless $NODE-&gt;canWorkspace();
 
-if (exists $DB->{workspace}{nodes}{$$NODE{node_id}}) {
-  $str.="&lt;p>This node is inside your workspace:";
-  $str.="&lt;br>".linkNode($NODE, "Commit", { op=> 'commitworkspace', 
-       "commit_$$NODE{node_id}" => 'commit', 
-        workspace_id => $DB->{workspace}{node_id}}). " changes";
-  $str.="&lt;br>".linkNode($NODE, "Discard", { op => 'commitworkspace',
-       "commit_$$NODE{node_id}" => 'discard',
-       workspace_id => $DB->{workspace}{node_id}}). " changes";
+if (exists $DB-&gt;{workspace}{nodes}{$$NODE{node_id}}) {
+  $str.=&quot;&lt;p&gt;This node is inside your workspace:&quot;;
+  $str.=&quot;&lt;br&gt;&quot;.linkNode($NODE, &quot;Commit&quot;, { op=&gt; 'commitworkspace', 
+       &quot;commit_$$NODE{node_id}&quot; =&gt; 'commit', 
+        workspace_id =&gt; $DB-&gt;{workspace}{node_id}}). &quot; changes&quot;;
+  $str.=&quot;&lt;br&gt;&quot;.linkNode($NODE, &quot;Discard&quot;, { op =&gt; 'commitworkspace',
+       &quot;commit_$$NODE{node_id}&quot; =&gt; 'discard',
+       workspace_id =&gt; $DB-&gt;{workspace}{node_id}}). &quot; changes&quot;;
 }
 
 $str;
 %]</field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">You are in workspace &lt;A HREF="/index.pl?lastnode_id=115&amp;node_id=291">testspace&lt;/a></field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">workspace info</field>

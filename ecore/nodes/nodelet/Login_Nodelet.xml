@@ -11,74 +11,45 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
-my $str = "";
-if ($query->param('op') eq 'login') { 
-  $str .="Oops.  You must have the wrong login or password or something:&lt;br>";
+my $str = &quot;&quot;;
+if ($query-&gt;param('op') eq 'login') { 
+  $str .=&quot;Oops.  You must have the wrong login or password or something:&lt;br&gt;&quot;;
 } 
 $str;
 %]
 
 [%
-$query->start_form("POST", $ENV{SCRIPT_NAME}) .
-$query->hidden("node_id", getId($NODE)) . "\n" .
-$query->hidden("lastnode_id", $query->param("lastnode_id")) . "\n";
+$query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
+$query-&gt;hidden(&quot;node_id&quot;, getId($NODE)) . &quot;\n&quot; .
+$query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&quot;)) . &quot;\n&quot;;
 %]
-&lt;input type="hidden" name="op" value="login">
-&lt;table border=0>
-&lt;tr>
- &lt;td>&lt;font size='2'>Login:&lt;/font>&lt;/td>
- &lt;td>
-  [% $query->textfield (-name => "user", -size => 10, -maxlength => 100); %]
- &lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td>&lt;font size='2'>Password&lt;/font>&lt;/td>
- &lt;td>
-  [% $query->password_field(-name => "passwd", -size => 10, -maxlength => 10); %]
- &lt;/td>
-&lt;/tr>
-&lt;/table>
-&lt;font size='2'>
+&lt;input type=&quot;hidden&quot; name=&quot;op&quot; value=&quot;login&quot;&gt;
+&lt;table border=0&gt;
+&lt;tr&gt;
+ &lt;td&gt;&lt;font size='2'&gt;Login:&lt;/font&gt;&lt;/td&gt;
+ &lt;td&gt;
+  [% $query-&gt;textfield (-name =&gt; &quot;user&quot;, -size =&gt; 10, -maxlength =&gt; 100); %]
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;&lt;font size='2'&gt;Password&lt;/font&gt;&lt;/td&gt;
+ &lt;td&gt;
+  [% $query-&gt;password_field(-name =&gt; &quot;passwd&quot;, -size =&gt; 10, -maxlength =&gt; 10); %]
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;font size='2'&gt;
 [%
-$query->checkbox("expires", "", "+10y", "save me a cookie") . 
-$query->submit("login", "Login") .
-$query->end_form;
+$query-&gt;checkbox(&quot;expires&quot;, &quot;&quot;, &quot;+10y&quot;, &quot;save me a cookie&quot;) . 
+$query-&gt;submit(&quot;login&quot;, &quot;Login&quot;) .
+$query-&gt;end_form;
 %]
-&lt;p>
-Don't have an account?&lt;br>
-[% linkNodeTitle("Create a new user"); %]&lt;br>
-[% my $N=getNode("What is my password",'superdoc'); 
-   linkNode($N,"Forgot your password?"); %]
-&lt;/font></field>
-  <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">
-
-&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
-&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="114">
-
-
-&lt;input type="hidden" name="op" value="login">
-&lt;table border=0>
-&lt;tr>
- &lt;td>&lt;font size='2'>Login:&lt;/font>&lt;/td>
- &lt;td>
-  &lt;INPUT TYPE="text" NAME="user"  SIZE=10 MAXLENGTH=100>
- &lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td>&lt;font size='2'>Password&lt;/font>&lt;/td>
- &lt;td>
-  &lt;INPUT TYPE="password" NAME="passwd"  SIZE=10 MAXLENGTH=10>
- &lt;/td>
-&lt;/tr>
-&lt;/table>
-&lt;font size='2'>
-&lt;INPUT TYPE="checkbox" NAME="expires" VALUE="+10y">save me a permanent cookie
-&lt;INPUT TYPE="submit" NAME="login" VALUE="Login">&lt;/FORM>
-&lt;p>
-Don't have an account?&lt;br>
-&lt;a href="/~paco/temp/index.pl?node=Create%20a%20new%20user">Create a new user&lt;/a>.
-&lt;/font></field>
+&lt;p&gt;
+Don't have an account?&lt;br&gt;
+[% linkNodeTitle(&quot;Create a new user&quot;); %]&lt;br&gt;
+[% my $N=getNode(&quot;What is my password&quot;,'superdoc'); 
+   linkNode($N,&quot;Forgot your password?&quot;); %]
+&lt;/font&gt;</field>
   <field name="otheraccess" type="literal_value">-----</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Login Nodelet</field>

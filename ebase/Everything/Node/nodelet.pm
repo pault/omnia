@@ -42,6 +42,29 @@ sub insert
 }
 
 #############################################################################
+#	Sub
+#		getNodeKeys
+#
+#	Purpose
+#		This removes the nltext parameter, as it is used in caching
+#		and will be invalid when moving to another system or nodeball
+#
+
+sub getNodeKeys
+{
+	my ($this, $forExport) = @_;
+	my $keys = $this->SUPER($forExport);
+
+	if($forExport)
+	{
+		delete $$keys{nltext};
+	}
+
+	return $keys;
+}
+
+
+#############################################################################
 # End of package
 #############################################################################
 
