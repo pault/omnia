@@ -165,7 +165,8 @@ sub insert
 	my ($this) = @_;
 
 	if((not defined $$this{extends_nodetype}) or
-		($$this{extends_nodetype} == 0))
+		($$this{extends_nodetype} == 0) or
+		($$this{extends_nodetype} == $$this{type_nodetype}))
 	{
 		my $N = $$this{DB}->getType('node');
 		$$this{extends_nodetype} = $$N{node_id};
