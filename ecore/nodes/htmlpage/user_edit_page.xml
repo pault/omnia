@@ -15,67 +15,66 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[%
 $GLOBAL{userFontAttr} = $$THEME{nodeletTitleFontAttr};
-$GLOBAL{userFontAttr} ||= "color=white";
-"";
+$GLOBAL{userFontAttr} ||= &quot;color=white&quot;;&quot;&quot;;
 %]
 
-&lt;table border=0 cellspacing=10>
- &lt;tr bgcolor=["$$THEME{nodeletTitleColor}"]>&lt;td colspan=2>
-  &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>User Information&lt;/b>&lt;/font>&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>
-  &lt;b>Real Name&lt;/b>: ["$$NODE{realname}"]&lt;br>
+&lt;table border=0 cellspacing=10&gt;
+ &lt;tr bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;]&gt;&lt;td colspan=2&gt;
+  &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;User Information&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
+  &lt;b&gt;Real Name&lt;/b&gt;: [&quot;$$NODE{realname}&quot;]&lt;br&gt;
   [{nodeFormObject: TextField, realname}]
- &lt;/td>
- &lt;td>
-   &lt;b>Email Address&lt;/b>: ["$$NODE{email}"]&lt;br>
+ &lt;/td&gt;
+ &lt;td&gt;
+   &lt;b&gt;Email Address&lt;/b&gt;: [&quot;$$NODE{email}&quot;]&lt;br&gt;
    [{nodeFormObject: TextField, email, email, AUTO, 40, 255}]
- &lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td colspan=2>
-&lt;b>User's Bio&lt;/B>:&lt;br>
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td colspan=2&gt;
+&lt;b&gt;User's Bio&lt;/B&gt;:&lt;br&gt;
 [{nodeFormObject: TextArea, doctext}]
-&lt;/td>
-&lt;/tr>
-&lt;tr>
-  &lt;td bgcolor=["$$THEME{nodeletTitleColor}"]>
-   &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>Authentication&lt;/b>&lt;/font>&lt;/td>
-  &lt;td bgcolor=["$$THEME{nodeletTitleColor}"]>
-   &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>Preferences&lt;/b>&lt;/font>&lt;/td>
-&lt;/tr>
-&lt;tr>
-  &lt;td>[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]&lt;/td>
-  &lt;td>Theme: [{themeselector}]&lt;/td>
-&lt;/tr>
-&lt;tr>&lt;td bgcolor=["$$THEME{nodeletTitleColor}"] colspan=2>
-  &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>Nodelets&lt;/b>&lt;/font>&lt;/td>
-&lt;/tr>
-&lt;tr>&lt;td colspan=2>
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;td bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;]&gt;
+   &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;Authentication&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+  &lt;td bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;]&gt;
+   &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;Preferences&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;td&gt;[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]&lt;/td&gt;
+  &lt;td&gt;Theme: [{themeselector}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;] colspan=2&gt;
+  &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;Nodelets&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan=2&gt;
 [{includeJS: findFormObject, moveSelectItem, selectItem}]
 [%
 # First, make sure we have the nodelets field filled out
-my @nodelets = @{ $NODE->getNodelets($HTMLVARS{default_nodeletgroup}); };
-my $VARS = $NODE->getVars();
+my @nodelets = @{ $NODE-&gt;getNodelets($HTMLVARS{default_nodeletgroup}); };
+my $VARS = $NODE-&gt;getVars();
 unless(exists $$VARS{nodelets})
 {
   my @execnodelets;
-  foreach (@nodelets) { push @execnodelets, $_ if getNode($_)->hasAccess($NODE, 'x') } 
+  foreach (@nodelets) { push @execnodelets, $_ if getNode($_)-&gt;hasAccess($NODE, 'x') } 
   $$VARS{nodelets} = join(',', @execnodelets);
-  $NODE->setVars($VARS, $USER);
-  $NODE->update($USER);
+  $NODE-&gt;setVars($VARS, $USER);
+  $NODE-&gt;update($USER);
 }
 
 use Everything::HTML::FormObject::SubsetSelector;
 my $nodelets = newFormObject('SubsetSelector');
-$nodelets->addType('nodelet', $USER, 'x', 'labels');
-$nodelets->genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
+$nodelets-&gt;addType('nodelet', $NODE, 'x', 'labels');
+$nodelets-&gt;genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
 10, undef, 'Available Nodelets:', 'Selected Nodelets:');
 %]
-&lt;/td>&lt;/tr>
-&lt;/table>
-&lt;p>
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
@@ -83,3 +82,4 @@ $nodelets->genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
   <field name="title" type="literal_value">user edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
+
