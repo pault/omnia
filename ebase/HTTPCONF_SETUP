@@ -26,16 +26,7 @@ DirectoryIndex index.html index.pl
 
 AddHandler perl-script .pl
 
-#this might be in your access.conf
-<Location /perl-status>
-	SetHandler perl-script
-	PerlHandler Apache::Status
-	order deny,allow
-	deny from all
-	allow from your.host 
-</Location>
-
-#PerlModule Apache::DBI 	#comment this in if you want db handlers
+PerlModule Apache::DBI 	
 PerlHandler Apache::Registry
 PerlSetupEnv On
 

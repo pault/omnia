@@ -13,8 +13,6 @@ Perl (5.005 or 5.6)
 Apache (1.3.6) with mod_perl module 
 	(note-- you'll probably have to edit your http.conf) 
 Mysql (3.22.27)
-	(note-- all scripts currently run as root, with no password.  This is /not/ recommended
-	 if you are doing a live site.  You'll have to hard-code it, for now)
 
 Currently the version numbers are what I'm running on my devel server.  Older versions might work,
 but newer versions probably work better.  For more information about system requirements, check out
@@ -42,12 +40,10 @@ The Ecore nodeball (as well as other distributed nodeballs) are typically in
 the "nodeballs/" directory of your Everything release.  Ecore is required to do 
 anything.  All other nodeballs are optional.
 
-A NOTE ON NODEBALLS WITH RELEASE (0.9.1):
+A NOTE ON NODEBALLS WITH RELEASE (0.9.1 and later):
 
-We have recently changed our XML file structure -- you can still read 
-old nodeballs (exported under 0.9.0 or 0.8) with "nbmasta_old".  If you
-download a nodeball and it doesn't install, try nbmasta_old.
-
+We have changed our XML file structure between 0.9 and 0.9.1 
+-- you can still read old nodeballs (exported under 0.9.0 or 0.8) with "nbmasta_old".  If you download a nodeball and it doesn't install, try nbmasta_old.
 
 Installation
 
@@ -57,6 +53,7 @@ you have apache, mod_perl and mysql set up appropriately.
 
 the various files are:
 
+QUICKINSTALL -- quick and dirty how to get down
 DEBIAN_SETUP -- information on installing your system primarily with debs
 REDHAT_SETUP -- also for other flavors of Linux.  Required packages
 HTTPCONF_SETUP -- the lines you will need in your httpd.conf file for E to work

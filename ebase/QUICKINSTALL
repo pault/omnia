@@ -36,30 +36,10 @@ finished, type 'make install' (as root).  That's all you should need.
 STEP 2 - Install needed perl modules
 
 In addition to binaries, you will also need a handful of perl modules.
-You can get all of these from www.cpan.org.  You will want to install
-them in the order listed, otherwise you may get dependency errors.
 
-ApacheDBI-0.82
-CGI-modules??  (this is commonly installed by default with mod_perl)
-DBI-1.13
-XML-DOM-1.27
-XML-Parser-2.27
-MIME-Base64-2.11
-Mail-Sender-0.6.7
-libnet-1.0607
-MailTools-1.13
-Data-ShowTable-3.3
-Msql-Mysql-modules-1.2202
-Digest-MD5-2.09
-HTML-Parser-3.07
-URI-1.05
-libwww-perl-5.45
-
-
-The libnet module has support for many network protocols.  If you want
-Everything to be able to send email to users automatically, you will need
-to properly configure libnet for your machine/network.  If you don't care
-about email, just install libnet with the defaults (blank info).
+Consult the PERLMOD_SETUP file if you want to install your modules
+by hand (from www.cpan.org) -- or if you prefer to use the CPAN.pm
+module, use Bundle::Everything, in the Bundle/ directory.
 
 
 STEP 3 - Configure your Apache httpd.conf
