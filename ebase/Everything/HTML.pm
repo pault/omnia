@@ -1154,6 +1154,7 @@ sub displayPage
 	# denied node.
 	unless(hasAccess($NODE, $USER, $$PAGE{permissionneeded}))
 	{
+		Everything::printLog("denied");
 		# Make sure the display type is set to display.  Otherwise we
 		# may get stuck in an infinite loop of permission denied.
 		$query->param("displaytype", "display");
@@ -1754,7 +1755,7 @@ sub mod_perlInit
 	clearGlobals();
 
 	# Initialize our connection to the database
-	Everything::initEverything($db);
+	Everything::initEverything($db, 1);
 
 	# Get the HTML variables for the system.  These include what
 	# pages to show when a node is not found (404-ish), when the

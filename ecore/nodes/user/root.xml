@@ -23,7 +23,6 @@ Great hair</doctext>
 		<meatloaf >big and juicy</meatloaf>
 		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
 		<nodelet_headerclr >#ff0000</nodelet_headerclr>
-		<group >135</group>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
 	</vars>
 </NODE>

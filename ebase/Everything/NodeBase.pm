@@ -748,7 +748,7 @@ sub constructNode
 #			authorization)
 #
 #	Returns
-#		True if successful, false otherwise.
+#		The node id of the node updated if successful, 0 (false) otherwise.
 #
 sub updateNode
 {
@@ -803,7 +803,7 @@ sub updateNode
 	# This node has just been updated.  Do any maintenance if needed.
 	$this->nodeMaintenance($NODE, 'update after');
 
-	return 1;
+	return $this->getId($NODE);
 }
 
 
@@ -823,8 +823,8 @@ sub updateNode
 #			updated/inserted
 #
 #	Returns
-#		1 (true) if the node was inserted or updated successfully.  0 (false)
-#		if the user did not have permissions to do this action.
+#		The node_id of the node that was inserted or updated successfully.
+#		0 (false) if the user did not have permissions to do this action.
 #
 sub replaceNode
 {
@@ -835,16 +835,12 @@ sub replaceNode
 		if ($this->canUpdateNode($USER,$N))
 		{
 			@$N{keys %$DATA} = values %$DATA if $DATA;
-			$this->updateNode($N, $USER);
-
-			return 1;
+			return $this->updateNode($N, $USER);
 		}
 	} 
 	elsif($this->canCreateNode($USER, $TYPE))
 	{ 
-		$this->insertNode($title, $TYPE, $USER, $DATA);
-
-		return 1;
+		return $this->insertNode($title, $TYPE, $USER, $DATA);
 	}
 
 	return 0;
@@ -875,7 +871,6 @@ sub insertNode
 	my $table;
 	my $NODE;
 
-	
 	$TYPE = $this->getType($TYPE) unless (ref $TYPE);
 
 	unless ($this->canCreateNode($USER, $TYPE))
@@ -1097,7 +1092,10 @@ sub getType
 
 		# If we have static nodetypes, we can do a performance enhancement
 		# by caching the completed nodes.
-		$this->{cache}->cacheNode($TYPE, 1) if($this->{staticNodetypes});
+		if($this->{staticNodetypes})
+		{
+			$this->{cache}->cacheNode($TYPE, 1);
+		}
 	}
 
 	return $TYPE;
@@ -1307,7 +1305,7 @@ sub dropNodeTable
 
 	if(exists $$nodrop{$table})
 	{
-		printLog("WARNING! Attempted to drop core table $table!");
+		Everything::printLog("WARNING! Attempted to drop core table $table!");
 		return 0;
 	}
 	
@@ -1729,11 +1727,18 @@ sub getMaintenanceCode
 	my %WHEREHASH;
 	my $TYPE;
 	my $done = 0;
+	my $TMP;
 
 	# If the maintenance nodetype has not been loaded, don't try to do
 	# any thing (the only time this should happen is when we are
 	# importing everything from scratch).
-	return 0 if(not defined $this->getType("maintenance")); 
+	$TMP = $this->getType("maintenance");
+	if( (not defined $TMP) || ($$TMP{extends_nodetype} eq "0") )
+	{
+		# The 'eq "0"' thing is just checking to see if the references
+		# have been fixed.
+		return 0;
+	}
 
 	$this->getRef($NODE);
 	$TYPE = $this->getType($$NODE{type_nodetype});
@@ -1927,8 +1932,12 @@ sub isOfType
 #		in the grouptable field of their nodetype.
 #
 #	Parameters
-#		$NODE - the node id or hashreference to a node that we wish to
-#			if it is a group node.
+#		$NODE - the node id or hashreference to a node that we wish to see
+#			if it is a group node.  This can also be the nodetype hash, if
+#			you just want to check to see if nodes of a certain type are
+#			groups.  Note, if the NODE passed is a nodetype, the caller
+#			is responsible for making sure it is properly derived (called
+#			getType() to get the nodetype.
 #
 #	Returns
 #		The name of the grouptable if the node is a group, 0 (false)
@@ -1938,11 +1947,16 @@ sub isGroup
 {
 	my ($this, $NODE) = @_;
 	my $groupTable;
+	my $GROUPTYPE;
 	
 	$this->getRef($NODE);
-	$groupTable = $$NODE{type}{grouptable};
+	
+	$GROUPTYPE = $NODE if($this->isNodetype($NODE));
+	$GROUPTYPE ||= $$NODE{type};
+	
+	$groupTable = $$GROUPTYPE{grouptable};
 
-	return $groupTable if($groupTable);
+	return $groupTable if($groupTable && $groupTable ne "");
 
 	return 0;
 }
@@ -2714,7 +2728,7 @@ sub removeFromNodegroup
 	my $groupTable;
 	my $success;
 	
-	($groupTable = $this->isGroup($$GROUP)) or return; 
+	($groupTable = $this->isGroup($GROUP)) or return; 
 	$this->canUpdateNode($USER, $GROUP) or return; 
 
 	my $node_id = $this->getId($NODE);

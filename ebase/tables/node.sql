@@ -1,8 +1,8 @@
-# MySQL dump 6.4
+# MySQL dump 6.0
 #
 # Host: localhost    Database: everything
 #--------------------------------------------------------
-# Server version	3.22.27
+# Server version	3.22.25
 
 #
 # Table structure for table 'node'
@@ -17,8 +17,15 @@ CREATE TABLE node (
   reputation int(11) DEFAULT '0' NOT NULL,
   lockedby_user int(11) DEFAULT '0' NOT NULL,
   locktime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-  core char(1) DEFAULT '0',
-  package int(11) DEFAULT '0' NOT NULL,
+  authoraccess char(4) DEFAULT 'iiii' NOT NULL,
+  groupaccess char(5) DEFAULT 'iiii-' NOT NULL,
+  otheraccess char(5) DEFAULT 'iiii-' NOT NULL,
+  guestaccess char(5) DEFAULT 'iiii-' NOT NULL,
+  dynamicauthor_permission int(11) DEFAULT '-1' NOT NULL,
+  dynamicgroup_permission int(11) DEFAULT '-1' NOT NULL,
+  dynamicother_permssion int(11) DEFAULT '-1' NOT NULL,
+  dynamicguest_permission int(11) DEFAULT '-1' NOT NULL,
+  group_usergroup int(11) DEFAULT '-1' NOT NULL,
   PRIMARY KEY (node_id),
   KEY title (title,type_nodetype),
   KEY author (author_user),

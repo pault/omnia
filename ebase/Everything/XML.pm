@@ -33,10 +33,15 @@ use vars qw($VARS);
 use vars qw($isVars);
 use vars qw(@activetag);
 use vars qw(%TABLES);
-use vars qw($nodetype);
 use vars qw(@FIXES);
 use vars qw($XMLGEN);
 use vars qw($XMLPARSE);
+	
+# Skip these tags in the node XML
+my %skips = {
+	"NODE" => 1,
+	"INFO" => 1
+};
 
 ###########################################################################
 #	Sub
@@ -68,25 +73,29 @@ sub start_handler {
 	
 	# Initialize the tag
 	my $isReference = 0;
-	
-	# Clear the field for this tag.  We will set it later.
-	$$NODE{$tag} = "";
 
-	while (@_) {
-		my $attr = shift @_;
-		my $val = shift @_;
-		
-		if ($attr eq "table") {
-			if ($tag eq "vars") {
-				$isVars = 1;
+	unless(exists $skips{$tag})
+	{
+		# Clear the field for this tag.  We will set it later.
+		$$NODE{$tag} = "";
+
+		while (@_) {
+			my $attr = shift @_;
+			my $val = shift @_;
+			
+			if ($attr eq "table") {
+				if ($tag eq "vars") {
+					$isVars = 1;
+				}
+				# Add this tag to the list of fields for the given table.
+				push @{ $TABLES{$val} }, $tag;	
+			} elsif (($attr eq "type") && ($val ne "literal_value")) {
+				# This tag represents a reference to another node.  Add
+				# this to the list of fixes that we will need to apply later.
+				$isReference=1;
+				push @FIXES, {type => $val, field => $tag, title => $tag,
+					isVars => $isVars, node_id => 0 };
 			}
-			# Add this tag to the list of fields for the given table.
-			push @{ $TABLES{$val} }, $tag;	
-		} elsif (($attr eq "type") && ($val ne "literal_value")) {
-			# This tag represents a reference to another node.  Add
-			# this to the list of fixes that we will need to apply later.
-			$isReference=1;
-			push @FIXES, {type => $val, field => $tag, title => $tag, isVars => $isVars};
 		}
 	}
 
@@ -105,11 +114,15 @@ sub char_handler {
 	my ($parser, $data) = @_;
 	my $tag = pop @activetag;
 
-	if ($isVars) {
-		$$VARS{$$tag{title}} .= $data;
-	} else {
-		$$NODE{$$tag{title}} .= $data;
+	unless(exists $skips{$$tag{title}})
+	{
+		if ($isVars) {
+			$$VARS{$$tag{title}} .= $data;
+		} else {
+			$$NODE{$$tag{title}} .= $data;
+		}
 	}
+
 	push @activetag, $tag;
 }
 
@@ -124,6 +137,8 @@ sub char_handler {
 sub end_handler {
 	my $tag = pop @activetag;
 
+	return if(exists $skips{$$tag{title}});
+	
 	if ($isVars and $$tag{isReference}) {
 		my $fix = pop @FIXES;
 		$$fix{title} = $$VARS{$$tag{title}};
@@ -143,10 +158,13 @@ sub end_handler {
 			# This is referencing a nodetype, check to see if we already have
 			# it loaded.  If not, we need to mark the nodetype field as
 			# unknown for now.
-			$nodetype = $$NODE{type_nodetype}; 
-			if ($DB->getType($nodetype)) {
-				$$NODE{type_nodetype} = getId $DB->getType($nodetype); 	
+			my $TYPE = $DB->getType($$NODE{type_nodetype}); 
+			if ($TYPE) {
+				$$NODE{type_nodetype} = getId $TYPE; 	
 			} else {
+				# Note that this is a fatal error.  Nodetypes are always
+				# installed first, so if a nodetype is not found, this
+				# will cause the installation to stop later on.
 				$$NODE{type_nodetype} = -1;
 			}
 		} else {
@@ -156,7 +174,6 @@ sub end_handler {
 		$isVars = 0;
 		delete $$VARS{vars};
 	}
-	
 }
 
 ##############################################################################
@@ -170,17 +187,20 @@ sub end_handler {
 #
 sub findRef {
 	my ($FIX, $printError) = @_;
-	
-	my ($REFNODE) = $DB->getNodeWhere( { title=>$$FIX{title} },
-		$DB->getType($$FIX{type}) );
+	my $id;
 
-	if (not getId($REFNODE)) {
+
+	my ($REFNODE) = $DB->getNode($$FIX{title}, $DB->getType($$FIX{type}));
+
+	$id = getId $REFNODE;
+	if (not $id)
+	{
 		print "ERROR!  Fix failed on $$FIX{node_id}: needs" .
 				" a $$FIX{type} named $$FIX{title}\n" if $printError;	 
 		return -1;
 	}
 
-	getId $REFNODE;
+	return $id;
 }
 
 
@@ -197,33 +217,125 @@ sub fixNodes
 {
 	my ($printError) = @_;
 	my @UNFIXED;
+	my $fix;
+	my %FIELDS;
+	my %VARS;
+	my $FIXHASH;
+	my $VARSHASH;
+	my $N;
+	my $NODE;
 	
-	while ($_ = shift @FIXES) {
-		next if ($$_{field} eq "group");
+	# First, lets organize all the fixes by node.  This way we can update
+	# each node all at once instead of hitting the database for each field
+	# update.  This helps while updating a site under load.
+	while ($fix = shift @FIXES)
+	{
+		next if ($$fix{field} eq "group");
 		
-		my $id = findRef $_, $printError;
-		if ($id == -1) {
-			push @UNFIXED, $_;
+		my $id = findRef $fix, $printError;
+		
+		if ($id == -1)
+		{
+			# the node that we have a dependancy for isn't available.  It
+			# may be coming later so store the unfixed ones.
+			push @UNFIXED, $fix;
 			next;
 		}
-		#the node that we have a dependancy for isn't available
 		
-		if ($$_{isVars}) {
-			my $TEMPVARS = getVars $$_{node_id};
-			$$TEMPVARS{$$_{field}} = $id unless $$TEMPVARS{$$_{field}} != -1; 
-			setVars $$_{node_id}, $TEMPVARS;
-		} elsif ($$_{field} =~ /^groupnode/) {	
-			my $GROUP = $$_{node_id};
+		if ($$fix{isVars})
+		{
+			# This fix is for a reference in a vars "hash" field.  We need
+			# to store them in our %VARS hash.
+			my $FIXVARS = $VARS{$$fix{node_id}};
+			$FIXVARS ||= {};
+
+			$$FIXVARS{$$fix{field}} = $id;
+
+			# Put the fixes back in the parent hash.
+			$VARS{$$fix{node_id}} = $FIXVARS;
+		}
+		elsif ($$fix{field} =~ /^groupnode/)
+		{	
+			# This fix is for a node in a nodegroup.
+			# Each addition to a group is an SQL insert so we can't do them
+			# all at once to save time (well, technically we could, but oh
+			# well).  We will just add the node to the group here since we
+			# have all the needed data anyway.
+			my $GROUP = $$fix{node_id};
 			insertIntoNodegroup($GROUP, -1, $id);
-		} else {
-			my $N = $DB->getNodeById($$_{node_id});
-			$$N{$$_{field}} = $id; 
-			$DB->updateNode($N, -1);
+		}
+		else
+		{
+			# This is a fix for a database field.  We store all the
+			# fields/fix pairs in a hash, that is stored in a parent hash
+			# keyed by the node id.
+			$FIXHASH = $FIELDS{$$fix{node_id}};
+			$FIXHASH ||= {};
+		
+			$$FIXHASH{$$fix{field}} = $id;
+
+			# Put the fix hash back in the parent hash
+			$FIELDS{$$fix{node_id}} = $FIXHASH;
 		}
 	}
+	
+	# Leave unresolved fixes on the list
 	push @FIXES, @UNFIXED;
-	#leave unresolved fixes on the list
+
+	# OK, all of the fixes that we were able to find are stored in the
+	# the %FIELDS hash.  Lets update all them nodes.
+	foreach $N (keys %FIELDS)
+	{
+		my $field;
+		my $update;
+		my $FIXHASH;
+
+		$update = 0;
+		$NODE = getNodeById($N);
+		
+		$FIXHASH = $FIELDS{$N};
+		
+		next unless($FIXHASH);
+
+		foreach $field (keys %$FIXHASH)
+		{
+			$$NODE{$field} = $$FIXHASH{$field};
+		}
+
+		updateNode($NODE, -1);
+	}
+
+	# Update all the nodes that have a vars field that contains
+	# unresolved references
+	foreach $N (keys %VARS)
+	{
+		my $TEMPVARS;
+		my $setvars;
+		my $FIXVARS;
+
+		$NODE = getNodeById($N);
+		$setvars = 0;
+		$TEMPVARS = getVars($NODE);
+		$FIXVARS = $VARS{$N};
+		
+		next unless($FIXVARS);
+
+		foreach my $var (keys %$FIXVARS)
+		{
+			# Settings are usually specific to a site.  We don't want to
+			# overwrite any custom settings they may have, so only set
+			# the ones that do not exist.
+			if( (not exists $$TEMPVARS{$var}) or ($$TEMPVARS{$var} == -1))
+			{
+				$$TEMPVARS{$var} = $$FIXVARS{$var};
+				$setvars = 1;
+			}
+		}
+
+		setVars($NODE, $TEMPVARS) if($setvars);
+	}
 }
+
 
 ###########################################################################
 #	sub 
@@ -283,7 +395,6 @@ sub xml2node{
 	%TABLES = ();
 	%$NODE = ();
 	%$VARS = ();
-	$nodetype = "";
 	$isVars = 0;
 
 	my $node_id;
@@ -292,7 +403,7 @@ sub xml2node{
 	$XMLPARSE = initXmlParse unless $XMLPARSE;
 	$XMLPARSE->parse($xml);
 	
-	$TYPE = $DB->getType($nodetype);
+	$TYPE = $DB->getType($$NODE{type_nodetype});
 	if (defined $TYPE) {
 		#we already have the nodetype for this loaded...
 		my $title = $$NODE{title};
@@ -311,12 +422,12 @@ sub xml2node{
 		
 		#perhaps we already have this node, in which case we should update it
 		my $OLDNODE = $DB->getNode($title, $TYPE);
-		my $OLDVARS = {};
+		my $OLDVARS;
 	
 		if ($OLDNODE) {
 			$OLDVARS = getVars $OLDNODE if exists $$OLDNODE{vars};
 			@$OLDNODE{@fields} = @$NODE{@fields};
-			if (isGroup($$OLDNODE{type})) {
+			if (isGroup($OLDNODE)) {
 				replaceNodegroup ($OLDNODE, [], -1);
 			}
 			$DB->updateNode ($OLDNODE, -1);
@@ -324,7 +435,7 @@ sub xml2node{
 		} else {
 			#otherwise, we insert the node into the database
 			@data{@fields} = @$NODE{@fields};
-			if (isGroup($DB->getType($nodetype))) {
+			if (isGroup($TYPE)) {
 				foreach (keys %data) {
 					delete $data{$_} if /^groupnode/;
 				}
@@ -336,56 +447,30 @@ sub xml2node{
 		}
 
 		if (keys %$VARS) {
-			@$VARS{keys %$OLDVARS} = values %$OLDVARS if $nodetype eq 'setting';
-				#we never replace old settings in a setting node 
+			# we never replace old settings in a setting node 
+			@$VARS{keys %$OLDVARS} = values %$OLDVARS if($OLDVARS);
 			setVars $node_id, $VARS;
 		}
 
+		# When we were parsing this node from XML, we didn't know what id
+		# it was going to be.  So, now that we know, we go through all the
+		# fixes and find the ones that do not have an id.  If we find any,
+		# we know that the "fix" belongs to this node.  So, assign those
+		# fixes to this node!
 		foreach (@FIXES) {
-			$$_{node_id} = $node_id if not $$_{node_id};
+			$$_{node_id} = $node_id if($$_{node_id} == 0);
 		}
+
 		return $node_id;
 	}
 
-	#if we don't have a nodetype, we have to assemble everything from tables
-	#  NOTE: vars fields and group fields will not work unless their proper nodetypes
-	#  exist!  This only works for simple types of nodes
 
-	foreach (keys %$NODE) {
-		$$NODE{$_} = $DB->quote($$NODE{$_});
-	}
-	
-	# First, insert the node table information.  We need to do this to get
-	# the node id.
-	my @fields = @{ $TABLES{node} };
-	my $sql = "INSERT INTO node ";
-	$sql .= "(createtime,". join(",",@fields) . ")\n";
-	$sql .= "VALUES (now(),". join(",",@$NODE{@fields}) .")\n";
-	$DB->getDatabaseHandle()->do($sql) or die "SQL insert for node failed.";
-	$node_id = $DB->sqlSelect('LAST_INSERT_ID()');
-	
-	# Now that we have our node id, we can insert the infor the rest
-	# of the tables.
-	foreach my $table (keys %TABLES) {
-		#we do an insert on the table
-		next if $table eq 'node';
-		
-		@fields = @{ $TABLES{$table} };
-		
-		my $sql = "INSERT INTO $table ";
-		$sql .= "(" . $table . "_id," . join(", ", @fields).")\n";	
-		$sql .= "VALUES ($node_id,".join(', ', @$NODE{@fields}).")\n";	
-		$DB->getDatabaseHandle()->do($sql) or 
-			die "owie.  SQL insert for table $table failed";
-		delete @$NODE{@fields};
-	}
-
-	foreach (@FIXES) {
-		$$_{node_id} = $node_id if not $$_{node_id};
-	}
-
-		$node_id;
-};
+	print "Error: No nodetype!  (id or name: '$$NODE{type_nodetype}')\n";
+	print "Looks like the nodeball is missing a dependency or is\n";
+	print "lacking a nodetype that it was supposed to have.\n";
+	print "Exiting...\n";
+	exit(0);
+}
 
 ####################################################################
 #
@@ -399,11 +484,11 @@ sub xml2node{
 #
 sub xmlfile2node {
     my ($filename) = @_;
-	
+		
 	open MYXML, $filename or die "could not access file $filename";
 	my $file = join "", <MYXML>;
 	close MYXML;
-	xml2node($file);	
+	xml2node($file);
 }
 
 ####################################################################
@@ -492,7 +577,6 @@ sub vars2xml {
 	my $varstr = "";
 	
 	foreach my $key (keys %$VARS) {
-#		print "generating variable for $key\n";
 		$varstr.="\t\t";
 		if ($key =~ /_(\w+)$/ and $$VARS{$key} =~ /^\d+$/) {
 		#this is a node reference

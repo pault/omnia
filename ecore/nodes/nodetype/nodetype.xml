@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
+	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">rwxd</authoraccess>
 	<defaultauthor_permission table="nodetype" type="literal_value">0</defaultauthor_permission>
 	<defaultauthoraccess table="nodetype">rwxd</defaultauthoraccess>
@@ -25,5 +25,5 @@
 	<restrictdupes table="nodetype">1</restrictdupes>
 	<sqltable table="nodetype">nodetype</sqltable>
 	<title table="node">nodetype</title>
-	<type_nodetype table="node" type="nodetype">nodetype</type_nodetype>
+	<type_nodetype table="node" type="literal_value">1</type_nodetype>
 </NODE>
