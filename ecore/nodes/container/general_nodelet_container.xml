@@ -2,7 +2,7 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<context table="container">[%
 if (defined $$THEME{nodeletParent_container}) {
-  $$NODE{parent_container} = $$THEME{nodeletParent_container};
+  $$CURRENTNODE{parent_container} = $$THEME{nodeletParent_container};
 }
 "";
 %]
