@@ -8,7 +8,8 @@ my $str = '';
 my @noShow = ('table', 'type_nodetype');
 
 foreach my $key (keys %$NODE) {
-  unless (grep /^$key$/, @noShow) {
+  unless ((grep /^$key$/, @noShow) || $key =~ /^_/) {
+	next unless defined($$NODE{$key});
     $str .= "&lt;li>&lt;B>$key: &lt;/B>";
     
     if ($key &amp;&amp; $key =~ /\_/ &amp;&amp; !($key =~ /\_id/))
