@@ -1056,6 +1056,17 @@ sub getHash
 #		given node.  If the new vars are different, we will update the
 #		node.
 #
+#	NOTE!
+#		If the vars hash contains an undefined value or the value is an
+#		empty string, it will be removed from the hash as it would
+#		generate a string like:
+#
+#		key1=value1&key2=&key3=value3
+#
+#		When we try to reconstruct the hash in getHash, it will fail because
+#		of the 'key2='  blank value.  So, just be aware that setting a hash
+#		may cause a key to be deleted.
+#
 #	Parameters
 #		$varsref - the hashref to get the vars from
 #		$field - the field of the node to set.  Different types may
@@ -1073,7 +1084,8 @@ sub setHash
 	# we use defined() because 0 is a valid value -- but not a true one
 	foreach (keys %$varsref)
 	{
-		delete $$varsref{$_} unless defined $$varsref{$_};
+		my $value = $varsref{$_};
+		delete $$varsref{$_} unless($value && $value ne "");
 	}
 
 	# Store the changed hash for calls to getVars
