@@ -1,28 +1,28 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">Here's the stuff: &lt;p&gt;
+<NODE export_version="0.5" nodetype="superdoc" title="Search Results">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">Here's the stuff: &lt;p>
 [%
 
 my $str;
-my $title = $query-&gt;param('node');
+my $title = $query->param('node');
 return "" unless $title;
 foreach my $ND (@{ $$NODE{group} }) {
-	$str .= "&lt;LI&gt;" . linkNode ($ND) . "\n";
+	$str .= "&lt;LI>" . linkNode ($ND) . "\n";
 }
 
 $str;
 %]
-[{createnewnode}]</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">superdoc</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">Search Results</title>
-	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+[{createnewnode}]</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">superdoc</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">Search Results</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">superdoc</field>
 </NODE>

@@ -1,44 +1,43 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">966314594</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">Your fellow noders:&lt;br&gt;
+<NODE export_version="0.5" nodetype="nodelet" title="Other Users">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field type_nodetype="nodelet,nodetype" name="mini_nodelet" type="noderef">Other Users Mini</field>
+  <field name="nlcode" type="literal_value">Your fellow noders:&lt;br>
 [%
 
 my $time = 3 * 60;
 my $limit = 30;
 
-my $csr=$DB-&gt;getDatabaseHandle()-&gt;prepare("	
+my $csr=$DB->getDatabaseHandle()->prepare("	
 	SELECT node_id, title FROM node, user
 	WHERE node_id=user_id and
-	type_nodetype=". getId ($DB-&gt;getType('user')) ." and
+	type_nodetype=". getId ($DB->getType('user')) ." and
 	(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)
 	LIMIT $limit");
 
-$csr-&gt;execute or return "SHIT";
+$csr->execute or return "SHIT";
 my $str;
-while(my $U = $csr-&gt;fetchrow_hashref) {
-	$str .= linkNode($U) ."&lt;br&gt;";
+while(my $U = $csr->fetchrow_hashref) {
+	$str .= linkNode($U) ."&lt;br>";
 }
-$csr-&gt;finish;
+$csr->finish;
 return $str if $str;
-"&lt;i&gt;no users logged in&lt;/i&gt;";
-%] </nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Your fellow noders:&lt;br&gt;
-&lt;A HREF="/~paco/index.pl?node_id=231&amp;lastnode_id=35"&gt;root&lt;/a&gt;&lt;br&gt; </nltext>
-	<nodelet_mini table="nodelet" type="nodelet">Other Users Mini</nodelet_mini>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">Other Users</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+"&lt;i>no users logged in&lt;/i>";
+%] </field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">Your fellow noders:&lt;br>
+&lt;A HREF="/~paco/index.pl?node_id=231&amp;lastnode_id=35">root&lt;/a>&lt;br> </field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">Other Users</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

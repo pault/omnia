@@ -1,38 +1,38 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">&lt;h3&gt;nsh Commands&lt;/h3&gt;
+<NODE export_version="0.5" nodetype="document" title="nsh Help">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">&lt;h3>nsh Commands&lt;/h3>
 
-&lt;p&gt;The Everything nsh (node shell) command line is a simple command line
+&lt;p>The Everything nsh (node shell) command line is a simple command line
 interface for moving and deleting nodes, or changing "directories" to a new
 location.
 
-&lt;p&gt;Note that only the 'cd' command works on non-[location] nodes.  This is
+&lt;p>Note that only the 'cd' command works on non-[location] nodes.  This is
 to limit "mistakes", like doing an 'rm' in the wrong location.
 
-&lt;p&gt;&lt;b&gt;cd&lt;/b&gt;&lt;br&gt;
+&lt;p>&lt;b>cd&lt;/b>&lt;br>
 Works just like the UNIX 'cd' command.  The root directory "/" is defined by
 the "root_location" setting in [system settings].
 
-&lt;p&gt;&lt;b&gt;rm&lt;/b&gt;&lt;br&gt;
+&lt;p>&lt;b>rm&lt;/b>&lt;br>
 Works similarly to the UNIX 'rm' command.  It takes a space separated list of
 node names.  If the node name has spaces, you will need to quote the name
 with double or single quotes.  This also accecpts wild card matching with '*'
 (ie 'rm node*' will remove all nodes that have a title that begins with 'node').
 This only affects the nodes in the current location.
 
-&lt;p&gt;&lt;b&gt;mv&lt;/b&gt;&lt;br&gt;
+&lt;p>&lt;b>mv&lt;/b>&lt;br>
 Again, this behaves similar to the UNIX 'mv' command.  It takes a space
-separated list of node names.  The list is the same as 'rm'.</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">document</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">nsh Help</title>
-	<type_nodetype table="node" type="nodetype">document</type_nodetype>
+separated list of node names.  The list is the same as 'rm'.</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">document</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">nsh Help</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">document</field>
 </NODE>

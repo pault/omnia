@@ -1,25 +1,26 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">He's the god of [gods] -- instant access.  Unlimited power.
-Great hair</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<email table="user">root@localhost</email>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<karma table="user">30</karma>
-	<loc_location table="node" type="location">user</loc_location>
-	<nick table="user"></nick>
-	<otheraccess table="node">iiii-</otheraccess>
-	<realname table="user">Super user</realname>
-	<title table="node">root</title>
-	<type_nodetype table="node" type="nodetype">user</type_nodetype>
-	<vars table="setting">
-		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
-		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
-	</vars>
+<NODE export_version="0.5" nodetype="user" title="root">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">He's the god of [gods] -- instant access.  Unlimited power.
+Great hair</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="email" type="literal_value">root@localhost</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="karma" type="literal_value">30</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">user</field>
+  <field name="nick" type="literal_value"></field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="realname" type="literal_value">Super user</field>
+  <field name="title" type="literal_value">root</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">user</field>
+  <vars>
+    <var type_nodetype="nodeletgroup,nodetype" name="nodelet_group" type="noderef">system nodelets</var>
+    <var name="nodelets" type="literal_value">207,209,199,195,202,200,194,204</var>
+    <var type_nodetype="themesetting,nodetype" name="preferred_theme" type="noderef">root's default themesettings</var>
+  </vars>
 </NODE>

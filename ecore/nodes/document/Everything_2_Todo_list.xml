@@ -1,41 +1,41 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">The E2 todo list.  
-&lt;ol&gt;
-&lt;li&gt;come up with some tests for QAuser to execute.
+<NODE export_version="0.5" nodetype="document" title="Everything 2 Todo list">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">The E2 todo list.  
+&lt;ol>
+&lt;li>come up with some tests for QAuser to execute.
 
 
 
 
-&lt;li&gt;Figure out the system groups. (core everything has node
+&lt;li>Figure out the system groups. (core everything has node
     ids in 0 to X range, either inheiritence or special nodetypes)
-&lt;li&gt;add "ratings" an impliment rudimentary form of user karma
-&lt;li&gt;add link displays
-&lt;li&gt;replace current systems (perlmonks, hernandez, fezfamily, oostendorp.net)  with new 'containers' and nodelets
-&lt;li&gt;alter table columns to be NOT NULL DEFAULT=0
-&lt;li&gt;lock pages on edit page load
-&lt;li&gt;some ability to add HTML-filtering to Text fields (no table tags, etc)
-&lt;li&gt;enhance the "note - reply" system
-&lt;li&gt;THE BIG ONE:  Everything.blockstackers.com
-&lt;/ol&gt;
+&lt;li>add "ratings" an impliment rudimentary form of user karma
+&lt;li>add link displays
+&lt;li>replace current systems (perlmonks, hernandez, fezfamily, oostendorp.net)  with new 'containers' and nodelets
+&lt;li>alter table columns to be NOT NULL DEFAULT=0
+&lt;li>lock pages on edit page load
+&lt;li>some ability to add HTML-filtering to Text fields (no table tags, etc)
+&lt;li>enhance the "note - reply" system
+&lt;li>THE BIG ONE:  Everything.blockstackers.com
+&lt;/ol>
 
 Completed items
-&lt;ul&gt;
-&lt;li&gt;Item completed: date : who
-&lt;li&gt;core system now in CVS
-&lt;li&gt;fix the update bug (foreign rows not being properly nuked in update)
-&lt;li&gt;Foreign keys are the same as node ids...
-&lt;/ul&gt;</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">document</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">Everything 2 Todo list</title>
-	<type_nodetype table="node" type="nodetype">document</type_nodetype>
+&lt;ul>
+&lt;li>Item completed: date : who
+&lt;li>core system now in CVS
+&lt;li>fix the update bug (foreign rows not being properly nuked in update)
+&lt;li>Foreign keys are the same as node ids...
+&lt;/ul></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">document</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">Everything 2 Todo list</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">document</field>
 </NODE>

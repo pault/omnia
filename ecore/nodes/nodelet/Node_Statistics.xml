@@ -1,30 +1,29 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">966661097</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">Node ID:[% getId $NODE %]&lt;br&gt;
-Created on:&lt;br&gt; ["$$NODE{createtime}"]&lt;br&gt;
-Hits: ["$$NODE{hits}"]&lt;br&gt;
-Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
-Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype"))); %]</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Node ID:47&lt;br&gt;
-Created on:&lt;br&gt; 2000-08-18 23:13:53&lt;br&gt;
-Hits: 11&lt;br&gt;
-Nodetype: &lt;A HREF="/~paco/temp2/index.pl?node_id=19&amp;lastnode_id=47"&gt;superdoc&lt;/a&gt;&lt;br&gt;
-Display page: &lt;br&gt;&lt;A HREF="/~paco/temp2/index.pl?node_id=172&amp;lastnode_id=47"&gt;superdoc display page&lt;/a&gt;</nltext>
-	<nodelet_mini table="nodelet" type="nodelet">Node Statistics Mini</nodelet_mini>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">Node Statistics</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+<NODE export_version="0.5" nodetype="nodelet" title="Node Statistics">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field type_nodetype="nodelet,nodetype" name="mini_nodelet" type="noderef">Node Statistics Mini</field>
+  <field name="nlcode" type="literal_value">Node ID:[% getId $NODE %]&lt;br>
+Created on:&lt;br> ["$$NODE{createtime}"]&lt;br>
+Hits: ["$$NODE{hits}"]&lt;br>
+Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br>
+Display page: &lt;br>[% linkNode (getPage($NODE, $query->param("displaytype"))); %]</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">Node ID:47&lt;br>
+Created on:&lt;br> 2000-08-18 23:13:53&lt;br>
+Hits: 11&lt;br>
+Nodetype: &lt;A HREF="/~paco/temp2/index.pl?node_id=19&amp;lastnode_id=47">superdoc&lt;/a>&lt;br>
+Display page: &lt;br>&lt;A HREF="/~paco/temp2/index.pl?node_id=172&amp;lastnode_id=47">superdoc display page&lt;/a></field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">Node Statistics</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

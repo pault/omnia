@@ -1,55 +1,54 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">973219924</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">[%my $limit = 15;
+<NODE export_version="0.5" nodetype="nodelet" title="New Nodes">
+  <field type_nodetype="usergroup,nodetype" name="author_user" type="noderef">gods</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
 my $str;
-my $csr = $DB-&gt;getDatabaseHandle()-&gt;prepare("
+my $csr = $DB->getDatabaseHandle()->prepare("
 	SELECT * FROM node
 	ORDER BY createtime DESC
 	LIMIT $limit");
 
-$csr-&gt;execute or return "SHIT";
-while(my $N = $csr-&gt;fetchrow_hashref){
-	$str .= linkNode($N) . "&lt;BR&gt;\n";	
+$csr->execute or return "SHIT";
+while(my $N = $csr->fetchrow_hashref){
+	$str .= linkNode($N) . "&lt;BR>\n";	
 }
-$csr-&gt;finish;
+$csr->finish;
 $str;
 
 
 
-%]</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/~oostendo/index.pl?node_id=248&amp;lastnode_id=241"&gt;default theme&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=249&amp;lastnode_id=241"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=250&amp;lastnode_id=241"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=251&amp;lastnode_id=241"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=252&amp;lastnode_id=241"&gt;qauser&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=253&amp;lastnode_id=241"&gt;tester&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=254&amp;lastnode_id=241"&gt;gods&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=234&amp;lastnode_id=241"&gt;system settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=235&amp;lastnode_id=241"&gt;Not found&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=236&amp;lastnode_id=241"&gt;Create a new user&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=237&amp;lastnode_id=241"&gt;Duplicates Found&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=238&amp;lastnode_id=241"&gt;Everything settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=239&amp;lastnode_id=241"&gt;Permission Denied&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=240&amp;lastnode_id=241"&gt;Search Results&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/~oostendo/index.pl?node_id=241&amp;lastnode_id=241"&gt;The Default Node&lt;/a&gt;&lt;BR&gt;
-</nltext>
-	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">New Nodes</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">60</updateinterval>
+%]</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?node_id=250&amp;lastnode_id=241">Guest User&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=251&amp;lastnode_id=241">root&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=252&amp;lastnode_id=241">gods&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=234&amp;lastnode_id=241">system settings&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=235&amp;lastnode_id=241">Create a new user&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=236&amp;lastnode_id=241">Duplicates Found&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=237&amp;lastnode_id=241">Everything settings&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=238&amp;lastnode_id=241">Not found&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=239&amp;lastnode_id=241">Permission Denied&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=240&amp;lastnode_id=241">Search Results&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=241&amp;lastnode_id=241">The Default Node&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=242&amp;lastnode_id=241">The Everything Tour&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=243&amp;lastnode_id=241">User settings&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=244&amp;lastnode_id=241">What is my password&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?node_id=245&amp;lastnode_id=241">login&lt;/a>&lt;BR>
+</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">New Nodes</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">60</field>
 </NODE>

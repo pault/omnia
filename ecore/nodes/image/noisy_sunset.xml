@@ -1,19 +1,19 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<alt table="image">noisy</alt>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<description table="image">hi mom.  I like this!</description>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">image</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<src table="image">http://oostendorp.net/gimpart/noisy_sunset.jpg</src>
-	<thumbsrc table="image"></thumbsrc>
-	<title table="node">noisy sunset</title>
-	<type_nodetype table="node" type="nodetype">image</type_nodetype>
+<NODE export_version="0.5" nodetype="image" title="noisy sunset">
+  <field name="alt" type="literal_value">noisy</field>
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="description" type="literal_value">hi mom.  I like this!</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">image</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="src" type="literal_value">http://oostendorp.net/gimpart/noisy_sunset.jpg</field>
+  <field name="thumbsrc" type="literal_value"></field>
+  <field name="title" type="literal_value">noisy sunset</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">image</field>
 </NODE>

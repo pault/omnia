@@ -1,11 +1,11 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode"># This generates an HTML table that contains the fields
+<NODE export_version="0.5" nodetype="htmlcode" title="displaytable">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># This generates an HTML table that contains the fields
 # of a database table.  The output is similar to what
 # you get when 'show columns from $table' is executed.
 my ($table, $edit) = @_;
-my @fields = $DB-&gt;getFieldsHash($table);
+my @fields = $DB->getFieldsHash($table);
 my $field;
 my $fieldname;
 my $value;
@@ -13,75 +13,75 @@ my $str = "";
 
 $edit = 0 if(not defined $edit);
 
-$str .= "&lt;table border=1 width=400&gt;\n";
+$str .= "&lt;table border=1 width=400>\n";
 
 $field = $fields[0];
 
-  $str .= " &lt;tr&gt;\n";
+  $str .= " &lt;tr>\n";
 foreach $fieldname (keys %$field)
 {
-  $str .= "  &lt;td bgcolor=\"#cccccc\"&gt;$fieldname&lt;/td&gt;\n";
+  $str .= "  &lt;td bgcolor=\"#cccccc\">$fieldname&lt;/td>\n";
 }
 
-$str .= "  &lt;td bgcolor=\"#cccccc\"&gt;Remove Field?&lt;/td&gt;\n" if($edit);
-$str .= " &lt;/tr&gt;\n";
+$str .= "  &lt;td bgcolor=\"#cccccc\">Remove Field?&lt;/td>\n" if($edit);
+$str .= " &lt;/tr>\n";
 
 foreach $field (@fields)
 {
-  $str .= " &lt;tr&gt;\n";
+  $str .= " &lt;tr>\n";
   foreach $value (values %$field)
   {
     $value = "&amp;nbsp;" if($value eq ""); # fill in the blanks
-    $str .= "  &lt;td&gt;$value&lt;/td&gt;\n";
+    $str .= "  &lt;td>$value&lt;/td>\n";
   }
-  $str .= "  &lt;td&gt;" .
-    $query-&gt;checkbox(-name =&gt; $$field{Field} . "REMOVE",
-        -value =&gt; 'REMOVE',
-        -label =&gt; 'Remove?') .
-    "  &lt;/td&gt;\n" if($edit);
-  $str .= " &lt;/tr&gt;\n";
+  $str .= "  &lt;td>" .
+    $query->checkbox(-name => $$field{Field} . "REMOVE",
+        -value => 'REMOVE',
+        -label => 'Remove?') .
+    "  &lt;/td>\n" if($edit);
+  $str .= " &lt;/tr>\n";
 }
 
-$str .= "&lt;/table&gt;\n";
+$str .= "&lt;/table>\n";
 
 if($edit)
 {
-  $str .= "&lt;br&gt;\n";
-  $str .= "Add new field:&lt;br&gt;";
+  $str .= "&lt;br>\n";
+  $str .= "Add new field:&lt;br>";
   $str .= "Field Name: ";
-  $str .= $query-&gt;textfield( -name =&gt; "fieldname_new",
-      -default =&gt; "",
-      -size =&gt; 30,
-      -maxlength =&gt; 50);
-  $str .= "&lt;br&gt;Field type: ";
-  $str .= $query-&gt;textfield( -name =&gt; "fieldtype_new",
-      -default =&gt; "",
-      -size =&gt; 10,
-      -maxlength =&gt; 10);
+  $str .= $query->textfield( -name => "fieldname_new",
+      -default => "",
+      -size => 30,
+      -maxlength => 50);
+  $str .= "&lt;br>Field type: ";
+  $str .= $query->textfield( -name => "fieldtype_new",
+      -default => "",
+      -size => 10,
+      -maxlength => 10);
   $str .= " (i.e. int(11), char(32), text, etc.)";
-  $str .= "&lt;br&gt;Default value: ";
-  $str .= $query-&gt;textfield( -name =&gt; "fielddefault_new",
-      -default =&gt; "",
-      -size =&gt; 50,
-      -maxlength =&gt; 50);
-  $str .= "&lt;br&gt;\n";
-  $str .= $query-&gt;checkbox(-name =&gt; "fieldprimary_new",
-      -value =&gt; "primary",
-      -label =&gt; "Primary Key?");
-  $str .= "&lt;br&gt;\n";
+  $str .= "&lt;br>Default value: ";
+  $str .= $query->textfield( -name => "fielddefault_new",
+      -default => "",
+      -size => 50,
+      -maxlength => 50);
+  $str .= "&lt;br>\n";
+  $str .= $query->checkbox(-name => "fieldprimary_new",
+      -value => "primary",
+      -label => "Primary Key?");
+  $str .= "&lt;br>\n";
 }
 
 $str;
-</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">displaytable</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">displaytable</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

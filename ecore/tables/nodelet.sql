@@ -1,8 +1,8 @@
-# MySQL dump 7.1
+# MySQL dump 6.0
 #
-# Host: localhost    Database: oostendo
+# Host: localhost    Database: new
 #--------------------------------------------------------
-# Server version	3.22.32
+# Server version	3.22.25
 
 #
 # Table structure for table 'nodelet'
@@ -15,6 +15,6 @@ CREATE TABLE nodelet (
   parent_container int(11),
   lastupdate int(11) DEFAULT '0' NOT NULL,
   updateinterval int(11) DEFAULT '0' NOT NULL,
-  nodelet_mini int(11) DEFAULT '0' NOT NULL,
+  mini_nodelet int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (nodelet_id)
 );

@@ -1,7 +1,7 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
+<NODE export_version="0.5" nodetype="restricted_superdoc" title="Gigantic Node Lister">
+  <field name="author_user" type="literal_value">-1</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">&lt;center>&lt;h3>Gigantic Node Lister&lt;/h3>&lt;/center>
 
 [{openform}]
 
@@ -9,26 +9,26 @@
 use Everything::FormMenu;
 
 my $menu = new Everything::FormMenu();
-my $type = $query-&gt;param('whichtype');
-my $group = $query-&gt;param('whichgroup');
+my $type = $query->param('whichtype');
+my $group = $query->param('whichgroup');
 my $str;
 
 $type ||= "alltypes";
 $group ||= "nogroup";
 
-$menu-&gt;addHash({ "alltypes" =&gt; "All Types"});
-$menu-&gt;addType('nodetype', 1);
+$menu->addHash({ "alltypes" => "All Types"});
+$menu->addType('nodetype', 1);
 
-$str .= $menu-&gt;writePopupHTML($query, "whichtype", $type);
+$str .= $menu->writePopupHTML($query, "whichtype", $type);
 
 $menu = new Everything::FormMenu();
-$menu-&gt;addHash({ "nogroup" =&gt; "No group" });
-$menu-&gt;addType('nodegroup', 1);
-$menu-&gt;addType('nodeball', 1);
+$menu->addHash({ "nogroup" => "No group" });
+$menu->addType('nodegroup', 1);
+$menu->addType('nodeball', 1);
 
-$str .= $menu-&gt;writePopupHTML($query, "whichgroup", $group);
+$str .= $menu->writePopupHTML($query, "whichgroup", $group);
 
-$str .= $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
+$str .= $query->hidden(-name => 'next', -default => 0);
 
 $str;
 %]
@@ -37,33 +37,33 @@ $str;
 
 [{openform}]
 [%
-$query-&gt;hidden(-name =&gt; 'op', -default =&gt; 'addBucket', -override =&gt; 1) .
-$query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
+$query->hidden(-name => 'op', -default => 'addBucket', -override => 1) .
+$query->hidden(-name => 'next', -default => 0);
 %]
 [%
 my %CLR = (
-  document =&gt; "#AAAAcc",
-  user =&gt; "#66dd66",
-  usergroup =&gt; "#99CC99",
-  nodetype =&gt; "#CC6666",
-  htmlpage =&gt; "#CC66CC",
-  htmlcode =&gt; "#FF99FF",
-  node =&gt; "#EEEEEE",
-  superdoc =&gt; "#6666CC",
-  nodegroup =&gt; "#CCCCCC",
-  image =&gt; "#33CCFF",
-  default =&gt; '#AAAAAA',
-  container =&gt; '#FFCC99',
-  nodelet =&gt; '#CCFFCC',
-  nodeletgroup =&gt; '#99FF99',
-  location =&gt; '#ccAA33',
-  opcode =&gt; '#AAccAA',
-  nodemethod =&gt; 'CC9999'
+  document => "#AAAAcc",
+  user => "#66dd66",
+  usergroup => "#99CC99",
+  nodetype => "#CC6666",
+  htmlpage => "#CC66CC",
+  htmlcode => "#FF99FF",
+  node => "#EEEEEE",
+  superdoc => "#6666CC",
+  nodegroup => "#CCCCCC",
+  image => "#33CCFF",
+  default => '#AAAAAA',
+  container => '#FFCC99',
+  nodelet => '#CCFFCC',
+  nodeletgroup => '#99FF99',
+  location => '#ccAA33',
+  opcode => '#AAccAA',
+  nodemethod => 'CC9999'
 );
 
-my $type = $query-&gt;param('whichtype');
+my $type = $query->param('whichtype');
 my $ref;
-my $offset = $query-&gt;param("next");
+my $offset = $query->param("next");
 my $totalRows;
 my $limit = 100;
 my $next;
@@ -79,79 +79,79 @@ if($type eq "alltypes")
 }
 else
 {
-  $ref = selectNodeWhere({type_nodetype =&gt; $type}, undef, undef, $limit,
+  $ref = selectNodeWhere({type_nodetype => $type}, undef, undef, $limit,
     $offset, \$totalRows);
 }
 
-return "&lt;p&gt;&lt;b&gt;No Nodes of the selected type&lt;/b&gt;\n"
+return "&lt;p>&lt;b>No Nodes of the selected type&lt;/b>\n"
   unless(defined $ref);
 
 #generate the prev...count...next row
 my $nav;
-$nav .= "&lt;tr&gt;&lt;td align=left&gt;";
+$nav .= "&lt;tr>&lt;td align=left>";
 	
-$next = ($totalRows &gt; $offset + $limit ? $offset + $limit : $totalRows);	
+$next = ($totalRows > $offset + $limit ? $offset + $limit : $totalRows);	
 $prev = ($offset &lt; $limit ? 0 : $offset - $limit);
 	
 $nav .= "&lt;a href=" .
-  urlGen ({node_id =&gt; getId ($NODE), next =&gt; ($prev) }) . 
-  "&gt;Previous " . ($offset-$prev) . " entries...&lt;/a&gt;"
-  if ($offset &gt; 0);
+  urlGen ({node_id => getId ($NODE), next => ($prev) }) . 
+  ">Previous " . ($offset-$prev) . " entries...&lt;/a>"
+  if ($offset > 0);
 
-$nav .= "&lt;/td&gt;&lt;td align=center&gt;($offset-" . ($offset+int(@$ref)) .
-  ") of $totalRows&lt;/td&gt;&lt;td align=right&gt;";
+$nav .= "&lt;/td>&lt;td align=center>($offset-" . ($offset+int(@$ref)) .
+  ") of $totalRows&lt;/td>&lt;td align=right>";
 	
 $nav .= "&lt;a href=" .
-  urlGen ({node_id =&gt; getId ($NODE), next =&gt; $next}) . 
-  "&gt;Next " . ($totalRows - $next &gt; $limit ? $totalRows - $next : $limit) .
-  " entries...&lt;/a&gt;" if ($next &lt; $totalRows);
+  urlGen ({node_id => getId ($NODE), next => $next}) . 
+  ">Next " . ($totalRows - $next > $limit ? $totalRows - $next : $limit) .
+  " entries...&lt;/a>" if ($next &lt; $totalRows);
 
-$nav .= "&lt;/td&gt;&lt;/tr&gt;";
+$nav .= "&lt;/td>&lt;/tr>";
 
 #construct the table
-my $str = "&lt;TABLE width=100% border=0&gt;";
-my $NODEGROUP = getNode($query-&gt;param('whichgroup'));
+my $str = "&lt;TABLE width=100% border=0>";
+my $NODEGROUP = getNode($query->param('whichgroup'));
 
 $str .= $nav;
-$str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;/tr&gt;";
+$str .= "&lt;tr>&lt;th>Node ID&lt;/td>&lt;th>Title&lt;/th>&lt;th>Type&lt;/th>&lt;/tr>";
 
 for (my $i=0; $i &lt; @$ref; $i++)
 {
   my $N = getNode($$ref[$i], 'light');
 
-  $str .= "&lt;tr&gt;&lt;td&gt;&lt;font size=1&gt;";
-  $str .= "&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' UNCHECKED&gt;";
-  $str .= "&lt;/font&gt;";
+  $str .= "&lt;tr>&lt;td>&lt;font size=1>";
+  $str .= "&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' UNCHECKED>";
+  $str .= "&lt;/font>";
   $str .= getId($N);
-  if ($NODEGROUP &amp;&amp; ($NODEGROUP-&gt;inGroupFast($N)))
+  if ($NODEGROUP &amp;&amp; ($NODEGROUP->inGroupFast($N)))
   {
     $str .= " is in '$$NODEGROUP{title}'";
   }
 
-  $str .= "&lt;/td&gt;&lt;td bgcolor=#DDCCCC&gt;" . linkNode ($N) .
-     "&lt;/td&gt;&lt;td bgcolor=" . 
+  $str .= "&lt;/td>&lt;td bgcolor=#DDCCCC>" . linkNode ($N) .
+     "&lt;/td>&lt;td bgcolor=" . 
      ($CLR{$$N{type}{title}} || $CLR{default}) . 
-     "&gt;$$N{type}{title}&lt;/td&gt;&lt;/tr&gt;\n" if (ref $$N{type});	
+     ">$$N{type}{title}&lt;/td>&lt;/tr>\n" if (ref $$N{type});	
 }
 $str .= $nav;
 	
-$str .= "&lt;/TABLE&gt;";
+$str .= "&lt;/TABLE>";
 $str;
 %]
 
 [{submit:addtonb,Add checked to Node Bucket}]
 [%
-$query-&gt;endform;
-%]</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">restricted_superdoc</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">Gigantic Node Lister</title>
-	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+$query->endform;
+%]</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">restricted_superdoc</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">Gigantic Node Lister</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">restricted_superdoc</field>
 </NODE>

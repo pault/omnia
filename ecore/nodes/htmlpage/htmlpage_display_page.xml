@@ -1,65 +1,65 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">display</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">&lt;table border=0&gt;
- &lt;tr&gt;
-  &lt;td&gt;&lt;b&gt;pagetype&lt;/b&gt;:&lt;/td&gt;
-  &lt;td&gt;[%
-	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
+<NODE export_version="0.5" nodetype="htmlpage" title="htmlpage display page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;table border=0>
+ &lt;tr>
+  &lt;td>&lt;b>pagetype&lt;/b>:&lt;/td>
+  &lt;td>[%
+	my $N = $DB->getNodeById($$NODE{pagetype_nodetype}, 'light');
 	linkNode $N;
-%]&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td&gt;&lt;b&gt;parent container&lt;/b&gt;:&lt;/td&gt;
-  &lt;td&gt;[% 
+%]&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>&lt;b>parent container&lt;/b>:&lt;/td>
+  &lt;td>[% 
 return linkNode ($$NODE{parent_container})
   if $$NODE{parent_container};
-return "&lt;i&gt;none&lt;/i&gt;";
-%]&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td&gt;&lt;b&gt;displaytype&lt;/b&gt;:&lt;/td&gt;
-  &lt;td&gt;["$$NODE{displaytype}"]&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td&gt;&lt;b&gt;theme&lt;/b&gt;:&lt;/td&gt;
-  &lt;td&gt;[%
+return "&lt;i>none&lt;/i>";
+%]&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>&lt;b>displaytype&lt;/b>:&lt;/td>
+  &lt;td>["$$NODE{displaytype}"]&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>&lt;b>theme&lt;/b>:&lt;/td>
+  &lt;td>[%
 unless ($$NODE{ownedby_theme}) {
-  return "&lt;i&gt;this htmlpage does not belong to a theme&lt;/i&gt;";
+  return "&lt;i>this htmlpage does not belong to a theme&lt;/i>";
 }
 my $THEME = getNode $$NODE{ownedby_theme};
 linkNode($THEME);
 
-%]&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td&gt;&lt;b&gt;Permission needed&lt;/b&gt;:&lt;/td&gt;
-  &lt;td&gt;[%
-my $trans = { 'r' =&gt; "read", 'w' =&gt; "write",
-  'x' =&gt; "execute", 'd' =&gt; "delete", 'c' =&gt; "create" };
+%]&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>&lt;b>Permission needed&lt;/b>:&lt;/td>
+  &lt;td>[%
+my $trans = { 'r' => "read", 'w' => "write",
+  'x' => "execute", 'd' => "delete", 'c' => "create" };
 
 $$trans{$$NODE{permissionneeded}};
-%]&lt;/td&gt;
- &lt;/tr&gt;
-&lt;/table&gt;
+%]&lt;/td>
+ &lt;/tr>
+&lt;/table>
  
-&lt;p&gt;&lt;b&gt;Code:&lt;/b&gt;&lt;br&gt;
+&lt;p>&lt;b>Code:&lt;/b>&lt;br>
 [{listcode:page}]
-</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">htmlpage</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">general container</parent_container>
-	<permissionneeded table="htmlpage">r</permissionneeded>
-	<title table="node">htmlpage display page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">htmlpage</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general container</field>
+  <field name="permissionneeded" type="literal_value">r</field>
+  <field name="title" type="literal_value">htmlpage display page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>

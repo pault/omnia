@@ -1,21 +1,21 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode"># This provides links to display, edit, clone, or delete 
+<NODE export_version="0.5" nodetype="htmlcode" title="adminbox">
+  <field name="author_user" type="literal_value">-1</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># This provides links to display, edit, clone, or delete 
 # the current node if the user has the authority to do so.  
 
-my $disp = $query-&gt;param("displaytype");
+my $disp = $query->param("displaytype");
 my $str;
 my @links;
 
 my $CLONER = getNode("node cloner", "restricted_superdoc");
-my $PARAMS = { "srcnode_id" =&gt; $$NODE{node_id}, 
-  "node_id" =&gt; $$CLONER{node_id},
-  "newname" =&gt; "NEWNAME" };
+my $PARAMS = { "srcnode_id" => $$NODE{node_id}, 
+  "node_id" => $$CLONER{node_id},
+  "newname" => "NEWNAME" };
 
 my $url = urlGen($PARAMS);
 my $script = "
-&lt;script language=\"javascript\"&gt;
+&lt;script language=\"javascript\">
 
 function cloneNode()
 {
@@ -31,7 +31,7 @@ function cloneNode()
   }
 }
 
-&lt;/script&gt;";
+&lt;/script>";
 
 $str = $script;
 
@@ -45,43 +45,43 @@ foreach my $type (@displaytypes)
 {
   if ($disp eq $type)
   {
-    push @links, "&lt;img src=images/icon_".$type."_current.gif alt=".$type." border=0&gt;";
+    push @links, "&lt;img src=images/icon_".$type."_current.gif alt=".$type." border=0>";
   } 
   else
   {
-    push @links, linkNode ($NODE, "&lt;img src=images/icon_".$type.".gif  alt=".$type." border=0&gt;", 
-      {displaytype =&gt; $type}) . " ";
+    push @links, linkNode ($NODE, "&lt;img src=images/icon_".$type.".gif  alt=".$type." border=0>", 
+      {displaytype => $type}) . " ";
   }
 }
 
-$str.="&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1&gt;
-         &lt;tr bgcolor=#ffffff&gt; 
-           &lt;td bgcolor='#FFCCCC' align='center'&gt;".$links[0].
-          "&lt;/td&gt;&lt;td bgcolor='#FF9999' align='center'&gt;".$links[1].
-          "&lt;/td&gt;&lt;td bgcolor='#FFCCCC' align='center'&gt;".$links[2].
-          "&lt;/td&gt;&lt;/tr&gt;";
+$str.="&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1>
+         &lt;tr bgcolor=#ffffff> 
+           &lt;td bgcolor='#FFCCCC' align='center'>".$links[0].
+          "&lt;/td>&lt;td bgcolor='#FF9999' align='center'>".$links[1].
+          "&lt;/td>&lt;td bgcolor='#FFCCCC' align='center'>".$links[2].
+          "&lt;/td>&lt;/tr>";
 
 
-$str .= "&lt;tr&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;a href='javascript: cloneNode();'&gt;&lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;&lt;/td&gt;
-&lt;td bgcolor='#FFCCCC' align=center&gt;";
-$str.= htmlcode('clonetotype')."&lt;/td&gt;";
+$str .= "&lt;tr>&lt;td bgcolor='#FF9999' align='center'>&lt;a href='javascript: cloneNode();'>&lt;img src=images/icon_clone.gif alt=clone border=0>&lt;/a>&lt;/td>
+&lt;td bgcolor='#FFCCCC' align=center>";
+$str.= htmlcode('clonetotype')."&lt;/td>";
 # if a user can delete the node, this places a delete icon in the box.
-if($NODE-&gt;hasAccess($USER, "d"))
+if($NODE->hasAccess($USER, "d"))
 {
 $str.="
-&lt;SCRIPT language=\"javascript\"&gt;
+&lt;SCRIPT language=\"javascript\">
   function confirmDelete(){
     if(confirm(\"Delete '$$NODE{title}'?\")){
       parent.location=" .
-        urlGen({node_id=&gt;getId($NODE),op=&gt;"nuke"}) .
+        urlGen({node_id=>getId($NODE),op=>"nuke"}) .
 		"; }
         }
-&lt;/SCRIPT&gt;
-&lt;td bgcolor='#FF9999' align=center&gt;&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;";
+&lt;/SCRIPT>
+&lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' alt='delete' border=0>&lt;/a>&lt;/td>&lt;/tr>";
 }
 else
  {
-  $str.="&lt;td bgcolor='#FF9999' align=center&gt;&amp;nbsp;&lt;/td&gt;&lt;/tr&gt;";
+  $str.="&lt;td bgcolor='#FF9999' align=center>&amp;nbsp;&lt;/td>&lt;/tr>";
  }
 
 # If a group editor is open, add a link to add this node to
@@ -90,33 +90,33 @@ else
 my $GROUP;
 if ($$VARS{group} &amp;&amp;
   ($GROUP = getNode($$VARS{group}, 'light')) &amp;&amp;
-  $GROUP-&gt;hasAccess($USER, "w"))
+  $GROUP->hasAccess($USER, "w"))
 {
   $str .=
-"&lt;SCRIPT language=\"javascript\"&gt;
+"&lt;SCRIPT language=\"javascript\">
   function updateGroup() {
-  window.open('" . urlGen({node_id =&gt; $$VARS{group},
-			displaytype =&gt; 'editor',
-			add =&gt; getId($NODE)}, "noquotes") .
+  window.open('" . urlGen({node_id => $$VARS{group},
+			displaytype => 'editor',
+			add => getId($NODE)}, "noquotes") .
 		"','". $$VARS{group} ."',
 		'');	
   }
-&lt;/SCRIPT&gt;
-&lt;tr&gt;&lt;td bgcolor='#FFCCCC' align=center colspan=3&gt;&lt;font size=2&gt;&lt;A href=\"javascript:updateGroup()\"&gt;add to &amp;quot;$$GROUP{title}&amp;quot;&lt;/a&gt;&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;";
+&lt;/SCRIPT>
+&lt;tr>&lt;td bgcolor='#FFCCCC' align=center colspan=3>&lt;font size=2>&lt;A href=\"javascript:updateGroup()\">add to &amp;quot;$$GROUP{title}&amp;quot;&lt;/a>&lt;/font>&lt;/td>&lt;/tr>";
 }
 
-$str.="&lt;/table&gt;";
+$str.="&lt;/table>";
 
-$str;</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">adminbox</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$str;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">adminbox</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

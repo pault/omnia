@@ -1,29 +1,29 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<defaultauthor_permission table="nodetype" type="literal_value">0</defaultauthor_permission>
-	<defaultauthoraccess table="nodetype">rwxd</defaultauthoraccess>
-	<defaultgroup_permission table="nodetype" type="literal_value">0</defaultgroup_permission>
-	<defaultgroup_usergroup table="nodetype" type="usergroup">gods</defaultgroup_usergroup>
-	<defaultgroupaccess table="nodetype">r----</defaultgroupaccess>
-	<defaultguest_permission table="nodetype" type="literal_value">0</defaultguest_permission>
-	<defaultguestaccess table="nodetype">-----</defaultguestaccess>
-	<defaultother_permission table="nodetype" type="literal_value">0</defaultother_permission>
-	<defaultotheraccess table="nodetype">-----</defaultotheraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<extends_nodetype table="nodetype" type="nodetype">nodegroup</extends_nodetype>
-	<group_usergroup table="node" type="usergroup">gods</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<grouptable table="nodetype">nodegroup</grouptable>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">nodetype</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<restrict_nodetype table="nodetype" type="nodetype">user</restrict_nodetype>
-	<restrictdupes table="nodetype">1</restrictdupes>
-	<sqltable table="nodetype"></sqltable>
-	<title table="node">usergroup</title>
-	<type_nodetype table="node" type="nodetype">nodetype</type_nodetype>
+<NODE export_version="0.5" nodetype="nodetype" title="usergroup">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="defaultauthor_permission" type="literal_value">0</field>
+  <field name="defaultauthoraccess" type="literal_value">rwxd</field>
+  <field name="defaultgroup_permission" type="literal_value">0</field>
+  <field type_nodetype="usergroup,nodetype" name="defaultgroup_usergroup" type="noderef">gods</field>
+  <field name="defaultgroupaccess" type="literal_value">r----</field>
+  <field name="defaultguest_permission" type="literal_value">0</field>
+  <field name="defaultguestaccess" type="literal_value">-----</field>
+  <field name="defaultother_permission" type="literal_value">0</field>
+  <field name="defaultotheraccess" type="literal_value">-----</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field type_nodetype="nodetype,nodetype" name="extends_nodetype" type="noderef">nodegroup</field>
+  <field type_nodetype="usergroup,nodetype" name="group_usergroup" type="noderef">gods</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="grouptable" type="literal_value">nodegroup</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodetype</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="nodetype,nodetype" name="restrict_nodetype" type="noderef">user</field>
+  <field name="restrictdupes" type="literal_value">1</field>
+  <field name="sqltable" type="literal_value"></field>
+  <field name="title" type="literal_value">usergroup</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodetype</field>
 </NODE>

@@ -1,18 +1,18 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my $disp = $query-&gt;param("displaytype");
+<NODE export_version="0.5" nodetype="htmlcode" title="adminbar">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my $disp = $query->param("displaytype");
 my $str;
 my @links;
 
 my $CLONER = getNode("node cloner", "restricted_superdoc");
-my $PARAMS = { "srcnode_id" =&gt; $$NODE{node_id}, 
-  "node_id" =&gt; $$CLONER{node_id},
-  "newname" =&gt; "NEWNAME" };
+my $PARAMS = { "srcnode_id" => $$NODE{node_id}, 
+  "node_id" => $$CLONER{node_id},
+  "newname" => "NEWNAME" };
 
 my $url = urlGen($PARAMS);
 my $script = "
-&lt;script language=\"javascript\"&gt;
+&lt;script language=\"javascript\">
 
 function cloneNode()
 {
@@ -28,7 +28,7 @@ function cloneNode()
   }
 }
 
-&lt;/script&gt;";
+&lt;/script>";
 
 
 $disp ||= "display";
@@ -37,7 +37,7 @@ $disp ||= "display";
 # adminbar, add them to this array.
 my @displaytypes = ("display");
 
-push @displaytypes, ("edit",'permissions') if $NODE-&gt;hasAccess($USER,'w');
+push @displaytypes, ("edit",'permissions') if $NODE->hasAccess($USER,'w');
 
 
 
@@ -50,38 +50,38 @@ foreach my $type (@displaytypes)
   else
   {
     push @links, linkNode ($NODE, $type, 
-      {displaytype =&gt; $type}) . " ";
+      {displaytype => $type}) . " ";
   }
 }
 
 $str .= join " |\n", @links;
 $str = "" if $str eq 'display';
 
-$str .= "&lt;br&gt;".$script."&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;" if $NODE-&gt;{type}-&gt;hasTypeAccess($USER, 'c');
+$str .= "&lt;br>".$script."&lt;a href='javascript: cloneNode();'>clone&lt;/a>" if $NODE->{type}->hasTypeAccess($USER, 'c');
 
 $str.="
-&lt;SCRIPT language=\"javascript\"&gt;
+&lt;SCRIPT language=\"javascript\">
   function confirmDelete(){
     if(confirm(\"Delete '$$NODE{title}'?\")){
       parent.location=" .
-        urlGen({node_id=&gt;getId($NODE),op=&gt;"nuke"}) .
+        urlGen({node_id=>getId($NODE),op=>"nuke"}) .
 		"; }
         }
-&lt;/SCRIPT&gt;
-&lt;br&gt;&lt;font size=1&gt;
-&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
-&lt;/font&gt;" if($NODE-&gt;hasAccess($USER, "d"));
+&lt;/SCRIPT>
+&lt;br>&lt;font size=1>
+&lt;a href='javascript: confirmDelete();'>delete&lt;/a>
+&lt;/font>" if($NODE->hasAccess($USER, "d"));
 
-$str;</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">adminbar</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$str;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">adminbar</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

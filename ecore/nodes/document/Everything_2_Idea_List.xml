@@ -1,31 +1,31 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">&lt;P&gt;Progies
-&lt;li&gt;mysql-like command line EDB interface
-&lt;li&gt;e2 synching w/ htmlcode and nodetypes (e2 &lt;=&gt; e2)
-&lt;li&gt;script to render a document structure to html pages (starting at default, and crawling it, saving each node as an html file)
+<NODE export_version="0.5" nodetype="document" title="Everything 2 Idea List">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">&lt;P>Progies
+&lt;li>mysql-like command line EDB interface
+&lt;li>e2 synching w/ htmlcode and nodetypes (e2 &lt;=> e2)
+&lt;li>script to render a document structure to html pages (starting at default, and crawling it, saving each node as an html file)
 
-&lt;p&gt;Nodes
-&lt;li&gt;[embed] nodes
-&lt;li&gt;Everything API
-&lt;li&gt;htmlcode list/descriptor
-&lt;li&gt;Create User Node
+&lt;p>Nodes
+&lt;li>[embed] nodes
+&lt;li>Everything API
+&lt;li>htmlcode list/descriptor
+&lt;li>Create User Node
 
-&lt;p&gt;Links
+&lt;p>Links
 
-&lt;p&gt;Links are designed to provide a way to relate two
+&lt;p>Links are designed to provide a way to relate two
 nodes to each other.  Links are created when users
 traverse from one node to another.  However, not all
 links are "good" or wanted.  We want to create a system
 where the less useful links die off.
 
-&lt;p&gt;To do this, we will think of links as living organizms.
+&lt;p>To do this, we will think of links as living organizms.
 Link get "food" by users searching or clicking on a link.
 Links use the food at some specified rate.  If they run
 out of food, they starve to death and die.
 
-&lt;p&gt; What this provides is a system where links live and
+&lt;p> What this provides is a system where links live and
 die by how the users use the system.  A kind of genetic
 algie.  The links that live will, in general, be more
 useful as more users will use them.  Less useful inks
@@ -33,30 +33,30 @@ will evenually starve to death and go away.  This way
 the system evolves to provide useful links as determined
 by the way the system is used.
 
-&lt;p&gt;Link specifics
-&lt;ul&gt;
-&lt;li&gt;Searches give "bonus food" to a link.  This gives
+&lt;p>Link specifics
+&lt;ul>
+&lt;li>Searches give "bonus food" to a link.  This gives
     trail blazing links a chance at becoming a usable
     related link.  The bonus is a variable number that
     can be adjusted for different systems.
-&lt;li&gt;A clicked link gives 1 or more food units to the link
+&lt;li>A clicked link gives 1 or more food units to the link
     every time a user clicks on it.  This allows oft
     traveled links to stay healthy and even become popular.
-&lt;li&gt;Every so often (once a day?) the system goes through
+&lt;li>Every so often (once a day?) the system goes through
     the links and subtracts X food units from each link.
     The "X" could be a fixed number, or calculated based
     on how many hits or food units were given out in that
     time period.  This subtraction of food will eventually
     starve the less useful/popular links which will cause
     them to die off.
-&lt;li&gt;Links can be granted immortality by the maintainers
+&lt;li>Links can be granted immortality by the maintainers
     of the system.  Some links should not die off just
     because they are not popular.  For example, Ken and
     Barbie should always be linked.  That link should be
     granted immortality since it should never die off.
     It may not be listed in the most popular links list,
     but it will always be a link.
-&lt;li&gt;When displaying the most popular links, we should
+&lt;li>When displaying the most popular links, we should
     randomize their order so that the top link doesn't
     get all of the hits just because its the first in
     the list.  This would force users to look through
@@ -64,29 +64,29 @@ by the way the system is used.
     the nonsense "this link is popular because its first"
     crap.  This would allow the less popular ones to die
     out easier since fewer people would click on them.
-&lt;/ul&gt;
+&lt;/ul>
 
-&lt;p&gt;Themes
+&lt;p>Themes
 
-&lt;p&gt;Themes or "skins" allow users or system admins to set the
+&lt;p>Themes or "skins" allow users or system admins to set the
 look and feel of the site.  The basic parameters that we
 could allow them to change are colors (bgcolor, text, etc)
 and perhaps even auto generate images.
 
-&lt;p&gt;This could be a very powerful feature that would allow
+&lt;p>This could be a very powerful feature that would allow
 third parties to modify the site such that it resembles
 their site.  This would allow them to link to our site
 while making the end user believe that they are still at
 their site.  They get the exposure, we get the ad revenues.
 
-&lt;p&gt;Also, this would allow us to change the look of a site
+&lt;p>Also, this would allow us to change the look of a site
 instantly by modifying the theme of the site, which would
 be extremely useful when developing a new site.  We may
 even want to allow users to specify a theme so they can
 make the site look how they want it to.
 
-&lt;p&gt;User Notes
-&lt;p&gt;User notes are kind of like alerts at etrade.  Users can
+&lt;p>User Notes
+&lt;p>User notes are kind of like alerts at etrade.  Users can
 send notes to eachother.  We could have an "note" nodelet
 that would tell the user when they have new notes.  The
 user could then go to their user page and read the notes
@@ -95,22 +95,22 @@ may want to implement notes as actual email.  That would
 allow users to read their email from the site and send
 email to other sites, but that may be a little too much
 for right now.  Just a thought...
-&lt;p&gt;Features
-&lt;li&gt;Letting htmlcode operate as HTML as well as PERL
-&lt;li&gt;also, htmlcode should have a description
-&lt;li&gt;htmlcode groups?
-&lt;li&gt;Full nodetype functionality (restrict, extends, etc)
-&lt;li&gt;restrict dupes default ON
-&lt;li&gt;restrict searching on readable types</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">document</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">Everything 2 Idea List</title>
-	<type_nodetype table="node" type="nodetype">document</type_nodetype>
+&lt;p>Features
+&lt;li>Letting htmlcode operate as HTML as well as PERL
+&lt;li>also, htmlcode should have a description
+&lt;li>htmlcode groups?
+&lt;li>Full nodetype functionality (restrict, extends, etc)
+&lt;li>restrict dupes default ON
+&lt;li>restrict searching on readable types</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">document</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">Everything 2 Idea List</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">document</field>
 </NODE>

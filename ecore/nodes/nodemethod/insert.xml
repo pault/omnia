@@ -1,22 +1,22 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="nodemethod">my ($this) = @_;
-my $N = $$this{DB}-&gt;getNode("general nodelet container", "container");
+<NODE export_version="0.5" nodetype="nodemethod" title="insert">
+  <field type_nodetype="usergroup,nodetype" name="author_user" type="noderef">gods</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($this) = @_;
+my $N = $$this{DB}->getNode("general nodelet container", "container");
 
-$$this{parent_container} = $N-&gt;getId() if(ref $N);
+$$this{parent_container} = $N->getId() if(ref $N);
 
-return $this-&gt;SUPER();</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="location">nodemethod</loc_location>
-	<otheraccess table="node">iiiii</otheraccess>
-	<supports_nodetype table="nodemethod" type="nodetype">nodelet</supports_nodetype>
-	<title table="node">insert</title>
-	<type_nodetype table="node" type="nodetype">nodemethod</type_nodetype>
+return $this->SUPER();</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodemethod</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field type_nodetype="nodetype,nodetype" name="supports_nodetype" type="noderef">nodelet</field>
+  <field name="title" type="literal_value">insert</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodemethod</field>
 </NODE>

@@ -1,23 +1,23 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">946339467</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">[%
+<NODE export_version="0.5" nodetype="nodelet" title="personal nodelet">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">[%
   my $limit = $HTMLVARS{personalNodeletLimit};
   $limit||=10;
 
-  my @nodes = split "&lt;br&gt;",$$VARS{personal_nodelet};
-  if (my $n = $query-&gt;param("addpersonalnodelet")) {
+  my @nodes = split "&lt;br>",$$VARS{personal_nodelet};
+  if (my $n = $query->param("addpersonalnodelet")) {
     $n = getNodeById $n;
-    $$VARS{personal_nodelet} .= '&lt;br&gt;'.$$n{title}
+    $$VARS{personal_nodelet} .= '&lt;br>'.$$n{title}
       if @nodes &lt; $limit;
     push @nodes, $$n{title};
   }
@@ -26,22 +26,21 @@
   my $str;
   my $i=0;
   foreach (@nodes) {
-    $str.=linkNodeTitle($_)."&lt;br&gt;\n";
-    last if $i++ &gt;= 10;
+    $str.=linkNodeTitle($_)."&lt;br>\n";
+    last if $i++ >= 10;
   }
 
-  $str.="\n&lt;p align=right&gt;"
-    .linkNode($NODE, "add \"$$NODE{title}\"", {addpersonalnodelet =&gt; getId($NODE)})
+  $str.="\n&lt;p align=right>"
+    .linkNode($NODE, "add \"$$NODE{title}\"", {addpersonalnodelet => getId($NODE)})
     if @nodes &lt; $limit;
   $str;
 
-%]</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet"></nltext>
-	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">personal nodelet</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+%]</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value"></field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">personal nodelet</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

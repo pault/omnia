@@ -1,25 +1,25 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">display</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">was last logged in: [{parsetime:lasttime}]
-&lt;p&gt;
+<NODE export_version="0.5" nodetype="htmlpage" title="user display page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">was last logged in: [{parsetime:lasttime}]
+&lt;p>
 [{parselinks:doctext}]
-&lt;p&gt;
+&lt;p>
  
 
 [%
-my $nodes = $DB-&gt;selectNodeWhere({author_user =&gt; getId($NODE)},
+my $nodes = $DB->selectNodeWhere({author_user => getId($NODE)},
   undef, undef, undef, undef, undef, 'nodetableonly');
 my $str;
 foreach (@$nodes)
@@ -27,24 +27,24 @@ foreach (@$nodes)
   my $id = $_;
   my $N = getNode($_);
   next if($id == getId($NODE));
-  $str.="&lt;li&gt;".linkNode($N)."($$N{type}{title})&lt;/li&gt;\n";
+  $str.="&lt;li>".linkNode($N)."($$N{type}{title})&lt;/li>\n";
 }
 
-$str = "Nodes authored by $$NODE{title}:&lt;ul&gt;".$str."&lt;/ul&gt;"
-  ."&lt;br&gt;(".int(@$nodes)." in total)" if $str;
-$str ||= "&lt;i&gt;no nodes maintianed by $$NODE{title}&lt;/i&gt;\n";
+$str = "Nodes authored by $$NODE{title}:&lt;ul>".$str."&lt;/ul>"
+  ."&lt;br>(".int(@$nodes)." in total)" if $str;
+$str ||= "&lt;i>no nodes maintianed by $$NODE{title}&lt;/i>\n";
 %]
 
-&lt;p&gt;
+&lt;p>
 [%
-return unless($NODE-&gt;hasAccess($USER, "w"));
+return unless($NODE->hasAccess($USER, "w"));
 
-linkNode($NODE, 'edit', { displaytype =&gt; 'edit' });
+linkNode($NODE, 'edit', { displaytype => 'edit' });
 %]
-</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">user</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">general container</parent_container>
-	<permissionneeded table="htmlpage">r</permissionneeded>
-	<title table="node">user display page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">user</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general container</field>
+  <field name="permissionneeded" type="literal_value">r</field>
+  <field name="title" type="literal_value">user display page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>

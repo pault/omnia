@@ -1,21 +1,21 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">[%
-my $src_id = $query-&gt;param("srcnode_id");
-my $newname = $query-&gt;param("newname");
+<NODE export_version="0.5" nodetype="restricted_superdoc" title="Node Cloner">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[%
+my $src_id = $query->param("srcnode_id");
+my $newname = $query->param("newname");
 
 my $str;
 
 if((defined $src_id) &amp;&amp; (defined $newname))
 {
   my $SRCNODE = getNodeById($src_id);
-  my $CLONE = $SRCNODE-&gt;clone($USER, $newname);
+  my $CLONE = $SRCNODE->clone($USER, $newname);
 
   if($CLONE)
   {
-    $str = "&lt;h3&gt;&lt;font color=#00cc00&gt;Clone successful&lt;/font&gt;&lt;/h3&gt;\n"; 
-    $str .= "&lt;p&gt;Node " . linkNode($SRCNODE) .
+    $str = "&lt;h3>&lt;font color=#00cc00>Clone successful&lt;/font>&lt;/h3>\n"; 
+    $str .= "&lt;p>Node " . linkNode($SRCNODE) .
       " has been cloned as " . linkNode($CLONE);
   }
   else
@@ -29,7 +29,7 @@ if((defined $src_id) &amp;&amp; (defined $newname))
      }
      else
      {
-       $str .= "&lt;font color=red&gt;Error Cloning!&lt;/font&gt;";
+       $str .= "&lt;font color=red>Error Cloning!&lt;/font>";
        $str .= "This could be caused by not having permissions to create a ";
        $str .= "node of that type, or there was an internal error.";
      }
@@ -41,16 +41,16 @@ else
 }
 
 $str;
-%]</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">restricted_superdoc</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">Node Cloner</title>
-	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+%]</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">restricted_superdoc</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">Node Cloner</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">restricted_superdoc</field>
 </NODE>

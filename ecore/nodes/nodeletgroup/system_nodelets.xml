@@ -1,25 +1,25 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group >
-		<groupnode1 table="nodegroup" type="nodelet">admin nodelet</groupnode1>
-		<groupnode2 table="nodegroup" type="nodelet">nsh</groupnode2>
-		<groupnode3 table="nodegroup" type="nodelet">Node Bucket</groupnode3>
-		<groupnode4 table="nodegroup" type="nodelet">Epicenter</groupnode4>
-		<groupnode5 table="nodegroup" type="nodelet">Other Users</groupnode5>
-		<groupnode6 table="nodegroup" type="nodelet">Node Statistics</groupnode6>
-		<groupnode7 table="nodegroup" type="nodelet">CGI::param</groupnode7>
-		<groupnode8 table="nodegroup" type="nodelet">Server Statistics</groupnode8>
-	</group>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">nodeletgroup</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">system nodelets</title>
-	<type_nodetype table="node" type="nodetype">nodeletgroup</type_nodetype>
+<NODE export_version="0.5" nodetype="nodeletgroup" title="system nodelets">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <group>
+    <member orderby="1" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
+    <member orderby="2" type="noderef" type_nodetype="nodelet,nodetype">nsh</member>
+    <member orderby="3" type="noderef" type_nodetype="nodelet,nodetype">Node Bucket</member>
+    <member orderby="4" type="noderef" type_nodetype="nodelet,nodetype">Epicenter</member>
+    <member orderby="5" type="noderef" type_nodetype="nodelet,nodetype">Other Users</member>
+    <member orderby="6" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics</member>
+    <member orderby="7" type="noderef" type_nodetype="nodelet,nodetype">CGI::param</member>
+    <member orderby="8" type="noderef" type_nodetype="nodelet,nodetype">Server Statistics</member>
+  </group>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodeletgroup</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">system nodelets</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodeletgroup</field>
 </NODE>

@@ -1,16 +1,16 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">no strict;
+<NODE export_version="0.5" nodetype="htmlcode" title="showChoiceFunc">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">no strict;
 use Everything::XML;
 my @modules = ('Everything', 'Everything::HTML', 'Everything::XML', 'Everything::NodeBase', 'Everything::NodeCache', 'Everything::Node::node', 'Everything::Node::nodeball','Everything::Node::nodegroup', 'Everything::Node::nodetype', 'Everything::Node::setting', 'Everything::Node::theme', 'Everything::Node::user', 'Everything::Node::nodetype');
 my $str;
 my $i;
-if (not $query-&gt;param('choicefunc')) 
+if (not $query->param('choicefunc')) 
 {
   my %funcs;
   my $rows = 0;
-  $str .= "&lt;table border=0 cellpadding=1 cellspacing=2&gt;";
+  $str .= "&lt;table border=0 cellpadding=1 cellspacing=2>";
 
   my $colwidth = "100%";
   foreach my $modname (@modules) 
@@ -27,54 +27,54 @@ if (not $query-&gt;param('choicefunc'))
    @modfuncs = sort {$a cmp $b} @modfuncs;
    $funcs{$modname} = \@modfuncs;
    $rows = int(@modfuncs);
-   $str.="&lt;TH width=$colwidth colspan = 5 bgcolor=black&gt;&lt;font color=white&gt;$modname&lt;/white&gt;&lt;/TH&gt;";
+   $str.="&lt;TH width=$colwidth colspan = 5 bgcolor=black>&lt;font color=white>$modname&lt;/white>&lt;/TH>";
  
    my $count=0;
    while ($count &lt; $rows) 
    {
-     $str.="&lt;TR&gt;";
+     $str.="&lt;TR>";
      for ($i=1; $i&lt;=5; $i++)
      {
-       $str.= "&lt;TD bgcolor=#cbcbcb&gt;"; 
-       if (int (@{ $funcs{$modname} }) &gt; $count)
+       $str.= "&lt;TD bgcolor=#cbcbcb>"; 
+       if (int (@{ $funcs{$modname} }) > $count)
          { $str.=linkNode($NODE, $funcs{$modname}[$count], 
-             { choicefunc =&gt; $funcs{$modname}[$count] });
+             { choicefunc => $funcs{$modname}[$count] });
          }
        else
          { $str.="&amp;nbsp;"; }
                
         
-         $str.="&lt;/TD&gt;";
+         $str.="&lt;/TD>";
          $count++;
       }
-     $str.="&lt;/TR&gt;\n"
+     $str.="&lt;/TR>\n"
    }
-   $str.="&lt;tr&gt;&lt;td colspan=5&gt;&lt;/td&gt;&lt;/tr&gt;";
+   $str.="&lt;tr>&lt;td colspan=5>&lt;/td>&lt;/tr>";
   }
 	
-  $str.="&lt;TH width=$colwidth colspan=5 bgcolor=black&gt;&lt;font color=white&gt;HTMLCODE&lt;/font&gt;&lt;/TH&gt;\n";
+  $str.="&lt;TH width=$colwidth colspan=5 bgcolor=black>&lt;font color=white>HTMLCODE&lt;/font>&lt;/TH>\n";
   my $HTMLCODE = getNodeWhere({}, getType('htmlcode'));
   $funcs{htmlcode}= $HTMLCODE;
   $rows=int(@$HTMLCODE);
  my $count=0;
    while ($count &lt; $rows) 
    {
-     $str.="&lt;TR&gt;";
+     $str.="&lt;TR>";
      for ($i=1; $i&lt;=5; $i++)
      {       
-        $str.="&lt;TD bgcolor=#cbcbcb&gt;";
+        $str.="&lt;TD bgcolor=#cbcbcb>";
         $str.= linkNode($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
-        $str.="&lt;/TD&gt;\n";
+        $str.="&lt;/TD>\n";
         $count++;
      }
-    $str.="&lt;/tr&gt;\n";
+    $str.="&lt;/tr>\n";
     }  
-  return $str.="&lt;/table&gt;";
+  return $str.="&lt;/table>";
 }
 
 #else...
 $str.= "or go back to the code ".linkNode($NODE, 'index');
-my $choicefunc = $query-&gt;param('choicefunc');
+my $choicefunc = $query->param('choicefunc');
 my $parentmod = "";
  if ($choicefunc =~ /^(.+?)\:\:(\w+)$/) {
   $choicefunc = $2;
@@ -91,14 +91,14 @@ foreach my $modname (@modules) {
 }
 
 unless ($parentmod) {
-   return "&lt;i&gt;sorry, man.  No dice on $choicefunc&lt;/i&gt;&lt;br&gt;\n"; 
+   return "&lt;i>sorry, man.  No dice on $choicefunc&lt;/i>&lt;br>\n"; 
 }
 
 my $parentfile = "/usr/lib/perl5/site_perl/5.005/" . $parentmod.".pm";
 $parentfile =~ s/\:\:/\//g;
 
 open MODULE, $parentfile or die;
-my @mod = &lt;MODULE&gt;;
+my @mod = &lt;MODULE>;
 close MODULE;
 
 if (@mod) {
@@ -109,7 +109,7 @@ if (@mod) {
 
 my $count = 0;
 my @lines;
-while (@mod &gt; $count and not @lines) {
+while (@mod > $count and not @lines) {
     if ($mod[$count] =~ /^sub $choicefunc\s*/) {
         my $i = $count;
         my $flag = "";
@@ -121,7 +121,7 @@ while (@mod &gt; $count and not @lines) {
             } else {
                 $flag="";
             }
-        } while ($i &gt; 0 and $flag);
+        } while ($i > 0 and $flag);
 
         do {
             $i++;
@@ -135,19 +135,19 @@ while (@mod &gt; $count and not @lines) {
 if (@lines) {
   $str.= listCode(join ("", @lines));
 } else {
-  $str.= "\n&lt;br&gt;no comment found\n";
+  $str.= "\n&lt;br>no comment found\n";
 }
 $str;
-</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">showChoiceFunc</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">showChoiceFunc</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

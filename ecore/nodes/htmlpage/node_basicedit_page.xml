@@ -1,18 +1,18 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">basicedit</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">[{openform}]
+<NODE export_version="0.5" nodetype="htmlpage" title="node basicedit page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">basicedit</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[{openform}]
 
 [%
 # This edit page displays each field of a node with a
@@ -21,21 +21,21 @@
 # data that is usually not accessable through a standard
 # edit page (like createtime, or hits)
 
-return "" unless($NODE-&gt;hasAccess($USER, 'w'));
+return "" unless($NODE->hasAccess($USER, 'w'));
 
 # This code does the update, if we have one.
 my $param;
-my @params = $query-&gt;param;
+my @params = $query->param;
 
 foreach $param (@params)
 {
   if ($param =~ /^update_(\w*)$/)
   {
-    $$NODE{$1} = $query-&gt;param($param);
+    $$NODE{$1} = $query->param($param);
   }
 }
 
-$NODE-&gt;update($USER);
+$NODE->update($USER);
 
 return "";
 %]
@@ -43,8 +43,8 @@ return "";
 [%
 # This code generates the form fields and the stuff that
 # the user sees.
-return "" unless($NODE-&gt;hasAccess($USER, 'w'));
-my $tables = $$NODE{type}-&gt;getTableArray(1);
+return "" unless($NODE->hasAccess($USER, 'w'));
+my $tables = $$NODE{type}->getTableArray(1);
 my @fields;
 my $table;
 my $field;
@@ -53,7 +53,7 @@ my $str = "";
 
 foreach $table (@$tables)
 {
-  @fields = $DB-&gt;getFieldsHash($table);
+  @fields = $DB->getFieldsHash($table);
 
   foreach $field (@fields)
   {
@@ -67,46 +67,46 @@ foreach $field (keys %titletype)
 
   if($titletype{$field} =~ /int/)
   {
-    $str .= $query-&gt;textfield( -name =&gt; "update_$field",
-      -default =&gt; $$NODE{$field}, -size =&gt; 15,
-      -maxlength =&gt; 15) . "&lt;br&gt;\n";
+    $str .= $query->textfield( -name => "update_$field",
+      -default => $$NODE{$field}, -size => 15,
+      -maxlength => 15) . "&lt;br>\n";
   }
   elsif($titletype{$field} =~ /char\((.*)\)/)
   {
     my $size = 80;
 
-    $size = $1 if($size &gt; $1);
-    $str .= $query-&gt;textfield( -name =&gt; "update_$field",
-      -default =&gt; $$NODE{$field}, -size =&gt; $size,
-      -maxlength =&gt; $1 ) . "&lt;br&gt;\n";
+    $size = $1 if($size > $1);
+    $str .= $query->textfield( -name => "update_$field",
+      -default => $$NODE{$field}, -size => $size,
+      -maxlength => $1 ) . "&lt;br>\n";
   }
   elsif($titletype{$field} =~ /text/)
   {
-    $str .= $query-&gt;textarea( "update_$field",
-      $$NODE{$field}, 20, 80) . "&lt;br&gt;\n";
+    $str .= $query->textarea( "update_$field",
+      $$NODE{$field}, 20, 80) . "&lt;br>\n";
   }
   elsif($titletype{$field} =~ /datetime/)
   {
-    $str .= $query-&gt;textfield( -name =&gt; "update_$field",
-      -default =&gt; $$NODE{$field}, -size =&gt; 19,
-      -maxlength =&gt; 19 ) . "&lt;br&gt;\n";
+    $str .= $query->textfield( -name => "update_$field",
+      -default => $$NODE{$field}, -size => 19,
+      -maxlength => 19 ) . "&lt;br>\n";
   }
   else
   {
     # This is for the unknown field types.
-    $str .= $query-&gt;textfield( -name =&gt; "update_$field",
-      -default =&gt; $$NODE{$field}, -size =&gt; 80,
-      -maxlength =&gt; 256) . "&lt;br&gt;\n";
+    $str .= $query->textfield( -name => "update_$field",
+      -default => $$NODE{$field}, -size => 80,
+      -maxlength => 256) . "&lt;br>\n";
   }
 }
 
 $str;
 %]
 
-[{closeform}]</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">node</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">main container</parent_container>
-	<permissionneeded table="htmlpage">w</permissionneeded>
-	<title table="node">node basicedit page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+[{closeform}]</field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">node</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">main container</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">node basicedit page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>

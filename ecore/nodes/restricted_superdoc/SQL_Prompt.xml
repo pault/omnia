@@ -1,49 +1,49 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">[%
+<NODE export_version="0.5" nodetype="restricted_superdoc" title="SQL Prompt">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[%
 my $str;
-my $execstr = $query-&gt;param("sqlquery");
+my $execstr = $query->param("sqlquery");
 
-$str = $query-&gt;start_multipart_form("POST",
+$str = $query->start_multipart_form("POST",
   $ENV{script_name}) . "\n";
-$str .= $query-&gt;hidden("displaytype") . "\n";
-$str .= $query-&gt;hidden("node_id", getId($NODE)) . "\n";
+$str .= $query->hidden("displaytype") . "\n";
+$str .= $query->hidden("node_id", getId($NODE)) . "\n";
 $str .= "SQL Query:\n";
-$str .= $query-&gt;textfield("sqlquery", $execstr, 60);
-$str .= $query-&gt;submit('execsql', 'Execute') . "\n";
-$str .= $query-&gt;end_form;
+$str .= $query->textfield("sqlquery", $execstr, 60);
+$str .= $query->submit('execsql', 'Execute') . "\n";
+$str .= $query->end_form;
 
 $str;
 %]
 
-&lt;p&gt;
+&lt;p>
 [%
-my $execstr = $query-&gt;param("sqlquery");
+my $execstr = $query->param("sqlquery");
 my $str = "";
 
 if($execstr)
 {
-  my $cursor = $DB-&gt;getDatabaseHandle()-&gt;prepare($execstr);
+  my $cursor = $DB->getDatabaseHandle()->prepare($execstr);
 
-  if($cursor-&gt;execute())
+  if($cursor->execute())
   {
     my $ROW;
-    while($ROW = $cursor-&gt;fetchrow_hashref())
+    while($ROW = $cursor->fetchrow_hashref())
     {
       if($str eq "")
       {
-        $str = "&lt;table border=1&gt;\n";
-        $str .= " &lt;tr&gt;\n";
+        $str = "&lt;table border=1>\n";
+        $str .= " &lt;tr>\n";
         foreach (keys %$ROW)
         {
           $_ = "&amp;nbsp;" if((not defined $_) || ($_ eq "")); 
-          $str .= "  &lt;td align=\"center\" bgcolor=\"#CC99CC\"&gt;$_&lt;/td&gt;\n";
+          $str .= "  &lt;td align=\"center\" bgcolor=\"#CC99CC\">$_&lt;/td>\n";
         }
-        $str .= " &lt;/tr&gt;\n";
+        $str .= " &lt;/tr>\n";
       }
 
-      $str .= " &lt;tr&gt;\n";
+      $str .= " &lt;tr>\n";
       my ($k, $v);
       foreach (keys %$ROW)
       {
@@ -51,26 +51,26 @@ if($execstr)
         $v = encodeHTML($v, 1) if(defined $v);
         $v = linkNode($v, $v) if(($k =~ /_/) &amp;&amp; (not ($v =~ /\D/)));
         $v = "&amp;nbsp;" if((not defined $v) || ($v eq ""));
-        $str .= "  &lt;td&gt;&lt;pre&gt;$v&lt;/pre&gt;&lt;/td&gt;\n";
+        $str .= "  &lt;td>&lt;pre>$v&lt;/pre>&lt;/td>\n";
       }
-      $str .= " &lt;/tr&gt;\n";
+      $str .= " &lt;/tr>\n";
     }
-	$cursor-&gt;finish();
-    $str .= "&lt;/table&gt;\n";
+	$cursor->finish();
+    $str .= "&lt;/table>\n";
   }
 }
 
 $str;
-%]</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">restricted_superdoc</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">SQL Prompt</title>
-	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+%]</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">restricted_superdoc</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">SQL Prompt</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">restricted_superdoc</field>
 </NODE>

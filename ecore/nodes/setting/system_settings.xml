@@ -1,31 +1,31 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node" type="literal_value">0</dynamicauthor_permission>
-	<dynamicgroup_permission table="node" type="literal_value">0</dynamicgroup_permission>
-	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii</groupaccess>
-	<guestaccess table="node">----</guestaccess>
-	<loc_location table="node" type="location">setting</loc_location>
-	<otheraccess table="node">----</otheraccess>
-	<title table="node">system settings</title>
-	<type_nodetype table="node" type="nodetype">setting</type_nodetype>
-	<vars table="setting">
-		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
-		<notFound_node type="superdoc">Not found</notFound_node>
-		<guest_user type="user">Guest User</guest_user>
-		<GUshowsearchform >1</GUshowsearchform>
-		<default_theme type="theme">default theme</default_theme>
-		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
-		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
-		<generalParent_container type="container">main container</generalParent_container>
-		<default_node type="superdoc">The Default Node</default_node>
-		<GUshownodelets >1</GUshownodelets>
-		<default_nodeletgroup type="nodeletgroup">default nodelets</default_nodeletgroup>
-		<searchResults_node type="superdoc">Search Results</searchResults_node>
-		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
-		<duplicatesFound_node type="superdoc">Duplicates Found</duplicatesFound_node>
-	</vars>
+<NODE export_version="0.5" nodetype="setting" title="system settings">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">0</field>
+  <field name="dynamicgroup_permission" type="literal_value">0</field>
+  <field name="dynamicguest_permission" type="literal_value">0</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii</field>
+  <field name="guestaccess" type="literal_value">----</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">setting</field>
+  <field name="otheraccess" type="literal_value">----</field>
+  <field name="title" type="literal_value">system settings</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">setting</field>
+  <vars>
+    <var name="GUshownodelets" type="literal_value">1</var>
+    <var name="GUshowsearchform" type="literal_value">1</var>
+    <var type_nodetype="superdoc,nodetype" name="default_node" type="noderef">The Default Node</var>
+    <var type_nodetype="nodeletgroup,nodetype" name="default_nodeletgroup" type="noderef">default nodelets</var>
+    <var type_nodetype="theme,nodetype" name="default_theme" type="noderef">default theme</var>
+    <var type_nodetype="superdoc,nodetype" name="duplicatesFound_node" type="noderef">Duplicates Found</var>
+    <var type_nodetype="container,nodetype" name="generalParent_container" type="noderef">main container</var>
+    <var type_nodetype="user,nodetype" name="guest_user" type="noderef">Guest User</var>
+    <var type_nodetype="restricted_superdoc,nodetype" name="nodeLocked_node" type="noderef">node locked</var>
+    <var type_nodetype="nodeletgroup,nodetype" name="nodelet_group" type="noderef">system nodelets</var>
+    <var type_nodetype="superdoc,nodetype" name="notFound_node" type="noderef">Not found</var>
+    <var type_nodetype="superdoc,nodetype" name="permissionDenied_node" type="noderef">Permission Denied</var>
+    <var type_nodetype="themesetting,nodetype" name="preferred_theme" type="noderef">root's default themesettings</var>
+    <var type_nodetype="superdoc,nodetype" name="searchResults_node" type="noderef">Search Results</var>
+  </vars>
 </NODE>

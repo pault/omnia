@@ -1,32 +1,32 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">editor</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">&lt;p align=right&gt;
+<NODE export_version="0.5" nodetype="htmlpage" title="nodegroup editor page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">editor</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;p align=right>
 [%
-if ($query-&gt;param('op') eq 'close') {
+if ($query->param('op') eq 'close') {
 	$$VARS{group} = "";
-	return "&lt;SCRIPT language=\"javascript\"&gt;parent.close()&lt;/SCRIPT&gt;";		
+	return "&lt;SCRIPT language=\"javascript\">parent.close()&lt;/SCRIPT>";		
 } 
 $$VARS{group}||= getId ($NODE);
-linkNode $NODE, "close", {displaytype=&gt; $query-&gt;param('displaytype'),
-	op =&gt; 'close'};
+linkNode $NODE, "close", {displaytype=> $query->param('displaytype'),
+	op => 'close'};
 %]
 [{groupeditor}]
-&lt;/FORM&gt;</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">nodegroup</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">stdcontainer</parent_container>
-	<permissionneeded table="htmlpage">w</permissionneeded>
-	<title table="node">nodegroup editor page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+&lt;/FORM></field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">nodegroup</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">stdcontainer</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">nodegroup editor page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>

@@ -1,7 +1,7 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my @params = $query-&gt;param;
+<NODE export_version="0.5" nodetype="opcode" title="insertMini">
+  <field type_nodetype="usergroup,nodetype" name="author_user" type="noderef">gods</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my @params = $query->param;
 my $mini;
 my $min;
 my $user;
@@ -12,14 +12,14 @@ my $SETTINGS;
 foreach (@params) 
  {
    next unless /floyd/ ;
-   $user = getNode($query-&gt;param($_), getType('user'));
+   $user = getNode($query->param($_), getType('user'));
  }  
 
 foreach (@params) 
  { next unless /nodelet/;
-   $old = $query-&gt;param($_);
-   $mini = getNodeWhere({'nodelet_mini' =&gt; $query-&gt;param($_)}, getType('nodelet'));
-   $min = getId($mini-&gt;[0]);
+   $old = $query->param($_);
+   $mini = getNodeWhere({'mini_nodelet' => $query->param($_)}, getType('nodelet'));
+   $min = getId($mini->[0]);
    $SETTINGS = getVars($user);  
 
    if ($$SETTINGS{nodelets})
@@ -39,7 +39,7 @@ foreach (@params)
 	if (not @nodelets)
 	 {  
 		#push default nodelets on
-		my $DEFAULT = $DB-&gt;getNode($HTMLVARS{default_nodeletgroup});
+		my $DEFAULT = $DB->getNode($HTMLVARS{default_nodeletgroup});
 		@nodelets = @{ $$DEFAULT{group} }; 
 	 }
 }
@@ -51,16 +51,16 @@ foreach (@params)
   }
 $$SETTINGS{nodelets}=join",",@nodelets ;
 
-setVars($user,$SETTINGS);</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">opcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">insertMini</title>
-	<type_nodetype table="node" type="nodetype">opcode</type_nodetype>
+setVars($user,$SETTINGS);</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">opcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">insertMini</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">opcode</field>
 </NODE>

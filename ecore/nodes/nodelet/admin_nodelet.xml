@@ -1,100 +1,100 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">-i-i</authoraccess>
-	<dynamicauthor_permission table="node" type="literal_value">0</dynamicauthor_permission>
-	<dynamicgroup_permission table="node" type="literal_value">0</dynamicgroup_permission>
-	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">-i-i</groupaccess>
-	<guestaccess table="node">-i-i</guestaccess>
-	<lastupdate table="nodelet">966314569</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">&lt;table border=0&gt;
- &lt;tr&gt;
-  &lt;td nowrap&gt;
-    &lt;font size=2&gt;
+<NODE export_version="0.5" nodetype="nodelet" title="admin nodelet">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">-i-i</field>
+  <field name="dynamicauthor_permission" type="literal_value">0</field>
+  <field name="dynamicgroup_permission" type="literal_value">0</field>
+  <field name="dynamicguest_permission" type="literal_value">0</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">-i-i</field>
+  <field name="guestaccess" type="literal_value">-i-i</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field type_nodetype="nodelet,nodetype" name="mini_nodelet" type="noderef">admin Nodelet Mini</field>
+  <field name="nlcode" type="literal_value">&lt;table border=0>
+ &lt;tr>
+  &lt;td nowrap>
+    &lt;font size=2>
 [% 
-my $str = $query-&gt;start_form;
+my $str = $query->start_form;
 $str .= "node";
-$str .= $query-&gt;textfield(-name =&gt; "node", -default =&gt; "",
-     -override =&gt; 1, -size =&gt; 10, -maxlength =&gt; 240);
+$str .= $query->textfield(-name => "node", -default => "",
+     -override => 1, -size => 10, -maxlength => 240);
 %]
 [{closeform}]
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td nowrap&gt;
-   &lt;font size=2&gt;
+   &lt;/font>
+  &lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td nowrap>
+   &lt;font size=2>
 [%
-my $str = $query-&gt;start_form;
+my $str = $query->start_form;
 $str .= "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id";
-$str .= $query-&gt;textfield(-name =&gt; "node_id",
-  -default =&gt; "", -override =&gt; 1, -size =&gt; 10,
-  -maxlength =&gt; 240);
+$str .= $query->textfield(-name => "node_id",
+  -default => "", -override => 1, -size => 10,
+  -maxlength => 240);
 %]
 [{closeform}]
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td&gt;
-   &lt;font size=2&gt;
+   &lt;/font>
+  &lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>
+   &lt;font size=2>
 [%
 my $test = $ENV{HTTP_USER_AGENT};
 if ($test=~ /MSIE/ig)
  {my $str = "&lt;a href="; 
-my $displaytype = $query-&gt;param('displaytype');
+my $displaytype = $query->param('displaytype');
 $displaytype ||= 'display';
-$str.=urlGen({ 'node_id' =&gt; getId($NODE),
- 'displaytype' =&gt; $displaytype,
- 'containers' =&gt; 'show'})." &gt;Show containers&lt;/a&gt;";} %]&lt;br&gt;
+$str.=urlGen({ 'node_id' => getId($NODE),
+ 'displaytype' => $displaytype,
+ 'containers' => 'show'})." >Show containers&lt;/a>";} %]&lt;br>
 
    [%
 linkNode(getNode('create node', 'restricted_superdoc'),
-  'Create new node'); %]&lt;br&gt;
+  'Create new node'); %]&lt;br>
    Current node id: ["$$NODE{node_id}"]
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
-&lt;/table&gt;
+   &lt;/font>
+  &lt;/td>
+ &lt;/tr>
+&lt;/table>
 
-[{adminbox}]</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;table border=0&gt;
- &lt;tr&gt;
-  &lt;td nowrap&gt;
-    &lt;font size=2&gt;
-&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded"&gt;
-node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240&gt;
-&lt;INPUT TYPE="submit" NAME="sexisgood" VALUE="submit"&gt;&lt;/FORM&gt;
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td nowrap&gt;
-   &lt;font size=2&gt;
-&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded"&gt;
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&lt;INPUT TYPE="text" NAME="node_id"  SIZE=10 MAXLENGTH=240&gt;
-&lt;INPUT TYPE="submit" NAME="sexisgood" VALUE="submit"&gt;&lt;/FORM&gt;
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td&gt;
-   &lt;font size=2&gt;
-&lt;br&gt;
+[{adminbox}]</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;table border=0>
+ &lt;tr>
+  &lt;td nowrap>
+    &lt;font size=2>
+&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
+node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240>
+&lt;INPUT TYPE="submit" NAME="sexisgood" VALUE="submit">&lt;/FORM>
+   &lt;/font>
+  &lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td nowrap>
+   &lt;font size=2>
+&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&lt;INPUT TYPE="text" NAME="node_id"  SIZE=10 MAXLENGTH=240>
+&lt;INPUT TYPE="submit" NAME="sexisgood" VALUE="submit">&lt;/FORM>
+   &lt;/font>
+  &lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>
+   &lt;font size=2>
+&lt;br>
 
-   &lt;A HREF="/~paco/index.pl?node_id=212&amp;lastnode_id=138"&gt;Create new node&lt;/a&gt;&lt;br&gt;
+   &lt;A HREF="/~paco/index.pl?node_id=212&amp;lastnode_id=138">Create new node&lt;/a>&lt;br>
    Current node id: 138
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
-&lt;/table&gt;
+   &lt;/font>
+  &lt;/td>
+ &lt;/tr>
+&lt;/table>
 
 
-&lt;script language="javascript"&gt;
+&lt;script language="javascript">
 
 function cloneNode()
 {
@@ -110,20 +110,19 @@ function cloneNode()
   }
 }
 
-&lt;/script&gt;&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1&gt;
-         &lt;tr bgcolor=#ffffff&gt; 
-           &lt;td bgcolor='#FFCCCC' align='center'&gt;&lt;A HREF="/~paco/index.pl?displaytype=display&amp;node_id=138&amp;lastnode_id=138"&gt;&lt;img src=images/icon_display.gif  border=0&gt;&lt;/a&gt; &lt;/td&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;img src=images/icon_edit_current.gif border=0&gt;&lt;/td&gt;&lt;td bgcolor='#FFCCCC' align='center'&gt;&lt;A HREF="/~paco/index.pl?displaytype=permissions&amp;node_id=138&amp;lastnode_id=138"&gt;&lt;img src=images/icon_permissions.gif  border=0&gt;&lt;/a&gt; &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td bgcolor='#FF9999' align='center'&gt;&lt;a href='javascript: cloneNode();'&gt;&lt;img src=images/icon_clone.gif border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;td bgcolor='#FFCCCC'&gt;&amp;nbsp;&lt;/td&gt;
-&lt;SCRIPT language="javascript"&gt;
+&lt;/script>&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1>
+         &lt;tr bgcolor=#ffffff> 
+           &lt;td bgcolor='#FFCCCC' align='center'>&lt;A HREF="/~paco/index.pl?displaytype=display&amp;node_id=138&amp;lastnode_id=138">&lt;img src=images/icon_display.gif  border=0>&lt;/a> &lt;/td>&lt;td bgcolor='#FF9999' align='center'>&lt;img src=images/icon_edit_current.gif border=0>&lt;/td>&lt;td bgcolor='#FFCCCC' align='center'>&lt;A HREF="/~paco/index.pl?displaytype=permissions&amp;node_id=138&amp;lastnode_id=138">&lt;img src=images/icon_permissions.gif  border=0>&lt;/a> &lt;/td>&lt;/tr>&lt;tr>&lt;td bgcolor='#FF9999' align='center'>&lt;a href='javascript: cloneNode();'>&lt;img src=images/icon_clone.gif border=0>&lt;/a>&lt;/td>&lt;td bgcolor='#FFCCCC'>&amp;nbsp;&lt;/td>
+&lt;SCRIPT language="javascript">
   function confirmDelete(){
     if(confirm("Delete 'nodelet display page'?")){
       parent.location="/~paco/index.pl?node_id=138&amp;op=nuke"; }
         }
-&lt;/SCRIPT&gt;
-&lt;td bgcolor='#FF9999' align=center&gt;&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</nltext>
-	<nodelet_mini table="nodelet" type="nodelet">admin Nodelet Mini</nodelet_mini>
-	<otheraccess table="node">-i-i</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">admin nodelet</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+&lt;/SCRIPT>
+&lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' border=0>&lt;/a>&lt;/td>&lt;/tr>&lt;/table></field>
+  <field name="otheraccess" type="literal_value">-i-i</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">admin nodelet</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

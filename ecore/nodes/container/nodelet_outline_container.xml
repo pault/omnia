@@ -1,22 +1,22 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<context table="container">&lt;table width=100% cellspacing=1 cellpadding=0 border=0&gt;
-&lt;tr&gt;
- &lt;td bgcolor='#000000' width='100%'&gt;
+<NODE export_version="0.5" nodetype="container" title="nodelet outline container">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="context" type="literal_value">&lt;table width=100% cellspacing=1 cellpadding=0 border=0>
+&lt;tr>
+ &lt;td bgcolor='#000000' width='100%'>
    CONTAINED_STUFF
- &lt;/td&gt;
-&lt;/table&gt;</context>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">container</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="container" type="literal_value">0</parent_container>
-	<title table="node">nodelet outline container</title>
-	<type_nodetype table="node" type="nodetype">container</type_nodetype>
+ &lt;/td>
+&lt;/table></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">container</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="parent_container" type="literal_value">0</field>
+  <field name="title" type="literal_value">nodelet outline container</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">container</field>
 </NODE>

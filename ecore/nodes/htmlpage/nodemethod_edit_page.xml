@@ -1,47 +1,47 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">edit</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">title:[{textfield:title}] maintained by:[{node_menu:author_user,usergroup}]&lt;br&gt;
-Supports: [{node_menu:supports_nodetype}]&lt;br&gt;
+<NODE export_version="0.5" nodetype="htmlpage" title="nodemethod edit page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">edit</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">title:[{textfield:title}] maintained by:[{node_menu:author_user,usergroup}]&lt;br>
+Supports: [{node_menu:supports_nodetype}]&lt;br>
 
-&lt;table width=100%&gt;
-&lt;tr&gt;
-&lt;td width=90%&gt;
-&lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
-[{textarea:code}]&lt;/td&gt;
-&lt;td width=10%&gt;&lt;font size=2&gt;[%
+&lt;table width=100%>
+&lt;tr>
+&lt;td width=90%>
+&lt;p>&lt;FONT SIZE=2>&lt;b>Edit the code:&lt;/b>&lt;/FONT>&lt;br>
+[{textarea:code}]&lt;/td>
+&lt;td width=10%>&lt;font size=2>[%
 my $N;
  if ($$NODE{supports_nodetype}) {$N = getNode($$NODE{supports_nodetype}) }
 my $str;
 
 return "No Nodetype selected!\n" unless($N);
 
-$str .= "&lt;ul&gt;\n";
-my $tables = $N-&gt;getTableArray(1);
+$str .= "&lt;ul>\n";
+my $tables = $N->getTableArray(1);
 foreach (@$tables) {
-  $str .="\n&lt;li&gt;";
-  $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);
+  $str .="\n&lt;li>";
+  $str .= join "\n&lt;li>", $DB->getFields($_);
 }
-$str .= "&lt;/ul&gt;\n";
+$str .= "&lt;/ul>\n";
 $str;
-%]&lt;/font&gt;&lt;/td&gt;
- &lt;/tr&gt;
-&lt;/table&gt;
-[{submit}]</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">nodemethod</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
-	<permissionneeded table="htmlpage">w</permissionneeded>
-	<title table="node">nodemethod edit page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+%]&lt;/font>&lt;/td>
+ &lt;/tr>
+&lt;/table>
+[{submit}]</field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">nodemethod</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">formcontainer</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">nodemethod edit page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>

@@ -1,15 +1,15 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">
-if($query-&gt;param("bmove"))
+<NODE export_version="0.5" nodetype="opcode" title="bucketOp">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">
+if($query->param("bmove"))
 {
-  my $loc = getNode($query-&gt;param("node_id"));
+  my $loc = getNode($query->param("node_id"));
 
-  return unless($loc &amp;&amp; $loc-&gt;isOfType("location") &amp;&amp;
-    $loc-&gt;hasAccess($USER, "x"));
+  return unless($loc &amp;&amp; $loc->isOfType("location") &amp;&amp;
+    $loc->hasAccess($USER, "x"));
 
-  foreach my $param ($query-&gt;param)
+  foreach my $param ($query->param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -19,17 +19,17 @@ if($query-&gt;param("bmove"))
     next unless($node);
 
     $$node{loc_location} = $$loc{node_id};
-    $node-&gt;update($USER);
+    $node->update($USER);
   }
 }
-elsif($query-&gt;param("bsymlink"))
+elsif($query->param("bsymlink"))
 {
-  my $loc = getNode($query-&gt;param("node_id"));
+  my $loc = getNode($query->param("node_id"));
   my $sym = getType("symlink");
-  return unless($loc &amp;&amp; $loc-&gt;isOfType("location") &amp;&amp;
-    $loc-&gt;hasAccess($USER, "x") &amp;&amp; $sym-&gt;hasTypeAccess($USER, "c"));
+  return unless($loc &amp;&amp; $loc->isOfType("location") &amp;&amp;
+    $loc->hasAccess($USER, "x") &amp;&amp; $sym->hasTypeAccess($USER, "c"));
 
-  foreach my $param ($query-&gt;param)
+  foreach my $param ($query->param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -43,16 +43,16 @@ elsif($query-&gt;param("bsymlink"))
     $$symlink{symlink_node} = $$node{node_id};
     $$symlink{loc_location} = $$loc{node_id};
 
-    $symlink-&gt;insert($USER);
+    $symlink->insert($USER);
   }
 }
-elsif($query-&gt;param("bgroupadd"))
+elsif($query->param("bgroupadd"))
 {
-  my $group = getNode($query-&gt;param("node_id"));
+  my $group = getNode($query->param("node_id"));
 
-  return unless($group &amp;&amp; $group-&gt;isGroup() &amp;&amp; $group-&gt;hasAccess($USER, "w"));
+  return unless($group &amp;&amp; $group->isGroup() &amp;&amp; $group->hasAccess($USER, "w"));
 
-  foreach my $param ($query-&gt;param)
+  foreach my $param ($query->param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -60,14 +60,14 @@ elsif($query-&gt;param("bgroupadd"))
     # Probably has something to do with default vars.  So, we need to assign
     # what we found to a scoped var.
     my $insert = $1;
-    $group-&gt;insertIntoGroup($USER, $insert);
+    $group->insertIntoGroup($USER, $insert);
   }
 }
 
-if($query-&gt;param("bdrop") or $query-&gt;param("dropexec"))
+if($query->param("bdrop") or $query->param("dropexec"))
 {
   my $bucket = $$VARS{nodebucket};
-  foreach my $param ($query-&gt;param)
+  foreach my $param ($query->param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -77,16 +77,16 @@ if($query-&gt;param("bdrop") or $query-&gt;param("dropexec"))
   }
 
   $$VARS{nodebucket} = $bucket;
-}</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">opcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">bucketOp</title>
-	<type_nodetype table="node" type="nodetype">opcode</type_nodetype>
+}</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">opcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">bucketOp</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">opcode</field>
 </NODE>

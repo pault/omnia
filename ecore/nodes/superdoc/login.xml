@@ -1,57 +1,57 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<doctext table="document">[%
+<NODE export_version="0.5" nodetype="superdoc" title="login">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[%
 my $str = "";
 
 
 
 
-if ($query-&gt;param('op') eq 'login' &amp;&amp; $$USER{title} ne "Guest User") {
+if ($query->param('op') eq 'login' &amp;&amp; $$USER{title} ne "Guest User") {
   $str.= "Hey.  Glad you're back.  Would you like to go to your " 
     .linkNode($USER, "home node")
-    ." or to ".linkNode($HTMLVARS{default_node})."?&lt;br&gt;";
+    ." or to ".linkNode($HTMLVARS{default_node})."?&lt;br>";
 
   $str.="...or back to "
-    .linkNode($query-&gt;param("lastnode_id"))
-    ."?&lt;br&gt;" if ($query-&gt;param("lastnode_id"));
+    .linkNode($query->param("lastnode_id"))
+    ."?&lt;br>" if ($query->param("lastnode_id"));
   return $str;
-} elsif ($query-&gt;param('op') eq 'login') { 
-  $str .="Oops.  You must have the wrong login or password or something:\n&lt;P&gt;\n";
+} elsif ($query->param('op') eq 'login') { 
+  $str .="Oops.  You must have the wrong login or password or something:\n&lt;P>\n";
 } elsif ($$USER{title} ne "Guest User") {
-  $str.="Hey, ".linkNode($USER)."...  this is where you log in:&lt;p&gt;\n";
+  $str.="Hey, ".linkNode($USER)."...  this is where you log in:&lt;p>\n";
 }else {
-  $str .="Welcome to $HTMLVARS{site_name}.  Authenticate yrself:\n&lt;p&gt;\n";
+  $str .="Welcome to $HTMLVARS{site_name}.  Authenticate yrself:\n&lt;p>\n";
 }
 
-$str .= $query-&gt;start_form("POST", $ENV{script_name}) .
-		"&lt;input type=\"hidden\" name=\"op\" value=\"login\"&gt;".	
- 		$query-&gt;hidden("node_id", getId($NODE))."\n".
-		$query-&gt;hidden("lastnode_id", $query-&gt;param("lastnode_id"))."\n".
+$str .= $query->start_form("POST", $ENV{script_name}) .
+		"&lt;input type=\"hidden\" name=\"op\" value=\"login\">".	
+ 		$query->hidden("node_id", getId($NODE))."\n".
+		$query->hidden("lastnode_id", $query->param("lastnode_id"))."\n".
 
-		$query-&gt;textfield (-name =&gt; "user",
-			-size =&gt; 20,
-			-maxlength =&gt; 20) . "&lt;br&gt;" .
-		$query-&gt;password_field(-name =&gt; "passwd",
-			-size =&gt; 10,
-			-maxlength =&gt; 10) ."&lt;br&gt;".
-		$query-&gt;checkbox("expires", "", "+10y", "save me a permanent cookie, cowboy!"). 
-		$query-&gt;submit("sexisgood", "stumbit") .
-		$query-&gt;end_form;
+		$query->textfield (-name => "user",
+			-size => 20,
+			-maxlength => 20) . "&lt;br>" .
+		$query->password_field(-name => "passwd",
+			-size => 10,
+			-maxlength => 10) ."&lt;br>".
+		$query->checkbox("expires", "", "+10y", "save me a permanent cookie, cowboy!"). 
+		$query->submit("sexisgood", "stumbit") .
+		$query->end_form;
 	$str;
 %]
 
 	
-</doctext>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">superdoc</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">login</title>
-	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">superdoc</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">login</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">superdoc</field>
 </NODE>

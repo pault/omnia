@@ -1,52 +1,52 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<context table="container">&lt;table width=95% align=center&gt;
- &lt;tr&gt;
-  &lt;td&gt;
+<NODE export_version="0.5" nodetype="container" title="main container">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="context" type="literal_value">&lt;table width=95% align=center>
+ &lt;tr>
+  &lt;td>
    [{searchform:noendform}]
-  &lt;/td&gt;
-  &lt;td align=right&gt;
+  &lt;/td>
+  &lt;td align=right>
 [%
 my $default = getNode($HTMLVARS{default_node});
-linkNode($default, "&lt;img border=0 src=images/e.gif&gt;");
+linkNode($default, "&lt;img border=0 src=images/e.gif>");
 %]
-   &lt;/td&gt;
- &lt;/tr&gt;
-&lt;/form&gt;
-&lt;/table&gt;
+   &lt;/td>
+ &lt;/tr>
+&lt;/form>
+&lt;/table>
 
-&lt;table width="100%"&gt;
- &lt;tr&gt;  
-  &lt;td width=100% valign=top&gt;
-   &lt;h3&gt;[{showPath}] ["$$NODE{title}"]&lt;/h3&gt;
-   &lt;p&gt;&lt;font size=2&gt;Maintained by
+&lt;table width="100%">
+ &lt;tr>  
+  &lt;td width=100% valign=top>
+   &lt;h3>[{showPath}] ["$$NODE{title}"]&lt;/h3>
+   &lt;p>&lt;font size=2>Maintained by
    [%
    if ($$NODE{author_user} != getId ($USER)) {
 	return linkNode ($$NODE{author_user});
    }
-   linkNode($USER, "you"). "!!!&lt;br&gt;"; 
-   %]&lt;/font&gt;
-   &lt;p&gt;
+   linkNode($USER, "you"). "!!!&lt;br>"; 
+   %]&lt;/font>
+   &lt;p>
    CONTAINED_STUFF
-  &lt;/td&gt;
-  &lt;td width=1 valign=top align=right&gt;
-   &lt;!-- nodelets start here --&gt;
-   [% $USER-&gt;isGod? "" : htmlcode('adminbar') %]
+  &lt;/td>
+  &lt;td width=1 valign=top align=right>
+   &lt;!-- nodelets start here -->
+   [% $USER->isGod? "" : htmlcode('adminbar') %]
    [{nodelet meta-container}]
-  &lt;/td&gt;
- &lt;/tr&gt;
-&lt;/table&gt;</context>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">container</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="container" type="container">stdcontainer</parent_container>
-	<title table="node">main container</title>
-	<type_nodetype table="node" type="nodetype">container</type_nodetype>
+  &lt;/td>
+ &lt;/tr>
+&lt;/table></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">container</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">stdcontainer</field>
+  <field name="title" type="literal_value">main container</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">container</field>
 </NODE>

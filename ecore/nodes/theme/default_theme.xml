@@ -1,35 +1,35 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iixi</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group >
-		<groupnode1 table="nodegroup" type="container">main container</groupnode1>
-	</group>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iixi</groupaccess>
-	<guestaccess table="node">ii-i</guestaccess>
-	<loc_location table="node" type="location">theme</loc_location>
-	<otheraccess table="node">iixi</otheraccess>
-	<title table="node">default theme</title>
-	<type_nodetype table="node" type="nodetype">theme</type_nodetype>
-	<vars table="setting">
-		<bodyVlinkcolor >#333399</bodyVlinkcolor>
-		<bodyTextcolor >#000000</bodyTextcolor>
-		<author >Nathan Oostendorp and Darrick Brown</author>
-		<description >The default Everything Theme</description>
-		<version >0.2</version>
-		<bodyBgcolor >#FFFFFF</bodyBgcolor>
-		<nodeletParent_container type="container">nodelet container</nodeletParent_container>
-		<nodeletBodyColor >#FFFFFF</nodeletBodyColor>
-		<generalParent_container type="container">main container</generalParent_container>
-		<nodeletBodyFontAttr >size=2</nodeletBodyFontAttr>
-		<bodyLinkcolor >#993333</bodyLinkcolor>
-		<nodeletTitleColor >#CC99FF</nodeletTitleColor>
-		<nodeletTitleBackground >""</nodeletTitleBackground>
-		<nodeletMCTableAttr >width=150 cellpadding=1 cellspacing=1</nodeletMCTableAttr>
-		<nodeletTitleFontAttr >color=white</nodeletTitleFontAttr>
-	</vars>
+<NODE export_version="0.5" nodetype="theme" title="default theme">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iixi</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <group>
+    <member orderby="1" type="noderef" type_nodetype="container,nodetype">main container</member>
+  </group>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iixi</field>
+  <field name="guestaccess" type="literal_value">ii-i</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">theme</field>
+  <field name="otheraccess" type="literal_value">iixi</field>
+  <field name="title" type="literal_value">default theme</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">theme</field>
+  <vars>
+    <var name="author" type="literal_value">Nathan Oostendorp and Darrick Brown</var>
+    <var name="bodyBgcolor" type="literal_value">#FFFFFF</var>
+    <var name="bodyLinkcolor" type="literal_value">#993333</var>
+    <var name="bodyTextcolor" type="literal_value">#000000</var>
+    <var name="bodyVlinkcolor" type="literal_value">#333399</var>
+    <var name="description" type="literal_value">The default Everything Theme</var>
+    <var type_nodetype="container,nodetype" name="generalParent_container" type="noderef">main container</var>
+    <var name="nodeletBodyColor" type="literal_value">#FFFFFF</var>
+    <var name="nodeletBodyFontAttr" type="literal_value">size=2</var>
+    <var name="nodeletMCTableAttr" type="literal_value">width=150 cellpadding=1 cellspacing=1</var>
+    <var type_nodetype="container,nodetype" name="nodeletParent_container" type="noderef">nodelet container</var>
+    <var name="nodeletTitleBackground" type="literal_value">""</var>
+    <var name="nodeletTitleColor" type="literal_value">#CC99FF</var>
+    <var name="nodeletTitleFontAttr" type="literal_value">color=white</var>
+    <var name="version" type="literal_value">0.2</var>
+  </vars>
 </NODE>

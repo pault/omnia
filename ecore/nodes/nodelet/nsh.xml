@@ -1,25 +1,25 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii</groupaccess>
-	<guestaccess table="node">----</guestaccess>
-	<lastupdate table="nodelet">965775725</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">&lt;font size=2&gt;
+<NODE export_version="0.5" nodetype="nodelet" title="nsh">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii</field>
+  <field name="guestaccess" type="literal_value">----</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">&lt;font size=2>
 [% 
-my $str = $query-&gt;start_form;
+my $str = $query->start_form;
 $str .= linkNode(getNode("nsh help", "document"), "nsh#") . " ";
-$str .= $query-&gt;textfield(-name =&gt; "nsh", -default =&gt; "",
-     -override =&gt; 1, -size =&gt; 20, -maxlength =&gt; 240);
-$str .= $query-&gt;hidden( -name =&gt; "op", -default =&gt; "opNSH", -override =&gt; 1);
-$str .= $query-&gt;hidden( -name =&gt; "node_id", -default =&gt; $$NODE{node_id},
-  -override =&gt; 1);
-$str .= $query-&gt;end_form;
+$str .= $query->textfield(-name => "nsh", -default => "",
+     -override => 1, -size => 20, -maxlength => 240);
+$str .= $query->hidden( -name => "op", -default => "opNSH", -override => 1);
+$str .= $query->hidden( -name => "node_id", -default => $$NODE{node_id},
+  -override => 1);
+$str .= $query->end_form;
 
 $str;
 %]
@@ -27,22 +27,21 @@ $str;
 [%
 return "" unless(exists $GLOBAL{nsh_errors});
 
-return "nsh Errors:&lt;br&gt;\n" . $GLOBAL{nsh_errors};
+return "nsh Errors:&lt;br>\n" . $GLOBAL{nsh_errors};
 %]
-&lt;/font&gt;
-</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;font size=2&gt;
-&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded"&gt;
-&lt;A HREF="/index.pl?node_id=207&amp;lastnode_id=206"&gt;nsh#&lt;/a&gt; &lt;INPUT TYPE="text" NAME="nsh"  SIZE=20 MAXLENGTH=240&gt;&lt;INPUT TYPE="hidden" NAME="op" VALUE="opNSH"&gt;&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="206"&gt;&lt;/FORM&gt;
+&lt;/font>
+</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;font size=2>
+&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
+&lt;A HREF="/index.pl?node_id=207&amp;lastnode_id=206">nsh#&lt;/a> &lt;INPUT TYPE="text" NAME="nsh"  SIZE=20 MAXLENGTH=240>&lt;INPUT TYPE="hidden" NAME="op" VALUE="opNSH">&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="206">&lt;/FORM>
 
 
-&lt;/font&gt;
-</nltext>
-	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
-	<otheraccess table="node">----</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">nsh</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+&lt;/font>
+</field>
+  <field name="otheraccess" type="literal_value">----</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">nsh</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

@@ -1,14 +1,14 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my $str = "&lt;font size=2&gt;[ ";
+<NODE export_version="0.5" nodetype="htmlcode" title="titlebar">
+  <field name="author_user" type="literal_value">-1</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my $str = "&lt;font size=2>[ ";
 my @links;
 
 my $GNL = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GNL) if($GNL-&gt;hasAccess($USER, 'r'));
+push @links, linkNode ($GNL) if($GNL->hasAccess($USER, 'r'));
 
 my $GCL = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GCL) if($GCL-&gt;hasAccess($USER, 'r'));
+push @links, linkNode ($GCL) if($GCL->hasAccess($USER, 'r'));
 
 my $ROOT = getNode('root', getType('user'));
 my $ss = getNode('system settings', getType('setting'));
@@ -17,16 +17,16 @@ push @links, linkNode ($ss) if ($USER eq $ROOT);
 push @links, linkNode ($HTMLVARS{default_node});
 
 $str .= join " |\n", @links;
-$str . " ] &lt;p&gt;&lt;/font&gt;";</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">titlebar</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$str . " ] &lt;p>&lt;/font>";</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">titlebar</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

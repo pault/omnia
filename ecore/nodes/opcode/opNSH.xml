@@ -1,15 +1,15 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my $nsh = $query-&gt;param("nsh");
+<NODE export_version="0.5" nodetype="opcode" title="opNSH">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my $nsh = $query->param("nsh");
 
 return unless($nsh &amp;&amp; $nsh ne "");
 
 my $nodes;
-my $NODE = getNode($query-&gt;param("node_id"));
+my $NODE = getNode($query->param("node_id"));
 my $cmdline = parseNSH($nsh);
 
-return "" unless($cmdline &amp;&amp; @$cmdline &gt; 0);
+return "" unless($cmdline &amp;&amp; @$cmdline > 0);
 
 my $cmd = shift @$cmdline;
 
@@ -24,7 +24,7 @@ if($cmd =~ /^cd$/i)
     $startLoc = 0;
     $dest =~ s/^\///;
   }
-  elsif($NODE-&gt;isOfType("location"))
+  elsif($NODE->isOfType("location"))
   {
     $startLoc = $$NODE{node_id};
   }
@@ -42,11 +42,11 @@ if($cmd =~ /^cd$/i)
   {
     if($loc eq "..")
     {
-      $startLoc = $startLoc-&gt;getParentLocation();
+      $startLoc = $startLoc->getParentLocation();
     }
     else
     { 
-      $startLoc = getNode({ title =&gt; $loc, loc_location =&gt; $$startLoc{node_id} },
+      $startLoc = getNode({ title => $loc, loc_location => $$startLoc{node_id} },
         $location);
     }
 
@@ -58,7 +58,7 @@ if($cmd =~ /^cd$/i)
   }
 
   # We found what they specified!  Go there!
-  $query-&gt;param("node_id", $$startLoc{node_id}); 
+  $query->param("node_id", $$startLoc{node_id}); 
 }
 elsif($cmd =~ /^rm$/i)
 {
@@ -73,7 +73,7 @@ elsif($cmd =~ /^mv$/i)
   my @nodes;
 
   # The last one is where to move them to...
-  while(@$cmdline &gt; 1)
+  while(@$cmdline > 1)
   {
     push @nodes, @{ getNodesFromPath(shift @$cmdline) };
   }
@@ -116,16 +116,16 @@ sub parseNSH
   }
 
   return \@files;
-}</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii</groupaccess>
-	<guestaccess table="node">----</guestaccess>
-	<loc_location table="node" type="location">opcode</loc_location>
-	<otheraccess table="node">----</otheraccess>
-	<title table="node">opNSH</title>
-	<type_nodetype table="node" type="nodetype">opcode</type_nodetype>
+}</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii</field>
+  <field name="guestaccess" type="literal_value">----</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">opcode</field>
+  <field name="otheraccess" type="literal_value">----</field>
+  <field name="title" type="literal_value">opNSH</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">opcode</field>
 </NODE>

@@ -1,7 +1,7 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode"># This displays the variables contained in a setting, and
+<NODE export_version="0.5" nodetype="htmlcode" title="displayvars">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># This displays the variables contained in a setting, and
 # the values assigned to each one.  The values are displayed
 # as links to nodes if the node is present (with the node_Id
 # in parentheses) otherwise it is simply listed as text.
@@ -14,34 +14,34 @@ my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
 
 my @skeys = keys %$SETTINGS;
 if (not @skeys) { 
-  return "&lt;i&gt;the node's settings are empty&lt;/i&gt;&lt;br&gt;\n";
+  return "&lt;i>the node's settings are empty&lt;/i>&lt;br>\n";
 }
 
 @skeys = sort {$a cmp $b} @skeys;
 my $zulu;
-$str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0&gt;\n";
-$str.="&lt;TR&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;/TR&gt;\n";
+$str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0>\n";
+$str.="&lt;TR>&lt;TH>Setting&lt;/TH>&lt;TH>Value&lt;/TH>&lt;/TR>\n";
 foreach (@skeys) 
  {    
-      $str.= "&lt;TR&gt;&lt;TD bgcolor=$keyclr&gt;$_&lt;/TD&gt;";
+      $str.= "&lt;TR>&lt;TD bgcolor=$keyclr>$_&lt;/TD>";
       $zulu=$_;
       #checks if the value is a node id (a number that exists as a nodeId)
       if (($_=~/(.+?)\_(.+?)/)and ($$SETTINGS{$_}!~/\D/ ) and (getNodeById($$SETTINGS{$_}) ))
-         { $str.="&lt;TD bgcolor=$valclr&gt;" . linkNode($$SETTINGS{$_}) . " ($$SETTINGS{$_})&lt;/TD&gt;&lt;/TR&gt;\n";  }
+         { $str.="&lt;TD bgcolor=$valclr>" . linkNode($$SETTINGS{$_}) . " ($$SETTINGS{$_})&lt;/TD>&lt;/TR>\n";  }
       else
-       {   $str.="&lt;TD bgcolor=$valclr&gt;$$SETTINGS{$_}&lt;/TR&gt;\n";}
+       {   $str.="&lt;TD bgcolor=$valclr>$$SETTINGS{$_}&lt;/TR>\n";}
  }
-$str .="&lt;/TABLE&gt;\n";
-</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">displayvars</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$str .="&lt;/TABLE>\n";
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">displayvars</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

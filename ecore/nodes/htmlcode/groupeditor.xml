@@ -1,11 +1,11 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my $id = getId $NODE;
+<NODE export_version="0.5" nodetype="htmlcode" title="groupeditor">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my $id = getId $NODE;
 
 my $str = "
 
-&lt;SCRIPT LANGUAGE=\"JavaScript1.1\"&gt;
+&lt;SCRIPT LANGUAGE=\"JavaScript1.1\">
 
 function saveForm()
 {
@@ -22,7 +22,7 @@ function swapUp()
     with (document.forms[$id].elements[0]) {
         x=selectedIndex;
         if(x == -1 || x == 0) { return; }
-        if(options.length &gt; 1) {  // We need at least 2 to do a swap
+        if(options.length > 1) {  // We need at least 2 to do a swap
                 tmp = new Option(options[x].text, options[x].value);
                 options[x] = options[x-1];
                 options[x-1] = tmp;
@@ -59,9 +59,9 @@ function deleteOp()
     }
 }
 
-&lt;/SCRIPT&gt;";
+&lt;/SCRIPT>";
 
-$str .= "&lt;FORM METHOD=\"GET\" NAME=\"$id\" onSubmit=\"saveForm()\"&gt;";
+$str .= "&lt;FORM METHOD=\"GET\" NAME=\"$id\" onSubmit=\"saveForm()\">";
 
 my $GROUP = $$NODE{group};
 
@@ -72,40 +72,40 @@ my $size = (@$GROUP)/10;
 $size = 10 if($size &lt; 10);
 
 #generate the select box
-$str .= " &lt;SELECT NAME=\"group\" size=$size&gt;\n";
+$str .= " &lt;SELECT NAME=\"group\" size=$size>\n";
 foreach my $item (@$GROUP) {
   my $ITEM = getNode($item, 'light');
-  $str .= " &lt;OPTION VALUE=\"" . getId ($ITEM) . "\"&gt;$$ITEM{title}\n";
+  $str .= " &lt;OPTION VALUE=\"" . getId ($ITEM) . "\">$$ITEM{title}\n";
 }
-$str .= "&lt;/SELECT&gt;&lt;BR&gt;";
+$str .= "&lt;/SELECT>&lt;BR>";
 
 #generate the hidden elements
 for (my $i = 0; $i &lt; (5 + @$GROUP); $i++) {
-  $str .= "&lt;INPUT type=hidden name=$i value=\"\"&gt;\n";
+  $str .= "&lt;INPUT type=hidden name=$i value=\"\">\n";
 }
 
-$str .= $query-&gt;hidden('node_id', getId $NODE) .
-  $query-&gt;hidden('displaytype');
+$str .= $query->hidden('node_id', getId $NODE) .
+  $query->hidden('displaytype');
 
-$str .= $query-&gt;button(-name =&gt; "Delete", -onClick =&gt; "deleteOp();") . "\n";
-$str .= $query-&gt;button(-name =&gt; "Up", -onClick =&gt; "swapUp();") . "\n";
-$str .= $query-&gt;button(-name =&gt; "Down", -onClick =&gt; "swapDn();") . "\n";
+$str .= $query->button(-name => "Delete", -onClick => "deleteOp();") . "\n";
+$str .= $query->button(-name => "Up", -onClick => "swapUp();") . "\n";
+$str .= $query->button(-name => "Down", -onClick => "swapDn();") . "\n";
 $str .= '
 &lt;INPUT TYPE=submit BORDER=0 
-        VALUE="Save" onClick="javascript:saveForm()"&gt;';
+        VALUE="Save" onClick="javascript:saveForm()">';
 
-$str .= "&lt;/FORM&gt;";
+$str .= "&lt;/FORM>";
 
-$str;</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">groupeditor</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$str;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">groupeditor</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

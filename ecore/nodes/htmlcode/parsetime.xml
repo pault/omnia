@@ -1,7 +1,7 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode"># [{parsetime:FIELD}]
+<NODE export_version="0.5" nodetype="htmlcode" title="parsetime">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># [{parsetime:FIELD}]
 # Parses out a datetime field into a more human-readable form
 #
 
@@ -12,23 +12,23 @@ my ($date, $time) = split / /,$$NODE{$field};
 my ($hrs, $min, $sec) = split /:/, $time;
 my ($yy, $mm, $dd) = split /-/, $date;
 
-return "&lt;i&gt;never&lt;/i&gt;" unless (int($yy) and int($mm) and int($dd));
+return "&lt;i>never&lt;/i>" unless (int($yy) and int($mm) and int($dd));
 
 use Time::Local;
 my $epoch_secs=timelocal( $sec, $min, $hrs, $dd, $mm-1, $yy);
 my $nicedate =localtime ($epoch_secs);
 
 $nicedate =~ s/(\d\d):(\d\d):(\d\d).*$/at $1:$2/;
-$nicedate;</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">parsetime</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$nicedate;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">parsetime</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

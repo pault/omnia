@@ -1,37 +1,37 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">display</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;br&gt;
-&lt;table cellspacing=1 cellpadding=3&gt;
- &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Class&lt;/b&gt;&lt;/td&gt;
-  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Permissions&lt;/b&gt;&lt;/td&gt;
-  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Inherited values&lt;/b&gt;&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Author:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultauthoraccess}"]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+<NODE export_version="0.5" nodetype="htmlpage" title="nodetype display page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;p>&lt;b>Default permissions for nodes of this type:&lt;/b>&lt;br>
+&lt;table cellspacing=1 cellpadding=3>
+ &lt;tr>
+  &lt;td bgcolor=#cccccc>&lt;b>Class&lt;/b>&lt;/td>
+  &lt;td bgcolor=#cccccc>&lt;b>Permissions&lt;/b>&lt;/td>
+  &lt;td bgcolor=#cccccc>&lt;b>Inherited values&lt;/b>&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td bgcolor=#cccccc>Author:&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultauthoraccess}"]&lt;/code>&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultauthoraccess} if($TYPE);
 "";
-%]&lt;/code&gt;&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Group: [%
+%]&lt;/code>&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td bgcolor=#cccccc>Group: [%
 my $str;
-if($$NODE{defaultgroup_usergroup} &gt; 0)
+if($$NODE{defaultgroup_usergroup} > 0)
 { 
   $str = linkNode($$NODE{defaultgroup_usergroup});
 }
@@ -41,46 +41,46 @@ else
 }
 
 $str;
-%]&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultgroupaccess}"]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+%]&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultgroupaccess}"]&lt;/code>&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultgroupaccess} if($TYPE);
 "";
-%]&lt;/code&gt;&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Other:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultotheraccess}"]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+%]&lt;/code>&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td bgcolor=#cccccc>Other:&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultotheraccess}"]&lt;/code>&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultotheraccess} if($TYPE);
 "";
-%]&lt;/code&gt;&lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Guest:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultguestaccess}"]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+%]&lt;/code>&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td bgcolor=#cccccc>Guest:&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultguestaccess}"]&lt;/code>&lt;/td>
+  &lt;td bgcolor=#999999>&lt;code>[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{defaultguestaccess} if($TYPE);
 "";
-%]&lt;/code&gt;&lt;/td&gt;
- &lt;/tr&gt;
-&lt;/table&gt;
+%]&lt;/code>&lt;/td>
+ &lt;/tr>
+&lt;/table>
 
 [%
-if($NODE-&gt;isGroup())
+if($NODE->isGroup())
 { 
-  return "&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: ";
+  return "&lt;p>&lt;b>Restricted Nodetypes&lt;/b>: ";
 }
 %]
 
-&lt;p&gt;&lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
+&lt;p>&lt;b>Restrict Duplicates&lt;/b> (identical titles): 
 	[% if($$NODE{restrictdupes} == -1) { "parent"; }
 	   else{ $$NODE{restrictdupes}?"Yes":"No";} %]
 [{displayInherted:restrictdups}]
-&lt;p&gt; &lt;b&gt;Sql Table&lt;/b&gt;: 
+&lt;p> &lt;b>Sql Table&lt;/b>: 
 [%
 if ($$NODE{sqltable} ne "")
 {
@@ -89,48 +89,48 @@ if ($$NODE{sqltable} ne "")
 }
 else
 {
-  "&lt;i&gt;none&lt;/i&gt;";
+  "&lt;i>none&lt;/i>";
 }
 %] [{displayInherited:sqltable}]
 
-&lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; 
+&lt;p> &lt;b>Extends Nodetype:&lt;/b> 
 [% linkNode ($$NODE{extends_nodetype}) 
 	if ($$NODE{extends_nodetype});%]
-&lt;p&gt; &lt;b&gt;Relevant pages:&lt;/b&gt;&lt;br&gt;
+&lt;p> &lt;b>Relevant pages:&lt;/b>&lt;br>
 
 [%
 my $str;
 my $pages = getNodeWhere(
-  { pagetype_nodetype =&gt; $$NODE{node_id} }, getType('htmlpage'));
+  { pagetype_nodetype => $$NODE{node_id} }, getType('htmlpage'));
 
 return "None" unless($pages);
 
 foreach (@$pages)
 {
-  $str .= "&lt;li&gt;" .linkNode ($_);
+  $str .= "&lt;li>" .linkNode ($_);
 }
 $str;
 %]
 
-&lt;p&gt; &lt;b&gt; Active Maintenances:&lt;/b&gt;&lt;br&gt;
+&lt;p> &lt;b> Active Maintenances:&lt;/b>&lt;br>
 [%
 my $str;
 
-my $maints = getNodeWhere ({maintain_nodetype=&gt;getId($NODE)},
+my $maints = getNodeWhere ({maintain_nodetype=>getId($NODE)},
   getType('maintenance'));
 
-return "&lt;i&gt;no maintenance functions&lt;/i&gt;" unless $maints;
+return "&lt;i>no maintenance functions&lt;/i>" unless $maints;
 
 foreach (@$maints)
 {
-  $str .= "&lt;li&gt;".linkNode ($_);
+  $str .= "&lt;li>".linkNode ($_);
 }
 
 $str;
-%]</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">general container</parent_container>
-	<permissionneeded table="htmlpage">r</permissionneeded>
-	<title table="node">nodetype display page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+%]</field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">nodetype</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general container</field>
+  <field name="permissionneeded" type="literal_value">r</field>
+  <field name="title" type="literal_value">nodetype display page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>

@@ -1,26 +1,25 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">965779227</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">&lt;font size = 1&gt;
-Node ID:[% getId $NODE %]&lt;br&gt;
-Nodetype: [% linkNode ($$NODE{type_nodetype}, "&lt;font color=#FFFFFF&gt;$$NODE{type_nodetype} &lt;/font&gt;"); %]&lt;br&gt;
-Display: &lt;font color=White&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype")), "&lt;font color=#FFFFFF&gt;".getPage($NODE, $query-&gt;param("displaytype"))-&gt;{title}."&lt;/font&gt;"); %]
-&lt;/font&gt;</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet"></nltext>
-	<nodelet_mini table="nodelet" type="nodelet">Node Statistics</nodelet_mini>
-	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">Node Statistics Mini</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+<NODE export_version="0.5" nodetype="nodelet" title="Node Statistics Mini">
+  <field type_nodetype="usergroup,nodetype" name="author_user" type="noderef">gods</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
+  <field type_nodetype="nodelet,nodetype" name="mini_nodelet" type="noderef">Node Statistics</field>
+  <field name="nlcode" type="literal_value">&lt;font size = 1>
+Node ID:[% getId $NODE %]&lt;br>
+Nodetype: [% linkNode ($$NODE{type_nodetype}, "&lt;font color=#FFFFFF>$$NODE{type_nodetype} &lt;/font>"); %]&lt;br>
+Display: &lt;font color=White>[% linkNode (getPage($NODE, $query->param("displaytype")), "&lt;font color=#FFFFFF>".getPage($NODE, $query->param("displaytype"))->{title}."&lt;/font>"); %]
+&lt;/font></field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value"></field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
+  <field name="title" type="literal_value">Node Statistics Mini</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

@@ -1,7 +1,7 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my ($var, @TYPES) = @_;
+<NODE export_version="0.5" nodetype="htmlcode" title="varmenu">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($var, @TYPES) = @_;
 
 $var or return;
 
@@ -9,8 +9,8 @@ my ($name) = "set$var";
 
 @TYPES or return;  #if no explicit types, quit
 
-foreach (@TYPES) { $_ = $DB-&gt;getType($_); }  #replace w/ node refs
-my $NODELIST = $DB-&gt;selectNodeWhere ({ type_nodetype =&gt; \@TYPES },
+foreach (@TYPES) { $_ = $DB->getType($_); }  #replace w/ node refs
+my $NODELIST = $DB->selectNodeWhere ({ type_nodetype => \@TYPES },
   "", "title");
 
 my $str;
@@ -20,7 +20,7 @@ $items{"0"} = "(default)";
 	
 push (@titlelist, "0");
        foreach my $N (@$NODELIST) {
-                $N = $DB-&gt;getNodeById($N, 'light');
+                $N = $DB->getNodeById($N, 'light');
                 my $id = getId $N;
 		push @titlelist, $id;
 		$items{$id} = $$N{title};
@@ -28,19 +28,19 @@ push (@titlelist, "0");
 
 my $SELECT = $$VARS{$var};
 
-if (my $q = $query-&gt;param("set$var")) {$$VARS{$var} = $q;}
-elsif ($query-&gt;param("sexisgood")){ $$VARS{$var}=""; } 
+if (my $q = $query->param("set$var")) {$$VARS{$var} = $q;}
+elsif ($query->param("sexisgood")){ $$VARS{$var}=""; } 
 
-$query-&gt;popup_menu($name, \@titlelist, $SELECT, \%items);</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">varmenu</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+$query->popup_menu($name, \@titlelist, $SELECT, \%items);</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">varmenu</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>

@@ -1,30 +1,30 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">edit</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">[{openform}]
-&lt;H4&gt;title:&lt;/H4&gt;[{textfield:title}]
-&lt;h4&gt;owner:&lt;/h4&gt;[{node_menu : author_user,user,usergroup}]
-&lt;p&gt;
-[{editvars}]&lt;br&gt;
+<NODE export_version="0.5" nodetype="htmlpage" title="nodeball edit page">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">edit</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[{openform}]
+&lt;H4>title:&lt;/H4>[{textfield:title}]
+&lt;h4>owner:&lt;/h4>[{node_menu : author_user,user,usergroup}]
+&lt;p>
+[{editvars}]&lt;br>
 [{submit}]
-&lt;/form&gt;
+&lt;/form>
 
-&lt;h3&gt;Edit the group:&lt;/h3&gt;
-[{groupeditor}]</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">nodeball</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">general container</parent_container>
-	<permissionneeded table="htmlpage">w</permissionneeded>
-	<title table="node">nodeball edit page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+&lt;h3>Edit the group:&lt;/h3>
+[{groupeditor}]</field>
+  <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">nodeball</field>
+  <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general container</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">nodeball edit page</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlpage</field>
 </NODE>
