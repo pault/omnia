@@ -241,7 +241,7 @@ sub nuke
 		# This nodetype is a group.  See if this node exists in any of its
 		# tables.
 		my $csr = $this->{DB}->sqlSelectMany( "${table}_id", $table,
-			'node_id = ?', [ $this->{node_id}] );
+			'node_id = ?', undef, [ $this->{node_id}] );
 
 		if ($csr)
 		{
