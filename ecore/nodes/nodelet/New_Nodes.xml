@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">941496841</lastupdate>
+	<lastupdate table="nodelet">942107011</lastupdate>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
@@ -22,21 +22,21 @@ $str;
 
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/every2/index.pl?node_id=176&amp;lastnode_id=173"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
+	<nltext table="nodelet">&lt;A HREF="/every2/index.pl?node_id=184&amp;lastnode_id=173"&gt;node xml page&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=183&amp;lastnode_id=173"&gt;DiBona&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=182&amp;lastnode_id=173"&gt;core system&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=176&amp;lastnode_id=173"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/every2/index.pl?node_id=177&amp;lastnode_id=173"&gt;qauser&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/every2/index.pl?node_id=178&amp;lastnode_id=173"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=179&amp;lastnode_id=173"&gt;developers&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/every2/index.pl?node_id=180&amp;lastnode_id=173"&gt;gods&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=171&amp;lastnode_id=173"&gt;bug query results&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=172&amp;lastnode_id=173"&gt;bugbase stats&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=173&amp;lastnode_id=173"&gt;login&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=174&amp;lastnode_id=173"&gt;new bug&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=175&amp;lastnode_id=173"&gt;user variables&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=152&amp;lastnode_id=173"&gt;Gigantic Code Lister&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/every2/index.pl?node_id=153&amp;lastnode_id=173"&gt;Gigantic Node Lister&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/every2/index.pl?node_id=154&amp;lastnode_id=173"&gt;create node&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/every2/index.pl?node_id=155&amp;lastnode_id=173"&gt;node locked&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=156&amp;lastnode_id=173"&gt;bugpriority&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=160&amp;lastnode_id=173"&gt;system settings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=162&amp;lastnode_id=173"&gt;Create A New User&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=163&amp;lastnode_id=173"&gt;Duplicates Found&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=164&amp;lastnode_id=173"&gt;Not found&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=165&amp;lastnode_id=173"&gt;Permission Denied&lt;/a&gt;&lt;BR&gt;
 </nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">nodelet container</parent_container>

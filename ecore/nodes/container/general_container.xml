@@ -4,13 +4,19 @@
  if(defined $$VARS{themecontainer})
  {
   $$CURRENTNODE{parent_container} = $$VARS{themecontainer};
+ } else {
+  my $SETTINGS_NODE = getNode 'system settings', 'setting';
+  my $SYSSETTINGS = getVars $SETTINGS_NODE;
+  if (my $parent = $$SYSSETTINGS{generalParent_container}) {
+    $$CURRENTNODE{parent_container} = $parent;
+  }
  }
 "";
 %]
 CONTAINED_STUFF</context>
 	<core table="node">R</core>
 	<package table="node">0</package>
-	<parent_container table="container" type="container">e2container</parent_container>
+	<parent_container table="container" type="literal_value">0</parent_container>
 	<reputation table="node">0</reputation>
 	<title table="node">general container</title>
 	<type_nodetype table="node" type="nodetype">container</type_nodetype>

@@ -1,0 +1,15 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<displaytype table="htmlpage">xml</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">[%
+  use Everything::XML;
+  node2xml($NODE);
+%]</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">node</pagetype_nodetype>
+	<parent_container table="htmlpage" type="literal_value">0</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">node xml page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

@@ -15,6 +15,7 @@
 		<nodelet_textclr >#ffcccc</nodelet_textclr>
 		<meatloaf >big and juicy</meatloaf>
 		<nodelet_headerclr >#ff0000</nodelet_headerclr>
+		<group ></group>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
 	</vars>
 </NODE>

@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">0</lastupdate>
+	<lastupdate table="nodelet">942114159</lastupdate>
 	<nlcode table="nodelet">&lt;ol&gt;
 [%
 my @links = @{ selectLinks $NODE, "food" };
@@ -17,10 +17,7 @@ $str;
 &lt;/ol&gt;</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">&lt;ol&gt;
-  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=153&amp;lastnode_id=153"&gt;Gigantic Node Lister&lt;/a&gt;(restricted_superdoc)&lt;/li&gt;
-  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=149&amp;lastnode_id=153"&gt;all nodelets&lt;/a&gt;(nodeletgroup)&lt;/li&gt;
-  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=151&amp;lastnode_id=153"&gt;system nodelets&lt;/a&gt;(nodeletgroup)&lt;/li&gt;
-  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=150&amp;lastnode_id=153"&gt;default nodelets&lt;/a&gt;(nodeletgroup)&lt;/li&gt;
+  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=182&amp;lastnode_id=182"&gt;core system&lt;/a&gt;(nodeball)&lt;/li&gt;
 
 &lt;/ol&gt;</nltext>
 	<package table="node">0</package>

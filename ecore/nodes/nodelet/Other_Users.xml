@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node"></core>
-	<lastupdate table="nodelet">940883443</lastupdate>
+	<lastupdate table="nodelet">942107011</lastupdate>
 	<nlcode table="nodelet">Your fellow noders:&lt;br&gt;
 [%
 

@@ -158,6 +158,7 @@
 		<groupnode154 table="nodegroup" type="usergroup">gods</groupnode154>
 		<groupnode155 table="nodegroup" type="nodetype">mail</groupnode155>
 		<groupnode156 table="nodegroup" type="htmlpage">mail display page</groupnode156>
+		<groupnode157 table="nodegroup" type="htmlpage">node xml page</groupnode157>
 	</group>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
@@ -166,6 +167,6 @@
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
 		<description >The core system of Everything.   </description>
-		<version >0.7.9</version>
+		<version >0.7.9.1</version>
 	</vars>
 </NODE>
