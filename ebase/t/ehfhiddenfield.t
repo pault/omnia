@@ -1,58 +1,94 @@
 #!/usr/bin/perl -w
 
 use strict;
+use vars qw( $AUTOLOAD );
 
 BEGIN {
 	chdir 't' if -d 't';
 	unshift @INC, '../blib/lib', 'lib/', '..';
 }
 
-use Test::More tests => 8;
-
-use_ok( 'Everything::HTML::FormObject::HiddenField' );
-my $ho = Everything::HTML::FormObject::HiddenField->new();
-
-use CGI;
 use FakeNode;
-my ($query, $bindNode) = ( CGI->new(), FakeNode->new() );
-$$bindNode{node_id} = 123; 
+use Test::More tests => 13;
+
+$INC{ 'Everything.pm' } = $INC{ 'Everything/HTML/FormObject.pm' } = 1;
+
+{
+	local (*Everything::import,*Everything::HTML::FormObject::import,
+		*Everything::HTML::FormObject::HiddenField::import);
+
+	my @imports;
+	*Everything::import = *Everything::HTML::FormObject::import = sub{
+		push @imports, $_[0];
+	};
+
+	*Everything::HTML::FormObject::HiddenField::import = sub {};
+
+	use_ok( 'Everything::HTML::FormObject::HiddenField' );
+	is( scalar @imports, 2, 'HiddenField should load two packages' );
+	is( $imports[0], 'Everything', '... Everything' );
+	is( $imports[1], 'Everything::HTML::FormObject', 
+		'... and FormObject' );
+}
 
 # genObject()
 {
-	my ($params1, $params2);
 	local (*Everything::HTML::FormObject::HiddenField::getParamArray,
-		*Everything::HTML::FormObject::genObject);
+		*Everything::HTML::FormObject::HiddenField::SUPER::genObject);
 
+	my @params;
 	*Everything::HTML::FormObject::HiddenField::getParamArray = sub {
-		shift @_;  # first value is not part of @_
-		$params1 = join '', @_;
-		return @_;
+		push @params, "@_";
+		shift;
+		@_;
 	};
 
-	*Everything::HTML::FormObject::genObject = sub {
-		$params2 = join '', @_;
+	*Everything::HTML::FormObject::HiddenField::SUPER::genObject = sub {
+		my $node = shift;
+		$node->genObject( @_ );
+		return 'html';
 	};
 
-	my @params = ($query, $bindNode, "node_id", "name", "def");
-	$ho->genObject(@params);
-	is ( $params1, join('', @params),
+	my $node = FakeNode->new();  # Fake HiddenField and CGI object
+	$node->{_subs}{hidden} = [ 'a', 'b', 'c', 'd' ];
+	my $result = genObject( $node, $node, 'bN', 'f', 'n', 'd' );
+
+	is( $params[0], "query, bindNode, field, name, default $node bN f n d",
 		'genObject() should call getParamArray() with @_' );
-	is ( $params2, join('', $ho, $query, $bindNode, "node_id", "name"),
+	is( $node->{_calls}[0][0], 'genObject',
 		'... should call SUPER::genObject()' );
+	is( $node->{_calls}[1][0], 'hidden',
+		'... should call hidden()' );
+	is( $node->{_calls}[1][4], 'd', 
+		'... should use default value, if provided' );
+	is( $node->{_calls}[1][2], 'n', 
+		'... should use provided name' );
+	is( $result, "html\na", 	
+		'... returning concatenation of SUPER() and hidden() calls' );
+
+	genObject( $node, $node, { f => 'field' }, 'f', 'n', '' );
+	is( $node->{_calls}[-1][4], 'field', 
+		'... with no default value, should bind to node field (if provided)' );
+	
+	genObject( $node, $node, { field => 88 }, 'field', '', 'd' );
+	is( $node->{_calls}[-1][2], 'field', 
+		'... name should default to node field name' );
+
+	genObject( $node, $node, '', 'f', 'n', '' );
+	is( $node->{_calls}[-1][4], '',
+		'... default value should be blank if "AUTO" and lacking bound node' );
 }
 
-like ( $ho->genObject($query, $bindNode, "node_id", "", "def"),
-	qr/name="node_id"/i,
-	'... should set name to field if name is not set' );
-like ( $ho->genObject ($query, $bindNode, "node_id", "name", "def"),
-	qr/name="name"/i,
-	'... and leave it alone if it is set' );
-like ( $ho->genObject($query, $bindNode, "node_id", "name", ""),
-	qr/value="123"/i,
-	'... should set default to field of bindNode if default not set' );
-like ( $ho->genObject($query, "", "", "name", ""),
-	qr/value=""/i,
-	'... or leave it blank if bindNode not set' );
-like ( $ho->genObject($query, $bindNode, "node_id", "name", "def"),
-	qr/value="def"/i,
-	'... and leave it alone if it is set' );
+sub AUTOLOAD {
+    return if $AUTOLOAD =~ /DESTROY$/;
+
+	no strict 'refs';
+	$AUTOLOAD =~ s/^main:://;
+
+	my $sub = "Everything::HTML::FormObject::HiddenField::$AUTOLOAD";
+
+	if (defined &{ $sub }) {
+		*{ $AUTOLOAD } = \&{ $sub };
+		goto &{ $sub };
+	}
+}
