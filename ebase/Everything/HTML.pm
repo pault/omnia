@@ -1982,9 +1982,9 @@ sub getCGI
 	my $cgi;
 	
 	if ($ENV{SCRIPT_NAME}) { 
-		$cgi = new CGI;
+		$cgi = CGI->new( @_ );
 	} else {
-		$cgi = new CGI(\*STDIN);
+		$cgi = new CGI(\*STDIN, @_);
 	}
 
 	if (not defined ($cgi->param("op"))) {
@@ -2656,13 +2656,13 @@ sub updateNodeData
 #
 sub mod_perlInit
 {
-	my ($db, $options) = @_;
+	my ($db, $options, $initializer) = @_;
 
 	initForPageLoad($db, $options);
 
 	setHTMLVARS();
 
-	$query = getCGI();
+	$query = getCGI($initializer);
 
 	$AUTH ||= new Everything::Auth($options);
 
