@@ -233,7 +233,6 @@ sub decodeHTML
 {
 	my ($html, $adv) = @_;
 
-	$html =~ s/\&amp\;/\&/g;
 	$html =~ s/\&lt\;/\</g;
 	$html =~ s/\&gt\;/\>/g;
 	$html =~ s/\&quot\;/\"/g;
@@ -244,6 +243,7 @@ sub decodeHTML
 		$html =~ s/\&\#93\;/\]/g;
 	}
 
+	$html =~ s/\&amp\;/\&/g;
 	return $html;
 }
 
