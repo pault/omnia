@@ -11,7 +11,7 @@ BEGIN
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More 'no_plan';
+use Test::More tests => 19;
 use Test::MockObject;
 
 my $mock = Test::MockObject->new();
