@@ -110,6 +110,8 @@ Pass 1 (true) if you want the time format in a nice text based format (ie 13:45
 Wed Mar 15 2000).  If false or undef, the format will be numeric only (ie 13:45
 03-15-2000)
 
+=back
+
 =cut
 
 sub getTime
@@ -135,20 +137,24 @@ sub getTime
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		printLog
-#
-#	Purpose
-#		Debugging utility that will write the given string to the everything
-#		log (aka "elog").  Each entry is prefixed with the time and date
-#		to make for easy debugging.
-#
-#	Parameters
-#		entry - the string to print to the log.  No ending carriage return
-#			is needed.
-#
+=head2 C<printLog>
+
+Debugging utility that will write the given string to the everything log (aka
+"elog").  Each entry is prefixed with the time and date to make for easy
+debugging.
+
+=over 4
+
+=item * entry
+
+the string to print to the log.  No ending carriage return is needed.
+
+=back
+
+=cut
+
 sub printLog
 {
 	my ($entry) = @_;
@@ -168,14 +174,14 @@ sub printLog
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		clearLog
-#
-#	Purpose
-#		Clear the gosh darn log!
-#
+=head2 C<clearLog>
+
+Clear the gosh darn log!
+
+=cut
+
 sub clearLog
 {
 	my $time = getTime();
@@ -191,33 +197,43 @@ sub clearLog
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getParamArray
-#
-#	Purpose
-#		This function allows your other functions to accept either an
-#		array of values, or a hash of "-name => value" pairs.  Just call
-#		this function with the order of parameters (in case @_ is an
-#		array), and @_.  This will parse everything apart and return
-#		a hashref that contains paramName => value no matter if the
-#		@_ is an array or hash.
-#
-#	Parameters
-#		$names - a string of parameter names that also defines the order
-#			of the parameters if a hash is passed.
-#		@_ - the parameters passed to your function
-#
-#	Returns
-#		An array of the parameters.  For example, if your function is:
-#			myfunc(name, age, weight, height);
-#		You would use this function like:
-#			my $params = getParamArray("name, age, weight, height", @_);
-#		This would then return to you an array of the values in the order
-#		specified, no matter if they were originally passed as an array,
-#		or a "-name => value" pair list.
-#
+=head2 C<getParamArray>
+
+This function allows your other functions to accept either an array of values,
+or a hash of "-name =E<gt> value" pairs.  Just call this function with the
+order of parameters (in case @_ is an array), and @_.  This will parse
+everything apart and return a hashref that contains paramName =E<gt> value no
+matter if the @_ is an array or hash.
+
+=over 4
+
+=item * $names
+
+a string of parameter names that also defines the order of the parameters if a
+hash is passed.
+
+=item * @_
+
+the parameters passed to your function
+
+=back
+
+Returns an array of the parameters.  For example, if your function is:
+
+  myfunc(name, age, weight, height);
+
+You would use this function like:
+
+  my $params = getParamArray("name, age, weight, height", @_);
+
+This would then return to you an array of the values in the order specified, no
+matter if they were originally passed as an array, or a "-name =E<gt> value"
+pair list.
+
+=cut
+
 sub getParamArray
 {
 	my $names = shift;
@@ -238,26 +254,22 @@ sub getParamArray
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		cleanLinks
-#
-#	Purpose
-#		Sometimes the links table gets stale with pointers to nodes that
-#		do not exist.  This will go through and delete all of the links
-#		rows that point to non-existant nodes.
-#
-#		NOTE!  If the links table is large, this could take a while.  So,
-#		don't be calling this after every node update, or anything like
-#		that.  This should be used as a maintanence function.
-#
-#	Parameters
-#		None.
-#
-#	Returns
-#		Number of links rows removed
-#
+=head2 C<cleanLinks>
+
+Sometimes the links table gets stale with pointers to nodes that do not exist.
+This will go through and delete all of the links rows that point to
+non-existant nodes.
+
+NOTE!  If the links table is large, this could take a while.  So, don't be
+calling this after every node update, or anything like that.  This should be
+used as a maintanence function.
+
+Returns number of links rows removed
+
+=cut
+
 sub cleanLinks
 {
 	my @delete;
@@ -286,23 +298,37 @@ sub cleanLinks
 	}
 }
 
-#############################################################################
-#	Sub
-#		initEverything
-#
-#	Purpose
-#		The "main" function.  Initialize the Everything module.
-#
-#	Parameters
-#		$db - the string name of the database to connect to.
-#		$options - an optional hash containing one or more of the following:
-#		 staticNodetypes - 1 if the system should derive the nodetypes once
-#			and cache them.  This will speed performance, but changes
-#			to nodetypes will not take effect until the httpd is
-#			restarted.  A really good performance enhancement IF the
-#			nodetypes do not change. (defaults to 0)
-#		 dbtype - the name of the database type to use (defaults to mysql)
-#
+=cut
+
+=head2 C<initEverything>
+
+The "main" function.  Initialize the Everything module.
+
+=over 4
+
+=item * $db
+
+the string name of the database to connect to.
+
+=item * $options
+
+an optional hash containing one or more of the following:
+
+=item * staticNodetypes
+
+1 if the system should derive the nodetypes once and cache them.  This will
+speed performance, but changes to nodetypes will not take effect until the
+httpd is restarted.  A really good performance enhancement IF the nodetypes do
+not change. (defaults to 0)
+
+=item * dbtype
+
+the name of the database type to use (defaults to mysql)
+
+=back
+
+=cut
+
 sub initEverything
 {
 	my ($db, $options) = @_;
@@ -380,26 +406,25 @@ sub logErrors
 }
 
 
-#############################################################################
-#	Sub
-#		flushErrorsToBackside
-#
-#	Purpose
-#		Ok, what is frontside and backside?  When errors are logged, they
-#		are considered to be frontside.  Frontside errors are errors that
-#		can be associated with specific nodes on the page (ie an error with
-#		a piece of htmlcode, etc).  If a piece of code needs to start a
-#		new group of frontside errors, this function should be called.  Any
-#		errors that are currently in the frontside cache will be moved to
-#		the backside error cache.  This way a new group of frontside errors
-#		can be created.
-#
-#		Backside errors are generally errors that cannot be associated with
-#		a specific piece of the page.  These are errors caused by opcodes,
-#		evals in Node.pm, or other such cases.  Backside errors get displayed
-#		on the page in a location given by the placement of the
-#		[<BacksideErrors>] htmlsnippet.
-#
+=cut
+
+=head2 C<flushErrorsToBackside>
+
+Ok, what is frontside and backside?  When errors are logged, they are
+considered to be frontside.  Frontside errors are errors that can be associated
+with specific nodes on the page (ie an error with a piece of htmlcode, etc).
+If a piece of code needs to start a new group of frontside errors, this
+function should be called.  Any errors that are currently in the frontside
+cache will be moved to the backside error cache.  This way a new group of
+frontside errors can be created.
+
+Backside errors are generally errors that cannot be associated with a specific
+piece of the page.  These are errors caused by opcodes, evals in Node.pm, or
+other such cases.  Backside errors get displayed on the page in a location
+given by the placement of the [E<lt>BacksideErrorsE<gt>] htmlsnippet.
+
+=cut
+
 sub flushErrorsToBackside
 {
 	push @bsErrors, @fsErrors;
@@ -421,32 +446,37 @@ sub getBacksideErrors
 	return \@bsErrors;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		searchNodeName
-#
-#	Purpose
-#		This is the node search function.  You give a search string
-#		containing the words that you want, and this returns a list
-#		of nodes (just the node table info, not the complete node).
-#		The list is ordered such that the best matches come first.
-#
-#		NOTE!!! There are many things we can do in here to beef this
-#		up.  Like adding a dictionary check on the words submitted
-#		so that if a user can't spell we can at least get what they
-#		might mean.
-#
-#	Parameters
-#		$searchWords - the search string to use to find node matches.
-#		$TYPE - an array of nodetype IDs of the types that we want to
-#			restrict the search (useful for only returning results of a
-#			particular nodetype).
-#
-#	Returns
-#		A sorted list of node hashes (just the node table info), in
-#		order of best matches to worst matches.
-#
+=head2 C<searchNodeName>
+
+This is the node search function.  You give a search string containing the
+words that you want, and this returns a list of nodes (just the node table
+info, not the complete node).  The list is ordered such that the best matches
+come first.
+
+NOTE!!! There are many things we can do in here to beef this up.  Like adding a
+dictionary check on the words submitted so that if a user can't spell we can at
+least get what they might mean.
+
+=over 4
+
+=item * $searchWords
+
+the search string to use to find node matches.
+
+=item * $TYPE
+
+an array of nodetype IDs of the types that we want to restrict the search
+(useful for only returning results of a particular nodetype).
+
+=back
+
+Returns a sorted list of node hashes (just the node table info), in order of
+best matches to worst matches.
+
+=cut
+
 sub searchNodeName
 {
 	my ($searchWords, $TYPE) = @_;
@@ -504,17 +534,15 @@ sub searchNodeName
 	return \@ret;
 }
 
+=cut
 
+=head2 C<dumpCallStack>
 
-#############################################################################
-#	Sub
-#		dumpCallStack
-#
-#	Purpose
-#		Debugging utility.  Calling this function will print the current
-#		call stack to stdout.  Its useful to see where a function is
-#		being called from.
-#
+Debugging utility.  Calling this function will print the current call stack to
+STDOUT.  Its useful to see where a function is being called from.
+
+=cut
+
 sub dumpCallStack
 {
 	print "*** Start Call Stack ***\n";
@@ -560,14 +588,15 @@ sub logCallStack
 }
 
 
-#############################################################################
-#	Sub
-#		logHash
-#
-#	Purpose
-#		Debugging function for dumping the contents of a hash to the log
-#		file in a nice readable format.
-#
+=cut
+
+=head2 C<logHash>
+
+Debugging function for dumping the contents of a hash to the log file in a nice
+readable format.
+
+=cut
+
 sub logHash
 {
 	my ($hash) = @_;
