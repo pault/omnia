@@ -1,108 +1,134 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<doctext table="document">This is the...&lt;br&gt;
-&lt;i&gt;...drum roll por favor...&lt;/i&gt;
-&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
-&lt;p&gt;
+	<doctext table="document">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
+
+[{openform}]
+
 [%
-	my %CLR = ("document" =&gt; "#AAAAcc",
-		user =&gt; "#66dd66",
-		usergroup =&gt; "#99CC99",
-		nodetype =&gt; "#CC6666",
-		htmlpage =&gt; "#CC66CC",
-		htmlcode =&gt; "#FF99FF",
-		node =&gt; "#FFFFFF",
-		superdoc =&gt; "#6666CC",
-		nodegroup =&gt; "#CCCCCC",
-		image =&gt; "#33CCFF",
-		default =&gt; '#ffffff',
-		container =&gt; '#FFCC99',
-		nodelet =&gt; '#CCFFCC',
-		nodeletgroup =&gt; '#99FF99'
-);
+use Everything::FormMenu;
 
+my $menu = new Everything::FormMenu();
+my $type = $query-&gt;param('whichtype');
+$type ||= "alltypes";
 
+$menu-&gt;addHash({ "alltypes" =&gt; "All Types"});
+$menu-&gt;addType('nodetype', 1);
 
-	my $ref = $DB-&gt;selectNodeWhere({ -1 =&gt; 1 }, "", "type_nodetype");
-	
-
-	my $count = $query-&gt;param("next");
-	$count ||= 0;
-	my $length = $$VARS{listlen};
-	$length ||= 100;
-	my $max = $count + $length;
-
-#generate the prev...count...next row
-	my $nav;
-	$nav .= "&lt;tr&gt;&lt;td align=left&gt;";
-	
-	my $next = $count - $length;	
-	$next = 0 if ($count - $length &lt; 0);
-	
-	$nav .= "&lt;a href=" 
-		.urlGen ({node_id =&gt; getId ($NODE),
-			next =&gt; 0}) 
-		."&gt;Previous ".($count-$next)." entries...&lt;/a&gt;" if ($count &gt; 0);
-	$nav .= "&lt;/td&gt;&lt;td align=center&gt;($count-$max) of ".int(@$ref)."&lt;/td&gt;&lt;td align=right&gt;";
-	
-	$next = $count+$length; 
-	my $num = $length;
-	if ($next + $length &gt; @$ref) {
-		$num = @$ref - $next;
-	}
-	
-	$nav .= "&lt;a href=" 
-		.urlGen ({node_id =&gt; getId ($NODE),
-			next =&gt; $max}) 
-		."&gt;Next $num entries...&lt;/a&gt;" if ($max &lt; @$ref);
-	$nav .= "&lt;/td&gt;&lt;/tr&gt;";
-
-	#construct the table
-	my $str = "&lt;TABLE width=100% border=0&gt;";
-
-  my $NODEGROUP;
-  if ($$VARS{group}) {
-    my $GR = $DB-&gt;getNodeById($$VARS{group}, 'light');
-
-    if(canUpdateNode($USER, $GR))
-    {
-      $NODEGROUP = $GR;
-      $str .=
-        "&lt;SCRIPT language=\"javascript\"&gt;
-	function updateMyGroup(nodeid) {
-	window.open('" .
-		urlGen({node_id =&gt; $$VARS{group},
-			displaytype =&gt; 'editor'}, "noquotes") .
-		"&amp;add='+nodeid+'". 
-		"','". $$VARS{group} ."',
-		'');	
-	}
-      &lt;/SCRIPT&gt;";
-    }
-  }
-
-	$str .= $nav;
-	$str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;/tr&gt;";
-	for (my $i=$count;$i&lt;$max and $i &lt; @$ref;$i++){
-		my $N = $DB-&gt;getNodeById($$ref[$i], 'light');
-		$str .= "&lt;tr&gt;&lt;td align=left&gt;"
-                  . getId($N);
-		if ($NODEGROUP) {
-                  $str .= "&lt;font size=1&gt;&lt;A href=\"javascript:updateMyGroup(".getId($N).")\"&gt;add to &amp;quot;$$NODEGROUP{title}&amp;quot;&lt;/a&gt;&lt;/font&gt;";
-                }
-                $str .= "&lt;/td&gt;&lt;td bgcolor=#DDCCCC&gt;"
-                  . linkNode ($N) ."&lt;/td&gt;&lt;td bgcolor=" . ($CLR{$$N{type}{title}} || $CLR{default})."&gt;
-			$$N{type}{title}&lt;/td&gt;&lt;/tr&gt;\n" if (ref $$N{type});	
-	}
-	$str .= $nav;
-	
-	$str .= "&lt;/TABLE&gt;";
-	$str;
+$menu-&gt;writePopupHTML($query, "whichtype", $type);
 %]
 
-&lt;p&gt;
-I should probably build more features in this thing once the [database gets larger]....</doctext>
+[{closeform}]
+
+[%
+my %CLR = (
+  document =&gt; "#AAAAcc",
+  user =&gt; "#66dd66",
+  usergroup =&gt; "#99CC99",
+  nodetype =&gt; "#CC6666",
+  htmlpage =&gt; "#CC66CC",
+  htmlcode =&gt; "#FF99FF",
+  node =&gt; "#FFFFFF",
+  superdoc =&gt; "#6666CC",
+  nodegroup =&gt; "#CCCCCC",
+  image =&gt; "#33CCFF",
+  default =&gt; '#ffffff',
+  container =&gt; '#FFCC99',
+  nodelet =&gt; '#CCFFCC',
+  nodeletgroup =&gt; '#99FF99'
+);
+
+my $type = $query-&gt;param('whichtype');
+my $ref;
+
+$type ||= "alltypes";
+
+if($type eq "alltypes")
+{
+  $ref = selectNodeWhere({ -1 =&gt; 1 }, "",
+    "type_nodetype");
+}
+else
+{
+  $ref = selectNodeWhere({type_nodetype =&gt; $type}, "");
+}
+
+return "&lt;p&gt;&lt;b&gt;No Nodes of the selected type&lt;/b&gt;\n"
+  unless(defined $ref);
+
+my $count = $query-&gt;param("next");
+$count ||= 0;
+my $length = $$VARS{listlen};
+$length ||= 100;
+my $max = $count + $length;
+
+#generate the prev...count...next row
+my $nav;
+$nav .= "&lt;tr&gt;&lt;td align=left&gt;";
+	
+my $next = $count - $length;	
+$next = 0 if ($count - $length &lt; 0);
+	
+$nav .= "&lt;a href=" .
+  urlGen ({node_id =&gt; getId ($NODE), next =&gt; 0}) . 
+  "&gt;Previous " . ($count-$next) . " entries...&lt;/a&gt;"
+  if ($count &gt; 0);
+
+$nav .= "&lt;/td&gt;&lt;td align=center&gt;($count-$max) of ".int(@$ref)."&lt;/td&gt;&lt;td align=right&gt;";
+	
+$next = $count+$length; 
+my $num = $length;
+if ($next + $length &gt; @$ref) {
+  $num = @$ref - $next;
+}
+	
+$nav .= "&lt;a href=" .
+  urlGen ({node_id =&gt; getId ($NODE), next =&gt; $max}) . 
+  "&gt;Next $num entries...&lt;/a&gt;" if ($max &lt; @$ref);
+$nav .= "&lt;/td&gt;&lt;/tr&gt;";
+
+#construct the table
+my $str = "&lt;TABLE width=100% border=0&gt;";
+my $NODEGROUP;
+
+if ($$VARS{group}) {
+  my $GR = $DB-&gt;getNodeById($$VARS{group}, 'light');
+
+  if(canUpdateNode($USER, $GR))
+  {
+    $NODEGROUP = $GR;
+    $str .=
+      "&lt;SCRIPT language=\"javascript\"&gt;
+      function updateMyGroup(nodeid) {
+        window.open('" .
+        urlGen({node_id =&gt; $$VARS{group},
+        displaytype =&gt; 'editor'}, "noquotes") .
+        "&amp;add='+nodeid+'" .  "','". $$VARS{group} ."', '');	
+      }
+      &lt;/SCRIPT&gt;";
+  }
+}
+
+$str .= $nav;
+$str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;/tr&gt;";
+
+for (my $i=$count;$i&lt;$max and $i &lt; @$ref;$i++){
+  my $N = $DB-&gt;getNodeById($$ref[$i], 'light');
+  $str .= "&lt;tr&gt;&lt;td align=left&gt;" . getId($N);
+  if ($NODEGROUP) {
+    $str .= "&lt;font size=1&gt;&lt;A href=\"javascript:updateMyGroup(".getId($N).")\"&gt;add to &amp;quot;$$NODEGROUP{title}&amp;quot;&lt;/a&gt;&lt;/font&gt;";
+  }
+
+  $str .= "&lt;/td&gt;&lt;td bgcolor=#DDCCCC&gt;" . linkNode ($N) .
+     "&lt;/td&gt;&lt;td bgcolor=" . 
+     ($CLR{$$N{type}{title}} || $CLR{default}) . 
+     "&gt;$$N{type}{title}&lt;/td&gt;&lt;/tr&gt;\n" if (ref $$N{type});	
+}
+$str .= $nav;
+	
+$str .= "&lt;/TABLE&gt;";
+$str;
+%]</doctext>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
 	<title table="node">Gigantic Node Lister</title>
