@@ -10,9 +10,10 @@ BEGIN {
 
 use TieOut;
 use FakeNode;
-use Test::More tests => 186;
+use Test::More tests => 188;
 
-sub AUTOLOAD {
+sub AUTOLOAD
+{
     return if $AUTOLOAD =~ /DESTROY$/;
 
 	no strict 'refs';
@@ -28,7 +29,8 @@ sub AUTOLOAD {
 
 package Everything;
 
-sub logErrors {
+sub logErrors
+{
 	$main::errors = join('|', @_);
 }
 
@@ -322,7 +324,6 @@ ok( ! hasVars(), 'hasVars() should return false' );
 
 # clone()
 {
-
 	my $gnode = { 
 		node_id => 1,
 		title => "title",
@@ -348,6 +349,8 @@ ok( ! hasVars(), 'hasVars() should return false' );
 		createtime    => 'createtime',
 		type_nodetype => 'type_nodetype',
 	}, 'clone() should copy only necessary fields' );
+	is( clone(), undef, '... returning without a node to clone' );
+	is( clone( 'foo' ), undef, '... or a node hash' );
 }
 
 # fieldToXML()
