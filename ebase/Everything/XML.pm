@@ -282,7 +282,7 @@ sub genBasicTag
 			}
 			else
 			{
-				$$PARAMS{$id} = @$REF{@$ID} if($ID);
+				$$PARAMS{$id} = $$REF{$id};
 			}
 		}
 	}
