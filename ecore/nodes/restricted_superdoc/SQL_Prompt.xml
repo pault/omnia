@@ -55,6 +55,7 @@ if($execstr)
       }
       $str .= " &lt;/tr&gt;\n";
     }
+	$cursor-&gt;finish();
     $str .= "&lt;/table&gt;\n";
   }
 }
