@@ -737,7 +737,7 @@ sub getFileInfo {
 #	purpose
 #		we already have this nodeball in the system, and we need to figure
 #		out which files to add, remove, and update
-
+#
 sub updateNodeball {
 	my ($OLDBALL, $dir) = @_;
 
@@ -811,6 +811,9 @@ sub updateNodeball {
 	#find the unused nodes and remove them
 	foreach (values %oldgroup) {
 		my $NODE = getNode($_);
+
+		next unless($NODE);
+
 		#we should probably confirm this
 		$NODE->nuke(-1);
 	}

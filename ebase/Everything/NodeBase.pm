@@ -65,6 +65,8 @@ sub new
 		$db->{dbh} = DBI->connect("DBI:mysql:$dbname", "root", "");
 		$this->{dbh} = $db->{dbh};
 		
+		die "Unable to get database connection!" unless($db->{dbh});
+
 		$db->{cache} = new Everything::NodeCache($this, 300);
 		$dbases->{$dbname} = $db;
 		
