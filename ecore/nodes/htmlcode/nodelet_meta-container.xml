@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
+	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">return "you have this off" if $$VARS{nodelets_off};
 
@@ -24,14 +24,13 @@ return "no nodelets!" unless @nodelets;
 if ($$THEME{nodeletMCTableAttr}){
   $str .= "&lt;TABLE ".$$THEME{nodeletMCTableAttr}."&gt;";
 } else {
-  $str .= "&lt;TABLE cellpadding=1 cellspacing=1&gt;";
+  $str .= "&lt;TABLE width=150 cellpadding=1 cellspacing=1&gt;";
 }
 
 foreach (@nodelets) {
 	my $NODELET = $DB-&gt;getNodeById($_);
 	my $nl = insertNodelet($NODELET);
-	#$nl = parseCode($nl);
-	$str .= "&lt;tr&gt;&lt;td&gt;" . $nl . "&lt;/td&gt;&lt;/tr&gt;";
+	$str .= "&lt;tr&gt;&lt;td&gt;" . $nl . "&lt;/td&gt;&lt;/tr&gt;" if($nl);
 }
 
 

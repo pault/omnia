@@ -15,7 +15,7 @@
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<extends_nodetype table="nodetype" type="literal_value">0</extends_nodetype>
-	<group_usergroup table="node">-1</group_usergroup>
+	<group_usergroup table="node" type="usergroup">gods</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<grouptable table="nodetype"></grouptable>
 	<guestaccess table="node">iiii-</guestaccess>

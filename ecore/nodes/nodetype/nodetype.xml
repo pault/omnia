@@ -15,7 +15,7 @@
 	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
 	<dynamicother_permssion table="node" type="literal_value">0</dynamicother_permssion>
 	<extends_nodetype table="nodetype" type="literal_value">0</extends_nodetype>
-	<group_usergroup table="node" type="literal_value">0</group_usergroup>
+	<group_usergroup table="node" type="usergroup">gods</group_usergroup>
 	<groupaccess table="node">rwxdc</groupaccess>
 	<grouptable table="nodetype"></grouptable>
 	<guestaccess table="node">-----</guestaccess>
@@ -25,5 +25,5 @@
 	<restrictdupes table="nodetype">1</restrictdupes>
 	<sqltable table="nodetype">nodetype</sqltable>
 	<title table="node">nodetype</title>
-	<type_nodetype table="node" type="literal_value">1</type_nodetype>
+	<type_nodetype table="node" type="nodetype">nodetype</type_nodetype>
 </NODE>

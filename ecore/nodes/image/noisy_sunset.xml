@@ -1,6 +1,6 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<alt table="image">noisy</alt>
-	<author_user table="node" type="usergroup">gods</author_user>
+	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<description table="image">hi mom.  I like this!</description>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>

@@ -20,16 +20,16 @@
 		<bodyTextcolor >#000000</bodyTextcolor>
 		<author >Nathan Oostendorp and Darrick Brown</author>
 		<description >The default Everything Theme</description>
-		<bodyBgcolor >#FFFFFF</bodyBgcolor>
 		<version >0.2</version>
+		<bodyBgcolor >#FFFFFF</bodyBgcolor>
 		<nodeletParent_container type="container">nodelet container</nodeletParent_container>
 		<nodeletBodyColor >#FFFFFF</nodeletBodyColor>
 		<generalParent_container type="container">main container</generalParent_container>
-		<bodyLinkcolor >#993333</bodyLinkcolor>
 		<nodeletBodyFontAttr >size=2</nodeletBodyFontAttr>
+		<bodyLinkcolor >#993333</bodyLinkcolor>
 		<nodeletTitleColor >#CC99FF</nodeletTitleColor>
 		<nodeletTitleBackground >""</nodeletTitleBackground>
-		<nodeletMCTableAttr >cellpadding=1 cellspacing=1</nodeletMCTableAttr>
+		<nodeletMCTableAttr >width=150 cellpadding=1 cellspacing=1</nodeletMCTableAttr>
 		<nodeletTitleFontAttr >color=white</nodeletTitleFontAttr>
 	</vars>
 </NODE>

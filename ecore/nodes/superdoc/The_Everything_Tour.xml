@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
+	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">Alright.  This is supposed to be a somewhat informal browsing 
 around of the general fetures of the system.  

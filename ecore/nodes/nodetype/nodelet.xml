@@ -7,15 +7,15 @@
 	<defaultgroup_usergroup table="nodetype" type="usergroup">gods</defaultgroup_usergroup>
 	<defaultgroupaccess table="nodetype">r----</defaultgroupaccess>
 	<defaultguest_permission table="nodetype" type="literal_value">0</defaultguest_permission>
-	<defaultguestaccess table="nodetype">-----</defaultguestaccess>
+	<defaultguestaccess table="nodetype">r----</defaultguestaccess>
 	<defaultother_permission table="nodetype" type="literal_value">0</defaultother_permission>
-	<defaultotheraccess table="nodetype">-----</defaultotheraccess>
+	<defaultotheraccess table="nodetype">r----</defaultotheraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<extends_nodetype table="nodetype" type="nodetype">node</extends_nodetype>
-	<group_usergroup table="node">-1</group_usergroup>
+	<group_usergroup table="node" type="usergroup">gods</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<grouptable table="nodetype"></grouptable>
 	<guestaccess table="node">iiii-</guestaccess>
