@@ -32,6 +32,8 @@ sub AUTOLOAD
 
 use_ok( $package );
 
+my ($result, $method, $args);
+
 can_ok( $package, 'sqlDelete' );
 $mock->{dbh} = $mock;
 ok( ! sqlDelete(), 'sqlDelete() should return false with no where clause' );
@@ -40,8 +42,8 @@ $mock->set_always( 'genTableName', 'table name' )
 	 ->set_always( 'prepare', $mock )
 	 ->set_always( 'execute', 'executed' );
 
-my $result = sqlDelete( $mock, 'table', 'clause', [ 'one', 'two' ]);
-my ($method, $args) = $mock->next_call();
+$result = sqlDelete( $mock, 'table', 'clause', [ 'one', 'two' ]);
+($method, $args) = $mock->next_call();
 is( $method, 'genTableName', '... generating correct table name' );
 is( $args->[1], 'table', '... passing the passed table name' );
 ($method, $args) = $mock->next_call();
@@ -213,9 +215,9 @@ my ($names, $values, $bound) =
 	_quoteData( 'fake', { foo => 'bar', -baz => 'quux' } );
 is( join('|', sort @$names), 'baz|foo',
 	'_quoteData() should remove leading minus from names' );
-ok( (grep { /bar/ } @$values), '... treating unquoted values literally' );
+ok( (grep { /quux/ } @$values), '... treating unquoted values literally' );
 ok( (grep { /\?/, } @$values), '... and using placeholders for quoted ones' );
-is( join('|', @$bound), 'quux', '... returning quoted values in bound arg' );
+is( join('|', @$bound), 'bar', '... returning quoted values in bound arg' );
 
 can_ok( $package, 'sqlExecute' );
 {
