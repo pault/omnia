@@ -678,7 +678,7 @@ sub getRevision {
 	return 0 unless $REVISION;
 
 	use Everything::XML;
-	my ($RN) = @{ xml2node($$REVISION{data}, 'noupdate') };
+	my ($RN) = @{ xml2node($$REVISION{xml}, 'noupdate') };
 	$$RN{node_id} = $$this{node_id};
 	$$RN{createtime} = $$this{createtime};
 	$$RN{reputation} = $$this{reputation};
@@ -741,7 +741,7 @@ sub logRevision {
 	$rev_id ||= 1;
 
     #insert the node as a revision
-	$this->{DB}->sqlInsert('revision', {node_id => $this->getId, data => $data, inside_workspace => $workspace, revision_id => $rev_id});
+	$this->{DB}->sqlInsert('revision', {node_id => $this->getId, xml => $data, inside_workspace => $workspace, revision_id => $rev_id});
 
 	
     #remove the oldest revision, if it's greater than the set maxrevisions
@@ -820,12 +820,12 @@ sub undo {
 	return 0 if (not $redoit and $$REVISION{revision_id} < 0);
 	return 1 if $test;
 
-	my $xml = $$REVISION{data};
+	my $xml = $$REVISION{xml};
 	my $revision_id = $$REVISION{revision_id};
 
 	#prepare the redo/undo (inverse of what's being called)
 
-	$$REVISION{data} = $this->toXML();
+	$$REVISION{xml} = $this->toXML();
 	$$REVISION{revision_id} = -$revision_id; #invert the revision
 
 	use Everything::XML;

@@ -871,25 +871,22 @@ sub unlock
 #		A link has been traversed.  If it exists, increment its hit and
 #		food count.  If it does not exist, add it.
 #
-#		DPB 24-Sep-99: We need to better define how food gets allocated to
-#		to links.  I think it should be in the system vars somehow.
-#
 #	Parameters
 #		$this - (the object) the node that the link goes to
 #		$FROMNODE - the node the link comes from
-#		$type - the type of the link (not sure what this is, as of 24-Sep-99
-#			no one uses this parameter)
+#		$type - the type of the link, can either refer to a nodetype, or 
+#			be an arbitrary int value
 #
 #	Returns
-#		nothing of use
+#		1 if successful	
 #
 sub updateLinks
 {
 	my ($this, $FROMNODE, $type) = @_;
 
 	return unless($FROMNODE);
+	return if ($$this{node_id} == $$this{DB}->getId($FROMNODE));
 
-	$type = $$this{DB}->getId($type);
 	$type ||= 0;
 
 	my $to_id = $$this{node_id};
@@ -911,6 +908,7 @@ sub updateLinks
 				'to_node' => $from_id, 'linktype' => $type,
 				'hits' => 1, 'food' => '500' }); 
 	}
+	"";
 }
 
 
