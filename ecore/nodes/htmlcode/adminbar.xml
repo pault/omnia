@@ -6,6 +6,33 @@ my $disp = $query-&gt;param("displaytype");
 my @nodes;
 my $str;
 
+my $CLONER = getNode("node cloner", "restricted_superdoc");
+my $PARAMS = { "srcnode_id" =&gt; $$NODE{node_id}, 
+  "node_id" =&gt; $$CLONER{node_id},
+  "newname" =&gt; "NEWNAME" };
+
+my $url = urlGen($PARAMS);
+my $script = "
+&lt;script language=\"javascript\"&gt;
+
+function cloneNode()
+{
+  var newname = prompt(\"Cloning node \\\"$$NODE{title}\\\"\\nEnter a new name:\", \"\");
+
+  if(newname)
+  {
+    var url = $url;
+    
+    url = url.replace(/NEWNAME/, newname);
+    url = url.replace(/ /g, \"%20\");
+    parent.location = url;
+  }
+}
+
+&lt;/script&gt;";
+
+$str = $script;
+
 $disp ||= "display";
 
 # This will recurse up the nodetype inheritance hierarchy
@@ -23,6 +50,7 @@ foreach my $N (@nodes)
 	}
 }
 
+$str .= "&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;";
 
 # If a group editor is open, add a link to add this node to
 # the group.  We will need to check if the nodegroup has

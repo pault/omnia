@@ -1,0 +1,43 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<doctext table="document">[%
+my $src_id = $query-&gt;param("srcnode_id");
+my $newname = $query-&gt;param("newname");
+
+my $str;
+
+if((defined $src_id) &amp;&amp; (defined $newname))
+{
+  my $SRCNODE = getNodeById($src_id);
+  my %DATA;
+  my $newid;
+
+  @DATA{keys %$SRCNODE} = values %$SRCNODE;
+
+  # Delete the node id so that when we insert it, it
+  # get a new id.
+  delete $DATA{node_id};
+  delete $DATA{type};
+  delete $DATA{group} if(exists $DATA{group});
+  delete $DATA{title}; # we want to use the new title.
+
+  $newid = insertNode($newname, $$SRCNODE{type}, $USER,
+    \%DATA);
+
+  $str = "&lt;h3&gt;&lt;font color=#00cc00&gt;Clone successful&lt;/font&gt;&lt;/h3&gt;\n"; 
+  $str .= "&lt;p&gt;Node " . linkNode($SRCNODE) .
+    " has been cloned as " . linkNode($newid);
+}
+else
+{
+  $str = "No node to clone!\n";
+}
+
+$str;
+%]</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">Node Cloner</title>
+	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+</NODE>
