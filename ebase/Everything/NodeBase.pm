@@ -662,7 +662,7 @@ sub newNode
 sub getNode
 {
 	my ($this, $node, $ext, $ext2) = @_;
-	return unless $node;
+	return unless defined $node and $node ne '';
 
 	# it may already be a node
 	return $node if UNIVERSAL::isa( $node, 'Everything::Node' );
