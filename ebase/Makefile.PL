@@ -55,7 +55,7 @@ sub MY::realclean
 sub getHttpconf {
 	my ($includestr) = @_;
 	my $conf = "";	
-	my @locs = qw(/etc/apache /etc/httpd /usr/local/apache/conf);
+	my @locs = qw(/etc/apache /etc/apache/conf /etc/httpd /etc/httpd/conf /usr/local/apache/conf);
 	foreach (@locs) {
 		$conf = $_."/httpd.conf" if -e $_."/httpd.conf";
 	}
