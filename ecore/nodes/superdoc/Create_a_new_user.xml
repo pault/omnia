@@ -54,6 +54,8 @@ my $email = $query-&gt;param(&quot;nu_email&quot;);
 my $name = $query-&gt;param(&quot;nu_name&quot;);
 
 my $NEWUSER = getNode($name, &quot;user&quot;, &quot;create&quot;);
+return &quot;There was an error processing your request.\n&quot;
+	unless defined $NEWUSER;
 
 #generate the passwd and send it out on email.
 my @chars = ( &quot;A&quot; .. &quot;Z&quot;, &quot;a&quot; .. &quot;z&quot;, 0 .. 9);
@@ -82,19 +84,21 @@ if($name=~/[\[\]]/){
    my $id = $NEWUSER-&gt;insert(-1);
 
    # Now fill out the fields with the info that we have
-   $$NEWUSER{realname} = $realname;
-   $$NEWUSER{email} = $email;
-   $$NEWUSER{passwd} = $passwd;
+   $NEWUSER-&gt;{realname} = $realname;
+   $NEWUSER-&gt;{email} = $email;
+   $NEWUSER-&gt;{passwd} = $passwd;
 
    # And update it
    $NEWUSER-&gt;update(-1);
 }
 else
-{ my $olduser = getNode($name, 'user');
-   return &quot;Sorry, &quot; . linkNode($olduser) .
-       &quot; already exists.  Pick a variation, or try another name...&lt;p&gt;\n&quot;
+{
+	my $olduser = getNode($name, 'user');
+	my $old     = (defined $olduser ? linkNode( $olduser ) : $name);
+	return &quot;Sorry, $old already exists.  Pick a variation, or try &quot; .
+		&quot;another name...&lt;p&gt;\n&quot;
 .
-       generateLogin();
+		generateLogin();
 }
 
 $str.=&quot;Your new user account (&quot;
@@ -118,7 +122,7 @@ s/\&lt;login\&gt;/$HTMLVARS{site_url}index\.pl\?node_id=$HTMLVARS{login_node}/g;
 
 
 use Everything::MAIL;
-node2mail($$NEWUSER{email},$n);
+node2mail($NEWUSER-&gt;{email},$n);
 
 $str;
 
@@ -138,4 +142,3 @@ $str;
   <field name="title" type="literal_value">Create a new user</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
 </NODE>
-
