@@ -163,15 +163,8 @@ sub confirmUser
 
         if ($genCrypt eq $crpasswd)
         {
-                my $rows = $DB->sqlUpdate("user", { -lasttime => "now()" }, "user_id=".$$user{node_id});
-
-                # We force a reload of the node to make sure that the 'lasttime'
-                # field (updated by the database), is current.  If there was a
-                # way to just get the now() string from the database, we would
-                # not need to do this, which would save at least 1 node load
-                # per page load.
-                # 'SELECT now()' will work... where's it go?
-                return getNode($$user{node_id}, 'force');
+		$$user{lasttime} = $DB->sqlSelect("NOW()");
+		return $user;
         }
 
         return undef;
