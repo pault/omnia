@@ -13,9 +13,10 @@ Great hair</doctext>
 	<type_nodetype table="node" type="nodetype">user</type_nodetype>
 	<vars table="setting">
 		<nodelet_textclr >#ffcccc</nodelet_textclr>
-		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
 		<meatloaf >big and juicy</meatloaf>
+		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
 		<nodelet_headerclr >#ff0000</nodelet_headerclr>
+		<group ></group>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
 	</vars>
 </NODE>

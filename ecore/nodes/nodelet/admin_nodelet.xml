@@ -2,7 +2,54 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
 	<lastupdate table="nodelet">946339466</lastupdate>
-	<nlcode table="nodelet">[{adminbar}]</nlcode>
+	<nlcode table="nodelet">[{adminbar}]
+
+&lt;table border=0&gt;
+ &lt;tr&gt;
+  &lt;td nowrap&gt;
+    &lt;font size=2&gt;
+[% 
+my $str = $query-&gt;start_form;
+$str .= "node";
+$str .= $query-&gt;textfield(-name =&gt; "node", -default =&gt; "",
+     -override =&gt; 1, -size =&gt; 10, -maxlength =&gt; 240);
+%]
+[{closeform}]
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td nowrap&gt;
+   &lt;font size=2&gt;
+[%
+my $str = $query-&gt;start_form;
+$str .= "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id";
+$str .= $query-&gt;textfield(-name =&gt; "node_id",
+  -default =&gt; "", -override =&gt; 1, -size =&gt; 10,
+  -maxlength =&gt; 240);
+%]
+[{closeform}]
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
+   &lt;font size=2&gt;
+   &lt;a href=[% 
+my $displaytype = $query-&gt;param('displaytype');
+$displaytype ||= 'display';
+urlGen({ 'node_id' =&gt; getId($NODE),
+ 'displaytype' =&gt; $displaytype,
+ 'containers' =&gt; 'show'}); %]&gt;Show containers&lt;/a&gt;&lt;br&gt;
+
+   [%
+linkNode(getNode('create node', 'restricted_superdoc'),
+  'Create new node'); %]&lt;br&gt;
+   Current node id: ["$$NODE{node_id}"]
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>

@@ -1,0 +1,23 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<context table="container">&lt;table width=100% border=1 cellpadding=0&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#9999cc&gt;
+   &lt;font size=2 color=#ffffff&gt;
+     [% linkNode($CURRENTNODE); %]
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
+  CONTAINED_STUFF
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;</context>
+	<core table="node">0</core>
+	<package table="node">0</package>
+	<parent_container table="container" type="literal_value">0</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">show container</title>
+	<type_nodetype table="node" type="nodetype">container</type_nodetype>
+</NODE>

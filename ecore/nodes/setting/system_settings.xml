@@ -12,11 +12,11 @@
 		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
 		<site_url >http://localhost</site_url>
 		<default_theme type="theme">default theme</default_theme>
-		<generalParent_container type="container">e2container</generalParent_container>
 		<default_node type="superdoc">The Default Node</default_node>
+		<generalParent_container type="container">main container</generalParent_container>
 		<default_nodeletgroup type="nodeletgroup">default nodelets</default_nodeletgroup>
-		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
 		<searchResults_node type="superdoc">Search Results</searchResults_node>
+		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
 		<duplicatesFound_node type="superdoc">Duplicates Found</duplicatesFound_node>
 	</vars>
 </NODE>

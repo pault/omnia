@@ -2,7 +2,7 @@
 	<author_user table="node" type="user">root</author_user>
 	<core table="node">0</core>
 	<group >
-		<groupnode1 table="nodegroup" type="container">e2container</groupnode1>
+		<groupnode1 table="nodegroup" type="container">main container</groupnode1>
 	</group>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
@@ -17,7 +17,7 @@
 		<version >0.2</version>
 		<nodeletParent_container type="container">nodelet container</nodeletParent_container>
 		<nodeletBodyColor >#FFFFFF</nodeletBodyColor>
-		<generalParent_container type="container">e2container</generalParent_container>
+		<generalParent_container type="container">main container</generalParent_container>
 		<bodyLinkcolor >#993333</bodyLinkcolor>
 		<nodeletBodyFontAttr >size=2</nodeletBodyFontAttr>
 		<nodeletTitleColor >#CC99FF</nodeletTitleColor>

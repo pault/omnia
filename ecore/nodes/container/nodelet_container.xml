@@ -1,6 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
-	<context table="container">[%
+	<context table="container">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%&gt;
+[%
   my $bk = $$THEME{nodeletTitleBackground};
   $bk||="images/titletest.gif";
   return "&lt;TR background=\"$bk\"&gt;" if $bk;
@@ -32,7 +33,8 @@
     CONTAINED_STUFF
    &lt;/FONT&gt;
   &lt;/TD&gt;
-&lt;/TR&gt;</context>
+&lt;/TR&gt;
+&lt;/table&gt;</context>
 	<core table="node">0</core>
 	<package table="node">0</package>
 	<parent_container table="container" type="container">nodeletshadow container</parent_container>

@@ -22,7 +22,7 @@
 		<groupnode18 table="nodegroup" type="nodetype">superdoc</groupnode18>
 		<groupnode19 table="nodegroup" type="nodetype">user</groupnode19>
 		<groupnode20 table="nodegroup" type="nodetype">usergroup</groupnode20>
-		<groupnode21 table="nodegroup" type="container">e2container</groupnode21>
+		<groupnode21 table="nodegroup" type="container">main container</groupnode21>
 		<groupnode22 table="nodegroup" type="container">formcontainer</groupnode22>
 		<groupnode23 table="nodegroup" type="container">general container</groupnode23>
 		<groupnode24 table="nodegroup" type="container">general nodelet container</groupnode24>
@@ -173,7 +173,8 @@
 		<groupnode169 table="nodegroup" type="nodelet">personal nodelet</groupnode169>
 		<groupnode170 table="nodegroup" type="htmlcode">titlebar</groupnode170>
 		<groupnode171 table="nodegroup" type="nodetype">opcode</groupnode171>
-		<groupnode172 table="nodegroup" type="restricted_superdoc">node cloner</groupnode172>
+		<groupnode172 table="nodegroup" type="restricted_superdoc">Node Cloner</groupnode172>
+		<groupnode173 table="nodegroup" type="container">show container</groupnode173>
 	</group>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
