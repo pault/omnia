@@ -29,7 +29,7 @@ sub insert
 	my $id = $this->SUPER() or return;
 
 	# Make all new users default to owning themselves.
-	$$this{author_user} = $id;
+	$this->{author_user} = $id;
 
 	$this->update($USER);
 
@@ -57,15 +57,12 @@ sub insert
 sub isGod
 {
 	my ($this, $recurse) = @_;
-	my $GODS = $$this{DB}->getNode('gods', 'usergroup');
+	my $GODS = $this->{DB}->getNode('gods', 'usergroup');
 
-	return 0 unless($GODS);
+	return 0 unless $GODS;
 
-	if ($recurse) {
-		return $GODS->inGroup($this);
-	} else {
-		return $GODS->inGroupFast($this);
-	}
+	return $GODS->inGroup($this) if $recurse;
+	return $GODS->inGroupFast($this);
 }
 
 
@@ -84,11 +81,11 @@ sub isGod
 sub isGuest
 {
 	my ($this) = @_;
-	my $SYS = $$this{DB}->getNode('system settings', 'setting') or return 1;
 
+	my $SYS  = $this->{DB}->getNode('system settings', 'setting') or return 1;
 	my $VARS = $SYS->getVars() or return 1;
 
-	return ($$VARS{guest_user} == $$this{node_id});
+	return ($VARS->{guest_user} == $this->{node_id});
 }
 	
 
@@ -97,13 +94,9 @@ sub getNodeKeys
 {
 	my ($this, $forExport) = @_;
 	my $keys = $this->SUPER();
-	
-	if($forExport)
-	{
-		# Remove these fields if we are exporting user nodes.
-		delete $$keys{passwd};
-		delete $$keys{lasttime};
-	}
+
+	# Remove these fields if we are exporting user nodes.
+	delete @$keys{qw( passwd lasttime )} if $forExport;
 
 	return $keys;
 }
@@ -121,24 +114,20 @@ sub verifyFieldUpdate
 	my ($this, $field) = @_;
 
 	my $restrictedFields = {
-		'title' => 1,
-		'karma' => 1,
-		'lasttime' => 1
+		title    => 1,
+		karma    => 1,
+		lasttime => 1,
 	};
 
-	my $verify = (not exists $$restrictedFields{$field});
-	return ($verify && $this->SUPER());
+	my $verify = not exists $restrictedFields->{$field};
+	return $verify && $this->SUPER();
 }
 
-sub conflictsWith {
-	#no conflicts if the user exists
-	0;
-}
+# no conflicts if the user exists
+sub conflictsWith { 0 }
 
-sub updateFromImport {
-	#we don't allow user nodes to update
-	0;
-}
+# we don't allow user nodes to update
+sub updateFromImport { 0 }
 
 =cut
 
@@ -152,14 +141,54 @@ Takes:
 
 Returns:
 	true, if the title is allowable, false otherwise
+
 =cut
+
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title  = $$this{title} or return;
+	my $title  = $this->{title} or return;
 
-	return if $title =~ tr/-<> !a-zA-Z0-9_//c;
-	return 1;
+	return $title =~ tr/-<> !a-zA-Z0-9_//c ? 0 : 1;
+}
+
+
+=cut
+
+=head2 C<getNodelets>
+
+Purpose:
+	Get the nodelets for the user, using the defaults if necessary.
+
+Takes:
+	$defaultGroup, the default nodelet group to use
+
+Returns:
+	a reference to a list of nodelets to display
+
+=cut
+
+sub getNodelets
+{
+	my ($this, $defaultGroup) = @_;
+	my $VARS = $this->getVars();
+
+	my @nodelets;
+	@nodelets = split(/,/, $VARS->{nodelets}) if exists $VARS->{nodelets};
+
+	return \@nodelets if @nodelets;
+
+	my $NODELETGROUP;
+	$NODELETGROUP = $this->{DB}->getNode($VARS->{nodelet_group})
+		if exists $VARS->{nodelet_group};
+
+	push @nodelets, @{ $NODELETGROUP->{group} }
+		if $NODELETGROUP and $NODELETGROUP->isOfType('nodeletgroup');
+
+	return \@nodelets if @nodelets;
+
+	# push default nodelets on
+	return $this->{DB}->getNode($defaultGroup)->{group};
 }
 
 
