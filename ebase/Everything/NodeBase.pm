@@ -471,31 +471,16 @@ sub sqlSelectHashref
 sub sqlUpdate
 {
 	my($this, $table, $data, $where) = @_;
-	my $sql = "UPDATE " . $this->genTableName($table) . " SET";
 
 	return unless keys %$data;
+	my ($names, $values, $bound) = $this->_quoteData( $data );
 
-	foreach (keys %$data)
-	{
-		if (/^-/)
-		{
-			# If the parameter name starts with a '-', we need to treat
-			# the value as a literal value (don't quote it).
-			s/^-//; 
-			$sql .="\n  $_ = " . $$data{'-'.$_} . ",";
-		}
-		else
-		{
-			# We need to quote the value
-			$sql .="\n  $_ = " . $this->{dbh}->quote($$data{$_}) . ",";
-		}
-	}
-
-	chop($sql);
+	my $sql = "UPDATE " . $this->genTableName($table) . " SET " .
+		join(",\n", map { "$_ = " . shift @$values } @$names);
 
 	$sql .= "\nWHERE $where\n" if $where;
 
-	return ($this->{dbh}->do($sql));
+	return $this->sqlExecute( $sql, $bound );
 }
 
 
@@ -518,34 +503,74 @@ sub sqlUpdate
 sub sqlInsert
 {
 	my ($this, $table, $data) = @_;
-	my ($names, $values);
 
-	foreach (keys %$data)
+	my ($names, $values, $bound) = $this->_quoteData( $data );
+	my $sql = "INSERT INTO " . $this->genTableName($table) . " (" .
+		join(', ', @$names) . ") VALUES(" . join(', ', @$values) . ")";
+
+	return $this->sqlExecute( $sql, $bound );
+}
+
+#############################################################################
+#
+#	Private method
+#		Quote database per existing convention:
+#			- column name => value
+#			- leading '-' means use placeholder (quote) value
+#
+sub _quoteData
+{
+	my ($this, $data) = @_;
+
+	my (@names, @values, @bound);
+	
+	while (my ($name, $value) = each %$data)
 	{
-		if (/^-/)
+		if ($name =~ s/^-//)
 		{
-			$values.="\n  ".$$data{$_}.","; s/^-//;
+			push @values, '?';
+			push @bound, $value;
 		}
 		else
 		{
-			$values.="\n  " . $this->{dbh}->quote($$data{$_}) . ",";
+			push @values, $value;
+
 		}
-		
-		$names .= "$_,";
+		push @names, $name;
 	}
 
-	chop($names);
-	chop($values);
-
-	my $sql = "INSERT INTO " . $this->genTableName($table) . " ($names) VALUES($values)\n";
-
-	my $result = $this->{dbh}->do($sql);
-
-	Everything::printLog("sqlInsert failed:\n $sql") unless($result);
-
-	return $result;
+	return \@names, \@values, \@bound;
 }
 
+#############################################################################
+#	Sub
+#		sqlExecute
+#
+#	Purpose
+#		Wrapper for the SQL execute command.
+#
+#	Parameters
+#		sql   - the SQL to execute
+#		bound - a reference to an array of bound variables to be used with
+#			    placeholders
+#
+#	Returns
+#		true (number of rows affected) if successful, false otherwise.
+#		Failures are logged.
+#
+sub sqlExecute
+{
+	my ($this, $sql, $bound) = @_;
+	my $sth;
+
+	unless ($sth = $this->{dbh}->prepare( $sql ))
+	{
+		Everything::printLog( "SQL failed: $sql [@$bound]\n" );
+		return;
+	}
+
+	$sth->execute( @$bound );
+}
 
 #############################################################################
 #	TEMPORARY WRAPPER!
