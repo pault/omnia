@@ -1,37 +1,36 @@
 <NODE export_version="0.5" nodetype="container" title="main container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table width=95% align=center>
- &lt;tr>
-  &lt;td>
+  <field name="context" type="literal_value">&lt;table width=95% align=center&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
    [{searchform:noendform}]
-  &lt;/td>
-  &lt;td align=right>
+  &lt;/td&gt;
+  &lt;td align=right&gt;
 [%
 my $default = getNode($HTMLVARS{default_node});
 my $IMG = getNode $$THEME{cornerIcon_image};
-linkNode($default, "&lt;img border=0 src=$$IMG{src}>");
+linkNode($default, &quot;&lt;img border=0 src=$$IMG{src}&gt;&quot;);
 %]
-   &lt;/td>
- &lt;/tr>
-&lt;/form>
-&lt;/table>
+   &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/form&gt;
+&lt;/table&gt;
 
-&lt;table width="100%">
- &lt;tr>  
-  &lt;td width=100% valign=top>
-   &lt;h3>[{showPath}] ["$$NODE{title}"]&lt;/h3>
-   &lt;p>&lt;font size=2>Maintained by [% linkNode ($$NODE{author_user}) %]&lt;/font>
-   &lt;p>
+&lt;table width=&quot;100%&quot;&gt;
+ &lt;tr&gt; 
+  &lt;td width=100% valign=top&gt;
+   &lt;h3&gt;[{showPath}] [&quot;$$NODE{title}&quot;]&lt;/h3&gt;
+   &lt;p&gt;&lt;font size=2&gt;Maintained by [% linkNode ($$NODE{author_user}) %]&lt;/font&gt;
+   &lt;p&gt;
    CONTAINED_STUFF
-  &lt;/td>
-  &lt;td width=1 valign=top align=right>
-   &lt;!-- nodelets start here -->
-   [% $USER->isGod? "" : adminbar() %]
+  &lt;/td&gt;
+  &lt;td width=1 valign=top align=right&gt;
+   &lt;!-- nodelets start here --&gt;
    [{nodeletMetaContainer}]
-  &lt;/td>
- &lt;/tr>
-&lt;/table></field>
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
