@@ -1,26 +1,26 @@
+=head1 Everything::Node::location
+
+Package that implements the base functionality for locations
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::Node::location;
 
-#############################################################################
-#   Everything::Node::location
-#       Package the implements the base functionality for locations
-#
-#   Copyright 2000 - 2002 Everything Development Inc.
 #   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 
+=cut
 
-#############################################################################
-#	Sub
-#		nuke
-#
-#	Purpose
-#		Overrides the base node::nuke so we can move all the nodes that
-#		exist in this location to the parent location.
-#
+=head2 C<nuke>
+
+Overrides the base node::nuke so we can move all the nodes that exist in this
+location to the parent location.
+
+=cut
+
 sub nuke
 {
 	my ($this, $USER) = @_;
@@ -40,32 +40,26 @@ sub nuke
 	return $result;
 }
 
-
 =cut
 
 =head2 C<listNodes>
 
-=head3 Purpose
-	
 Get a list of all the nodes in this location, just like an 'ls'.  The nodes are
 ordered by title.
-
-=head3 Parameters
 
 =over 4
 
 =item * $full
 
-(optional) set to true if you want a list of node objects.  if false/undef, the
-list will contain only node id's.
+(optional) set to true if you want a list of node objects.  If false/undef, the
+list will contain only node ids.
 
 =back
 
-=head3 Returns
-
-An array ref to an array that contains the nodes.
+Returns an array ref to an array that contains the nodes.
 
 =cut
+
 sub listNodes
 {
 	my ($this, $full) = @_;
@@ -77,12 +71,8 @@ sub listNodes
 
 =head2 C<listNodesWhere>
 
-=head3 Purpose
-	
 Get a list of all the nodes in this location, similar to doing an 'ls' with
 options.  The results can be resricted and ordered as desired.
-
-=head3 Parameters
 
 =over 4
 
@@ -102,11 +92,10 @@ list will contain only node id's.
 
 =back
 
-=head3 Returns
-
-An array ref to an array that contains the nodes.
+Returns an array ref to an array that contains the nodes.
 
 =cut
+
 sub listNodesWhere
 {
 	my ($this, $where, $order, $full) = @_;
