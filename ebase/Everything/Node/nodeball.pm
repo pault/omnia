@@ -30,7 +30,7 @@ sub insert
 	
 	
 	my $VARS;
-    $$this{vars} ||= "";	
+	$$this{vars} ||= "";	
 	$VARS = $this->getVars();
 	
 	# If the node was not inserted with some vars, we need to set some.
