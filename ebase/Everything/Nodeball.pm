@@ -214,13 +214,17 @@ sub addTablesToDB{
 sub getTablesHashref{
    my ($db)=@_; 
    
-   initEverything($db.":$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}", 1); 
-   my $st = $DB->getDatabaseHandle()->prepare("show tables");
+   my $tempdbh = DBI->connect("DBI:mysql:$db:$OPTIONS{host}", $OPTIONS{user}, $OPTIONS{password});
+   die "could not connect to database $db" unless $tempdbh;
+   
+   my $st = $tempdbh->prepare("show tables");
    $st->execute;
    my %tables;
    while(my $ref=$st->fetchrow_arrayref){
       $tables{$ref->[0]}=1; 
    }
+   $st->finish;
+   $tempdbh->disconnect;
    return \%tables;
 }
 
@@ -234,8 +238,8 @@ sub getTablesHashref{
 sub getColumns {
 	my ($table, $dbname) = @_;
 
-	initEverything($dbname.":$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}", 1); 
-	my $st=$DB->getDatabaseHandle()->prepare("show columns from $table");    
+    my $tempdbh = DBI->connect("DBI:mysql:$dbname:$OPTIONS{host}", $OPTIONS{user}, $OPTIONS{password});
+	my $st=$tempdbh->prepare("show columns from $table");    
 	$st->execute;
 	
 	my %colhash;
@@ -245,6 +249,8 @@ sub getColumns {
 			$colhash{$temp}{$_}=$ref->{$_}; 
 		}
 	}
+	$st->finish;
+	$tempdbh->disconnect;
 	\%colhash;
 }
 
@@ -322,14 +328,14 @@ sub checkTables {
 
 	my $database = $DB->{dbname};
 
-	initEverything($database.":$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}", 1);
+	#initEverything($database.":$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}", 1);
 	createDB $dummydb;
 	addTablesToDB $dummydb, $tabledir;
-	my $ret = compareAllTables(getTablesHashref($database),
-		getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
+	my $ret = compareAllTables(getTablesHashref($database), getTablesHashref($dummydb),
+		  $dummydb, $database, $tabledir);
 	dropDB $dummydb;
 	
-	initEverything($database.":$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}", 1);
+	#initEverything($database.":$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}", 1);
 	$ret;
 }
 
