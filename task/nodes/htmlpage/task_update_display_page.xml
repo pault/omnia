@@ -21,14 +21,8 @@
 
 	$date = "$time on $day $mnames[$month] $year";
 
-	my $parent = $query-&gt;param('parent_task');
-	if ($parent &amp;&amp; $parent ne $NODE-&gt;{parent_task}) {
-		$NODE-&gt;{parent_task} = $parent;
-		# mark for update
-	} else {
-		$parent ||= $NODE-&gt;{parent_task};
-	}
-	$parent = linkNode($parent);
+	my $parent = linkNode($NODE-&gt;{parent_task}) || "none";
+	my $text = parseLinks($NODE-&gt;{doctext});
 
 return &lt;&lt;HTML;
 &lt;h3&gt;$$NODE{title}&lt;/h3&gt;
@@ -37,7 +31,7 @@ return &lt;&lt;HTML;
 &lt;tr&gt;&lt;td&gt;$date&lt;/td&gt;&lt;td&gt;$$NODE{update_type}&lt;/td&gt;&lt;td&gt;$parent&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 &lt;hr&gt;
-$$NODE{doctext}
+$text
 HTML
 %]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">task_update</pagetype_nodetype>
