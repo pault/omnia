@@ -1336,7 +1336,7 @@ sub mod_perlInit
 
 
 	#blow away the globals
-	($GNODE, $USER, $VARS, $NODELET) = ("", "", "", "");
+	($GNODE, $USER, $VARS, $NODELET,$THEME) = ("", "", "", "","");
 
 	$query = "";
 	Everything::initEverything($db);

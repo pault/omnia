@@ -100,8 +100,8 @@ sub replaceNode		{ $DB->replaceNode(@_); }
 
 sub isNodetype		{ $DB->isNodetype(@_); }
 sub isGroup			{ $DB->isGroup(@_); }
-sub isGod			{ $DB->isGod(@_); };
-
+sub isGod			{ $DB->isGod(@_); }
+sub isApproved		{ $DB->isApproved(@_); }
 
 #############################################################################
 sub printErr {
