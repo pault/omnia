@@ -1,0 +1,30 @@
+<NODE export_version="0.5" nodetype="nodeball" title="stock nodeball">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <group>
+    <member name="group_node" supports_nodetype="stock,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">fetch_quote</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">setupFQ</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">smallquote</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">stock</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">stock</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">stock display page</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Stock Quotes</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">stock settings</member>
+  </group>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">stock nodeball</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>
+  <vars>
+    <var name="author" type="literal_value">Nathan Oostendorp</var>
+    <var name="description" type="literal_value">A simple NYSE stock quote nodelet.  stocks are saved as nodes and updated at an interval specified in "stock settings".  Uses Finance::Quote</var>
+    <var name="version" type="literal_value">0.1.1</var>
+  </vars>
+</NODE>

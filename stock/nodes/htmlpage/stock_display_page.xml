@@ -1,0 +1,52 @@
+<NODE export_version="0.5" nodetype="htmlpage" title="stock display page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;table width=100% cellpadding=1 cellspacing=0 border=1>
+[% 
+$NODE->fetch_quote(setupFQ()); 
+my $V = $NODE->getVars;
+
+local *cash = sub {
+  sprintf("\$%0.2f", $_[0]);
+};
+
+
+"
+&lt;tr>&lt;th colspan=2>$$V{name} (".uc($$NODE{title}).") &lt;/th>&lt;td>price:&lt;/td>&lt;td> ".cash($$V{price})." &lt;i>($$V{p_change}\%)&lt;/i>&lt;/th>&lt;/tr>
+&lt;tr>&lt;td>bid&lt;/td>&lt;td>".cash($$V{bid})."&lt;/td>
+  &lt;td>previous close&lt;/td>&lt;td>".cash($$V{last})."&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>today's high&lt;/td>&lt;td>".cash($$V{high})."&lt;/td>
+  &lt;td>today's low&lt;/td>&lt;td>".cash($$V{low})."&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>volume&lt;/td>&lt;td>$$V{volume}&lt;/td>
+  &lt;td>EPS&lt;/td>&lt;td>\$$$V{eps}&lt;/td>&lt;/tr>
+";
+
+%]
+&lt;/table>
+[%
+my $str;
+my $V =  $NODE->getVars;
+
+$str.="&lt;p align=right>&lt;small>";
+$str.="quotes aquired from $$V{method} at $$V{date} $$V{time}";
+
+
+%]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">stock</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
+  <field name="permissionneeded" type="literal_value">r</field>
+  <field name="title" type="literal_value">stock display page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
+</NODE>

@@ -1,0 +1,59 @@
+<NODE export_version="0.5" nodetype="nodelet" title="Stock Quotes">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">[{openform}]
+[%
+
+my @stocks = split ",", $$VARS{stocks};
+my $str;
+
+my $newstock;
+if (defined $query->param('newstock')) {
+  $newstock = $query->param('newstock');
+  $newstock =~ /^(\w+)/;
+  if (not grep /^$newstock$/, @stocks) {
+    push @stocks, $newstock;
+   } else {
+    @stocks = map { lc($_) eq lc($newstock) ? () : $_ } @stocks;
+  }
+  $query->param('newstock', '');
+}
+
+
+$str.= smallquote(@stocks);
+
+my $stockstr;
+foreach (@stocks) {
+  my $N = getNode($_, 'stock');
+  if (not $N) {
+    $str.="couldn't get quote for $_!&lt;br>";
+    next;
+  }
+  $stockstr.="$_,";
+}
+$$VARS{stocks} = $stockstr;
+
+$str.$query->textfield('newstock', "", 5, 10);
+
+%][{submit:update,update}]&lt;/form></field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;form method="post" action="/index.pl?lastnode_id=296&amp;node_id=288" enctype="application/x-www-form-urlencoded">
+&lt;input type="hidden" name="node_id" value="288">&lt;table width=100% border=0 cellpadding=0 cellspacing=0>&lt;tr>&lt;td>&lt;A HREF="/index.pl?lastnode_id=288&amp;node_id=288">LNUX&lt;/a>&lt;/td>&lt;td>$3.94&lt;/td>&lt;td> &lt;font color=red>-0.25&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>&lt;A HREF="/index.pl?lastnode_id=288&amp;node_id=291">DELL&lt;/a>&lt;/td>&lt;td>$21.50&lt;/td>&lt;td> &lt;font color=red>-0.375&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>&lt;A HREF="/index.pl?lastnode_id=288&amp;node_id=296">MACR&lt;/a>&lt;/td>&lt;td>$29.19&lt;/td>&lt;td> &lt;font color=red>-0.125&lt;/font>&lt;/td>&lt;/tr>
+&lt;/table>&lt;input type="text" name="newstock"  size=5 maxlength=10 />&lt;input type="submit" name="update" value="update" />&lt;/form></field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
+  <field name="title" type="literal_value">Stock Quotes</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
+</NODE>

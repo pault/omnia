@@ -1,0 +1,26 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="setupFQ">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">use Finance::Quote;
+my $q = Finance::Quote->new;
+
+$q->timeout(60);
+my $STOCKSETTINGS = getNode('stock settings','setting')->getVars;
+my $currency;
+$currency = $$STOCKSETTINGS{currency};
+$currency ||= "USD";
+$q->set_currency($currency);  # Return all info in Euros.
+
+$q;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">setupFQ</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>
