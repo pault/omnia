@@ -911,7 +911,7 @@ sub updateNodeball {
 
 	#check the tables and make sure that they're compatable
 	my $script_dir = $dir ."/scripts";
-	my $preinst = $script_dir ."/preinstall.pl";
+	my $preinst = $script_dir ."/preupdate.pl";
 	require $preinst if -f $preinst;
 	
 	my $tabledir = $dir."/tables";
@@ -989,7 +989,7 @@ sub updateNodeball {
 	}
 	fixNodes(1);
 	
-	my $postinst = $script_dir."/postinstall.pl";
+	my $postinst = $script_dir."/postupdate.pl";
 	require $postinst if -f $postinst;
 	
 	installModules($dir);
