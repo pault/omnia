@@ -1,14 +1,12 @@
+=head1 Everything::HTML::FormObject::VarsTextField
+
+Copyright 2001 - 2003 Everything Development Inc.
+
+Package that implements the base VarsTextField functionality.
+
+=cut
+
 package Everything::HTML::FormObject::VarsTextField;
-
-#############################################################################
-#   Everything::HTML::FormObject::VarsTextField
-#		Package the implements the base VarsTextField functionality.
-#
-#   Copyright 2001 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 use Everything;
@@ -17,33 +15,53 @@ use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
-#############################################################################
-#	Sub
-#		genObject
-#
-#	Purpose
-#		This is called to generate the needed HTML for this VarsTextField
-#		form object.  This textfield object can be made to either edit
-#		key name, or the value of a hash entry.
-#
-#	Parameters
-#		Can be passed as either -paramname => value, or an array of 
-#		values of the following order:
-#
-#		$query - the CGI object we use to generate the HTML
-#		$bindNode - a node ref if this VarsTextField is to be bound to a field
-#			on a node.  undef if this item is not bound.
-#		$field - the field on the node that this VarsTextField is bound to.  If
-#			$bindNode is undef, this is ignored.
-#		$name - the name of the form object.  ie <input type=text name=$name>
-#		$default - value this object will contain as its initial default.
-#			If undef, this will default to what the field of the bindNode is.
-#		$size - the width in characters of the VarsTextField
-#		$maxlen - the maximum number of characters this VarsTextField will accept
-#
-#	Returns
-#		The generated HTML for this VarsTextField object
-#
+=cut
+
+=head2 C<genObject>
+
+This is called to generate the needed HTML for this VarsTextField form object.
+This textfield object can be made to either edit key name, or the value of a
+hash entry.
+
+=over 4
+
+=item * $query
+
+The CGI object we use to generate the HTML.
+
+=item * $bindNode
+
+A node ref if this VarsTextField is to be bound to a field on a node.  undef if
+this item is not bound.
+
+=item * $field
+
+The field on the node that this VarsTextField is bound to.  If $bindNode is
+undef, this is ignored.
+
+=item * $name
+
+The name of the form object, i.e., E<gt>input type=text name=$nameE<lt>.
+
+=item * $default
+
+The value this object will contain as its initial default.  If undef, this will
+default to what the field of the bindNode is.
+
+=item * $size
+
+The width in characters of the VarsTextField.
+
+=item * $maxlen
+
+The maximum number of characters this VarsTextField will accept.
+
+=back
+
+Returns the generated HTML for this VarsTextField object.
+
+=cut
+
 sub genObject
 {
 	my $this = shift @_;
@@ -62,7 +80,7 @@ sub genObject
 		$$this{updateExecuteOrder} = 45;
 		$key = "value";
 	}
-	
+
 	my $name = $field . "_" . $var . "_" . $key;
 	$default ||= 'AUTO';
 	$size ||= 20;
@@ -70,7 +88,7 @@ sub genObject
 
 	my $html = $this->SUPER::genObject($query, $bindNode,
 		$field . ":$var", $name) . "\n";
-	
+
 	if($default eq "AUTO" && (ref $bindNode))
 	{
 		my $vars = $bindNode->getHash($field);
@@ -95,30 +113,42 @@ sub genObject
 		$html .= "<font size='1'>" .
 			$this->genPopupMenu($query, $name . "_type", 0) . "</font>";
 	}
-	
+
 	return $html;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		cgiUpdate
-#
-#	Purpose
-#		Called by the system to update this node
-#
-#	Parameters
-#		$query - the CGI object used to fetch parameters
-#		$name - the name of the object to update.  This will be the
-#			'fieldname_varname_key' or 'fieldname_varname_value'
-#			that was generated in the genObject method
-#		$NODE - the node that we were bound to and need to update
-#		$overrideverify - should we skip the verification that we
-#			can update this particular var?  True if so, false otherwise.
-#
-#	Returns
-#		0 (false) if failure, 1 (true) if successful
-#
+=head2 C<cgiUpdate>
+
+Called by the system to update this node.
+
+=over 4
+
+=item * $query
+
+The CGI object used to fetch parameters.
+
+=item * $name
+
+The name of the object to update.  This will be the 'fieldname_varname_key' or
+'fieldname_varname_value' that was generated in the genObject method.
+
+=item * $NODE
+
+The node that we were bound to and need to update.
+
+=item * $overrideverify
+
+Should we skip the verification that we can update this particular var?  True
+if so, false otherwise.
+
+=back
+
+Returns 0 (false) if failure, 1 (true) if successful.
+
+=cut
+
 sub cgiUpdate
 {
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
@@ -126,9 +156,7 @@ sub cgiUpdate
 	my $field = $this->getBindField($query, $name);
 	my $value;
 
-	
-	# Make sure this is not a restricted field that we cannot update
-	# directly.
+	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
 	my $var;
@@ -157,7 +185,7 @@ sub cgiUpdate
 		# They changed the name of the key!  We need to assign
 		# the value of the old key to the new key and delete the
 		# old key.
-		
+
 		$$vars{$param} = $$vars{$var} if($param ne "");
 		delete $$vars{$var} if(exists $$vars{$var});
 	}
@@ -166,10 +194,5 @@ sub cgiUpdate
 
 	return 1;
 }
-
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

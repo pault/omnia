@@ -1,12 +1,12 @@
+=head1 Everything::HTML::FormObject::Datetime
+
+Package that implements the base Datetime functionality.
+
+Copyright 2001 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::HTML::FormObject::Datetime;
-
-#############################################################################
-#   Everything::HTML::FormObject::Datetime
-#
-#   Copyright 2001 Everything Development Inc.
-#
-#############################################################################
-
 
 use strict;
 use Everything;
@@ -55,45 +55,67 @@ sub paramToDatetime {
 	"0000-00-00 00:00:00";
 }
 
-#############################################################################
-#	Sub
-#		genObject
-#
-#	Purpose
-#		This is called to generate the needed HTML for this checkbox
-#		form object.
-#
-#	Parameters
-#		$query - the CGI object we use to generate the HTML
-#		$bindNode - a node ref if this checkbox is to be bound to a field
-#			on a node.  undef if this item is not bound.
-#		$field - the field on the node that this checkbox is bound to.  If
-#			$bindNode is undef, this is ignored.
-#		$name - the name of the form object.  ie <input type=check name=$name>
-#		$checked - a string value of what should be set if the checkbox
-#			is checked.
-#		$uncheched - a string value of what should be set if the checkbox
-#			is NOT checked
-#		$default - either 1 (checked), 0 (not checked) or "AUTO".  Where AUTO
-#			will set it based on whatever the bound node's field value is.
-#		$label - a text string that is to be a visible label for the
-#			checkbox
-#
-#	Returns
-#		The generated HTML for this checkbox object
-#
+=cut
+
+=head2 C<genObject>
+
+This is called to generate the needed HTML for this checkbox form object.
+
+=over 4
+
+=item * $query
+
+The CGI object we use to generate the HTML.
+
+=item * $bindNode
+
+A node ref if this checkbox is to be bound to a field on a node. undef if this
+item is not bound.
+
+=item * $field
+
+The field on the node that this checkbox is bound to.  If $bindNode is undef,
+this is ignored.
+
+=item * $name
+
+The name of the form object, i.e., E<lt>input type=check name=$nameE<gt>.
+
+=item * $checked
+
+A string value of what should be set if the checkbox is checked.
+
+=item * $uncheched
+
+A string value of what should be set if the checkbox is NOT checked.
+
+=item * $default
+
+Either 1 (checked), 0 (not checked), or "AUTO", where AUTO will set it based on
+whatever the bound node's field value is.
+
+=item * $label
+
+A text string that is to be a visible label for the checkbox.
+
+=back
+
+Returns the generated HTML for this checkbox object.
+
+=cut
+
 sub genObject
 {
 	my $this = shift @_;
 	my ($query, $bindNode, $field, $name, 
 		$default) = getParamArray(
 		"query, bindNode, field, name, default", @_);
-		
+
 	$name ||= $field;
 
 	my $html = $this->SUPER::genObject($query, $bindNode,
 		$field, $name) . "\n";
-	
+
 	my $date;
 
 	#date binding:
@@ -114,15 +136,13 @@ sub genObject
 	return $html;
 }
 
-
-#############################################################################
 sub cgiUpdate
 {
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
-	my $value = paramToDatetime($query, $name); 
+	my $value = paramToDatetime($query, $name);
 
 	my $field = $this->getBindField($query, $name);
-	
+
 	# Make sure this is not a restricted field that we cannot update
 	# directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
@@ -131,12 +151,6 @@ sub cgiUpdate
 
 	return 1;
 }
-
-
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;
 

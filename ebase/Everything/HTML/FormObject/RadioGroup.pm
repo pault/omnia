@@ -1,14 +1,12 @@
+=head1 Everything::HTML::FormObject::RadioGroup
+
+Copyright 2001 - 2003 Everything Development Inc.
+
+Package that implements the base RadioGroup functionality.
+
+=cut
+
 package Everything::HTML::FormObject::RadioGroup;
-
-#############################################################################
-#   Everything::HTML::FormObject::RadioGroup
-#		Package the implements the base RadioGroup functionality.
-#
-#   Copyright 2001 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 use Everything;
@@ -17,36 +15,54 @@ use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
+=cut
 
-#############################################################################
-#	Sub
-#		genObject
-#
-#	Purpose
-#		This is called to generate the needed HTML for this RadioGroup
-#		form object.  NOTE!!!! This cannot be called from
-#		[{nodeFormObject:...}] style htmlcode.  You need to set this
-#		up by calling the various add() functions (see FormMenu.pm)
-#
-#	Parameters
-#		Can be passed as either -paramname => value, or an array of 
-#		values of the following order:
-#
-#		$query - the CGI object we use to generate the HTML
-#		$bindNode - a node ref if this RadioGroup is to be bound to a field
-#			on a node.  undef if this item is not bound.
-#		$field - the field on the node that this RadioGroup is bound to.  If
-#			$bindNode is undef, this is ignored.
-#		$name - the name of the form object.  ie <input type=text name=$name>
-#		$default - value this object will contain as its initial default.
-#			Specify 'AUTO' if you want to use the value of the field this
-#			object is bound to, if it is bound
-#		$vertical - if true, it will format the radio buttons vertically
-#			by placing a <br> between each one.
-#
-#	Returns
-#		The generated HTML for this RadioGroup object
-#
+=head2 C<genObject>
+
+This is called to generate the needed HTML for this RadioGroup form object.
+NOTE!!!! This cannot be called from
+
+  [{nodeFormObject:...}] 
+
+style htmlcode.  You need to set this up by calling the various add() functions
+(see FormMenu.pm)
+
+=over 4
+
+=item * $query
+
+The CGI object we use to generate the HTML.
+
+=item * $bindNode
+
+A node ref if this RadioGroup is to be bound to a field on a node.  undef if
+this item is not bound.
+
+=item * $field
+
+The field on the node that this RadioGroup is bound to.  If $bindNode is undef,
+this is ignored.
+
+=item * $name
+
+The name of the form object, i.e. E<lt>input type=text name=$nameE<gt>.
+
+=item * $default
+
+The value this object will contain as its initial default.  Specify 'AUTO' if
+you want to use the value of the field this object is bound to, if it is bound.
+
+=item * $vertical
+
+If true, it will format the radio buttons vertically by placing a E<lt>brE<gt>
+between each one.
+
+=back
+
+Returns the generated HTML for this RadioGroup object.
+
+=cut
+
 sub genObject
 {
 	my $this = shift @_;
@@ -55,7 +71,7 @@ sub genObject
 		"query, bindNode, field, name, default, vertical", @_);
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
-	
+
 	if($default eq "AUTO")
 	{
 		$default = "";
@@ -75,14 +91,8 @@ sub genObject
 	{
 		$html .= join("\n", @buttons);
 	}
-	
+
 	return $html;
 }
 
-
-#############################################################################
-# End of package
-#############################################################################
-
 1;
-

@@ -1,14 +1,12 @@
+=head1 Everything::HTML::FormObject::NodetypeMenu
+
+Copyright 2001 - 2003 Everything Development Inc.
+
+Package that implements the base NodetypeMenu functionality.
+
+=cut
+
 package Everything::HTML::FormObject::NodetypeMenu;
-
-#############################################################################
-#   Everything::HTML::FormObject::NodetypeMenu
-#		Package the implements the base NodetypeMenu functionality.
-#
-#   Copyright 2001 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 use Everything;
@@ -17,43 +15,63 @@ use Everything::HTML::FormObject::TypeMenu;
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::TypeMenu");
 
+=cut
 
-#############################################################################
-#	Sub
-#		genObject
-#
-#	Purpose
-#		This is called to generate the needed HTML for this NodetypeMenu
-#		form object. 
-#
-#	Parameters
-#		Can be passed as either -paramname => value, or an array of 
-#		values of the following order:
-#
-#		$query - the CGI object we use to generate the HTML
-#		$bindNode - a node ref if this NodetypeMenu is to be bound to a field
-#			on a node.
-#		$field - the field on the node that this NodetypeMenu is bound to.  If
-#			$bindNode is undef, this is ignored.
-#		$name - the name of the form object.  ie <input type=text name=$name>
-#		$omitutil - Omit "utility" types.  Utility types are those that
-#			inherit from "utility".  All types that derive from utilty
-#			*cannot* be instantiated.  utility types exist for the sole
-#			purpose of providing methods.  They are not nodes in the database.
-#			You may want to turn this on if you want a menu to select types
-#			when creating new nodes.  Since nodes of "utility" types cannot
-#			be created, you will probably want to omit them.
-#		$USER - used for authorization.  If given, the menu will only
-#			show the types that the user has permission to create.
-#		$none - (optional) true if the menu should contain an option of
-#			'None' (with value of $none).
-#		$inherit - (optional) true if the menu should contain an option of
-#			'Inherit' (with value of $inherit).
-#
-#
-#	Returns
-#		The generated HTML for this NodetypeMenu object
-#
+=head2 C<genObject>
+
+This is called to generate the needed HTML for this NodetypeMenu form object. 
+
+=cut
+
+=over 4
+
+=item * $query
+
+The CGI object we use to generate the HTML.
+
+=item * $bindNode
+
+A node ref if this NodetypeMenu is to be bound to a field on a node.
+
+=item * $field
+
+The field on the node that this NodetypeMenu is bound to.  If $bindNode is
+undef, this is ignored.
+
+=item * $name
+
+The name of the form object, i.e. E<lt>input type=text name=$nameE<gt>.
+
+=item * $omitutil
+
+Omit "utility" types.  Utility types are those that inherit from "utility".
+All types that derive from utilty *cannot* be instantiated.  utility types
+exist for the sole purpose of providing methods.  They are not nodes in the
+database.  You may want to turn this on if you want a menu to select types when
+creating new nodes.  Since nodes of "utility" types cannot be created, you will
+probably want to omit them.
+
+=item * $USER
+
+Used for authorization.  If given, the menu will only show the types that the
+user has permission to create.
+
+=item * $none
+
+(optional) True if the menu should contain an option of 'None' (with value of
+$none).
+
+=item * $inherit
+
+(optional) True if the menu should contain an option of 'Inherit' (with value
+of $inherit).
+
+=back
+
+Returns the generated HTML for this NodetypeMenu object.
+
+=cut
+
 sub genObject
 {
 	my $this = shift @_;
@@ -115,23 +133,33 @@ sub addTypes
 }
 
 
-#############################################################################
-#	Sub
-#		createTree
-#
-#	Purpose
-#		This is the core of this object.  This generates a list of
-#		nodetypes base on their inheritance.  They get indented for
-#		each level below the 'node' nodetype and organized by type
-#
-#	Parameters
-#		$types - an array ref of all the nodetypes in the system
-#		$current - internal use only.  Don't pass anything when calling this
-#
-#	Returns
-#		An array ref of {'label' => label, 'value' => value } hashrefs.
-#		This can be then be parsed apart and inserted into the menu
-#
+=cut
+
+=head2 C<createTree>
+
+This is the core of this object.  This generates a list of nodetypes base on
+their inheritance.  They get indented for each level below the 'node' nodetype
+and organized by type
+
+=over 4
+
+=item * $types
+
+An array ref of all the nodetypes in the system.
+
+=item * $current
+
+Internal use only.  Don't pass anything when calling this.
+
+=back
+
+Returns an array ref of hashrefs that can be then be parsed apart and inserted
+into the menu.
+
+  { label => label, value => value } 
+
+=cut
+
 sub createTree
 {
 	my ($this, $types, $current) = @_;
@@ -162,10 +190,4 @@ sub createTree
 	return \@list;
 }
 
-#############################################################################
-# End of package
-#############################################################################
-
 1;
-
-

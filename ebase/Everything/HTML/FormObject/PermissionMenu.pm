@@ -1,14 +1,12 @@
+=head1 Everything::HTML::FormObject::PermissionMenu
+
+Copyright 2001 - 2003 Everything Development Inc.
+
+Package that implements the base PermissionMenu functionality.
+
+=cut
+
 package Everything::HTML::FormObject::PermissionMenu;
-
-#############################################################################
-#   Everything::HTML::FormObject::PermissionMenu
-#		Package the implements the base PermissionMenu functionality.
-#
-#   Copyright 2001 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 use Everything;
@@ -33,31 +31,42 @@ my %labels = (
 	c => 'Create',
 );
 
-#############################################################################
-#	Sub
-#		genObject
-#
-#	Purpose
-#		This is called to generate the needed HTML for this PermissionMenu
-#		form object.
-#
-#	Parameters
-#		Can be passed as either -paramname => value, or an array of 
-#		values of the following order:
-#
-#		$query - the CGI object we use to generate the HTML
-#		$bindNode - a node ref if this PermissionMenu is to be bound to a field
-#			on a node.
-#		$field - the field on the node that this PermissionMenu is bound to.  If
-#			$bindNode is undef, this is ignored.
-#		$name - the name of the form object.  ie <input type=text name=$name>
-#		$default - value this object will contain as its initial default.
-#			Specify 'AUTO' if you want to use the value of the field this
-#			object is bound to, if it is bound
-#
-#	Returns
-#		The generated HTML for this PermissionMenu object
-#
+=cut
+
+=head2 C<genObject>
+
+This is called to generate the needed HTML for this PermissionMenu form object.
+
+=over 4
+
+=item * $query
+
+The CGI object we use to generate the HTML.
+
+=item * $bindNode
+
+A node ref if this PermissionMenu is to be bound to a field on a node.
+
+=item * $field
+
+The field on the node that this PermissionMenu is bound to.  If $bindNode is
+undef, this is ignored.
+
+=item * $name
+
+The name of the form object, i.e., E<lt>input type=text name=$nameE<gt>.
+
+=item * $default
+
+The value this object will contain as its initial default.  Specify 'AUTO' if
+you want to use the value of the field this object is bound to, if it is bound.
+
+=back
+
+Returns the generated HTML for this PermissionMenu object.
+
+=cut
+
 sub genObject
 {
 	my $this = shift;
@@ -74,7 +83,7 @@ sub genObject
 
 	my $html = $this->SUPER::genObject($query, $bindNode,
 		"${field}:$perm", $name) . "\n";
-	
+
 	if ($default eq 'AUTO' && UNIVERSAL::isa( $bindNode, 'Everything::Node' ))
 	{
 		my $perms = $bindNode->{$field};
@@ -93,8 +102,6 @@ sub genObject
 	return $html;
 }
 
-
-#############################################################################
 sub cgiUpdate
 {
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
@@ -115,11 +122,4 @@ sub cgiUpdate
 	return 1;
 }
 
-
-#############################################################################
-# End of package
-#############################################################################
-
 1;
-
-
