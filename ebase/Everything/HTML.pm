@@ -15,19 +15,21 @@ package Everything::HTML;
 use strict;
 use Everything;
 use Everything::MAIL;
+use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
 
 sub BEGIN {
 	use Exporter ();
-	use vars qw($DB $VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+	use vars qw($DB $AUTH $VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 	@ISA=qw(Exporter);
 	@EXPORT=qw(
 		$DB
 		%HTMLVARS
 		%GLOBAL
 		$query
+		$AUTH
 		newFormObject
 		parseLinks
 		htmlScreen
@@ -45,7 +47,6 @@ sub BEGIN {
 		embedCode
 		displayPage
 		gotoNode
-		confirmUser
 		encodeHTML
 		decodeHTML
 		mod_perlInit);
@@ -1937,49 +1938,6 @@ sub gotoNode
 
 #############################################################################
 #	Sub
-#		confirmUser
-#
-#	Purpose
-#		Given a username and the passwd they entered in encrypted form,
-#		verify that the passwd/username combo is correct.
-#
-#	Parameters
-#		$nick - the user name
-#		$crpasswd - the passwd that the user entered, encrypted
-#
-#	Returns
-#		The USER node if everything checks out.  undef if the
-#		username/passwd combo failed.
-#
-sub confirmUser
-{
-	my ($nick, $crpasswd) = @_;
-	my $USER = getNode($nick, getType('user'));
-	my $genCrypt;
-
-	return undef unless($USER);
-
-	$genCrypt = crypt($$USER{passwd}, $$USER{title});
-
-	if ($genCrypt eq $crpasswd)
-	{
-		my $rows = $DB->sqlUpdate("user", { -lasttime => "now()" }, "user_id=".$$USER{node_id});
-
-		# We force a reload of the node to make sure that the 'lasttime'
-		# field (updated by the database), is current.  If there was a
-		# way to just get the now() string from the database, we would
-		# not need to do this, which would save at least 1 node load
-		# per page load.
-		# 'SELECT now()' will work... where's it go?
-		return getNode($$USER{node_id}, 'force');
-	} 
-
-	return undef;
-}
-
-
-#############################################################################
-#	Sub
 #		parseLinks
 #
 #	Purpose
@@ -2003,52 +1961,6 @@ sub parseLinks
 
 	$text =~ s/\[(.*?)\]/linkNodeTitle ($1, $NODE)/egs;
 	return $text;
-}
-
-
-#############################################################################
-#	Sub
-#		loginUser
-#
-#	Purpose
-#		For each page request, we need to know the user trying to view
-#		the page.  This logs in a user if they are logging in and stores
-#		the info in a cookie.  If they have already logged in, we use
-#		their cookie information.
-#
-#	Parameters
-#		None.  Uses global package vars.
-#
-#	Returns
-#		The USER node hash reference
-#
-sub loginUser
-{
-	my ($user_id, $cookie, $user, $passwd);
-	my $USER_HASH;
-	
-	if(my $oldcookie = $query->cookie("userpass"))
-	{
-		$USER_HASH = confirmUser (split (/\|/,
-			Everything::Util::unescape($oldcookie)));
-	}
-
-	# If all else fails, use the guest_user
-	$user_id ||= $HTMLVARS{guest_user};
-
-	# Get the user node
-	$USER_HASH ||= getNode($user_id);	
-
-	die "Unable to get user! ($user_id)" unless ($USER_HASH);
-
-	# Assign the user vars to the global.
-	$VARS = $USER_HASH->getVars();
-	
-	# Store this user's cookie!
-	$$USER_HASH{cookie} = $cookie if $cookie; 
-
-
-	return $USER_HASH;
 }
 
 
@@ -2314,37 +2226,14 @@ sub opNuke
 #############################################################################
 sub opLogin
 {
-	my $user = $query->param("user");
-	my $passwd = $query->param("passwd");
-	my $cookie;
-
-	my $U = getNode($user,'user');
-	$user = $$U{title} if $U;
-	$USER = confirmUser ($user, crypt ($passwd, $user));
-	
-	# If the user/passwd was correct, set a cookie on the users
-	# browser.
-	$cookie = $query->cookie(-name => "userpass", 
-		-value => $query->escape($user . '|' . crypt ($passwd, $user)), 
-		-expires => $query->param("expires")) if $USER;
-
-	$USER ||= getNode($HTMLVARS{guest_user});
-	$VARS = $USER->getVars() if($USER);
-
-	$$USER{cookie} = $cookie if($cookie);
+	($USER, $VARS) = $AUTH->loginUser();
 }
 
 
 #############################################################################
 sub opLogout
 {
-	# The user is logging out.  Nuke their cookie.
-	my $cookie = $query->cookie(-name => 'userpass', -value => "");
-
-	$USER = getNode($HTMLVARS{guest_user});
-	$VARS = $USER->getVars() if($USER);
-
-	$$USER{cookie} = $cookie if($cookie);
+	($USER, $VARS) = $AUTH->logoutUser();
 }
 
 
@@ -2775,7 +2664,9 @@ sub mod_perlInit
 
 	$query = getCGI();
 
-	$USER = loginUser();
+	$AUTH ||= new Everything::Auth($options);
+
+	($USER,$VARS) = $AUTH->authUser();
 
 	#join a workspace (if applicable)
 	$DB->joinWorkspace($$USER{inside_workspace});
