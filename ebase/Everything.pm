@@ -19,8 +19,8 @@ use Everything::NodeBase::mysql;
 
 use vars qw($DB $VERSION);
 
-# If you want to log to a different file, change this.
-my $everythingLog = "/tmp/everything.errlog";
+# If you want to log to a different file, set the env variable
+my $everythingLog = $ENV{EVERYTHING_LOG} || "/tmp/everything.errlog";
 
 # Used by Makefile.PL to determine the version of the install.
 $VERSION = 'pre-1.0';
@@ -354,9 +354,10 @@ sub logErrors
 	
 	if ($commandLine)
 	{
-		print "############################################################\n" .
-			"Warning: $warning\nError: $error\nCode:\n$code\n" .
-			'(', join(')(', caller()), ")\n";
+		$code    = "Code: $code\n"       if $code;
+		$error   = "Error: $error\n"     if $error;
+		$warning = "Warning: $warning\n" if $warning;
+		print "#" x 60, $warning, $error, $code, '(', join(')(', caller), ")\n";
 	}
 	else
 	{
