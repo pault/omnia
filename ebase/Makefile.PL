@@ -95,7 +95,7 @@ $includestr = "Include $installDir/everything.apache.conf";
 print "May I append:\n\n\t$includestr\n\nto your httpd.conf file? (N/y)";
 if (getResponse("n") =~ /^y/i) {
 	$httpconf = getHttpconf($includestr);
-} else { print "You will have to manage http.conf yourself, then.\nCheck out the HTTPCONF_SETUP file for some pointers.\n";
+} else { print "You will have to manage httpd.conf yourself, then.\nCheck out the HTTPCONF_SETUP file for some pointers.\n";
 $httpconf = ""; }
 
 print "\nEverything is configured to be installed as follows:\n";
