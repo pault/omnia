@@ -207,7 +207,7 @@ sub fixNodes
 		
 		if ($$_{isVars}) {
 			my $TEMPVARS = getVars $$_{node_id};
-			$$TEMPVARS{$$_{field}} = $id; 
+			$$TEMPVARS{$$_{field}} = $id unless $$TEMPVARS{$$_{field}} != -1; 
 			setVars $$_{node_id}, $TEMPVARS;
 		} elsif ($$_{field} =~ /^groupnode/) {	
 			my $GROUP = $$_{node_id};
@@ -306,8 +306,10 @@ sub xml2node{
 		#perhaps we already have this node, in which case we should update it
 		
 		my ($OLDNODE) = getNodeWhere({title=>$title}, $NODETYPES{$nodetype});
-		
+		my $OLDVARS = {};
+	
 		if ($OLDNODE) {
+			$OLDVARS = getVars $OLDNODE if exists $$OLDNODE{vars};
 			@$OLDNODE{@fields} = @$NODE{@fields};
 			if (isGroup($$OLDNODE{type})) {
 				replaceNodegroup ($OLDNODE, [], -1);
@@ -329,6 +331,8 @@ sub xml2node{
 		}
 
 		if (keys %$VARS) {
+			@$VARS{keys %$OLDVARS} = values %$OLDVARS if $nodetype eq 'setting';
+				#we never replace old settings in a setting node 
 			setVars $node_id, $VARS;
 		}
 

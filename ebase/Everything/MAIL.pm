@@ -2,10 +2,7 @@ package Everything::MAIL;
 
 ############################################################
 #
-#	Everything::HTML.pm
-#		A module for the HTML stuff in Everything.  This
-#		takes care of CGI, cookies, and the basic HTML
-#		front end.
+#	Everything::MAIL.pm
 #
 ############################################################
 
@@ -22,8 +19,9 @@ sub BEGIN {
 			node2mail
 			mail2node);
 }
-sub node2mail
-{
+
+
+sub node2mail {
 	my ($addr, $node) = @_;
 	my @addresses = (ref $addr eq "ARRAY") ? @$addr:($addr);
 	my ($user) = getNodeWhere({node_id => $$node{author_user}},$NODETYPES{user});

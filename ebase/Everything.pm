@@ -34,6 +34,7 @@ sub BEGIN
 		getFields
 		getFieldsHash
 		getNodeById
+		getNode
 		selectNode 
 		selectNodeWhere 
 		selectNodeByName 
@@ -78,10 +79,6 @@ use vars qw($dbh);
 
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
-
-
-#############################################################################
-my $VERSION = "0.8";
 
 
 #############################################################################
@@ -590,6 +587,7 @@ sub getVars
 	%vars = map { split /=/ } split (/&/, $$NODE{vars});
 	foreach (keys %vars) {
 		unescape $vars{$_};
+		if ($vars{$_} eq ' ') { $vars{$_} = ""; }
 	}
 
 	\%vars;
@@ -625,9 +623,8 @@ sub setVars
 		perhaps it doesn't join on the settings table?\n");
 	}
 	# Clean out the keys that have do not have a value.
-	foreach (keys %$varsref)
-	{
-		delete $$varsref{$_} unless $$varsref{$_};
+	foreach (keys %$varsref) {
+		$$varsref{$_} = " " unless $$varsref{$_};
 	}
 	
 	$str = join("&", map( $_."=".escape($$varsref{$_}), keys %$varsref) );
@@ -1150,6 +1147,25 @@ sub getNodeWhere
 	@$ret;
 }
 
+######################################################################
+#	sub 
+#		getNode
+#
+#	purpose
+#		much of the time my getNodeWhere queries look like:
+#		getNodeWhere({title=>$title}, $NODETYPES{$type});
+#		this is basically a shortcut so I can just say
+#		getNode($title, $type);
+#
+sub getNode {
+	my ($title, $type) = @_;
+	
+	return getNodeById($title) if not $type and $title =~ /^\d+$/;
+	
+	my @ret = getNodeWhere({title=>$title}, $NODETYPES{$type});
+	return $ret[0] if @ret;
+	"";
+}
 
 #############################################################################
 #	Sub

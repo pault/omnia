@@ -27,6 +27,7 @@ sub BEGIN {
 		popup_node
 		createNodeLinks
 		parseLinks
+		htmlScreen
 		htmlFormatErr
 		quote
 		urlGen
@@ -38,6 +39,7 @@ sub BEGIN {
 		linkNodeTitle
 		nodeName
 		evalCode
+		htmlcode
 		embedCode
 		displayPage
 		gotoNode
@@ -57,6 +59,33 @@ use vars qw($GNODE);
 use vars qw($USER);
 use vars qw($VARS);
 use vars qw($NODELET);
+
+
+#############################################################################
+#	sub
+#		htmlScreen
+#
+#	purpose
+#		screen out html tags from a chunk of text
+#		returns the text, sans any tags that aren't "APPROVED"		
+#
+#	params
+#		text -- the text to filter
+#		APPROVED -- ref to hash where approved tags are keys.  Null means
+#			all HTML will be taken out.
+#
+sub htmlScreen {
+	my ($text, $APPROVED) = @_;
+	$APPROVED ||= {};
+
+	$text =~ s/\<\s*(\/?)(\w+)(.*?)\>/
+		if (exists $$APPROVED{uc($2)} or exists $$APPROVED{lc($2)}) {
+			"<$1$2$3>"; 
+		} else { ""; }
+		/gse;
+	$text;
+}
+
 
 
 #############################################################################
@@ -304,11 +333,12 @@ sub getPage
 #############################################################################
 sub linkNode {
 	my ($NODE, $title, $PARAMS) = @_;
-	getRef $NODE;	
+	#getRef $NODE;	
 	
-	#unless (ref $NODE) {
-	#	$NODE = selectNode $NODE, 'light';
-	#}
+	return unless $NODE;	
+	unless (ref $NODE) {
+		$NODE = getNodeById($NODE, 'light');
+	}
 	
 	if ($NODE == -1) {return "<a>$title</a>";}
 	$title ||= $$NODE{title};
@@ -435,6 +465,23 @@ sub evalCode {
 	$str;
 }
 
+#########################################################################
+#	sub htmlcode
+#
+#	purpose
+#		allow for easy use of htmlcode functions in embedded perl
+#		[{textfield:title,80}] would become:
+#		htmlcode('textfield', 'title,80');
+#
+#	args
+#		func -- the function name
+#		args -- the arguments in a comma delimited list
+#
+#
+sub htmlcode {
+	my ($func, $args) = @_;
+	evalCode(getCode($func,$args));
+}
 
 #############################################################################
 #a wrapper function.

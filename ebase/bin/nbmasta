@@ -15,7 +15,6 @@ use Everything::XML;
 use Everything::HTML;
 
 my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
-
 my %OPTIONS = ( force => 0, verbose => 0 );
 while (@ARGV and $ARGV[0] =~ s/^\-(.*?)/$1/) {
 	my $arg = shift @ARGV;
@@ -66,6 +65,178 @@ sub exportTables {
 		print "mysqldump errors:\n" . $err;
 		die unless $OPTIONS{force};
 	}
+}
+
+
+##############################################################################
+#	sub
+#		createDB
+#
+#	create a database of the given name
+sub createDB{
+	my ($dbname) = @_;
+   $Everything::dbh->do("create database $dbname"); 
+}
+
+#############################################################################
+#	sub
+#		dropDB
+#
+#	drop a database (does not give warnings)
+#
+sub dropDB{
+	my ($dbname) = @_;
+   $Everything::dbh->do("drop database $dbname"); 
+}
+
+##########################################################################
+#	sub
+#		addTablesToDB	
+#
+#	adds specific tables to a database from a directory of create definitions
+#	if no tables are specified, all are imported
+#		
+sub addTablesToDB{
+   my ($dbname, $tabledir, $TABLES) = @_;
+   
+   opendir DIR, $tabledir || die "can't opendir $tabledir $!";
+   my $file; 
+   my @tablefiles;
+   while(defined($file=readdir(DIR))){
+      if($file=~/(.*?)\.sql$/){
+		 my $tbname = $1;
+		 if ($TABLES) {
+			next unless grep  /^$tbname$/,  @$TABLES;
+		 	print "adding $tbname to $dbname\n";
+		 }
+         system "mysql -u root $dbname<$tabledir/$file"; 
+     	 push @tablefiles, $file; 
+	  }
+   }
+   closedir DIR; 
+   @tablefiles;
+}
+
+###########################################################################
+#	sub
+#		getTablesHashref
+#
+#	get the list of tables (actually a hash reference) for the given database
+#
+sub getTablesHashref{
+   my ($db)=@_; 
+   sqlConnect $db; 
+   my $st=$Everything::dbh->prepare("show tables");
+   $st->execute;
+   my %tables;
+   while(my $ref=$st->fetchrow_arrayref){
+      $tables{$ref->[0]}=1; 
+   }
+   return \%tables;
+}
+
+#######################################################################
+#	sub
+#		getColumns
+#	
+#	get the column information for a given table as a HOH 
+#	with fieldname as key
+#
+sub getColumns {
+	my ($table, $dbname) = @_;
+
+	sqlConnect $dbname; 
+	my $st=$Everything::dbh->prepare("show columns from $table");    
+	$st->execute;
+	
+	my %colhash;
+	while(my $ref=$st->fetchrow_hashref){
+		my $temp=$ref->{"Field"}; 
+		foreach(keys %$ref){
+			$colhash{$temp}{$_}=$ref->{$_}; 
+		}
+	}
+	\%colhash;
+}
+
+########################################################################
+#	sub
+#		compareAllTables
+#
+#	compare the tables of the two database, making db1 the same as db2
+#	or spitting out errors as to what the difference is.
+#
+#	params
+#		checktab -- hashref of tables to be checked
+#		dummytab -- hashref of tables to be checked against (assumed correct)
+#		checkdb	-- name of db to be checked
+#		dummydb -- name of db to check against
+#		tabledir -- where all the tables are hiding
+#
+sub compareAllTables{
+   my $ok=1;  
+   my($checktab,$dummytab, $dummydb, $checkdb, $tabledir)=@_;
+   foreach my $table (keys %$dummytab){
+	   unless($checktab->{$table}){
+		   print "$checkdb is missing the $table table -- adding it\n"; 
+		   addTablesToDB($checkdb, $tabledir, [$table]);
+		   next;
+	   }
+	 
+	   my %dummyhash = %{ getColumns ($table, $dummydb) };
+	   my %checkhash = %{ getColumns ($table, $checkdb) };
+	   
+	   foreach (keys %dummyhash){
+		   if($checkhash{$_}){
+			   foreach my $value(keys %{$dummyhash{$_}}){
+					my $dummyval = $dummyhash{$_}{$value};
+					if (exists ($checkhash{$_}) and 
+						defined ($checkhash{$_}{$value}) and 
+						$checkhash{$_}{$value} ne $dummyval){
+					   $ok=0;
+					   print "Discrepancy found\n";
+					   print "\tTable: $table\n";
+					   print "\tColumn: $_\n";
+					   print "\tCategory $value\n";
+					   print "\t$dummydb value=$dummyhash{$_}{$value} $checkdb value=$checkhash{$_}{$value}\n"; 
+				   		#we would want to do an ALTER TABLE modify here
+				  } 
+			   } 
+		   } else {
+			   print "table $table in $checkdb is missing column $_\n";  
+			   $ok=0;
+			   #alter table add here
+		   } 
+	   } 
+	   foreach (keys %checkhash) {
+			next if ($dummyhash{$_});
+			print "$checkdb table $table has extra column \"$_\"\n";
+	   		#an extra table isn't necessarily bad
+	   }
+   }
+   return $ok;
+}
+
+##########################################################################
+#	sub
+#		checkTables
+#
+#	checks to see if the tables in the target database are equivalent
+#	to the tables in the sql files.  Does this by creating a dummy database
+#	dumping the tables into it, and comparing them with show table and show
+#	field statements.
+#
+sub checkTables {
+	my ($tabledir) = @_;
+	sqlConnect $database;
+	my $dummydb="dummy" . int(rand(1000));
+	createDB $dummydb;
+	addTablesToDB $dummydb, $tabledir;
+	my $ret = compareAllTables(getTablesHashref($database),getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
+	dropDB $dummydb;
+	
+	sqlConnect $database;
+	$ret;
 }
 
 ###########################################################################
@@ -380,16 +551,10 @@ sub updateNodeball {
 
 	#check the tables and make sure that they're compatable
 	my $tabledir = $dir."/tables";
-#	if (-e $tabledir) {
-#		my @tables = getTables ($tabledir);		
-#		
-#		foreach (@tables) {
-#			if (not checkTables(getFieldsHash($$_{name}), $$_{fields})) {
-#				die "Your tables are different than the package that is going "
-#				  ."to be installed.  Ugh\n";
-#			}
-#		}
-#	}
+	unless (checkTables ($tabledir) or $OPTIONS{force}) { 
+		die "your tables weren't exactly alike.  Change your tables in the "
+		."mysql client or use --force";
+	}
 
 	my $nodesdir = $dir."/nodes";
 	my @nodes = ();
@@ -508,7 +673,6 @@ sub main {
 		my ($dir, $cleanme) = ("", "");
 		if (-d $nbfile) {
 			$dir = absPath($nbfile);
-			
 		} else {
 			$dir = expandNodeball $nbfile;
 			$cleanme = 1;	
@@ -548,7 +712,7 @@ sub main {
 				."according to the version number, at least.\n"
 				."Do --force if you want to force it anyway.\n" 
 				if ($version eq $$VARS{version} and not $OPTIONS{force});
-			
+			print "updating nodelball $$OLDBALL{title}\n";	
 			updateNodeball ($OLDBALL, $dir);
 			cleanUpDir($dir) if $cleanme;
 			exit;
