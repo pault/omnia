@@ -1,0 +1,55 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="nodelet meta-container">
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="code">return "you have this off" if $$VARS{nodelets_off};
+return if (($$USER{title} eq "Guest User") and not($HTMLVARS{GUshownodelets}) );
+my $str;
+my $align = $$VARS{nodelet_align};
+
+$align ||= "right";
+my @nodelets = split ",",$$VARS{nodelets} if exists ($$VARS{nodelets});
+
+my $NODELETGROUP = getNode($$VARS{nodelet_group}) if exists $$VARS{nodelet_group};
+
+if($NODELETGROUP and
+  $$NODELETGROUP{type}{title} eq 'nodeletgroup')
+{
+  push @nodelets, @{ $$NODELETGROUP{group} } unless @nodelets;
+}
+
+if (not @nodelets)
+{ 
+  #push default nodelets on
+  my $DEFAULT = $DB->getNode($HTMLVARS{default_nodeletgroup});
+  @nodelets = @{ $$DEFAULT{group} }; 
+}
+
+return "no nodelets!" unless @nodelets;
+
+if ($$THEME{nodeletMCTableAttr}){
+  $str .= "&lt;TABLE ".$$THEME{nodeletMCTableAttr}.">";
+} else {
+  $str .= "&lt;TABLE width=150 cellpadding=1 cellspacing=1>";
+}
+
+foreach (@nodelets)
+{
+  my $NODELET = $DB->getNodeById($_);
+  my $nl = insertNodelet($NODELET);
+  $str .= "&lt;tr>&lt;td>" . $nl . "&lt;/td>&lt;/tr>" if($nl);
+}
+
+$str .="&lt;/TABLE>";
+$str;</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiii-</field>
+  <field type="literal_value" name="guestaccess">iiii-</field>
+  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">htmlcode</field>
+  <field type="literal_value" name="otheraccess">iiii-</field>
+  <field type="literal_value" name="title">nodelet meta-container</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">htmlcode</field>
+</NODE>

@@ -67,7 +67,7 @@
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">listcode</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">listgroup</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">node_menu</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">nodelet meta-container</member>
+    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">nodeletMetaContainer</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">onepix</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">openform</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">parsecode</member>
