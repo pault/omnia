@@ -41,7 +41,8 @@ sub new
 	my ($className, $db, $staticNodetypes) = @_;
 	my $this = {};
 	
-	bless $this;
+	my $class = ref($className) || $className;
+	bless($this, $class);
 	$staticNodetypes ||= 0;
 
 	# If we have not created a connection to the database for the
@@ -72,9 +73,6 @@ sub new
 		{
 			my $vars;
 
-			#we have to set this, or it crashes when it calls a getRef
-			#$Everything::DB = $this; 
-									
 			$vars = $CACHE->getVars();
 			$cacheSize = $$vars{maxSize} if(exists $$vars{maxSize});
 		}
@@ -284,6 +282,16 @@ sub getCache
 }
 
 
+# temporary function, until I patch in the split db stuff
+# we tried using DBI's quote_identifier, but it doesn't work with mysql.
+sub genTableName
+{
+	my ($this, $table);
+
+	return $table;
+}
+
+
 #############################################################################
 #	Sub
 #		sqlDelete
@@ -304,7 +312,7 @@ sub sqlDelete
 
 	$where or return;
 
-	my $sql = "DELETE FROM $table WHERE $where";
+	my $sql = "DELETE FROM ". $this->genTableName($table) . " WHERE $where";
 
 	return 1 if($this->{dbh}->do($sql));
 
@@ -350,6 +358,45 @@ sub sqlSelect
 
 #############################################################################
 #	Sub
+#               sqlSelectJoined
+#
+#       Purpose
+#               A general wrapper function for a standard SQL select command
+#		involving left joins.
+#               This returns the DBI cursor.
+#
+#       Parameters
+#               select - what columns to return from the select (ie "*")
+#               table - the table to do the select on
+#		joins - a hash consisting of the table name and the join criteria
+#               where - the search criteria
+#               other - any other sql options that you may want to pass
+#
+#       Returns
+#               The sql cursor of the select.  Call fetchrow() on it to get
+#               the selected rows.  undef if error.
+#
+sub sqlSelectJoined
+{
+	my ($this, $select, $table, $joins, $where, $other) = @_;
+
+	my $sql = "SELECT $select ";
+	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
+	foreach (keys %$joins) {
+		$sql .= "LEFT JOIN " . $this->genTableName($_) . " ON " . $$joins{$_} . " ";
+	}
+	$sql .= "WHERE $where " if $where;
+	$sql .= $other if $other;
+
+	my $cursor = $this->{dbh}->prepare($sql);
+        
+	return $cursor if($cursor->execute());
+	return undef;
+}
+
+
+#############################################################################
+#	Sub
 #		sqlSelectMany
 #
 #	Purpose
@@ -371,7 +418,7 @@ sub sqlSelectMany
 	my($this, $select, $table, $where, $other) = @_;
 
 	my $sql="SELECT $select ";
-	$sql .= "FROM $table " if $table;
+	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
 	$sql .= "WHERE $where " if $where;
 	$sql .= "$other" if $other;
 
@@ -438,7 +485,7 @@ sub sqlSelectHashref
 sub sqlUpdate
 {
 	my($this, $table, $data, $where) = @_;
-	my $sql = "UPDATE $table SET";
+	my $sql = "UPDATE " . $this->genTableName($table) . " SET";
 
 	return unless keys %$data;
 
@@ -504,7 +551,7 @@ sub sqlInsert
 	chop($names);
 	chop($values);
 
-	my $sql = "INSERT INTO $table ($names) VALUES($values)\n";
+	my $sql = "INSERT INTO " . $this->genTableName($table) . " ($names) VALUES($values)\n";
 
 	my $result = $this->{dbh}->do($sql);
 
@@ -781,11 +828,9 @@ sub getNodeByIdNew
 
 	if(not defined $NODE)
 	{
-		$cursor = $this->getDatabaseHandle()->prepare(
-			"select * from node where node_id=$node_id;");
+		$cursor = $this->sqlSelectMany("*", "node", "node_id=$node_id");
 
 		return undef unless($cursor);
-		return undef unless($cursor->execute);
 
 		$NODE = $cursor->fetchrow_hashref();
 		$cursor->finish();
@@ -1168,9 +1213,9 @@ sub getAllTypes
 	my $node_id;
 	my $TYPE;
 	
-	$sql = "select node_id from node where type_nodetype=1";
-	$cursor = $this->{dbh}->prepare($sql);
-	if($cursor && $cursor->execute())
+	$cursor = $this->sqlSelectMany("node_id", "node", "type_nodetype=1");
+
+	if($cursor)
 	{
 		while( ($node_id) = $cursor->fetchrow() )
 		{

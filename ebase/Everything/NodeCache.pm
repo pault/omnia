@@ -91,8 +91,6 @@ sub new
 	
 	$this->{nodeQueue} = new Everything::CacheQueue();
 
-	$this->createVersionTable();
-
 	# We will keep different hashes for ids and name/type combos
 	$this->{typeCache} = {};
 	$this->{groupCache} = {};
@@ -107,37 +105,6 @@ sub new
 	return $this;
 }
 
-
-#############################################################################
-#	Sub
-#		createVersionTable
-#
-#	Purpose
-#		Check to see if the version table exists, and if it does not,
-#		create it!
-#
-#	Returns
-#		Nothing of value.
-#
-sub createVersionTable
-{
-	my ($this) = @_;
-
-	if(not $this->{nodeBase}->tableExists("version"))
-	{
-		# The global version table does not exist, we need to create it.
-		my $createTable;
-		my $dbh = $this->{nodeBase}->getDatabaseHandle();
-		
-		$createTable = "create table version (";
-		$createTable .= "version_id int(11) default '0' not null, ";
-		$createTable .= "version int(11) default '1' not null, ";
-		$createTable .= "primary key (version_id))";
-	
-		$dbh->do($createTable);
-	}
-}	
-	
 
 #############################################################################
 #	Sub
@@ -374,15 +341,9 @@ sub flushCache
 sub flushCacheGlobal
 {
 	my ($this) = @_;
-	my $dbh = $this->{nodeBase}->getDatabaseHandle();
 
 	$this->flushCache();
-
-	$dbh->do('update version set version=version+1');
-	#$dbh->do("drop table if exists version");
-
-	# Since we dropped the table, re-create it so nothing breaks!
-	#$this->createVersionTable();
+	$this->{nodeBase}->sqlUpdate("version", "version=version+1");
 }
 
 
@@ -548,12 +509,7 @@ sub isSameVersion
 		$$this{verified}{$$NODE{node_id}} = 1;
 	    return 1;	
 	}
-	#if ($$NODE{title} eq 'nodemethod' and 
-	#	$$NODE{type}{node_id} == 1 and
-	#	exists $this->{version}{$$NODE{node_id}}) {
-	#	#the nodemethod type has been incremented.  Wipe the methodCache
-	#	$this->{methodCache} = {};
-	#}
+
 	return 0;
 }
 
@@ -629,7 +585,7 @@ sub resetCache
     }
 
 	#nodemethods MUST be typeversioned	
-	my $nodemethod_id = $this->{nodeBase}->sqlSelect('node_id', 'node', 'title="nodemethod"');
+	my $nodemethod_id = $this->{nodeBase}->sqlSelect('node_id', 'node', "title='nodemethod'");
 	if ($nodemethod_id and not $this->{typeVersion}{$nodemethod_id}) {
 		unless (exists($newVersion{$nodemethod_id})) {
 		$this->{nodeBase}->sqlInsert('typeversion', { typeversion_id => $nodemethod_id, 

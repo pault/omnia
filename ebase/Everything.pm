@@ -312,7 +312,8 @@ sub cleanLinks
 #
 #	Parameters
 #		$db - the string name of the database to connect to.
-#		$staticNodetypes - (optional) 1 if the system should derive the
+#		$options - an optional hash containing one or more of the following:
+#		 staticNodetypes - (optional) 1 if the system should derive the
 #			nodetypes once and cache them.  This will speed performance,
 #			but changes to nodetypes will not take effect until the httpd
 #			is restarted.  A really good performance enhancement IF the
@@ -320,7 +321,7 @@ sub cleanLinks
 #
 sub initEverything
 {
-	my ($db, $staticNodetypes) = @_;
+	my ($db, $options) = @_;
 
 	# Make sure that we clear the warnings/errors for this go around.
 	clearFrontside();
@@ -328,7 +329,7 @@ sub initEverything
 
 	unless($DB = $NODEBASES{$db})
 	{
-		$DB = new Everything::NodeBase($db, $staticNodetypes);
+		$DB = new Everything::NodeBase($db, $$options{staticNodetypes});
 
 		# We keep a NodeBase for each database that we connect to. 
 		# That way one machine can handle multiple installations in

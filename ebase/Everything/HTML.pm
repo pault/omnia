@@ -1963,10 +1963,7 @@ sub confirmUser
 
 	if ($genCrypt eq $crpasswd)
 	{
-		my $rows = $DB->getDatabaseHandle()->do("
-			UPDATE user SET lasttime=now() WHERE
-			user_id=$$USER{node_id}
-			");
+		my $rows = $DB->sqlUpdate("user", { -lasttime => "now()" }, "user_id=".$$USER{node_id});
 
 		# We force a reload of the node to make sure that the 'lasttime'
 		# field (updated by the database), is current.  If there was a
@@ -2274,7 +2271,7 @@ sub cleanNodeName
 #
 sub initForPageLoad
 {
-	my ($db) = @_;
+	my ($db, $options) = @_;
 
 	undef %GLOBAL;
 	undef %INCJS;
@@ -2288,7 +2285,8 @@ sub initForPageLoad
 	$query = "";
 
 	# Initialize our connection to the database
-	Everything::initEverything($db, 1);
+	$$options{staticNodeTypes} ||= 1;
+	Everything::initEverything($db, $options);
 
 
 	# The cache has a performance enhancement where it will only check
@@ -2762,15 +2760,16 @@ sub updateNodeData
 #
 #	Parameters
 #		$db - the string name of the database to get our information from.
+#		$options - optional options, see Everything::initEverything
 #
 #	Returns
 #		nothing useful
 #
 sub mod_perlInit
 {
-	my ($db, $staticNodetypes) = @_;
+	my ($db, $options) = @_;
 
-	initForPageLoad($db);
+	initForPageLoad($db, $options);
 
 	setHTMLVARS();
 

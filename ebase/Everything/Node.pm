@@ -925,8 +925,8 @@ sub updateLinks
 
 	my $rows = $$this{DB}->sqlUpdate('links',
 			{ -hits => 'hits+1' ,  -food => 'food+1'}, 
-			"from_node=$from_id && to_node=$to_id && linktype=" .
-			$$this{DB}->getDatabaseHandle()->quote($type));
+			"from_node=$from_id AND to_node=$to_id AND linktype=" .
+			$$this{DB}->quote($type));
 
 	# '0E0' returned from the DBI indicates successful statement execution
 	# with 0 rows affected.  They just didn't like '0 but true'.

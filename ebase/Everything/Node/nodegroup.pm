@@ -213,13 +213,8 @@ sub updateGroup
 
 			# diff is negative, so we need to remove abs($diff) number
 			# of entries.
-			$sql = "delete from " . $table . " where " . $table .
-				"_id=$$this{node_id} && node_id=$node LIMIT $abs";
-
-			my $rowsAffected = $$this{DB}->{dbh}->do($sql);
-
-			print STDERR "Warning! Wrong number of group members deleted!\n"
-				if($abs != $rowsAffected);
+			$$this{DB}->sqlDelete($table, $table . "_id=" . $$this{node_id} .
+				 " AND node_id=$node LIMIT $abs");
 
 			$updated = 1;
 		}
@@ -319,11 +314,7 @@ sub nuke
 	$$this{DB}->getRef($USER);
 	return 0 unless($this->hasAccess($USER, 'd'));
 
-	$sql = "delete from " . $table . " where " . $table .
-		"_id=$$this{node_id}";
-
-	# Delete them group entries
-	$$this{DB}->{dbh}->do($sql);
+	$$this{DB}->sqlDelete($table, $table . "_id=$$this{node_id}");
 
 	# Now go delete the node!
 	$this->SUPER();
