@@ -1,0 +1,13 @@
+This Bundle exists to install the perl modules that are required for the
+Everything Engine.  
+
+perl Makefile.PL
+make
+make install
+perl -MCPAN -e shell
+cpan> install Bundle::Everything
+
+if you don't want to use CPAN.pm for your perl modules (for instance, you
+want to get them from rpms or debs -- *shiver*) instead consult the 
+PERLMOD_SETUP file in the top level everything directory
+
