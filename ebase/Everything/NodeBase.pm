@@ -384,8 +384,11 @@ sub sqlInsert
 
 	my $sql = "INSERT INTO $table ($names) VALUES($values)\n";
 
-	$this->{dbh}->do($sql) or 
-		(Everything::printErr("sqlInsert failed:\n $sql") and return 0);
+	my $result = $this->{dbh}->do($sql);
+
+	Everything::printLog("sqlInsert failed:\n $sql") unless($result);
+
+	return $result;
 }
 
 
@@ -684,7 +687,8 @@ sub loadGroupNodeIDs
 #		$orderby - the field in which to order the results.
 #		$limit - the maximum number of rows to return
 #		$offset - (only if limit is provided) offset from the start of
-#			the matched rows.  This way you can retrieve only the 
+#			the matched rows.  By using this an limit, you can retrieve
+#			a specific range of rows.
 #		$refTotalRows - if you want to know the total number of rows that
 #			match the query, pass in a ref to a scalar (ie: \$totalrows)
 #			and it will be set to the total rows that match the query.
@@ -729,6 +733,14 @@ sub getNodeWhere
 #			without a nodetype we don't know what other tables to join
 #			on.
 #		$orderby - the field in which to order the results.
+#		$limit - a limit to the max number of rows returned
+#		$offset - (only if limit is provided) offset from the start of
+#			the matched rows.  By using this an limit, you can retrieve
+#			a specific range of rows.
+#		$refTotalRows - if you want to know the total number of rows that
+#			match the query, pass in a ref to a scalar (ie: \$totalrows)
+#			and it will be set to the total rows that match the query.
+#			This is really only useful when specifying a limit.
 #		$nodeTableOnly - (performance enhancement) Set to 1 (true) if the
 #			search fields are only in the node table.  This prevents the
 #			database from having to do table joins when they are not needed.
@@ -815,6 +827,9 @@ sub getNodeCursor
 
 	$nodeTableOnly ||= 0;
 
+	# Make sure we have a nodetype object
+	$TYPE = $this->getType($TYPE);
+
 	$wherestr = $this->genWhereString($WHERE, $TYPE, $orderby, $limit, $offset);
 
 	# We need to generate an sql join command that has the potential
@@ -875,270 +890,6 @@ sub countNodeMatches
 	}
 
 	return $matches;
-}
-
-
-
-#############################################################################
-#	Sub
-#		updateNode
-#
-#	Purpose
-#		Update the given node in the database.
-#
-#	Parameters
-#		$NODE - the node to update
-#		$USER - the user attempting to update this node (used for
-#			authorization)
-#
-#	Returns
-#		The node id of the node updated if successful, 0 (false) otherwise.
-#
-sub updateNode
-{
-	my ($this, $NODE, $USER) = @_;
-	my %VALUES;
-	my $tableArray;
-	my $table;
-	my @fields;
-	my $field;
-
-	$this->getRef($NODE);
-	return 0 unless ($this->canUpdateNode($USER, $NODE)); 
-
-	$tableArray = $$NODE{type}{tableArray};
-
-	# Cache this node since it has been updated.  This way the cached
-	# version will be the same as the node in the db.
-	$this->{cache}->cacheNode($NODE) if(defined $this->{cache});
-
-	# The node table is assumed, so its not in the "joined" table array.
-	# However, for this update, we need to add it.
-	push @$tableArray, "node";
-
-	# We extract the values from the node for each table that it joins
-	# on and update each table individually.
-	foreach $table (@$tableArray)
-	{
-		undef %VALUES; # clear the values hash.
-
-		@fields = $this->getFields($table);
-		foreach $field (@fields)
-		{
-			if (exists $$NODE{$field})
-			{ 
-				$VALUES{$field} = $$NODE{$field};
-			}
-		}
-
-		# we don't want to chance mucking with the primary key
-		# So, remove this from the hash
-		delete $VALUES{$table . "_id"}; 
-
-		$this->sqlUpdate($table, \%VALUES, $table . "_id=$$NODE{node_id}");
-	}
-
-	# We are done with tableArray.  Remove the "node" table that we put on
-	pop @$tableArray;
-
-	# This node has just been updated.  Do any maintenance if needed.
-	$this->nodeMaintenance($NODE, 'update after');
-
-	return $this->getId($NODE);
-}
-
-
-##############################################################################
-#	Sub
-#		replaceNode
-#
-#	Purpose
-#		Given insertNode information, test whether or not the node is there
-#		If it is, update it, otherwise insert the node as new.
-#
-#	Parameters
-#		$title - the title of the node
-#		$TYPE - the nodetype of the node we are looking for
-#		$USER - the user trying to do this (used for authorization)
-#		$DATA - a hashref that contains the information of the node to be
-#			updated/inserted
-#
-#	Returns
-#		The node_id of the node that was inserted or updated successfully.
-#		0 (false) if the user did not have permissions to do this action.
-#
-sub replaceNode
-{
-	die "nothing should be calling this (NodeBase::replaceNode)";
-	my ($this, $title, $TYPE, $USER, $DATA) = @_;
-
-	if (my $N = $this->getNode($title, $TYPE))
-	{
-		if ($this->canUpdateNode($USER,$N))
-		{
-			@$N{keys %$DATA} = values %$DATA if $DATA;
-			return $this->updateNode($N, $USER);
-		}
-	} 
-	elsif($this->canCreateNode($USER, $TYPE))
-	{ 
-		return $this->insertNode($title, $TYPE, $USER, $DATA);
-	}
-
-	return 0;
-}
-
-
-#############################################################################
-#	Sub
-#		insertNode
-#
-#	Purpose
-#		Insert a new node into the tables.
-#
-#	Parameters
-#		title - the string title of the node
-#		TYPE - the hash of the type that we want to insert
-#		USER - the user trying to do this (used for authorization)
-#		DATA - the fields/values of the node to set.
-#
-#	Returns
-#		The id of the node inserted, or false if error (sql problem, node
-#		already exists).
-#
-sub insertNode
-{
-	die "Nothing should be calling this (NodeBase::insertNode)!";
-	my ($this, $title, $TYPE, $USER, $DATA) = @_;
-	my $tableArray;
-	my $table;
-	my $NODE;
-
-	$TYPE = $this->getType($TYPE) unless (ref $TYPE);
-
-	unless ($this->canCreateNode($USER, $TYPE))
-	{
-		Everything::printErr(
-			"$$USER{title} not allowed to create this type of node!");
-		return 0;
-	}
-
-	if ($$TYPE{restrictdupes})
-	{ 
-		# Check to see if we already have a node of this title.
-		my $DUPELIST = $this->sqlSelect("*", "node", "title=" .
-			$this->quote($title) . " && type_nodetype=" . $$TYPE{node_id});
-
-		if ($DUPELIST)
-		{
-			# A node of this name already exists and restrict dupes is
-			# on for this nodetype.  Don't do anything
-			return 0;
-		}
-	}
-
-	# We are about to create a new node.  Do any maintenance for this type.
-	$this->nodeMaintenance($NODE, 'create before');
-
-	$this->sqlInsert("node", 
-			{title => $title, 
-			type_nodetype => $$TYPE{node_id}, 
-			author_user => $this->getId($USER), 
-			hits => 0,
-			-createtime => 'now()'}); 
-
-	# Get the id of the node that we just inserted.
-	my $node_id = $this->sqlSelect("LAST_INSERT_ID()");
-
-	# Now go and insert the appropriate rows in the other tables that
-	# make up this nodetype;
-	$tableArray = $$TYPE{tableArray};
-	foreach $table (@$tableArray)
-	{
-		$this->sqlInsert($table, { $table . "_id" => $node_id });
-	}
-
-	$NODE = $this->getNodeById($node_id, 'force');
-	
-	# This node has just been created.  Do any maintenance if needed.
-	# We do this here before calling updateNode below to make sure that
-	# the 'created' routines are executed before any 'update' routines.
-	$this->nodeMaintenance($NODE, 'create after');
-
-	if ($DATA)
-	{
-		@$NODE{keys %$DATA} = values %$DATA;
-		$this->updateNode($NODE, $USER); 
-	}
-
-	return $node_id;
-}
-
-
-#############################################################################
-#	Sub
-#		nukeNode
-#
-#	Purpose
-#		Given a node, delete it and all of its associated table data.
-#		If it is a group node, this will also clean out all of its
-#		entries in its group table.
-#
-#	Parameters
-#		$NODE - the node in which we wish to delete
-#		$USER - the user trying to do this (used for authorization)
-#
-#	Returns
-#		True if successful, false otherwise.
-#	
-sub nukeNode
-{
-	my ($this, $NODE, $USER) = @_;
-	my $tableArray;
-	my $table;
-	my $result = 0;
-	my $groupTable;
-	
-	$this->getRef($NODE, $USER);
-	
-	return 0 unless ($this->canDeleteNode($USER, $NODE));
-
-	# This node is about to be deleted.  Do any maintenance if needed.
-	$this->nodeMaintenance($NODE, 'delete before');
-	
-	# Delete this node from the cache that we keep.
-	$this->{cache}->removeNode($NODE);
-
-	$tableArray = $$NODE{type}{tableArray};
-
-	push @$tableArray, "node";  # the node table is not in there.
-
-	foreach $table (@$tableArray)
-	{
-		$result += $this->{dbh}->do("DELETE FROM $table WHERE " . $table . 
-			"_id=$$NODE{node_id}");
-	}
-
-	pop @$tableArray; # remove the implied "node" that we put on
-	
-	# Remove all links that go from or to this node that we are deleting
-	$this->{dbh}->do("DELETE FROM links 
-		WHERE to_node=$$NODE{node_id} 
-		OR from_node=$$NODE{node_id}");
-
-	# If this node is a group node, we will remove all of its members
-	# from the group table.
-	if($groupTable = $this->isGroup($NODE))
-	{
-		# Remove all group entries for this group node
-		$this->{dbh}->do("DELETE FROM $groupTable WHERE " . $groupTable . 
-			"_id=$$NODE{node_id}");
-	}
-	
-	$this->nodeMaintenance($NODE, 'delete after');
-
-	# This will be zero if nothing was deleted from the tables.
-	return $result;
 }
 
 

@@ -156,36 +156,34 @@ sub end_handler
 	elsif ($$tag{isReference})
 	{
 		# If this tag is a field value that is reference to another node,
-		# we need to mark the value as needing fixing.
+		# we need to check to see if we have the node in the system.
+		# Otherwise we need to mark it for fixing.
 
 		# Set the title of the fix
 		my $fix = pop @FIXES;
 		$$fix{title} = $$NODE{$$tag{title}};
-		push @FIXES, $fix;
+		my $type = $$fix{type};
+		my $found = 0;
 
-		if ($$tag{title} eq "type_nodetype")
+		my $REF = getNode($$NODE{$$tag{title}}, $type); 
+		if ($REF)
 		{
-			# This is referencing a nodetype, check to see if we already have
-			# it loaded.
-			my $TYPE = getType($$NODE{type_nodetype}); 
-			if ($TYPE)
-			{
-				# When installing nodes, the type_nodetype may be a string
-				# name, but we really want the Id.
-				$$NODE{type_nodetype} = getId $TYPE; 	
-			}
-			else
-			{
-				# Note that this is a fatal error.  Nodetypes are always
-				# installed first, so if a nodetype is not found, this
-				# will cause the installation to stop later on.
-				$$NODE{type_nodetype} = -1;
-			}
+			# When installing nodes, the type_nodetype may be a string
+			# name, but we really want the Id.
+			$$NODE{$$tag{title}} = getId $REF; 	
+			$found = 1;
 		}
 		else
 		{
+			# Note: if this happens for a reference to a nodetype
+			# (specifically the type_nodetype field) this will be a fatal
+			# error as all nodetypes are expected to be installed first.
 			$$NODE{$$tag{title}} = -1;
 		}
+		
+		# If we did not find the node that this field references, we need
+		# to push the fix back on the fix list.
+		push @FIXES, $fix unless($found);
 	}
 	elsif ($$tag{title} eq "vars")
 	{

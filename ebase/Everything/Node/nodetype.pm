@@ -22,7 +22,7 @@ use Everything::Security;
 #		The constructor for a nodetype is rather involved.  We derive
 #		the nodetype when it is constructed.  If a nodetype up the
 #		chain changes, the cache needs to be flushed so that the nodetype
-#		gets re-constructed with the new data.
+#		gets re-constructed with the new data.  If you change
 #
 sub construct
 {
@@ -32,14 +32,36 @@ sub construct
 		
 	# We are not physically derived from node (would cause inf loop),
 	# but we want its functionality...
-	Everything::Node::node::construct($this);
+	$this->SUPER();
 
 	# Special case where this is the 'nodetype' nodetype
 	$$this{type} = $this if($$this{node_id} == 1);
 
 	# Now we need to derive ourselves and assign the derived values
-	my $PARENT = $$this{DB}->getNode($$this{extends_nodetype});
+	my $PARENT;
+	
+	if($$this{node_id} == 1)
+	{
+		# This is the nodetype nodetype.  We don't want to "load" the
+		# node nodetype (would cause infinite loop).  So, we need to 
+		# kinda fake it.
+		my $nodeid = $$this{DB}->sqlSelect("node_id", "node",
+			"title='node' && type_nodetype=1");
+		my $cursor = $$this{DB}{dbh}->prepare_cached("select * from nodetype " .
+			"left join node on nodetype_id=node_id where nodetype_id=$nodeid");
 
+		if($cursor->execute())
+		{
+			$PARENT = $cursor->fetchrow_hashref();
+			$cursor->finish();
+		}
+	}
+	else
+	{
+		$PARENT = $$this{DB}->getNode($$this{extends_nodetype});
+	}
+
+	
 	# We need to derive the following fields:
 	my $derive =
 	{
@@ -79,7 +101,7 @@ sub construct
 			{
 				$$this{$field} = $$PARENT{$field};
 			}
-			elsif($field =~ /default.*access/)
+			elsif(($field =~ /default.*access/) && ($$PARENT{$field} ne ""))
 			{
 				$$this{$field} = Everything::Security::inheritPermissions(
 						$$this{$field}, $$PARENT{$field});
@@ -116,10 +138,37 @@ sub construct
 sub destruct
 {
 	my ($this) = @_;
-	Everything::Node::node::destruct($this);
 
 	# Release any object refs that we got
 	delete $$this{tableArray};
+
+	# Delete the base stuff
+	$this->SUPER();
+}
+
+
+#############################################################################
+#	Sub
+#		update
+#
+#	Purpose
+#		This allows the default "node" to actually update our node, but
+#		we need to flush the cache in the case of an update to a nodetype
+#		due to the fact that some other nodetypes may derive from this
+#		nodetype.  Those derived nodetypes would need to be reloaded and
+#		reinitialized, otherwise we may get weird data.
+#
+sub update
+{
+	my ($this) = @_;
+
+	my $result = $this->SUPER();
+
+	# If the nodetype was successfully updated, we need to flush the
+	# cache to make sure all the nodetypes get reloaded.
+	$$this{DB}{cache}->flushCacheGlobal() if($result);
+
+	return $result;
 }
 
 
@@ -154,14 +203,6 @@ sub getTableArray
 
 
 #############################################################################
-sub getNodeKeys
-{
-	my ($this, $forExport) = @_;
-	return Everything::Node::node::getNodeKeys($this, $forExport);
-}
-
-
-#############################################################################
 #	Sub
 #		getDefaultTypePermissions
 #
@@ -172,8 +213,6 @@ sub getNodeKeys
 #		the default TYPE permissions.
 #
 #	Parameters
-#		$TYPE - the name, id, or hash of the nodetype to get the default
-#			permissions for.
 #		$class - the class of user.  Either "author", "group", "guest",
 #			or "other".  This can be obtained by calling
 #			getUserNodeRelation().
@@ -188,20 +227,6 @@ sub getDefaultTypePermissions
 
 	my $field = "derived_default" . $class . "access";
 	return $$this{$field};
-}
-
-
-#############################################################################
-sub isGroup
-{
-	return 0;
-}
-
-
-#############################################################################
-sub hasVars
-{
-	return 0;
 }
 
 
@@ -230,45 +255,41 @@ sub getParentType
 
 
 #############################################################################
-sub getFieldDatatype
-{
-	my ($this, $field) = @_;
-
-	return Everything::Node::node::getFieldDatatype($this, $field);
-}
-
-#############################################################################
 #	Sub
-#		insert
-#
-sub insert
-{
-	return Everything::Node::node::insert(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		update
+#		hasTypeAccess
 #
 #	Purpose
-#		Update the given node in the database.
+#		The hasAccess() function in Node.pm checks permissions on a specific
+#		node.  If you call that on a nodetype, you are checking the
+#		permissions for that node, NOT the permissions for all nodes of
+#		that type.
 #
-sub update
-{
-	return Everything::Node::node::update(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		nuke
+#		This checks permissions for the default permissions for all nodes
+#		of this type.  This is useful for checking permissions for create
+#		operation since the node you are trying to create does not yet
+#		exist so you can't test the access on it.
 #
-sub nuke
+#	Parameters
+#		$USER - the user to check access for
+#		$modes - same as hasAccess()
+#
+#	Returns
+#		1 (true) if the user has access to all modes given.  0 (false)
+#		otherwise.  The user must have access for all modes given for this to
+#		return true.  For example, if the user has read, write and delete
+#		permissions, and the modes passed were "wrx", the return would be
+#		0 since the user does not have the "execute" permission.
+#
+sub hasTypeAccess
 {
-	return Everything::Node::node::nuke(@_);
-}
+	my ($this, $USER, $modes) = @_;
 
+	# Create a dummy node of this type to do a check on.
+	my $dummy = $$this{DB}->getNode("dummy_access_node", $this,
+		"create force");
+
+	return $dummy->hasAccess($USER, $modes);
+}
 
 
 #############################################################################

@@ -98,10 +98,10 @@ sub addSettings
 #
 sub addType
 {
-	my ($this, $type, $sort) = @_;
-	my $TYPE = $DB->getType($type);
+	my ($this, $type, $sort, $USER, $perm) = @_;
+	my $TYPE = getType($type);
 	my $typeid = $$TYPE{node_id} if(defined $TYPE);
-	my $NODES = $DB->selectNodeWhere({type_nodetype => $typeid});
+	my $NODES = getNodeWhere({type_nodetype => $typeid});
 	my $NODE;
 	my $gValues = $this->{VALUES};
 	my @values;
@@ -110,7 +110,7 @@ sub addType
 	
 	foreach $NODE (@$NODES)
 	{
-		getRef $NODE;
+		next unless((not $USER) or ($NODE->hasAccess($USER, $perm)));
 		$this->{LABELS}->{$$NODE{node_id}} = $$NODE{title};
 		push @values, $$NODE{node_id};
 	}
@@ -142,7 +142,7 @@ sub addType
 #
 sub addGroup
 {
-	my ($this, $group, $sort) = @_;
+	my ($this, $group, $sort, $USER, $perm) = @_;
 	my $GROUP = $DB->getNode($group);
 	my $groupnode;
 	my $NODE;
@@ -158,7 +158,9 @@ sub addGroup
 	$GROUPNODES = selectNodegroupFlat($GROUP);
 	foreach $groupnode (@$GROUPNODES)
 	{
-		$NODE = $DB->getNodeById($groupnode);
+		$NODE = getNode($groupnode);
+		next unless((not $USER) or ($NODE->hasAccess($USER, $perm)));
+		
 		$this->{LABELS}->{$$NODE{node_id}} = $$NODE{title};
 		push @values, $$NODE{node_id};
 	}

@@ -48,6 +48,8 @@ sub insert
 	my ($this, $USER) = @_;
 	my $node_id = $$this{node_id};
 	my $user_id = $USER->getId() if(ref $USER);
+	my %tableData;
+	my @fields;
 
 	$user_id ||= $USER;
 	
@@ -74,30 +76,33 @@ sub insert
 		}
 	}
 
-	$$this{DB}->sqlInsert("node",
-			{title => $$this{title},
-			type_nodetype => $$this{type_nodetype},
-			author_user => $user_id,
-			hits => 0,
-			-createtime => 'now()'});
+	# First, we need to insert the node table row.  This will give us
+	# the node id that we need to use.  We need to set up the data
+	# that is going to be inserted into the node table.
+	@fields = $$this{DB}->getFields("node");
+	foreach (@fields)
+	{
+		$tableData{$_} = $$this{$_} if(exists $$this{$_});
+	}
+	delete $tableData{node_id};
+	$tableData{-createtime} = 'now()';
+	$tableData{author_user} = $user_id;
+	$tableData{hits} = 0;
+	
+	$$this{DB}->sqlInsert('node', \%tableData);
 
-	# Get the id of the node that we just inserted.
+	# Get the id of the node that we just inserted!
 	$node_id = $$this{DB}->sqlSelect("LAST_INSERT_ID()");
 
-	my $typename = $$this{type}{title};
-	if($typename eq "document" or $typename eq "superdoc")
-	{
-		my $a = 0;
-	}
-	
 	# Now go and insert the appropriate rows in the other tables that
 	# make up this nodetype;
 	my $tableArray = $$this{type}->getTableArray();
 	foreach my $table (@$tableArray)
 	{
-		my %tableData;
-		my @fields = $$this{DB}->getFields($table);
+		undef @fields;
+		@fields = $$this{DB}->getFields($table);
 
+		undef %tableData;
 		$tableData{$table . "_id"} = $node_id;
 		foreach (@fields)
 		{
@@ -111,7 +116,7 @@ sub insert
 	# get all the fields.  We then clear the $this hash and copy in
 	# the info from the newly inserted node.  This way, the user of
 	# the API just calls $NODE->insert() and their node gets filled
-	# out for them.
+	# out for them.  Woo hoo!
 	my $newNode = $$this{DB}->getNode($node_id, 'force');
 	undef %$this;
 	@$this{keys %$newNode} = values %$newNode;
@@ -233,6 +238,10 @@ sub nuke
 	# node.
 	$$this{node_id} = 0;
 
+	# Lastly, remove the nuked node from the cache so we don't get
+	# stale data.
+	$$this{DB}->{cache}->removeNode($this);
+
 	return $result;
 }
 
@@ -289,8 +298,6 @@ sub getNodeKeys
 
 	return $keys;
 }
-
-
 
 
 #############################################################################
@@ -356,6 +363,62 @@ sub getFieldDatatype
 sub hasVars
 {
 	return 0;
+}
+
+
+#############################################################################
+#	Sub
+#		clone
+#
+#	Purpose
+#		Clone this node!  This will make an exact duplicate of this node
+#		and insert it into the database.  The only difference is that the
+#		cloned node will have a different ID.
+#
+#		If sub types have special data (ie nodegroups) that would also
+#		need to be cloned, they should override this function to do
+#		that work.
+#
+#	Parameters
+#		$USER - the user trying to clone this node (for permissions)
+#		$newtitle - the new title of the cloned node
+#		$workspace - the id or workspace hash into which this node
+#			should be cloned.  This is primarily for internal purposes
+#			and should not be used normally.  (NOT IMPLEMENTED YET!)
+#
+#	Returns
+#		The newly cloned node, if successful.  undef otherwise.
+#
+sub clone
+{
+	my ($this, $USER, $title, $workspace) = @_;
+	my $CLONE;
+	my $create;
+	
+	$create = "create" if($$this{type}{restrictdupes});
+	$create ||= "create force";
+			 
+	$CLONE = getNode($title, $$this{type}, $create);
+
+	# if the id is not zero, the getNode found a node that already exists
+	# and the type does not allow duplicate names.
+	return undef if($$CLONE{node_id} > 0);
+
+	# Copy all our data into this new node!
+	foreach my $field (keys %$this)
+	{
+		# We don't want to overwrite this stuff
+		next if($field =~ /title/);
+		next if($field =~ /_id$/);
+		next if($field eq "createtime");  # we want the clone to have its own
+
+		$$CLONE{$field} = $$this{$field};
+	}
+
+	my $result = $CLONE->insert($USER);
+
+	return $CLONE if($result);
+	return undef;
 }
 
 

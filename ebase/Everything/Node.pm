@@ -32,7 +32,7 @@ my %methodCache;
 #
 #	Purpose
 #		For performance reasons, we cache methods that we find.  However,
-#		you will probably only want to cache on a per load basis.  So,
+#		you will probably only want to cache on a per page load basis.  So,
 #		call this function to clear the cache.
 #
 sub initMethodCache
@@ -77,7 +77,8 @@ sub new
 	# be in the database.  Therefore, we are required to find the correct
 	# implementation on our own.  Perl assumes all packages are located
 	# in the file system somewhere (@INC).  In Everything, this may not
-	# be true.
+	# be true.  If we did the bless(obj, class) stuff, perl would try to
+	# do stuff for us, and it would probably break.
 	bless $NODE;
 
 	$NODE->assignType();
@@ -109,7 +110,7 @@ sub DESTROY
 	# Problem here is that the nodetype that is pointed to by $$this{type}
 	# could get destructed first on shutdown which would make this
 	# malfunction.  Disabling for now since this may not really be needed.
-	#$this->destruct();
+	$this->destruct();
 
 	# Remove any references that we may have.  Probably not necessary,
 	# but will prevent the possibility any circular references.
@@ -144,7 +145,10 @@ sub getId
 #
 #	Purpose
 #		This allows us to call functions like $NODE->someFunc(), while
-#		implementing them in either a .pm or a nodemethod node.
+#		implementing them in either a .pm or a nodemethod node.  This is
+#		the magic behind how Everything implements its method inheritance.
+#		MAKE SURE YOU UNDERSTAND HOW THIS WORKS before changing anything in
+#		here.  You could break the whole system if this is wrong.
 #
 #	Parameters
 #		See the function you are trying to call for parameter info
@@ -167,18 +171,28 @@ sub AUTOLOAD
 	# We just want the function name, not all the package info.
 	$func =~ s/.*:://;
 
-	$TYPE ||= $$this{type};
+	if($func ne $$this{SUPERfunc})
+	{
+		# If the function being called is different from what we have
+		# as a SUPERfunc, that means the implementation has called
+		# another function on this same object.  We don't want to have
+		# this call the function on the SUPERtype
+		$TYPE = $$this{type};
+	}
+	else
+	{
+		$TYPE ||= $$this{type};
+	}
 	
 	$$this{SUPERtype} = $$TYPE{node_id};
 	$$this{SUPERfunc} = $func;
 
-	# Make a copy of the parameters incase they modify the default array.
+	# Make a copy of the parameters in case they modify the default array.
 	push @backup, @_;
 	shift @backup;  # And we don't need 'this'
 	$$this{SUPERparams} = \@backup;
 		
-	$METHOD = $this->getNodeMethod($func,
-		$$this{DB}->getType($$this{SUPERtype}));
+	$METHOD = $this->getNodeMethod($func, $TYPE);
 
 	if(defined $METHOD)
 	{
@@ -231,6 +245,74 @@ sub AUTOLOAD
 	$$this{SUPERparams} = $origParams;
 
 	return $result;
+}
+
+
+#############################################################################
+#	Sub
+#		SUPER
+#
+#	Purpose
+#		This implements the idea of calling a parent (inherited)
+#		implementation from a overrided function.  This allows you to call
+#		$this->SUPER();
+#		from a function implementation and it will call the parent's
+#		implementation of that function.  This is similar to the concept
+#		in java.
+#
+#	Parameters
+#		Any parameters that the parent implementation may take.  If nothing,
+#		this will automatically pass the parameters that were passed to call
+#		the overrided implemention of the function.
+#
+#	Returns
+#		The result of calling the parent implementation
+#
+sub SUPER
+{
+	my $this = shift @_;
+	my $TYPE = $$this{DB}->getType($$this{SUPERtype});
+	my $PARENT = $$this{DB}->getType($$TYPE{extends_nodetype});
+	
+	if($PARENT)
+	{
+		my $origType = $$this{SUPERtype};
+		my $origParams = $$this{SUPERparams};
+		my $origFunc = $$this{SUPERfunc};
+		my $result;
+		
+		$$this{SUPERtype} = $PARENT->getId();
+
+		# If no parameters where passed, we will use the parameters passed
+		# to the orginial call to this function.
+		unless(@_)
+		{
+			my $params = $$this{SUPERparams};
+			push @_, @$params;
+		}
+		
+		# We use the object reference here to call the function.
+		my $exec = "\$this->$$this{SUPERfunc}(\@_);";
+		my $warn;
+		
+		local $SIG{__WARN__} = sub {
+			$warn .= $_[0];
+		};
+
+		$result = eval($exec);
+
+		local $SIG{__WARN__} = sub { };
+
+		Everything::logErrors($warn, $@, $exec);
+
+		$$this{SUPERtype} = $origType;
+		$$this{SUPERparams} = $origParams;
+		$$this{SUPERfunc} = $origFunc;
+
+		return $result;
+	}
+
+	die "No SUPER for function $$this{SUPERfunc} for type $$TYPE{title}\n";
 }
 
 
@@ -313,71 +395,6 @@ sub getNodeMethod
 	$methodCache{$cacheName} = $RETURN;
 
 	return $RETURN;
-}
-
-
-#############################################################################
-#	Sub
-#		SUPER
-#
-#	Purpose
-#		This implements the idea of calling a parent (inherited)
-#		implementation from a overrided function.  This allows you to call
-#		$this->SUPER();
-#		from a function implementation and it will call the parent's
-#		implementation of that function.  Similar to Java.
-#
-#	Parameters
-#		Any parameters that the parent implementation may take.  If nothing,
-#		this will automatically pass the parameters that were passed to call
-#		the overrided implemention of the function.
-#
-#	Returns
-#		The result of calling the parent implementation
-#
-sub SUPER
-{
-	my $this = shift @_;
-	my $TYPE = $$this{DB}->getType($$this{SUPERtype});
-	my $PARENT = $$this{DB}->getType($$TYPE{extends_nodetype});
-	
-	if($PARENT)
-	{
-		my $origType = $$this{SUPERtype};
-		my $origParams = $$this{SUPERparams};
-		my $result;
-		
-		$$this{SUPERtype} = $$this{DB}->getId($PARENT);
-
-		# If no parameters where passed, we will use the parameters passed
-		# to the orginial call to this function.
-		unless(@_)
-		{
-			my $params = $$this{SUPERparams};
-			push @_, @$params;
-		}
-		
-		# We use the object reference here to call the function.
-		my $exec = "\$this->$$this{SUPERfunc}(\@_);";
-		my $warn;
-		
-		local $SIG{__WARN__} = sub {
-			$warn .= $_[0];
-		};
-
-		$result = eval($exec);
-
-		local $SIG{__WARN__} = sub { };
-
-		Everything::logErrors($warn, $@, $exec);
-
-		$$this{SUPERtype} = $origType;
-		$$this{SUPERparams} = $origParams;
-
-		return $result;
-	}
-
-	die "No SUPER for function $$this{SUPERfunc} for type $$TYPE{title}\n";
 }
 
 
@@ -573,7 +590,7 @@ sub hasAccess
 	my ($this, $USER, $modes) = @_;
 
 	# -1 is a way of specifying "super user".
-	return 1; # if($USER eq "-1");
+	return 1 if($USER eq "-1");
 	
 	# Gods always have access to everything
 	return 1 if($USER->isGod());

@@ -1153,13 +1153,23 @@ sub quote
 
 
 #############################################################################
+#	Sub
+#		insertNodelet
+#
+#	Purpose
+#		This generates the nodelet by grabbing the nodelet, executing its
+#		code, and then wrapping it in all the specified nodelet containers
+#		to generate the nodelet.
+#
+#	Parameters
 sub insertNodelet
 {
+	# Don't "my" NODELET!  It is a global!
 	($NODELET) = @_;
 	getRef $NODELET;
 
-	# If the user can't read this nodelet, we don't let them see it!
-	return undef unless($NODELET->hasAccess($USER, "r"));
+	# If the user can't "execute" this nodelet, we don't let them see it!
+	return undef unless($NODELET->hasAccess($USER, "x"));
 	
 	my $html = genContainer($$NODELET{parent_container}) 
 		if $$NODELET{parent_container};
@@ -1198,8 +1208,6 @@ sub updateNodelet
 	my $interval;
 	my $lastupdate;
 	my $currTime = time; 
-
-	getRef $NODELET;
 
 	$interval = $$NODELET{updateinterval};
 	$lastupdate = $$NODELET{lastupdate};
@@ -1252,7 +1260,6 @@ sub genContainer
 			my $start = $1;
 			my $middle = $2;
 			my $end = $3;
-			
 		}
 
 		if($debugcontainer)
@@ -1362,11 +1369,12 @@ sub displayPage
 	if($USER->isGod())
 	{
 		my $errors = formatGodsBacksideErrors();
-		Everything::printLog("bsErrors: $errors");
 		$page =~ s/<BacksideErrors>/$errors/;
 	}
-	
-	$USER->setVars($VARS);
+	else
+	{
+		printBacksideToLogFile();
+	}
 	
 	# Print the appropriate MIME type header so that browser knows what
 	# kind of data is coming down the pipe.
@@ -1412,6 +1420,34 @@ sub formatGodsBacksideErrors
 	$str .= "</table>\n";
 
 	return $str;
+}
+
+
+#############################################################################
+sub printBacksideToLogFile
+{
+	Everything::flushErrorsToBackside();
+
+	my $errors = Everything::getBacksideErrors();
+	my $str;
+
+	return "" unless(@$errors > 0);
+
+	$str = "\n>>> Backside Errors!\n";
+	foreach my $error (@$errors)
+	{
+		$str .= "-=-=-=-=-=-=-=-=-=-=-=-\n";
+		$str .= "Warning:   $$error{warning}\n";
+		$str .= "Error:     $$error{error}\n";
+		$str .= "From node: $$error{context}{title} ";
+		$str .= "$$error{context}{node_id}\n";
+		$str .= "Code:\n";
+		$str .= "$$error{code}\n";
+	}
+
+	$str .= "-=-=-=-=-=-=-=-=-=-=-=-\n";
+
+	Everything::printLog($str);
 }
 
 
@@ -1624,6 +1660,7 @@ sub getTheme
 
 		# Make a copy of the base theme vars.  We don't want to modify
 		# the actual node.
+		undef %$THEME;
 		@$THEME{keys %$TEMPTHEME} = values %$TEMPTHEME;
 		@$THEME{keys %$REPLACEMENTVARS} = values %$REPLACEMENTVARS;
 	} 
@@ -1842,7 +1879,13 @@ sub opNew
 	my $TYPE = getType($type);
 	my $nodename = cleanNodeName($query->param('node'));
 	
-	my $NEWNODE = getNode($nodename, $TYPE, "create");
+	# Depending on whether the TYPE allows for duplicate names or not,
+	# we need to create them with different create ops.
+	my $create;
+	$create = "create" if($$TYPE{restrictdupes});
+	$create ||= "create force";
+
+	my $NEWNODE = getNode($nodename, $TYPE, $create);
 	$NEWNODE->insert($USER);
 
 	$query->param("node_id", $$NEWNODE{node_id});
@@ -2081,6 +2124,9 @@ sub mod_perlInit
 
 	# Do the work.
 	handleUserRequest();
+
+	# Lastly, set the vars on the user node so that things get saved.
+	$USER->setVars($VARS, $USER);
 }
 
 

@@ -84,10 +84,14 @@ sub new
 	my ($packageName, $nodeBase, $maxSize) = @_;
 	my $this = {};
 	
+	bless $this;  # oh, my lord
+
 	$this->{maxSize} = $maxSize;
 	$this->{nodeBase} = $nodeBase;
 	
 	$this->{nodeQueue} = new Everything::CacheQueue();
+
+	$this->createVersionTable();
 
 	# We will keep different hashes for ids and name/type combos
 	$this->{typeCache} = {};
@@ -95,6 +99,22 @@ sub new
 	$this->{version} = {};
 	$this->{verified} = {};
 	
+	return $this;
+}
+
+
+#############################################################################
+#	Sub
+#		createVersionTable
+#
+#	Purpose
+#		Check to see if the version table exists, and if it does not,
+#		create it!
+#
+sub createVersionTable
+{
+	my ($this) = @_;
+
 	if(not $this->{nodeBase}->tableExists("version"))
 	{
 		# The global version table does not exist, we need to create it.
@@ -108,16 +128,16 @@ sub new
 	
 		$dbh->do($createTable);
 	}
+}	
 	
-	bless $this;  # oh, my lord
-	return $this;
-}
 
-
-sub clearSessionCache {
+#############################################################################
+sub clearSessionCache
+{
 	my ($this) = @_;
 	$this->{sessionCache} = {};
 }
+
 
 #############################################################################
 #	Sub
@@ -266,7 +286,6 @@ sub cacheNode
 	$this->{idCache}{$$NODE{node_id}} = $data;
 	$this->{version}{$$NODE{node_id}} = $this->getGlobalVersion($NODE);
 
-	
 	$this->purgeCache();
 
 	return 1;
@@ -331,8 +350,9 @@ sub flushCache
 #		In doing so, the version of the nodes that the various httpd's have
 #		cached will no longer match the global verison, which will cause
 #		nodes to get thrown out when they go to get used.  This will probably
-#		only be needed for debugging since 'kill -HUP' on the web server
-#		will clear the caches anyway.
+#		only be needed for debugging (since 'kill -HUP' on the web server
+#		will clear the caches anyway), or when a cache flush is needed for
+#		nodetypes.
 #
 sub flushCacheGlobal
 {
@@ -342,6 +362,9 @@ sub flushCacheGlobal
 	$this->flushCache();
 
 	$dbh->do("drop table if exists version");
+
+	# Since we dropped the table, re-create it so nothing breaks!
+	$this->createVersionTable();
 }
 
 

@@ -10,7 +10,6 @@ use strict;
 use Everything;
 
 
-
 sub BEGIN {
 	use Exporter ();
 	use vars       qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
@@ -21,11 +20,11 @@ sub BEGIN {
 }
 
 
-sub node2mail {
+sub node2mail
+{
 	my ($addr, $node) = @_;
 	my @addresses = (ref $addr eq "ARRAY") ? @$addr:($addr);
-	my ($user) = $DB->getNodeWhere({node_id => $$node{author_user}},
-		$DB->getType("user"));
+	my $user = getNode($$node{author_user});
 	my $subject = $$node{title};
 	my $body = $$node{doctext};
 	use Mail::Sender;
@@ -33,7 +32,7 @@ sub node2mail {
 	my $SETTING = getNode('mail settings', 'setting');
 	my ($mailserver, $from);
 	if ($SETTING) {
-		my $MAILSTUFF = getVars $SETTING;
+		my $MAILSTUFF = $SETTING->getVars();
 		$mailserver = $$MAILSTUFF{mailServer};
 		$from = $$MAILSTUFF{systemMailFrom};
 	} else {
@@ -76,17 +75,26 @@ sub mail2node
 			{ print "hya!\n"; $subject = $1; }
 			print "blah: $line" if ($line);
 		}
+
 		while(<FILE>)
 		{
 			my $body .= $_;
 		}
-		my ($user) = $DB->getNodeWhere({email=>$to},
-			$DB->getType("user"));
-		my $node;
-		%$node = { author_user => getId($user),
-			from_address => $from,
-			doctext => $body};
-        $DB->insertNode($subject, $DB->getType("mail"), -1, $node);
+
+		my $user = getNode({email=>$to}, getType("user"));
+		my $node = getNode($subject, "mail", "create force");
+		
+		$node->insert(-1);
+		$$node{author_user} = getId($user);
+		$$node{from_address} = $from;
+		$$node{doctext} = $body;
+		
+		$node->update(-1);
 	}
 }
+
+#############################################################################
+#	End of Package
+#############################################################################
+
 1;
