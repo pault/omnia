@@ -43,10 +43,6 @@
 [{includeJS: findFormObject, moveSelectItem, selectItem}]
 [%
 use Everything::HTML::FormObject::SubsetSelector;
-$$VARS{nodelets} ||= join ",", grep { 
-   getNode($_)->hasAccess($USER, 'x')
-   } @{ getNode($HTMLVARS{default_nodeletgroup})->{group} };
-$USER->setVars($VARS);
 my $nodelets = newFormObject('SubsetSelector');
 $nodelets->addType('nodelet', $USER, 'x', 'labels');
 $nodelets->genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
