@@ -11,7 +11,7 @@ BEGIN {
 use vars qw( $AUTOLOAD $errors );
 
 use Test::MockObject;
-use Test::More tests => 176;
+use Test::More tests => 177;
 
 use_ok( 'Everything::Node::nodegroup' ) or diag "Compile error\n", exit;
 
@@ -51,7 +51,7 @@ $mock->{node_id} = 111;
 $mock->{DB} = $mock;
 $mock->set_always( isGroup => 'grouptable' )
      ->set_true( 'createGroupTable' )
-	 ->set_always( sqlSelectMany => $mock )
+	 ->set_series( sqlSelectMany => undef, $mock )
 	 ->set_series( fetchrow => ( 1, 7, 9 ) )
 	 ->set_true( 'finish' )
 	 ->clear();
@@ -60,8 +60,12 @@ my $result = selectGroupArray($mock);
 my ($method, $args) = $mock->next_call();
 is( $method, 'isGroup',
 	'selectGroupArray() should call isGroup() to get group table' );
-is( ref $result, 'ARRAY',
-	'... and should return a array reference of contained nodes' );
+is( $result, undef, '... returning if selection fails' );
+
+$result = selectGroupArray($mock);
+
+isa_ok( $result, 'ARRAY',
+	'... and should return contained nodes in something that' );
 is( scalar @$result, 3, '... ALL of the nodes' );
 ($method, $args) = $mock->next_call();
 is( $method, 'createGroupTable', '... ensuring that the table exists' );
