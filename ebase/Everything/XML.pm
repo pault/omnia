@@ -490,6 +490,8 @@ sub unMakeXmlSafe {
 	$str =~ s/\&lt\;/\</g;
 	$str =~ s/\&gt\;/\>/g;
 	$str =~ s/\&amp\;/\&/g;
+	$str =~ s/\&quot\;/\"/g;
+	        
 	return $str;
 }
 
