@@ -39,7 +39,10 @@ Nodes revised in this workspace:
 my $str;
 my $V = $NODE->getVars;
 
-my $isInWS =  $DB->{workspace}{node_id} == $$NODE{node_id};
+my $isInWS;
+if (exists($DB->{workspace})) {
+	$isInWS =  $DB->{workspace}{node_id} == $$NODE{node_id};
+}
 
 $str.= openform() ."
 &lt;INPUT TYPE=hidden NAME=op VALUE=commitworkspace>" if $isInWS;
