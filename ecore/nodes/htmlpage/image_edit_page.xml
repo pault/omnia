@@ -12,27 +12,27 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
-  <field name="page" type="literal_value">&lt;b>[%linkNode($NODE, "Upload the image", {displaytype=>'upload'});%]
-&lt;table border=0>
-&lt;tr>
-  &lt;td>&lt;b>&lt;font size=2>source:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TextField, src}]&lt;/td>
-&lt;/tr>
-&lt;tr>
-  &lt;td>&lt;b>&lt;font size=2>alt:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TextField, alt}]&lt;/td>
-&lt;/tr>
-&lt;tr>
-  &lt;td>&lt;b>&lt;font size=2>thumbnail source:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TextField, thumbsrc}]&lt;/td>
-&lt;/tr>
-&lt;tr>
-  &lt;td>&lt;b>&lt;font size=2>description:&lt;/font>&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TextArea, description}]&lt;/td>
-&lt;/tr>
-&lt;/table>
-&lt;p>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;b&gt;[%linkNode($NODE, &quot;Upload the image&quot;, {displaytype=&gt;'upload'});%]
+&lt;table border=0&gt;
+&lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;&lt;font size=2&gt;source:&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TextField, src}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;&lt;font size=2&gt;alt:&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TextField, alt}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;&lt;font size=2&gt;thumbnail source:&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TextField, thumbsrc}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;&lt;font size=2&gt;description:&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TextArea, description}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;p&gt;
 [{submit}]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>
@@ -41,3 +41,4 @@
   <field name="title" type="literal_value">image edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
+

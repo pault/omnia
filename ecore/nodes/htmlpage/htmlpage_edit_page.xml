@@ -12,56 +12,56 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
-  <field name="page" type="literal_value">&lt;table border=0>
- &lt;tr>
-  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td align=left>[{nodeFormObject: TextField, title}]&lt;/td>
-  &lt;td rowspan=9>&lt;font size=2>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;table border=0&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Title:&lt;/b&gt;&lt;/td&gt;&lt;td align=left&gt;[{nodeFormObject: TextField, title}]&lt;/td&gt;
+  &lt;td rowspan=9&gt;&lt;font size=2&gt;
   [{listNodetypeFields: $$NODE{pagetype_nodetype}}]
-  &lt;/font>&lt;/td>
- &lt;tr>
-  &lt;td>&lt;b>Owner:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: AuthorMenu, author_user}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>Pagetype:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: NodetypeMenu, pagetype_nodetype, pagetype}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>displaytype:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TextField, displaytype, thedisplaytype}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>MIME type:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TextField, MIMEtype}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>Parent container:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>Theme:&lt;/b>&lt;/td>
-  &lt;td>[{nodeFormObject: TypeMenu, ownedby_theme, theme, theme, AUTO, $USER, r, 0}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>Permission needed:&lt;/b>&lt;/td>
-  &lt;td>[%
+  &lt;/font&gt;&lt;/td&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Owner:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: AuthorMenu, author_user}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Pagetype:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: NodetypeMenu, pagetype_nodetype, pagetype}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;displaytype:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TextField, displaytype, thedisplaytype}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;MIME type:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TextField, MIMEtype}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Parent container:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Theme:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TypeMenu, ownedby_theme, theme, theme, AUTO, $USER, r, 0}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Permission needed:&lt;/b&gt;&lt;/td&gt;
+  &lt;td&gt;[%
 my $menu = newFormObject('FormMenu');
-my $html = $menu->genObject($query, $NODE, "permissionneeded",
-   "permissionneeded");
-$menu->addHash({ 'r' => "read", "w" => "write",
-  "x" => "execute", "d" => "delete", "c" => "create"}, 0, 'labels');
-$html .= $menu->genPopupMenu($query, "permissionneeded", $$NODE{permissionneeded});
+my $html = $menu-&gt;genObject($query, $NODE, &quot;permissionneeded&quot;,
+   &quot;permissionneeded&quot;);
+$menu-&gt;addHash({ 'r' =&gt; &quot;read&quot;, &quot;w&quot; =&gt; &quot;write&quot;,
+  &quot;x&quot; =&gt; &quot;execute&quot;, &quot;d&quot; =&gt; &quot;delete&quot;, &quot;c&quot; =&gt; &quot;create&quot;}, 0, 'labels');
+$html .= $menu-&gt;genPopupMenu($query, &quot;permissionneeded&quot;, $$NODE{permissionneeded});
 $html;
-%]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td colspan=2>
-&lt;FONT SIZE=2>&lt;b>Edit the page:&lt;/b>&lt;/FONT>&lt;br>
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td colspan=2&gt;
+&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the page:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{nodeFormObject: TextArea, page, page, AUTO, 80, 20, off}]
-  &lt;/td>
- &lt;/tr>
-&lt;/table>
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
@@ -69,3 +69,4 @@ $html;
   <field name="title" type="literal_value">htmlpage edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
+

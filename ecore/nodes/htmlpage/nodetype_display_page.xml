@@ -12,131 +12,131 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
-  <field name="page" type="literal_value">&lt;p>&lt;b>Default permissions for nodes of this type:&lt;/b>&lt;br>
-&lt;table cellspacing=1 cellpadding=3>
- &lt;tr>
-  &lt;td bgcolor=#cccccc>&lt;b>Class&lt;/b>&lt;/td>
-  &lt;td bgcolor=#cccccc>&lt;b>Permissions&lt;/b>&lt;/td>
-  &lt;td bgcolor=#cccccc>&lt;b>Inherited values&lt;/b>&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td bgcolor=#cccccc>Author:&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultauthoraccess}"]&lt;/code>&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>[%
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;br&gt;
+&lt;table cellspacing=1 cellpadding=3&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Class&lt;/b&gt;&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Permissions&lt;/b&gt;&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Inherited values&lt;/b&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Author:&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultauthoraccess}&quot;]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultauthoraccess} if($TYPE);
-"";
-%]&lt;/code>&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td bgcolor=#cccccc>Group: [%
+&quot;&quot;;
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Group: [%
 my $str;
-if($$NODE{defaultgroup_usergroup} > 0)
+if($$NODE{defaultgroup_usergroup} &gt; 0)
 { 
   $str = linkNode($$NODE{defaultgroup_usergroup});
 }
 else
 {
-  $str = "No group";
+  $str = &quot;No group&quot;;
 }
 
 $str;
-%]&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultgroupaccess}"]&lt;/code>&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>[%
+%]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultgroupaccess}&quot;]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultgroupaccess} if($TYPE);
-"";
-%]&lt;/code>&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td bgcolor=#cccccc>Other:&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultotheraccess}"]&lt;/code>&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>[%
+&quot;&quot;;
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Other:&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultotheraccess}&quot;]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultotheraccess} if($TYPE);
-"";
-%]&lt;/code>&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td bgcolor=#cccccc>Guest:&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>["$$NODE{defaultguestaccess}"]&lt;/code>&lt;/td>
-  &lt;td bgcolor=#999999>&lt;code>[%
+&quot;&quot;;
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Guest:&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultguestaccess}&quot;]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{defaultguestaccess} if($TYPE);
-"";
-%]&lt;/code>&lt;/td>
- &lt;/tr>
-&lt;/table>
+&quot;&quot;;
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
 
 [%
-if($NODE->isGroup())
+if($NODE-&gt;isGroup())
 { 
-  return "&lt;p>&lt;b>Restricted Nodetypes&lt;/b>: ";
+  return &quot;&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: &quot;;
 }
 %]
 
-&lt;p>&lt;b>Restrict Duplicates&lt;/b> (identical titles): 
-	[% if($$NODE{restrictdupes} == -1) { "parent"; }
-	   else{ $$NODE{restrictdupes}?"Yes":"No";} %]
+&lt;p&gt;&lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
+	[% if($$NODE{restrictdupes} == -1) { &quot;parent&quot;; }
+	   else{ $$NODE{restrictdupes}?&quot;Yes&quot;:&quot;No&quot;;} %]
 
-&lt;p> &lt;b>Sql Tables&lt;/b>: 
+&lt;p&gt; &lt;b&gt;Sql Tables&lt;/b&gt;: 
 
 
 [%
-my $tables = $DB->getNodetypeTables($NODE);
+my $tables = $DB-&gt;getNodetypeTables($NODE);
 my $str;
 foreach (@$tables) {
    my $TABLE = getNode($_, 'dbtable');
-   $str.="&lt;li>".linkNode($TABLE);
+   $str.=&quot;&lt;li&gt;&quot;.linkNode($TABLE);
 }
-return  "&lt;i>none&lt;/i>" unless @$tables;
+return  &quot;&lt;i&gt;none&lt;/i&gt;&quot; unless @$tables;
 $str;
 %] 
-&lt;p> &lt;b>Extends Nodetype:&lt;/b> 
+&lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; 
 [% linkNode ($$NODE{extends_nodetype}) 
 	if ($$NODE{extends_nodetype});%]
 
 
-&lt;p> &lt;b>Maximum Revisions for undo:&lt;/b> 
+&lt;p&gt; &lt;b&gt;Maximum Revisions for undo:&lt;/b&gt; 
 [%
   if ($$NODE{maxrevisions}) {
     if ($$NODE{maxrevisions} == -1) {
-      return "$$NODE{derived_maxrevisions} (inherited)";
+      return &quot;$$NODE{derived_maxrevisions} (inherited)&quot;;
     } else {
       return $$NODE{maxrevisions};
     }
 
   } else {
-   return "&lt;i>undo disabled&lt;/i>";
+   return &quot;&lt;i&gt;undo disabled&lt;/i&gt;&quot;;
   }
 
 %]
-&lt;p>  &lt;b>Can be changed in a workspace:&lt;/b>
+&lt;p&gt;  &lt;b&gt;Can be changed in a workspace:&lt;/b&gt;
 [%
   if ($$NODE{canworkspace}) {
     if ($$NODE{canworkspace} == -1) {
-       return ($$NODE{derived_canworkspace}?"enabled":"disabled")." (inherited)";
+       return ($$NODE{derived_canworkspace}?&quot;enabled&quot;:&quot;disabled&quot;).&quot; (inherited)&quot;;
     } else {
-       return "enabled";
+       return &quot;enabled&quot;;
     }
   } else {
-    return "&lt;i>disabled&lt;/i>";
+    return &quot;&lt;i&gt;disabled&lt;/i&gt;&quot;;
   }
 %]
-&lt;p> &lt;b>Relevant pages:&lt;/b>&lt;br>
+&lt;p&gt; &lt;b&gt;Relevant pages:&lt;/b&gt;&lt;br&gt;
 
 [%
 my $str;
 my $pages = getNodeWhere(
-  { pagetype_nodetype => $$NODE{node_id} }, getType('htmlpage'));
+  { pagetype_nodetype =&gt; $$NODE{node_id} }, getType('htmlpage'));
 
-return "None" unless($pages);
+return &quot;None&quot; unless($pages);
 
 foreach (@$pages)
 {
-  $str .= "&lt;li>" .linkNode ($_);
+  $str .= &quot;&lt;li&gt;&quot; .linkNode ($_);
 }
 $str;
 %]
@@ -150,22 +150,22 @@ local *getModuleFunctions = sub {
 
     no strict;
     local *stash;
-    *stash = *{ "${modname}::" };
+    *stash = *{ &quot;${modname}::&quot; };
     unless (keys %stash) {
         #we haven't loaded the module.  Make it so.
-        eval "use $modname";
-        *stash = *{ "${modname}::" };
+        eval &quot;use $modname&quot;;
+        *stash = *{ &quot;${modname}::&quot; };
     }
     my @modfuncs;
 
     require Devel::Peek;
-    Devel::Peek->import("CvGV");
+    Devel::Peek-&gt;import(&quot;CvGV&quot;);
     foreach(keys %stash) {
         my $glob = CvGV(\&amp;{$stash{$_}});
 
         push (@modfuncs, $_)
             if (defined &amp;{ $stash{$_} }
-                    and $glob eq "\*$modname\:\:$_");
+                    and $glob eq &quot;\*$modname\:\:$_&quot;);
     }
     use strict;
     return @modfuncs;
@@ -177,32 +177,32 @@ local *listNodetypeSubs = sub {
   my ($NT) = @_;
   my $ret;
 
-  my $dbmethods = getNodeWhere({supports_nodetype => $NT->getId}, "nodemethod");
+  my $dbmethods = getNodeWhere({supports_nodetype =&gt; $NT-&gt;getId}, &quot;nodemethod&quot;);
   foreach (@$dbmethods) {
-    $ret.="&lt;li>".linkNode($_) unless exists $nodemethods{$$_{title}};
+    $ret.=&quot;&lt;li&gt;&quot;.linkNode($_) unless exists $nodemethods{$$_{title}};
     $nodemethods{$$_{title}} = 1;
   }
 
 
-  my $module = "Everything\:\:Node\:\:$$NT{title}";
+  my $module = &quot;Everything\:\:Node\:\:$$NT{title}&quot;;
   my @functions;
-  @functions = sort {$a cmp $b} getModuleFunctions($module) if exists $DB->{nodetypeModules}->{$module};
+  @functions = sort {$a cmp $b} getModuleFunctions($module) if exists $DB-&gt;{nodetypeModules}-&gt;{$module};
   foreach (@functions) {
-    $ret.="&lt;li>".linkNode($GCL, $_, { choicefunc => "$module\:\:$_" }) unless exists $nodemethods{$_};  
+    $ret.=&quot;&lt;li&gt;&quot;.linkNode($GCL, $_, { choicefunc =&gt; &quot;$module\:\:$_&quot; }) unless exists $nodemethods{$_};  
     $nodemethods{$_} = 1;
   }
   
   return $ret;
 };
-my $str = "&lt;p>
-&lt;b>Relevant Nodemethods&lt;/b>:
-&lt;p>";
+my $str = &quot;&lt;p&gt;
+&lt;b&gt;Relevant Nodemethods&lt;/b&gt;:
+&lt;p&gt;&quot;;
 my $NT = $NODE;
 
 while ($NT) {
-  $str.="&lt;p>Nodemethods provided by ".linkNode($NT).":";
+  $str.=&quot;&lt;p&gt;Nodemethods provided by &quot;.linkNode($NT).&quot;:&quot;;
   my $methods = listNodetypeSubs($NT);
-  $methods ||= " &lt;i>none&lt;/i>";
+  $methods ||= &quot; &lt;i&gt;none&lt;/i&gt;&quot;;
   $str.=$methods;
   last if $$NT{title} eq 'node';
   $NT = getNode($$NT{extends_nodetype});
@@ -215,3 +215,4 @@ $str;
   <field name="title" type="literal_value">nodetype display page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
+
