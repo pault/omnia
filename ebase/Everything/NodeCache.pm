@@ -497,14 +497,16 @@ sub getGlobalVersion
 sub isSameVersion
 {
 	my ($this, $NODE) = @_;
+	return unless defined $NODE;
 
-	return 1 if(exists $$this{typeVerified}{$$NODE{type}{node_id}});
-	return 1 if(exists $$this{verified}{$$NODE{node_id}});
-	
+	return 1 if exists $this->{typeVerified}{ $NODE->{type}{node_id} };
+	return 1 if exists $this->{verified}{ $NODE->{node_id} };
+	return 0 unless exists $this->{version}{ $NODE->{node_id} };
+
 	my $ver = $this->getGlobalVersion($NODE);
-	
-	if($ver == $this->{version}{$$NODE{node_id}}) {
-		$$this{verified}{$$NODE{node_id}} = 1;
+
+	if ( defined $ver && $ver == $this->{version}{ $NODE->{node_id} } ) {
+		$this->{verified}{ $NODE->{node_id} } = 1;
 	    return 1;	
 	}
 
