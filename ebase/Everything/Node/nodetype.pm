@@ -27,26 +27,25 @@ use Everything::Security;
 sub construct
 {
 	my ($this) = @_;
-	my $field;
-	my $dfield;
-		
+
 	# We are not physically derived from node (would cause inf loop),
 	# but we want its functionality...
 	$this->SUPER();
 
-	# Special case where this is the 'nodetype' nodetype
-	$$this{type} = $this if($$this{node_id} == 1);
-
 	# Now we need to derive ourselves and assign the derived values
 	my $PARENT;
 	
+	# Special case where this is the 'nodetype' nodetype
 	if($$this{node_id} == 1)
 	{
+		$$this{type} = $this;
+
 		# This is the nodetype nodetype.  We don't want to "load" the
 		# node nodetype (would cause infinite loop).  So, we need to 
 		# kinda fake it.
 		my $nodeid = $$this{DB}->sqlSelect("node_id", "node",
-			"title='node' AND type_nodetype=1");
+			"title='node' && type_nodetype=1");
+
 		my $cursor = $$this{DB}->sqlSelectJoined("*", "nodetype",
 			{ node => "nodetype_id=node_id" }, "nodetype_id=$nodeid");
 
@@ -61,37 +60,25 @@ sub construct
 		$PARENT = $$this{DB}->getNode($$this{extends_nodetype});
 	}
 
-	
 	# We need to derive the following fields:
-	my $derive =
-	{
-		"sqltable" => 1,
-		"grouptable" => 1,
-		"defaultauthoraccess" => 1,
-		"defaultgroupaccess" => 1,
-		"defaultotheraccess" => 1,
-		"defaultguestaccess" => 1,
-		"defaultgroup_usergroup" => 1,
-		"defaultauthor_permission" => 1,
-		"defaultgroup_permission" => 1,
-		"defaultother_permission" => 1,
-		"defaultguest_permission" => 1, 
-		"maxrevisions" => 1, 
-		"canworkspace" => 1
-	};
+	my $derive = { map { $_ => 1 } qw(
+		sqltable grouptable defaultauthoraccess defaultgroupaccess defaultotheraccess
+		defaultguestaccess defaultgroup_usergroup defaultauthor_permission 
+		defaultgroup_permission defaultother_permission defaultguest_permission 
+		maxrevisions canworkspace
+	)};
 
 	# Copy the fields that are to be derived into new hash entries.  This
 	# way we can keep the actual "node" data clean.  That way if/when we
 	# update this node, we don't corrupt the database.
-	foreach $field (keys %$derive)
+	foreach my $field (keys %$derive)
 	{
-		$dfield = "derived_" . $field;
-		$$this{$dfield} = $$this{$field};
+		$$this{ "derived_$field" } = $$this{$field};
 	}
 	
 	if($PARENT)
 	{
-		foreach $field (keys %$derive)
+		foreach my $field (keys %$derive)
 		{
 			# We are only modifying the derived fields.  We want to
 			# leave the real fields alone
@@ -99,7 +86,9 @@ sub construct
 			
 			# If a field in a nodetype is '-1', this field is derived from
 			# its parent.
-			if($$this{$field} eq "-1")
+			warn "->$field<-\n" unless defined ($this->{$field});
+
+			if ($$this{$field} eq '-1')
 			{
 				$$this{$field} = $$PARENT{$field};
 			}
@@ -129,8 +118,7 @@ sub construct
 	# Store an array of all the table names that nodes of this type
 	# need to join on.  If there are no tables that this joins on, this
 	# will just be an empty array.
-	my @tmp = split ',', $$this{derived_sqltable};
-	$$this{tableArray} = \@tmp;
+	$$this{tableArray} = [ split ',', $$this{derived_sqltable} ];
 
 	return 1;
 }
@@ -245,8 +233,8 @@ sub getTableArray
 	my ($this, $nodeTable) = @_;
 	my @tables;
 
-	push @tables, @{$$this{tableArray}} if(defined $$this{tableArray});
-	push @tables, "node" if($nodeTable);
+	push @tables, @{$$this{tableArray}} if defined $$this{tableArray};
+	push @tables, "node" if $nodeTable;
 
 	return \@tables;
 }
@@ -276,7 +264,7 @@ sub getDefaultTypePermissions
 	my ($this, $class) = @_;
 
 	my $field = "derived_default" . $class . "access";
-	return $$this{$field};
+	return $$this{$field} if exists $$this{$field};
 }
 
 
@@ -300,7 +288,7 @@ sub getParentType
 		return $$this{DB}->getType($$this{extends_nodetype});
 	}
 
-	return undef;
+	return;
 }
 
 
@@ -358,9 +346,8 @@ sub isGroupType
 {
 	my ($this) = @_;
 
-	my $table = $$this{derived_grouptable};
+	my $table = $$this{derived_grouptable} or return;
 
-	return undef unless($table && $table ne "");
 	return $table;
 }
 
@@ -385,14 +372,15 @@ sub isGroupType
 sub derivesFrom
 {
 	my ($this, $type) = @_;
-    my $check = $this;
 	
 	$type = $$this{DB}->getType($type);
 	return 0 unless($type && $$type{type_nodetype} == 1);
 	
+    my $check = $this;
+
 	while($check)
 	{
-		return 1 if($$type{node_id} == $$check{node_id});
+		return 1 if $$type{node_id} == $$check{node_id};
 		$check = $check->getParentType();
 	}
 
@@ -404,17 +392,11 @@ sub getNodeKeepKeys {
 
 	my %nodekeys = %{ $this->SUPER() };
 
-	my $ntkeys = {
-		"defaultauthoraccess" => 1,
-		"defaultgroupaccess" => 1,
-		"defaultotheraccess" => 1,
-		"defaultguestaccess" => 1,
-		"defaultgroup_usergroup" => 1,
-		"defaultauthor_permission" => 1,
-		"defaultgroup_permission" => 1,
-		"defaultother_permission" => 1,
-		"defaultguest_permission" => 1
-	};
+	my $ntkeys = { map { $_ => 1 } qw (
+		defaultauthoraccess defaultgroupaccess defaultotheraccess defaultguestaccess
+		defaultgroup_usergroup defaultauthor_permission defaultgroup_permission
+		defaultother_permission defaultguest_permission
+	)};
 	#permissions will prevail in the current version
 
 	@nodekeys{keys %$ntkeys} = values %$ntkeys;
@@ -427,4 +409,3 @@ sub getNodeKeepKeys {
 #############################################################################
 
 1;
-
