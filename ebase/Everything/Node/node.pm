@@ -443,54 +443,26 @@ sub hasVars
 #		clone
 #
 #	Purpose
-#		Clone this node!  This will make an exact duplicate of this node
-#		and insert it into the database.  The only difference is that the
-#		cloned node will have a different ID.
-#
-#		If sub types have special data (ie nodegroups) that would also
-#		need to be cloned, they should override this function to do
-#		that work.
-#
-#	Parameters
-#		$USER - the user trying to clone this node (for permissions)
-#		$newtitle - the new title of the cloned node
-#		$workspace - the id or workspace hash into which this node
-#			should be cloned.  This is primarily for internal purposes
-#			and should not be used normally.  (NOT IMPLEMENTED YET!)
-#
-#	Returns
-#		The newly cloned node, if successful.  undef otherwise.
-#
+#		This simply copies over the relevant keys from $NODE to the
+#		current node.  It is the base behavior for all clone types.
+#		
 sub clone
 {
-	my ($this, $USER, $title, $workspace) = @_;
-	my $CLONE;
-	my $create;
-	
-	$create = "create" if($$this{type}{restrictdupes});
-	$create ||= "create force";
-			 
-	$CLONE = getNode($title, $$this{type}, $create);
+        my ($this, $NODE, $USER) = @_;
 
-	# if the id is not zero, the getNode found a node that already exists
-	# and the type does not allow duplicate names.
-	return undef if($$CLONE{node_id} > 0);
+	foreach my $field (keys %$NODE)
+        {
+                # We don't want to overwrite this stuff
+                next if($field eq "title");
+                next if($field =~ /_id$/);
+                next if($field eq "createtime");  # we want the clone to have its own
+		next if($field eq "type_nodetype");
+		next if($field eq "type");
 
-	# Copy all our data into this new node!
-	foreach my $field (keys %$this)
-	{
-		# We don't want to overwrite this stuff
-		next if($field =~ /title/);
-		next if($field =~ /_id$/);
-		next if($field eq "createtime");  # we want the clone to have its own
+                $$this{$field} = $$NODE{$field};
+        }
 
-		$$CLONE{$field} = $$this{$field};
-	}
-
-	my $result = $CLONE->insert($USER);
-
-	return $CLONE if($result);
-	return undef;
+	return 1;
 }
 
 

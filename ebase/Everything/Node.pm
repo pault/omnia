@@ -144,6 +144,7 @@ sub AUTOLOAD
 	my $func = $Everything::Node::AUTOLOAD;
 	my ($this) = @_;
 	my $METHOD;
+
 	my $TYPE = $$this{DB}->getType($$this{SUPERtype});
 	my $origType = $$this{SUPERtype};
 	my $origFunc = $$this{SUPERfunc};
@@ -386,6 +387,50 @@ sub getNodeMethod
 	return $RETURN;
 }
 
+
+#############################################################################
+#       Sub
+#               getClone 
+#
+#       Purpose  
+#               Clone this node!  This will make an exact duplicate of this node
+#               and insert it into the database.  The only difference is that the
+#               cloned node will have a different ID.
+#
+#               If sub types have special data (ie nodegroups) that would also
+#               need to be cloned, they should override this function to do       
+#               that work.
+#
+#       Parameters
+#               $title - the new title of the cloned node
+#               $USER - the user trying to clone this node (for permissions)
+#               $workspace - the id or workspace hash into which this node
+#                       should be cloned.  This is primarily for internal purposes
+#                       and should not be used normally.  (NOT IMPLEMENTED YET!)
+#
+#       Returns
+#               The newly cloned node, if successful.  undef otherwise.
+#
+sub getClone
+{
+        my ($this, $title, $USER, $workspace) = @_;
+        my $CLONE;
+        my $create;
+
+        $create = "create" if($$this{type}{restrictdupes});
+        $create ||= "create force";
+
+        $CLONE = $this->{DB}->getNode($title, $$this{type}, $create);
+
+        # if the id is not zero, the getNode found a node that already exists
+        # and the type does not allow duplicate names.
+        return undef if($$CLONE{node_id} > 0);
+
+        return undef unless $CLONE->clone($this, $USER);
+
+        return $CLONE;
+
+}
 
 #############################################################################
 #	Sub

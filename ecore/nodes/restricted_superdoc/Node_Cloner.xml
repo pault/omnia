@@ -2,21 +2,22 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
-my $src_id = $query->param("srcnode_id");
-my $newname = $query->param("newname");
+my $src_id = $query-&gt;param(&quot;srcnode_id&quot;);
+my $newname = $query-&gt;param(&quot;newname&quot;);
 
 my $str;
 
 if((defined $src_id) &amp;&amp; (defined $newname))
 {
   my $SRCNODE = getNodeById($src_id);
-  my $CLONE = $SRCNODE->clone($USER, $newname);
+  return &quot;Bad clone source!&quot; unless $SRCNODE;
+  my $CLONE = $SRCNODE-&gt;getClone($newname, $USER);
 
-  if($CLONE)
+  if($$CLONE{node_id} != -1 or $CLONE-&gt;insert($USER))
   {
-    $str = "&lt;h3>&lt;font color=#00cc00>Clone successful&lt;/font>&lt;/h3>\n"; 
-    $str .= "&lt;p>Node " . linkNode($SRCNODE) .
-      " has been cloned as " . linkNode($CLONE);
+    $str = &quot;&lt;h3&gt;&lt;font color=#00cc00&gt;Clone successful&lt;/font&gt;&lt;/h3&gt;\n&quot;; 
+    $str .= &quot;&lt;p&gt;Node &quot; . linkNode($SRCNODE) .
+      &quot; has been cloned as &quot; . linkNode($CLONE);
   }
   else
   {
@@ -24,20 +25,20 @@ if((defined $src_id) &amp;&amp; (defined $newname))
 
      if($EXISTS)
      {
-       $str .= linkNode($EXISTS) . " already exists and nodes of this type";
-       $str .= " does not allow duplicate names.";
+       $str .= linkNode($EXISTS) . &quot; already exists and nodes of this type&quot;;
+       $str .= &quot; does not allow duplicate names.&quot;;
      }
      else
      {
-       $str .= "&lt;font color=red>Error Cloning!&lt;/font>";
-       $str .= "This could be caused by not having permissions to create a ";
-       $str .= "node of that type, or there was an internal error.";
+       $str .= &quot;&lt;font color=red&gt;Error Cloning!&lt;/font&gt;&quot;;
+       $str .= &quot;This could be caused by not having permissions to create a &quot;;
+       $str .= &quot;node of that type, or there was an internal error.&quot;;
      }
   }
 }
 else
 {
-  $str = "No node to clone!\n";
+  $str = &quot;No node to clone!\n&quot;;
 }
 
 $str;
