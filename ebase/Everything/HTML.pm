@@ -25,7 +25,6 @@ sub BEGIN {
 		%HTMLVARS
 		$query
 		jsWindow
-		popup_node
 		createNodeLinks
 		parseLinks
 		htmlScreen
@@ -267,17 +266,24 @@ sub htmlErrorUsers
 sub htmlErrorGods
 {
 	my ($code, $err, $warn) = @_;
-	my $errLine = $err . $warn;
+	my $error = $err . $warn;
 	my $linenum;
 
 	$code = encodeHTML($code);
 
 	my @mycode = split /\n/, $code;
-	while($errLine =~ /line (\d+)/sg)
+	while($error =~ /line (\d+)/sg)
 	{
-		# This highlights the offendling line in red.
-		$mycode[$1-1] = "<FONT color=cc0000><b>" . $mycode[$1-1] .
-			"</b></font>";
+		# If the error line is within the range of the offending code
+		# snipit, make it red.  The line number may actually be from
+		# a perl module that the evaled code is calling.  If thats the
+		# case, we don't want some bogus number to add lines.
+		if($1 < (scalar @mycode))
+		{
+			# This highlights the offendling line in red.
+			$mycode[$1-1] = "<FONT color=cc0000><b>" . $mycode[$1-1] .
+				"</b></font>";
+		}
 	}
 
 	my $str = "<B>$@ $warn</B><BR>";
@@ -286,10 +292,11 @@ sub htmlErrorGods
 	$str.= "<PRE>";
 	foreach my $line (@mycode)
 	{
-		$linenum = sprintf("%4d:", $count++);
-		if ($count < @mycode) {$str.= $linenum . $line . "\n";}
+		$str .= sprintf("%4d: $line\n", $count++, $str);
 	}
 
+	# Print the callstack to the browser too, so we can see where this
+	# is coming from.
 	$str .= "\n\n<b>Call Stack</b>:\n";
 	my @callStack = getCallStack();
 	while(my $func = pop @callStack)
@@ -308,23 +315,6 @@ sub jsWindow
 {
 	my($name,$url,$width,$height)=@_;
 	"window.open('$url','$name','width=$width,height=$height,scrollbars=yes')";
-}
-
-
-#############################################################################
-sub popup_node {
-	my ($name, $NODELIST, $SELECT) = @_;
-	getRef $SELECT;
-
-	my (@titlelist, %items);
-	foreach my $N (@$NODELIST) {
-		$N = $DB->getNodeById($N, 'light');
-		push @titlelist, $$N{title};
-		$items{getId ($N)} = $$N{title};
-	}
-
-	$query->popup_menu($name, \@titlelist, ($SELECT and $$SELECT{title}),
-		\%items);
 }
 
 
@@ -372,7 +362,6 @@ sub getCode
 	
 	$str .= $$CODE{code};
 
-	printLog("str = $str");
 	return $str;
 }
 
@@ -470,7 +459,7 @@ sub getPageForType
 				# No pages for the specified nodetype were found.
 				# Use the default node display.
 				$REF = $DB->selectNodeWhere (
-						{pagetype_nodetype => getId ($DB->getType("node")),
+						{pagetype_nodetype => getId(getType("node")),
 						displaytype => $displaytype}, 
 						$PAGETYPE);
 
@@ -720,7 +709,7 @@ sub embedCode {
 	# Block needs to be defined, otherwise the search/replace regex
 	# stuff will break when it gets an undefined return from this.
 	$block ||= "";
-	
+
 	return $block;
 }
 
@@ -729,7 +718,7 @@ sub embedCode {
 sub parseCode {
 	my ($text, $CURRENTNODE) = @_;
 
-	#the order is:  
+	# the order is:  
 	# [% %]s -- full embedded perl
 	# [{ }]s -- calls to the code database
 	# [" "]s -- embedded code strings
@@ -761,9 +750,13 @@ sub listCode {
 	$code = encodeHTML($code, 1);
 
 	my @lines = split /\n/, $code;
-	my $count = 0;
-	foreach my $ln (@lines) {
-		$ln = $count++ . ": $ln" if $numbering;
+	my $count = 1;
+
+	if($numbering)
+	{
+		foreach my $ln (@lines) {
+			$ln = sprintf("%4d: %s", $count++, $ln);
+		}
 	}
 
 	"<PRE>" . join ("\n", @lines) . "</PRE>";
@@ -776,10 +769,13 @@ sub listCode {
 #this is a function that you should call on user data 
 sub createNodeLinks {
 	my ($text, $NODE) = @_;
-	$NODE ||= $GNODE;
-	$text =~ s/\[(\w.*?)\]/linkNodeTitle($1, getId($NODE))/;
-
-	$text;
+	return $text;
+	
+	# DPB 08-Dec-99 : This appears to be used by no-one.  If commenting
+	# this out does not cause any problems, lets remove this function.
+	#$NODE ||= $GNODE;
+	#$text =~ s/\[(\w.*?)\]/linkNodeTitle($1, getId($NODE))/;
+	#$text;
 }
 
 
@@ -901,7 +897,7 @@ sub containHtml {
 
 
 #############################################################################
-sub displayPage		#this is the big function 
+sub displayPage
 {
 	my ($NODE, $user_id) = @_;
 	getRef $NODE, $USER;
@@ -921,6 +917,8 @@ sub displayPage		#this is the big function
 	
 	$page = parseCode($page, $NODE);
 	setVars $USER, $VARS;
+	
+	printHeader($$NODE{datatype});
 	
 	# We are done.  Print the page to the browser.
 	$query->print($page);
@@ -981,7 +979,7 @@ sub gotoNode
 			}	
 		}
 		if ($updateflag) {
-			$DB->updateNode($NODE, $USER) if $updateflag; 
+			$DB->updateNode($NODE, $USER); 
 			if (getId($USER) == getId($NODE)) { $USER = $NODE; }
 		}
 	}
@@ -1035,6 +1033,7 @@ sub confirmUser {
 sub parseLinks {
 	my ($text, $NODE) = @_;
 
+	Everything::printLog("parseLinks");
 	$text =~ s/\[(.*?)\]/linkNodeTitle ($1, $NODE)/egs;
 	$text;
 }
@@ -1156,15 +1155,24 @@ sub getCGI
 #		this (the web server has no idea what kind of information we
 #		are passing).
 #
-sub printHeader {
-	my $header = "";
+#	Parameters
+#		$datatype - (optional) the MIME type of the data that we are
+#			to display	('image/gif', 'text/html', etc).  If not
+#			provided, the header will default to 'text/html'.
+#
+sub printHeader
+{
+	my ($datatype) = @_;
+
+	# default to plain html
+	$datatype ||= "text/html";
 	
 	if($ENV{SCRIPT_NAME}) {
 		if ($$USER{cookie}) {
-			$query->header(-type=>"text/html", 
+			$query->header(-type=> $datatype, 
 		 		-cookie=>$$USER{cookie});
 		} else {
-			$query->header(-type=>"text/html");
+			$query->header(-type=> $datatype);
 		}
 	}
 }
@@ -1211,12 +1219,8 @@ sub handleUserRequest
 		{
 			nodeName ($nodename, $user_id, $type); 
 		}
-		elsif (#$user_id != $HTMLVARS{guest_user} and
-			canCreateNode($user_id, $DB->getType($type)))
+		elsif (canCreateNode($user_id, $DB->getType($type)))
 		{
-			#guests can't create nodes -- otherwise
-			#they are like normal users
-
 			$node_id = $DB->insertNode($nodename,
 				$DB->getType($query->param('type')), $user_id);
 			
@@ -1275,10 +1279,6 @@ sub mod_perlInit
 
 	$USER = loginUser();
 
-	# Print the standard HTML transfer header.  Without this, the browser
-	# will not know how to display the page.
-	printHeader();
-		
 	# Do the work.
 	handleUserRequest();
 }

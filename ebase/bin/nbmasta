@@ -474,30 +474,37 @@ sub checkDeps {
 sub installNodeball {
 	my ($dir) = @_;
 
+	print "Installing nodeball.  Hang on.\n";
+
 	my $tables_dir = $dir."/tables";
 	#import any tables that need it
 	use File::Find;	
 
-	print "Installing nodeball.  Hang on.\n";
-	print "Creating tables...\n";
-	find sub {
-		my ($file) = $File::Find::name;
-			if ($file =~ /sql$/) {
-				`mysql -u root $database < $file`
-			}
-		}, $tables_dir;
-	print "   - Done.\n";
+	if(-e $tables_dir)
+	{
+		print "Creating tables...\n";
+		find sub {
+			my ($file) = $File::Find::name;
+				if ($file =~ /sql$/) {
+					`mysql -u root $database < $file`
+				}
+			}, $tables_dir;
+		print "   - Done.\n";
+	}
 
 	my $nodetypes_dir = $dir."/nodes/nodetype";
 
-	print "Installing nodetypes...\n";
-	find sub {
-		my ($file) = $File::Find::name;
-		xmlfile2node($file) if $file =~ /\.xml$/;  
-		}, $nodetypes_dir if -e $nodetypes_dir;
-	print "Fixing references...\n";
-	fixNodes(0);
-	print "   - Done.\n";
+	if(-e $nodetypes_dir)
+	{
+		print "Installing nodetypes...\n";
+		find sub {
+			my ($file) = $File::Find::name;
+			xmlfile2node($file) if $file =~ /\.xml$/;  
+			}, $nodetypes_dir if -e $nodetypes_dir;
+		print "Fixing references...\n";
+		fixNodes(0);
+		print "   - Done.\n";
+	}
 
 	# Now that the nodetypes are installed, we can install the nodes
 	print "Installing nodes...\n";
@@ -512,14 +519,95 @@ sub installNodeball {
 		
 		xmlfile2node($file) if $file =~ /\.xml$/;  
 		}, $dir;
+
 	print "Fixing references...\n";
 	fixNodes(1);
 	print "   - Done.\n";
 
+	# install any .pm's that we might have
+	installModules($dir);
+	
 	#memo to myself -- we should give warnings if dependant 
 	#nodeballs are not installed
-
 }
+
+
+#############################################################################
+#	Sub
+#		installModules
+#
+#	Purpose
+#		Copy any perl modules that exist in this nodeball to the appropriate
+#		install directory on the system.
+#
+#	Parameters
+#		$dir - the base directory of this nodeball
+#
+#	Returns
+#		1 if something was copied.  0 if no work was done.
+#
+sub installModules
+{
+	my ($dir) = @_;
+	my $includeDir;
+	my $result = 0;
+
+	use File:Find;
+	use File:Copy;
+
+	# If there is an Everything directory, we need to install the modules
+	# in the system include directory. 
+	my $e_dir = $dir . "Everything";
+	return $result unless(-e $e_dir && -d $e_dir);
+
+	$includeDir = getPMDir() . "/Everything";
+	
+	# Copy all of the pm's to the system directory.
+	find sub {
+		my ($file) = $File::Find::name;
+			if ($file =~ /pm$/) {
+				print "Copying $file to " . $includeDir . "/" . $file;
+				#copy($file, $includeDir . "/" . $file);
+				$result = 1;
+			}
+		}, $e_dir;
+
+ 	return
+}
+
+
+#############################################################################
+#	Sub
+#		getPMDir
+#
+#	Purpose
+#		When Everything is installed, the base perl modules are installed
+#		somewhere on the system.  Where they are installed varies from
+#		system to system, but they are always installed somewhere in the
+#		standard perl include directories.  This searches through the
+#		install directories until we find it.
+#
+#	Parameters
+#		None
+#
+#	Returns
+#		The include directory where Everything.pm and Everthing/ can be
+#		found.  undef if we couldn't find it.
+#
+sub getPMDir
+{
+	my $includeDir;
+	my $edir;
+	
+	foreach $includeDir (@INC)
+	{
+		$edir = $includeDir . "/Everything";
+		return $includeDir if(-e $edir);
+	}
+
+	return undef;
+}
+
 
 #########################################################################
 #	sub
@@ -628,6 +716,9 @@ sub updateNodeball {
 		$DB->nukeNode($_, -1); 
 	}
 	fixNodes(1);
+
+	installModules($dir);
+	
 	print "$$NB{title} updated.\n";
 }
 
@@ -649,8 +740,9 @@ sub removeNodeball {
 			if (getId($_) == getId($DOOMEDBALL)) {
 				my $DEPENDANT = getNodeById ($_);
 				my $VARS=getVars $DEPENDANT;
-				die "Nodeball \"$$DEPENDANT{title}\" ($$VARS{version}) depends on $$DOOMEDBALL{title}\n"
-				  ." remove \"$$DEPENDANT{title}\" first, or use --force\n"
+				die "Nodeball \"$$DEPENDANT{title}\" ($$VARS{version}) " .
+				  "depends on $$DOOMEDBALL{title}\n" .
+				  "Remove \"$$DEPENDANT{title}\" first, or use --force\n"
 				  unless ($OPTIONS{force});
 			}
 		}
@@ -692,8 +784,10 @@ sub main {
 			$cleanme = 1;	
 		}
 
-		open NODEBALL, $dir."/ME" 
-			or die "Can't find the nodeball link -- try running in -V and make sure it's not empty\n";
+		open NODEBALL, $dir."/ME" or die 
+			"Can't find the nodeball link -- try running in " .
+			"-V and make sure it's not empty\n";
+
 		my $nodeball_xml = join '', <NODEBALL>;
 		close NODEBALL;	
 		
@@ -779,10 +873,12 @@ sub main {
 	} elsif ($function eq "remove") {
 		my ($NB) = $DB->getNodeWhere({title=>$nodeball},
 			$DB->getType("nodeball"));
-		$NB or die "There isn't a \"$nodeball\" nodeball installed on this system!";
+		$NB or 
+		  die "There isn't a \"$nodeball\" nodeball installed on this system!";
 		removeNodeball ($NB);
 	} else {
 		print $usagestr;
 	}
 }
+
 main;

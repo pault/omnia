@@ -7,6 +7,7 @@ my @modified;
 my @added;
 my $file;
 my $output;
+my $doit;
 my $added = 0;
 
 print "**** WARNING ****\n";
@@ -35,11 +36,20 @@ if(@unknown > 0)
 	{
 		while(($file = pop(@unknown)))
 		{
-			# skip directories.  CVS only deals with files.
-			if(-d $file) { next; }
-
-			print "Add '$file'? [n]: ";
-			if(getYes())
+			if(-d $file)
+			{
+				# Always do directories without asking.  We are looking
+				# for new files within them.
+				$doit = 1;
+			}
+			else
+			{
+				# This is a file, see if we want to add it.
+				print "Add '$file'? [n]: ";
+				$doit = getYes();
+			}
+			
+			if($doit)
 			{
 				# If $file is a directory, and there is new stuff
 				# inside it, it will return text indicating that.

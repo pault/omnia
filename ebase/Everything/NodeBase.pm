@@ -544,7 +544,7 @@ sub loadGroupNodeIDs
 #		getNodeWhere
 #
 #	Purpose
-#		Get a list of NODE hashes.  This contstucts a complete node.
+#		Get a list of NODE hashes.  This constructs a complete node.
 #
 #	Parameters
 #		$WHERE - a hash reference to fieldname/value pairs on which to
@@ -1483,7 +1483,7 @@ sub deriveType
 sub getNodetypeTables
 {
 	my ($this, $TYPE) = @_;
-	$TYPE = getNodeById($TYPE) unless ref $TYPE;
+	$TYPE = $this->getNodeById($TYPE) unless ref $TYPE;
 	my $tables;
 	my @tablelist;
 	my @nodupes;
