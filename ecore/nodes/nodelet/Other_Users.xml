@@ -1,0 +1,36 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node"></core>
+	<lastupdate table="nodelet">940883443</lastupdate>
+	<nlcode table="nodelet">Your fellow noders:&lt;br&gt;
+[%
+
+my $time = 3 * 60;
+my $limit = 30;
+
+my $csr=$Everything::dbh-&gt;prepare("	
+	SELECT node_id, title FROM node, user
+	WHERE node_id=user_id and
+	type_nodetype=". getId ($NODETYPES{user}) ." and
+	(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)
+	LIMIT $limit");
+
+$csr-&gt;execute or return "SHIT";
+my $str;
+while(my $U = $csr-&gt;fetchrow_hashref) {
+	$str .= linkNode($U) ."&lt;br&gt;";
+}
+$csr-&gt;finish;
+return $str if $str;
+"&lt;i&gt;no users logged in&lt;/i&gt;";
+%] </nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">Your fellow noders:&lt;br&gt;
+&lt;i&gt;no users logged in&lt;/i&gt; </nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">Other Users</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

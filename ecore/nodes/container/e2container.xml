@@ -1,0 +1,40 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<context table="container">&lt;table width=95% align=center&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
+   
+   [{titlebar}]
+   [{searchform}]
+   &lt;h3&gt;["$$NODE{title}"]&lt;/h3&gt;
+   &lt;font size=2&gt;Maintained by
+   [%
+   if ($$NODE{author_user} != getId ($USER)) {
+	return linkNode ($$NODE{author_user});
+   }
+   linkNode($USER, "you"). "!!!&lt;br&gt;"; 
+   %]
+&lt;p align=right&gt;[{coreStatus}]&lt;/p&gt;
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;table width="95%"&gt;
+ &lt;tr&gt;  
+  &lt;td width=80% valign=top&gt;
+   CONTAINED_STUFF
+  &lt;/td&gt;
+  &lt;td width=20% valign=top&gt;
+   &lt;!-- nodelets start here --&gt;
+   [{nodelet meta-container}]
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;</context>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<parent_container table="container" type="container">stdcontainer</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">e2container</title>
+	<type_nodetype table="node" type="nodetype">container</type_nodetype>
+</NODE>

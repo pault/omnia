@@ -1,0 +1,22 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<code table="htmlcode"># This displays the value of a setting given the key
+# $setting - the name of the setting node
+# $key - the key to display
+my ($setting, $key) = @_;
+my $SETTING = selectNodeWhere({title =&gt; $setting},
+ $NODETYPES{setting});
+my $vars;
+my $str = "";
+
+$SETTING = $$SETTING[0];  # there should only be one in the array
+Everything::printLog("setting node: $SETTING");
+$vars = getVars($SETTING);
+$str .= $$vars{$key};
+$str;</code>
+	<core table="node">0</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">displaySetting</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

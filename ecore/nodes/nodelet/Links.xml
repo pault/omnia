@@ -1,0 +1,32 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<lastupdate table="nodelet">0</lastupdate>
+	<nlcode table="nodelet">&lt;ol&gt;
+[%
+my @links = @{ selectLinks $NODE, "food" };
+my $str = "";
+foreach (@links) {
+  next if ($$_{linktype});
+
+  my $N = selectNode $$_{to_node}, 'light';
+  $str .="  &lt;li&gt;".linkNode($N)."($$N{type}{title})&lt;/li&gt;\n";  
+}
+$str;
+%]
+&lt;/ol&gt;</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">&lt;ol&gt;
+  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=153&amp;lastnode_id=153"&gt;Gigantic Node Lister&lt;/a&gt;(restricted_superdoc)&lt;/li&gt;
+  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=149&amp;lastnode_id=153"&gt;all nodelets&lt;/a&gt;(nodeletgroup)&lt;/li&gt;
+  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=151&amp;lastnode_id=153"&gt;system nodelets&lt;/a&gt;(nodeletgroup)&lt;/li&gt;
+  &lt;li&gt;&lt;A HREF="/every2/index.pl?node_id=150&amp;lastnode_id=153"&gt;default nodelets&lt;/a&gt;(nodeletgroup)&lt;/li&gt;
+
+&lt;/ol&gt;</nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">Links</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

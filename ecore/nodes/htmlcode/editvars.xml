@@ -1,0 +1,53 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<code table="htmlcode">return "&lt;i&gt;you can't update this node&lt;/i&gt;" unless canUpdateNode($USER, $NODE);
+my $SETTINGS = getVars($NODE);
+my @params = $query-&gt;param;
+my $str=""; 
+
+foreach (@params) {
+  if (/setsetting_(\w*)$/) {
+    $$SETTINGS{$1}=$query-&gt;param("setsetting_$1");    
+  }
+
+}
+
+foreach (@params) {
+  if (/delsetting_(\w*)$/) {
+    delete $$SETTINGS{$1};
+  }
+}
+
+
+if ($query-&gt;param("newsetting") and $query-&gt;param("newval")){
+  my $title = $query-&gt;param("newsetting");
+  $title =~ s/\W//g;
+  $$SETTINGS{$title} = $query-&gt;param("newval");
+}
+
+setVars ($NODE, $SETTINGS);
+my @skeys = keys %$SETTINGS;
+@skeys = sort {$a cmp $b} @skeys;
+
+my ($keysize, $valsize) = (15, 30);
+my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
+
+
+$str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0&gt;\n";
+$str.="&lt;TR&gt;&lt;TH&gt;Remove&lt;/TH&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;/TR&gt;\n";
+foreach(@skeys) {
+$str.="&lt;TR&gt;&lt;TD&gt;&lt;input type=checkbox name=delsetting_$_&gt;&lt;/td&gt;&lt;TD bgcolor=$keyclr&gt;&lt;b&gt;$_&lt;/b&gt;&lt;/TD&gt;&lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=setsetting_$_ VALUE='$$SETTINGS{$_}' size=$valsize&gt;&lt;/TD&gt;&lt;/TR&gt;\n";
+}
+$str.="&lt;TR&gt;&lt;td&gt;&lt;/td&gt;
+  &lt;TD bgcolor=$keyclr&gt;&lt;INPUT TYPE=text NAME=newsetting size=$keysize&gt;&lt;/TD&gt;
+  &lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=newval size=$valsize&gt;&lt;/TD&gt;&lt;/TR&gt;\n";
+$str.="&lt;/TABLE&gt;\n";
+
+
+$str;</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">editvars</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

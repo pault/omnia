@@ -1,0 +1,20 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<lastupdate table="nodelet">0</lastupdate>
+	<nlcode table="nodelet">[%
+my $str;
+foreach ($query-&gt;param) {
+  $str.="&lt;b&gt;$_&lt;/b&gt;:".$query-&gt;param($_)."&lt;BR&gt;" unless length ($query-&gt;param($_)) &gt; 30 or not $query-&gt;param($_);
+}
+$str;
+%]</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">&lt;b&gt;node_id&lt;/b&gt;:153&lt;BR&gt;&lt;b&gt;lastnode_id&lt;/b&gt;:181&lt;BR&gt;</nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">CGI::param</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

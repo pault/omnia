@@ -1,0 +1,19 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my $bgcolor = $$VARS{bgcolor};
+my $textcolor = $$VARS{textcolor};
+my $linkcolor = $$VARS{linkcolor};
+my $vlinkcolor = $$VARS{vlinkcolor};
+
+$bgcolor ||= "#FFFFFF";
+$textcolor ||= "#000000";
+$linkcolor ||= "#993333";
+$vlinkcolor ||= "#333399";
+
+"&lt;BODY text=\"$textcolor\" bgcolor=\"$bgcolor\" link=\"$linkcolor\" vlink=\"$vlinkcolor\"&gt;";</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">userbody</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

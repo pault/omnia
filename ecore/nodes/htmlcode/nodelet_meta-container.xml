@@ -1,0 +1,42 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">return "you have this off" if $$VARS{nodelets_off};
+
+my $str;
+my $align = $$VARS{nodelet_align};
+my @nodelets = split ",",$$VARS{nodelets} if exists ($$VARS{nodelets});
+
+
+$align ||= "right";
+my ($NODELETGROUP) = selectNode $$VARS{nodelet_group} if exists $$VARS{nodelet_group};
+if ($NODELETGROUP and $$NODELETGROUP{type}{title} eq 'nodeletgroup') { push @nodelets, @{ $$NODELETGROUP{group} };  }
+
+
+if (not @nodelets) {
+	#push default nodelets on
+	
+	my ($DEFAULT) = getNodeWhere({title =&gt; "default nodelets"}, $NODETYPES{nodeletgroup});		
+	@nodelets = @{ $$DEFAULT{group} }; 
+}
+return "no nodelets!" unless @nodelets;
+
+$str .= "&lt;TABLE cellspacing=1 cellpadding=1&gt;";
+
+foreach (@nodelets) {
+	my $NODELET = selectNode $_;
+	my $nl = insertNodelet($NODELET);
+	#$nl = parseCode($nl);
+	$str .= "&lt;tr&gt;&lt;td&gt;" . $nl . "&lt;/td&gt;&lt;/tr&gt;";
+}
+
+
+$str .="&lt;/TABLE&gt;";
+$str;
+
+</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">nodelet meta-container</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

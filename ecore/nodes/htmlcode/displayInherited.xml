@@ -1,0 +1,35 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<code table="htmlcode"># This diplays inherited values for a nodetype.  This
+# checks to see if the given field has any inherited
+# values.
+my ($field) = @_;
+my $str = "";
+
+return "" unless ((isNodetype($NODE)) &amp;&amp; (defined $field));
+
+if($field eq "sqltable")
+{
+  $str .= "$NODETYPES{$$NODE{extends_nodetype}}{sqltablelist}"
+  if($NODETYPES{$$NODE{extends_nodetype}});
+}
+elsif(($field eq "grouptable") &amp;&amp; ($$NODE{$field} eq ""))
+{
+  my $gt = "$NODETYPES{$$NODE{node_id}}{$field}";
+  $str .= $gt if ($gt ne "");
+}
+elsif($$NODE{$field} eq "-1")
+{
+  my $node = getNodeById($NODETYPES{$$NODE{node_id}}{$field});
+  my $title = $$node{title} if (defined $node);
+  $title ||= "none";
+  $str .= $title;
+}
+
+$str = " ( Inherited value: $str )" if ($str ne "");</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">displayInherited</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

@@ -1,0 +1,9 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<doctext table="document">You don't have access to that node.&lt;p&gt;  Tough beans.</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">Permission Denied</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>

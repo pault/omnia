@@ -1,0 +1,34 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<doctext table="document">The E2 todo list.  
+&lt;ol&gt;
+&lt;li&gt;come up with some tests for QAuser to execute.
+
+
+
+
+&lt;li&gt;Figure out the system groups. (core everything has node
+    ids in 0 to X range, either inheiritence or special nodetypes)
+&lt;li&gt;add "ratings" an impliment rudimentary form of user karma
+&lt;li&gt;add link displays
+&lt;li&gt;replace current systems (perlmonks, hernandez, fezfamily, oostendorp.net)  with new 'containers' and nodelets
+&lt;li&gt;alter table columns to be NOT NULL DEFAULT=0
+&lt;li&gt;lock pages on edit page load
+&lt;li&gt;some ability to add HTML-filtering to Text fields (no table tags, etc)
+&lt;li&gt;enhance the "note - reply" system
+&lt;li&gt;THE BIG ONE:  Everything.blockstackers.com
+&lt;/ol&gt;
+
+Completed items
+&lt;ul&gt;
+&lt;li&gt;Item completed: date : who
+&lt;li&gt;core system now in CVS
+&lt;li&gt;fix the update bug (foreign rows not being properly nuked in update)
+&lt;li&gt;Foreign keys are the same as node ids...
+&lt;/ul&gt;</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">Everything 2 Todo list</title>
+	<type_nodetype table="node" type="nodetype">document</type_nodetype>
+</NODE>

@@ -1,0 +1,14 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<code table="htmlcode">my $str;
+$str .= "&lt;li&gt;";
+$str .= join "\n&lt;li&gt;", getFields;
+$str .="\n&lt;li&gt;";
+$str .= join "\n&lt;li&gt;", getFields($$NODE{table});
+$str;</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">listFields</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

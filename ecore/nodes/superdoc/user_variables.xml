@@ -1,0 +1,18 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<doctext table="document">[%
+	my $str;
+	foreach (keys %$VARS) {
+		$str .= "$_: $$VARS{$_}&lt;br&gt;";
+		if ($_ eq "bgcolor") {
+			$$VARS{bgcolor} = "#FFFFFF";
+		}
+	}
+	$str . $$USER{vars};
+%]</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">user variables</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>

@@ -1,0 +1,27 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">edit</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">&lt;p&gt;readers: [{node_menu:readers_user,user,usergroup,-parent_-1}]
+[{displayInherited:readers_user}]
+&lt;p&gt;creators: [{node_menu:writers_user,user,usergroup,-parent_-1}]
+[{displayInherited:writers_user}]
+&lt;p&gt;deleters: [{node_menu:deleters_user,user,usergroup,-parent_-1}]
+[{displayInherited:deleters_user}]
+&lt;p&gt;sqltable : [{textfield:sqltable}]
+[{displayInherited:sqltable}]
+&lt;p&gt;grouptable: [{textfield:grouptable}]
+[{displayInherited:grouptable}]
+&lt;p&gt;extends: [{node_menu:extends_nodetype}]
+&lt;p&gt;restrict nodetype(groups):[{node_menu:restrict_nodetype,nodetype,nodetypegroup}]
+[{displayInherited:restrict_nodetype}]
+&lt;p&gt;restrict duplicate titles: [{node_menu:restrictdupes,-yes_1,-no_0,-parent_-1}]
+[{displayInherited:restrictdupes}]
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">nodetype edit page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

@@ -1,0 +1,16 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<deleters_user table="nodetype" type="usergroup">gods</deleters_user>
+	<extends_nodetype table="nodetype" type="literal_value">0</extends_nodetype>
+	<grouptable table="nodetype"></grouptable>
+	<package table="node">0</package>
+	<readers_user table="nodetype" type="usergroup">gods</readers_user>
+	<reputation table="node">0</reputation>
+	<restrict_nodetype table="nodetype" type="literal_value">0</restrict_nodetype>
+	<restrictdupes table="nodetype">0</restrictdupes>
+	<sqltable table="nodetype"></sqltable>
+	<title table="node">node</title>
+	<type_nodetype table="node" type="nodetype">nodetype</type_nodetype>
+	<writers_user table="nodetype" type="usergroup">gods</writers_user>
+</NODE>

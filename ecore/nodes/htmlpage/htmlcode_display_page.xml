@@ -1,0 +1,13 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">display</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">[{listcode:code}]
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">htmlcode</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">htmlcode display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

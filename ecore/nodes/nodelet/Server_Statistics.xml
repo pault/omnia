@@ -1,0 +1,14 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<lastupdate table="nodelet">0</lastupdate>
+	<nlcode table="nodelet">[{serverstats}]</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">&lt;br&gt;up 11 days 5:44&lt;br&gt;0.16,  0.12,  0.05, &lt;br&gt;</nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">Server Statistics</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">5</updateinterval>
+</NODE>

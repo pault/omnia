@@ -1,0 +1,36 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my $str = "&lt;p align=right&gt;
+&lt;img src=images/e2.gif&gt;&lt;BR&gt;
+&lt;font size=2&gt;
+[ ";
+
+if (getId($USER) == $HTMLVARS{guest_user}) {
+	$str .= linkNodeTitle ("login", $NODE, "Log in") 	
+	  . " | " . linkNodeTitle("Create a new user");
+} else {
+	$str .= linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op =&gt; 'logout'})
+		. " | " . linkNode ($USER);
+	$str .= " | " . linkNodeTitle ("user settings");
+}
+
+
+my ($GNL) = getNodeWhere({title=&gt;'Gigantic Node Lister'}, $NODETYPES{restricted_superdoc}, "", 'light');
+$str .= " | " . linkNode ($GNL) if canReadNode ($USER, $GNL);
+
+my ($GCL) = getNodeWhere({title=&gt;'Gigantic Code Lister'}, $NODETYPES{restricted_superdoc}, "", 'light');
+$str .= " | " . linkNode ($GCL) if canReadNode ($USER, $GCL);
+
+my ($ROOT) = getNodeWhere({title =&gt; 'root'}, $NODETYPES{user});
+my ($ss) = getNodeWhere ({title =&gt; 'system settings'}, $NODETYPES{setting});
+$str .= " | " . linkNode ($ss) if ($USER eq $ROOT);
+
+
+$str .= " | " . linkNode ($HTMLVARS{default_node});
+$str . " ] &lt;p&gt;&lt;/font&gt;";</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">titlebar</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

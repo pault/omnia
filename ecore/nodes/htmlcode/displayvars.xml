@@ -1,0 +1,27 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<code table="htmlcode">my $SETTINGS = getVars $NODE;
+my $str;
+my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
+
+
+my @skeys = keys %$SETTINGS;
+if (not @skeys) { 
+  return "&lt;i&gt;the node's settings are empty&lt;/i&gt;&lt;br&gt;\n";
+}
+
+@skeys = sort {$a cmp $b} @skeys;
+
+$str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0&gt;\n";
+$str.="&lt;TR&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;/TR&gt;\n";
+foreach (@skeys) {
+  $str.= "&lt;TR&gt;&lt;TD bgcolor=$keyclr&gt;$_&lt;/TD&gt;&lt;TD bgcolor=$valclr&gt;$$SETTINGS{$_}&lt;/TD&gt;&lt;/TR&gt;\n";  
+}
+$str .="&lt;/TABLE&gt;\n";
+</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">displayvars</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

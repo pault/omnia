@@ -1,0 +1,29 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">display</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">was last logged in: [{parsetime:lasttime}]
+&lt;p&gt;
+[{parselinks:doctext}]
+&lt;p&gt;
+ 
+
+[%
+my @nodes = getNodeWhere({author_user =&gt; getId($NODE)},"","",'light');
+my $str;
+foreach (@nodes) {
+  next if getId($_) == getId($NODE);
+  $str.="&lt;li&gt;".linkNode($_)."($$_{type}{title})&lt;/li&gt;\n";
+}
+$str = "Nodes authored by $$NODE{title}:&lt;ul&gt;".$str."&lt;/ul&gt;"
+  ."&lt;br&gt;(".int(@nodes)." in total)" if $str;
+$str ||= "&lt;i&gt;no nodes maintianed by $$NODE{title}&lt;/i&gt;\n";
+%]
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">user</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">user display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

@@ -1,0 +1,17 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<group >
+		<groupnode1 table="nodegroup" type="superdoc">The Default Node</groupnode1>
+		<groupnode2 table="nodegroup" type="superdoc">Not found</groupnode2>
+		<groupnode3 table="nodegroup" type="superdoc">Permission Denied</groupnode3>
+		<groupnode4 table="nodegroup" type="superdoc">Search Results</groupnode4>
+		<groupnode5 table="nodegroup" type="superdoc">Duplicates Found</groupnode5>
+		<groupnode6 table="nodegroup" type="user">Guest User</groupnode6>
+		<groupnode7 table="nodegroup" type="restricted_superdoc">node locked</groupnode7>
+	</group>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">htmlvars nodegroup</title>
+	<type_nodetype table="node" type="nodetype">nodegroup</type_nodetype>
+</NODE>

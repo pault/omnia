@@ -1,0 +1,15 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<context table="container">&lt;HTML&gt;
+[{basichead}]
+[{userbody}]
+CONTAINED_STUFF
+&lt;/BODY&gt;
+&lt;/HTML&gt;</context>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<parent_container table="container" type="literal_value">0</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">stdcontainer</title>
+	<type_nodetype table="node" type="nodetype">container</type_nodetype>
+</NODE>

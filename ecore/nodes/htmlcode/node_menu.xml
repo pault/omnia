@@ -1,0 +1,63 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my ($field, @VALUES) = @_;
+my @idlist;
+my %items;
+my @TYPES;
+
+$field or return;
+my ($fieldname, $type) = split /\_/, $field;
+my ($name) = $$NODE{type}{title} .'_'. $field;
+
+#if no explicit types, use the field name to determine
+@VALUES or push @VALUES, $type;
+
+foreach (@VALUES)
+{
+	if(/^-/)
+	{
+		# If one of the types is in the form of
+		# -name_value, we need to split it apart
+		# and store it.	
+		my ($name, $value);
+		$_ =~ s/^-//;
+		
+		($name, $value) = split '_', $_;
+		push @idlist, $value;
+		$items{$value} = $name;
+
+		undef $_;  # This is not a type	
+	}
+	else
+	{
+		push @TYPES, $NODETYPES{$_};  #replace w/ node refs
+	}
+}
+
+my $NODELIST = selectNodeWhere ({ type_nodetype =&gt; \@TYPES }, "", "title");
+
+foreach my $N (@$NODELIST) {
+	$N = selectNode $N, 'light';
+	my $id = getId $N;
+	push @idlist, $id;
+	$items{$id} = $$N{title};
+}
+
+# The default thing to select
+my $SELECT = $$NODE{$field};
+
+if(not defined $items{"0"})
+{
+	# We have no value for zero, make it a default
+	$items{"0"} = "none";
+	push @idlist, "0";
+}
+
+$query-&gt;popup_menu($name, \@idlist, $SELECT, \%items);
+</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">node_menu</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

@@ -1,0 +1,22 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<doctext table="document">Multiple nodes named [%$query-&gt;param("node");%] were drunk&lt;br&gt;
+
+[%
+	my $str;
+
+	foreach my $NODE (@{ $$NODE{group} }) {
+		$NODE = selectNode $NODE, 'light';
+		$str .= "&lt;LI&gt;" . linkNode($NODE);
+		$str .= "(type: $$NODE{type}{title})\n";
+	}
+	$str;
+%]
+
+</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">Duplicates Found</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>

@@ -1,0 +1,17 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<code table="htmlcode">my ($NODE) = @_;
+
+my $VARS= { 
+	author=&gt;$$USER{title},
+	version=&gt;"0.1.1",
+	description=&gt;"   "};
+setVars $NODE, $VARS;</code>
+	<core table="node">0</core>
+	<maintain_nodetype table="maintenance" type="nodetype">nodeball</maintain_nodetype>
+	<maintaintype table="maintenance">create</maintaintype>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">nodeball maintenance create</title>
+	<type_nodetype table="node" type="nodetype">maintenance</type_nodetype>
+</NODE>

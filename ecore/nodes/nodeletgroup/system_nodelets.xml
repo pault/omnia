@@ -1,0 +1,17 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">0</core>
+	<group >
+		<groupnode1 table="nodegroup" type="nodelet">admin nodelet</groupnode1>
+		<groupnode2 table="nodegroup" type="nodelet">Links</groupnode2>
+		<groupnode3 table="nodegroup" type="nodelet">Tick tock</groupnode3>
+		<groupnode4 table="nodegroup" type="nodelet">nodecache</groupnode4>
+		<groupnode5 table="nodegroup" type="nodelet">CGI::param</groupnode5>
+		<groupnode6 table="nodegroup" type="nodelet">Server Statistics</groupnode6>
+		<groupnode7 table="nodegroup" type="nodelet">%$NODE</groupnode7>
+	</group>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">system nodelets</title>
+	<type_nodetype table="node" type="nodetype">nodeletgroup</type_nodetype>
+</NODE>

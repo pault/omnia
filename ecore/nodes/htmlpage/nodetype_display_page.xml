@@ -1,0 +1,50 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">display</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">&lt;p&gt;&lt;b&gt;Authorized Readers&lt;/b&gt;: [{listgroup:readers_user}]
+[{displayInherited:readers_user}]
+&lt;p&gt; &lt;b&gt;Authorized Creators&lt;/b&gt;: [{listgroup:writers_user}]
+[{displayInherited:writers_user}]
+&lt;p&gt; &lt;b&gt;Authorized Deleters&lt;/b&gt;: [{listgroup:deleters_user}]
+[{displayInherited:deleters_user}]
+
+[%
+if(isGroup($NODE))
+{ 
+	"&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: ";
+}
+%]
+
+&lt;p&gt; &lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
+	[% if($$NODE{restrictdupes} == -1) { "parent"; }
+	   else{ $$NODE{restrictdupes}?"Yes":"No";} %]
+[{displayInherted:restrictdups}]
+&lt;p&gt; &lt;b&gt;Sql Table&lt;/b&gt;: 
+[%
+if (exists $$NODE{sqltable}) {
+$$NODE{sqltable};
+} else { "&lt;i&gt;none&lt;/i&gt;";}
+%]
+[{displayInherited:sqltable}]
+&lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; 
+[% linkNode ($$NODE{extends_nodetype}) 
+	if ($$NODE{extends_nodetype});%]
+&lt;p&gt; &lt;b&gt;Relevant pages:&lt;/b&gt;&lt;br&gt;
+
+[%
+my $str;
+my @pages;
+
+push @pages, getPages($NODE);
+
+foreach (@pages) { $str .= "&lt;li&gt;" .linkNode ($_); }
+$str;
+%]</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">nodetype display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

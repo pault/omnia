@@ -1,0 +1,16 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">edit</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">[{listcode:context}]
+
+Parent container:[{node_menu:parent_container}]&lt;br&gt;
+container html:&lt;br&gt;[{textarea:context}]
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">container</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">container edit page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

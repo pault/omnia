@@ -1,0 +1,30 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my ($limit) = @_;
+
+$limit ||= 90000;
+my $str = '';
+my @noShow = ('table', 'type_nodetype');
+
+foreach my $key (keys %$NODE) {
+  unless (grep /^$key$/, @noShow) {
+    $str .= "&lt;li&gt;&lt;B&gt;$key: &lt;/B&gt;";
+    
+    if ($key &amp;&amp; $key =~ /\_/ &amp;&amp; !($key =~ /\_id/))
+    {
+       $str .= linkNode $$NODE{$key}, "" if($$NODE{$key});
+       $str .= "none" unless($$NODE{$key});
+    }			
+    elsif ($$NODE{$key} and ref $$NODE{$key} eq "HASH") {
+      $str .= linkNode $$NODE{$key}, "", {lastnode =&gt; getId ($NODE)};
+    } else {$str .= $$NODE{$key} if (length ($$NODE{$key}) &lt; $limit);}	
+  $str .= "&lt;BR&gt;\n";
+  }
+}
+$str;</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">displayNODE</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

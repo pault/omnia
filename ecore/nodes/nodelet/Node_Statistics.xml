@@ -1,0 +1,22 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<lastupdate table="nodelet">940883444</lastupdate>
+	<nlcode table="nodelet">Node ID:[% getId $NODE %]&lt;br&gt;
+Created on:&lt;br&gt; ["$$NODE{createtime}"]&lt;br&gt;
+Hits: ["$$NODE{hits}"]&lt;br&gt;
+Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
+Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype"))); %]</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">Node ID:163&lt;br&gt;
+Created on:&lt;br&gt; 1999-10-23 00:24:06&lt;br&gt;
+Hits: 13&lt;br&gt;
+Nodetype: &lt;A HREF="/index.pl?node_id=21&amp;lastnode_id=163"&gt;superdoc&lt;/a&gt;&lt;br&gt;
+Display page: &lt;br&gt;&lt;A HREF="/index.pl?node_id=125&amp;lastnode_id=163"&gt;superdoc display page&lt;/a&gt;</nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">Node Statistics</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

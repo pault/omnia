@@ -1,0 +1,30 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my ($field) = @_;
+
+my $G = $$NODE{$field};
+
+if(($G eq "") || ($G == 0)) { return "none"; }
+elsif($G == -1) { return "parent"; }
+
+getRef $G;
+return "none" unless ref $G;
+
+my $str = linkNode($G) . "($$G{type}{title})";
+return $str unless ($$G{group});
+
+$str .= "\n&lt;ol&gt;\n";
+my $groupref = $$G{group};
+foreach my $item (@$groupref) {
+	my $N = selectNode ($item, 'light');
+	$str .= "&lt;li&gt;" . linkNode ($N) . "($$N{type}{title})\n";
+}
+$str .= "&lt;/ol&gt;\n";
+
+$str;</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">listgroup</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

@@ -1,0 +1,26 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">display</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">
+pagetype: 
+[%
+	my $N = selectNode ($$NODE{pagetype_nodetype}, 'light');
+	linkNode $N;
+%]&lt;br&gt;
+parent container:
+[% return linkNode ($$NODE{parent_container}) if $$NODE{parent_container};
+"&lt;i&gt;none&lt;/i&gt;";
+%]
+&lt;p&gt;
+displaytype:
+["$$NODE{displaytype}"]
+&lt;p&gt;[{listcode:page}]
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">htmlpage</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">htmlpage display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

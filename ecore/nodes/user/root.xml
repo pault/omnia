@@ -1,0 +1,20 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">R</core>
+	<doctext table="document">He's the god of [gods] -- instant access.  Unlimited power.</doctext>
+	<email table="user">root@localhost</email>
+	<karma table="user">0</karma>
+	<nick table="user"></nick>
+	<package table="node">0</package>
+	<passwd table="user">urdum</passwd>
+	<realname table="user">Super user</realname>
+	<reputation table="node">0</reputation>
+	<title table="node">root</title>
+	<type_nodetype table="node" type="nodetype">user</type_nodetype>
+	<vars table="setting">
+		<nodelet_textclr >#ffcccc</nodelet_textclr>
+		<meatloaf >big and juicy</meatloaf>
+		<nodelet_headerclr >#ff0000</nodelet_headerclr>
+		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
+	</vars>
+</NODE>

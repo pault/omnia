@@ -1,0 +1,51 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">R</core>
+	<doctext table="document">&lt;p&gt;Create a new node!&lt;/p&gt;
+[% 
+$query-&gt;param("node", "");
+$query-&gt;startform; %]
+
+[%
+my $str = "Node name: ";
+my %types;
+
+$str .= $query-&gt;textfield(-name =&gt; "node",
+                          -default =&gt; "",
+                          -size =&gt; 50,
+                          -maxlength =&gt; 100);
+$str .= "&lt;br&gt;\n";
+$str;
+%]
+
+Nodetype:
+[%
+my @idlist;
+my %items;
+my $id;
+
+foreach my $N (values %NODETYPES)
+{
+  $id = getId $N;
+  $items{$id} = $$N{title};
+}
+
+foreach $id (keys %items)
+{
+  push @idlist, $id;
+}
+
+$query-&gt;popup_menu("type", \@idlist, "", \%items);
+%]
+
+[%
+my $str = "&lt;input TYPE=\"hidden\" NAME=\"op\" VALUE=\"new\"&gt;\n";
+$str .= $query-&gt;submit("createit", "Create It!") . "\n";
+$str .= $query-&gt;endform;
+$str;
+%]</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">create node</title>
+	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+</NODE>

@@ -1,0 +1,23 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">editor</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">&lt;p align=right&gt;
+[%
+if ($query-&gt;param('op') eq 'close') {
+	$$VARS{group} = "";
+	return "&lt;SCRIPT language=\"javascript\"&gt;parent.close()&lt;/SCRIPT&gt;";		
+} 
+$$VARS{group}||= getId ($NODE);
+linkNode $NODE, "close", {displaytype=&gt; $query-&gt;param('displaytype'),
+	op =&gt; 'close'};
+%]
+[{groupeditor}]
+&lt;/FORM&gt;</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">nodegroup</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">stdcontainer</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">nodegroup editor page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

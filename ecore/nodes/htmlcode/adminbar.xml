@@ -1,0 +1,72 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">return if $$USER{title} eq "Guest User";
+
+my $disp = $query-&gt;param("displaytype");
+my @nodes;
+my $str;
+
+$disp ||= "display";
+
+# This will recurse up the nodetype inheritance hierarchy
+# and find the appropriate display and edit pages for this
+# node.
+push @nodes, getPages($NODE);
+
+foreach my $N (@nodes)
+{
+	if ($disp eq $$N{displaytype}){
+		$str .= $$N{displaytype} ." ";
+	} else {
+		next if ($$N{displaytype} eq 'edit' and not canUpdateNode($USER, $NODE));
+		$str .= linkNode ($NODE, $$N{displaytype}, {displaytype =&gt; $$N{displaytype}}) . " ";
+	}
+}
+
+
+# If a group editor is open, add a link to add this node to
+# the group.  We will need to check if the nodegroup has
+# a restriction on what nodetypes can be in the group.
+if ($$VARS{group}) {
+	my $GR = selectNode $$VARS{group}, 'light';
+
+	if(canUpdateNode($USER, $GR))
+	{
+		$str .=
+"&lt;SCRIPT language=\"javascript\"&gt;
+	function updateGroup() {
+	window.open('" .
+		urlGen({node_id =&gt; $$VARS{group},
+			displaytype =&gt; 'editor',
+			add =&gt; getId ($NODE)}, "noquotes") .
+		"','". $$VARS{group} ."',
+		'');	
+	}
+&lt;/SCRIPT&gt;
+&lt;A href=\"javascript:updateGroup()\"&gt;add to &amp;quot;$$GR{title}&amp;quot;&lt;/a&gt;";
+	}
+}
+
+
+
+
+$str.="\n&lt;SCRIPT language=\"javascript\"&gt;
+       function confirmDelete(){
+          if(confirm(\"Delete '$$NODE{title}'?\")){
+		parent.location=" .
+		urlGen({node_id=&gt;getId($NODE),op=&gt;"nuke"}) .
+		"; }
+        }
+       &lt;/SCRIPT&gt;\n
+	&lt;br&gt;&lt;font size=1&gt;
+	&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
+	&lt;/font&gt;" 
+			if(canDeleteNode($USER, $NODE));                                                                                          
+
+$str;</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">adminbar</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

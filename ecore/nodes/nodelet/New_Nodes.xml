@@ -1,0 +1,47 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<lastupdate table="nodelet">941496841</lastupdate>
+	<nlcode table="nodelet">[%my $limit = 15;
+$limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
+
+my $str;
+my $csr = $Everything::dbh-&gt;prepare("
+	SELECT * FROM node
+	ORDER BY createtime DESC
+	LIMIT $limit");
+
+$csr-&gt;execute or return "SHIT";
+while(my $N = $csr-&gt;fetchrow_hashref){
+	$str .= linkNode($N) . "&lt;BR&gt;\n";	
+}
+$csr-&gt;finish;
+$str;
+
+
+
+%]</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">&lt;A HREF="/every2/index.pl?node_id=176&amp;lastnode_id=173"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=177&amp;lastnode_id=173"&gt;qauser&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=178&amp;lastnode_id=173"&gt;root&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=179&amp;lastnode_id=173"&gt;developers&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=180&amp;lastnode_id=173"&gt;gods&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=171&amp;lastnode_id=173"&gt;bug query results&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=172&amp;lastnode_id=173"&gt;bugbase stats&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=173&amp;lastnode_id=173"&gt;login&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=174&amp;lastnode_id=173"&gt;new bug&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=175&amp;lastnode_id=173"&gt;user variables&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=152&amp;lastnode_id=173"&gt;Gigantic Code Lister&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=153&amp;lastnode_id=173"&gt;Gigantic Node Lister&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=154&amp;lastnode_id=173"&gt;create node&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=155&amp;lastnode_id=173"&gt;node locked&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/every2/index.pl?node_id=156&amp;lastnode_id=173"&gt;bugpriority&lt;/a&gt;&lt;BR&gt;
+</nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">New Nodes</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">60</updateinterval>
+</NODE>

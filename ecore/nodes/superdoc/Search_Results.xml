@@ -1,0 +1,36 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<doctext table="document">Here's the stuff: &lt;p&gt;
+[%
+my $str;
+my $title = $query-&gt;param('node');
+return "" unless $title;
+foreach my $ND (@{ $$NODE{group} }) {
+	$str .= "&lt;LI&gt;" . linkNode ($ND) . "\n";
+}
+
+$str .= "&lt;p&gt;Otherwise, I could arrange it so that 
+	you could create \"$title\" as a ";
+
+my %approvedtypes;
+foreach my $NODETYPE (values %NODETYPES) {
+#	if (canCreateNode ($USER, $NODETYPE)) {
+		$approvedtypes{$$NODETYPE{title}} = $NODETYPE; 
+		#I have to do it in this kinda strange way to remove dupes...
+#	}
+}
+return unless %approvedtypes;
+	
+foreach my $type (keys %approvedtypes) {
+	$str .= "&lt;LI&gt;&lt;A href=" . urlGen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) ."&gt;$type&lt;/A&gt;\n";
+}
+$str;	
+%]
+
+</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">Search Results</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>

@@ -1,0 +1,20 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<core table="node">R</core>
+	<doctext table="document">[{openform}]
+
+[{checkvar:nodelets_off,Turn nodelets off}]&lt;br&gt;
+Nodelet Header Color:[{setvar:nodelet_headerclr}]&lt;br&gt;
+Nodelet Body Color:[{setvar:nodelet_textclr}]&lt;br&gt;
+Nodelet align:[{setvar:nodelet_align}]&lt;br&gt;
+Nodelet group:[{varmenu:nodelet_group,nodeletgroup}]&lt;br&gt;
+Theme container:[{varmenu:theme_container,theme container}]&lt;br&gt;
+
+
+
+[{closeform}]</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">User settings</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>

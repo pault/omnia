@@ -1,0 +1,25 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<displaytype table="htmlpage">display</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">[% unless ($$NODE{group}) {
+	"&lt;i&gt;This nodeball is empty&lt;/i&gt;";
+} else {
+	my $GROUP = $$NODE{group};
+	my $str;
+	foreach my $N  (@$GROUP) {
+		$N = selectNode $N, 'light';
+		$str .= "&lt;li&gt;" . linkNode ($N) . "($$N{type}{title})";
+	}
+	$str;
+}
+%]
+&lt;p&gt;[{windowview:editor,launch editor}]
+&lt;p&gt;[{displayvars}]</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">nodeball</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">nodeball display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

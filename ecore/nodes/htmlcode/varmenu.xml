@@ -1,0 +1,38 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my ($var, @TYPES) = @_;
+
+$var or return;
+
+my ($name) = "set$var";
+
+@TYPES or return;  #if no explicit types, quit
+
+foreach (@TYPES) { $_ = $NODETYPES{$_}; }  #replace w/ node refs
+my $NODELIST = selectNodeWhere ({ type_nodetype =&gt; \@TYPES }, "", "title");
+
+my $str;
+
+my (@titlelist, %items);
+$items{"0"} = "(default)";
+	
+push (@titlelist, "0");
+       foreach my $N (@$NODELIST) {
+                $N = selectNode $N, 'light';
+                my $id = getId $N;
+		push @titlelist, $id;
+		$items{$id} = $$N{title};
+        }
+
+my $SELECT = $$VARS{$var};
+
+if (my $q = $query-&gt;param("set$var")) {$$VARS{$var} = $q;}
+elsif ($query-&gt;param("sexisgood")){ $$VARS{$var}=""; } 
+
+$query-&gt;popup_menu($name, \@titlelist, $SELECT, \%items);</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">varmenu</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

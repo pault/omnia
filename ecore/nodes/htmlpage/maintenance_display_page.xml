@@ -1,0 +1,22 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">R</core>
+	<displaytype table="htmlpage">display</displaytype>
+	<package table="node">0</package>
+	<page table="htmlpage">Maintains: 
+[%
+my $N = selectNode ($$NODE{maintain_nodetype}, 'light');
+linkNode $N;
+%]
+&lt;br&gt;
+
+&lt;p&gt;
+Maintenance operation:["$$NODE{maintaintype}"]
+&lt;p&gt;[{listcode:code}]
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">maintenance</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">e2container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">maintenance display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

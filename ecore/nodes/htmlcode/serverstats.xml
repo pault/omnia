@@ -1,0 +1,38 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my $date = `date`;
+my $uptime = `uptime`;
+my @uptime;
+my $str;
+
+$uptime =~ s/^\s*(.*?)\s*$/$1/;
+@uptime = split /,?\s+/, $uptime;
+
+$str = $date . "&lt;br&gt;";
+shift @uptime;
+
+$str .= "@uptime[0..3]" . "&lt;br&gt;";
+#$str .= "@uptime[4..5]" . "&lt;br&gt;";
+#$str .= "@uptime[6..7]" . "&lt;br&gt;";
+
+
+foreach (@uptime[-3..-1]){
+	if ($_ &gt; 1.0) {
+		$_ = "&lt;font color=#CC0000&gt;" . $_ ."&lt;/font&gt;, ";
+	}else{
+		$_ .= ", "; 
+	}
+}
+$str .= "@uptime[-3..-1]". "&lt;br&gt;";
+
+$str;
+
+
+
+</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">serverstats</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>
