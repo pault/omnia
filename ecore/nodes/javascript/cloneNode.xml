@@ -3,17 +3,17 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">function cloneNode()
 {
-  var newname = prompt("Cloning node '["$$NODE{title}"]'\nEnter a new name:", "");
+  var newname = prompt(&quot;Cloning node '[% jsescape($$NODE{title}) %]'\nEnter a new name:&quot;, &quot;&quot;);
 
   if(newname)
   {
     var url = [% 
-        my $CLONER = $DB->getNode('node cloner', 'restricted_superdoc');
-        urlGen({'srcnode_id' => $$NODE{node_id}, 'newname' => 'NEWNAME',
-          'node_id' => $$CLONER{node_id} }); %];
+        my $CLONER = $DB-&gt;getNode('node cloner', 'restricted_superdoc');
+        urlGen({'srcnode_id' =&gt; $$NODE{node_id}, 'newname' =&gt; 'NEWNAME',
+          'node_id' =&gt; $$CLONER{node_id} }); %];
     
     url = url.replace(/NEWNAME/, newname);
-    url = url.replace(/ /g, "%20");
+    url = url.replace(/ /g, &quot;%20&quot;);
     parent.location = url;
   }
 }</field>

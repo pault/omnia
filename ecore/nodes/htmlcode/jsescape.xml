@@ -1,13 +1,11 @@
-<NODE export_version="0.5" nodetype="javascript" title="confirmDelete">
+<NODE export_version="0.5" nodetype="htmlcode" title="jsescape">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">function confirmDelete()
-{
-  if(confirm(&quot;Delete '[% jsescape($$NODE{title}) %]'?&quot;))
-      parent.location = [% urlGen({node_id =&gt; $$NODE{node_id}, op =&gt; &quot;nuke&quot;});%]
-}</field>
-  <field name="comment" type="literal_value"></field>
-  <field name="dynamic" type="literal_value">1</field>
+  <field name="code" type="literal_value">my $text = shift;
+$text =~ s/\\/\\\\/g;
+$text =~ s/\'/\\\'/g;
+$text =~ s/\&quot;/\&amp;quot\;/g;
+return $text;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -15,8 +13,8 @@
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">javascript</field>
+  <field name="loc_location" type="literal_value">0</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">confirmDelete</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
+  <field name="title" type="literal_value">jsescape</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>

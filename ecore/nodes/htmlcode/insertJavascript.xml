@@ -1,23 +1,27 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="insertJavascript">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="author_user" type="noderef"
+type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return "" unless(int(keys %INCJS));
+  <field name="code" type="literal_value">return &quot;&quot;
+unless(int(keys %INCJS));
 
-my $str = "&lt;script language='javascript'>\n";
+my $str = &quot;&lt;script language='javascript'&gt;\n&quot;;
+$str .= &quot;&lt;!--\n&quot;;
 
 foreach my $key (keys %INCJS)
 {
-  my $js = $DB->getNode($key, 'javascript');
+  my $js = $DB-&gt;getNode($key, 'javascript');
 
-  # We need to check to see if the javascript is "dynamic".  Dynamic
+  # We need to check to see if the javascript is &quot;dynamic&quot;. 
+Dynamic
   # javascript has embedded perl code in it that we need to parse.
   # This way we can have perl dynamically generate javascript based
   # on the current node, user, etc. WOO HOO!
   $str .= ($$js{dynamic} ? parseCode('code', $js) : $$js{code});
-  $str .= "\n";   
+  $str .= &quot;\n&quot;;   
 }
-
-$str .= "&lt;/script>";
+$str .= &quot;\n--&gt;\n&quot;;
+$str .= &quot;&lt;/script&gt;&quot;;
 
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
@@ -27,8 +31,10 @@ $str;</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="loc_location" type="noderef"
+type_nodetype="location,nodetype">htmlcode</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="title" type="literal_value">insertJavascript</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+  <field name="type_nodetype" type="noderef"
+type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>
