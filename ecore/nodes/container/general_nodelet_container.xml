@@ -1,7 +1,18 @@
 <NODE export_version="0.5" nodetype="container" title="general nodelet container">
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="context">CONTAINED_STUFF</field>
+  <field type="literal_value" name="context">[%
+	if (defined($$THEME{nodeletParent_container})) {
+		$$CURRENTNODE{parent_container} = $$THEME{nodeletParent_container};
+	} else {
+		my $parent;
+		if (defined($parent = $HTMLVARS{generalNodelet_container}) &amp;&amp;
+		  $parent != $$CURRENTNODE{parent_container}) {
+			$$CURRENTNODE{parent_container} = $parent;
+		}
+	}
+"";
+%]CONTAINED_STUFF</field>
   <field type="literal_value" name="dynamicauthor_permission">-1</field>
   <field type="literal_value" name="dynamicgroup_permission">-1</field>
   <field type="literal_value" name="dynamicguest_permission">-1</field>
