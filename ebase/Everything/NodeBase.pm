@@ -291,6 +291,15 @@ sub genTableName
 	return $table;
 }
 
+# another temporary function OF DOOM, again mysql only
+sub genLimitString
+{
+	my ($this, $offset, $limit) = @_;
+
+	$offset ||= 0;
+
+	return "LIMIT $offset, $limit";
+}
 
 #############################################################################
 #	Sub
@@ -870,23 +879,21 @@ sub constructNode
 	my $DATA;
 	my $tables = $this->getNodetypeTables($$NODE{type_nodetype});
 	my $table;
-	my $sql;
 	my $firstTable;
+	my $tablehash;
 	
 	return unless($tables && @$tables > 0);
 
 	$firstTable = pop @$tables;
-	$sql = "select * from " . $firstTable;
 
 	foreach $table (@$tables)
 	{
-		$sql .= " left join $table on $firstTable" . "_id=$table" . "_id";
+		$$tablehash{$table} = $firstTable . "_id=$table" . "_id";
 	}
 
-	$sql .= " where $firstTable" . "_id=$$NODE{node_id};";
+	$cursor = $this->sqlSelectJoined("*", $firstTable, $tablehash, $firstTable . "_id=" . $$NODE{node_id});
 	
-	$cursor = $this->getDatabaseHandle()->prepare($sql);
-	return 0 unless((defined $cursor) && ($cursor->execute()));
+	return 0 unless(defined $cursor);
 
 	$DATA = $cursor->fetchrow_hashref();
 	$cursor->finish();
@@ -1060,19 +1067,18 @@ sub getNodeCursor
 	my ($this, $select, $WHERE, $TYPE, $orderby, $limit, $offset,
 		$nodeTableOnly) = @_;
 	my $cursor;
-	my $wherestr;
+	my $tablehash;
 
 	$nodeTableOnly ||= 0;
 
 	# Make sure we have a nodetype object
 	$TYPE = $this->getType($TYPE);
 
-	$wherestr = $this->genWhereString($WHERE, $TYPE, $orderby, $limit, $offset);
+	my $wherestr = $this->genWhereString($WHERE, $TYPE);
 
 	# We need to generate an sql join command that has the potential
 	# to join on multiple tables.  This way the SQL engine does the
 	# search for us.
-	$select = "SELECT $select FROM node";
 
 	# Now we need to join on the appropriate tables.
 	if(not $nodeTableOnly && defined $TYPE)
@@ -1084,13 +1090,14 @@ sub getNodeCursor
 		{
 			foreach $table (@$tableArray)
 			{
-				$select .= " LEFT JOIN $table ON node_id=" . $table . "_id";
+				$$tablehash{$table} = "node_id=" . $table . "_id";
 			}
 		}
 	}
 
-	$select .= " $wherestr" if($wherestr);
-	$cursor = $this->{dbh}->prepare($select);
+	my $extra;
+	$extra .= "ORDER BY $orderby" if $orderby;
+	$extra .= " " . $this->genLimitString($offset, $limit) if $limit;
 
 	# Trap for SQL errors!
 	my $warn;
@@ -1098,7 +1105,7 @@ sub getNodeCursor
 	local $SIG{__WARN__} = sub {
 		$warn .= $_[0];
 	};
-	eval { $cursor->execute(); };
+	eval { $cursor = $this->sqlSelectJoined($select, "node", $tablehash, $wherestr, $extra); };
 	$error = $@;
 	local $SIG{__WARN__} = sub { };
 	
@@ -1400,7 +1407,7 @@ SQLEND
 #		dropNodeTable
 #
 #	Purpose
-#		Drop (delete) a table from a the database.  Note!!! This is
+#		Drop (delete) a table from the database.  Note!!! This is
 #		permanent!  You will lose all data in that table.
 #
 #	Parameters
@@ -1572,7 +1579,9 @@ sub quote
 #		This code was stripped from selectNodeWhere.  This takes a WHERE
 #		hash and a string for ordering and generates the appropriate where
 #		string to pass along with a select-type sql command.  The code is
-#		in this function so we can re-use it.
+#		in this function so we can re-use it. Note that this function
+#		takes less parameters than it used to, and doesn't add the 'WHERE'
+#		to the beginning of the returned string.
 #
 #	Notes
 # 		You will note that this is not a full-featured WHERE generator --
@@ -1586,19 +1595,13 @@ sub quote
 #			text WHERE clause.  Note that it should be quoted, if necessary,
 #			before passed in here.
 #		$TYPE - a hash reference to the nodetype
-#		$orderby - a string that contains information on how to order results
-#		$limit - a limit to the max number of rows returned
-#		$offset - (only if limit is provided) offset from the start of
-#			the matched rows.  By using this an limit, you can retrieve
-#			a specific range of rows.
-#			query should order the result if more than one match is found.
 #
 #	Returns
 #		A string that can be used for the sql query.
 #
 sub genWhereString
 {
-	my ($this, $WHERE, $TYPE, $orderby, $limit, $offset) = @_;
+	my ($this, $WHERE, $TYPE) = @_;
 	my $wherestr = "";
 	my $tempstr;
 	
@@ -1663,18 +1666,6 @@ sub genWhereString
 		$wherestr .= " type_nodetype=" . $this->getId($TYPE);
 	}
 
-	# Prepend with "WHERE".  If we have made it here and wherestr is empty,
-	# there are no restrictions on the search.
-	$wherestr = "WHERE $wherestr" if($wherestr && $wherestr ne "");
-
-	$wherestr .= " ORDER BY $orderby" if $orderby;
-
-	if($limit)
-	{
-		$offset ||= 0;
-		$wherestr .= " LIMIT $offset,$limit";
-	}
-	
 	return $wherestr;
 }
 
