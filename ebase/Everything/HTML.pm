@@ -383,9 +383,9 @@ sub getCode
 		$DB->getType("htmlcode"));
 	return '"";' unless ($CODELIST);
 	my $CODE = $DB->getNodeById($$CODELIST[0]);
-	
+	$args ||= "";	
 	my $str ='';
-	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if $args;
+	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n";
 	$str .= $$CODE{code};
 
 	return $str;
