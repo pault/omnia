@@ -7,7 +7,7 @@ BEGIN {
 	use lib '../blib/lib', '..', 'lib/';
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 
 use_ok( 'Everything::Security' );
 use subs qw( check inherit );
@@ -41,3 +41,5 @@ TODO: {
 
 is( check('rwxd', 'rw'), 1, '... should return true if op is permitted' );
 is( check('rwxd', 'rwxdc'), 0, '... and false if op is prohibited' );
+is( check('', 'r'), 0, '... and false if no perms are present' );
+is( check('i', ''), 0, '... and false if no modes are present' );

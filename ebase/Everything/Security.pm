@@ -68,7 +68,7 @@ sub checkPermissions
 	
 	# if no modes are passed in, we have nothing to check against.  For
 	# security purposes, we will return false.  We need something to check!
-	return 0 unless (defined $modes and $modes);
+	return 0 unless (defined $perms and $perms and defined $modes and $modes);
 	
 	# We remove any allowed permissions from the given modes.
 	$modes =~ s/[$perms]//g;
