@@ -2456,8 +2456,7 @@ sub opUpdate
 	if($preprocess)
 	{
 		# turn the htmlcode name into a function call
-		$preprocess .= "();";
-		evalX($preprocess);
+		evalX($preprocess."();") if getNode($preprocess, 'htmlcode');
 	}
 	
 	# First, we need to verify that all fields in this update are
@@ -2538,8 +2537,7 @@ sub opUpdate
 	{
 		# turn the htmlcode name into a function call.  This will end
 		# up calling HTML::AUTOLOAD()
-		$postprocess .= "();";
-		evalX($postprocess);
+		evalX($postprocess."();") if getNode($postprocess, 'htmlcode');
 	}
 
 	return 1;
