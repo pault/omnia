@@ -19,8 +19,9 @@ BEGIN
 
 use TieOut;
 use FakeDBI;
+use File::Path;
 use File::Spec;
-use Test::More tests => 71;
+use Test::More tests => 70;
 use Test::MockObject;
 
 $ENV{EVERYTHING_LOG} = File::Spec->catfile( File::Spec->curdir(), 'log' );
@@ -137,7 +138,8 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 }
 
 # initEverything()
-SKIP: {
+SKIP:
+{
 	local @Everything::fsErrors = '123';
 	local @Everything::bsErrors = '321';
 	local ($Everything::DB, %Everything::NODEBASES);
@@ -160,25 +162,31 @@ SKIP: {
 	like($@, qr/Unknown database type 'badtype'/, '... dying given bad dbtype');
 
 	my $status;
-	local (@INC, *OUT);
+	local @INC = 'lib';
 
 	@INC = 'lib';
 
-	if (open(OUT, '>', File::Spec->catfile(qw(lib Everything NodeBase foo.pm))))
+	my $path = File::Spec->catdir(qw( lib Everything NodeBase ));
+	
+	if (-d $path or mkpath $path)
 	{
-		(my $foo = <<'		END_HERE') =~ s/^\t+//gm;;
-		package Everything::NodeBase::foo;
+		local *OUT;
+		if (open(OUT, '>', File::Spec->catfile( $path, 'foo.pm' )))
+		{
+			(my $foo = <<'			END_HERE') =~ s/^\t+//gm;;
+			package Everything::NodeBase::foo;
 
-		sub new { 'foo' }
+			sub new { 'foo' }
+	
+			1;
+			END_HERE
 
-		1;
-		END_HERE
-
-		print OUT $foo;
-		$status = 1;
+			print OUT $foo;
+			$status = 1;
+		}
 	}
 
-	skip( 'Cannot write fake module', 3 )  unless $status;
+	skip( 'Cannot write fake module', 2 )  unless $status;
 
 	eval { initEverything( 'foo', { dbtype => 'foo' } ) };
 	is( $@, '', '... loading nodebase for requested database type' );
