@@ -380,16 +380,17 @@ sub getCode
 	my ($funcname, $args) = @_;
 
 	my $CODELIST = $DB->selectNodeWhere ({title=>$funcname},
-			$DB->getType("htmlcode"));
+		$DB->getType("htmlcode"));
 	return '"";' unless ($CODELIST);
 	my $CODE = $DB->getNodeById($$CODELIST[0]);
+
+	#$args ||= "";	
 	my $str ='';
 	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
 	$str .= $$CODE{code};
 
 	return $str;
 }
-
 
 
 #############################################################################
@@ -1279,6 +1280,7 @@ sub handleUserRequest
 	{
 		# Searching for a node my string title
 		my $type  = $query->param('type');
+		my $TYPE = $DB->getType($type);
 		
 		$nodename = $query->param('node');
 		$nodename =~ tr/[]|<>//d;
@@ -1291,11 +1293,18 @@ sub handleUserRequest
 		{
 			nodeName ($nodename, $user_id, $type); 
 		}
-		elsif (canCreateNode($user_id, $DB->getType($type)))
+		elsif (canCreateNode($user_id, $TYPE))
 		{
-			$node_id = $DB->insertNode($nodename,
-				$DB->getType($query->param('type')), $user_id);
-			
+			$node_id = $DB->insertNode($nodename,$TYPE, $user_id);
+
+			if($node_id == 0)
+			{
+				# It appears that the node already exists.  Get its id.
+				$node_id = $DB->sqlSelect("node_id", "node", "title=" .
+					$DB->quote($nodename) . " && type_nodetype=" .
+					$$TYPE{node_id});
+			}
+
 			gotoNode($node_id, $user_id);
 		} 
 		else
