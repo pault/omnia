@@ -24,8 +24,12 @@
 	my $parent = linkNode($NODE-&gt;{parent_task}) || "none";
 	my $text = parseLinks($NODE-&gt;{doctext});
 
+	my $edit = '';
+	if ($NODE-&gt;hasAccess($USER, 'w')) {
+		$edit = linkNode($NODE, 'edit', { displaytype =&gt; 'edit' });
+	}
 return &lt;&lt;HTML;
-&lt;h3&gt;$$NODE{title}&lt;/h3&gt;
+&lt;h3&gt;$$NODE{title}&lt;/h3&gt;&lt;p align="right"&gt;$edit&lt;/p&gt;
 &lt;table border="1" cellpadding="5"&gt;
 &lt;tr&gt;&lt;th&gt;Update time&lt;/th&gt;&lt;th&gt;Category&lt;/th&gt;&lt;th&gt;Parent&lt;/th&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;$date&lt;/td&gt;&lt;td&gt;$$NODE{update_type}&lt;/td&gt;&lt;td&gt;$parent&lt;/td&gt;&lt;/tr&gt;
