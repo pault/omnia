@@ -3,10 +3,10 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="canworkspace" type="literal_value">-1</field>
   <field name="defaultauthor_permission" type="literal_value">0</field>
-  <field name="defaultauthoraccess" type="literal_value">rwxd</field>
+  <field name="defaultauthoraccess" type="literal_value">rixi</field>
   <field name="defaultgroup_permission" type="literal_value">0</field>
   <field name="defaultgroup_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
-  <field name="defaultgroupaccess" type="literal_value">r----</field>
+  <field name="defaultgroupaccess" type="literal_value">rixi-</field>
   <field name="defaultguest_permission" type="literal_value">0</field>
   <field name="defaultguestaccess" type="literal_value">--x--</field>
   <field name="defaultother_permission" type="literal_value">0</field>
