@@ -46,7 +46,6 @@
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Super Search</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Welcome to Everything!</member>
-    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">User settings</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">What is my password</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">login</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">mail settings</member>
