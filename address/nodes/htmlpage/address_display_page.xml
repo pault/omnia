@@ -1,0 +1,59 @@
+<NODE export_version="0.5" nodetype="htmlpage" title="address display page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;h2>["$$NODE{firstname}"]&amp;nbsp;["$$NODE{lastname}"]&lt;/h2>
+&lt;table border=0>
+[% return linkNode($NODE, "Edit", {displaytype => 'edit'}). " this information"
+   if $NODE->hasAccess($USER, 'w') %]
+
+
+[%
+my $str;
+
+my %labels = (companytitle => "title");
+my @fields = qw(companytitle company email work fax pager mobile home
+  address city state zip country);
+
+foreach (@fields) {
+  my $label = $_;
+  $label = $labels{$label} if exists $labels{$label};
+  
+  $str.= "&lt;tr>&lt;td>&lt;b>".ucfirst($label).":&lt;/b>&lt;/td>&lt;td>".$$NODE{$_}."&lt;/td>&lt;/tr>" if $$NODE{$_}; 
+}
+$str ||= "&lt;tr>&lt;td>No information currently available&lt;/td>&lt;/tr>";
+$str;
+%]
+&lt;/table>
+[% "&lt;h2>Other information&lt;/h2>" if $$NODE{doctext} %]
+&lt;p>
+[{parselinks:doctext}]
+&lt;p align=right>[% linkNode(getNode('address book', 'superdoc'), "back to Address Book")%]
+
+
+
+
+
+
+
+
+
+
+</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">address</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
+  <field name="permissionneeded" type="literal_value">r</field>
+  <field name="title" type="literal_value">address display page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
+</NODE>

@@ -1,0 +1,54 @@
+<NODE export_version="0.5" nodetype="htmlpage" title="address edit page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">edit</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">&lt;p align=right>[% linkNode(getNode('address book', 'superdoc'), "back to Address Book")%]
+&lt;p>
+First: [{nodeFormObject:TextField,firstname,,,18,64}]
+Last: [{nodeFormObject:TextField,lastname,,,18,64}]
+&lt;p>
+&lt;h2>Company Info&lt;/h2>
+&lt;table border=0>
+&lt;tr>&lt;td>Title:&lt;/td>&lt;td> [{nodeFormObject:TextField,companytitle,,,18,64}]&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>Company:&lt;/td>&lt;td> [{nodeFormObject:TextField,company,,,18,64}]&lt;/td>&lt;/tr>
+&lt;/table>
+&lt;h2>Contact Info&lt;/h2>
+&lt;table border=0>
+&lt;tr>&lt;td>Email: &lt;/td>&lt;td>[{nodeFormObject:TextField,email,,,18,64}]&lt;/td>&lt;/tr>
+[%
+  my $str;
+  my @phonefields = qw(work fax moble pager home);
+  foreach (@phonefields) {
+    $str.="&lt;tr>&lt;td>".ucfirst($_).":&lt;/td>&lt;td>".nodeFormObject('TextField',$_,'',"",12,15)."&lt;/td>&lt;/tr>";
+  }
+  $str;
+%]
+&lt;/table>
+&lt;h2>Address&lt;/h2>
+&lt;table border=0>
+&lt;tr>&lt;td>Address:&lt;/td>&lt;td> [{nodeFormObject:TextField,address,,,40,255}]&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>City:&lt;/td>&lt;td> [{nodeFormObject:TextField,city,,,18,64}]&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>State:&lt;/td>&lt;td>[{nodeFormObject:TextField,state,,,10,64}]&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>Zip Code:&lt;/td>&lt;td>[{nodeFormObject:TextField,zip,,,10,15}]&lt;/td>&lt;/tr>
+&lt;tr>&lt;td>Country:&lt;/td>&lt;td>[{nodeFormObject:TextField,country,,,18,64}]&lt;/td>&lt;/tr>
+&lt;/table>
+&lt;h2>Other notes&lt;/h2>
+[{textarea:doctext}]
+[{submit}]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">address</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">address edit page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
+</NODE>

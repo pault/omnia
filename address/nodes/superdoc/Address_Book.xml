@@ -1,0 +1,46 @@
+<NODE export_version="0.5" nodetype="superdoc" title="Address Book">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[% $query->start_form("POST", $ENV{script_name}) %]
+&lt;INPUT type=hidden name=op value=new>
+&lt;INPUT type=hidden name=type value=address>
+&lt;INPUT type=textfield name=node size=20 maxsize=80>
+[{submit:new,new address}]
+&lt;/form>
+
+&lt;table border=0 width=100%>
+[%
+my $str;
+my $foruser;
+$foruser = int $query->param('foruser');
+$foruser ||= getId($USER);
+
+my @phonefields = qw(work moble pager home email fax);
+my $addys = getNodeWhere({author_user=>$foruser}, 'address', 'lastname');
+
+foreach (@$addys) {
+  $str.="&lt;tr>&lt;td>".linkNode($_, ucfirst($$_{lastname}).", ".ucfirst($$_{firstname}))."&lt;/td>";
+
+  my $pref_field;
+  foreach my $p (@phonefields) {
+    next if $pref_field;
+    $pref_field = $p if $$_{$p};
+  }
+  $str.="&lt;td align=right>$$_{$pref_field} ($pref_field)&lt;/td>" if $pref_field;
+  $str.="&lt;/tr>";
+}
+$str;
+%]
+&lt;/table></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">Address Book</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
+</NODE>
