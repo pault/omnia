@@ -25,7 +25,7 @@
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="restrict_nodetype" type="literal_value">0</field>
   <field name="restrictdupes" type="literal_value">1</field>
-  <field name="sqltable" type="literal_value">workspace</field>
+  <field name="sqltable" type="literal_value"></field>
   <field name="title" type="literal_value">workspace</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
 </NODE>
