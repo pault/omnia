@@ -18,8 +18,8 @@
 	my ($date, $time) = split(" ", $NODE-&gt;{updatetime});
 	my ($year, $month, $day) = split(/-/, $date);
 
-	my @mnames = qw( January February March April May June July August 
-		September October November December);
+	my @mnames = qw( null January February March April May June July
+		 August September October November December);
 
 	$date = "$time on $day $mnames[$month] $year";
 
