@@ -1,8 +1,8 @@
 package Everything::Node::nodemethod;
 
 #############################################################################
-#   Everything::Node::node
-#	   Package the implements the base node functionality
+#   Everything::Node::nodemethod
+#	   Package the implements the base nodemethod functionality
 #
 #   Copyright 2000 Everything Development Inc.
 #   Format: tabs = 4 spaces
