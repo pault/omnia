@@ -900,6 +900,8 @@ sub logRevision {
 	return 0 unless $this->hasAccess($USER, 'w');
 	$maxrevisions = $this->{type}{derived_maxrevisions} if $maxrevisions == -1;
 
+	#We should never revise a node, even if we are in a workspace.
+	return 0 unless $maxrevisions;
 
 	#we are updating the node -- remove any "redo" revisions 
 	
@@ -914,8 +916,7 @@ sub logRevision {
 	
  	my $data;
     if (not $workspace) {
-		return 0 unless $maxrevisions;
-    	$data = $this->{DB}->getNode($this->getId, "force")->toXML();
+    		$data = $this->{DB}->getNode($this->getId, "force")->toXML();
 	} else {
 		$data = $this->toXML();
 	}
