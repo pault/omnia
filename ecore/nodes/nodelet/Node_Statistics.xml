@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945441295</lastupdate>
+	<lastupdate table="nodelet">945442677</lastupdate>
 	<nlcode table="nodelet">Node ID:[% getId $NODE %]&lt;br&gt;
 Created on:&lt;br&gt; ["$$NODE{createtime}"]&lt;br&gt;
 Hits: ["$$NODE{hits}"]&lt;br&gt;
@@ -9,8 +9,8 @@ Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
 Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype"))); %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">Node ID:164&lt;br&gt;
-Created on:&lt;br&gt; 1999-12-17 09:28:17&lt;br&gt;
-Hits: 3&lt;br&gt;
+Created on:&lt;br&gt; 1999-12-17 09:56:17&lt;br&gt;
+Hits: 1&lt;br&gt;
 Nodetype: &lt;A HREF="/index.pl?node_id=21&amp;lastnode_id=164"&gt;superdoc&lt;/a&gt;&lt;br&gt;
 Display page: &lt;br&gt;&lt;A HREF="/index.pl?node_id=123&amp;lastnode_id=164"&gt;superdoc display page&lt;/a&gt;</nltext>
 	<package table="node">0</package>

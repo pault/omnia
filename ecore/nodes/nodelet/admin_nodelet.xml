@@ -1,14 +1,14 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945441400</lastupdate>
+	<lastupdate table="nodelet">945442876</lastupdate>
 	<nlcode table="nodelet">[{adminbar}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">display &lt;A HREF="/index.pl?displaytype=edit&amp;node_id=154&amp;lastnode_id=154"&gt;edit&lt;/a&gt; 
+	<nltext table="nodelet">display &lt;A HREF="/index.pl?displaytype=edit&amp;node_id=171&amp;lastnode_id=171"&gt;edit&lt;/a&gt; 
 &lt;SCRIPT language="javascript"&gt;
        function confirmDelete(){
-          if(confirm("Delete 'system settings'?")){
-		parent.location="/index.pl?node_id=154&amp;op=nuke"; }
+          if(confirm("Delete 'default theme'?")){
+		parent.location="/index.pl?node_id=171&amp;op=nuke"; }
         }
        &lt;/SCRIPT&gt;
 

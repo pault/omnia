@@ -171,6 +171,7 @@
 		<groupnode167 table="nodegroup" type="dbtable">themesetting</groupnode167>
 		<groupnode168 table="nodegroup" type="container">nodelet container</groupnode168>
 		<groupnode169 table="nodegroup" type="nodelet">personal nodelet</groupnode169>
+		<groupnode170 table="nodegroup" type="htmlcode">titlebar</groupnode170>
 	</group>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>

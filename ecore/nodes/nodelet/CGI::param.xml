@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945441400</lastupdate>
+	<lastupdate table="nodelet">945442876</lastupdate>
 	<nlcode table="nodelet">[%
 my $str;
 foreach ($query-&gt;param) {
@@ -10,7 +10,7 @@ foreach ($query-&gt;param) {
 $str;
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;b&gt;node_id&lt;/b&gt;:154&lt;BR&gt;&lt;b&gt;lastnode_id&lt;/b&gt;:164&lt;BR&gt;</nltext>
+	<nltext table="nodelet">&lt;b&gt;node_id&lt;/b&gt;:171&lt;BR&gt;&lt;b&gt;lastnode_id&lt;/b&gt;:150&lt;BR&gt;</nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>

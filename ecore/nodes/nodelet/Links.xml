@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945441400</lastupdate>
+	<lastupdate table="nodelet">945442876</lastupdate>
 	<nlcode table="nodelet">&lt;ol&gt;
 [%
 my @links = @{ selectLinks $NODE, "food" };
