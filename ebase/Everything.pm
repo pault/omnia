@@ -149,23 +149,21 @@ sub getTime
 #
 sub printLog
 {
-	my $entry = $_[0];
-	my $time = getTime();
-	
-	# prefix the date a time on the log entry.
-	$entry = "$time: $entry\n";
+	my ($entry) = @_;
+
+	# prefix the date and time on the log entry
+	my $message = getTime() . ": $entry\n";
 
 	local *ELOG;
-	if(open(ELOG, ">> $everythingLog"))
+	if (open(ELOG, ">> $everythingLog"))
 	{
-		print ELOG $entry;
+		print ELOG $message;
 	}
 	else
 	{
-		warn "Everything log '$everythingLog' could not be opened: $!\n";
+		Everything::logErrors( '',
+			"Log '$everythingLog' could not be opened: $!\n$message" );
 	}
-
-	return 1;
 }
 
 
@@ -186,7 +184,8 @@ sub clearLog
 	}
 	else
 	{
-		warn "Everything log '$everythingLog' could not be opened: $!\n";
+		Everything::logErrors( '',
+			"Log '$everythingLog' could not be cleared: $!" );
 	}
 }
 
