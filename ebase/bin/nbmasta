@@ -11,12 +11,13 @@
 #
 use strict;
 use Everything;
+use Everything::Node;
 use Everything::Nodeball;
 use Everything::XML;
 
 my $usagestr =<<END_HERE;
 Usage:
-	nbmasta [-h SQLHOST] [-u SQLUSER] [-p SQLPASS] [-v] [--force]
+	nbmasta [-h SQLHOST] [-u SQLUSER] [-p SQLPASS] [-v] [-d dbtype] [--force]
 	(import|export|remove) <NODEBALL> <DATABASE>
 END_HERE
 
@@ -26,15 +27,16 @@ setupOptions ({
 	force    => 0, 
 	password => '',
 	verbose  => 0, 
+	dbtype   => 'mysql',
 }, \@ARGV);
 
 die $usagestr if @ARGV < 3;
 
 my ($function, $nodeball, $database) = @ARGV;
 
-$database .= join(':', @OPTIONS{qw( user password host )});
+$database = join(':', $database, @OPTIONS{qw( user password host )});
 
-initEverything($database, { staticNodeTypes => 1 })
+initEverything($database, { staticNodeTypes => 1, dbtype => $OPTIONS{dbtype} })
 	or die "couldn't connect to $database";
 
 #############################################################################
@@ -104,7 +106,7 @@ sub main
 					and not $OPTIONS{force});
 
 				print "Updating nodeball '$OLDBALL->{title}'\n";
-				updateNodeball ($OLDBALL, $NEWBALL, $dir);
+				updateNodeball( $OLDBALL, $NEWBALL, $dir );
 				cleanUpDir($dir) if $cleanme;
 				exit;
 			}
