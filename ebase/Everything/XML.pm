@@ -361,7 +361,7 @@ sub xml2node{
 	my $sql = "INSERT INTO node ";
 	$sql .= "(createtime,". join(",",@fields) . ")\n";
 	$sql .= "VALUES (now(),". join(",",@$NODE{@fields}) .")\n";
-	$DB->getDatabseHandle()->do($sql) or die "SQL insert for node failed.";
+	$DB->getDatabaseHandle()->do($sql) or die "SQL insert for node failed.";
 	$node_id = $DB->sqlSelect('LAST_INSERT_ID()');
 	
 	# Now that we have our node id, we can insert the infor the rest

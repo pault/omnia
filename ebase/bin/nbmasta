@@ -889,6 +889,7 @@ sub main {
 			my @newversion = split /\./, $version;
 
 			for (my $i=0; $i < @oldversion; $i++) {
+				last if $newversion[$i] > $oldversion[$i];
 				die "Your current version of $title ($$VARS{version}) is newer\n"
 				."than the version that you are trying to install ($version). \n" 
 				."Do --force if you want to force this." 
