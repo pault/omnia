@@ -85,32 +85,28 @@ use vars qw($NODELET);
 #		The tag with any unapproved attributes removed.  If the tag itself
 #		is not approved, "" (nothing) will be returned.
 #
-sub tagApprove
-{
+sub tagApprove {
 	my ($close, $tag, $attr, $APPROVED) = @_;
 
 	$tag = uc($tag) if (exists $$APPROVED{uc($tag)});
 	$tag = lc($tag) if (exists $$APPROVED{lc($tag)});
 
-	if (exists $$APPROVED{$tag})
-	{
+	if (exists $$APPROVED{$tag}) {
 		my @aprattr = split ",", $$APPROVED{$tag};
 		my $cleanattr;
-		foreach (@aprattr)
-		{
-			if (($attr =~ /\b$_\b(\='.*?')/) or
-				($attr =~ /\b$_\b(\=".*?")/) or
-				($attr =~ /\b$_\b(\=\S*)?/))
-			{
-				$cleanattr .= " " . $_ . $1;
+		foreach (@aprattr) {
+			if (($attr =~ /\b$_\b\='(.+?)'/) or
+					($attr =~ /\b$_\b\="(.+?)"/) or
+					($attr =~ /\b$_\b\="?'?(\S*)\b/)) {
+				$cleanattr.=" ".$_.'="'.$1.'"';
 			}
 		}
-		
-		return "<".$close.$tag.$cleanattr.">";
-	} 
-
-	return "";
+		"<".$close.$tag.$cleanattr.">";
+	} else { ""; }
 }
+
+
+
 
 #############################################################################
 #	Sub
