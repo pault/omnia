@@ -3,60 +3,62 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
 my $str;
-my $execstr = $query->param("sqlquery");
+my $execstr = $query-&gt;param(&quot;sqlquery&quot;);
 
-$str = $query->start_multipart_form("POST",
-  $ENV{script_name}) . "\n";
-$str .= $query->hidden("displaytype") . "\n";
-$str .= $query->hidden("node_id", getId($NODE)) . "\n";
-$str .= "SQL Query:\n";
-$str .= $query->textfield("sqlquery", $execstr, 60);
-$str .= $query->submit('execsql', 'Execute') . "\n";
-$str .= $query->end_form;
+$str = $query-&gt;start_multipart_form(&quot;POST&quot;,$ENV{script_name}) . &quot;\n&quot;;
+$str .= $query-&gt;hidden(&quot;displaytype&quot;) . &quot;\n&quot;;
+$str .= $query-&gt;hidden(&quot;node_id&quot;, getId($NODE)) . &quot;\n&quot;;
+$str .= &quot;SQL Query:\n&quot;;
+$str .= $query-&gt;textfield(&quot;sqlquery&quot;, $execstr, 60);
+$str .= $query-&gt;submit('execsql', 'Execute') . &quot;\n&quot;;
+$str .= $query-&gt;end_form;
 
 $str;
 %]
 
-&lt;p>
+&lt;p&gt;
 [%
-my $execstr = $query->param("sqlquery");
-my $str = "";
+my $execstr = $query-&gt;param(&quot;sqlquery&quot;);
+my $str = &quot;&quot;;
 
 if($execstr)
 {
-  my $cursor = $DB->getDatabaseHandle()->prepare($execstr);
+  my $cursor = $DB-&gt;getDatabaseHandle()-&gt;prepare($execstr);
 
-  if($cursor->execute())
+  if($cursor-&gt;execute())
   {
     my $ROW;
-    while($ROW = $cursor->fetchrow_hashref())
+    my $hdr = &quot;&lt;table border=1&gt;\n&quot;;
+
+    while($ROW = $cursor-&gt;fetchrow_hashref())
     {
-      if($str eq "")
-      {
-        $str = "&lt;table border=1>\n";
-        $str .= " &lt;tr>\n";
+
+      if($str eq &quot;&quot;)
+      { 
+        $hdr .= &quot; &lt;tr&gt;\n&quot;;
         foreach (keys %$ROW)
         {
-          $_ = "&amp;nbsp;" if((not defined $_) || ($_ eq "")); 
-          $str .= "  &lt;td align=\"center\" bgcolor=\"#CC99CC\">$_&lt;/td>\n";
+          $_ = &quot;&amp;nbsp;&quot; if((not defined $_) || ($_ eq &quot;&quot;)); 
+          $hdr .= &quot;  &lt;td align=\&quot;center\&quot; bgcolor=\&quot;#CC99CC\&quot;&gt;$_&lt;/td&gt;\n&quot;;
         }
-        $str .= " &lt;/tr>\n";
+        $hdr .= &quot; &lt;/tr&gt;\n&quot;;
       }
 
-      $str .= " &lt;tr>\n";
+      $str .= &quot; &lt;tr&gt;\n&quot;;
       my ($k, $v);
       foreach (keys %$ROW)
       {
         $k = $_;  $v = $$ROW{$_};
         $v = encodeHTML($v, 1) if(defined $v);
         $v = linkNode($v, $v) if(($k =~ /_/) &amp;&amp; (not ($v =~ /\D/)));
-        $v = "&amp;nbsp;" if((not defined $v) || ($v eq ""));
-        $str .= "  &lt;td>&lt;pre>$v&lt;/pre>&lt;/td>\n";
+        $v = &quot;&amp;nbsp;&quot; if((not defined $v) || ($v eq &quot;&quot;));
+        $str .= &quot;  &lt;td&gt;&lt;pre&gt;$v&lt;/pre&gt;&lt;/td&gt;\n&quot;;
       }
-      $str .= " &lt;/tr>\n";
+      $str .= &quot; &lt;/tr&gt;\n&quot;;
     }
-	$cursor->finish();
-    $str .= "&lt;/table>\n";
+        $cursor-&gt;finish();
+        $str ||= &quot;&lt;tr&gt;&lt;td&gt;&lt;em&gt;No results found&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;&quot;;
+        $str = $hdr.$str.&quot;&lt;/table&gt;\n&quot;;
   }
 }
 
@@ -74,3 +76,4 @@ $str;
   <field name="title" type="literal_value">SQL Prompt</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>
 </NODE>
+
