@@ -198,7 +198,7 @@ sub setupSqlUser {
 	}
 	$csr->finish;
 
-	$dbh->do("GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP
+	$dbh->do("GRANT ALL PRIVILEGES
 		ON $database.*
 		TO $user\@$host
 		IDENTIFIED BY '$pass'") or die "couldn't create user '$user'!";
