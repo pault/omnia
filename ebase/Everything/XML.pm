@@ -120,6 +120,13 @@ sub fixNodes
 sub xml2node
 {
 	my ($xml) = @_;
+
+	# XML::Parser doen't like it when there is more than one top level
+	# document tag.  If we have an XML file that contains more than one
+	# node, XML::Parser will error on it.  So, to make everything happy,
+	# we just wrap the entire doc in a single tag.
+	$xml = "<everything>\n" . $xml . "\n</everything>";
+	
 	my $XMLPARSER = new XML::DOM::Parser (ErrorContext => 2,
 		ProtocolEncoding => 'ISO-8859-1');
 	my $doc = $XMLPARSER->parse ($xml);
