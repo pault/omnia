@@ -56,7 +56,7 @@ $GLOBAL{userFontAttr} ||= "color=white";
 [{includeJS: findFormObject, moveSelectItem, selectItem}]
 [%
 # First, make sure we have the nodelets field filled out
-my @nodelets = @{ $NODE->getNodelets(); };
+my @nodelets = @{ $NODE->getNodelets($HTMLVARS{default_nodeletgroup}); };
 my $VARS = $NODE->getVars();
 unless(exists $$VARS{nodelets})
 {

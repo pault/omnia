@@ -2,10 +2,8 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($field) = @_;
-
-my $html = "&lt;font size=1 color=red>Warning!  Using old textarea!&lt;/font>";
-$html .= $query->textarea("$$NODE{type}{title}_$field", $$NODE{$field}, 20, 80);
-$html;</field>
+nodeFormObject('TextArea',$field);
+</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
