@@ -37,7 +37,7 @@
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Parent container:&lt;/b&gt;&lt;/td&gt;
-  &lt;td&gt;[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td&gt;
+  &lt;td&gt;[{nodeFormObject: TypeMenu, parent_container, parentContainer, container, AUTO, $USER, r, 0}]&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Theme:&lt;/b&gt;&lt;/td&gt;
