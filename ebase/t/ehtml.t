@@ -13,7 +13,7 @@ use vars qw( $AUTOLOAD );
 
 use File::Spec;
 use File::Path;
-use Test::More tests => 70;
+use Test::More tests => 96;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -109,6 +109,44 @@ can_ok( $package, 'tagApprove' );
 can_ok( $package, 'htmlScreen' );
 can_ok( $package, 'encodeHTML' );
 can_ok( $package, 'decodeHTML' );
+{
+	#individually:
+	is(encodeHTML(''), '', 'encodeHTML() should preserve nullspace');
+	is(encodeHTML('&'), '&amp;', 'encodeHTML() should encode ampersands');
+	is(encodeHTML('"'), '&quot;','encodeHTML() should encode double quotes');
+	is(encodeHTML('<'), '&lt;', 'encodeHTML() should encode left angle brackets');
+	is(encodeHTML('>'), '&gt;', 'encodeHTML() should encode right angle brackets');
+	is(encodeHTML('['), '[', 'encodeHTML() should not encode left brackets without the adv parameter');
+	is(encodeHTML(']'), ']', 'encodeHTML() should not encode right brackets without the adv parameter');
+	is(encodeHTML('[',1), '&#91;', 'encodeHTML() should encode left brackets with the adv parameter');
+	is(encodeHTML(']',1), '&#93;', 'encodeHTML() should encode right brackets with the adv parameter');
+
+	is(decodeHTML(''), '', 'decodeHTML() should preserve nullspace');
+	is(decodeHTML('&amp;'), '&', 'decodeHTML() should decode apersands');
+	is(decodeHTML('&quot;'), '"', 'decodeHTML() should decode double quotes');	
+	is(decodeHTML('&lt;'), '<', 'decodeHTML() should decode angle left brackets');
+	is(decodeHTML('&gt;'), '>', 'decodeHTML() should decode angle right brackets');
+	is(decodeHTML('&#91;'), '&#91;', 'decodeHTML() should not decode left brackets without the adv parameter');
+	is(decodeHTML('&#93;'), '&#93;', 'decodeHTML() should not decode right brackets without the adv parameter');
+	is(decodeHTML('&#91;', 1), '[', 'decodeHTML() should decode left brackets with the adv parameter');
+	is(decodeHTML('&#93;', 1), ']', 'decodeHTML() should decode right brackets with the adv parameter');
+
+	#integrated:
+	my $string = "'&foo; <br>'";
+	is(encodeHTML($string), "'&amp;foo; &lt;br&gt;'", 'encodeHTML() should create valid encoded characters in a string');
+	is(decodeHTML(encodeHTML($string)), $string, 'encodeHTML() and decodeHTML() should undo each other');
+
+	$string = ' [ foo &amp;]"Hello';
+	is(encodeHTML($string), ' [ foo &amp;amp;]&quot;Hello', 'encodeHTML() should properly encode a complicated string');
+	is(decodeHTML($string), ' [ foo &]"Hello', 'decodeHTML() should properly decode a complicated string');
+	is(decodeHTML(encodeHTML($string)), $string, 'encodeHTML() and decodeHTML() should undo each other for a complicated string');
+
+	$string = "<br>\n&lt;p&gt;";
+	is(encodeHTML($string), "&lt;br&gt;\n&amp;lt;p&amp;gt;", 'encodeHTML() should properly encode a string with a newline');
+	is(decodeHTML($string), "<br>\n<p>", 'decodeHTML() should properly decode a string with a newline');
+	is(decodeHTML(encodeHTML($string)), $string, 'encodeHTML() and decodeHTML() should undo each other for a string with a newline');
+
+}
 can_ok( $package, 'htmlFormatErr' );
 can_ok( $package, 'htmlErrorUsers' );
 can_ok( $package, 'htmlErrorGods' );
