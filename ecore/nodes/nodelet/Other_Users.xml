@@ -15,7 +15,7 @@
 my $time = 3 * 60;
 my $limit = 30;
 
-my $USRS = getNodeWhere(&quot;(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)&quot;, &quot;user&quot;, &quot;node_id&quot;, $limit);
+my $USRS = getNodeWhere(&quot;(&quot; . $DB->timediff( $DB->now(), 'lasttime' ) . &quot; &lt; $time)&quot;, &quot;user&quot;, &quot;node_id&quot;, $limit);
 
 my $str;
 foreach (@$USRS) {
