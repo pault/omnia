@@ -271,7 +271,7 @@ sub htmlErrorUsers
 	# do see all the messy perl code.
 	my $error = "Server Error (#" . $errorId . ")\n";
 	$error .= "User: $$USER{title}\n";
-	$error .= "User agent: " . $query->user_agent() . "\n";
+	$error .= "User agent: " . $query->user_agent() . "\n" if defined $query;
 	$error .= "Code:\n$code\n";
 	$error .= "Error:\n$err\n";
 	$error .= "Warning:\n$warn";
@@ -876,7 +876,8 @@ sub updateNodelet
 		$$NODELET{nltext} = parseCode($$NODELET{nlcode}, $NODELET);
 		$$NODELET{lastupdate} = $currTime; 
 
-		updateNode($NODELET, -1);
+		updateNode($NODELET, -1) unless $interval == 0;
+		#if interval is zero then it should only be updated in cache
 	}
 	
 	""; # don't return anything

@@ -715,6 +715,8 @@ sub searchNodeName {
 		push(@words, $_) unless (exists $$NOWORDS{lc($_)} or length($_) < 2);
 	}
 
+	return unless @words;
+
 	my $match = "";
 	foreach my $word (@words) {
 		$word = lc($word);
@@ -722,7 +724,8 @@ sub searchNodeName {
 		$word = '[[:<:]]'.$word.'[[:>:]]';
 		$word = "(lower(title) rlike ".$dbh->quote($word).")";
 	}
-	
+
+
 	$match = '('. join(' + ',@words).')';
 	my $cursor = $DB->sqlSelectMany("*, $match AS matchval",
 		"node",

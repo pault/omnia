@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w 
+#!/usr/bin/perl 
 
 ########################################################################
 #
@@ -250,7 +250,7 @@ sub checkTables {
 #
 sub createDir {
 	my ($dir) = @_;
-	unless (-e $dir or $OPTIONS{force}) {
+	unless (-e $dir) {
 		my $result = `mkdir $dir`;
 		die "error creating $dir -- do you have the correct permissions?" 
 			if ($result and not $OPTIONS{force});
@@ -378,7 +378,7 @@ sub expandNodeball {
 
 	use Cwd;
 	my $cwd = getcwd;
-	
+
 	#make the file abs path
 	$nbfile = $cwd."/".$nbfile unless ($nbfile =~ /^\//);
 	$nbfile = absPath ($nbfile);
@@ -388,6 +388,8 @@ sub expandNodeball {
 	if ($OPTIONS{verbose}) {
 		foreach (@files) {print $_;}
 	}
+
+	
 
 	chdir $cwd;
 	$dir;
@@ -454,13 +456,26 @@ sub checkDeps {
 		}
 	};
 	buildDeplist($NODEBALL);
+
+	#we don't care if a dep is in the core
+	my $CORE = getNode 'core system', 'nodeball';
+	my $coregroup = $$CORE{group};
 	
+	my %inCore;
+	foreach (@$coregroup) {
+		$inCore{$_} = 1;
+	}
+
 	foreach my $NODE (@{ $$NODEBALL{group} }) {	
 		next unless ref $NODE;
 		foreach my $key (keys %$NODE) {
 			next unless ($key =~ /_(\w+)$/ and $1 ne "id"); 
 			next unless ($$NODE{$key});
 			next if ($nodes{$$NODE{$key}});	#eliminate if it's in our dependancies
+			next if exists($inCore{$$NODE{$key}}); #eliminate it if it's in the core node
+				#warning: this doesn't take into account different core versions
+
+			
 			my $N = getNodeById ($$NODE{$key});	
 			print "$$N{title} ($$N{type}{title}) is referenced by $$NODE{title}, but is not included as a dependancy\n";
 		}
@@ -690,12 +705,14 @@ sub updateNodeball {
 		
 		#we need to get the id of nodes --- 
 		#also check any deps	
-		my ($OLDNODE) = getNodeWhere({title=>$$N{title}}, $DB->getType($$N{type}));
+		my $OLDNODE = getNode($$N{title},$$N{type});
 		if ($OLDNODE) {
 			if ($oldgroup{getId($OLDNODE)}) {
 				delete $oldgroup{getId($OLDNODE)};
 			} 
 			next if ($$N{type} eq 'nodeball'); #good 
+			next if ($$N{type} eq 'user'); #users shouldn't be replaced 
+			next if ($$N{type} eq 'usergroup'); #usergroups shoudn't be replaced
 			#we should actually be checking version info on dependancies
 		
 		} else {
@@ -788,7 +805,7 @@ sub main {
 		}
 
 		open NODEBALL, $dir."/ME" or die 
-			"Can't find the nodeball link -- try running in " .
+			"Can't find the nodeball link '$dir\/ME'-- try running in " .
 			"-V and make sure it's not empty\n";
 
 		my $nodeball_xml = join '', <NODEBALL>;
