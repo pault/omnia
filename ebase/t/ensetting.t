@@ -10,13 +10,28 @@ BEGIN {
 
 use TieOut;
 use FakeNode;
-use Test::More tests => 34;
+use Test::More tests => 39;
 
 $INC{'Everything/Security.pm'} = 
 	$INC{'Everything/Util.pm'} =
 	$INC{'Everything/XML.pm'} =
 	$INC{'XML/DOM.pm'} = 
 1;
+
+sub AUTOLOAD
+{
+    return if $AUTOLOAD =~ /DESTROY$/;
+
+	no strict 'refs';
+	$AUTOLOAD =~ s/^main:://;
+
+	my $sub = "Everything::Node::setting::$AUTOLOAD";
+
+	if (defined &{ $sub }) {
+		*{ $AUTOLOAD } = \&{ $sub };
+		goto &{ $sub };
+	}
+}
 
 my @imports;
 local (*Everything::Security::import, *Everything::Util::import,
@@ -29,7 +44,7 @@ local (*Everything::Security::import, *Everything::Util::import,
 		push @imports, scalar caller();
 };
 
-use_ok( 'Everything::Node::setting' );
+use_ok( 'Everything::Node::setting' ) or exit;
 is( scalar @imports, 4, '... and should use Everything::Security, Everything::Util, Everything::XML, and XML::DOM' );
 
 my $node = FakeNode->new();
@@ -149,8 +164,16 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 		push @errors, join(' ', @_);
 	};
 
-	is( applyXMLFix($node, { fixBy => '' }), undef,
-		'applyXMLFix() should return undef unless called for a setting field' );
+	is( applyXMLFix( $node ), undef,
+		'applyXMLFix() should return if called without a fix' );
+	is( applyXMLFix( $node, 'bad' ), undef, '... or with a bad fix' );
+	my $fix = {};
+	foreach my $key (qw( fixBy field where ))
+	{
+		is( applyXMLFix( $node, $fix ), undef, "... or without a '$key' key" );
+		$fix->{ $key } = '';
+	}
+	is( applyXMLFix($node, $fix ), undef, '... or unless fixing a setting' );
 	is( $node->{_calls}[-1][0], 'SUPER', '... and delegate to SUPER() ');
 
 	$node->{_subs} = {
@@ -159,7 +182,8 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 	};
 	$node->{DB} = $node;
 
-	isa_ok( applyXMLFix($node, { fixBy => 'setting', where => 'w' }), 'HASH',
+	@$fix{ 'fixBy', 'where' } = ('setting', 'w');
+	isa_ok( applyXMLFix($node, $fix ), 'HASH',
 		'... should return setting $FIX if it cannot be found' );
 	is( $patch, 'w', 
 		'... should call patchXMLwhere() with "where" field of FIX' );
@@ -174,14 +198,17 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 		field			=> 'field',
 		fixBy			=> 'setting', 
 		title			=> 'title',
-		type_nodetype	=> 'type'
+		type_nodetype	=> 'type',
+		where           => 1,
 	}, 1);
 
 	like( $errors[0], qr/Unable to find 'title'.+'type'.+field/s, 
 		'... should print error if node is not found and printError is true' );
 
 	$node->{node_id} = 0;
-	is( applyXMLFix($node, { fixBy => 'setting', field => 'foo' }), undef,
+	$fix->{field}    = 'foo';
+
+	is( applyXMLFix($node, $fix), undef,
 		'applyXMLFix() should return undef if successfully called for setting');
 	is( $node->{foo}, 888, '... and set variable for field to node_id' );
 	is( join(' ', @{ $node->{_calls}[-1] }), "setVars $node", 
@@ -203,17 +230,3 @@ is( Everything::Node::setting::updateFromImport($node, $node), 10,
 	'updateFromImport() should call SUPER()' );
 is( $node->{_calls}[-2][0], 'setVars', '... and should call setVars()' );
 is( join('', @$node{'a', 'b'}), '12', '... and merge keys from new node' );
-
-sub AUTOLOAD {
-    return if $AUTOLOAD =~ /DESTROY$/;
-
-	no strict 'refs';
-	$AUTOLOAD =~ s/^main:://;
-
-	my $sub = "Everything::Node::setting::$AUTOLOAD";
-
-	if (defined &{ $sub }) {
-		*{ $AUTOLOAD } = \&{ $sub };
-		goto &{ $sub };
-	}
-}
