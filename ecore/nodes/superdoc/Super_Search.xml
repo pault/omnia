@@ -1,0 +1,195 @@
+<NODE export_version="0.5" nodetype="superdoc" title="Super Search">
+  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
+  <field type="literal_value" name="authoraccess">iiii</field>
+  <field type="literal_value" name="doctext">[{openform}]
+[%
+my $dbh = $DB->getDatabaseHandle;
+my $str;
+my $DEBUG=0;
+my $errormsg;
+my $debugstr;
+my $searchresults;
+my %nodetype;
+
+sub hasTextField {
+   my ($NT) = @_;
+   my $textfield = 0;
+   my %tables;
+   foreach my $t (@{ $NT->getTableArray }) {
+      push @{ $tables{$t} }, $$NT{node_id};
+   }
+   foreach my $table (keys %tables) {
+      foreach my $FIELDS ($DB->getFieldsHash($table)) {
+         $textfield = 1 if $$FIELDS{Type} =~ /text/;
+      }
+   }
+   $textfield;
+}
+
+
+my $nodetypes = getNodeWhere({type_nodetype => 1}, 'nodetype', 'title');
+my @nttitles;
+foreach (@$nodetypes) {
+    $nodetype{$$_{title}} = $$_{node_id};
+    push @nttitles, $$_{title} if $_->hasTypeAccess($USER, 'r') and hasTextField($_);
+}
+local *makeDateMenu=sub{
+    my ($prefix,$defaultdate,$edge)=@_;
+    $defaultdate||=$DB->sqlSelect("left(now(),10)","node","","limit 1");
+    my ($year,$month,$day)=split(/-/,$defaultdate);
+    my @months;
+    my @years=(1999..2009);
+    my @dates;
+    my %labels=("01"=>"Jan","02"=>"Feb","03"=>"Mar","04"=>"Apr","05"=>"May","06"=>"Jun",
+            "07"=>"Jul","08"=>"Aug","09"=>"Sep",10=>"Oct",11=>"Nov",12=>"Dec");
+    for(1..12){
+        push @months, (length $_==1)?"0$_":$_;
+    }
+    for(1..31){
+        push @dates, (length $_==1)?"0$_":$_;
+    }
+    $query->popup_menu(-name=>"$prefix"."_month",-values=>\@months,-labels=>\%labels,-default=>$month).
+        $query->popup_menu(-name=>"$prefix"."_day",-values=>\@dates,-default=>$day).
+        $query->popup_menu(-name=>"$prefix"."_year",-values=>\@years,-default=>$year);
+};
+
+local *paramToDate=sub{
+    my ($prefix,$edge)=@_;
+    my $str=$query->param($prefix."_year")."-".
+        $query->param($prefix."_month")."-".
+        $query->param($prefix."_day");
+    $str.= $edge eq "end" ? " 23:59:59" : " 00:00:00";
+    return $str if $str=~/^\d{4}-\d{2}-\d{2} \d\d:\d\d:\d\d$/;
+    "0000-00-00 00:00:00";
+};
+
+local *stringToSearchterms=sub{
+    my ($text)=@_;
+    my @st;
+    while($text=~/\"([^"]*)\"/g){
+    push @st, $1;
+}
+$text=~s/\"[^"]*\"//g;
+push @st, split(/\s+/,$text);
+return @st;
+};
+
+$str.="&lt;TABLE>";
+$str.="&lt;TR>&lt;TD>Words in title:&lt;/TD>&lt;TD>".$query->textfield('wordsintitle')."&lt;/TD>&lt;/TR>";
+$str.="&lt;TR>&lt;TD>Author:&lt;/TD>&lt;TD>".$query->textfield('author')."&lt;/TD>&lt;/TR>";
+$str.="&lt;TR>&lt;TD>Words in text:&lt;/TD>&lt;TD>".$query->textfield('wordsintext')."&lt;/TD>&lt;/TR>";
+$str.="&lt;/TABLE>".
+$query->checkbox(-name=>'constraindates',-label=>"Constrain Dates on search")."&lt;BR>".
+"Between".makeDateMenu('start','1999-09-01')." and ".makeDateMenu('end')."&lt;BR>".
+"&lt;BR>Choose types to limit results to:&lt;BR>".
+$query->checkbox_group(-name=>'chosentypes',-rows=>4,-values=> \@nttitles)."&lt;/UL>";
+$str.="&lt;BR>";
+$str.=$query->submit('sexisgood','search');
+$str.=$query->end_form;
+
+if($query->param('sexisgood')){
+
+    my $author=$query->param('author');
+    my $AUTHOR;
+    $AUTHOR=getNode($author,'user') if $author;
+
+    my @where;
+    push @where, "author_user=".$dbh->quote(getId($AUTHOR)) if getId($AUTHOR);
+    $errormsg.="&lt;BR>Couldn't find any author by the name of $author&lt;BR>" if  (!getId($AUTHOR) and $author);
+
+push @where, "createtime between ".$dbh->quote(paramToDate('start'))." and ".$dbh->quote(paramToDate('end','end')) if $query->param('constraindates');
+
+    my (@wordsintitle)=stringToSearchterms($query->param('wordsintitle'));
+    foreach(@wordsintitle){
+        push @where, "title like ".$dbh->quote("\%$_\%");
+    }
+
+    my $wordsintext=0;
+    my(@wordsintext)=stringToSearchterms($query->param('wordsintext'));
+
+
+
+    my @types;
+    if($query->param('constraintypes') or $query->param('chosentypes')){
+        foreach my $blah($query->param('chosentypes')){
+            push @types, $nodetype{$blah};
+        }
+    } else {
+        push @types, values %nodetype;
+    }
+
+
+
+    my $RESULTS;
+    if (not @wordsintext) {
+
+        $RESULTS=searchNodeName(join(' ',@wordsintitle), \@types);
+    } else {
+
+        my %tables;
+        foreach (@types) {
+            my $NT = getNode $_;
+
+            foreach my $t (@{ $NT->getTableArray }) {
+                $debugstr.="$t&lt;br>\n";
+                push @{ $tables{$t} }, $$NT{node_id};
+            }
+        }
+
+        foreach my $table (keys %tables) {
+            my @tablewhere;
+            my $typestr="type_nodetype in (";
+            $typestr.=join ',', @{ $tables{$table}};
+            $typestr.=")";
+
+            push @tablewhere, $typestr;
+            my @textfields;
+            foreach my $FIELDS ($DB->getFieldsHash($table)) {
+                push @textfields, $$FIELDS{Field} if $$FIELDS{Type} =~ /text/;
+            }
+# we could potentially have multiple text fields, but not for now
+            next unless @textfields;
+            my $field = shift @textfields;
+            foreach my $word (@wordsintext){
+                push @tablewhere, "$field like ".$dbh->quote("\%$word\%");
+            }
+            push @tablewhere, "node_id=$table\_id";
+          my $wherestr = join(" and ", (@where, @tablewhere));
+            $debugstr .= "$wherestr&lt;br>";
+            my $csr;
+            $csr=$DB->sqlSelectMany("*","node,$table",$wherestr,"limit 100");
+
+            while (my $N = $csr->fetchrow_hashref) {
+                push @$RESULTS, $N;
+            }
+            $csr->finish;
+        }
+
+    }
+
+    foreach my $N (@$RESULTS) {
+          $searchresults.="&lt;LI>".linkNode($N)."\n";
+          #this could potentially link to a node which the user doesn't have R access to
+    }
+
+    $searchresults="&lt;p>&lt;B>Search Results:&lt;/B>&lt;P>$searchresults" if $searchresults;
+    $str=$errormsg.$searchresults."\n&lt;HR>&lt;P>$str";
+    $str.="&lt;BR>$debugstr" if $DEBUG;
+
+}
+
+$str;
+%]
+</field>
+  <field type="literal_value" name="dynamicauthor_permission">-1</field>
+  <field type="literal_value" name="dynamicgroup_permission">-1</field>
+  <field type="literal_value" name="dynamicguest_permission">-1</field>
+  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field type="literal_value" name="group_usergroup">-1</field>
+  <field type="literal_value" name="groupaccess">iiiii</field>
+  <field type="literal_value" name="guestaccess">iiiii</field>
+  <field type="literal_value" name="loc_location">0</field>
+  <field type="literal_value" name="otheraccess">iiiii</field>
+  <field type="literal_value" name="title">Super Search</field>
+  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">superdoc</field>
+</NODE>
