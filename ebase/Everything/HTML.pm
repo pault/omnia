@@ -1032,7 +1032,7 @@ sub embedCode
 		# User must have execute permissions for this to be embedded.
 		if((defined $snippet) && $snippet->hasAccess($USER, "x"))
 		{
-			$block = parseCode($$snippet{code});
+			$block = parseCode('code', $snippet);
 		}
 		else
 		{
@@ -1061,15 +1061,17 @@ sub embedCode
 #		want users creating nodes with [% `rm -rf /*` %] in their code.
 #		Calling this on untrusted user text is a security breach.
 #
+#		
+#
 #	Parameters
-#		$text - the text to be parsed for the code blocks
-#		$CURRENTNODE - the node which this text is coming from.  Used for
-#			scope purposes.
+#		$field - the field to be parsed for the code blocks
+#		$CURRENTNODE - the node which this text is coming from.  
 #
 sub parseCode
 {
-	my ($text, $CURRENTNODE) = @_;
+	my ($field, $CURRENTNODE) = @_;
 
+    my $text = $$CURRENTNODE{$field};
 	# the embedding styles are:  
 	# [% %]s -- full embedded perl
 	# [{ }]s -- calls to the code database
@@ -1254,7 +1256,7 @@ sub updateNodelet
 	if((not $currTime or not $interval) or
 		($currTime > $lastupdate + $interval) || ($lastupdate == 0))
 	{
-		$$NODELET{nltext} = parseCode($$NODELET{nlcode}, $NODELET);
+		$$NODELET{nltext} = parseCode('nlcode', $NODELET);
 		$$NODELET{lastupdate} = $currTime; 
 
 		$NODELET->update(-1) unless $interval == 0;
@@ -1273,7 +1275,7 @@ sub genContainer
 	my $replacetext;
 	my $containers;
 
-	$replacetext = parseCode ($$CONTAINER{context}, $CONTAINER);
+	$replacetext = parseCode ('context', $CONTAINER);
 	$containers = $query->param('containers') || '';
 
 	# SECURITY!  Right now, only gods can see the containers.  When we get
@@ -1300,7 +1302,7 @@ sub genContainer
 
 		if($debugcontainer)
 		{
-			my $debugtext = parseCode($$debugcontainer{context}, $CONTAINER);
+			my $debugtext = parseCode('context', $debugcontainer);
 			$debugtext =~ s/CONTAINED_STUFF/$middle/s;
 			$replacetext = $start . $debugtext . $end;
 		}
@@ -1385,9 +1387,8 @@ sub displayPage
 	$GNODE = $NODE;
 	
 	my $PAGE = getPage($NODE, $query->param('displaytype')); 
-	my $page = $$PAGE{page} if($PAGE);
 
-	die "NO PAGE!" unless $page;
+	die "NO PAGE!" unless $PAGE;
 
 	# If the user does not have the needed permission to view this
 	# node through the desired htmlpage, we send them to the permission
@@ -1415,7 +1416,7 @@ sub displayPage
 		}
 	}
 
-	$page = parseCode($page, $NODE);
+	my $page = parseCode('page', $PAGE);
 
 	if ($$PAGE{parent_container}) {
 		my $container = genContainer($$PAGE{parent_container}); 
