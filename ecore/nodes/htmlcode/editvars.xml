@@ -20,42 +20,42 @@ my $str = '';
 foreach (@params) {
 
 # update any settings in the node passed through CGI
-        if (/setsetting_(\w+)$/) {
-                my $setvalue = $query->param("setsetting_$1");
+  if (/setsetting_(\w+)$/) {
+    my $setvalue = $query->param("setsetting_$1");
 
-# avoid uninitialized values but don't clobber a valid setting of 0
-				$setvalue = '' unless (defined($setvalue));
+    # avoid uninitialized values but don't clobber a valid setting of 0
+    $setvalue = '' unless (defined($setvalue));
 
-                unless ($setvalue) {
-                        my $nodename = $query->param("node name$1") || '';
-                        my $nodetype = $query->param("node type$1") || '';
+    unless ($setvalue) {
+      my $nodename = $query->param("node name$1") || '';
+      my $nodetype = $query->param("node type$1") || '';
 
-                        next unless $nodetype and $nodename;
-                        if (defined(my $N = getNode($nodename, $nodetype))) {
-                                $setvalue = $$N{node_id};
-                        }
-                }
-                $$SETTINGS{$1} = $setvalue;
+      next unless $nodetype and $nodename;
+      if (defined(my $N = getNode($nodename, $nodetype))) {
+        $setvalue = $$N{node_id};
+      }
+    }
+    $$SETTINGS{$1} = $setvalue;
 
-        } elsif (/delsetting_(\w*)$/) {
-                delete $$SETTINGS{$1};
-        }
+  } elsif (/delsetting_(\w*)$/) {
+    delete $$SETTINGS{$1};
+  }
 }
 
 my $newsetting = $query->param('newsetting') || '';
 
 if ($newsetting) {
-        my $newval = $query->param('newval') || '';
-        my $nodenamenew = $query->param('node namenew') || '';
-        my $nodetypenew = $query->param('node typenew') || '';
+  my $newval = $query->param('newval') || '';
+  my $nodenamenew = $query->param('node namenew') || '';
+  my $nodetypenew = $query->param('node typenew') || '';
 
-        (my $title = $newsetting) =~ s/\W//g;
-        if ($newval) {
-                $$SETTINGS{$title} = $newval;
-        } elsif ($nodenamenew and $nodetypenew) {
-                my $N = getNode($nodenamenew, $nodetypenew);
-                $$SETTINGS{$title} = $$N{node_id} if (defined($N));
-        }
+  (my $title = $newsetting) =~ s/\W//g;
+  if ($newval) {
+    $$SETTINGS{$title} = $newval;
+  } elsif ($nodenamenew and $nodetypenew) {
+    my $N = getNode($nodenamenew, $nodetypenew);
+    $$SETTINGS{$title} = $$N{node_id} if (defined($N));
+  }
 }
 
 # get all nodetypes
@@ -71,7 +71,7 @@ my @skeys = sort {$a cmp $b} keys %$SETTINGS;
 # could update them in system settings
 my ($keysize, $valsize) = (15, 30);
 my ($keyclr, $valclr, $setclr) = @$THEME{qw( setting_key setting_value
-        setting_autoset )};
+  setting_autoset )};
 $keyclr ||= "#CCCCFF";
 $valclr ||= "#DEDEFF";  
 $setclr ||= "#ABABFF";
@@ -82,31 +82,31 @@ $str .= &lt;&lt;HEAD;
 HEAD
 
 foreach (@skeys) {
-        $str .= &lt;&lt;SETTING;
+  $str .= &lt;&lt;SETTING;
 &lt;TR>&lt;TD>&lt;input type="checkbox" name="delsetting_$_">&lt;/td>
 &lt;TD bgcolor="$keyclr">&lt;b>$_&lt;/b>&lt;/TD>
 &lt;TD bgcolor="$valclr">&lt;INPUT TYPE="text" NAME="setsetting_$_"
 VALUE="$$SETTINGS{$_}" size="$valsize">&lt;/TD>
 SETTING
 
-        my ($nodetitle, $nodetype) = ('', '');
+  my ($nodetitle, $nodetype) = ('', '');
 
-        unless ($$SETTINGS{$_} =~ /\D/) {
-                my $tempnode = getNodeById($$SETTINGS{$_});
-                if ($tempnode) {
-                        $nodetitle = $$tempnode{title}; 
-                        $nodetype = $$tempnode{type}{title};
-                }
-        }
+  unless ($$SETTINGS{$_} =~ /\D/) {
+    my $tempnode = getNodeById($$SETTINGS{$_});
+    if ($tempnode) {
+      $nodetitle = $$tempnode{title}; 
+      $nodetype = $$tempnode{type}{title};
+    }
+  }
 
-        $query->param("node name$_", $nodetitle);
-        $str .= qq|&lt;TD bgcolor="$setclr">&lt;font size="0">|;
+  $query->param("node name$_", $nodetitle);
+  $str .= qq|&lt;TD bgcolor="$setclr">&lt;font size="0">|;
 
-        if (/(.+?)\_(.+?)/) {
-                $str .= "Node Title:" . $query->textfield("node name$_", $nodetitle) .
-                        "&lt;br>Nodetype: " . $query->popup_menu("node type$_", \@idlist, $nodetype);
-        }
-        $str .= "&lt;/TD>&lt;/TR>";
+  if (/(.+?)\_(.+?)/) {
+    $str .= "Node Title:" . $query->textfield("node name$_", $nodetitle) .
+      "&lt;br>Nodetype: " . $query->popup_menu("node type$_", \@idlist, $nodetype);
+  }
+  $str .= "&lt;/TD>&lt;/TR>";
 }
 
 $str .= &lt;&lt;NEWSETTING;
@@ -120,10 +120,10 @@ size="$valsize">&lt;/TD>
 NEWSETTING
 
 $str .= $query->popup_menu("node typenew", \@idlist, "") . 
-        '&lt;FONT>&lt;/TD>&lt;/TR>&lt;/TABLE>&lt;div align="right">';
+  '&lt;FONT>&lt;/TD>&lt;/TR>&lt;/TABLE>&lt;div align="right">';
 
 if ($$VARS{hintson}) {
-        $str .= htmlcode('hintlaunch', 'Using the setting edit page, short,
+  $str .= htmlcode('hintlaunch', 'Using the setting edit page, short,
 #000000');
 }
 
