@@ -269,8 +269,13 @@ sub htmlErrorUsers
 
 	# Print the error to the log instead of the browser.  That way users
 	# do see all the messy perl code.
-	Everything::printLog("Server Error (#" . $errorId .
-		"):\nCode:\n$code\nError:\n$err\nWarning:\n$warn");
+	my $error = "Server Error (#" . $errorId . ")\n";
+	$error .= "User: $$USER{title}\n";
+	$error .= "User agent: " . $query->user_agent() . "\n";
+	$error .= "Code:\n$code\n";
+	$error .= "Error:\n$err\n";
+	$error .= "Warning:\n$warn";
+	Everything::printLog($error);
 
 	$str;
 }
