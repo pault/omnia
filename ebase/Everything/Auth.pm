@@ -1,13 +1,21 @@
-package Everything::Auth;
+=cut
+
+=head1 Everything::Auth
+
+Everything authentication routines
+
+=cut
 
 #############################################################################
-#  Everything authentication routines
+#
 #  Copyright 2002 - 2003 Everything Development Company
 #  http://www.everydevel.com/
 #
 #  Format: tabs = 4 spaces
 #
 #############################################################################
+
+package Everything::Auth;
 
 use strict;
 use Everything;
@@ -17,18 +25,17 @@ use vars  qw( @ISA @EXPORT );
 @ISA    = qw( Exporter );
 @EXPORT = qw( loginUser logoutUser authUser );
 
-#############################################################################
-#
-#	Sub
-#		new
-#
-#	Purpose
-#		We need to instantiate the $AUTH object once per fork, and 
-#		this handles it. The aggrigation to each of the interfaces is
-#		supposedly seemless; IE, Everything::HTML doesn't really
-#		need to know that another plugin is there.  We should be able
-#		to swap them out without changing anything.
-#
+=cut
+
+=head2 C<new>
+
+We need to instantiate the $AUTH object once per fork, and this handles it. The
+aggrigation to each of the interfaces is supposedly seemless; IE,
+Everything::HTML doesn't really need to know that another plugin is there.  We
+should be able to swap them out without changing anything.
+
+=cut
+
 sub new
 {
 	my ($class, $options) = @_;
@@ -61,16 +68,14 @@ sub new
 	}, $class;
 }
 
+=cut
 
-#############################################################################
-#
-#	Sub
-#		loginUser
-#
-#	Purpose
-#		This simply delegates to the plugin's loginUser().
-#		It is called by opLogin
-#
+=head2 C<loginUser>
+
+This simply delegates to the plugin's loginUser().  It is called by opLogin.
+
+=cut
+
 sub loginUser
 {
 	my $this = shift;
@@ -79,15 +84,15 @@ sub loginUser
 	return $this->generateSession($user);
 }
 
-#############################################################################
-#
-#	Sub
-#		authUser
-#
-#	Purpose
-#		This simply delegates to the plugin's authUser().
-#		It should be called every pageload
-#
+=cut
+
+=head2 C<authUser>
+
+This simply delegates to the plugin's authUser().  It should be called every
+pageload.
+
+=cut
+
 sub authUser
 {
 	my $this = shift;
@@ -96,15 +101,15 @@ sub authUser
 	return $this->generateSession($user);
 }
 
-#############################################################################
-#
-#	Sub
-#		logoutUser
-#
-#	Purpose
-#		This simply delegates to the plugin's logoutUser().
-#		It should be called by opLogout();
-#
+=cut
+
+=head2 C<logoutUser>
+
+This simply delegates to the plugin's logoutUser().  It should be called by
+opLogout().
+
+=cut
+
 sub logoutUser
 {
 	my $this = shift;
@@ -113,18 +118,16 @@ sub logoutUser
 	return $this->generateSession($user);
 }
 
+=cut
 
-#############################################################################
-#
-#	Sub
-#		generateSession
-#
-#	Purpose
-#		While a plugin could generate the guestUser information on
-#		its own on failure, generateSession can handle this. Also
-#		this populates what is to become the VARS hash for the user
-#		saving each auth module the trouble of having to do so. 
-#
+=head2 C<generateSession>
+
+While a plugin could generate the guestUser information on its own on failure,
+generateSession can handle this. Also this populates what is to become the VARS
+hash for the user saving each auth module the trouble of having to do so. 
+
+=cut
+
 sub generateSession
 {
 	my ($this, $user) = @_;
