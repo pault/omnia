@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/perl -w
 
 ########################################################################
 #
@@ -12,7 +12,6 @@
 use strict;
 use Everything;
 use Everything::XML;
-use Everything::HTML;
 
 my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
 my %OPTIONS = ( force => 0, verbose => 0 );
@@ -48,16 +47,17 @@ sub exportTables {
 	my ($tables, $dir) = @_;
 	my $args = "--lock-tables --no-data";
 
-	my $tbstr;
-	foreach (@$tables) { $tbstr .= $_ . " "; }
+	my $tbstr = join(" ", @$tables);
 
 	# We need to make the directory writable, because mysql may be
 	# running as the mysql user rather than root, and it will need
 	# write permissions.
-	`chmod a+wr $dir`;
+	my $mode = 0766;
+	chmod $mode, $dir;
 
 	my $err = `mysqldump -u root -T $dir $args $database $tbstr`;
 	chomp $err;
+	# do another chmod here so it's not as ugly?
 	$err =~ s/^ *//g;  # clear out any whitespace
 
 	if($err ne "") {
@@ -89,7 +89,7 @@ sub confirmYN {
 #	create a database of the given name
 sub createDB{
 	my ($dbname) = @_;
-   $DB->getDatabaseHandle()->do("create database $dbname"); 
+	$DB->getDatabaseHandle()->do("create database $dbname"); 
 }
 
 #############################################################################
@@ -109,26 +109,27 @@ sub dropDB{
 #
 #	adds specific tables to a database from a directory of create definitions
 #	if no tables are specified, all are imported
-#		
+#	Only tables listed in $TABLES array ref are used, if it's passed.	
 sub addTablesToDB{
    my ($dbname, $tabledir, $TABLES) = @_;
    
-   opendir DIR, $tabledir || die "can't opendir $tabledir $!";
-   my $file; 
-   my @tablefiles;
-   while(defined($file=readdir(DIR))){
-      if($file=~/(.*?)\.sql$/){
-		 my $tbname = $1;
-		 if ($TABLES) {
-			next unless grep  /^$tbname$/,  @$TABLES;
-		 	print "adding $tbname to $dbname\n";
-		 }
-         system "mysql -u root $dbname<$tabledir/$file"; 
-     	 push @tablefiles, $file; 
-	  }
-   }
-   closedir DIR; 
-   @tablefiles;
+	my %filter = map { $_ => 1 } @$TABLES;
+	opendir DIR, $tabledir || die "can't opendir $tabledir $!";
+	my $file; 
+	my @tablefiles;
+	while(defined($file=readdir(DIR))){
+		if($file=~/(.*?)\.sql$/){
+			my $tbname = $1;
+			if ($TABLES) {
+				next unless (defined($filter{$tbname}));
+			}
+	 		print "adding $tbname to $dbname\n" if $OPTIONS{verbose};
+			system "mysql -u root $dbname<$tabledir/$file"; 
+			push @tablefiles, $file; 
+		}
+	}
+	closedir DIR; 
+	return @tablefiles;
 }
 
 ###########################################################################
@@ -256,6 +257,29 @@ sub checkTables {
 	$ret;
 }
 
+##########################################################################
+#	sub
+#		checkNamedTables
+#
+#	checks to see if the tables in the target database are equivalent
+#	to the tables in the sql files.  Works just like checkTables, except
+#	that it only checks files listed in the first argument, an array ref.
+#
+sub checkNamedTables {
+	my ($tables_ref, $dir) = @_;
+	my $dummydb="dummy" . int(rand(1000));
+	
+	initEverything($database, 1);
+	createDB($dummydb);
+	addTablesToDB($dummydb, $dir, $tables_ref);
+	my $ret = compareAllTables(getTablesHashref($database),
+		getTablesHashref($dummydb),  $dummydb, $database, $dir);
+	dropDB($dummydb);
+	
+	initEverything($database, 1);
+	return $ret;
+}
+
 ###########################################################################
 #	sub
 #		createDir
@@ -266,13 +290,14 @@ sub checkTables {
 sub createDir {
 	my ($dir) = @_;
 	unless (-e $dir) {
-		my $result = `mkdir $dir`;
-		die "error creating $dir -- do you have the correct permissions?" 
-			if ($result and not $OPTIONS{force});
+		my $mode = 0777;
+		my $result = mkdir $dir, $mode;
+		die "error creating $dir: $!" 
+			if (!$result and !$OPTIONS{force});
 	} else {
 		die "$dir already exists" unless $OPTIONS{force};	
 	}
-	1;
+	return 1;
 }
 
 #############################################################################
@@ -307,20 +332,20 @@ sub exportNodes
 		my $dir = $NODETYPE;
 		
 		# convert spaces to '_'. We don't want spaces in the file name.
-		$dir =~ s/ /_/g;
+		$dir =~ tr/ /_/;
 		$dir = $basedir.'/'.$dir; 
 		createDir $dir unless (-e $dir);	
 		foreach my $NODE (@{ $nodetypes{$NODETYPE} }) {
 			getRef ($NODE);
 			my $file = $$NODE{title};
-			$file =~ s/ /_/g;
+			$file =~ tr/ /_/;
 			$file.=".xml";
 			
 			print "$$NODE{title} ($$NODE{type}{title}) --> $file\n"
 				if $OPTIONS{verbose};
 			$file = $dir."/".$file; 
 			open(FILE, ">".$file) 
-				or die "couldn't create $file in $dir - do we have permission?";
+				or die "couldn't create $file in $dir - $!";
 			print FILE node2xml($NODE);
 			close(FILE);
 			$nodefiles[$nodeindex{getId($NODE)}]= $file;
@@ -363,7 +388,7 @@ sub createNodeball {
 	my $version = $$VARS{version};
 	
 	my $filename = $$NODEBALL{title};
-	$filename =~ s/ /_/g;
+	$filename =~ tr/ /_/;
 	$filename .= "-$version" if $version;
 	$filename .= ".nbz";
 	use Cwd;
@@ -389,6 +414,7 @@ sub createNodeball {
 sub expandNodeball {
 	my ($nbfile) = @_;
 
+	die "Can't seem to see the nodeball: $nbfile" unless (-e $nbfile);
 	my $dir = "/tmp/everything".int(rand(1000));
 	createDir($dir);	
 
@@ -406,7 +432,7 @@ sub expandNodeball {
 	}
 
 	chdir $cwd;
-	$dir;
+	return $dir;
 }
 
 
@@ -442,7 +468,7 @@ sub buildNodeballMembers {
 		}
 	}
 
-	\%nbmembers;
+	return \%nbmembers;
 }
 
 
@@ -460,7 +486,7 @@ sub absPath {
 	
 	#make the file abs path
 	$file = $cwd."/".$file unless ($file =~ /^\//);
-	$file;
+	return $file;
 }
 
 ############################################################################
@@ -474,7 +500,9 @@ sub cleanUpDir {
 	my ($dir) = @_;
 	#don't let this bite you in the ass
 
-	`rm -r $dir`;
+	return unless (-e $dir and -d $dir and !(-l $dir));
+	use File::Path;
+	rmtree($dir);
 }
 
 #############################################################################
@@ -482,9 +510,9 @@ sub cleanUpDir {
 #		checkDeps
 #
 #	purpose	
-#		checks dependancies of a node for the given nodeball
-#		if there is a dependant node, not in core or in a referenced
-#		nodeball dependancy, we can throw a warning during export
+#		checks dependencies of a node for the given nodeball
+#		if there is a dependent node, not in core or in a referenced
+#		nodeball dependency, we can throw a warning during export
 #
 #	params
 #		NODEBALL -- the nodeball 
@@ -560,18 +588,37 @@ sub installNodeball {
 	#import any tables that need it
 	use File::Find;	
 
+	my (@add_tables, @check_tables);
 	if(-e $tables_dir)
 	{
 		print "Creating tables...\n";
 		find sub {
 			my ($file) = $File::Find::name;
 				if ($file =~ /sql$/) {
-					`mysql -u root $database < $file`
+					push @add_tables, $file;
 				}
 			}, $tables_dir;
 		print "   - Done.\n";
 	}
 
+	my $curr_tables = getTablesHashref($database);
+	foreach my $table (@add_tables) {
+		next unless ($table =~ m!/(\w+)\.sql$!);
+		my $no_path = $1;
+		
+		if (exists $curr_tables->{$no_path}) {
+			print "Skipping already installed table $no_path!\n";
+			push @check_tables, $no_path;
+			next;
+		} else {
+			`mysql -u root $database < $table`;
+		}
+	}
+
+	if (@check_tables) {
+		my $check = checkNamedTables(\@check_tables, $tables_dir);
+		print "Skipped tables have the right columns, though!\n" if ($check);
+	}
 	my $nodetypes_dir = $dir."/nodes/nodetype";
 
 	if(-e $nodetypes_dir)
@@ -716,7 +763,11 @@ sub getFileInfo {
 	return unless -e $filename and $filename =~ /xml$/;
 	
 	open XMLFILE, $filename;
-	my $xml = join "", <XMLFILE>;
+	my $xml;
+	{
+		local $/;
+	 	$xml = <XMLFILE>;
+	}
 	close XMLFILE;
 
 	my %info = ();
@@ -725,7 +776,7 @@ sub getFileInfo {
 	$info{type} = readTag 'type_nodetype', $xml;
 	$info{file} = $filename;
 	
-	\%info;
+	return \%info;
 }
 
 
@@ -758,8 +809,7 @@ sub updateNodeball {
 			push @nodes, $info if $info;
 	  	}, $nodesdir;
 
-	#check to make sure all dependancies are installed
-
+	#check to make sure all dependencies are installed
 	
 	# create a hash of the old nodegroup -- better lookup times
 	my (%oldgroup);
@@ -834,22 +884,31 @@ sub updateNodeball {
 #
 sub removeNodeball {
 	my ($DOOMEDBALL) = @_;
+	# we need the root user so we can nuke nodes successfully
+	my $root = $DB->getNode('root', 'user');
+	my $doomed_id = $DB->getId($DOOMEDBALL);
+	my @members;
 
 	#we should also check dependancies -- am I in any other nodeballs?
+	# this technique avoids 'out of memory' errors
 	my (@NODEBALLS) = $DB->getNodeWhere( { 1 => 1 }, $DB->getType("nodeball"));
-	foreach my $NB (@NODEBALLS) {
-		foreach (@{ $$NB{group} }) {
-			if ($DB->getId($_) == $DB->getId($DOOMEDBALL)) {
-				my $DEPENDANT = getNode($_);
-				my $VARS = $DEPENDANT->getVars(-1);
-				die "Nodeball \"$$DEPENDANT{title}\" ($$VARS{version}) " .
+	while (@NODEBALLS) {
+		my $NB = shift @NODEBALLS;
+		push @members, $NB->{group};
+	}
+
+	foreach my $member (@members) {
+		foreach (@$member) {
+			if ($DB->getId($_) == $doomed_id) {
+				my $DEPENDENT = getNode($_);
+				my $VARS = $DEPENDENT->getVars(-1);
+				die "Nodeball \"$$DEPENDENT{title}\" ($$VARS{version}) " .
 				  "depends on $$DOOMEDBALL{title}\n" .
-				  "Remove \"$$DEPENDANT{title}\" first, or use --force\n"
+				  "Remove \"$$DEPENDENT{title}\" first, or use --force\n"
 				  unless ($OPTIONS{force});
 			}
 		}
 	}
-
 
 	unless ($OPTIONS{force}) {
 		print "Are you sure you want to remove $$DOOMEDBALL{title}?\n";
@@ -862,10 +921,10 @@ sub removeNodeball {
 		next if ($$N{type}{title} eq "nodeball"); #don't remove dependancies
 		print "removing \"$$N{title}\" ($$N{type}{title})...\n"
 			if $OPTIONS{verbose};
-		$N->nuke(-1) or print "Remove Error!  I can't nuke $$N{title}!!!\n" ;
+		$N->nuke($root) or print "Remove Error!  I can't nuke $$N{title}!!!\n" ;
 	}
 
-	$DOOMEDBALL->nuke(-1);
+	$DOOMEDBALL->nuke($root);
 	print "$$DOOMEDBALL{title} removed\n";
 }
 
@@ -875,10 +934,11 @@ sub removeNodeball {
 #
 sub main {
 	
+	my ($dir, $cleanme) = ("", "");
+	eval {
 	if ($function eq "import") {
 		my ($nbfile) = $nodeball;
 
-		my ($dir, $cleanme) = ("", "");
 		if (-d $nbfile) {
 			$dir = absPath($nbfile);
 		} else {
@@ -930,6 +990,11 @@ sub main {
 			exit;
 		} 
 		installNodeball ($dir);
+		my $errors = getFrontsideErrors;
+		if (@$errors and $OPTIONS{verbose}) {
+			use Data::Dumper;
+			print Dumper(@$errors);
+		}
 		cleanUpDir($dir) if $cleanme;
 	
 	} elsif ($function eq "export") {
@@ -974,14 +1039,21 @@ sub main {
 		createNodeball($dir, $NB);
 		cleanUpDir ($dir);
 	} elsif ($function eq "remove") {
+		# don't order by anything, but limit the number of rows returned to one
+		# maybe not a great idea, but it changes functionality here not at all
 		my ($NB) = $DB->getNodeWhere({title=>$nodeball},
-			$DB->getType("nodeball"));
+			$DB->getType("nodeball"), '', 1);
+		# we receive an array ref from getNodeWhere, but we want a single node
+		$NB = shift @$NB;
 		$NB or 
 		  die "There isn't a \"$nodeball\" nodeball installed on this system!";
 		removeNodeball ($NB);
 	} else {
 		print $usagestr;
 	}
+	};
+	print $@ if ($@);
+	cleanUpDir($dir) if ($cleanme);
 }
 
 main;
