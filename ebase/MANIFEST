@@ -77,6 +77,7 @@ images/trans.gif
 scripts/removePod
 t/base
 t/ecachequeue.t
+t/ehfhiddenfield.t
 t/email.t
 t/endbtable.t
 t/enhtmlcode.t
