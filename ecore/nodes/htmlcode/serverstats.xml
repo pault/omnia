@@ -1,30 +1,32 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="serverstats">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $date = `date`;
+  <field name="code" type="literal_value">my $date = localtime().&quot;&quot;;
+my $str;
+$str = $date . &quot;&lt;br&gt;&quot;;
+return $str.&quot;(uptime unsupported under Win32)&quot; if $^O eq &quot;MSWin32&quot;;
+
 my $uptime = `uptime`;
 my @uptime;
-my $str;
 
 $uptime =~ s/^\s*(.*?)\s*$/$1/;
 @uptime = split /,?\s+/, $uptime;
 
-$str = $date . "&lt;br>";
 shift @uptime;
 
-$str .= "@uptime[0..3]" . "&lt;br>";
-#$str .= "@uptime[4..5]" . "&lt;br>";
-#$str .= "@uptime[6..7]" . "&lt;br>";
+$str .= &quot;@uptime[0..3]&quot; . &quot;&lt;br&gt;&quot;;
+#$str .= &quot;@uptime[4..5]&quot; . &quot;&lt;br&gt;&quot;;
+#$str .= &quot;@uptime[6..7]&quot; . &quot;&lt;br&gt;&quot;;
 
 
 foreach (@uptime[-3..-1]){
-	if ($_ > 1.0) {
-		$_ = "&lt;font color=#CC0000>" . $_ ."&lt;/font>, ";
+	if ($_ &gt; 1.0) {
+		$_ = &quot;&lt;font color=#CC0000&gt;&quot; . $_ .&quot;&lt;/font&gt;, &quot;;
 	}else{
-		$_ .= ", "; 
+		$_ .= &quot;, &quot;; 
 	}
 }
-$str .= "@uptime[-3..-1]". "&lt;br>";
+$str .= &quot;@uptime[-3..-1]&quot;. &quot;&lt;br&gt;&quot;;
 
 $str;
 

@@ -11,12 +11,13 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
-my $time = `date`;
-$time =~ s/\n.*$//;
-$time;
+ return localtime().&quot;&quot; if $^O eq &quot;MSWin32&quot;;
+ my $time = `date`;
+ $time =~ s/\n.*$//;
+ $time;  
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">Thu Feb  1 02:46:21 PST 2001</field>
+  <field name="nltext" type="literal_value"></field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Tick tock</field>
