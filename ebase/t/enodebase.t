@@ -10,7 +10,7 @@ BEGIN {
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More tests => 214;
+use Test::More tests => 216;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -395,15 +395,19 @@ is_deeply( $zero, {
 is( $mock->{nodezero}, $result, '... and node should be cached' );
 
 can_ok( $package, 'getNodeWhere' );
-$mock->set_always( 'selectNodeWhere', [ 1 .. 5 ] )
+$mock->set_series( 'selectNodeWhere', undef, 'foo', [ 1 .. 5 ] )
 	 ->set_series( 'getNode', 0, 2, 0, 4, 5 )
 	 ->clear();
+
 my @expected = qw( where type orderby limit offset reftotalrows );
 $result = getNodeWhere( $mock, @expected );
 ($method, $args) = $mock->next_call();
 is( $method, 'selectNodeWhere',
 	'getNodeWhere() should delegate to selectNodeWhere()' );
 is( join('-', @$args), join('-', $mock, @expected), '... passing most args' );
+is( $result, undef, '... returning if it fails' );
+is( getNodeWhere( $mock ), undef, '... or if it does not return a listref' );
+$result = getNodeWhere( $mock, @expected );
 is_deeply( $result, [ 2, 4, 5 ],
 	'... fetching and returning a list ref of nodes' );
 
