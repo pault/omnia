@@ -267,7 +267,13 @@ sub createIndex
 	my $infile  = File::Spec->catfile( $OPTIONS{edir}, 'web', 'index.in' );
 	my $outfile = File::Spec->catfile( $OPTIONS{webdir}, 'index.pl' );
 
-	my $dbstr = "$database:$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}";
+	my %connection;
+	@connection{ qw( db_name user password host  )} =
+
+		# escape non-escaped single quotes, avoid undef values
+		map { $_ = defined $_ ? $_ : ''; s!(?<=\\)'!\\'!g; $_ } 
+
+		$database, @OPTIONS{qw( user password host )};
 
 	local (*INDEX, *OUTDEX);
 
@@ -284,7 +290,7 @@ sub createIndex
 	print OUTDEX scalar <INDEX>, $libpath;
 
 	while (<INDEX>) {
-		s/\#DB_NAME\#/$dbstr/;
+		s/#(DB_NAME|USER|PASSWORD|HOST)#/$connection{ lc $1 }/;
 		print OUTDEX $_;
 	}
 

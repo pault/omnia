@@ -6,6 +6,12 @@ use Everything::HTML;
 # >>> Extra Packages
 # <<< Extra Packages
 
-#syntax is "dbname[:user:passwd:host]"
-mod_perlInit "#DB_NAME#";
+my $dbname   = $ENV{EVERYTHING_DBNAME}   ||= '#DB_NAME#';
+my $user     = $ENV{EVERYTHING_USER}     ||= '#USER#';
+my $password = $ENV{EVERYTHING_PASSWORD} ||= '#PASSWORD';
+my $host     = $ENV{EVERYTHING_HOST}     ||= '#HOST#';
 
+# syntax is "dbname[:user:passwd:host]"
+my $db_string = join( ':', $dbname, $user, $password, $host );
+
+mod_perlInit $db_string;
