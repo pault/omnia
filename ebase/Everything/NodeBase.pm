@@ -783,6 +783,9 @@ sub updateNode
 	$this->getRef($NODE);
 	return 0 unless ($this->canUpdateNode($USER, $NODE)); 
 
+	# This node has just been updated.  Do any maintenance if needed.
+	$this->nodeMaintenance($NODE, 'update before');
+	
 	$tableArray = $$NODE{type}{tableArray};
 
 	# Cache this node since it has been updated.  This way the cached
@@ -819,10 +822,7 @@ sub updateNode
 	pop @$tableArray;
 
 	# This node has just been updated.  Do any maintenance if needed.
-	# NOTE!  This is turned off for now since nothing uses it currently.
-	# (helps performance).  If you need to do some special updating for
-	# a particualr nodetype, uncomment this line.
-	#$this->nodeMaintenance($NODE, 'update');
+	$this->nodeMaintenance($NODE, 'update after');
 
 	return 1;
 }
@@ -884,6 +884,8 @@ sub insertNode
 		return 0;
 	}
 
+	$this->nodeMaintenance($NODE, 'create before');
+
 	if ($$TYPE{restrictdupes})
 	{ 
 		# Check to see if we already have a node of this title.
@@ -921,7 +923,7 @@ sub insertNode
 	# This node has just been created.  Do any maintenance if needed.
 	# We do this here before calling updateNode below to make sure that
 	# the 'created' routines are executed before any 'update' routines.
-	$this->nodeMaintenance($NODE, 'create');
+	$this->nodeMaintenance($NODE, 'create after');
 
 	if ($DATA)
 	{
@@ -962,7 +964,7 @@ sub nukeNode
 	return unless ($this->canDeleteNode($USER, $NODE));
 
 	# This node is about to be deleted.  Do any maintenance if needed.
-	$this->nodeMaintenance($NODE, 'delete');
+	$this->nodeMaintenance($NODE, 'delete before');
 	
 	# Delete this node from the cache that we keep.
 	$this->{cache}->removeNode($NODE);
@@ -994,6 +996,8 @@ sub nukeNode
 	}
 	$this->{dbh}->do("DELETE FROM nodegroup WHERE node_id=$$NODE{node_id}");
 	
+	$this->nodeMaintenance($NODE, 'delete after');
+
 	# This will be zero if nothing was deleted from the tables.
 	return $result;
 }
