@@ -180,6 +180,6 @@
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
 		<description >The core system of Everything.   </description>
-		<version >0.7.9.7</version>
+		<version >0.7.9.8</version>
 	</vars>
 </NODE>

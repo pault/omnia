@@ -79,10 +79,16 @@ $str.="Your new user account ("
 
 #send some email;
 my ($n) = $DB-&gt;getNodeWhere({title=&gt;'New User Mail'}, $DB-&gt;getType('mail'));
-$$n{doctext} =~ s/\&lt;user\&gt;/$$NEWUSER{realname}/;
-$$n{doctext} =~ s/\&lt;name\&gt;/$$NEWUSER{title}/;
+$$n{doctext} =~ s/\&lt;name\&gt;/$$NEWUSER{realname}/;
+$$n{doctext} =~ s/\&lt;user\&gt;/$$NEWUSER{title}/;
 $$n{doctext} =~ s/\&lt;passwd\&gt;/$$NEWUSER{passwd}/;
-$$n{doctext} =~ s/\&lt;url\&gt;/$HTMLVARS{site_url}index\.pl\?node=$$NEWUSER{title}\&amp;type=user/;
+$$n{doctext} =~ s/\&lt;site_name\&gt;/$HTMLVARS{site_name}/;
+$$n{doctext} =~ s/\&lt;homenode\&gt;/$HTMLVARS{site_url}index\.pl\?node=$$NEWUSER{title}\&amp;type=user/;
+$$n{doctext} =~ s/\&lt;site_url\&gt;/$HTMLVARS{site_url}/;
+$$n{doctext} =~ s/\&lt;login\&gt;/$HTMLVARS{site_url}index\.pl\?node_id=$HTMLVARS{login_node}/;
+
+
+
 use Everything::MAIL;
 node2mail($$NEWUSER{email},$n);
 
@@ -90,9 +96,6 @@ $str;
 
 
 %]
-
-
-
 
 
 </doctext>

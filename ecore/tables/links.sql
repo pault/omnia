@@ -1,8 +1,8 @@
-# MySQL dump 6.0
+# MySQL dump 6.4
 #
 # Host: localhost    Database: everything
 #--------------------------------------------------------
-# Server version	3.22.25
+# Server version	3.22.27-log
 
 #
 # Table structure for table 'links'

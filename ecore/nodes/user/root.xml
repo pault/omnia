@@ -17,7 +17,6 @@ Great hair</doctext>
 		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
 		<meatloaf >big and juicy</meatloaf>
 		<nodelet_headerclr >#ff0000</nodelet_headerclr>
-		<group ></group>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
 	</vars>
 </NODE>

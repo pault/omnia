@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945442876</lastupdate>
+	<lastupdate table="nodelet">945580129</lastupdate>
 	<nlcode table="nodelet">&lt;ol&gt;
 [%
 my @links = @{ selectLinks $NODE, "food" };
@@ -17,6 +17,7 @@ $str;
 &lt;/ol&gt;</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">&lt;ol&gt;
+  &lt;li&gt;&lt;A HREF="/index.pl?node_id=70&amp;lastnode_id=70"&gt;nodelet meta-container&lt;/a&gt;(htmlcode)&lt;/li&gt;
 
 &lt;/ol&gt;</nltext>
 	<package table="node">0</package>
