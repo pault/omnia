@@ -7,13 +7,13 @@
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[{displayNODE:30}]</field>
   <field name="nlgoto" type="literal_value">0</field>
   <field name="nltext" type="literal_value"></field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="otheraccess" type="literal_value">ii-i-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">%$NODE</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
