@@ -65,7 +65,8 @@ if (not @ARGV or @ARGV > 1) {
 }
 my ($database) = @ARGV;
 
-sub RLquick {
+sub RLquick
+{
 	my ($question) = @_;
 	print "$question ";
 	my $result = ReadLine 0;
@@ -93,80 +94,96 @@ sub checkEdir
 #		make sure that the $OPTIONS{edir} setting points to where our
 #		core system, images, web files, etc exist
 #	
-sub getEverythingDir {
-	#they might have specified it in options
-	return if checkEdir($OPTIONS{edir});
+sub getEverythingDir
+{
+	# they might have specified it in options
+	return if checkEdir( $OPTIONS{edir} );
 
-	#this file comes in the everything/bin directory.  Take the dir
-	#of this script and try the parent directory
+	# this file comes in the everything/bin directory.  Take the dir
+	# of this script and try the parent directory
 	my $script = $0;
 	$script =~ s/\/[^\/]+$/\/../;
 	
-	#try the following directories
+	# try the following directories
 	my @trythese = qw(. .. /usr/local/everything /usr/share/everything $script);
-	foreach (@trythese) {
-		if (checkEdir($_)) {
-			$OPTIONS{edir} = absPath $_;
-			print "found Everything install at $_\n";
-			#return 1;
+	foreach my $try (@trythese)
+	{
+		if (checkEdir($try))
+		{
+			$OPTIONS{edir} = absPath $try;
+			print "Found Everything install at $try\n";
 		}
 	}
 
-	unless (confirmYN("Ok to use $OPTIONS{edir} for Everything directory?")) {
-		$OPTIONS{edir} = "";
-	}
+	$OPTIONS{edir} = ''
+		 unless confirmYN("Ok to use $OPTIONS{edir} for Everything directory?");
 
-	while (not $OPTIONS{edir}) {	
+	while (not $OPTIONS{edir})
+	{
 		my $dir = RLquick("Where do you have the Everything installed? ");
-		if (not $dir) { die "I can't find files necessary for install!" }
-		if (checkEdir($dir)) { 
+		die "I can't find files necessary for install!" unless $dir;
+
+		if (checkEdir($dir))
+		{ 
 			$OPTIONS{edir} = $dir;
 			return 1;
-		} else {
+		}
+		else
+		{
 			print "This directory does not have the required files!\n";
 		}
 	}
 }
 
-sub createDatabase {
+sub createDatabase
+{
 	my ($dbh, $dbname) = @_;
-	
+
+	# MySQL specific
 	my $csr = $dbh->prepare('show databases');
 	$csr->execute;
-	
+
 	my $dbfound = 0;
-	while (my ($tbname) = $csr->fetchrow()) {
+	while (my ($tbname) = $csr->fetchrow())
+	{
 		$dbfound = 1 if $tbname eq $dbname;
 	}
 
 	print "Creating new database '$dbname'\n";
-	if (not $dbfound) {
+	if (not $dbfound)
+	{
 		return $dbh->do("create database $dbname");
-	} else {
-		my $nukeit = confirmYN("A database '$dbname' already exists!\n  Do you want me to drop it?");
+	}
+	else
+	{
+		my $nukeit = confirmYN("A database '$dbname' already exists!\n" .
+			"Do you want me to drop it?");
 
-		if ($nukeit) {
-			$dbh->do("drop database $dbname") or warn "couldn't drop database $dbname";
-			return $dbh->do("create database $dbname"); 
-
-		} else { 
+		if ($nukeit)
+		{
+			$dbh->do("drop database $dbname")
+				or warn "couldn't drop database $dbname";
+			return $dbh->do("create database $dbname");
+		}
+		else
+		{ 
 			warn "A database $dbname already exists!";
-			return 0; 
+			return 0;
 		}
 	}
 }
 
-sub setupSqlUser {
+sub setupSqlUser
+{
 	my ($dbh, $database) = @_;
 	
 	my $existsuser = 0;
 	
-	my $user = $OPTIONS{user};
 	my $pass = $OPTIONS{password};
 	my $host = $OPTIONS{host};
-
-	$user ||= RLquick("Which SQL user do you want to control '$database' [root]");
-	$user ||= "root";
+	my $user = $OPTIONS{user}
+		|| RLquick("Which SQL user do you want to control '$database' [root]")
+		|| 'root';
 
 	ReadMode('noecho');
 	while ($pass eq -1) {
@@ -174,16 +191,22 @@ sub setupSqlUser {
 		$conf1 = RLquick("\nPlease specify the password for this user: [none]");
 		$conf2 = RLquick("\nConfirm password:") if $conf1;
 
-		if ($conf1 and $conf2) {
-			if ($conf1 eq $conf2) {
+		if ($conf1 and $conf2)
+		{
+			if ($conf1 eq $conf2)
+			{
 				$pass = $conf1;
 				last;
-			} else {
+			}
+			else
+			{
 				print "your passwords don't match!\n";
 			}
-		} elsif (not $conf1 and not $conf2) {
+		}
+		elsif (not $conf1 and not $conf2)
+		{
 			#blank passwd -- not secure, but I can't complain
-			$pass = "";
+			$pass = '';
 			last;
 		} 
 	}
@@ -218,53 +241,67 @@ sub setupSqlUser {
 		TO $user\@$host
 		IDENTIFIED BY '$pass'") or die "couldn't create user '$user'!";
 
-
 	print "User '$user' created!\n";
 }
 
 
-sub createWebdir {
-	my $webdir;
-	$webdir = $OPTIONS{webdir};
+sub createWebdir
+{
+	my $webdir = $OPTIONS{webdir};
 
-	my @defaults = qw(/usr/local/apache/htdocs /home/httpd/html /var/www ~/public_html);
+	my @defaults = qw(/usr/local/apache/htdocs /home/httpd/html /var/www
+		~/public_html);
 
 	my $default;
-	foreach (@defaults) {
+	foreach (@defaults)
+	{
 		$_ = absPath $_;
-		if (-d and -w and -x) {
+		if (-d and -w and -x)
+		{
 			$default = $_;
 			last;
 		}
 	}
 
-	my $defaultstr = "";
+	my $defaultstr = '';
 	$defaultstr = "\[$default\]" if $default;
 
-	while (not $webdir) {
-		$webdir ||= RLquick("Where is your web directory? This directory should be accessable by apache\n$defaultstr");
+	while (not $webdir)
+	{
+		$webdir ||= RLquick("Where is your web directory? This directory " .
+			"should be accessable by apache\n$defaultstr");
 		$webdir ||= $default; 
 
-		$defaultstr = "";  #default goes away after first pass
-		$default = "";
+		# default goes away after first pass
+		$defaultstr = '';
+		$default = '';
 		
-		if (-e $webdir and (not -r $webdir or not -x $webdir or not -w $webdir)) {
-			print "I don't have access to '$webdir'! Please chmod the directory +rwx for me or use another!"; 
-			$webdir = "";
-		} else {
+		if (-e $webdir and (not -r $webdir or not -x $webdir or not -w $webdir))
+		{
+			print "I don't have access to '$webdir'! " .
+				"Please chmod the directory +rwx for me or use another!\n"; 
+			$webdir = '';
+		}
+		else
+		{
 			last;
 		}
 	}
-	if ($webdir and not -d	$webdir) {
-		if (confirmYN("$webdir doesn't exist, should I create it?")) {
-			if (not mkdir($webdir, 0755)) {
-				die "could not create directory '$webdir'!";
-			} else {
-			}
-		} else { exit 0; } 
+
+	if ($webdir and not -d$webdir)
+	{
+		if (confirmYN("$webdir doesn't exist, should I create it?"))
+		{
+			die "could not create directory '$webdir'!: $!"
+				unless mkdir($webdir, 0755);
+		}
+		else
+		{
+			exit 0;
+		}
 	}
 	$OPTIONS{webdir} = absPath $webdir;
-	"";
+	'';
 }
 
 sub createIndex
@@ -283,7 +320,8 @@ sub createIndex
 	local (*INDEX, *OUTDEX);
 
 	my $libpath = '';
-	if ($OPTIONS{libdir}) {
+	if ($OPTIONS{libdir})
+	{
 		die "Can't find Everything.pm in $OPTIONS{libdir}!"
 			unless -e File::Spec->catfile( $OPTIONS{libdir}, 'Everything.pm' );
 		$libpath = qq|\nuse lib "$OPTIONS{libdir}"\n|;
@@ -294,7 +332,8 @@ sub createIndex
 	open OUTDEX, "> $outfile" or die "Cannot write to '$outfile': $!";
 	print OUTDEX scalar <INDEX>, $libpath;
 
-	while (<INDEX>) {
+	while (<INDEX>)
+	{
 		s/#(DB_NAME|USER|PASSWORD|HOST)#/$connection{ lc $1 }/;
 		print OUTDEX $_;
 	}
@@ -305,82 +344,102 @@ sub createIndex
 	chown $uid, $gid, $outfile;
 }
 
-sub createIncoming {
-	
+sub createIncoming
+{
 	my @apacheusers = qw(apache nobody);
 	my $default;
 	foreach (@apacheusers) {
 		if (getpwnam($_)) {
 			$default = $_;	
+			last;
 		}
 	}
 
 	my $defaultstr = "[$default]" if $default;
 
 	my $user;
-	do {
-	  return unless confirmYN("Would you like me to create an $OPTIONS{webdir}\/incoming directory where you can upload images and files?");
+	do
+	{
+		return unless confirmYN( "Would you like me to create an " .
+			"$OPTIONS{webdir}/incoming directory where you can " .
+			"upload images and files?" );
 
-	  mkdir($OPTIONS{webdir}."/images/incoming", 0755);	
-	  
-	  $user = RLquick("What user does Apache run as? $defaultstr");
-	  $user ||= $default;
-	  if (not getpwnam($user)) { warn "It doesn't look like user '$user' exists!" }
+		mkdir(File::Spec->catdir($OPTIONS{webdir}, 'images', 'incoming' ),0755);
+
+		$user = RLquick("What user does Apache run as? $defaultstr");
+		$user ||= $default;
+
+		warn "It doesn't look like user '$user' exists!" unless getpwnam($user);
 	} while (not $user or not getpwnam($user));
 
+	my $incoming = File::Spec->catdir( $OPTIONS{webdir}, 'incoming' );
+	mkdir $incoming, 0755;
+	chown( (getpwnam($user))[2,3], $incoming );
 
-	mkdir ($OPTIONS{webdir}."/incoming", 0755);
-	chown((getpwnam($user))[2,3], $OPTIONS{webdir}."/incoming"); 
-		
 	print "$OPTIONS{webdir}\/incoming created and chown to $user!\n";
 }
 
+sub installBasenodes
+{
+	my $dir  = File::Spec->catdir( $OPTIONS{edir}, 'tables' );
+	my $path = File::Spec->catfile( $dir,  'basenodes.in' );
 
-sub installBasenodes {
-	my $cmdline = "cat $OPTIONS{edir}/tables/*.sql $OPTIONS{edir}/tables/basenodes.in | mysql ".buildSqlCmdline." $database";
-	system $cmdline;
+	system "cat $dir/*.sql $path | mysql" . buildSqlCmdline() . " $database";
 }
 
-sub addApacheconf {
-	my $conffile = $OPTIONS{edir}."/everything.apache.conf";
+sub addApacheconf
+{
+	my $conffile = File::Spec->catfile($OPTIONS{edir},'everything.apache.conf');
 
-	if (not -e $conffile) {
-		print "no file $conffile exists!  Skipping httpd.conf manipulation...\n";
+	unless (-e $conffile)
+	{
+		print "No file $conffile exists!  Skipping httpd.conf manipulation.\n";
 		return;
 	}
+
+	local *CONFFILE;
 	open CONFFILE, $conffile or die "I can't read $conffile";
-	my @filelines = <CONFFILE>; 
+	while (<CONFFILE>)
+	{
+		if (/^<Directory $OPTIONS{webdir}>$/)
+		{
+			print "Your apache conf file already has this directory!\n";
+			return;
+		}
+	}
+
 	close CONFFILE;
 
-	if (grep /^<Directory $OPTIONS{webdir}>$/, @filelines) {
-		print "it looks like your apache conf file already has this directory!\n";
-		return;
+	my $oldfh;
+	if (-w $conffile)
+	{
+		open CONFFILE, ">> $conffile"
+			or die "Cannot open '$conffile' to write: $!\n";
+		$oldfh = select CONFFILE;
+	}
+	else
+	{
+		print "I can't write to '$conffile'\n";
+		return unless confirmYN(
+			"Would you like me to print what I would have added to it?" );
+		$oldfh = select CONFFILE;
 	}
 
-	my $dirfile = $OPTIONS{edir}."/web/httpd.dir";
+	local *DIRFILE;
+	my $dirfile = File::Spec->catfile( $OPTIONS{edir}, 'web', 'httpd.dir' );
 	open DIRFILE, $dirfile;
-	my @dirlines = <DIRFILE>;
-	close DIRFILE;
 
-	foreach (@dirlines) {
+	while (<DIRFILE>)
+	{
 		s/#WEB_DIR#/$OPTIONS{webdir}/;
+		print;
 	}
 
-	if (not -w $conffile) {
-		print "I can't write to your $conffile file!\n\n";
-		return unless confirmYN("Would you like me to print what I would have added to it?"); 
-		print @dirlines;
-		return;
-	} else {
-		open CONFFILE, ">> $conffile";	
-		print CONFFILE @dirlines;
-		close CONFFILE;
-	}	
-	print "$conffile has been modified.  Remember to restart the Apache server.\n\nAlso note, this change will not take effect unless you have:
-	Include $conffile
+	select $oldfh;
 
-somewhere in your httpd.conf";
-
+	print "$conffile has been modified.  Remember to restart the Apache ".
+		"server.\n\nAlso note, this change will not take effect unless you " .
+		" have\n\tInclude $conffile\nsomewhere in your httpd.conf.\n";
 }
 
 
@@ -388,43 +447,51 @@ somewhere in your httpd.conf";
 #
 #	main function
 #
-sub main {
-	#locate everything dir - $OPTIONS{edir}
+sub main
+{
+	# locate everything dir - $OPTIONS{edir}
 	getEverythingDir();
 	$OPTIONS{edir} = absPath $OPTIONS{edir};
 
 	my $dbh;
-	while(not $dbh){
-		unless (defined $OPTIONS{rootpass}) {
+
+	while (not $dbh)
+	{
+		unless (defined $OPTIONS{rootpass})
+		{
 			ReadMode 'noecho';
-			$OPTIONS{rootpass} = RLquick("Please enter the root password for mysql");
+			$OPTIONS{rootpass} =
+				RLquick("Please enter the root password for mysql");
 			print "\n";
 			ReadMode 'normal';
 		}
 
-		$dbh = DBI->connect("DBI:mysql:mysql:$OPTIONS{host}", "root", $OPTIONS{rootpass});
+		$dbh = DBI->connect("DBI:mysql:mysql:$OPTIONS{host}", 'root',
+			$OPTIONS{rootpass});
 
-		unless($dbh){
+		unless ($dbh)
+		{
 			print "\n\nYour password was incorrect. Please try again.\n";
 			delete $OPTIONS{rootpass};
 		}
 	}
 
-	#confirm to clobber DB if exists
-	unless ($OPTIONS{nocreatedb}) { 
+	# confirm to clobber DB if exists
+	unless ($OPTIONS{nocreatedb})
+	{ 
 		die "failed on creation of database $database" 
 			unless createDatabase($dbh, $database) 
 	}
-	
-	#setup the SQL user -- @OPTIONS{user, password}
+
+	# setup the SQL user -- @OPTIONS{user, password}
 	setupSqlUser($dbh, $database) unless $OPTIONS{nocreateuser};
 
 	$dbh->disconnect();
 
-	#specify/initialize web directory -- $OPTIONS{webdir}
+	# specify/initialize web directory -- $OPTIONS{webdir}
 	createWebdir();	
-	
-	#create index.pl file
+
+	# create index.pl file
 	createIndex();
 
 	# copy images into web directory
@@ -438,25 +505,27 @@ sub main {
 		}
 	}
 
-	#set up an "incoming" directory
+	# set up an "incoming" directory
 	createIncoming(); 
 	 
-	#install base nodes
-	$OPTIONS{user} = 'root';
+	# install base nodes
+	$OPTIONS{user}     = 'root';
 	$OPTIONS{password} = $OPTIONS{rootpass};
 	installBasenodes() unless $OPTIONS{nocoreinstall};
-	
-	#initialize DB
+
+	# initialize DB
 	initEverything("$database:root:$OPTIONS{rootpass}:$OPTIONS{host}");
 
-	#install core system
-		installNodeball $OPTIONS{edir}."/nodeballs/ecore" unless $OPTIONS{nocoreinstall};
+	# install core system
+	my $ecorepath = File::Spec->catdir( $OPTIONS{edir}, 'nodeballs', 'ecore' );
+	installNodeball( $ecorepath ) unless $OPTIONS{nocoreinstall};
 
-	#confirm/add to httpd.conf
+	# confirm/add to httpd.conf
 	addApacheconf() unless $OPTIONS{noapacheconf};
 
-	#restart apache
-	print "\n\n\nInstallation complete, now restart apache with:\n\n\tapachectl restart\n\n";
+	# restart apache
+	print "\n\n\nInstallation complete, now restart apache with:\n\n" .
+		"\tapachectl restart\n\n";
 
 }
 
