@@ -19,7 +19,7 @@ $str;
 %]
 
 [%
-$query->start_form("POST", $ENV{script_name}) .
+$query->start_form("POST", $ENV{SCRIPT_NAME}) .
 $query->hidden("node_id", getId($NODE)) . "\n" .
 $query->hidden("lastnode_id", $query->param("lastnode_id")) . "\n";
 %]
