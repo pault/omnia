@@ -38,11 +38,17 @@ if ($query->param($name)) {
   $imgname =~  s/.*[\/|\\]([\w|\.|\-]*)$/$1/;
   my $outfile = $imagedir.$imgname;
 
-  
   $str.= "'". $query->uploadInfo($fname)->{"Content-Type"}."'!";
 	
   $str.= "&lt;br>warning, this image clobbered an image by the same name!" if -e $outfile;
-  open OUTFILE, ">$outfile";
+
+  local *OUTFILE;
+  unless (open OUTFILE, ">$outfile")
+  {
+		Everything::logErrors( '', "Could not upload file to '$outfile': $!" );
+		return 'Upload Error';
+  }
+
   my ($buf, $size);
   while (my $bytes = read($fname, $buf, 1024)) { 
     $size+=$bytes;
