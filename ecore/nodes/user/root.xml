@@ -1,9 +1,10 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<core table="node">R</core>
-	<doctext table="document">He's the god of [gods] -- instant access.  Unlimited power.</doctext>
+	<doctext table="document">He's the god of [gods] -- instant access.  Unlimited power.
+Great hair</doctext>
 	<email table="user">root@localhost</email>
-	<karma table="user">0</karma>
+	<karma table="user">19</karma>
 	<nick table="user"></nick>
 	<package table="node">0</package>
 	<passwd table="user">urdum</passwd>

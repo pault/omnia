@@ -17,12 +17,12 @@ parent container:[{node_menu:parent_container}]&lt;br&gt;
 my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype});
 my $str;
 $str .= "&lt;li&gt;";
-$str .= join "\n&lt;li&gt;", getFields;
+$str .= join "\n&lt;li&gt;", $DB-&gt;getFields;
 
 my @tables = @{ $DB-&gt;getNodetypeTables($$NODE{pagetype_nodetype}) };
 foreach (@tables) {
   $str .="\n&lt;li&gt;";
-  $str .= join "\n&lt;li&gt;", getFields($_);
+  $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);
 }
 $str;
 

@@ -1,11 +1,10 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">942114159</lastupdate>
+	<lastupdate table="nodelet">0</lastupdate>
 	<nlcode table="nodelet">[{serverstats}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Mon Nov  8 21:22:39 EST 1999
-&lt;br&gt;up 1 day 23:24&lt;br&gt;0.06,  0.02,  0.00, &lt;br&gt;</nltext>
+	<nltext table="nodelet">&lt;br&gt;up 1 day 20:09&lt;br&gt;0.29,  0.12,  0.07, &lt;br&gt;</nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">nodelet container</parent_container>
 	<reputation table="node">0</reputation>

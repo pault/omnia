@@ -2,7 +2,7 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
 	<deleters_user table="nodetype" type="usergroup">gods</deleters_user>
-	<extends_nodetype table="nodetype" type="nodetype">node</extends_nodetype>
+	<extends_nodetype table="nodetype" type="literal_value">0</extends_nodetype>
 	<grouptable table="nodetype"></grouptable>
 	<package table="node">0</package>
 	<readers_user table="nodetype" type="usergroup">gods</readers_user>

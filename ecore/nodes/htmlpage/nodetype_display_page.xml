@@ -24,7 +24,8 @@ if(isGroup($NODE))
 &lt;p&gt; &lt;b&gt;Sql Table&lt;/b&gt;: 
 [%
 if (exists $$NODE{sqltable}) {
-$$NODE{sqltable};
+   my $TABLE = getNode $$NODE{sqltable}, 'dbtable';
+   linkNode $TABLE;
 } else { "&lt;i&gt;none&lt;/i&gt;";}
 %]
 [{displayInherited:sqltable}]
@@ -40,6 +41,18 @@ my @pages;
 push @pages, getPages($NODE);
 
 foreach (@pages) { $str .= "&lt;li&gt;" .linkNode ($_); }
+$str;
+%]
+
+&lt;p&gt; &lt;b&gt; Active Maintenances:&lt;/b&gt;&lt;br&gt;
+[%
+my $str;
+
+my (@maints) = getNodeWhere ({maintain_nodetype=&gt;getId($NODE)}, getType('maintenance'));
+
+return "&lt;i&gt;no maintenance functions&lt;/i&gt;" unless @maints;
+
+foreach (@maints) {$str .= "&lt;li&gt;".linkNode ($_); }
 $str;
 %]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>

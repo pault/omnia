@@ -2,33 +2,7 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
 	<doctext table="document">Sorry sir, your node was not found.&lt;br&gt;
-[%
-my $title = $query-&gt;param("node");
-return unless $query-&gt;param("node");
-return if $$USER{title} eq "Guest User";
-
-
-my %approvedtypes;
-my @allTypes = $DB-&gt;getAllTypes();
-foreach my $NODETYPE (@allTypes) {
-	if (canCreateNode ($USER, $NODETYPE)) {
-		$approvedtypes{$$NODETYPE{title}} = $NODETYPE; 
-		#I have to do it in this kinda strange way to remove dupes...
-	}
-}
-
-return unless %approvedtypes;
-
-my $str = "&lt;p&gt;But, if you say \"pretty please\", 
-		I'll let you create a node called \"$title\" as a "; 
-
-
-foreach my $type (keys %approvedtypes) {
-	$str .= "&lt;LI&gt;&lt;A href=" . urlGen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) ."&gt;$type&lt;/A&gt;\n";
-}
-$str;
-%]
-</doctext>
+[{createnewnode}]</doctext>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
 	<title table="node">Not found</title>

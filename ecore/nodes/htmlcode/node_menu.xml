@@ -35,7 +35,7 @@ foreach (@VALUES)
 	}
 }
 
-my $NODELIST = $DB-&gt;selectNodeWhere({ type_nodetype =&gt; \@TYPES }, "", "title");
+my $NODELIST = $DB-&gt;selectNodeWhere({ type_nodetype =&gt; \@TYPES }, "", "title") if @TYPES;
 
 foreach my $N (@$NODELIST) {
 	$N = $DB-&gt;getNodeById($N, 'light');

@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<core table="node">0</core>
-	<lastupdate table="nodelet">942114159</lastupdate>
+	<lastupdate table="nodelet">0</lastupdate>
 	<nlcode table="nodelet">Total nodes in cache: 
 [%  sprintf "%d", $DB-&gt;getCache()-&gt;getCacheSize(); %] &lt;br&gt;
 
@@ -20,69 +20,65 @@ $str;
 </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">Total nodes in cache: 
-61 &lt;br&gt;
+57 &lt;br&gt;
 
 onepix:htmlcode&lt;br&gt;
+node:nodetype&lt;br&gt;
+htmlcode:nodetype&lt;br&gt;
 nodeletshadow container:container&lt;br&gt;
 nodelet container:container&lt;br&gt;
 nodecache:nodelet&lt;br&gt;
+nodelet:nodetype&lt;br&gt;
 Tick tock:nodelet&lt;br&gt;
 Links:nodelet&lt;br&gt;
-core system:nodeball&lt;br&gt;
+nodetype:nodetype&lt;br&gt;
 admin nodelet:nodelet&lt;br&gt;
-nodeball edit page:htmlpage&lt;br&gt;
-nodeball display page:htmlpage&lt;br&gt;
+gods:usergroup&lt;br&gt;
+nodegroup:nodetype&lt;br&gt;
+usergroup:nodetype&lt;br&gt;
+nodetype edit page:htmlpage&lt;br&gt;
+htmlpage:nodetype&lt;br&gt;
+nodetype display page:htmlpage&lt;br&gt;
 adminbar:htmlcode&lt;br&gt;
 system nodelets:nodeletgroup&lt;br&gt;
 nodelet meta-container:htmlcode&lt;br&gt;
 coreStatus:htmlcode&lt;br&gt;
 searchform:htmlcode&lt;br&gt;
+document:nodetype&lt;br&gt;
+superdoc:nodetype&lt;br&gt;
 system settings:setting&lt;br&gt;
+setting:nodetype&lt;br&gt;
 root:user&lt;br&gt;
-gods:usergroup&lt;br&gt;
+user:nodetype&lt;br&gt;
+Gigantic Code Lister:restricted_superdoc&lt;br&gt;
+restricted_superdoc:nodetype&lt;br&gt;
+Gigantic Node Lister:restricted_superdoc&lt;br&gt;
 titlebar:htmlcode&lt;br&gt;
 e2container:container&lt;br&gt;
 general container:container&lt;br&gt;
-formcontainer:container&lt;br&gt;
+restricted fields:setting&lt;br&gt;
 htmlvars nodegroup:nodegroup&lt;br&gt;
 set_htmlvars:htmlcode&lt;br&gt;
 textarea:htmlcode&lt;br&gt;
-stdcontainer:container&lt;br&gt;
-node_menu:htmlcode&lt;br&gt;
 listcode:htmlcode&lt;br&gt;
+node_menu:htmlcode&lt;br&gt;
+textfield:htmlcode&lt;br&gt;
 userbody:htmlcode&lt;br&gt;
 basichead:htmlcode&lt;br&gt;
+stdcontainer:container&lt;br&gt;
 %$NODE:nodelet&lt;br&gt;
 displayNODE:htmlcode&lt;br&gt;
 Server Statistics:nodelet&lt;br&gt;
 serverstats:htmlcode&lt;br&gt;
 CGI::param:nodelet&lt;br&gt;
-container edit page:htmlpage&lt;br&gt;
-container display page:htmlpage&lt;br&gt;
-displayvars:htmlcode&lt;br&gt;
-setting edit page:htmlpage&lt;br&gt;
-setting display page:htmlpage&lt;br&gt;
-usergroup:nodetype&lt;br&gt;
-user:nodetype&lt;br&gt;
-superdoc:nodetype&lt;br&gt;
-setting:nodetype&lt;br&gt;
-restricted_superdoc:nodetype&lt;br&gt;
+htmlcode edit page:htmlpage&lt;br&gt;
+htmlcode display page:htmlpage&lt;br&gt;
+formcontainer:container&lt;br&gt;
+displayInherited:htmlcode&lt;br&gt;
 nodeletgroup:nodetype&lt;br&gt;
-nodelet:nodetype&lt;br&gt;
-nodegroup:nodetype&lt;br&gt;
-nodeball:nodetype&lt;br&gt;
-node:nodetype&lt;br&gt;
-meta-user:nodetype&lt;br&gt;
-maintenance:nodetype&lt;br&gt;
-mail:nodetype&lt;br&gt;
-image:nodetype&lt;br&gt;
-htmlpage:nodetype&lt;br&gt;
-htmlcode:nodetype&lt;br&gt;
-file:nodetype&lt;br&gt;
-document:nodetype&lt;br&gt;
-dbtable:nodetype&lt;br&gt;
 container:nodetype&lt;br&gt;
-nodetype:nodetype&lt;br&gt;
+htmlpage edit page:htmlpage&lt;br&gt;
+htmlpage display page:htmlpage&lt;br&gt;
 
 </nltext>
 	<package table="node">0</package>

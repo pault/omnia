@@ -1,23 +1,29 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">942114159</lastupdate>
+	<lastupdate table="nodelet">0</lastupdate>
 	<nlcode table="nodelet">[{displayNODE:30}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;li&gt;&lt;B&gt;author_user: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=178&amp;lastnode_id=182"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;type: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=14&amp;lastnode=182&amp;lastnode_id=182"&gt;nodeball&lt;/a&gt;&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;title: &lt;/B&gt;core system&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;node_id: &lt;/B&gt;182&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;createtime: &lt;/B&gt;1999-11-02 01:36:21&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;hits: &lt;/B&gt;8&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;locktime: &lt;/B&gt;0000-00-00 00:00:00&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;core: &lt;/B&gt;0&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;setting_id: &lt;/B&gt;182&lt;BR&gt;
+	<nltext table="nodelet">&lt;li&gt;&lt;B&gt;extends_nodetype: &lt;/B&gt;none&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;type: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=1&amp;lastnode=1&amp;lastnode_id=1"&gt;nodetype&lt;/a&gt;&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;title: &lt;/B&gt;nodetype&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;createtime: &lt;/B&gt;0000-00-00 00:00:00&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;readers_user: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=159&amp;lastnode_id=1"&gt;gods&lt;/a&gt;&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;core: &lt;/B&gt;R&lt;BR&gt;
 &lt;li&gt;&lt;B&gt;reputation: &lt;/B&gt;0&lt;BR&gt;
 &lt;li&gt;&lt;B&gt;lockedby_user: &lt;/B&gt;none&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;vars: &lt;/B&gt;&lt;BR&gt;
 &lt;li&gt;&lt;B&gt;package: &lt;/B&gt;0&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;group: &lt;/B&gt;ARRAY(0x8761178)&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;writers_user: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=159&amp;lastnode_id=1"&gt;gods&lt;/a&gt;&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;author_user: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=159&amp;lastnode_id=1"&gt;gods&lt;/a&gt;&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;restrictdupes: &lt;/B&gt;1&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;node_id: &lt;/B&gt;1&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;nodetype_id: &lt;/B&gt;1&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;grouptable: &lt;/B&gt;&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;deleters_user: &lt;/B&gt;&lt;A HREF="/every2/index.pl?node_id=159&amp;lastnode_id=1"&gt;gods&lt;/a&gt;&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;restrict_nodetype: &lt;/B&gt;none&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;sqltable: &lt;/B&gt;nodetype&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;locktime: &lt;/B&gt;0000-00-00 00:00:00&lt;BR&gt;
+&lt;li&gt;&lt;B&gt;hits: &lt;/B&gt;8&lt;BR&gt;
 </nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">nodelet container</parent_container>
