@@ -43,7 +43,7 @@ sub construct
 		# node nodetype (would cause infinite loop).  So, we need to 
 		# kinda fake it.
 		my $nodeid = $this->{DB}->sqlSelect('node_id', 'node',
-			"title='node' && type_nodetype=1");
+			"title='node' AND type_nodetype=1");
 
 		my $cursor = $this->{DB}->sqlSelectJoined('*', 'nodetype',
 			{ node => 'nodetype_id=node_id' }, "nodetype_id=$nodeid");

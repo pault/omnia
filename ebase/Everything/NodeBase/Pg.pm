@@ -11,11 +11,11 @@ package Everything::NodeBase::Pg;
 
 use strict;
 use DBI;
-use Everything::NodeBase::Database;
+use Everything::NodeBase;
 
 use vars qw($VERSION @ISA @EXPORT);
 
-@ISA = qw(Everything::NodeBase::Database);
+@ISA = qw(Everything::NodeBase);
 
 #############################################################################
 #	Sub
@@ -394,4 +394,11 @@ sub genLimitString
 	$offset ||= 0;
 
 	return "LIMIT $limit, $offset";
+}
+
+sub genTableName
+{
+        my ($this, $table) = @_;
+
+        return '"'.$table.'"';
 }

@@ -16,6 +16,7 @@ package Everything;
 use strict;
 use DBI;
 use Everything::NodeBase::mysql;
+use Everything::NodeBase::Pg;
 
 use vars qw($DB $VERSION);
 
