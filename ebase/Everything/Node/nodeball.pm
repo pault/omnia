@@ -4,16 +4,14 @@ package Everything::Node::nodeball;
 #   Everything::Node::nodeball
 #       Package the implements the base functionality for nodeball
 #
-#   Copyright 2000 Everything Development Inc.
+#   Copyright 2000 - 2003 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
 
-
 use strict;
 use Everything;
 use Everything::Node::setting;
-
 
 #############################################################################
 #	Sub
@@ -26,35 +24,33 @@ use Everything::Node::setting;
 sub insert
 {
 	my ($this, $USER) = @_;
+	$this->{vars} ||= '';	
 
-	
-	
-	my $VARS;
-	$$this{vars} ||= "";	
-	$VARS = $this->getVars();
-	
+	my $VARS = $this->getVars();
+
 	# If the node was not inserted with some vars, we need to set some.
-	unless($VARS)
+	unless ($VARS)
 	{
-		my $user = $$this{DB}->getNode($USER);
-		my $title = "ROOT";
+		my $user  = $this->{DB}->getNode($USER);
+		my $title = 'ROOT';
 
-		$title = $$user{title} if($user && (ref $user));
-		
+		$title = $user->{title}
+			if $user && UNIVERSAL::isa( $user, 'Everything::Node' );
+
 		$VARS = { 
-			author => $title,
-			version => "0.1.1",
-			description => "No description" };
-		
+			author      => $title,
+			version     => '0.1.1',
+			description => 'No description'
+		};
+
 		$this->setVars($VARS, $USER);
 	}
+
 	my $insert_id = $this->SUPER();
-	unless($insert_id)
-	{
-		logError("got bad insert id: $insert_id!\n");
-		return 0;
-	}
-	return $insert_id;
+	return $insert_id if $insert_id;
+
+	Everything::logErrors( "Got bad insert id: $insert_id!" );
+	return 0;
 }
 
 
@@ -62,8 +58,8 @@ sub insert
 sub getVars
 {
 	my ($this) = @_;
-	
-	return $this->getHash("vars");
+
+	return $this->getHash('vars');
 }
 
 
@@ -71,8 +67,8 @@ sub getVars
 sub setVars
 {
 	my ($this, $vars) = @_;
-	
-	$this->setHash($vars, "vars");
+
+	$this->setHash($vars, 'vars');
 }
 
 
@@ -97,15 +93,10 @@ sub fieldToXML
 {
 	my ($this, $DOC, $field, $indent) = @_;
 
-	if($field eq 'vars')
-	{
-		return Everything::Node::setting::fieldToXML($this, $DOC,
-			$field, $indent);
-	}
-	else
-	{
-		return $this->SUPER();
-	}
+	return Everything::Node::setting::fieldToXML($this, $DOC, $field, $indent)
+		if $field eq 'vars';
+
+	return $this->SUPER();
 }
 
 
@@ -115,16 +106,12 @@ sub xmlTag
 	my ($this, $TAG) = @_;
 	my $tagname = $TAG->getTagName();
 
-	if($tagname =~ /vars/i)
-	{
-		# Since we derive from nodegroup, but also have some setting
-		# type functionality, we need to use the setting stuff here.
-		return Everything::Node::setting::xmlTag($this, $TAG);
-	}
-	else
-	{
-		return $this->SUPER(); 
-	}
+	# Since we derive from nodegroup, but also have some setting type
+	# functionality, we need to use the setting stuff here.
+	return Everything::Node::setting::xmlTag($this, $TAG)
+		if $tagname =~ /vars/i;
+
+	return $this->SUPER(); 
 }
 
 
@@ -133,14 +120,10 @@ sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
 
-	if($$FIX{fixBy} eq "setting")
-	{
-		return Everything::Node::setting::applyXMLFix($this, $FIX, $printError);
-	}
-	else
-	{
-		return $this->SUPER();
-	}
+	return Everything::Node::setting::applyXMLFix($this, $FIX, $printError)
+		if $FIX->{fixBy} eq 'setting';
+
+	return $this->SUPER();
 }
 
 
