@@ -21,8 +21,10 @@
 		<groupnode13 table="nodegroup" type="htmlpage">task_update edit page</groupnode13>
 		<groupnode14 table="nodegroup" type="htmlpage">task_update display page</groupnode14>
 		<groupnode15 table="nodegroup" type="nodemethod">update</groupnode15>
-		<groupnode16 table="nodegroup" type="nodelet">tasklet</groupnode16>
-		<groupnode17 table="nodegroup" type="htmlcode">tasklist</groupnode17>
+		<groupnode16 table="nodegroup" type="htmlcode">tasklist</groupnode16>
+		<groupnode17 table="nodegroup" type="nodelet">Tasklet</groupnode17>
+		<groupnode18 table="nodegroup" type="nodemethod">insert</groupnode18>
+		<groupnode19 table="nodegroup" type="superdoc">Task lister preferences</groupnode19>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiiii</groupaccess>
@@ -33,7 +35,7 @@
 	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
 	<vars table="setting">
 		<author >chromatic</author>
-		<description >A task manager allowing for creation of tasks, task_updates, and task sorting and listing. See documentation on everydevel.com.</description>
-		<version >0.1.2</version>
+		<description >A task manager allowing for creation of tasks, task_updates, and task sorting and listing.  See documentation on everydevel.com.</description>
+		<version >0.2</version>
 	</vars>
 </NODE>

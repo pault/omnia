@@ -1,0 +1,86 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<doctext table="document">[%
+
+my ($settings, $vars) = $DB-&gt;getNode('task settings', 'setting');
+$vars = $settings-&gt;getVars() if $settings;
+
+my %fields = (
+	title 	 =&gt; 'title',
+	status   =&gt; 'status',
+	owner    =&gt; 'owner',
+	category =&gt; 'category',
+	rating   =&gt; 'rating',
+	due	 =&gt; 'due_date'
+);
+
+my $update = 0;
+my ($str, @order_fields);
+
+my $sm_order = $query-&gt;param('sm_order');
+
+foreach my $field (split(/\s*,\s*/, $sm_order)) {
+	push @order_fields, $field if (exists $fields{$field});	
+}
+
+if ((scalar @order_fields)) {
+	$sm_order = join(", ", @order_fields);
+} else {
+	$sm_order = '';
+}
+$VARS-&gt;{'small_task_list_order'} = $sm_order;
+
+my $orderby = $query-&gt;param('orderby');
+undef $orderby unless (exists $fields{$orderby});
+
+$VARS-&gt;{'task_orderby'} = $orderby;
+
+my $sm_limit = $query-&gt;param('sm_limit');
+$sm_limit =~ tr/0-9//dc;
+
+unless (defined($sm_limit)) {
+	$sm_limit = '';
+}
+$VARS-&gt;{'small_task_list_limit'} = $sm_limit;
+
+my $sort_field = '&lt;option&gt;default&lt;/option&gt;';
+
+foreach my $field (keys %fields) {
+	$sort_field .= "&lt;option";
+	$sort_field .= " selected" if $field eq $orderby;
+	$sort_field .= "&gt;$field&lt;/option&gt;\n";
+}
+
+$str .= &lt;&lt;HTML;
+Choose your settings for the Tasklet nodelet:
+&lt;form method="post"&gt;
+&lt;input type="hidden" name="node_id" value="$$NODE{node_id}"&gt;
+&lt;table border="0" cellpadding="5"&gt;
+&lt;tr&gt;&lt;td&gt;Fields and order to display:&lt;/td&gt;
+&lt;td&gt;&lt;input type="text" name="sm_order" value="$sm_order"&gt;&lt;/td&gt;
+&lt;td&gt;Allowed values: (&lt;b&gt;title&lt;/b&gt;, status, owner, category, &lt;b&gt;rating&lt;/b&gt;, &lt;b&gt;due&lt;/b&gt;)
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Display how many results:&lt;/td&gt;
+&lt;td&gt;&lt;input type="text" name="sm_limit" value="$sm_limit"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Sort results by:&lt;/td&gt;
+&lt;td&gt;&lt;select name="orderby" size="1"&gt;$sort_field&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;input type="submit" value="update!"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;
+&lt;/table&gt;
+&lt;/form&gt;
+HTML
+return $str;
+%]</doctext>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="literal_value">0</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">Task lister preferences</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>
