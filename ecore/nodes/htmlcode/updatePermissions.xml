@@ -15,6 +15,7 @@ my $perm;
 my $field;
 my $gfound = 0;
 my $found;
+my $set;
 
 push @what, "create" if($forType);
 
@@ -38,10 +39,12 @@ foreach my $user (@who)
 
   $field = $user . "access";
   $field = "default" . $field if($forType);
-  
+
+  $set .= "$field=$perms " if($found);  
   $$NODE{$field} = $perms if($found);
 }
 
+#die "$set" if($gfound);
 $NODE-&gt;update($USER) if($gfound);
 
 ""; # don't return anything</code>

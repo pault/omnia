@@ -6,13 +6,12 @@
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group >
-		<groupnode1 table="nodegroup" type="nodelet">admin nodelet</groupnode1>
-		<groupnode2 table="nodegroup" type="nodelet">Links</groupnode2>
-		<groupnode3 table="nodegroup" type="nodelet">Tick tock</groupnode3>
-		<groupnode4 table="nodegroup" type="nodelet">Other Users</groupnode4>
-		<groupnode5 table="nodegroup" type="nodelet">Node Statistics</groupnode5>
-		<groupnode6 table="nodegroup" type="nodelet">New Nodes</groupnode6>
-		<groupnode7 table="nodegroup" type="nodelet">Server Statistics</groupnode7>
+		<groupnode1 table="nodegroup" type="nodelet">Login</groupnode1>
+		<groupnode2 table="nodegroup" type="nodelet">Epicenter</groupnode2>
+		<groupnode3 table="nodegroup" type="nodelet">Other Users</groupnode3>
+		<groupnode4 table="nodegroup" type="nodelet">New Nodes</groupnode4>
+		<groupnode5 table="nodegroup" type="nodelet">Links</groupnode5>
+		<groupnode6 table="nodegroup" type="nodelet">personal nodelet</groupnode6>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>

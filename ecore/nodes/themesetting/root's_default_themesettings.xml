@@ -6,9 +6,9 @@
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<otheraccess table="node">iiii-</otheraccess>
+	<groupaccess table="node">ii-i</groupaccess>
+	<guestaccess table="node">ii-i</guestaccess>
+	<otheraccess table="node">ii-i</otheraccess>
 	<parent_theme table="themesetting" type="theme">default theme</parent_theme>
 	<title table="node">root's default themesettings</title>
 	<type_nodetype table="node" type="nodetype">themesetting</type_nodetype>

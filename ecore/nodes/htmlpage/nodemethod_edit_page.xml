@@ -1,0 +1,45 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<displaytype table="htmlpage">edit</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
+	<page table="htmlpage">title:[{textfield:title}] maintained by:[{node_menu:author_user,usergroup}]&lt;br&gt;
+Supports: [{node_menu:supports_nodetype}]&lt;br&gt;
+
+&lt;table width=100%&gt;
+&lt;tr&gt;
+&lt;td width=90%&gt;
+&lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
+[{textarea:code}]&lt;/td&gt;
+&lt;td width=10%&gt;&lt;font size=2&gt;[%
+my $N = getNode($$NODE{supports_nodetype});
+my $str;
+
+return "No Nodetype selected!\n" unless($N);
+
+$str .= "&lt;ul&gt;\n";
+my $tables = $N-&gt;getTableArray(1);
+foreach (@$tables) {
+  $str .="\n&lt;li&gt;";
+  $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);
+}
+$str .= "&lt;/ul&gt;\n";
+$str;
+%]&lt;/font&gt;&lt;/td&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">nodemethod</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
+	<permissionneeded table="htmlpage">w</permissionneeded>
+	<title table="node">nodemethod edit page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

@@ -13,7 +13,9 @@
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">parent container:
 [%return linkNode ($$NODE{parent_container}) if $$NODE{parent_container};
-"&lt;i&gt;none&lt;/i&gt;";%]&lt;br&gt;
+"&lt;i&gt;none&lt;/i&gt;";%]
+
+&lt;p&gt;
 [{listcode:context}]
 </page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">container</pagetype_nodetype>

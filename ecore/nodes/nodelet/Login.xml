@@ -1,0 +1,83 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node" type="literal_value">0</dynamicauthor_permission>
+	<dynamicgroup_permission table="node" type="literal_value">0</dynamicgroup_permission>
+	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii</groupaccess>
+	<guestaccess table="node">--x-</guestaccess>
+	<lastupdate table="nodelet">964215660</lastupdate>
+	<nlcode table="nodelet">[%
+my $str = "";
+if ($query-&gt;param('op') eq 'login') { 
+  $str .="Oops.  You must have the wrong login or password or something:&lt;br&gt;";
+} 
+$str;
+%]
+
+[%
+$query-&gt;start_form("POST", $ENV{script_name}) .
+$query-&gt;hidden("node_id", getId($NODE)) . "\n" .
+$query-&gt;hidden("lastnode_id", $query-&gt;param("lastnode_id")) . "\n";
+%]
+&lt;input type="hidden" name="op" value="login"&gt;
+&lt;table border=0&gt;
+&lt;tr&gt;
+ &lt;td&gt;&lt;font size='2'&gt;Login:&lt;/font&gt;&lt;/td&gt;
+ &lt;td&gt;
+  [% $query-&gt;textfield (-name =&gt; "user", -size =&gt; 10, -maxlength =&gt; 100); %]
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;&lt;font size='2'&gt;Password&lt;/font&gt;&lt;/td&gt;
+ &lt;td&gt;
+  [% $query-&gt;password_field(-name =&gt; "passwd", -size =&gt; 10, -maxlength =&gt; 10); %]
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;font size='2'&gt;
+[%
+$query-&gt;checkbox("expires", "", "+10y", "save me a permanent cookie") . 
+$query-&gt;submit("login", "Login") .
+$query-&gt;end_form;
+%]
+&lt;p&gt;
+Don't have an account?&lt;br&gt;
+[% linkNodeTitle("Create a new user"); %].
+&lt;/font&gt;</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">
+
+&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded"&gt;
+&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="178"&gt;
+&lt;INPUT TYPE="hidden" NAME="lastnode_id" VALUE="201"&gt;
+
+&lt;input type="hidden" name="op" value="login"&gt;
+&lt;table border=0&gt;
+&lt;tr&gt;
+ &lt;td&gt;&lt;font size='2'&gt;Login:&lt;/font&gt;&lt;/td&gt;
+ &lt;td&gt;
+  &lt;INPUT TYPE="text" NAME="user"  SIZE=10 MAXLENGTH=100&gt;
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;&lt;font size='2'&gt;Password&lt;/font&gt;&lt;/td&gt;
+ &lt;td&gt;
+  &lt;INPUT TYPE="password" NAME="passwd"  SIZE=10 MAXLENGTH=10&gt;
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;font size='2'&gt;
+&lt;INPUT TYPE="checkbox" NAME="expires" VALUE="+10y"&gt;save me a permanent cookie
+&lt;INPUT TYPE="submit" NAME="login" VALUE="Login"&gt;&lt;/FORM&gt;
+&lt;p&gt;
+Don't have an account? &lt;a href="/index.pl?node=Create%20a%20new%20user"&gt;Create a new user&lt;/a&gt;.
+&lt;/font&gt;</nltext>
+	<otheraccess table="node">----</otheraccess>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
+	<title table="node">Login</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

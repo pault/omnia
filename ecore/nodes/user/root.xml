@@ -9,22 +9,21 @@ Great hair</doctext>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<email table="user">root@localhost</email>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii</groupaccess>
-	<guestaccess table="node">iiii</guestaccess>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
 	<karma table="user">30</karma>
 	<nick table="user"></nick>
-	<otheraccess table="node">iiii</otheraccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<realname table="user">Super user</realname>
 	<title table="node">root</title>
 	<type_nodetype table="node" type="nodetype">user</type_nodetype>
 	<vars table="setting">
-		<nodelet_textclr >#ffcc99</nodelet_textclr>
+		<nodelet_textclr ></nodelet_textclr>
 		<preferred_theme type="themesetting">root's default themesettings</preferred_theme>
-		<nodelet_headerclr >#ff0000</nodelet_headerclr>
+		<nodelet_headerclr ></nodelet_headerclr>
 		<nodelet_align ></nodelet_align>
 		<nodelet_group type="nodeletgroup">system nodelets</nodelet_group>
 		<nodelets_off ></nodelets_off>
-		<meatloaf >big and juicy</meatloaf>
 		<group ></group>
 		<personal_nodelet ></personal_nodelet>
 	</vars>

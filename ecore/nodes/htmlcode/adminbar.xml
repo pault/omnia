@@ -51,7 +51,7 @@ foreach my $type (@displaytypes)
   }
 }
 
-$str .= join ' | ', @links;
+$str .= join " |\n", @links;
 $str .= "&lt;br&gt;&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;";
 
 # If a group editor is open, add a link to add this node to
@@ -91,12 +91,12 @@ $str.="
 $str;</code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">rwxd</groupaccess>
-	<guestaccess table="node">----</guestaccess>
-	<otheraccess table="node">----</otheraccess>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">adminbar</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

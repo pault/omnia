@@ -7,13 +7,11 @@
    [{searchform:noendform}]
   &lt;/td&gt;
   &lt;td align=right&gt;
-    &lt;img src=images/e2.gif&gt;&lt;BR&gt;
+[%
+my $default = getNode($HTMLVARS{default_node});
+linkNode($default, "&lt;img border=0 src=images/e.gif&gt;");
+%]
    &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td colspan=2&gt;   
-   [{titlebar}]
-  &lt;/td&gt;
  &lt;/tr&gt;
 &lt;/form&gt;
 &lt;/table&gt;

@@ -12,7 +12,7 @@
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<page table="htmlpage">[% updateNodelet($NODE); %]
-[{listcode:nltext}]</page>
+[{listcode:nlcode}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodelet</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<permissionneeded table="htmlpage">r</permissionneeded>

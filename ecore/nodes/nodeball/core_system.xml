@@ -188,6 +188,12 @@
 		<groupnode180 table="nodegroup" type="nodetype">nodemethod</groupnode180>
 		<groupnode181 table="nodegroup" type="dbtable">nodemethod</groupnode181>
 		<groupnode182 table="nodegroup" type="htmlsnippet">backsideErrors</groupnode182>
+		<groupnode183 table="nodegroup" type="htmlpage">nodemethod display page</groupnode183>
+		<groupnode184 table="nodegroup" type="htmlpage">nodemethod edit page</groupnode184>
+		<groupnode185 table="nodegroup" type="container">nodelet outline container</groupnode185>
+		<groupnode186 table="nodegroup" type="htmlcode">themeselector</groupnode186>
+		<groupnode187 table="nodegroup" type="nodelet">Login</groupnode187>
+		<groupnode188 table="nodegroup" type="nodelet">Epicenter</groupnode188>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
@@ -197,7 +203,7 @@
 	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
-		<description >The core system of Everything.   </description>
-		<version >0.7.9.9</version>
+		<description >The core system of Everything.   (HIGHLY BETA!)</description>
+		<version >0.9.0.0</version>
 	</vars>
 </NODE>

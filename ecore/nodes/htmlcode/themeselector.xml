@@ -1,6 +1,21 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">use Everything::FormMenu;
+
+if($query-&gt;param('settheme'))
+{
+  # update the users's settings.
+  $$VARS{preferred_theme} = $query-&gt;param('settheme');
+  getTheme();
+}
+
+my $menu = new Everything::FormMenu();
+
+$menu-&gt;addType('theme', 1, $USER, 'x');
+$menu-&gt;addType('themesetting', 1, $USER, 'x');
+
+$menu-&gt;writePopupHTML($query, "settheme", $$VARS{preferred_theme});</code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
@@ -8,20 +23,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">953104108</lastupdate>
-	<nlcode table="nodelet">[%
-my $str;
-foreach ($query-&gt;param) {
-  $str.="&lt;b&gt;$_&lt;/b&gt;:" . $query-&gt;param($_) . "&lt;br&gt;\n" 
-    unless length ($query-&gt;param($_)) &gt; 30 or not defined $query-&gt;param($_);
-}
-$str;
-%]</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet"></nltext>
 	<otheraccess table="node">iiii-</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">CGI::param</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+	<title table="node">themeselector</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

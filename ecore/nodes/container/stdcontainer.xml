@@ -4,8 +4,8 @@
 	<context table="container">&lt;HTML&gt;
 [{basichead}]
 [{userbody}]
-CONTAINED_STUFF
 [&lt;BacksideErrors&gt;]
+CONTAINED_STUFF
 &lt;/BODY&gt;
 &lt;/HTML&gt;</context>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>

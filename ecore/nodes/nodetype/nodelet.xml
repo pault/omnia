@@ -5,11 +5,11 @@
 	<defaultauthoraccess table="nodetype">rwxd</defaultauthoraccess>
 	<defaultgroup_permission table="nodetype" type="literal_value">0</defaultgroup_permission>
 	<defaultgroup_usergroup table="nodetype" type="usergroup">gods</defaultgroup_usergroup>
-	<defaultgroupaccess table="nodetype">r----</defaultgroupaccess>
+	<defaultgroupaccess table="nodetype">--x--</defaultgroupaccess>
 	<defaultguest_permission table="nodetype" type="literal_value">0</defaultguest_permission>
-	<defaultguestaccess table="nodetype">r----</defaultguestaccess>
+	<defaultguestaccess table="nodetype">--x--</defaultguestaccess>
 	<defaultother_permission table="nodetype" type="literal_value">0</defaultother_permission>
-	<defaultotheraccess table="nodetype">r----</defaultotheraccess>
+	<defaultotheraccess table="nodetype">--x--</defaultotheraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>

@@ -22,7 +22,7 @@ else
 return "No parent" unless($parent);
 
 $perms = $parent-&gt;getDefaultTypePermissions($class);
-return $perms;</code>
+return $perms . "&amp;nbsp;";</code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>

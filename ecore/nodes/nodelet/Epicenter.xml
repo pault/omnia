@@ -1,0 +1,52 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii</groupaccess>
+	<guestaccess table="node">ii-i</guestaccess>
+	<lastupdate table="nodelet">964240161</lastupdate>
+	<nlcode table="nodelet">&lt;font size=2&gt;
+[%
+linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op =&gt; 'logout'});
+%]&lt;br&gt;
+
+[% 
+my @links;
+my $str;
+
+push @links, linkNode ($USER);
+push @links, linkNodeTitle ("user settings");
+
+my $GNL = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
+push @links, linkNode ($GNL) if($GNL-&gt;hasAccess($USER, 'r'));
+
+my $GCL = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
+push @links, linkNode ($GCL) if($GCL-&gt;hasAccess($USER, 'r'));
+
+my $ss = getNode('system settings', getType('setting'));
+push @links, linkNode ($ss) if ($ss-&gt;hasAccess($USER, "r"));
+
+$str = join "&lt;br&gt;\n", @links;
+%]
+&lt;/font&gt;</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">&lt;font size=2&gt;
+&lt;A HREF="/index.pl?node_id=178&amp;lastnode_id=200&amp;op=logout"&gt;log root out&lt;/a&gt;&lt;br&gt;
+
+&lt;A HREF="/index.pl?node_id=187&amp;lastnode_id=200"&gt;root&lt;/a&gt;&lt;br&gt;
+&lt;a href="/index.pl?node=user%20settings"&gt;user settings&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=165&amp;lastnode_id=200"&gt;Gigantic Node Lister&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=164&amp;lastnode_id=200"&gt;Gigantic Code Lister&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=172&amp;lastnode_id=200"&gt;system settings&lt;/a&gt;&lt;br&gt;
+&lt;A HREF="/index.pl?node_id=178&amp;lastnode_id=200"&gt;The Default Node&lt;/a&gt;
+&lt;/font&gt;</nltext>
+	<otheraccess table="node">iiii</otheraccess>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
+	<title table="node">Epicenter</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

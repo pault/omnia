@@ -2,7 +2,7 @@
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<defaultauthor_permission table="nodetype" type="literal_value">0</defaultauthor_permission>
-	<defaultauthoraccess table="nodetype">rwxd</defaultauthoraccess>
+	<defaultauthoraccess table="nodetype">rw--</defaultauthoraccess>
 	<defaultgroup_permission table="nodetype" type="literal_value">0</defaultgroup_permission>
 	<defaultgroup_usergroup table="nodetype" type="usergroup">gods</defaultgroup_usergroup>
 	<defaultgroupaccess table="nodetype">r----</defaultgroupaccess>

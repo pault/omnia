@@ -1,6 +1,6 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
-	<authoraccess table="node">iiii</authoraccess>
+	<authoraccess table="node">iixi</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
@@ -9,9 +9,9 @@
 		<groupnode1 table="nodegroup" type="container">main container</groupnode1>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<otheraccess table="node">iiii-</otheraccess>
+	<groupaccess table="node">iixi</groupaccess>
+	<guestaccess table="node">ii-i</guestaccess>
+	<otheraccess table="node">iixi</otheraccess>
 	<title table="node">default theme</title>
 	<type_nodetype table="node" type="nodetype">theme</type_nodetype>
 	<vars table="setting">

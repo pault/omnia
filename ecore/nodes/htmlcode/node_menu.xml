@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="literal_value">0</author_user>
+	<author_user table="node">-1</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">my ($field, @VALUES) = @_;
 my @idlist;

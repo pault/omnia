@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="literal_value">0</author_user>
+	<author_user table="node">-1</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
 
@@ -129,14 +129,14 @@ $str .= $nav;
 $str .= "&lt;/TABLE&gt;";
 $str;
 %]</doctext>
-	<dynamicauthor_permission table="node" type="literal_value">0</dynamicauthor_permission>
-	<dynamicgroup_permission table="node" type="literal_value">0</dynamicgroup_permission>
-	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii</groupaccess>
-	<guestaccess table="node">----</guestaccess>
-	<otheraccess table="node">----</otheraccess>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<title table="node">Gigantic Node Lister</title>
 	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
 </NODE>

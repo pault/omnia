@@ -8,7 +8,7 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">962979658</lastupdate>
+	<lastupdate table="nodelet">964301101</lastupdate>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
@@ -29,21 +29,21 @@ $str;
 
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=191&amp;lastnode_id=175"&gt;backsideErrors&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=187&amp;lastnode_id=175"&gt;nodemethod&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=186&amp;lastnode_id=175"&gt;nodemethod&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=185&amp;lastnode_id=175"&gt;gods&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=180&amp;lastnode_id=175"&gt;default theme&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=181&amp;lastnode_id=175"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=182&amp;lastnode_id=175"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=183&amp;lastnode_id=175"&gt;qauser&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=184&amp;lastnode_id=175"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=174&amp;lastnode_id=175"&gt;Search Results&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=176&amp;lastnode_id=175"&gt;The Everything Tour&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=177&amp;lastnode_id=175"&gt;User settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=178&amp;lastnode_id=175"&gt;login&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=179&amp;lastnode_id=175"&gt;user variables&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=167&amp;lastnode_id=175"&gt;nodetype hierarchy&lt;/a&gt;&lt;BR&gt;
+	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=200&amp;lastnode_id=178"&gt;Epicenter&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=198&amp;lastnode_id=178"&gt;themeselector&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=197&amp;lastnode_id=178"&gt;Login&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=196&amp;lastnode_id=178"&gt;nodelet outline container&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=191&amp;lastnode_id=178"&gt;nodemethod edit page&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=190&amp;lastnode_id=178"&gt;nodemethod display page&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=180&amp;lastnode_id=178"&gt;User settings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=181&amp;lastnode_id=178"&gt;login&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=182&amp;lastnode_id=178"&gt;user variables&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=183&amp;lastnode_id=178"&gt;default theme&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=184&amp;lastnode_id=178"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=185&amp;lastnode_id=178"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=186&amp;lastnode_id=178"&gt;qauser&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=187&amp;lastnode_id=178"&gt;root&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=188&amp;lastnode_id=178"&gt;gods&lt;/a&gt;&lt;BR&gt;
 </nltext>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>

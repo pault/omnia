@@ -8,11 +8,13 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">958015612</lastupdate>
-	<nlcode table="nodelet">&lt;ol&gt;
-[%
+	<lastupdate table="nodelet">964137829</lastupdate>
+	<nlcode table="nodelet">[%
 my @links = @{ $NODE-&gt;selectLinks("food") };
 my $str = "";
+
+return "No Links" unless(@links);
+
 foreach (@links)
 {
   next if ($$_{linktype});
@@ -20,12 +22,13 @@ foreach (@links)
   my $N = getNode($$_{to_node}, 'light');
   $str .= "  &lt;li&gt;".linkNode($N)."($$N{type}{title})&lt;/li&gt;\n";  
 }
-$str;
+
+$str = "&lt;ol&gt;\n" . $str  . "\n&lt;/ol&gt;";
 %]
-&lt;/ol&gt;</nlcode>
+</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">&lt;ol&gt;
-&lt;font color="#CC0000"&gt;&lt;b&gt;Server Error (Error Id 5766809)!&lt;/b&gt;&lt;/font&gt;&lt;p&gt;An error has occured.  Please contact the site administrator with the Error Id.  Thank you.
+
 &lt;/ol&gt;</nltext>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>

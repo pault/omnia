@@ -49,19 +49,22 @@ $menu-&gt;writePopupHTML($query, $$NODE{type}{title} .
 
 &lt;table width=100%&gt;
 &lt;tr&gt;
-&lt;td width=90%&gt;
+&lt;td width=90% valign='top'&gt;
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the page:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{textarea:page}]&lt;/td&gt;
 &lt;td width=10%&gt;&lt;font size=2&gt;[%
-
-#return;
 my $N = getType($$NODE{pagetype_nodetype});
+
+return "No Pagetype selected" unless($N);
+
 my $str;
 $str .= "&lt;li&gt;";
 $str .= join "\n&lt;li&gt;", $DB-&gt;getFields;
 
-my @tables = @{ $DB-&gt;getNodetypeTables($N) };
-foreach (@tables) {
+my $tables = $N-&gt;getTableArray(1);
+
+return "" unless($tables &amp;&amp; int(@$tables) &gt; 0);
+foreach (@$tables) {
   $str .="\n&lt;li&gt;";
   $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);
 }

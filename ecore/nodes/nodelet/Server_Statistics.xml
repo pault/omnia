@@ -3,17 +3,17 @@
 	<authoraccess table="node">iiii</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
 	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii</groupaccess>
-	<guestaccess table="node">----</guestaccess>
-	<lastupdate table="nodelet">962979658</lastupdate>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<lastupdate table="nodelet">964412697</lastupdate>
 	<nlcode table="nodelet">[{serverstats}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Fri Jul  7 10:20:58 EDT 2000
-&lt;br&gt;up 46 days 5:07&lt;br&gt;0.37,  0.46,  0.23, &lt;br&gt;</nltext>
-	<otheraccess table="node">----</otheraccess>
+	<nltext table="nodelet">Mon Jul 24 00:24:57 EDT 2000
+&lt;br&gt;up 61 days 3:34&lt;br&gt;0.11,  0.19,  0.09, &lt;br&gt;</nltext>
+	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<title table="node">Server Statistics</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
