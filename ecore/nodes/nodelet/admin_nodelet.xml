@@ -10,94 +10,121 @@
   <field name="guestaccess" type="literal_value">-i-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</field>
-  <field name="nlcode" type="literal_value">&lt;table border=0>
- &lt;tr>
-  &lt;td nowrap>
-    &lt;font size=2>
+  <field name="nlcode" type="literal_value">&lt;table border=0&gt;
+ &lt;tr&gt;
+  &lt;td nowrap&gt;
+    &lt;font size=2&gt;
 [% 
-my $str = $query->start_form;
-$str .= "node";
-$str .= $query->textfield(-name => "node", -default => "",
-     -override => 1, -size => 10, -maxlength => 240);
+my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
+$str .= &quot;node&quot;;
+$str .= $query-&gt;textfield(-name =&gt; &quot;node&quot;, -default =&gt; &quot;&quot;,
+     -override =&gt; 1, -size =&gt; 10, -maxlength =&gt; 240);
 %]
 [{closeform}]
-   &lt;/font>
-  &lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td nowrap>
-   &lt;font size=2>
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td nowrap&gt;
+   &lt;font size=2&gt;
 [%
-my $str = $query->start_form;
-$str .= "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id";
-$str .= $query->textfield(-name => "node_id",
-  -default => "", -override => 1, -size => 10,
-  -maxlength => 240);
+my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
+$str .= &quot;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&quot;;
+$str .= $query-&gt;textfield(-name =&gt; &quot;node_id&quot;,
+  -default =&gt; &quot;&quot;, -override =&gt; 1, -size =&gt; 10,
+  -maxlength =&gt; 240);
 %]
 [{closeform}]
-   &lt;/font>
-  &lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>
-   &lt;font size=2>
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
+   &lt;font size=2&gt;
 [%
-my $str = "&lt;a href="; 
-my $displaytype = $query->param('displaytype');
+my $str = &quot;&lt;a href=&quot;; 
+my $displaytype = $query-&gt;param('displaytype');
 $displaytype ||= 'display';
-$str .= urlGen({ 'node_id' => getId($NODE),
- 'displaytype' => $displaytype,
- 'containers' => 'show'})." >Show containers&lt;/a>";
-%]&lt;br>
+$str .= urlGen({ 'node_id' =&gt; getId($NODE),
+ 'displaytype' =&gt; $displaytype,
+ 'containers' =&gt; 'show'}).&quot; &gt;Show containers&lt;/a&gt;&quot;;
+%]&lt;br&gt;
 
    [%
 linkNode(getNode('create node', 'restricted_superdoc'),
-  'Create new node'); %]&lt;br>
-   Current node id: ["$$NODE{node_id}"]
-   &lt;/font>
-  &lt;/td>
- &lt;/tr>
-&lt;/table>
+  'Create new node'); %]&lt;br&gt;
+   Current node id: [&quot;$$NODE{node_id}&quot;]
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
 
-[&lt;adminbox>]</field>
+[&lt;adminbox&gt;]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;table border=0>
- &lt;tr>
-  &lt;td nowrap>
-    &lt;font size=2>
-&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
-node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240>&lt;INPUT TYPE="submit" NAME="button" VALUE="submit">&lt;/FORM>
-   &lt;/font>
-  &lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td nowrap>
-   &lt;font size=2>
-&lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&lt;INPUT TYPE="text" NAME="node_id"  SIZE=10 MAXLENGTH=240>&lt;INPUT TYPE="submit" NAME="button" VALUE="submit">&lt;/FORM>
-   &lt;/font>
-  &lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>
-   &lt;font size=2>
-&lt;a href="/index.pl?displaytype=display&amp;node_id=264&amp;containers=show" >Show containers&lt;/a>&lt;br>
+  <field name="nltext" type="literal_value">&lt;table border=0&gt;
+ &lt;tr&gt;
+  &lt;td nowrap&gt;
+    &lt;font size=2&gt;
+&lt;form method=&quot;post&quot; action=&quot;/index.pl&quot; enctype=&quot;application/x-www-form-urlencoded&quot;&gt;
+node&lt;input type=&quot;text&quot; name=&quot;node&quot;  size=&quot;10&quot; maxlength=&quot;240&quot; /&gt;&lt;input type=&quot;submit&quot; name=&quot;button&quot; value=&quot;submit&quot; /&gt;
+&lt;/form&gt;
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td nowrap&gt;
+   &lt;font size=2&gt;
+&lt;form method=&quot;post&quot; action=&quot;/index.pl&quot; enctype=&quot;application/x-www-form-urlencoded&quot;&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&lt;input type=&quot;text&quot; name=&quot;node_id&quot;  size=&quot;10&quot; maxlength=&quot;240&quot; /&gt;&lt;input type=&quot;submit&quot; name=&quot;button&quot; value=&quot;submit&quot; /&gt;
+&lt;/form&gt;
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;
+   &lt;font size=2&gt;
+&lt;a href=&quot;/index.pl?containers=show&amp;displaytype=edit&amp;node_id=93&quot; &gt;Show containers&lt;/a&gt;&lt;br&gt;
 
-   &lt;A HREF="/index.pl?node_id=247&amp;lastnode_id=264">Create new node&lt;/a>&lt;br>
-   Current node id: 264
-   &lt;/font>
-  &lt;/td>
- &lt;/tr>
-&lt;/table>
+   &lt;A HREF=&quot;/index.pl?lastnode_id=93&amp;node_id=74&quot;&gt;Create new node&lt;/a&gt;&lt;br&gt;
+   Current node id: 93
+   &lt;/font&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
 
-&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1>
-         &lt;tr bgcolor=#ffffff> 
-           &lt;td bgcolor='#FFCCCC' align='center'>&lt;img src=images/icon_display_current.gif alt=display border=0>&lt;/td>&lt;td bgcolor='#FF9999' align='center'>&lt;A HREF="/index.pl?displaytype=edit&amp;node_id=264&amp;lastnode_id=264">&lt;img src=images/icon_edit.gif  alt=edit border=0>&lt;/a> &lt;/td>&lt;td bgcolor='#FFCCCC' align='center'>&lt;A HREF="/index.pl?displaytype=permissions&amp;node_id=264&amp;lastnode_id=264">&lt;img src=images/icon_permissions.gif  alt=permissions border=0>&lt;/a> &lt;/td>&lt;/tr>&lt;tr>&lt;td bgcolor='#FF9999' align='center'>&lt;a href='javascript: cloneNode();'>&lt;img src=images/icon_clone.gif alt=clone border=0>&lt;/a>&lt;/td>
-&lt;td bgcolor='#FFCCCC' align=center>&lt;a href="/index.pl?node_id=246&amp;srcnode_id=264">&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle>&lt;/A>&lt;/td>&lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' alt='delete' border=0>&lt;/a>&lt;/td>&lt;/tr>
-&lt;/table></field>
+
+
+&lt;table width=100% border=0 cellpadding=3 bgcolor=#ffffff cellspacing=1&gt;
+  &lt;tr bgcolor=#ffffff&gt; 
+    &lt;td bgcolor='#ffcccc' align='center'&gt;
+      &lt;A HREF=&quot;/index.pl?lastnode_id=93&amp;node_id=93&amp;displaytype=display&quot;&gt;&lt;img src=images/icon_display.gif  alt=display border=0&gt;&lt;/a&gt; 
+    &lt;/td&gt;
+    &lt;td bgcolor='#ff9999' align='center'&gt;
+      &lt;img src=images/icon_edit_current.gif alt=edit border=0&gt;
+    &lt;/td&gt;
+    &lt;td bgcolor='#ffcccc' align='center'&gt;
+      &lt;A HREF=&quot;/index.pl?lastnode_id=93&amp;node_id=93&amp;displaytype=permissions&quot;&gt;&lt;img src=images/icon_permissions.gif  alt=permissions border=0&gt;&lt;/a&gt; 
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td bgcolor='#ff9999' align='center'&gt;
+      &lt;a href='javascript: cloneNode();'&gt;
+       &lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;
+    &lt;/td&gt;
+    &lt;td bgcolor='#ffcccc' align=center&gt;
+      &lt;a href=&quot;/index.pl?node_id=70&amp;srcnode_id=93&quot;&gt;&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle&gt;&lt;/A&gt;
+    &lt;/td&gt;
+   &lt;td bgcolor='#ff9999' align=center&gt;
+&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor='#ffcccc' align=center&gt;&lt;A HREF=&quot;/index.pl?lastnode_id=93&amp;op=undo&amp;node_id=93&amp;displaytype=edit&quot;&gt;&lt;IMG src=images/icon_undo.gif alt=&quot;undo&quot; border=0&gt;&lt;/a&gt;&lt;/td&gt;&lt;td bgcolor='#ff9999' align=center&gt;&amp;nbsp;&lt;/td&gt;&lt;td bgcolor='#ffcccc' align=center&gt;&amp;nbsp;&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</field>
   <field name="otheraccess" type="literal_value">-i-i-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">admin nodelet</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="updateinterval" type="literal_value">0</field>
 </NODE>
+
+

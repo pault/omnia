@@ -1,9 +1,9 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="openform">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">$query->start_form("POST", $ENV{script_name}) .
-$query->hidden("displaytype") .
-$query->hidden("node_id", getId $NODE);</field>
+  <field name="code" type="literal_value">$query-&gt;start_form(&quot;POST&quot;, $query-&gt;script_name) .
+$query-&gt;hidden(&quot;displaytype&quot;) .
+$query-&gt;hidden(&quot;node_id&quot;, getId $NODE);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

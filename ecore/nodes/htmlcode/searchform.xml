@@ -4,14 +4,14 @@
   <field name="code" type="literal_value">my ($PARAM) = @_;
 return if (($$USER{node_id} == $HTMLVARS{guest_user}) and 
 		not($HTMLVARS{GUshowsearchform}) ); 
-my $str = $query->start_form .
-	$query->textfield(-name => "node",
-		-default => "",
-		-size => 50,
-		-maxlength => 80) . " " .
-	$query->submit("go_button", "go");
+my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name) .
+	$query-&gt;textfield(-name =&gt; &quot;node&quot;,
+		-default =&gt; &quot;&quot;,
+		-size =&gt; 50,
+		-maxlength =&gt; 80) . &quot; &quot; .
+	$query-&gt;submit(&quot;go_button&quot;, &quot;go&quot;);
  
-$str.= $query->end_form unless $PARAM eq 'noendform';
+$str.= $query-&gt;end_form unless $PARAM eq 'noendform';
 
 $str;
  </field>
