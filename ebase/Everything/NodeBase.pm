@@ -15,12 +15,6 @@ use Everything;
 use Everything::NodeCache;
 use Everything::Node;
 
-sub BEGIN
-{
-	use Exporter ();
-	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-}
-
 my $dbases = {};
 my $caches = {};
 
@@ -30,7 +24,7 @@ my $caches = {};
 #		new
 #
 #	Purpose
-#		Constructor for is module
+#		Constructor for this module
 #
 #	Parameters
 #		$dbname - the database name to connect to
@@ -204,7 +198,7 @@ sub sqlDelete
 #		select - what colums to return from the select (ie "*")
 #		table - the table to do the select on
 #		where - string containing the search criteria
-#		other - any other sql options thay you may wan to pass
+#		other - any other sql options thay you may want to pass
 #
 #	Returns
 #		An arrayref of values from the specified fields in $select.  If
@@ -636,7 +630,7 @@ sub getNodeByIdNew
 #
 #	Returns
 #		True (1) if successful, false (0) otherwise.  If success, the node
-#		hash past in will now be a complete node.
+#		hash passed in will now be a complete node.
 #
 sub constructNode
 {
@@ -661,8 +655,7 @@ sub constructNode
 	$sql .= " where $firstTable" . "_id=$$NODE{node_id};";
 	
 	$cursor = $this->getDatabaseHandle()->prepare($sql);
-	return 0 if(not defined $cursor);
-	return 0 unless($cursor->execute());
+	return 0 unless((defined $cursor) && ($cursor->execute()));
 
 	$DATA = $cursor->fetchrow_hashref();
 	$cursor->finish();
@@ -744,7 +737,7 @@ sub loadGroupNodeIDs
 #			This is really only useful when specifying a limit.
 #
 #	Returns
-#		An array reference to an array that contains
+#		A reference to an array that contains nodes matching the criteria
 #
 sub getNodeWhere
 {
@@ -795,7 +788,7 @@ sub getNodeWhere
 #			database from having to do table joins when they are not needed.
 #
 #	Returns
-#		A refernce to an array that contains the node ids that match.
+#		A reference to an array that contains the node ids that match.
 #		Undef if no matches.
 #
 sub selectNodeWhere
@@ -856,6 +849,10 @@ sub selectNodeWhere
 #			without a nodetype we don't know what other tables to join
 #			on.
 #		$orderby - the field in which to order the results.
+#		$limit - a limit to the max number of rows returned
+#		$offset - (only if limit is provided) offset from the start of
+#			the matched rows.  By using this an limit, you can retrieve
+#			a specific range of rows.
 #		$nodeTableOnly - (performance enhancement) Set to 1 (true) if the
 #			search fields are only in the node table.  This prevents the
 #			database from having to do table joins when they are not needed.
@@ -1081,7 +1078,7 @@ sub getFieldsHash
 
 	$cursor->finish();
 
-	@fields;
+	return @fields;
 }
 
 
@@ -1153,7 +1150,7 @@ sub createNodeTable
 #
 #	Purpose
 #		Drop (delete) a table from a the database.  Note!!! This is
-#		perminent!  You will lose all data in that table.
+#		permanent!  You will lose all data in that table.
 #
 #	Parameters
 #		$table - the name of the table to drop.
@@ -1337,6 +1334,10 @@ sub quote
 #			title => 'the node', etc).
 #		TYPE - a hash reference to the nodetype
 #		orderby - a string that contains information on how the sql
+#		limit - a limit to the max number of rows returned
+#		offset - (only if limit is provided) offset from the start of
+#			the matched rows.  By using this an limit, you can retrieve
+#			a specific range of rows.
 #			query should order the result if more than one match is found.
 #
 #	Returns
@@ -1435,7 +1436,8 @@ sub genWhereString
 #		This will create the array, if it has not already created it.
 #
 #	Parameters
-#		typeNameOrId - The string name or integer Id of the nodetype
+#		TYPE - The string name or integer Id of the nodetype
+#		addnode - if true, add 'node' to list.  Defaults to false.
 #
 #	Returns
 #		A reference to an array that contains the names of the tables
@@ -1449,7 +1451,7 @@ sub getNodetypeTables
 
 	return undef unless($TYPE);
 
-	# We need to short curcuit on nodetype and nodemethod, otherwise we
+	# We need to short circuit on nodetype and nodemethod, otherwise we
 	# get inf recursion.
 	if(($TYPE eq "1") or ((ref $TYPE) && ($$TYPE{node_id} == 1)))
 	{
@@ -1509,6 +1511,9 @@ sub getRef
 #		Given a node object or a node id, return the id.  Just a quick
 #		function to call to make sure that you have an id.
 #
+#	Parameters
+#		node - a node object or a node id
+#
 #	Returns
 #		The node id.  undef if not able to obtain an id.
 #
@@ -1516,6 +1521,7 @@ sub getId
 {
 	my ($this, $node) = @_;
 
+	return undef unless $node;
 	if(ref $node)
 	{
 		return $$node{node_id};
@@ -1574,7 +1580,7 @@ sub hasPermission
 
 
 #############################################################################
-#	DEPRICATED - use hasAccess()
+#	DEPRECATED - use hasAccess()
 sub canCreateNode
 {
 	my ($this, $USER, $TYPE) = @_;
@@ -1583,7 +1589,7 @@ sub canCreateNode
 
 
 #############################################################################
-#	DEPRICATED - use hasAccess()
+#	DEPRECATED - use hasAccess()
 sub canDeleteNode
 {
 	my ($this, $USER, $NODE) = @_;
@@ -1592,7 +1598,7 @@ sub canDeleteNode
 
 
 #############################################################################
-#	DEPRICATED - use hasAccess()
+#	DEPRECATED - use hasAccess()
 sub canUpdateNode
 {
 	my ($this, $USER, $NODE) = @_;
@@ -1601,7 +1607,7 @@ sub canUpdateNode
 
 
 #############################################################################
-#	DEPRICATED - use hasAccess()
+#	DEPRECATED - use hasAccess()
 sub canReadNode
 { 
 	my ($this, $USER, $NODE) = @_;
