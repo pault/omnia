@@ -198,27 +198,31 @@ sub buildNodetypeModules
 	{
 		$title =~ s/\W//g;
 		my $modname = "Everything::Node::$title";
-		(my $modpath = $modname . '.pm') =~ s!::!/!g;
 
-		foreach my $path (@INC)
-		{
-			eval {
-				require File::Spec->canonpath(
-					File::Spec->catfile( $path, $modpath )
-				)
-			};
-			last unless $@ =~ /Can't locate/;
-		}
-
-		if ($@ and $@ !~ /Can't locate/)
-		{
-			Everything::logErrors( '', "Using '$modname' gave errors: '$@'" );
-			next;
-		}
-		$modules{ $modname } = 1;
+		$modules{ $modname } = 1 if $this->loadNodetypeModule( $modname );
 	}
 
 	return \%modules;
+}
+		
+sub loadNodetypeModule
+{
+	my ($self, $modname) = @_;
+	(my $modpath = $modname . '.pm') =~ s!::!/!g;
+
+	return 1 if exists $INC{ $modpath };
+	
+	foreach my $path (@INC)
+	{
+		next unless -e
+			File::Spec->canonpath( File::Spec->catfile( $path, $modpath ) );
+		last if eval { require $modpath };
+	}
+
+	Everything::logErrors( '', "Using '$modname' gave errors: '$@'" )
+		if $@ and $@ !~ /Can't locate/;
+
+	return exists $INC{ $modpath };
 }
 
 #############################################################################
@@ -306,7 +310,8 @@ sub sqlDelete
 
 	my $sql = "DELETE FROM ". $this->genTableName($table) . " WHERE $where";
 	my $sth = $this->{dbh}->prepare( $sql );
-	return $sth->execute( @$bound );
+	return $sth->execute( @$bound )
+		or Everything::logErrors( '', "Delete failed: '$sql' [@$bound]" );
 }
 
 
