@@ -31,7 +31,7 @@ foreach $field (@fields)
   $str .= " &lt;tr>\n";
   foreach $value (values %$field)
   {
-    $value = "&amp;nbsp;" if($value eq ""); # fill in the blanks
+    $value = "&amp;nbsp;" if (!(defined $value) or ($value eq "")); # fill in the blanks
     $str .= "  &lt;td>$value&lt;/td>\n";
   }
   $str .= "  &lt;td>" .
