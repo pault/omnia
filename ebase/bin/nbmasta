@@ -66,6 +66,21 @@ sub exportTables {
 	}
 }
 
+#############################################################################
+#	sub 
+#		confirmYN
+#
+#	ask a yes no question (the sole parameter) return 0 if user answers false
+#	(default) otherwise return 1
+#
+sub confirmYN {
+	my ($q) = @_;
+	print "$q";
+	my $ans = <STDIN>;
+	return 1 if $ans =~ /^y/i;
+	return 0;
+}
+
 
 ##############################################################################
 #	sub
@@ -395,6 +410,42 @@ sub expandNodeball {
 	$dir;
 }
 
+###########################################################################
+#	sub
+#	 	buildNodeballMembers	
+#
+#	builds a hash of node_id->nodeball that it belongs to.  The nodeball(s)
+#	that are sent as parameters are to be discluded.  This way we can
+#	see if a node is in more than one nodeball -- where potential conflicts
+#	might emerge.  Returns a hash reference
+#
+#	params:  any nodeball(s) that should be excluded from the hash
+#
+#
+sub buildNodeballMembers {
+	my (@EXCLUDES) = @_;
+	
+	my %excl;
+	foreach (@EXCLUDES) {
+		$excl{getId($_)} = 1;
+	}
+	#we build a hash to make lookups easier.
+
+	my @NODEBALLS = getNodeWhere({type_nodetype => getType('nodeball')});
+	
+	my %nbmembers;
+	foreach (@NODEBALLS) {
+		next if $excl{getId($_)};
+		my $group = $$_{group};
+		foreach my $member (@$group) {
+			$nbmembers{$member} = getId($_);	
+		}
+	}
+
+	\%nbmembers;
+}
+
+
 ############################################################################
 #	sub
 #		absPath
@@ -694,7 +745,8 @@ sub updateNodeball {
 	foreach my $id (@{ $$OLDBALL{group} }) {
 		($oldgroup{$id}) = getNodeById $id;
 	}
-
+	
+	my $nbmembers = buildNodeballMembers($OLDBALL);
 	my $new_nbfile;
 	foreach my $N (@nodes) {
 		if ($$N{type} eq "nodeball" and $$N{title} eq $$OLDBALL{title}) {
@@ -713,7 +765,11 @@ sub updateNodeball {
 			next if ($$N{type} eq 'nodeball'); #good 
 			next if ($$N{type} eq 'user'); #users shouldn't be replaced 
 			next if ($$N{type} eq 'usergroup'); #usergroups shoudn't be replaced
-			#we should actually be checking version info on dependancies
+
+			if ($$nbmembers{getId($OLDNODE)}) {
+				my $OTHERNB = getNodeById $$nbmembers{getId($OLDNODE)};
+				next unless confirmYN("Node $$OLDNODE{title} is also included in the \"$$OTHERNB{title}\" nodeball.  Do you want to replace it (N/y)?");
+			}
 		
 		} else {
 			if ($$N{type} eq 'nodeball') {
