@@ -44,9 +44,5 @@ libxml-generator-perl
 once you have those packages, all you need to do is run apacheconfig, 
 answering "yes" to the perl question (though you may want more features).
 
-Then take a look at HTTPCONF_SETUP and PERLMOD_SETUP to see what other
-stuff you need to do to make it work!
-
-
 if you have any information that would be useful in using Everything on
 Debian, email Nate Oostendorp <nate@oostendorp.net>...

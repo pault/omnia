@@ -3,7 +3,6 @@
 INSERT INTO node VALUES (1,1,'nodetype',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0);
 INSERT INTO node VALUES (2,1,'node',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0);
 INSERT INTO node VALUES (3,1,'setting',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0);
-INSERT INTO node VALUES (4,3,'installdir',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0);
 
 
 # Insert the nodetype information
@@ -11,5 +10,3 @@ INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','-----','-----','-----
 INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','-----','-----','-----',0,0,0,0,0,1000,1);
 INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,-1,-1);
 
-# We create the one setting node with installation directory
-INSERT INTO setting VALUES (4,'installdir=#INSTALL_DIR#');

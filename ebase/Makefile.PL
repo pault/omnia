@@ -1,10 +1,9 @@
-
+use strict;
 use ExtUtils::MakeMaker;
 
-
 my $installDir = "/usr/local/everything";
-my $webDir = "/usr/local/apache/htdocs";
-my $dbname = "everything";
+my $includestr;
+my $httpconf = "";
 
 sub MY::install
 {
@@ -13,19 +12,16 @@ sub MY::install
 	$inherited =~ s/(install.*::)(.*)/$1 einstall $2/;
 	$inherited .= "\neinstall:\n";
 
-	# Create the basic database
-	$inherited .= "	echo \"create database $dbname\" | mysql -u root ; \\\n";
-	$inherited .= "	cat ./tables/*.sql | mysql -u root $dbname ; \\\n";
-	$inherited .= "	cat ./tables/*.txt | mysql -u root $dbname ; \\\n";
-
 	# Create the installation directory
 	$inherited .= "	mkdir $installDir ; \\\n";
-	$inherited .= "	cp ./web/index.pl $webDir/index.pl ; \\\n";
-	$inherited .= "	cp -R ./images $webDir/ ; \\\n";
-	$inherited .= "	chmod a+x $webDir/index.pl ; \\\n";
+	$inherited .= "	cp -R ./nodeballs $installDir ; \\\n";
+	$inherited .= "	cp -R ./web $installDir ; \\\n";
+	$inherited .= "	cp -R ./tables $installDir ; \\\n";
 	$inherited .= "	cp -R ./bin $installDir ; \\\n";
 	$inherited .= "	cp -R ./docs $installDir ; \\\n";
 	$inherited .= "	cp -R ./images $installDir ; \\\n";
+	$inherited .= "	cp ./everything.apache.conf $installDir ; \\\n";
+	$inherited .= "	echo \"$includestr\" >> $httpconf ; \\\n" if $httpconf;
 	$inherited .= "	chown -R nobody $installDir ; \\\n";
 
 	# We remove any pod file entry for us before installing otherwise we
@@ -47,14 +43,38 @@ sub MY::realclean
 	# This will drop the database and remove the pm's
 	$inherited .= "\nerealclean:\n";
 
-	$inherited .= "	echo \"drop database if exists $dbname\" | mysql -u root ; \\\n";
 	$inherited .= "	rm -rf \$(INSTALLSITELIB)/Everything* ; \\\n";
 	$inherited .= "	rm -rf \$(INSTALLSITEARCH)/auto/Everything* ; \\\n";
 	$inherited .= "	rm -rf $installDir ; \\\n";
-	$inherited .= "	rm -f $webDir/index.pl ; \\\n";
 	$inherited .= "	./scripts/removePod \$(INSTALLARCHLIB)/perllocal.pod \n";
 }
 
+sub getHttpconf {
+	my ($includestr) = @_;
+	my $conf = "";	
+	my @locs = qw(/etc/apache /etc/httpd /usr/local/apache/conf);
+	foreach (@locs) {
+		$conf = $_."/httpd.conf" if -e $_."/httpd.conf";
+	}
+	my $defaultstr = "";
+	$defaultstr = "[$conf]" if $conf;
+	print "Where is your Apache's httpd.conf? $defaultstr";
+	$conf = getResponse($conf);
+	unless (-e $conf) {
+		print "$conf doesn't exist!  Exiting.";
+		exit 0;
+	}
+	open APACHECONF, $conf;
+	while (<APACHECONF>) {
+		if (/$includestr/) {
+			print "It looks like $conf is already including it.  Skipped";
+			return 0;
+		}
+	}
+	close APACHECONF;
+	
+	return $conf;
+}
 
 sub getResponse
 {
@@ -65,38 +85,20 @@ sub getResponse
 	return ( ($response eq "") ? $default : $response );
 }
 
-sub insertPaths
-{
-	my ($infile, $outfile) = @_;
-	my $file;
-
-	open(FILE, $infile);
-	$file = join "", <FILE>;
-	close(FILE);
-
-	$file =~ s/#INSTALL_DIR#/$installDir/g;
-	$file =~ s/#WEB_DIR#/$webDir/g;
-	$file =~ s/#DB_NAME#/$dbname/g;
-
-	open(FILE, "> $outfile");
-	print FILE $file;
-	close(FILE);
-}
-
-
 print "Install directory [$installDir]: ";
 $installDir = getResponse($installDir);
+$includestr = "Include $installDir/everything.apache.conf";
 
-print "Web directory [$webDir]: ";
-$webDir = getResponse($webDir);
-
-print "Database name [$dbname]: ";
-$dbname = getResponse($dbname);
+print "May I append:\n\n\t$includestr\n\nto your httpd.conf file? (N/y)";
+if (getResponse("n") =~ /^y/i) {
+	$httpconf = getHttpconf($includestr);
+} else { print "You will have to manage http.conf yourself, then.\nCheck out the HTTPCONF_SETUP file for some pointers.\n";
+$httpconf = ""; }
 
 print "\nEverything is configured to be installed as follows:\n";
 print "  - Install directory: $installDir\n";
-print "  - Web directory:  $webDir\n";
-print "  - Database:  $dbname\n";
+print "  - Append Include to: $httpconf\n" if $httpconf;
+
 print "\nIs this correct? [y]: ";
 
 if(not (getResponse("y") =~ /^y$/i))
@@ -106,8 +108,6 @@ if(not (getResponse("y") =~ /^y$/i))
 }
 
 # Create the files based on the install information
-insertPaths("web/index.in", "web/index.pl");
-insertPaths("tables/basenodes.in", "tables/basenodes.txt");
 
 WriteMakefile(
 	'NAME'                 => 'Everything',
