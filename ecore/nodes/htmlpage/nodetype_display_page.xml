@@ -65,9 +65,9 @@ $$TYPE{defaultguestaccess};
 &lt;/table&gt;
 
 [%
-if(isGroup($NODE))
+if($NODE-&gt;isGroup())
 { 
-  "&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: ";
+  return "&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: ";
 }
 %]
 
@@ -79,7 +79,7 @@ if(isGroup($NODE))
 [%
 if ($$NODE{sqltable} ne "")
 {
-   my $TABLE = getNode $$NODE{sqltable}, 'dbtable';
+   my $TABLE = getNode($$NODE{sqltable}, 'dbtable');
    linkNode($TABLE);
 }
 else
@@ -95,11 +95,15 @@ else
 
 [%
 my $str;
-my @pages;
+my $pages = getNodeWhere(
+  { pagetype_nodetype =&gt; $$NODE{node_id} }, getType('htmlpage'));
 
-push @pages, getPages($NODE);
+return "None" unless($pages);
 
-foreach (@pages) { $str .= "&lt;li&gt;" .linkNode ($_); }
+foreach (@$pages)
+{
+  $str .= "&lt;li&gt;" .linkNode ($_);
+}
 $str;
 %]
 
@@ -107,17 +111,21 @@ $str;
 [%
 my $str;
 
-my (@maints) = getNodeWhere ({maintain_nodetype=&gt;getId($NODE)}, getType('maintenance'));
+my $maints = getNodeWhere ({maintain_nodetype=&gt;getId($NODE)},
+  getType('maintenance'));
 
-return "&lt;i&gt;no maintenance functions&lt;/i&gt;" unless @maints;
+return "&lt;i&gt;no maintenance functions&lt;/i&gt;" unless $maints;
 
-foreach (@maints) {$str .= "&lt;li&gt;".linkNode ($_); }
+foreach (@$maints)
+{
+  $str .= "&lt;li&gt;".linkNode ($_);
+}
+
 $str;
 %]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<permissionneeded table="htmlpage">r</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">nodetype display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>

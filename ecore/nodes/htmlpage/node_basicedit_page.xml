@@ -20,7 +20,7 @@
 # data that is usually not accessable through a standard
 # edit page (like createtime, or hits)
 
-return "" unless(canUpdateNode($USER, $NODE));
+return "" unless($NODE-&gt;hasAccess($USER, 'w'));
 
 # This code does the update, if we have one.
 my $param;
@@ -34,7 +34,7 @@ foreach $param (@params)
   }
 }
 
-updateNode($NODE, $USER);
+$NODE-&gt;update($USER);
 
 return "";
 %]
@@ -42,15 +42,14 @@ return "";
 [%
 # This code generates the form fields and the stuff that
 # the user sees.
-return "" unless(canUpdateNode($USER, $NODE));
-my $tables = $DB-&gt;getNodetypeTables($$NODE{type_nodetype});
+return "" unless($NODE-&gt;hasAccess($USER, 'w'));
+my $tables = $$NODE{type}-&gt;getTableArray(1);
 my @fields;
 my $table;
 my $field;
 my %titletype;
 my $str = "";
 
-push @$tables, 'node';
 foreach $table (@$tables)
 {
   @fields = $DB-&gt;getFieldsHash($table);
@@ -60,7 +59,6 @@ foreach $table (@$tables)
     $titletype{$$field{Field}} = $$field{Type};
   }
 }
-pop @$tables;
 
 foreach $field (keys %titletype)
 {
@@ -108,7 +106,6 @@ $str;
 	<pagetype_nodetype table="htmlpage" type="nodetype">node</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">main container</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">node basicedit page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>

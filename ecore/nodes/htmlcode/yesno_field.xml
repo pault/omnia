@@ -15,7 +15,6 @@ $val . $query-&gt;radio_group("$$NODE{type}{title}_$field", ['1', '0'],
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">yesno_field</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

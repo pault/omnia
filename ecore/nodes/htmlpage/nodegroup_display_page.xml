@@ -11,17 +11,16 @@
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">
-[% unless ($$NODE{group}) {
+	<page table="htmlpage">[% unless ($$NODE{group}) {
 	"&lt;i&gt;This nodegroup is empty&lt;/i&gt;";
 } else {
-	my $GROUP = $$NODE{group};
-	my $str;
-	foreach my $N  (@$GROUP) {
-		$N = $DB-&gt;getNodeById($N, 'light');
-		$str .= "&lt;li&gt;" . linkNode ($N) . "($$N{type}{title})";
-	}
-	$str;
+  my $GROUP = $$NODE{group};
+  my $str;
+  foreach my $n  (@$GROUP) {
+    my $N = $DB-&gt;getNode($n, 'light');
+    $str .= "&lt;li&gt;" . linkNode ($N) . "($$N{type}{title})";
+  }
+  $str;
 }
 %]
 &lt;p&gt;[{windowview:editor,launch editor}]
@@ -29,7 +28,6 @@
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodegroup</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<permissionneeded table="htmlpage">r</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">nodegroup display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>

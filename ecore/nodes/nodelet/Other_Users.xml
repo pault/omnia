@@ -32,9 +32,9 @@ return $str if $str;
 "&lt;i&gt;no users logged in&lt;/i&gt;";
 %] </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet"></nltext>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<reputation table="node">0</reputation>
 	<title table="node">Other Users</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
 	<updateinterval table="nodelet">0</updateinterval>

@@ -25,7 +25,6 @@ Maintenance operation:["$$NODE{maintaintype}"]
 	<pagetype_nodetype table="htmlpage" type="nodetype">maintenance</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<permissionneeded table="htmlpage">r</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">maintenance display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>

@@ -11,9 +11,9 @@
 	<lastupdate table="nodelet">945154868</lastupdate>
 	<nlcode table="nodelet">[{displayNODE:30}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet"></nltext>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<reputation table="node">0</reputation>
 	<title table="node">%$NODE</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
 	<updateinterval table="nodelet">0</updateinterval>

@@ -6,10 +6,11 @@ tree displays how the nodetypes inherit (extends_nodetype
 field) from each other.  Useful for seeing where permissions
 or inherited data may be coming from.
 [%
-my @nodetypes = getNodeWhere({type_nodetype =&gt; 1}, getType('nodetype'));
+my $nodetypes = getNodeWhere({type_nodetype =&gt; 1},
+  getType('nodetype'));
 my $table;
 
-$table = createTree(\@nodetypes, 0);
+$table = createTree($nodetypes, 0);
 
 sub createTree
 {
@@ -40,7 +41,6 @@ $table;
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">nodetype hierarchy</title>
 	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
 </NODE>

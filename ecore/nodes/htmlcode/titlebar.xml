@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="literal_value">0</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">my $str = "&lt;font size=2&gt;[ ";
 my @links;
@@ -15,10 +15,10 @@ if (getId($USER) == $HTMLVARS{guest_user}) {
 }
 
 my ($GNL) = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GNL) if hasAccess($GNL, $USER, 'r');
+push @links, linkNode ($GNL) if($GNL-&gt;hasAccess($USER, 'r'));
 
 my ($GCL) = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GCL) if hasAccess($GCL, $USER, 'r');
+push @links, linkNode ($GCL) if($GCL-&gt;hasAccess($USER, 'r'));
 
 my ($ROOT) = getNode('root', getType('user'));
 my ($ss) = getNode('system settings', getType('setting'));
@@ -36,7 +36,6 @@ $str . " ] &lt;p&gt;&lt;/font&gt;";</code>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">titlebar</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

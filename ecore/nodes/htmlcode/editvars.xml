@@ -1,8 +1,10 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">return "&lt;i&gt;you can't update this node&lt;/i&gt;" unless canUpdateNode($USER, $NODE);
-my $SETTINGS = getVars($NODE);
+	<code table="htmlcode">return "&lt;i&gt;you can't update this node&lt;/i&gt;"
+  unless($NODE-&gt;hasAccess($USER, 'w'));
+
+my $SETTINGS = $NODE-&gt;getVars();
 my @params = $query-&gt;param;
 my $str=""; 
 
@@ -56,7 +58,6 @@ $str;</code>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">editvars</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

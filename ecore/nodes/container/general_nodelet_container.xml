@@ -11,7 +11,6 @@
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="container" type="container">nodelet container</parent_container>
-	<reputation table="node">0</reputation>
 	<title table="node">general nodelet container</title>
 	<type_nodetype table="node" type="nodetype">container</type_nodetype>
 </NODE>

@@ -51,7 +51,6 @@ $str .= $query-&gt;start_form("POST", $ENV{script_name}) .
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">login</title>
 	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
 </NODE>

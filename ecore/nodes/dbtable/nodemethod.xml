@@ -9,6 +9,6 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<title table="node">mail</title>
+	<title table="node">nodemethod</title>
 	<type_nodetype table="node" type="nodetype">dbtable</type_nodetype>
 </NODE>

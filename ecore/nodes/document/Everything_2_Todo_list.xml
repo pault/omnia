@@ -35,7 +35,6 @@ Completed items
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">Everything 2 Todo list</title>
 	<type_nodetype table="node" type="nodetype">document</type_nodetype>
 </NODE>

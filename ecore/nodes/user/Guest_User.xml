@@ -14,7 +14,6 @@
 	<nick table="user"></nick>
 	<otheraccess table="node">iiii-</otheraccess>
 	<realname table="user">The Guest User</realname>
-	<reputation table="node">0</reputation>
 	<title table="node">Guest User</title>
 	<type_nodetype table="node" type="nodetype">user</type_nodetype>
 	<vars table="setting">

@@ -5,6 +5,7 @@
 [{basichead}]
 [{userbody}]
 CONTAINED_STUFF
+[&lt;BacksideErrors&gt;]
 &lt;/BODY&gt;
 &lt;/HTML&gt;</context>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
@@ -16,7 +17,6 @@ CONTAINED_STUFF
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="container" type="literal_value">0</parent_container>
-	<reputation table="node">0</reputation>
 	<title table="node">stdcontainer</title>
 	<type_nodetype table="node" type="nodetype">container</type_nodetype>
 </NODE>

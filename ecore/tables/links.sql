@@ -1,6 +1,6 @@
 # MySQL dump 6.0
 #
-# Host: localhost    Database: test
+# Host: localhost    Database: everything
 #--------------------------------------------------------
 # Server version	3.22.25
 

@@ -33,7 +33,6 @@ if (not $$NODE{from_address}) {
 	<pagetype_nodetype table="htmlpage" type="nodetype">mail</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<permissionneeded table="htmlpage">r</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">mail display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>

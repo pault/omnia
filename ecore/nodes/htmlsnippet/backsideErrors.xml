@@ -1,0 +1,15 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">----</authoraccess>
+	<code table="htmlcode">&lt;BacksideErrors&gt;</code>
+	<dynamicauthor_permission table="node" type="literal_value">0</dynamicauthor_permission>
+	<dynamicgroup_permission table="node" type="literal_value">0</dynamicgroup_permission>
+	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">rwxd</groupaccess>
+	<guestaccess table="node">iiii</guestaccess>
+	<otheraccess table="node">iiii</otheraccess>
+	<title table="node">backsideErrors</title>
+	<type_nodetype table="node" type="nodetype">htmlsnippet</type_nodetype>
+</NODE>

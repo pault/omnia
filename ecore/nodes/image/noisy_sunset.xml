@@ -11,7 +11,6 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<src table="image">http://oostendorp.net/gimpart/noisy_sunset.jpg</src>
 	<thumbsrc table="image"></thumbsrc>
 	<title table="node">noisy sunset</title>

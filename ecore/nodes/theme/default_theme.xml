@@ -12,7 +12,6 @@
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">default theme</title>
 	<type_nodetype table="node" type="nodetype">theme</type_nodetype>
 	<vars table="setting">

@@ -25,7 +25,6 @@ $menu-&gt;writePopupHTML($query,$name,$selected);
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">settingMenu</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

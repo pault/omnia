@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="literal_value">0</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">my ($field, @VALUES) = @_;
 my @idlist;
@@ -36,7 +36,8 @@ foreach (@VALUES)
 	}
 }
 
-my $NODELIST = $DB-&gt;selectNodeWhere({ type_nodetype =&gt; \@TYPES }, "", "title") if @TYPES;
+my $NODELIST = $DB-&gt;selectNodeWhere(
+  { type_nodetype =&gt; \@TYPES }, undef, "title") if @TYPES;
 
 foreach my $N (@$NODELIST) {
 	$N = $DB-&gt;getNodeById($N, 'light');
@@ -65,7 +66,6 @@ $query-&gt;popup_menu($name, \@idlist, $SELECT, \%items);
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">node_menu</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

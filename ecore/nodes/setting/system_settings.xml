@@ -9,7 +9,6 @@
 	<groupaccess table="node">iiii</groupaccess>
 	<guestaccess table="node">----</guestaccess>
 	<otheraccess table="node">----</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">system settings</title>
 	<type_nodetype table="node" type="nodetype">setting</type_nodetype>
 	<vars table="setting">
@@ -19,11 +18,11 @@
 		<default_theme type="theme">default theme</default_theme>
 		<site_url >http://localhost</site_url>
 		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
-		<default_node type="superdoc">The Default Node</default_node>
 		<generalParent_container type="container">main container</generalParent_container>
+		<default_node type="superdoc">The Default Node</default_node>
 		<default_nodeletgroup type="nodeletgroup">default nodelets</default_nodeletgroup>
-		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
 		<searchResults_node type="superdoc">Search Results</searchResults_node>
+		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
 		<duplicatesFound_node type="superdoc">Duplicates Found</duplicatesFound_node>
 	</vars>
 </NODE>

@@ -10,7 +10,6 @@
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_theme table="themesetting" type="theme">default theme</parent_theme>
-	<reputation table="node">0</reputation>
 	<title table="node">root's default themesettings</title>
 	<type_nodetype table="node" type="nodetype">themesetting</type_nodetype>
 	<vars table="setting">

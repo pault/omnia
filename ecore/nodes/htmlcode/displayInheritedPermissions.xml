@@ -9,7 +9,8 @@ if($forType)
 {
   if($$NODE{extends_nodetype} &gt; 0)
   {
-    return "Error. Not a nodetype.\n" unless(isNodetype($NODE));
+    return "Error. Not a nodetype.\n"
+      unless($NODE-&gt;isNodetype());
     $parent = getType($$NODE{extends_nodetype});
   }
 }
@@ -18,9 +19,9 @@ else
   $parent = getType($$NODE{type_nodetype});
 }
 
-$perms = $DB-&gt;getDefaultTypePermissions($parent, $class);
-$perms ||= "No parent";
+return "No parent" unless($parent);
 
+$perms = $parent-&gt;getDefaultTypePermissions($class);
 return $perms;</code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
@@ -30,7 +31,6 @@ return $perms;</code>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">displayInheritedPermissions</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
 </NODE>

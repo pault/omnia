@@ -76,7 +76,6 @@ $str;
 	<pagetype_nodetype table="htmlpage" type="nodetype">htmlpage</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<permissionneeded table="htmlpage">w</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">htmlpage edit page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>

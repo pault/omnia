@@ -16,7 +16,6 @@ pick yer function: [% $query-&gt;textfield("choicefunc") %]
 	<groupaccess table="node">iiii</groupaccess>
 	<guestaccess table="node">----</guestaccess>
 	<otheraccess table="node">----</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">Gigantic Code Lister</title>
 	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
 </NODE>

@@ -20,7 +20,6 @@
 	<grouptable table="nodetype"></grouptable>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<restrict_nodetype table="nodetype" type="literal_value">0</restrict_nodetype>
 	<restrictdupes table="nodetype">1</restrictdupes>
 	<sqltable table="nodetype"></sqltable>

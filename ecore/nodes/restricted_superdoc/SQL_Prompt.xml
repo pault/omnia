@@ -70,7 +70,6 @@ $str;
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
 	<otheraccess table="node">iiii-</otheraccess>
-	<reputation table="node">0</reputation>
 	<title table="node">SQL Prompt</title>
 	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
 </NODE>

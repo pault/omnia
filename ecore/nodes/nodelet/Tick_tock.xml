@@ -8,16 +8,16 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">953157778</lastupdate>
+	<lastupdate table="nodelet">962979658</lastupdate>
 	<nlcode table="nodelet">[%
 my $time = `date`;
 $time =~ s/\n.*$//;
 $time;
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">Fri Jul  7 10:20:58 EDT 2000</nltext>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<reputation table="node">0</reputation>
 	<title table="node">Tick tock</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
 	<updateinterval table="nodelet">60</updateinterval>

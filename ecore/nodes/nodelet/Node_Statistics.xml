@@ -15,9 +15,9 @@ Hits: ["$$NODE{hits}"]&lt;br&gt;
 Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
 Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param("displaytype"))); %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet"></nltext>
 	<otheraccess table="node">----</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<reputation table="node">0</reputation>
 	<title table="node">Node Statistics</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
 	<updateinterval table="nodelet">0</updateinterval>

@@ -17,7 +17,6 @@
 	<pagetype_nodetype table="htmlpage" type="nodetype">image</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<permissionneeded table="htmlpage">r</permissionneeded>
-	<reputation table="node">0</reputation>
 	<title table="node">image display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
 </NODE>
