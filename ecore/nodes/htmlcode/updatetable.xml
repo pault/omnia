@@ -37,7 +37,9 @@ if((defined $query->param("fieldname_new")) &amp;&amp;
   $query->param("fieldprimary_new", "");
   $query->param("fielddefault_new", "");
 }
-
+  $NODE->update($USER);
+  $NODE = getNode($$NODE{node_id}, 'force');
+  #we need to do this to refresh the field cache
 "";
 </field>
   <field type="literal_value" name="dynamicauthor_permission">-1</field>
