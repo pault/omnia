@@ -1032,9 +1032,8 @@ sub getHash
 			"$$this{node_id}, '$$this{title}'");
 		return undef;
 	}
-	
+	return undef unless ($$this{$field}); 	
 	%vars = map { split /=/ } split (/&/, $$this{$field});
-
 	foreach (keys %vars)
 	{
 		$vars{$_} = Everything::Util::unescape($vars{$_});

@@ -26,16 +26,11 @@ use Everything::Node::setting;
 sub insert
 {
 	my ($this, $USER) = @_;
-	my $insert_id = $this->SUPER();
 
-	unless($insert_id)
-	{
-		print "got bad insert id!\n";
-		return 0;
-	}
+	
 	
 	my $VARS;
-	
+    $$this{vars} ||= "";	
 	$VARS = $this->getVars();
 	
 	# If the node was not inserted with some vars, we need to set some.
@@ -53,7 +48,12 @@ sub insert
 		
 		$this->setVars($VARS, $USER);
 	}
-
+	my $insert_id = $this->SUPER();
+	unless($insert_id)
+	{
+		logError("got bad insert id: $insert_id!\n");
+		return 0;
+	}
 	return $insert_id;
 }
 
