@@ -34,14 +34,20 @@ foreach (@params) {
       }
     }
     $$SETTINGS{$1} = $setvalue;
-
-  } elsif (/delsetting_(\w*)$/) {
-    delete $$SETTINGS{$1};
   }
 }
 
-my $newsetting = $query->param('newsetting') || '';
+# Now go through and delete the ones that were marked.  We need to do
+# this last because we do not know the order of the parameters being
+# passed to us.  If we did this in the loop above, we could detele the
+# setting, then re-insert it since the fields would be filled out.
+foreach (@params)
+{
+  next unless(/delsetting_(\w*)$/);
+  delete $$SETTINGS{$1};
+}
 
+my $newsetting = $query->param('newsetting') || '';
 if ($newsetting) {
   my $newval = $query->param('newval') || '';
   my $nodenamenew = $query->param('node namenew') || '';
