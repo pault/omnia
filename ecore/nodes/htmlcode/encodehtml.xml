@@ -2,14 +2,15 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($field) = @_;
-my $text = $$NODE{field};
+my $text    = $NODE-&gt;{$field};
+my %conv    = (
+    '&lt;' =&gt; '&amp;lt;',
+    '&gt;' =&gt; '&amp;gt;',
+    '&quot;' =&gt; '&amp;quot',
+);
 
-$text =~ s/\&lt;/\&amp;lt\;/g;
-$text =~ s/\>/\&amp;gt\;/g;
-$text =~ s/\"/\&amp;quot\;/g;
-
-$text;
-</field>
+$text =~ s/([&lt;&gt;&quot;])/$conv{$1}/g;
+$text;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
