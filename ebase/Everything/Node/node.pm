@@ -162,6 +162,12 @@ sub update
 
 	return 0 unless ($this->hasAccess($USER, "w")); 
 
+	if (exists $this->{DB}->{workspace} and 
+		$this->{DB}->{workspace}{nodes}{$$this{node_id}} ne 'commit') {
+		my $id = $this->updateWorkspaced($USER);	
+		return $id if $id;
+	}
+
 	# Cache this node since it has been updated.  This way the cached
 	# version will be the same as the node in the db.
 	$this->{DB}->{cache}->incrementGlobalVersion($this);
@@ -644,6 +650,276 @@ sub updateFromImport
 	$this->update($USER);
 }
 
+#########################################################################
+#	
+#	sub
+#		getRevision
+#
+#	purpose
+#		to retrieve a node object from the revision table, this looks
+#		walks and quacks like a normal node, but only exists in the DB
+#		in XML
+#
+#	parameters
+#		the revision_id of the node you want
+#
+#	returns
+#		the revision node object, if successful, otherwise 0
+#
+sub getRevision {
+	my ($this, $revision) = @_;
+
+	return 0 unless $revision =~ /^\d+$/;
+	my $workspace = 0; 
+	$workspace = $this->{DB}->{workspace}{node_id} if exists $this->{DB}->{workspace};
+
+	my $REVISION = $this->{DB}->sqlSelectHashref('*', 'revision', "node_id=$$this{node_id} and revision_id=$revision and inside_workspace=$workspace");
+
+	return 0 unless $REVISION;
+
+	use Everything::XML;
+	my ($RN) = @{ xml2node($$REVISION{data}, 'noupdate') };
+	$$RN{node_id} = $$this{node_id};
+	$$RN{createtime} = $$this{createtime};
+	$$RN{reputation} = $$this{reputation};
+	return $RN;
+
+}
+
+#############################################################################
+#
+#	Sub
+#		logRevision
+#
+#	Purpose
+#		A node is about to be updated.  Load it's old settings from the 
+#		database, convert to XML, and save in the "revision" table
+#		The revision can be re-instated with undo()  
+#		
+#
+#	Params
+#		$USER -- same as update, the user who is making this revision
+#
+#	Returns
+#		0 if failed for any reason.  otherwise the latest revision_id
+#
+sub logRevision {
+	my ($this, $USER) = @_;
+	
+	my $workspace; 
+    $workspace = $this->{DB}->{workspace}{node_id} if exists $this->{DB}->{workspace};	
+    $workspace ||= 0;
+
+	my $maxrevisions = $this->{type}{maxrevisions};
+	$maxrevisions ||= 0;
+	return 0 unless $this->hasAccess($USER, 'w');
+	$maxrevisions = $this->{type}{derived_maxrevisions} if $maxrevisions == -1;
+
+
+	#we are updating the node -- remove any "redo" revisions 
+	
+	if (not $workspace) {
+	    $this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id < 0 and inside_workspace=$workspace");
+	} else {
+		if (exists $this->{DB}->{workspace}{nodes}{$$this{node_id}}) {
+			my $rev = $this->{DB}->{workspace}{nodes}{$$this{node_id}};
+	    	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id > $rev and inside_workspace=$workspace");
+		}
+	}
+	
+	
+	
+ 	my $data;
+    if (not $workspace) {
+    	$data = $this->{DB}->getNode($this->getId, "force")->toXML();
+		return 0 unless $maxrevisions;
+	} else {
+		$data = $this->toXML();
+	}
+
+	my $rev_id = $DB->sqlSelect("max(revision_id)+1", "revision", "node_id=$$this{node_id} and inside_workspace=$workspace");
+	$rev_id ||= 1;
+
+    #insert the node as a revision
+	$this->{DB}->sqlInsert('revision', {node_id => $this->getId, data => $data, inside_workspace => $workspace, revision_id => $rev_id});
+
+	
+    #remove the oldest revision, if it's greater than the set maxrevisions
+	#only if we're not in a workspace
+
+	my ($numrevisions, $oldest, $newest) = 
+		@{ $this->{DB}->sqlSelect('count(*), min(revision_id), max(revision_id)', 'revision', "inside_workspace=$workspace and node_id=$$this{node_id}") };
+	if (not $workspace and $maxrevisions < $numrevisions) {
+		$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id=$oldest and inside_workspace=$workspace");
+	}
+
+   $newest; 
+}
+
+###########################################################################
+#
+#	Sub
+#		undo
+#
+#	Purpose	
+#		This function impliments both undo and redo -- it takes the current
+#		node, converts to XML -- then calls xml2node on the most recent
+#		revision (in the undo directon or redo direction).  The revision
+#		is then updated to have the current node's XML, and it's
+#		revision_id is inverted, putting it at the front of the redo or undo
+#		stack
+#
+#	Params
+#		redo -- non-zero executes a redo
+#		test -- if this is true, don't apply the revision, just return true
+#				if the revision exists
+#
+sub undo {
+	my ($this, $USER, $redoit, $test) = @_;
+
+	return 0 unless $this->hasAccess($USER, 'w');
+	my $workspace = 0;
+	my $DB = $this->{DB}; 
+	if (exists $DB->{workspace}) {
+		$workspace = $DB->{workspace}{node_id};
+		return 0 unless exists $DB->{workspace}{nodes}{$$this{node_id}};
+		#you may not undo while inside a workspace unless the node is in the workspace
+
+		my $csr = $DB->sqlSelectMany("revision_id", "revision", "node_id=$$this{node_id} and inside_workspace=$workspace");
+		my @revisions;
+		while (my ($rev_id) = $csr->fetchrow()) { $revisions[$rev_id] = 1 }
+
+		my $position = $DB->{workspace}{nodes}{$$this{node_id}};
+
+		if ($test) {
+			return 1 if $redoit and $revisions[$position+1];
+			return 1 if not $redoit and $position >= 1;
+			return 0;
+		}
+		if ($redoit) {
+			return 0 unless $revisions[$position+1];
+			$position++;
+		} else {
+			return 0 unless $position >=1;
+			$position--;
+		}
+		$DB->{workspace}{nodes}{$$this{node_id}} = $position;
+		$DB->{workspace}->setVars($DB->{workspace}{nodes});
+		$DB->{workspace}->update($USER);
+		return 1;
+	}
+
+
+
+	my $where = "node_id=$$this{node_id} and inside_workspace=0";
+	$where.=" and revision_id < 0" if $redoit;
+
+	my $REVISION = $this->{DB}->sqlSelectHashref("*", "revision", $where, "ORDER BY revision_id DESC LIMIT 1");
+	return 0 unless $REVISION;
+	return 0 if ($redoit and $$REVISION{revision_id} >= 0);
+	return 0 if (not $redoit and $$REVISION{revision_id} < 0);
+	return 1 if $test;
+
+	my $xml = $$REVISION{data};
+	my $revision_id = $$REVISION{revision_id};
+
+	#prepare the redo/undo (inverse of what's being called)
+
+	$$REVISION{data} = $this->toXML();
+	$$REVISION{revision_id} = -$revision_id; #invert the revision
+
+	use Everything::XML;
+	my ($NEWNODE) = @{ xml2node($xml) };
+
+	$this->{DB}->sqlUpdate("revision", $REVISION, "node_id=$$this{node_id} and inside_workspace=$workspace and revision_id=$revision_id");
+
+	1;
+
+}
+
+############################################################################
+#
+#	Sub
+#		canWorkspace
+#
+#	purpose
+#		determine whether the current node's type allows it to be
+#		included in workspaces
+#
+#	params: none
+#	returns: true if the node's type's canworkspace field is true, or 
+#	if it's set to inheirit, and it's parent canworkspace.  Otherwise false
+#
+sub canWorkspace {
+	my ($this) = @_;
+
+	return 0 unless $$this{type}{canworkspace};
+	return 1 unless $$this{type}{canworkspace} != -1;
+	return 0 unless $$this{type}{derived_canworkspace};
+	1;
+}
+
+#######################################################################
+#
+#	sub
+#		getWorkspaced
+#
+#	purpose
+#		We know that we have a node in a workspace, and want the
+#		node to look different than the node in the database
+#		this function returns a node object which reflects the state
+#		of the node in the workspace
+#
+#		NOTE: tricky nodetypes could overload this
+#			
+#	params: none
+#	returns: node object if successful, otherwise null
+#
+sub getWorkspaced {
+	my ($this) = @_;
+
+	return unless $this->canWorkspace();
+    #check to see if we should be returning a workspaced version of such
+
+	my $rev = $this->{DB}->{workspace}{nodes}{$$this{node_id}};
+	my $RN = $this->getRevision($rev);
+	return $RN if $RN;
+
+	"";
+}
+
+##########################################################################
+#
+#	sub
+#		updateWorkspaced
+#
+#	purpose
+#		this method is called by $this->update() to handle the insertion
+#		of the workspace into the revision table.  This also exists so
+#		that it could be overloaded for tricky nodetype
+#
+#	params 
+#	    $USER -- the user who is updating
+#	
+#	returns
+#		node_id of the node, if successful otherwise null
+#
+sub updateWorkspaced {
+	my ($this, $USER) = @_;
+
+	return unless $this->canWorkspace();  
+
+	my $revision = $this->logRevision($USER);
+	$this->{DB}->{workspace}{nodes}{$$this{node_id}} = $revision;
+	$this->{DB}->{workspace}->setVars($this->{DB}->{workspace}{nodes});
+	$this->{DB}->{workspace}->update($USER);
+
+	#however, this does pollute the cache
+	$this->{DB}->{cache}->removeNode($this);
+
+	return $$this{node_id};
+}
+
 
 #############################################################################
 #	Sub
@@ -704,94 +980,6 @@ sub verifyFieldUpdate
 	return (not (exists $$restrictedFields{$field} or $isID) );
 }
 
-
-#############################################################################
-#
-#	Sub
-#		logRevision
-#
-#	Purpose
-#		A node is about to be updated.  Load it's old settings from the 
-#		database, convert to XML, and save in the "revision" table
-#		The revision can be re-instated with undo() or redo()
-#		NOTE: this should not be called by update() as undo() and redo()
-#		both use update()
-#
-#	Params
-#		none
-#
-sub logRevision {
-	my ($this, $USER) = @_;
-	my $maxrevisions = $this->{type}{maxrevisions};
-	return 0 unless $maxrevisions;
-	return 0 unless $this->hasAccess($USER, 'w');
-	$maxrevisions = $this->{type}{derived_maxrevisions} if $maxrevisions == -1;
-
-	my $data = $this->{DB}->getNode($this->getId, "force")->toXML();
-
-	my $workspace = 0; # or $this->{DB}->{workspace} or something
-
-	#we are updating the node -- remove any "redo" revisions 
-	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id < 0 and inside_workspace=$workspace");
-
-    #insert the old node as a revision
-	$this->{DB}->sqlInsert('revision', {node_id => $this->getId, data => $data, inside_workspace => $workspace});
-
-    #remove the oldest revision, if it's greater than the set maxrevisions
-	my ($numrevisions, $oldest) = 
-		@{ $this->{DB}->sqlSelect('count(*), min(revision_id)', 'revision', "inside_workspace=$workspace and node_id=$$this{node_id}") };
-	if ($maxrevisions < $numrevisions) {
-		$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id=$oldest and inside_workspace=$workspace");
-	}
-
-   1; 
-}
-
-###########################################################################
-#
-#	Sub
-#		undo
-#
-#	Purpose	
-#		This function impliments both undo and redo -- it takes the current
-#		node, converts to XML -- then calls xml2node on the most recent
-#		revision (in the undo directon or redo direction).  The revision
-#		is then updated to have the current node's XML, and it's
-#		revision_id is inverted, putting it at the front of the redo or undo
-#		stack
-#
-#	Params
-#		redo -- non-zero executes a redo
-#		test -- if this is true, don't apply the revision, just return true
-#				if the revision exists
-#
-sub undo {
-	my ($this, $USER, $redoit, $test) = @_;
-	my $workspace = 0; #or $DB->{workspace}
-	return 0 unless $this->hasAccess($USER, 'w');
-	my $where = "node_id=$$this{node_id} and inside_workspace=$workspace";
-	$where.=" and revision_id < 0" if $redoit;
-
-	my $REVISION = $this->{DB}->sqlSelectHashref("*", "revision", $where, "ORDER BY revision_id DESC LIMIT 1");
-	return 0 unless $REVISION;
-	return 0 if ($redoit and $$REVISION{revision_id} >= 0);
-	return 0 if (not $redoit and $$REVISION{revision_id} < 0);
-	return 1 if $test;
-
-	my $xml = $$REVISION{data};
-	my $revision_id = $$REVISION{revision_id};
-
-    #prepare the redo/undo (inverse of what's being called)
-	$$REVISION{data} = $this->toXML();
-	$$REVISION{revision_id} = -$revision_id; #invert the revision
-
-	use Everything::XML;
-	my ($NEWNODE) = @{ xml2node($xml) };
-
-	$this->{DB}->sqlUpdate("revision", $REVISION, "node_id=$$this{node_id} and inside_workspace=$workspace and revision_id=$revision_id");
-
-	1;
-}
 
 
 ##############################################################################

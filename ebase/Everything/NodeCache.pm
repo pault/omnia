@@ -369,10 +369,11 @@ sub flushCacheGlobal
 
 	$this->flushCache();
 
-	$dbh->do("drop table if exists version");
+	$dbh->do('update version set version=version+1');
+	#$dbh->do("drop table if exists version");
 
 	# Since we dropped the table, re-create it so nothing breaks!
-	$this->createVersionTable();
+	#$this->createVersionTable();
 }
 
 
@@ -500,10 +501,10 @@ sub getGlobalVersion
 	if( (not defined $ver) || (not $ver) )
 	{
 		# The version for this node does not exist.  We need to start it off.
-		#$this->{nodeBase}->sqlInsert('version',
-		#	{ version_id => $$NODE{node_id}, version => 1 } );
+		$this->{nodeBase}->sqlInsert('version',
+			{ version_id => $$NODE{node_id}, version => 1 } );
 
-		$ver = 0;
+		$ver = 1;
 	}
 
 	return $ver;
@@ -537,12 +538,12 @@ sub isSameVersion
 		$$this{verified}{$$NODE{node_id}} = 1;
 	    return 1;	
 	}
-	if ($$NODE{title} eq 'nodemethod' and 
-		$$NODE{type}{node_id} == 1 and
-		exists $this->{version}{$$NODE{node_id}}) {
-		#the nodemethod type has been incremented.  Wipe the methodCache
-		$this->{methodCache} = {};
-	}
+	#if ($$NODE{title} eq 'nodemethod' and 
+	#	$$NODE{type}{node_id} == 1 and
+	#	exists $this->{version}{$$NODE{node_id}}) {
+	#	#the nodemethod type has been incremented.  Wipe the methodCache
+	#	$this->{methodCache} = {};
+	#}
 	return 0;
 }
 
@@ -617,6 +618,14 @@ sub resetCache
        $csr->finish;
     }
 
+	#nodemethods MUST be typeversioned	
+	my $nodemethod_id = $this->{nodeBase}->sqlSelect('node_id', 'node', 'title="nodemethod"');
+	if ($nodemethod_id and not $this->{typeVersion}{$nodemethod_id}) {
+		$this->{nodeBase}->sqlInsert('typeversion', { typeversion_id => $nodemethod_id, 
+			version => 1 });
+		$this->{typeVersion}{$nodemethod_id} = 1;
+	}
+
 	#some types that are typeVersion have changed, or have just been added 
     #to typeversion.  we need to remove any stale data from that type
 	foreach my $nodetype_id (@confirmTypes) {
@@ -624,11 +633,12 @@ sub resetCache
 		foreach my $nodename (keys %{ $this->{typeCache}{$typename} }) {
 			my $NODE = $this->{nodeQueue}->getItem($this->{typeCache}{$typename}{$nodename});
 			if (not $this->isSameVersion($NODE)) {
-				$this->{nodeBase}->getNode($$NODE{node_id}, 'force');	
+				$this->removeNode($NODE);
 			}
 			
 		}
 		$this->{typeVerified}{$nodetype_id} = 1;
+		$this->{methodCache} = {} if $typename eq 'nodemethod';
     }
 
 	

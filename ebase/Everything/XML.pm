@@ -120,7 +120,7 @@ sub fixNodes
 #
 sub xml2node
 {
-	my ($xml) = @_;
+	my ($xml, $nofinal) = @_;
 
 	# XML::Parser doen't like it when there is more than one top level
 	# document tag.  If we have an XML file that contains more than one
@@ -170,7 +170,9 @@ sub xml2node
 			push @FIXES, @$fixes if($fixes);
 		}
 
+	    if ($nofinal) { push(@ids, $NODE); next; } 
 		my $id = $NODE->xmlFinal();
+		
 
 		if($id > 0)
 		{
@@ -183,7 +185,7 @@ sub xml2node
 
 		# We store any fixes that node reported so we can hopefully
 		# resolve them later.
-		$UNFIXED_NODES{$id} = \@FIXES if(@FIXES > 0)
+		$UNFIXED_NODES{$id} = \@FIXES if(@FIXES > 0);
 	}
 
 	return \@ids;

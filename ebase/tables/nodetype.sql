@@ -1,15 +1,14 @@
-# MySQL dump 8.11
+# MySQL dump 6.0
 #
-# Host: localhost    Database: everything
+# Host: localhost    Database: test
 #--------------------------------------------------------
-# Server version	3.23.28-gamma-log
+# Server version	3.22.25
 
 #
 # Table structure for table 'nodetype'
 #
-
 CREATE TABLE nodetype (
-  nodetype_id int(11) NOT NULL auto_increment,
+  nodetype_id int(11) DEFAULT '0' NOT NULL auto_increment,
   restrict_nodetype int(11) DEFAULT '0',
   extends_nodetype int(11) DEFAULT '0',
   restrictdupes int(11) DEFAULT '0',
@@ -25,5 +24,6 @@ CREATE TABLE nodetype (
   defaultother_permission int(11) DEFAULT '-1' NOT NULL,
   defaultguest_permission int(11) DEFAULT '-1' NOT NULL,
   maxrevisions int(11) DEFAULT '-1' NOT NULL,
+  canworkspace int(11) DEFAULT '-1' NOT NULL,
   PRIMARY KEY (nodetype_id)
 );

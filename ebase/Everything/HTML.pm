@@ -1730,6 +1730,7 @@ sub loginUser
 	# Store this user's cookie!
 	$$USER_HASH{cookie} = $cookie if $cookie; 
 
+
 	return $USER_HASH;
 }
 
@@ -2367,7 +2368,7 @@ sub updateNodeData
 		
 		if ($updateflag)
 		{
-			$NODE->logRevision($USER);
+			$NODE->logRevision($USER) unless exists $DB->{workspace};
 			$NODE->update($USER); 
 
 			# This is the case where the user is modifying their own user
@@ -2405,8 +2406,14 @@ sub mod_perlInit
 
 	$USER = loginUser();
 
+	#join a workspace (if applicable)
+	$DB->joinWorkspace($$USER{inside_workspace});
+
 	# Execute any operations that we may have
 	execOpCode();
+
+	#an opcode might have changed our workspace.  Join again.
+	$DB->joinWorkspace($$USER{inside_workspace});
 
 	updateNodeData();
 	

@@ -82,6 +82,22 @@ sub new
 }
 
 
+sub joinWorkspace {
+	my ($this, $WORKSPACE) = @_;
+	
+	delete $this->{workspace} if exists $this->{workspace};
+    if ($WORKSPACE == 0) {
+		return 1;
+	}
+
+	$this->getRef($WORKSPACE);
+	$this->{workspace} = $WORKSPACE;
+	$this->{workspace}{nodes} = $WORKSPACE->getVars;
+	$this->{workspace}{nodes} ||= {};
+	1;
+}
+
+
 ############################################################################
 #	Sub
 #		rebuildNodetypeModules
@@ -572,6 +588,12 @@ sub getNode
 	return undef unless($NODE);
 	
 	$NODE = new Everything::Node($NODE, $this, $cache);
+
+	if (exists($$this{workspace}) and exists($$this{workspace}{nodes}{$$NODE{node_id}}) and $$this{workspace}{nodes}{$$NODE{node_id}}) {
+
+		my $WS = $NODE->getWorkspaced();
+		return $WS if $WS;
+	}
 
 	return $NODE;
 }

@@ -39,26 +39,26 @@ sub getIdentifyingFields
 #when we increment the version of the nodetype, the methodCache is wiped
 #(on all webservers)
 
-sub insert {
-	my ($this, $USER) = @_;
+#sub insert {
+#	my ($this, $USER) = @_;
+#
+#	$this->SUPER();
+#	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
+#}
 
-	$this->SUPER();
-	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
-}
+#sub update {
+#	my ($this, $USER) = @_;
+#
+#	$this->SUPER();
+#	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
+#}
 
-sub update {
-	my ($this, $USER) = @_;
-
-	$this->SUPER();
-	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
-}
-
-sub nuke {
-	my ($this, $USER) = @_;
-
-    $this->SUPER();
-	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
-}
+#sub nuke {
+#	my ($this, $USER) = @_;
+#
+#    $this->SUPER();
+#	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
+#}
 
 
 

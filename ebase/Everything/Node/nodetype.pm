@@ -76,7 +76,8 @@ sub construct
 		"defaultgroup_permission" => 1,
 		"defaultother_permission" => 1,
 		"defaultguest_permission" => 1, 
-		"maxrevisions" => 1
+		"maxrevisions" => 1, 
+		"canworkspace" => 1
 	};
 
 	# Copy the fields that are to be derived into new hash entries.  This
