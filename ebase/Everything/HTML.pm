@@ -34,14 +34,14 @@ sub BEGIN {
 		htmlFormatErr
 		quote
 		urlGen
-		getCode
 		getPage
 		getPages
 		getPageForType
 		linkNode
 		linkNodeTitle
 		searchForNodeByName
-		evalCode
+		evalX
+		evalXTrapErrors
 		htmlcode
 		embedCode
 		displayPage
@@ -318,7 +318,7 @@ sub htmlErrorUsers
 {
 	my ($errors, $CONTEXT) = @_;
 	my $errorId = int(rand(9999999));  # just generate a random error id.
-	my $str = htmlcode("htmlError", $errorId);
+	my $str = htmlError($errorId);
 
 	# If the site does not have a piece of htmlcode to format this error
 	# for the users, we will provide a default.
@@ -474,46 +474,6 @@ sub urlGen {
 	$str .= join('&', map { $query->escape($_) .'='. $query->escape($$REF{$_}) }
 				 keys %$REF);
 	$str .= '"' unless $noquotes;
-	return $str;
-}
-
-
-#############################################################################
-#   Sub
-#       getCode
-#
-#   Purpose
-#       This gets the node of the appropriate htmlcode function
-#
-#   Parameters
-#       funcname - The name of the function to rerieve
-#       args - optional arguments to the function.
-#           arguments must be in a comma delimited list, as with
-#           embedded htmlcode calls
-#
-#	Returns
-#		A string containing the code to execute or a blank string.
-#
-sub getCode
-{
-	my ($funcname, $args) = @_;
-	my $user = $USER;
-	my $CODE = getNode($funcname, getType("htmlcode"));
-	
-	# If no user has been loaded yet, we default to the "super user".
-	# This sounds scary, but the only time where $USER is not defined
-	# is before we log the user in.  Only basic setup code gets run
-	# before the user gets logged in.
-	$user ||= -1;
-	
-	# If the user is not allowed to execute this code, we don't want to
-	# show anything.
-	return '"";' unless ((defined $CODE) && ($CODE->hasAccess($user, "x")));
-
-	my $str;
-	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
-	$str .= $$CODE{code};
-
 	return $str;
 }
 
@@ -859,49 +819,41 @@ sub searchForNodeByName
 
 #############################################################################
 #	Sub
-#		evalCode
+#		evalXTrapErrors
 #
 #	Purpose
 #		This is a wrapper for the standard eval.  This way we can trap eval
-#		errors and warnings and do something appropriate with them.
-#
-#		The scope of variables are:
-#			$NODE is the node we are trying to display (the main node)
-#			$CURRENTNODE is the node in which this code is embedded.  Like
-#				a nodelet for example.
-#
-#		This differentiates the main node from where this code is coming
-#		from, which allows the code to work on the two different items.
+#		errors and warnings and do something appropriate with them.  The
+#		difference between this and evalX is that this function assumes that
+#		you want to report all eval errors right now.  If you wish to do
+#		multiple evals, then report all the errors, call evalX for each
+#		code and grab the errors yourself.
 #
 #	Parameters
 #		$code - the code to be evaled
 #		$CURRENTNODE - the context in which this code is being evaled.  For
 #			example, if this code is coming from a nodelet, CURRENTNODE
-#			would be the nodelet.
+#			would be the nodelet.  This helps if we encounter an error.
+#			That way we know which node the code is coming from. If you
+#			do not pass $CURRENTNODE, you *must* pass an undef in its place
+#		@_ - the remaining items in @_ will be in context for the evaled
+#			code.
 #
 #	Returns
 #		The result of the evaled code.  If there were any errors, the
 #		return string will be the error nicely HTML formatted for easy
 #		display.
 #
-sub evalCode
+sub evalXTrapErrors
 {
 	my ($code, $CURRENTNODE) = @_;
-	#these are the vars that will be in context for the evals
-
-	# Make sure that $NODE is the node we are displaying.
-	my $NODE = $GNODE;
-	my $warnbuf = "";
-
-	$CURRENTNODE ||= $NODE;
 
 	# if there are any logged errors when we get here, they have nothing
 	# to do with this.  So, push them to the backside error log for them to
 	# get displayed later.
 	flushErrorsToBackside();
 
-	my $str = evalX($code, { '$NODE' => $NODE,
-		'$CURRENTNODE' => $CURRENTNODE }, $CURRENTNODE);
+	my $str = evalX(@_);
 
 	my $errors = getFrontsideErrors();
 
@@ -935,30 +887,24 @@ sub evalCode
 #
 #	Parameters
 #		$EVALX_CODE - the string of code that is to be evaled.
-#		$EVALX_SCOPE - a hashref that contains variables that should be
-#			in scope when the code is evaled.  ie { '$NODE' => $NODE, etc }.
-#			The keys are the names of the variable (and must include the
-#			$, @, % at the beginning) and the values are what they need to
-#			be assigned to.
-#		$NODE - optional, however useful.  This way we know where the
-#			code is coming from.
+#		$CURRENTNODE - the node in which the code is coming from.  If you
+#			are unable to pass this (you don't know it or are evaling code
+#			that is not associated with a node), you must pass undef in its
+#			place as the rest of @_ are the parameters that will be in scope
+#			when the actual eval is done.
+#
+#	Returns
+#		Whatever the code returns.
 #
 sub evalX
 {
-	my ($EVALX_CODE, $EVALX_SCOPE, $NODE) = @_;
-	my $EVALX_STR = "";
+	my $EVALX_CODE = shift @_;
+	my $CURRENTNODE = shift @_;
 	my $EVALX_WARN;
+	my $NODE = $GNODE;
 
-	if(defined $EVALX_SCOPE)
-	{
-		foreach my $var (keys %$EVALX_SCOPE)
-		{
-			$EVALX_STR .= "my $var = \$\$EVALX_SCOPE{'$var'};\n";
-		}
-	}
+	$CURRENTNODE ||= $NODE;
 
-	$EVALX_STR .= $EVALX_CODE;
-	
 	local $SIG{__WARN__} = sub {
 		$EVALX_WARN .= $_[0]
 		 unless $_[0] =~ /^Use of uninitialized value/;
@@ -968,46 +914,89 @@ sub evalX
 	# return, line feed combos.  We only want \n.  We are removing the \r
 	# (line feed) here.  This should probably be done on the database
 	# insert/update routines so that this Windows crap never even gets
-	# into the database.
-	$EVALX_STR =~ s/\015//gs;
+	# into the database.  Oh well, we will just scrub it clean here...
+	$EVALX_CODE =~ s/\015//gs;
 
 	# If we define any subroutines in our code, this will prevent
     # us from getting the "subroutine * redefined" warning.
 	local $^W = 0;
 		
-	my $result = eval($EVALX_STR);
+	my $result = eval($EVALX_CODE);
 
 	local $SIG{__WARN__} = sub { };
 
 	# Log any errors that we get so that we may display them later.
-	logErrors($EVALX_WARN, $@, $EVALX_CODE, $NODE);
+	logErrors($EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE);
 
 	return $result;
 }
 
 
-#########################################################################
+#############################################################################
+#	Sub
+#		AUTOLOAD
+#
+#	Purpose
+#		This is to allow htmlcode to be called just like normal functions
+#		If an htmlcode of the given name does not exist, this will throw
+#		an error.
+#
+#	Parameters
+#		Whatever the htmlcode expects
+#
+#	Returns
+#		Whatever the htmlcode returns
+#
+sub AUTOLOAD
+{
+	# @_ contains the parameters for the htmlcode so we don't need to
+	# extract them.
+	my $subname = $Everything::HTML::AUTOLOAD;
+
+	$subname =~ s/.*:://;
+
+	my $CODE = getNode($subname, 'htmlcode');
+	my $user = $USER;
+
+	$user ||= -1;
+
+	die ("No function or htmlcode named '$subname' exists.") unless($CODE);
+	
+	# We can only execute this if the logged in user has execute permissions.
+	return undef unless($CODE->hasAccess($user, 'x'));
+
+	# The reason we do not call evalXTrapErrors is because we want
+	# htmlcode that is called like normal functions to fail like
+	# normal function and not return some kind of bogus string that
+	# they were not expecting.
+	return evalX($$CODE{code}, $CODE, @_);
+}
+
+
+#############################################################################
 #	Sub
 #		htmlcode
 #
 #	Purpose
-#		allow for easy use of htmlcode functions in embedded perl
-#		[{textfield:title,80}] would become:
-#		htmlcode('textfield', 'title,80');
-#
-#	Parameters
-#		func -- the function name
-#		args -- the arguments in a comma delimited list
-#
-#	Returns
-#		The result from the evaled code
+#		THIS IS A DEPRECATED FUNCTION!  DO NOT USE!  This is here to
+#		maintain some compatibility with some older code.  The AUTOLOAD
+#		method has replaced this for a more direct implementation.
+#		This basically allows the calling of htmlcode with dynamic paramters
 #
 sub htmlcode
 {
-	my ($func, $args) = @_;
-	my $CODE = getNode($func, 'htmlcode');
-	my $code = getCode($func, $args);
-	evalCode($code, $CODE) if($code);
+	my ($function, $args) = @_;
+	my $code;
+	my @args;
+
+	if($args && $args ne "")
+	{
+		@args = split(/\s*,\s*/, $args);
+	}
+
+	$code = "$function(\@_);";
+
+	return evalX($code, undef, @args);
 }
 
 
@@ -1043,26 +1032,28 @@ sub embedCode
 		# contain code, that code is not evaled.  This prevents users from
 		# hacking the system by having node titles like:
 		# 	$DB->do("drop table nodes")
-		$block = evalCode ($block . ';', $CURRENTNODE);	
+		$block = evalXTrapErrors($block . ';', $CURRENTNODE);	
 	}
 	elsif ($block =~ /^\{(.*)\}$/s)
 	{
-		# This is htmlcode.  We need to get the htmlcode node and
-		# create a [%...%] block out of its code and pass it back to
-		# this function.
-		
+		# This is an htmlcode.  We need to construct a function call, and
+		# eval it.  AUTOLOAD will do the rest.
+
 		my ($func, $args) = split /\s*:\s*/, $1;
+		my @args;
 		$args ||= "";
 
-		# This line puts the args in the default array
-		my $pre_code = "\@\_ = split (/\\s*,\\s*/, \"$args\");\n";
-		
-		$block = embedCode ('%'. $pre_code . getCode ($func) . '%', 
-			$CURRENTNODE);
+		@args = split(/\s*,\s*/, $args) if($args);
+
+		$args = join("', '", @args);
+		$args = "'" . $args . "'" if($args);
+
+		my $code = $func . "(" . $args . ");";
+		$block = evalXTrapErrors($code, $CURRENTNODE);
 	}
 	elsif ($block =~ /^\%(.*)\%$/s)
 	{
-		$block = evalCode ($1, $CURRENTNODE);	
+		$block = evalXTrapErrors($1, $CURRENTNODE);	
 	}
 	elsif ($block =~ /^<(.*)>$/s)
 	{
@@ -1100,11 +1091,18 @@ sub embedCode
 #		want users creating nodes with [% `rm -rf /*` %] in their code.
 #		Calling this on untrusted user text is a security breach.
 #
-#		
-#
 #	Parameters
 #		$field - the field to be parsed for the code blocks
 #		$CURRENTNODE - the node which this text is coming from.  
+#
+#	Returns
+#		The parsed HTML with the embedded code parsed and replaced with its
+#		generated result.  Given:
+#			<p>Hello ["$$USER{title}"]
+#
+#		Will return:
+#			<p>Hello Bob
+#
 #
 sub parseCode
 {
@@ -2068,22 +2066,22 @@ sub opUnlock
 #
 #	Parameters
 #		$opname - the title of the operation
+#		$user - the user that is going to execute this operation.  For
+#			authentication
 #
 #	Returns
-#		A string containing the operation's code, or undef.
+#		the opcode Node if found and the user has the ability to execute it.
+#		undef otherwise.
 #
 sub getOpCode
 {
-	my ($opname) = @_;
+	my ($opname, $user) = @_;
 	my $OPNODE = getNode($opname, "opcode");
-	my $code;
 	
 	# If a user cannot execute this, don't do it.
-	return undef unless($OPNODE && $OPNODE->hasAccess($USER, "x"));
+	return undef unless($OPNODE && $OPNODE->hasAccess($user, "x"));
 
-	$code = $$OPNODE{code} if(defined $OPNODE);
-
-	return $code;
+	return $OPNODE;
 }
 
 
@@ -2113,14 +2111,15 @@ sub execOpCode
 	my $op = $query->param('op');
 	my $code;
 	my $handled = 0;
+	my $OPCODE;
 	
 	return 0 unless(defined $op && $op ne "");
 	
-	$code = getOpCode($op, $USER);
+	$OPCODE = getOpCode($op, $USER);
 
-	if(defined $code)
+	if(defined $OPCODE)
 	{
-		$handled = evalX($code);
+		$handled = evalX($$OPCODE{code}, $OPCODE);
 	}
 
 	unless($handled)
