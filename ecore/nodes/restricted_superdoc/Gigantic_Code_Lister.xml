@@ -2,12 +2,51 @@
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
   <field type="literal_value" name="doctext">[{openform}]
-pick yer function: [% $query->textfield("choicefunc") %]
+List a function (format Everything::MODULE::FUNCTIONNAME): &lt;br>
+[% $query->textfield("choicefunc", "", 45) %]
 [{closeform}]
-&lt;p>
 
 
-[{showChoiceFunc}]</field>
+[%
+  local *getModules = sub{
+    my ($this) = @_;
+    my @modules = ('Everything');
+
+    my %dontdisplay = ("XMLold" => 1);
+    use DirHandle;
+
+    foreach my $lib (@INC) {
+        if (-d "$lib/Everything") {
+            my $dh = DirHandle->new("$lib/Everything")
+                or die "I cannot access $lib/Everything!";
+
+            foreach my $module ($dh->read) {
+                next unless -f "$lib/Everything/$module";
+                next unless $module =~ s/\.pm$//;
+                next if exists $dontdisplay{$module};
+
+                push @modules, "Everything\:\:$module";
+            }
+        }
+    }
+    
+    @modules;
+};
+
+
+
+  my $str;
+  if (not $query->param('choicefunc')) { 
+    $str.="&lt;p>Or choose from the gigantic listing:";
+    my @modules = getModules();
+    foreach (@modules) { $str.=showModuleFunctions($_); }
+  } else {
+    $str.=showFunc($query->param('choicefunc'));
+  }
+  $str;
+%]
+
+</field>
   <field type="literal_value" name="dynamicauthor_permission">-1</field>
   <field type="literal_value" name="dynamicgroup_permission">-1</field>
   <field type="literal_value" name="dynamicguest_permission">-1</field>

@@ -80,19 +80,19 @@ if($NODE->isGroup())
 	[% if($$NODE{restrictdupes} == -1) { "parent"; }
 	   else{ $$NODE{restrictdupes}?"Yes":"No";} %]
 
-&lt;p> &lt;b>Sql Table&lt;/b>: 
-[%
-if ($$NODE{sqltable} ne "")
-{
-   my $TABLE = getNode($$NODE{sqltable}, 'dbtable');
-   linkNode($TABLE);
-}
-else
-{
-  "&lt;i>none&lt;/i>";
-}
-%] [{displayInherited:sqltable}]
+&lt;p> &lt;b>Sql Tables&lt;/b>: 
 
+
+[%
+my $tables = $DB->getNodetypeTables($NODE);
+my $str;
+foreach (@$tables) {
+   my $TABLE = getNode($_, 'dbtable');
+   $str.="&lt;li>".linkNode($TABLE);
+}
+return  "&lt;i>none&lt;/i>" unless @$tables;
+$str;
+%] 
 &lt;p> &lt;b>Extends Nodetype:&lt;/b> 
 [% linkNode ($$NODE{extends_nodetype}) 
 	if ($$NODE{extends_nodetype});%]
@@ -111,21 +111,70 @@ foreach (@$pages)
 }
 $str;
 %]
-
-&lt;p> &lt;b> Active Maintenances:&lt;/b>&lt;br>
+&lt;p>
+&lt;b>Relevant Nodemethods&lt;/b>:
+&lt;p>
 [%
+
+local *getModuleFunctions = sub {
+    my ($modname) = @_;
+
+    no strict;
+    local *stash;
+    *stash = *{ "${modname}::" };
+    unless (keys %stash) {
+        #we haven't loaded the module.  Make it so.
+        eval "use $modname";
+        *stash = *{ "${modname}::" };
+    }
+    my @modfuncs;
+
+    use Devel::Peek "CvGV";
+    foreach(keys %stash) {
+        my $glob = CvGV(\&amp;{$stash{$_}});
+
+        push (@modfuncs, $_)
+            if (defined &amp;{ $stash{$_} }
+                    and $glob eq "\*$modname\:\:$_");
+    }
+    use strict;
+    return @modfuncs;
+};
+
+my $GCL = getNode('gigantic code lister', 'restricted_superdoc');
+my %nodemethods = ();
+local *listNodetypeSubs = sub {
+  my ($NT) = @_;
+  my $ret;
+
+  my $dbmethods = getNodeWhere({supports_nodetype => $NT->getId}, "nodemethod");
+  foreach (@$dbmethods) {
+    $ret.="&lt;li>".linkNode($_) unless exists $nodemethods{$$_{title}};
+    $nodemethods{$$_{title}} = 1;
+  }
+
+
+  my $module = "Everything\:\:Node\:\:$$NT{title}";
+  my @functions;
+  @functions = sort {$a cmp $b} getModuleFunctions($module) if exists $DB->{nodetypeModules}->{$module};
+  foreach (@functions) {
+    $ret.="&lt;li>".linkNode($GCL, $_, { choicefunc => "$module\:\:$_" }) unless exists $nodemethods{$_};  
+    $nodemethods{$_} = 1;
+  }
+  
+  return $ret;
+};
 my $str;
+my $NT = $NODE;
 
-my $maints = getNodeWhere ({maintain_nodetype=>getId($NODE)},
-  getType('maintenance'));
-
-return "&lt;i>no maintenance functions&lt;/i>" unless $maints;
-
-foreach (@$maints)
-{
-  $str .= "&lt;li>".linkNode ($_);
-}
-
+while ($NT) {
+  $str.="&lt;p>Nodemethods provided by ".linkNode($NT).":";
+  my $methods = listNodetypeSubs($NT);
+  $methods ||= " &lt;i>none&lt;/i>";
+  $str.=$methods;
+  last if $$NT{title} eq 'node';
+  $NT = getNode($$NT{extends_nodetype});
+} 
 $str;
 %]</field>
   <field type="noderef" type_nodetype="nodetype,nodetype" name="pagetype_nodetype">nodetype</field>
