@@ -479,6 +479,8 @@ sub updateLinks
 	if ($rows eq "0E0") { 
 		$DB->sqlInsert("links", {'from_node' => $from_id, 'to_node' => $to_id, 
 				'linktype' => $type, 'hits' => 1, 'food' => '500' }); 
+		$DB->sqlInsert("links", {'from_node' => $to_id, 'to_node' => $from_id, 
+				'linktype' => $type, 'hits' => 1, 'food' => '500' }); 
 	}
 }
 

@@ -6,6 +6,7 @@ Here's the lines to make sure are commented in:
 LoadModule perl_module /usr/lib/apache/1.3/mod_perl.so
 	#unless you have mod_perl compiled in...
 
+#this next section might be in access.conf
 <Directory "/var/www">#or whereever you put the script (document root)
 	
     Options Indexes FollowSymLinks ExecCGI
@@ -14,15 +15,15 @@ LoadModule perl_module /usr/lib/apache/1.3/mod_perl.so
 # Controls who can get stuff from this server.
 	order allow,deny
 	allow from all
-
-
 </Directory> #end the directory
 
-DirectoryIndex index.html index.pl
-	#make sure index.pl is in there 
 								 
 
 #this might be in your srm.conf 
+DirectoryIndex index.html index.pl
+	#make sure index.pl is in there 
+
+
 AddHandler perl-script .pl
 
 #this might be in your access.conf
