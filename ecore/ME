@@ -4,7 +4,7 @@
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
 	<group >
 		<groupnode1 table="nodegroup" type="nodetype">nodetype</groupnode1>
 		<groupnode2 table="nodegroup" type="nodetype">container</groupnode2>
@@ -150,114 +150,113 @@
 		<groupnode142 table="nodegroup" type="superdoc">login</groupnode142>
 		<groupnode143 table="nodegroup" type="superdoc">user variables</groupnode143>
 		<groupnode144 table="nodegroup" type="user">Guest User</groupnode144>
-		<groupnode145 table="nodegroup" type="user">qauser</groupnode145>
-		<groupnode146 table="nodegroup" type="user">root</groupnode146>
-		<groupnode147 table="nodegroup" type="usergroup">gods</groupnode147>
-		<groupnode148 table="nodegroup" type="nodetype">mail</groupnode148>
-		<groupnode149 table="nodegroup" type="htmlpage">mail display page</groupnode149>
-		<groupnode150 table="nodegroup" type="htmlpage">node xml page</groupnode150>
-		<groupnode151 table="nodegroup" type="setting">restricted fields</groupnode151>
-		<groupnode152 table="nodegroup" type="htmlcode">createnewnode</groupnode152>
-		<groupnode153 table="nodegroup" type="theme">default theme</groupnode153>
-		<groupnode154 table="nodegroup" type="themesetting">root's default themesettings</groupnode154>
-		<groupnode155 table="nodegroup" type="nodetype">theme</groupnode155>
-		<groupnode156 table="nodegroup" type="nodetype">themesetting</groupnode156>
-		<groupnode157 table="nodegroup" type="htmlpage">themesetting display page</groupnode157>
-		<groupnode158 table="nodegroup" type="htmlpage">themesetting edit page</groupnode158>
-		<groupnode159 table="nodegroup" type="dbtable">themesetting</groupnode159>
-		<groupnode160 table="nodegroup" type="container">nodelet container</groupnode160>
-		<groupnode161 table="nodegroup" type="nodelet">personal nodelet</groupnode161>
-		<groupnode162 table="nodegroup" type="htmlcode">titlebar</groupnode162>
-		<groupnode163 table="nodegroup" type="nodetype">opcode</groupnode163>
-		<groupnode164 table="nodegroup" type="restricted_superdoc">Node Cloner</groupnode164>
-		<groupnode165 table="nodegroup" type="container">show container</groupnode165>
-		<groupnode166 table="nodegroup" type="nodetype">permission</groupnode166>
-		<groupnode167 table="nodegroup" type="nodetype">htmlsnippet</groupnode167>
-		<groupnode168 table="nodegroup" type="htmlcode">editPermissions</groupnode168>
-		<groupnode169 table="nodegroup" type="htmlcode">updatePermissions</groupnode169>
-		<groupnode170 table="nodegroup" type="htmlcode">displayInheritedPermissions</groupnode170>
-		<groupnode171 table="nodegroup" type="htmlcode">editDynamicPermissions</groupnode171>
-		<groupnode172 table="nodegroup" type="htmlpage">node permissions page</groupnode172>
-		<groupnode173 table="nodegroup" type="htmlsnippet">editNodePermissions</groupnode173>
-		<groupnode174 table="nodegroup" type="restricted_superdoc">nodetype hierarchy</groupnode174>
-		<groupnode175 table="nodegroup" type="htmlpage">node basicedit page</groupnode175>
-		<groupnode176 table="nodegroup" type="restricted_superdoc">SQL Prompt</groupnode176>
-		<groupnode177 table="nodegroup" type="htmlsnippet">editDefaultPermissions</groupnode177>
-		<groupnode178 table="nodegroup" type="nodetype">nodemethod</groupnode178>
-		<groupnode179 table="nodegroup" type="dbtable">nodemethod</groupnode179>
-		<groupnode180 table="nodegroup" type="htmlsnippet">backsideErrors</groupnode180>
-		<groupnode181 table="nodegroup" type="htmlpage">nodemethod display page</groupnode181>
-		<groupnode182 table="nodegroup" type="htmlpage">nodemethod edit page</groupnode182>
-		<groupnode183 table="nodegroup" type="container">nodelet outline container</groupnode183>
-		<groupnode184 table="nodegroup" type="htmlcode">themeselector</groupnode184>
-		<groupnode185 table="nodegroup" type="nodelet">Login</groupnode185>
-		<groupnode186 table="nodegroup" type="nodelet">Epicenter</groupnode186>
-		<groupnode187 table="nodegroup" type="nodetype">location</groupnode187>
-		<groupnode188 table="nodegroup" type="nodetype">symlink</groupnode188>
-		<groupnode189 table="nodegroup" type="dbtable">symlink</groupnode189>
-		<groupnode190 table="nodegroup" type="document">nsh Help</groupnode190>
-		<groupnode191 table="nodegroup" type="htmlcode">submit</groupnode191>
-		<groupnode192 table="nodegroup" type="htmlcode">showPath</groupnode192>
-		<groupnode193 table="nodegroup" type="htmlcode">groupeditor</groupnode193>
-		<groupnode194 table="nodegroup" type="htmlpage">location display page</groupnode194>
-		<groupnode195 table="nodegroup" type="htmlpage">location edit page</groupnode195>
-		<groupnode196 table="nodegroup" type="htmlpage">symlink edit page</groupnode196>
-		<groupnode197 table="nodegroup" type="htmlpage">symlink display page</groupnode197>
-		<groupnode198 table="nodegroup" type="nodelet">nsh</groupnode198>
-		<groupnode199 table="nodegroup" type="nodelet">Node Bucket</groupnode199>
-		<groupnode200 table="nodegroup" type="opcode">addBucket</groupnode200>
-		<groupnode201 table="nodegroup" type="opcode">bucketOp</groupnode201>
-		<groupnode202 table="nodegroup" type="opcode">opNSH</groupnode202>
-		<groupnode203 table="nodegroup" type="location">htmlcode</groupnode203>
-		<groupnode204 table="nodegroup" type="location">nodetype</groupnode204>
-		<groupnode205 table="nodegroup" type="location">node</groupnode205>
-		<groupnode206 table="nodegroup" type="location">setting</groupnode206>
-		<groupnode207 table="nodegroup" type="location">container</groupnode207>
-		<groupnode208 table="nodegroup" type="location">dbtable</groupnode208>
-		<groupnode209 table="nodegroup" type="location">document</groupnode209>
-		<groupnode210 table="nodegroup" type="location">file</groupnode210>
-		<groupnode211 table="nodegroup" type="location">htmlpage</groupnode211>
-		<groupnode212 table="nodegroup" type="location">htmlsnippet</groupnode212>
-		<groupnode213 table="nodegroup" type="location">image</groupnode213>
-		<groupnode214 table="nodegroup" type="location">mail</groupnode214>
-		<groupnode215 table="nodegroup" type="location">maintenance</groupnode215>
-		<groupnode216 table="nodegroup" type="location">meta-user</groupnode216>
-		<groupnode217 table="nodegroup" type="location">nodeball</groupnode217>
-		<groupnode218 table="nodegroup" type="location">nodegroup</groupnode218>
-		<groupnode219 table="nodegroup" type="location">nodelet</groupnode219>
-		<groupnode220 table="nodegroup" type="location">nodeletgroup</groupnode220>
-		<groupnode221 table="nodegroup" type="location">nodemethod</groupnode221>
-		<groupnode222 table="nodegroup" type="location">opcode</groupnode222>
-		<groupnode223 table="nodegroup" type="location">permission</groupnode223>
-		<groupnode224 table="nodegroup" type="location">restricted_superdoc</groupnode224>
-		<groupnode225 table="nodegroup" type="location">superdoc</groupnode225>
-		<groupnode226 table="nodegroup" type="location">theme</groupnode226>
-		<groupnode227 table="nodegroup" type="location">themesetting</groupnode227>
-		<groupnode228 table="nodegroup" type="location">user</groupnode228>
-		<groupnode229 table="nodegroup" type="location">usergroup</groupnode229>
-		<groupnode230 table="nodegroup" type="location">location</groupnode230>
-		<groupnode231 table="nodegroup" type="setting">mail settings</groupnode231>
-		<groupnode232 table="nodegroup" type="htmlcode">adminbox</groupnode232>
-		<groupnode233 table="nodegroup" type="htmlcode">settingradio</groupnode233>
-		<groupnode234 table="nodegroup" type="mail">Password Mail</groupnode234>
-		<groupnode235 table="nodegroup" type="opcode">massacre</groupnode235>
-		<groupnode236 table="nodegroup" type="restricted_superdoc">Node Armageddon</groupnode236>
-		<groupnode237 table="nodegroup" type="superdoc">Everything settings</groupnode237>
-		<groupnode238 table="nodegroup" type="superdoc">the killing floor</groupnode238>
-		<groupnode239 table="nodegroup" type="superdoc">What is my password</groupnode239>
-		<groupnode240 table="nodegroup" type="nodemethod">insert</groupnode240>
-		<groupnode241 table="nodegroup" type="nodemethod">insert2</groupnode241>
-		<groupnode242 table="nodegroup" type="mail">New User Mail</groupnode242>
-		<groupnode243 table="nodegroup" type="document">Help with Mini Nodelets</groupnode243>
-		<groupnode244 table="nodegroup" type="nodelet">admin Nodelet Mini</groupnode244>
-		<groupnode245 table="nodegroup" type="nodelet">Node Statistics Mini</groupnode245>
-		<groupnode246 table="nodegroup" type="nodelet">Other Users Mini</groupnode246>
-		<groupnode247 table="nodegroup" type="opcode">insertMini</groupnode247>
-		<groupnode248 table="nodegroup" type="restricted_superdoc">clone to type</groupnode248>
-		<groupnode249 table="nodegroup" type="htmlcode">clonetotype</groupnode249>
-		<groupnode250 table="nodegroup" type="superdoc">Create a new user</groupnode250>
-		<groupnode251 table="nodegroup" type="opcode">Flush</groupnode251>
-		<groupnode252 table="nodegroup" type="opcode">Zap</groupnode252>
+		<groupnode145 table="nodegroup" type="user">root</groupnode145>
+		<groupnode146 table="nodegroup" type="usergroup">gods</groupnode146>
+		<groupnode147 table="nodegroup" type="nodetype">mail</groupnode147>
+		<groupnode148 table="nodegroup" type="htmlpage">mail display page</groupnode148>
+		<groupnode149 table="nodegroup" type="htmlpage">node xml page</groupnode149>
+		<groupnode150 table="nodegroup" type="setting">restricted fields</groupnode150>
+		<groupnode151 table="nodegroup" type="htmlcode">createnewnode</groupnode151>
+		<groupnode152 table="nodegroup" type="theme">default theme</groupnode152>
+		<groupnode153 table="nodegroup" type="themesetting">root's default themesettings</groupnode153>
+		<groupnode154 table="nodegroup" type="nodetype">theme</groupnode154>
+		<groupnode155 table="nodegroup" type="nodetype">themesetting</groupnode155>
+		<groupnode156 table="nodegroup" type="htmlpage">themesetting display page</groupnode156>
+		<groupnode157 table="nodegroup" type="htmlpage">themesetting edit page</groupnode157>
+		<groupnode158 table="nodegroup" type="dbtable">themesetting</groupnode158>
+		<groupnode159 table="nodegroup" type="container">nodelet container</groupnode159>
+		<groupnode160 table="nodegroup" type="nodelet">personal nodelet</groupnode160>
+		<groupnode161 table="nodegroup" type="htmlcode">titlebar</groupnode161>
+		<groupnode162 table="nodegroup" type="nodetype">opcode</groupnode162>
+		<groupnode163 table="nodegroup" type="restricted_superdoc">Node Cloner</groupnode163>
+		<groupnode164 table="nodegroup" type="container">show container</groupnode164>
+		<groupnode165 table="nodegroup" type="nodetype">permission</groupnode165>
+		<groupnode166 table="nodegroup" type="nodetype">htmlsnippet</groupnode166>
+		<groupnode167 table="nodegroup" type="htmlcode">editPermissions</groupnode167>
+		<groupnode168 table="nodegroup" type="htmlcode">updatePermissions</groupnode168>
+		<groupnode169 table="nodegroup" type="htmlcode">displayInheritedPermissions</groupnode169>
+		<groupnode170 table="nodegroup" type="htmlcode">editDynamicPermissions</groupnode170>
+		<groupnode171 table="nodegroup" type="htmlpage">node permissions page</groupnode171>
+		<groupnode172 table="nodegroup" type="htmlsnippet">editNodePermissions</groupnode172>
+		<groupnode173 table="nodegroup" type="restricted_superdoc">nodetype hierarchy</groupnode173>
+		<groupnode174 table="nodegroup" type="htmlpage">node basicedit page</groupnode174>
+		<groupnode175 table="nodegroup" type="restricted_superdoc">SQL Prompt</groupnode175>
+		<groupnode176 table="nodegroup" type="htmlsnippet">editDefaultPermissions</groupnode176>
+		<groupnode177 table="nodegroup" type="nodetype">nodemethod</groupnode177>
+		<groupnode178 table="nodegroup" type="dbtable">nodemethod</groupnode178>
+		<groupnode179 table="nodegroup" type="htmlsnippet">backsideErrors</groupnode179>
+		<groupnode180 table="nodegroup" type="htmlpage">nodemethod display page</groupnode180>
+		<groupnode181 table="nodegroup" type="htmlpage">nodemethod edit page</groupnode181>
+		<groupnode182 table="nodegroup" type="container">nodelet outline container</groupnode182>
+		<groupnode183 table="nodegroup" type="htmlcode">themeselector</groupnode183>
+		<groupnode184 table="nodegroup" type="nodelet">Login</groupnode184>
+		<groupnode185 table="nodegroup" type="nodelet">Epicenter</groupnode185>
+		<groupnode186 table="nodegroup" type="nodetype">location</groupnode186>
+		<groupnode187 table="nodegroup" type="nodetype">symlink</groupnode187>
+		<groupnode188 table="nodegroup" type="dbtable">symlink</groupnode188>
+		<groupnode189 table="nodegroup" type="document">nsh Help</groupnode189>
+		<groupnode190 table="nodegroup" type="htmlcode">submit</groupnode190>
+		<groupnode191 table="nodegroup" type="htmlcode">showPath</groupnode191>
+		<groupnode192 table="nodegroup" type="htmlcode">groupeditor</groupnode192>
+		<groupnode193 table="nodegroup" type="htmlpage">location display page</groupnode193>
+		<groupnode194 table="nodegroup" type="htmlpage">location edit page</groupnode194>
+		<groupnode195 table="nodegroup" type="htmlpage">symlink edit page</groupnode195>
+		<groupnode196 table="nodegroup" type="htmlpage">symlink display page</groupnode196>
+		<groupnode197 table="nodegroup" type="nodelet">nsh</groupnode197>
+		<groupnode198 table="nodegroup" type="nodelet">Node Bucket</groupnode198>
+		<groupnode199 table="nodegroup" type="opcode">addBucket</groupnode199>
+		<groupnode200 table="nodegroup" type="opcode">bucketOp</groupnode200>
+		<groupnode201 table="nodegroup" type="opcode">opNSH</groupnode201>
+		<groupnode202 table="nodegroup" type="location">htmlcode</groupnode202>
+		<groupnode203 table="nodegroup" type="location">nodetype</groupnode203>
+		<groupnode204 table="nodegroup" type="location">node</groupnode204>
+		<groupnode205 table="nodegroup" type="location">setting</groupnode205>
+		<groupnode206 table="nodegroup" type="location">container</groupnode206>
+		<groupnode207 table="nodegroup" type="location">dbtable</groupnode207>
+		<groupnode208 table="nodegroup" type="location">document</groupnode208>
+		<groupnode209 table="nodegroup" type="location">file</groupnode209>
+		<groupnode210 table="nodegroup" type="location">htmlpage</groupnode210>
+		<groupnode211 table="nodegroup" type="location">htmlsnippet</groupnode211>
+		<groupnode212 table="nodegroup" type="location">image</groupnode212>
+		<groupnode213 table="nodegroup" type="location">mail</groupnode213>
+		<groupnode214 table="nodegroup" type="location">maintenance</groupnode214>
+		<groupnode215 table="nodegroup" type="location">meta-user</groupnode215>
+		<groupnode216 table="nodegroup" type="location">nodeball</groupnode216>
+		<groupnode217 table="nodegroup" type="location">nodegroup</groupnode217>
+		<groupnode218 table="nodegroup" type="location">nodelet</groupnode218>
+		<groupnode219 table="nodegroup" type="location">nodeletgroup</groupnode219>
+		<groupnode220 table="nodegroup" type="location">nodemethod</groupnode220>
+		<groupnode221 table="nodegroup" type="location">opcode</groupnode221>
+		<groupnode222 table="nodegroup" type="location">permission</groupnode222>
+		<groupnode223 table="nodegroup" type="location">restricted_superdoc</groupnode223>
+		<groupnode224 table="nodegroup" type="location">superdoc</groupnode224>
+		<groupnode225 table="nodegroup" type="location">theme</groupnode225>
+		<groupnode226 table="nodegroup" type="location">themesetting</groupnode226>
+		<groupnode227 table="nodegroup" type="location">user</groupnode227>
+		<groupnode228 table="nodegroup" type="location">usergroup</groupnode228>
+		<groupnode229 table="nodegroup" type="location">location</groupnode229>
+		<groupnode230 table="nodegroup" type="setting">mail settings</groupnode230>
+		<groupnode231 table="nodegroup" type="htmlcode">adminbox</groupnode231>
+		<groupnode232 table="nodegroup" type="htmlcode">settingradio</groupnode232>
+		<groupnode233 table="nodegroup" type="mail">Password Mail</groupnode233>
+		<groupnode234 table="nodegroup" type="opcode">massacre</groupnode234>
+		<groupnode235 table="nodegroup" type="restricted_superdoc">Node Armageddon</groupnode235>
+		<groupnode236 table="nodegroup" type="superdoc">Everything settings</groupnode236>
+		<groupnode237 table="nodegroup" type="superdoc">the killing floor</groupnode237>
+		<groupnode238 table="nodegroup" type="superdoc">What is my password</groupnode238>
+		<groupnode239 table="nodegroup" type="nodemethod">insert</groupnode239>
+		<groupnode240 table="nodegroup" type="nodemethod">insert2</groupnode240>
+		<groupnode241 table="nodegroup" type="mail">New User Mail</groupnode241>
+		<groupnode242 table="nodegroup" type="document">Help with Mini Nodelets</groupnode242>
+		<groupnode243 table="nodegroup" type="nodelet">admin Nodelet Mini</groupnode243>
+		<groupnode244 table="nodegroup" type="nodelet">Node Statistics Mini</groupnode244>
+		<groupnode245 table="nodegroup" type="nodelet">Other Users Mini</groupnode245>
+		<groupnode246 table="nodegroup" type="opcode">insertMini</groupnode246>
+		<groupnode247 table="nodegroup" type="restricted_superdoc">clone to type</groupnode247>
+		<groupnode248 table="nodegroup" type="htmlcode">clonetotype</groupnode248>
+		<groupnode249 table="nodegroup" type="superdoc">Create a new user</groupnode249>
+		<groupnode250 table="nodegroup" type="opcode">Flush</groupnode250>
+		<groupnode251 table="nodegroup" type="opcode">Zap</groupnode251>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
@@ -269,6 +268,6 @@
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
 		<description >The core system of Everything.   (Slightly Less BETA!)</description>
-		<version >0.9.0.8</version>
+		<version >0.9.0.10</version>
 	</vars>
 </NODE>

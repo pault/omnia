@@ -13,7 +13,7 @@ $query-&gt;end_form;
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
