@@ -492,24 +492,19 @@ sub searchNodeName
 		{
 			$typestr .= " OR type_nodetype = ". getId($_);
 		}
-		
+
 		$typestr .= ')';
 	}
 
-	my @prewords = split ' ', $searchWords;
-	my @words;
+	my $NOSEARCH = getNode('stopwords', 'setting');
+	my $NOWORDS  = $NOSEARCH ? $NOSEARCH->getVars() : {};
 
-	my $NOSEARCH = getNode('nosearchwords', 'setting');
-	my $NOWORDS = $NOSEARCH->getVars() if $NOSEARCH;
-
-	foreach (@prewords)
-	{
-		push(@words, $_) unless (exists $$NOWORDS{lc($_)} or length($_) < 2);
-	}
+	my @words = grep { length($_) > 2 and ! exists $NOWORDS->{lc($_)} }
+		split ' ', $searchWords;
 
 	return unless @words;
 
-	my $match = "";
+	my $match = '';
 	foreach my $word (@words)
 	{
 		$word = lc($word);
@@ -524,13 +519,13 @@ sub searchNodeName
 		"node", "$match >= 1 $typestr", "ORDER BY matchval DESC");
 
 	return unless $cursor;
-	
+
 	my @ret;
 	while(my $m = $cursor->fetchrow_hashref)
 	{ 
 		push @ret, $m;
 	}
-	
+
 	return \@ret;
 }
 

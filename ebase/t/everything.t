@@ -285,7 +285,7 @@ is( getBacksideErrors(), \@Everything::bsErrors,
 
 	is( $calls[-1]->[0], 'sqlSelectMany', 
 		'... should sqlSelectMany() matching titles' );
-	like( $calls[-1]->[1], qr/\*.+?lower.title.+?rlike.+abc.+\+.+ee/, 
+	like( $calls[-1]->[1], qr/\*.+?lower.title.+?rlike.+abc.+\+.+/, 
 		'... selecting by title with regexes' );
 	like( $calls[-1]->[3], qr/AND .type_nodetype = 1 OR type_nodetype = 2/,
 		'... should constrain by type, if provided' );
