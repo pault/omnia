@@ -68,7 +68,7 @@ is( $mock->{type}, $mock, '... should set node number 1 type to itself' );
 
 ($method, $args) = $mock->next_call( 2 );
 is( $method, 'sqlSelect', '... fetching a node if the node_id is 1' );
-is( join('-', @$args), "$mock-node_id-node-title='node' && type_nodetype=1", 
+is( join('-', @$args), "$mock-node_id-node-title='node' AND type_nodetype=1", 
 	'... with the appropriate parameters' );
 
 ($method, $args) = $mock->next_call();
