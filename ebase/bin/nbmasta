@@ -330,6 +330,7 @@ sub exportNodes
 	
 	foreach my $NODETYPE (keys %nodetypes) {
 		my $dir = $NODETYPE;
+		my %uniq = ();
 		
 		# convert spaces to '_'. We don't want spaces in the file name.
 		$dir =~ tr/ /_/;
@@ -339,6 +340,12 @@ sub exportNodes
 			getRef ($NODE);
 			my $file = $$NODE{title};
 			$file =~ tr/ /_/;
+			
+			# we don't want to clobber nodes with duplicate names
+			# %uniq holds filename => unique number, uses autovivification
+			if (-e "$dir/$file.xml") {
+				$file .= $uniq{$file}++;
+			}
 			$file.=".xml";
 			
 			print "$$NODE{title} ($$NODE{type}{title}) --> $file\n"
