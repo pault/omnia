@@ -38,24 +38,32 @@ use vars qw($XMLGEN);
 use vars qw($XMLPARSE);
 	
 # Skip these tags in the node XML
-my %skips = {
+my %skips = (
 	"NODE" => 1,
 	"INFO" => 1
-};
+);
 
 ###########################################################################
 #	Sub
 #		readTag
 #
-#	purpose - to quickly read an xml tag, without parsing the whole document
+#	Purpose
+#		Quickly reads an xml tag, without parsing the whole document
 #		right now, it doesn't read attributes, only contents.
+#
+#	Parameters
+#		$tag - the tag to read
+#		$xml - the document to look through
+#
+#	Returns
+#		The contents of the tag if found, or a blank string if not.
 #
 sub readTag {
 	my ($tag, $xml) = @_;
 	if ($xml =~ /\<\s*$tag.*?\>(.*?)\<\s*\/$tag.*?\>/gsi) {
 		return unMakeXmlSafe($1);
 	}
-	"";
+	return "";
 }
 
 
@@ -118,7 +126,7 @@ sub start_handler
 sub char_handler
 {
 	my ($parser, $data) = @_;
-	my $tag = pop @activetag;
+	my $tag = $activetag[-1];
 
 	unless(exists $skips{$$tag{title}})
 	{
@@ -129,7 +137,6 @@ sub char_handler
 		}
 	}
 
-	push @activetag, $tag;
 }
 
 #############################################################################
@@ -148,9 +155,8 @@ sub end_handler
 	
 	if ($isVars and $$tag{isReference})
 	{
-		my $fix = pop @FIXES;
+		my $fix = $FIXES[-1];
 		$$fix{title} = $$VARS{$$tag{title}};
-		push @FIXES, $fix;
 		$$VARS{$$tag{title}} = -1;
 	}
 	elsif ($$tag{isReference})
@@ -200,10 +206,16 @@ sub end_handler
 #	sub
 #		findRef
 #
-#	purpose
-#		find a node referred to by a node reference.  Spit out an error if 
+#	Purpose
+#		Find a node referred to by a node reference.  Spit out an error if 
 #		it isn't found and the printError flag is set.  
-#		Returns the referenced node's id
+#
+#	Parameters
+#		$FIX - a hashref with data on the node to find
+#		$printError - (optional) flag to print an error
+#
+#	Returns
+#		Returns the referenced node's id or -1 if it wasn't found.
 #
 sub findRef
 {
@@ -228,10 +240,16 @@ sub findRef
 #	sub
 #		fixNodes		
 #
-#	purpose
+#	Purpose
 #		fix all errors registered in the @FIXES array
 #		these are usually broken dependancies, and node references
 #		to nodes that didn't exist when the node was inserted from the XML
+#
+#	Parameters
+#		$printError - (optional) flag to print an error
+#
+#	Returns
+#		Nothing of value.
 #
 sub fixNodes 
 {
@@ -358,8 +376,14 @@ sub fixNodes
 #	sub 
 #		dumpFixes
 #
-#	purpose
+#	Purpose
 #		print out the fixes array for debugging
+#
+#	Parameters
+#		Takes no arguments.
+#
+#	Returns
+#		Nothing.
 #
 sub dumpFixes {
 	foreach (@FIXES) {
@@ -375,7 +399,7 @@ sub dumpFixes {
 #	Sub
 #		initXmlParse
 #	
-#	purpose
+#	Purpose
 #		initialize the global XMLPARSE object, and returns it
 #		if you care.
 #
@@ -388,7 +412,7 @@ sub initXmlParse
 
 	@FIXES = ();
 
-	$XMLPARSE;
+	return $XMLPARSE;
 }
 
 
@@ -396,14 +420,17 @@ sub initXmlParse
 #	Function
 #		xml2node
 #
-#	purpose
+#	Purpose
 #		takes a chunk of XML -- returns a $NODE hash
-#		any broken dependancies are pushed on @FIXES, and the node is 
+#		any broken dependencies are pushed on @FIXES, and the node is 
 #		inserted into the database (with -1 on any broken fields)
 #		returns the node_id of the new node
 #
-#	parameters
-#		xml -- the string of xml to parse
+#	Parameters
+#		$xml -- the string of xml to parse
+#
+#	Returns
+#
 #
 sub xml2node
 {
@@ -512,16 +539,25 @@ sub xml2node
 #	Sub
 #		xmlfile2node
 #
-#	purpose
+#	Purpose
 #		wrapper for xml2node that takes a filename as a parameter
 #		rather than a string of XML
 #
+#	Arguments
+#		$filename, the file containing the XML
+#
+#	Returns
+#		The result of xml2node on the file.
 #
 sub xmlfile2node {
     my ($filename) = @_;
 		
 	open MYXML, $filename or die "could not access file $filename";
-	my $file = join "", <MYXML>;
+	my $file;
+	{
+		local $/;
+	 	$file = <MYXML>;
+	}
 	close MYXML;
 	xml2node($file);
 }
@@ -531,16 +567,18 @@ sub xmlfile2node {
 #	Sub 
 #		genTag
 #
-#	purpose
+#	Purpose
 #		simple wrapper function to generate an xml tag
 #		using XML::Generator
 #
-#	parameters
-#		tag -- the name of the tag to generate
-#		content -- the stuff to be put inside the tag
-#		PARAMS -- hash reference containing tag attributes
-#		embedXML -- don't make the content xml-safe (we'll embed XML)
-
+#	Parameters
+#		$tag -- the name of the tag to generate
+#		$content -- the stuff to be put inside the tag
+#		$PARAMS -- hash reference containing tag attributes
+#		$embedXML -- don't make the content xml-safe (we'll embed XML)
+#
+#	Returns
+#
 sub genTag {
 	my ($tag, $content, $PARAMS, $embedXML) = @_;
 	return unless $tag;
@@ -558,11 +596,15 @@ sub genTag {
 #	Sub
 #		makeXmlSafe
 #
-#	purpose
-#		make a string not interfere with the xml
+#	Purpose
+#		Make a string not interfere with the xml
 #
-#	parameters
-#		str - the literal string 
+#	Parameters
+#		$str - the literal string 
+#
+#	Returns
+#		The encoded string.
+#
 sub makeXmlSafe {
 	my ($str) = @_;
 
@@ -571,40 +613,47 @@ sub makeXmlSafe {
 	$str =~ s/\</\&lt\;/g;
 	$str =~ s/\>/\&gt\;/g;
 
-	$str;
+	return $str;
 }
 
 #####################################################################
 #	Sub
 #		unMakeXmlSafe
 #
-#	purpose 
-#		decode something encoded by makeXmlSafe
+#	Purpose 
+#		Decode something encoded by makeXmlSafe
 #	
-#	parameters
-#		str - da string!
+#	Parameters
+#		$str - da string!
+#	
+#	Returns
+#		The decoded string.
+#
 sub unMakeXmlSafe {
 	my ($str) = @_;
 
 	$str =~ s/\&lt\;/\</g;
 	$str =~ s/\&gt\;/\>/g;
 	$str =~ s/\&amp\;/\&/g;
-	$str;
+	return $str;
 }
 
 ######################################################################
 #	Sub
 #		vars2xml
 #
-#	purpose
+#	Purpose
 #		Take a "vars" hash -- generate a vars tag with nested item tags
 #		also, change node references to a type/title format
 #
-#	parameters
-#		tag - the varable tag 
-#		VARS - a hash reference containing the variable data 
+#	Parameters
+#		$tag - the varable tag 
+#		$VARS - a hash reference containing the variable data 
 #			(procured from getVars)
-#		PARAMS - optional additional parameters
+#		$PARAMS - optional additional parameters
+#
+#	Returns
+#		A string containing XML, or undef if it couldn't be built.
 #
 sub vars2xml
 {
@@ -629,7 +678,7 @@ sub vars2xml
 		}
 	}
 
-	genTag ($tag, "\n".$varstr."\t", $PARAMS, 'parseth not the xml tags');
+	return genTag ($tag, "\n$varstr\t", $PARAMS, 'parseth not the xml tags');
 }
 
 
@@ -637,13 +686,16 @@ sub vars2xml
 #	Sub
 # 		group2xml
 #
-#	purpose
+#	Purpose
 #		take a list of node references and return them in XML form
 #		
-#   parameters
-#		tag -- the group's parent tag
-#		group- a reference to a list of nodes
-#		PARAMS -- hash reference with optional additional parameters
+#   Parameters
+#		$tag -- the group's parent tag
+#		$group- a reference to a list of nodes
+#		$PARAMS -- hash reference with optional additional parameters
+#
+#	Returns
+#		A string containing the XML, or undef if it failed.
 #
 sub group2xml
 {
@@ -658,7 +710,7 @@ sub group2xml
 			noderef2xml($tag, $_, { table=>'nodegroup' }) ;
 	}
 
-	genTag($tag, "\n".$ingroup."\t", $PARAMS, "don't parse me please");
+	return genTag($tag, "\n".$ingroup."\t", $PARAMS, "don't parse me please");
 }
 
 
@@ -666,13 +718,16 @@ sub group2xml
 #	Sub
 #		noderef2xml
 #
-#	purpose
+#	Purpose
 #		generate a tag that references a node by type and title
 #
-#	parameters
-#		tag -- the field to generate
-#		node_id -- the node's numeric id (or the node itself)
-#		PARAMS -- additional attributes for the tag
+#	Parameters
+#		$tag -- the field to generate
+#		$node_id -- the node's numeric id (or the node itself)
+#		$PARAMS -- additional attributes for the tag
+#
+#	Returns
+#		An XML string or undef, if it failed.
 #
 sub noderef2xml
 {
@@ -698,7 +753,7 @@ sub noderef2xml
 
 	$$PARAMS{type}  = $typetitle;
 
-	genTag ($tag, $title, $PARAMS);
+	return genTag ($tag, $title, $PARAMS);
 }
 
 
@@ -706,11 +761,14 @@ sub noderef2xml
 #	Sub
 #		node2xml
 #
-#	purpose
+#	Purpose
 #		return a node to us in PORTABLE well-formed XML
 #
-#	parameters
+#	Parameters
 #		NODE - the node to generate XML for
+#
+#	Returns
+#		A string of XML, or undef if it failed.
 #
 sub node2xml
 {
@@ -786,7 +844,7 @@ sub node2xml
 		}
 	}
 
-	$XMLGEN->NODE($str);
+	return $XMLGEN->NODE($str);
 }
 
 ###########################################################################
