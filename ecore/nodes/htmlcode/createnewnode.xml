@@ -5,11 +5,12 @@
 my $title = $query->param('node');
 return "" unless $title;
 
-$str .= "&lt;p>I guess I could arrange it so that 
-	you could create \"$title\" as a ";
+$str .= "&lt;p>you could create a new \"$title\" node as type:";
 
-my @aprtypes;
-
+my $SET=getNode('createnewnode settings','setting');
+my $MENU;
+$MENU = $SET->getVars() if $SET;
+  my @aprtypes;
   my %approvedtypes;
   foreach my $NODETYPE ($DB->getAllTypes()) {
     if ($NODETYPE->hasTypeAccess($USER, "c")) {
@@ -17,12 +18,71 @@ my @aprtypes;
     }
   }
   return unless %approvedtypes;
+
+
   @aprtypes = sort {$a cmp $b} keys(%approvedtypes);
-	
+if (not $MENU) {
   foreach my $type (@aprtypes) {
 	$str .= "&lt;LI>&lt;A href=" . urlGen ({node => $title, type => $type, op => 'new'}) .">$type&lt;/A>\n";
   }
-  $str;	</field>
+  return $str;
+} 
+
+my %sections;
+foreach my $m (keys %$MENU) {
+  my @nts = split /\s*,\s*/, $$MENU{$m};
+  foreach (@nts) {
+    my $derive;
+    $derive = s/\+$//;  #that's not a mistake, I'm doing regex on $_
+    my $NT = getType($_);
+    next unless $NT;
+    $sections{getId($NT)} = $m if exists $approvedtypes{$$NT{title}};
+    if ($derive) {
+      foreach my $type (@aprtypes) {
+        my $T = $approvedtypes{$type};
+        if (not exists $sections{$$T{node_id}} and $T->derivesFrom($NT)) {
+          $sections{$$T{node_id}} = $m;
+        }
+      }
+    }
+  }
+}
+
+my %aprmenu;
+foreach (keys %sections) {
+  push @{ $aprmenu{$sections{$_}}}, getType $_;
+}
+
+foreach (@aprtypes) {
+  my $T = getType $_;
+  push @{ $aprmenu{Extras} }, $T unless $sections{$$T{node_id}};
+}
+
+delete $aprmenu{supress};  #we don't show these
+
+my $cols = 2;
+my $numsections = int keys %aprmenu;
+$cols = 3 if ($numsections > 5 or not $numsections%3);
+
+my $count = 0;
+$str.="&lt;table width=100% border=1 cellpadding=2 cellspacing=0>";
+
+my $width = int(100/$cols) . "%";
+foreach (sort keys %aprmenu) {
+  $str.="&lt;TR>" unless $count % $cols;
+
+  $str.="&lt;td valign=top width=$width>&lt;b>$_&lt;/b>";
+  foreach (sort @{ $aprmenu{$_} }) {
+    $str.="&lt;li>&lt;A href=" . urlGen ({node => $title, type => $$_{title} , op => 'new'}) .">$$_{title}&lt;/A>\n";
+  }
+  $str.="&lt;/td>";
+  $str.="&lt;/TR>" unless ($count % $cols) + 1 - $cols;
+  $count++;
+}
+$str.="&lt;/table>";
+$str;	
+
+</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
