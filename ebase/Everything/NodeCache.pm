@@ -98,6 +98,8 @@ sub new
 	$this->{idCache} = {};
 	$this->{version} = {};
 	$this->{verified} = {};
+	$this->{typeVerified} = {};
+	$this->{typeVersion} = {};
 	
 	$this->{methodCache}= {};
 	
@@ -135,14 +137,6 @@ sub createVersionTable
 	}
 }	
 	
-
-#############################################################################
-sub clearSessionCache
-{
-	my ($this) = @_;
-	$this->{sessionCache} = {};
-}
-
 
 #############################################################################
 #	Sub
@@ -209,10 +203,9 @@ sub getCachedNodeByName
 	
 	return undef if(not defined $typename);
 	
-	$hashkey = genHashKey($title, $typename);
-	if(defined $this->{typeCache}{$hashkey})
+	if(defined $this->{typeCache}{$typename}{$title})
 	{
-		$data = $this->{typeCache}{$hashkey};
+		$data = $this->{typeCache}{$typename}{$title};
 		$NODE = $this->{nodeQueue}->getItem($data);
 
 		return $NODE if($this->isSameVersion($NODE));
@@ -268,7 +261,7 @@ sub getCachedNodeById
 sub cacheNode
 {
 	my ($this, $NODE, $permanent) = @_;
-	my $name = genHashKey($$NODE{title}, $$NODE{type}{title});
+	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
 	my $data;
 
 	if(defined ($this->{idCache}{$$NODE{node_id}}))
@@ -287,7 +280,7 @@ sub cacheNode
 	$data = $this->{nodeQueue}->queueItem($NODE, $permanent);
 
 	# Store hash keys for its "name" and numeric Id, and set the version.
-	$this->{typeCache}{$name} = $data;
+	$this->{typeCache}{$type}{$title} = $data;
 	$this->{idCache}{$$NODE{node_id}} = $data;
 	$this->{version}{$$NODE{node_id}} = $this->getGlobalVersion($NODE);
 
@@ -459,14 +452,14 @@ sub purgeCache
 sub removeNodeFromHash
 {
 	my ($this, $NODE) = @_;
-	my $name = genHashKey($$NODE{title}, $$NODE{type}{title});
+	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
 
 	if (defined $this->{idCache}{$$NODE{node_id}})
 	{
-		my $data = $this->{typeCache}{$name};
+		my $data = $this->{typeCache}{$type}{$title};
 		
 		# Remove this hash entry
-		delete ($this->{typeCache}{$name});
+		delete ($this->{typeCache}{$type}{$title});
 		delete ($this->{idCache}{$$NODE{node_id}});
 		delete ($this->{version}{$$NODE{node_id}});
 
@@ -476,28 +469,6 @@ sub removeNodeFromHash
 	return undef;
 }
 
-
-#############################################################################
-#	Sub
-#		genHashKey
-#
-#	Purpose
-#		This creates a hopefully unique hash key for the cache.
-#
-#	Parameters
-#		$name - the name of the node to cache
-#		$type - the name of the nodetype of the node to cache
-#
-#	Returns
-#		The new hash key.
-#
-sub genHashKey
-{
-	my ($name, $type) = @_;
-	my $hashkey = $type . "_" . $name;
-
-	return $hashkey;
-}
 
 
 #############################################################################
@@ -553,12 +524,15 @@ sub isSameVersion
 {
 	my ($this, $NODE) = @_;
 
+	return 1 if(exists $$this{typeVerified}{$$NODE{type}{node_id}});
 	return 1 if(exists $$this{verified}{$$NODE{node_id}});
-	$$this{verified}{$$NODE{node_id}} = 1;
 	
 	my $ver = $this->getGlobalVersion($NODE);
 	
-	return 1 if($ver == $this->{version}{$$NODE{node_id}});
+	if($ver == $this->{version}{$$NODE{node_id}}) {
+		$$this{verified}{$$NODE{node_id}} = 1;
+	    return 1;	
+	}
 	if ($$NODE{title} eq 'nodemethod' and 
 		$$NODE{type}{node_id} == 1 and
 		exists $this->{version}{$$NODE{node_id}}) {
@@ -596,6 +570,7 @@ sub incrementGlobalVersion
 		$this->{nodeBase}->sqlInsert('version',
 			{ version_id => $$NODE{node_id}, version => 1 } );
 	}
+	$this->{nodeBase}->sqlUpdate('typeversion', {-version => 'version+1'}, "typeversion_id=".$$NODE{type}{node_id}) if $this->{nodeBase}->sqlSelect("version", "typeversion", "typeversion_id=".$$NODE{type}{node_id});; 
 }
 
 
@@ -609,11 +584,54 @@ sub incrementGlobalVersion
 #		version of so far.  This should be called for each page load to
 #		clear this hash out.
 #
+#		This also handles typeVersions -- the table must be rebuilt each
+#		pageload, if 
+#
 sub resetCache
 {
 	my ($this) = @_;
 
 	$this->{verified} = {};
+	$this->{typeVerified} = {};
+    my %newVersion;
+    my @confirmTypes;
+
+	if (my $csr = $this->{nodeBase}->sqlSelectMany('*', "typeversion")) {
+      while (my $N = $csr->fetchrow_hashref) { 
+	    if (exists $this->{typeVersion}{$$N{typeversion_id}}) {
+		   if ($this->{typeVersion}{$$N{typeversion_id}} == $$N{version}) {
+				$this->{typeVerified}{$$N{typeversion_id}} = 1;
+			} else {
+				push @confirmTypes, $$N{typeversion_id};
+			}
+		} else {
+			push @confirmTypes, $$N{typeversion_id};
+		}
+		#if the typeversion haven't changed, we can verify the type
+	    $newVersion{$$N{typeversion_id}} = $$N{version};
+	  } 
+       $csr->finish;
+    }
+
+	#some types that are typeVersion have changed, or have just been added 
+    #to typeversion.  we need to remove any stale data from that type
+	foreach my $nodetype_id (@confirmTypes) {
+		my $typename = $this->{nodeBase}->sqlSelect("title", 'node', "node_id=$nodetype_id");
+		foreach my $nodename (keys %{ $this->{typeCache}{$typename} }) {
+			my $NODE = $this->{nodeQueue}->getItem($this->{typeCache}{$typename}{$nodename});
+			if (not $this->isSameVersion($NODE)) {
+				$this->{nodeBase}->getNode($$NODE{node_id}, 'force');	
+			}
+			
+		}
+		$this->{typeVerified}{$nodetype_id} = 1;
+    }
+
+	
+	$this->{typeVersion} = \%newVersion;
+	#replace the typeVersion with the most recent table
+	
+	"";
 }
 
 

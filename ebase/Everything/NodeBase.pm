@@ -93,7 +93,6 @@ sub new
 		$this->{cache}->setCacheSize($cacheSize);
 	}
 
-	$this->{cache}->clearSessionCache;
 	return $this;
 }
 
