@@ -73,6 +73,16 @@ $nodelets-&gt;genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
 10, undef, 'Available Nodelets:', 'Selected Nodelets:');
 %]
 &lt;/td&gt;&lt;/tr&gt;
+[%
+ my $PN = getNode('personal nodelet', 'nodelet');
+ return unless $PN;
+ return unless grep /^$$PN{node_id}$/, @{$NODE-&gt;getNodelets($HTMLVARS{default_nodeletgroup})};
+
+ return &quot;&lt;tr bgcolor=\&quot;$$THEME{nodeletTitleColor}\&quot;&gt;&lt;td colspan=2&gt;
+  &lt;font $GLOBAL{userFontAttr}&gt;&lt;b&gt;Personal Nodelet&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&quot;.htmlsnippet(&quot;editPersonalNodelet&quot;).&quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
+%]
 &lt;/table&gt;
 &lt;p&gt;
 [{submit}]</field>
@@ -82,4 +92,3 @@ $nodelets-&gt;genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
   <field name="title" type="literal_value">user edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
-
