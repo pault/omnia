@@ -1,44 +1,40 @@
-package Everything::NodeCache;
+=head1 C<Everything::NodeCache>
 
-#############################################################################
-#
-#	Everything::NodeCache
-#
-#		A module for creating and maintaining a persistant cache of nodes
-#		The cache can have a size limit and only caches nodes of specific
-#		types.
-#
-#		Each httpd runs in its own fork and memory space so we cannot
-#		share the cache info across httpd's (even if we could, it wouldn't
-#		work for multiple web server machines).  So each httpd keeps a
-#		cache for itself.  A problem arises when one httpd process modifies
-#		a node that another process has in its cache.  How does that other
-#		httpd process know that what it has in its cache is stale?
-#
-#		Well, we keep a "temporary" db table named 'version' (its temporary
-#		in the sense that its only needed for caching and if you drop it,
-#		we just create a new one).  Each time a node is updated in the db,
-#		we increment the version number in the 'version' table.  When
-#		a node is retrieved from the cache, we compare the cached version
-#		to the global version in the db table.  If they are the same, we
-#		know that the node has not changed since we cached it.  If it is
-#		different, we know that the cached node is stale.
-#
-#		Theoretical performance of this cache is O(log n) where n is the
-#		number of versions in the 'version' table.  Perl hash lookups are
-#		O(1) (what we do to find the node), and db table lookups for
-#		primary keys are O(log n) (what we do to verify that the node is
-#		not stale).  So we have a O(1) + O(log n) = O(log n).
-#
-#		A possible issue that we might need to deal with in the future,
-#		is the fact that entries to the version table do not get removed.
-#		So potentially, the version table could grow to be the number of
-#		nodes in the system.  A way to temporarily fix this problem right
-#		now would be to delete rows from the version table where the
-#		version is less than a certain value (say 50), that would remove
-#		all of the little used nodes from the version table.
-#		
-#############################################################################
+Copyright 2003, Everything Development Company.
+
+A module for creating and maintaining a persistant cache of nodes The cache can
+have a size limit and only caches nodes of specific types.
+
+Each httpd runs in its own fork and memory space so we cannot share the cache
+info across httpd's (even if we could, it wouldn't work for multiple web server
+machines).  So each httpd keeps a cache for itself.  A problem arises when one
+httpd process modifies a node that another process has in its cache.  How does
+that other httpd process know that what it has in its cache is stale?
+
+Well, we keep a "temporary" db table named 'version' (its temporary in the
+sense that its only needed for caching and if you drop it, we just create a new
+one).  Each time a node is updated in the db, we increment the version number
+in the 'version' table.  When a node is retrieved from the cache, we compare
+the cached version to the global version in the db table.  If they are the
+same, we know that the node has not changed since we cached it.  If it is
+different, we know that the cached node is stale.
+
+Theoretical performance of this cache is O(log n) where n is the number of
+versions in the 'version' table.  Perl hash lookups are O(1) (what we do to
+find the node), and db table lookups for primary keys are O(log n) (what we do
+to verify that the node is not stale).  So we have a O(1) + O(log n) = O(log
+n).
+
+A possible issue that we might need to deal with in the future, is the fact
+that entries to the version table do not get removed.  So potentially, the
+version table could grow to be the number of nodes in the system.  A way to
+temporarily fix this problem right now would be to delete rows from the version
+table where the version is less than a certain value (say 50), that would
+remove all of the little used nodes from the version table.
+
+=cut
+
+package Everything::NodeCache;
 
 use strict;
 use Everything::CacheQueue;
@@ -58,25 +54,29 @@ sub BEGIN
 		dumpCache); 
 }
 
+=cut
 
+=head2 C<new>
 
-#############################################################################
-#	Sub
-#		new
-#
-#	Purpose
-#		Constructor for this "object".
-#
-#	Parameters
-#		$nodeBase - the Everything::NodeBase that we should use for database
-#			access.
-#		$maxSize - the maximum number of nodes that this cache should hold.
-#			-1 if unlimited.  If you have a large everything implementation,
-#			setting this to -1 would be bad.
-#
-#	Returns
-#		The newly constructed module object
-#
+Constructor for this "object".
+
+=over 4
+
+=item * $nodeBase
+
+the Everything::NodeBase that we should use for database access.
+
+=item * $maxSize
+
+the maximum number of nodes that this cache should hold.  -1 if unlimited.  If
+you have a large everything implementation, setting this to -1 would be bad.
+
+=back
+
+Returns the newly constructed module object
+
+=cut
+
 sub new
 {
 	my ($packageName, $nodeBase, $maxSize) = @_;
@@ -103,19 +103,24 @@ sub new
 	return $this;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		setCacheSize
-#
-#	Purpose
-#		Change the max size of the cache.  If the size is set lower than
-#		the current number of nodes in the cache, the least used nodes will
-#		be removed to get the cache size down to the new max.
-#
-#	Parameters
-#		$newMaxSize - the new size of the cache.
-#
+=head2 C<setCacheSize>
+
+Change the max size of the cache.  If the size is set lower than the current
+number of nodes in the cache, the least used nodes will be removed to get the
+cache size down to the new max.
+
+=over 4
+
+=item * $newMaxSize
+
+the new size of the cache.
+
+=back
+
+=cut
+
 sub setCacheSize
 {
 	my ($this, $newMaxSize) = @_;
@@ -124,14 +129,14 @@ sub setCacheSize
 	$this->purgeCache();
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getCacheSize
-#
-#	Purpose
-#		Returns the number of nodes in the cache (the size).
-#
+=head2 C<getCacheSize>
+
+Returns the number of nodes in the cache (the size).
+
+=cut
+
 sub getCacheSize
 {
 	my ($this) = @_;
@@ -142,24 +147,30 @@ sub getCacheSize
 	return $size;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getCachedNodeByName
-#
-#	Purpose
-#		Query the cache to see if it has the node of the given title and
-#		type.  The type is required, otherwise we would need to return lists,
-#		and lists from a cache are most likely not going to be complete.
-#
-#	Parameters
-#		$title - the string title of the node we are looking for
-#		$typename - the nodetype name (ie 'node') of the type that we are
-#			looking for
-#
-#	Returns
-#		A $NODE hashref if we have it in the cache, otherwise undef.
-#
+=head2 C<getCachedNodeByName>
+
+Query the cache to see if it has the node of the given title and type.  The
+type is required, otherwise we would need to return lists, and lists from a
+cache are most likely not going to be complete.
+
+=over 4
+
+=item * $title
+
+the string title of the node we are looking for
+
+=item * $typename
+
+the nodetype name (ie 'node') of the type that we are looking for
+
+=back
+
+Returns a $NODE hashref if we have it in the cache, otherwise undef.
+
+=cut
+
 sub getCachedNodeByName
 {
 	my ($this, $title, $typename) = @_;
@@ -184,20 +195,24 @@ sub getCachedNodeByName
 	return undef;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getCachedNodeById
-#
-#	Purpose
-#		Query the cache for a node with the given id
-#
-#	Parameters
-#		$id - the id of the node we are looking for
-#
-#	Returns
-#		A node hashref if we find anything, otherwise undef
-#
+=head2 C<getCachedNodeById>
+
+Query the cache for a node with the given id
+
+=over 4
+
+=item * $id
+
+the id of the node we are looking for
+
+=back
+
+Returns a node hashref if we find anything, otherwise undef
+
+=cut
+
 sub getCachedNodeById
 {
 	my ($this, $id) = @_;
@@ -215,19 +230,26 @@ sub getCachedNodeById
 	return undef;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		cacheNode
-#
-#	Purpose
-#		Given a node, put it in the cache
-#
-#	Parameters
-#		$NODE - the node hashref to put in the cache
-#		$permanent - True if this node is to never be removed from the
-#			cache when purging.
-#
+=head2 C<cacheNode>
+
+Given a node, put it in the cache
+
+=over 4
+
+=item * $NODE
+
+the node hashref to put in the cache
+
+=item * $permanent
+
+True if this node is to never be removed from the cache when purging.
+
+=back
+
+=cut
+
 sub cacheNode
 {
 	my ($this, $NODE, $permanent) = @_;
@@ -259,21 +281,25 @@ sub cacheNode
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		removeNode
-#
-#	Purpose
-#		Remove a node from the cache.  Usually needed when a node is deleted.
-#
-#	Parameters
-#		$NODE - the node in which to remove from the cache
-#
-#	Returns
-#		The NODE removed from the cache, undef if the node was not in
-#		the cache.
-#
+=head2 C<removeNode>
+
+Remove a node from the cache.  Usually needed when a node is deleted.
+
+=over 4
+
+=item * $NODE
+
+the node in which to remove from the cache
+
+=back
+
+Returns the NODE removed from the cache, undef if the node was not in the
+cache.
+
+=cut
+
 sub removeNode
 {
 	my ($this, $NODE) = @_;
@@ -293,16 +319,16 @@ sub removeNode
 	return $this->{nodeQueue}->removeItem($data);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		flushCache
-#
-#	Purpose
-#		Remove all nodes from this cache.  Since each httpd process is
-#		in its own separate memory space, this will only flush the cache
-#		for this particular httpd process.
-#
+=head2 C<flushCache>
+
+Remove all nodes from this cache.  Since each httpd process is in its own
+separate memory space, this will only flush the cache for this particular httpd
+process.
+
+=cut
+
 sub flushCache
 {
 	my ($this) = @_;
@@ -321,21 +347,19 @@ sub flushCache
 	$this->{groupCache} = {};
 }
 
+=cut
 
+=head2 C<flushCacheGlobal>
 
-#############################################################################
-#	Sub
-#		flushCacheGlobal
-#
-#	Purpose
-#		This flushes the global cache by incrementing the entire global
-#		version table. In doing so, the version of the nodes that the various 
-#		httpd's have cached will no longer match the global verison, which 
-#		will cause nodes to get thrown out when they go to get used.  This 
-#		will probably only be needed for debugging (since 'kill -HUP' on the 
-#		web server will clear the caches anyway), or when a cache flush is 
-#		needed for nodetypes.
-#
+This flushes the global cache by incrementing the entire global version table.
+In doing so, the version of the nodes that the various httpd's have cached will
+no longer match the global verison, which will cause nodes to get thrown out
+when they go to get used.  This will probably only be needed for debugging
+(since 'kill -HUP' on the web server will clear the caches anyway), or when a
+cache flush is needed for nodetypes.
+
+=cut
+
 sub flushCacheGlobal
 {
 	my ($this) = @_;
@@ -344,19 +368,18 @@ sub flushCacheGlobal
 	$this->{nodeBase}->sqlUpdate("version", { -version=>"version+1" });
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		dumpCache
-#
-#	Purpose
-#		Get a dump of all the nodes that are in the cache (primarily
-#		useful for debugging or system stats)
-#
-#	Returns
-#		A reference to an array that contains all of the nodes in the
-#		cache.  Useful for debugging.
-#
+=head2 C<dumpCache>
+
+Get a dump of all the nodes that are in the cache (primarily useful for
+debugging or system stats)
+
+Returns a reference to an array that contains all of the nodes in the cache.
+Useful for debugging.
+
+=cut
+
 sub dumpCache
 {
 	my ($this) = @_;
@@ -365,20 +388,20 @@ sub dumpCache
 	return $queue;
 }
 
-
 #############################################################################
 # "Private" module subroutines - users of this module should never call these
 #############################################################################
 
 
-#############################################################################
-#	Sub
-#		purgeCache
-#
-#	Purpose
-#		Remove nodes from cache until the size is under the max size.
-#		The nodes removed are the least used nodes in the cache.
-#
+=cut
+
+C<purgeCache>
+
+Remove nodes from cache until the size is under the max size.  The nodes
+removed are the least used nodes in the cache.
+
+=cut
+
 sub purgeCache
 {
 	my ($this) = @_;
@@ -408,20 +431,24 @@ sub purgeCache
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		removeNodeFromHash
-#
-#	Purpose
-#		Remove a node from the cache hash.
-#
-#	Parameters
-#		$NODE - the node to remove.
-#
-#	Returns
-#		The node data, if it was removed.  Undef otherwise.
-#
+C<removeNodeFromHash>
+
+Remove a node from the cache hash.
+
+=over 4
+
+=item * $NODE
+
+the node to remove.
+
+=back
+
+Returns the node data, if it was removed.  Undef otherwise.
+
+=cut
+
 sub removeNodeFromHash
 {
 	my ($this, $NODE) = @_;
@@ -443,21 +470,24 @@ sub removeNodeFromHash
 	return undef;
 }
 
+=cut
 
+C<getGlobalVersion>
 
-#############################################################################
-#	Sub
-#		getGlobalVersion
-#
-#	Purpose
-#		Get the version number of this node from the global version db table.
-#
-#	Parameters
-#		$NODE - the node for which we want the version number.
-#
-#	Returns
-#		The version number -- will be 1 if this added it to the table.
-#
+Get the version number of this node from the global version db table.
+
+=over 4
+
+=item * $NODE
+
+the node for which we want the version number.
+
+=back
+
+Returns the version number -- will be 1 if this added it to the table.
+
+=cut
+
 sub getGlobalVersion
 {
 	my ($this, $NODE) = @_;
@@ -477,21 +507,25 @@ sub getGlobalVersion
 	return $ver;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		isSameVersion
-#
-#	Purpose
-#		Check to see that this node has the same version number as the other
-#		httpd processes (that is, check the version db table).
-#
-#	Parameters
-#		$NODE - the node in question.
-#
-#	Returns
-#		1 if the version is the same, 0 if not.
-#
+C<isSameVersion>
+
+Check to see that this node has the same version number as the other httpd
+processes (that is, check the version db table).
+
+=over 4
+
+=item * $NODE
+
+the node in question.
+
+=back
+
+Returns 1 if the version is the same, 0 if not.
+
+=cut
+
 sub isSameVersion
 {
 	my ($this, $NODE) = @_;
@@ -511,19 +545,24 @@ sub isSameVersion
 	return 0;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		incrementGlobalVersion
-#
-#	Purpose
-#		This increments the version associated with the given node in
-#		the db table.  This is used to let the other processes know that
-#		a node has changed (different version).
-#
-#	Parameters
-#		$NODE - the node in which to increment the version for.
-#
+C<incrementGlobalVersion>
+
+This increments the version associated with the given node in the db table.
+This is used to let the other processes know that a node has changed (different
+version).
+
+=over 4
+
+=item * $NODE
+
+the node in which to increment the version for.
+
+=back
+
+=cut
+
 sub incrementGlobalVersion
 {
 	my ($this, $NODE) = @_;
@@ -542,20 +581,18 @@ sub incrementGlobalVersion
 	$this->{nodeBase}->sqlUpdate('typeversion', {-version => 'version+1'}, "typeversion_id=".$$NODE{type}{node_id}) if $this->{nodeBase}->sqlSelect("version", "typeversion", "typeversion_id=".$$NODE{type}{node_id});; 
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		resetCache
-#
-#	Purpose
-#		We only want to check the version a maximum of once per page load.
-#		The "verified" hash keeps track of what nodes we have checked the
-#		version of so far.  This should be called for each page load to
-#		clear this hash out.
-#
-#		This also handles typeVersions -- the table must be rebuilt each
-#		pageload, if 
-#
+C<resetCache>
+
+We only want to check the version a maximum of once per page load.  The
+"verified" hash keeps track of what nodes we have checked the version of so
+far.  This should be called for each page load to clear this hash out.
+
+This also handles typeVersions -- the table must be rebuilt each pageload, if 
+
+=cut
+
 sub resetCache
 {
 	my ($this) = @_;
@@ -614,25 +651,36 @@ sub resetCache
 	"";
 }
 
-#############################################################################
-#	Sub
-#		cacheMethod
-#
-#	Purpose
-#		We like being able to compile embedded code sections and cache them to
-#		save parsing/compiling time on future page displays.  This fiddles with
-#		the internals of the cache queue to associate anonymous sub refs with
-#		the associated node.  It's not completely beautiful, but it works with
-#		the present caching system.
-#
-#	Parameters
-#		$NODE - the node object containing the embedded code
-#		$field - the field of $NODE directly containing the embedded code
-#		$sub_ref - a reference to the compiled sub
-#
-#	Returns
-#		1 on success, 0 on failure ($NODE probably isn't cached)
-#
+=cut
+
+C<cacheMethod>
+
+We like being able to compile embedded code sections and cache them to save
+parsing/compiling time on future page displays.  This fiddles with the
+internals of the cache queue to associate anonymous sub refs with the
+associated node.  It's not completely beautiful, but it works with the present
+caching system.
+
+=over 4
+
+=item * $NODE
+
+the node object containing the embedded code
+
+=item * $field
+
+the field of $NODE directly containing the embedded code
+
+=item * $sub_ref
+
+a reference to the compiled sub
+
+=back
+
+Returns 1 on success, 0 on failure ($NODE probably isn't cached)
+
+=cut
+
 sub cacheMethod {
 	my ($this, $NODE, $field, $sub_ref) = @_;
 	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
