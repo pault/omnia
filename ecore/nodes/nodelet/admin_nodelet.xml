@@ -1,14 +1,14 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">0</lastupdate>
+	<lastupdate table="nodelet">944261338</lastupdate>
 	<nlcode table="nodelet">[{adminbar}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">display &lt;A HREF="/every2/index.pl?displaytype=edit&amp;node_id=1&amp;lastnode_id=1"&gt;edit&lt;/a&gt; 
+	<nltext table="nodelet">&lt;A HREF="/every2/index.pl?displaytype=display&amp;node_id=126&amp;lastnode_id=126"&gt;display&lt;/a&gt; edit 
 &lt;SCRIPT language="javascript"&gt;
        function confirmDelete(){
-          if(confirm("Delete 'nodetype'?")){
-		parent.location="/every2/index.pl?node_id=1&amp;op=nuke"; }
+          if(confirm("Delete 'core system'?")){
+		parent.location="/every2/index.pl?node_id=126&amp;op=nuke"; }
         }
        &lt;/SCRIPT&gt;
 
