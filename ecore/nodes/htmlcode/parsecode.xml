@@ -2,8 +2,7 @@
   <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"> 	my ($field, $nolinks) = @_;
-	my $text = $$NODE{$field};
-	$text = parseCode ($text);
+	my $text = parseCode ($field, $NODE);
 	$text =~ s/\[(.*?)\]/linkNodeTitle ($1, $NODE)/egs unless $nolinks;
 	$text;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
