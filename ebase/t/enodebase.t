@@ -11,7 +11,7 @@ BEGIN
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More tests => 222;
+use Test::More tests => 223;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -345,6 +345,17 @@ ok( ! loadNodetypeModule( $mock, 'Everything::Node::blah' ),
 	'... but false if it cannot' );
 
 can_ok( $package, 'getNode' );
+
+my (@ennew, $ennew);
+$mock->set_always( getNodeByIdNew => { title => 'node by id' })
+	 ->fake_new( Everything::Node => sub { push @ennew, [ @_ ]; $ennew } );
+$mock->clear();
+
+$ennew = { node_id => 11 };
+
+isnt( getNode( $mock, 0 ), undef,
+	'getNode() should return node zero given node_id of 0' );
+
 can_ok( $package, 'getNodeByName' );
 can_ok( $package, 'getNodeByIdNew' );
 can_ok( $package, 'constructNode' );
