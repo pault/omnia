@@ -885,13 +885,45 @@ sub updateNodelet
 
 
 #############################################################################
-sub genContainer {
+sub genContainer
+{
 	my ($CONTAINER) = @_;
 	getRef $CONTAINER;
 	my $replacetext;
 
 	$replacetext = parseCode ($$CONTAINER{context}, $CONTAINER);
 
+	# SECURITY!  Right now, only gods can see the containers.  When we get
+	# a full featured security model in place, this will change...
+	if(isGod($USER) && ($query->param('containers') eq "show"))
+	{
+		my $start = "";
+		my $middle = $replacetext;
+		my $end = "";
+		my $debugcontainer = getNode('show container', 'container');
+		
+		# If this container contains the body tag, we do not want to wrap
+		# the entire thing in the debugcontainer.  Rather, we want to wrap
+		# the contents inside the body tag.  If we don't do this, we end up
+		# wrapping the <head> and <body> in a table, which makes the page
+		# not display right.
+		if($replacetext =~ /<body/i)
+		{
+			$replacetext =~ /(.*<body.*>)(.*)(<\/body>.*)/i;
+			my $start = $1;
+			my $middle = $2;
+			my $end = $3;
+			
+		}
+
+		if($debugcontainer)
+		{
+			my $debugtext = parseCode($$debugcontainer{context}, $CONTAINER);
+			$debugtext =~ s/CONTAINED_STUFF/$middle/s;
+			$replacetext = $start . $debugtext . $end;
+		}
+	}
+	
 	if ($$CONTAINER{parent_container}) {
 		my $parenttext = genContainer($$CONTAINER{parent_container});	
 		$parenttext =~ s/CONTAINED_STUFF/$replacetext/s;
