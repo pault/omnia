@@ -38,34 +38,25 @@ use Everything::Node;
 #
 sub new
 {
-	my ($className, $db, $staticNodetypes) = @_;
-	my $this = {};
-	
-	my $class = ref($className) || $className;
-	bless($this, $class);
-	$staticNodetypes ||= 0;
+	my ($class, $db, $staticNodetypes) = @_;
 
-	# If we have not created a connection to the database for the
-	# one given, do so.
-		
-	# A connection to this database does not exist.  Create one.
-	my ($dbname, $user, $pass, $host) = split ":", $db;
-	$user ||= "root";
-	$pass ||= "";
-	$host ||= "localhost";
-	
-	$this->{dbh} = DBI->connect("DBI:mysql:$dbname:$host", $user, $pass);
-	
+	my ($dbname, $user, $pass, $host) = split /:/, $db;
+	$user ||= 'root';
+	$pass ||= '';
+	$host ||= 'localhost';
+
+	my $this = bless {}, $class;
+
 	$this->databaseConnect($dbname, $host, $user, $pass);
 
-	$this->{cache} = new Everything::NodeCache($this, 300);
-	$this->{dbname} = $dbname;
-	$this->{staticNodetypes} = $staticNodetypes;
+	$this->{cache}           = Everything::NodeCache->new($this, 300);
+	$this->{dbname}          = $dbname;
 	$this->{nodetypeModules} = $this->buildNodetypeModules();
+	$this->{staticNodetypes} = $staticNodetypes ? 1 : 0;
 
-	if($this->getType("setting"))
+	if ($this->getType('setting'))
 	{
-		my $CACHE = $this->getNode("cache settings", "setting");
+		my $CACHE = $this->getNode('cache settings', 'setting');
 		my $cacheSize = 300;
 
 		# Get the settings from the system
@@ -335,8 +326,8 @@ sub sqlSelect
 	my @result = $cursor->fetchrow();
 	$cursor->finish();
 	
+	return unless @result;
 	return $result[0] if @result == 1;
-	return if @result == 0;
 	return \@result;
 }
 
@@ -938,19 +929,14 @@ sub constructNode
 #
 sub getNodeWhere
 {
-	my ($this, $WHERE, $TYPE, $orderby, $limit, $offset, $refTotalRows) = @_;
-	my $NODE;
-	my $node;
-	my $nodeIdList;
+	my $this = shift;
+
 	my @nodelist;
 
-	$nodeIdList = $this->selectNodeWhere($WHERE, $TYPE, $orderby, $limit,
-		$offset, $refTotalRows);
-
-	foreach $node (@$nodeIdList)
+	foreach my $node (@{ $this->selectNodeWhere( @_ ) })
 	{
-		$NODE = $this->getNode($node);
-		push @nodelist, $NODE if($NODE);
+		my $NODE = $this->getNode($node);
+		push @nodelist, $NODE if $NODE;
 	}
 
 	return \@nodelist;
@@ -992,36 +978,26 @@ sub selectNodeWhere
 {
 	my ($this, $WHERE, $TYPE, $orderby, $limit, $offset, $refTotalRows,
 		$nodeTableOnly) = @_;
-	my $cursor;
-	my $select;
+
+	$TYPE = undef if defined $TYPE && $TYPE eq '';
+
+	# The caller wishes to know the total number of matches.
+	$$refTotalRows = $this->countNodeMatches( $WHERE, $TYPE ) if $refTotalRows;
+
+	my $cursor = $this->getNodeCursor( 'node_id', $WHERE, $TYPE, $orderby,
+		$limit, $offset, $nodeTableOnly );
+
+	return unless $cursor and $cursor->execute();
+
 	my @nodelist;
-	my $node_id;
-
-	$TYPE = undef if(defined $TYPE && $TYPE eq "");
-
-	if($refTotalRows)
+	while (my $node_id = $cursor->fetchrow())
 	{
-		# The caller wishes to know what the total number of matches are
-		# This will quickly count how many total (total being without
-		# the limit) matches we have.
-		$$refTotalRows = $this->countNodeMatches($WHERE, $TYPE);
+		push @nodelist, $node_id;
 	}
-	
-	$cursor = $this->getNodeCursor("*", $WHERE, $TYPE, $orderby, $limit,
-		$offset, $nodeTableOnly);
-	
-	if((defined $cursor) && ($cursor->execute()))
-	{
-		while ((($node_id) = $cursor->fetchrow)) 
-		{
-			push @nodelist, $node_id;
-		}
-		
-		$cursor->finish();
-	}
+
+	$cursor->finish();
 
 	return unless @nodelist;
-	
 	return \@nodelist;
 }
 
@@ -1139,13 +1115,13 @@ sub getNodeCursor
 sub countNodeMatches
 {
 	my ($this, $WHERE, $TYPE) = @_;
-	my $csr = $this->getNodeCursor("count(*)", $WHERE, $TYPE);
+	my $cursor  = $this->getNodeCursor( 'count(*)', $WHERE, $TYPE );
 	my $matches = 0;
 	
-	if($csr && $csr->execute())
+	if ($cursor && $cursor->execute())
 	{
-		($matches) = $csr->fetchrow();
-		$csr->finish();
+		($matches) = $cursor->fetchrow();
+		$cursor->finish();
 	}
 
 	return $matches;
@@ -1166,30 +1142,15 @@ sub countNodeMatches
 sub getType
 {
 	my ($this, $idOrName) = @_;
-	
-	my $ref = ref $idOrName;
-	if (UNIVERSAL::isa( $ref, 'Everything::Node' ))
-	{
-		# The thing they passed in is good to go.
-		return $idOrName;
-	}
-	
-	return if((not defined $idOrName) || ($idOrName eq ""));
 
-	my $NODE;
+	return unless defined $idOrName and $idOrName ne '';
 
-	if($idOrName =~ /\D/) # Does it contain non-digits?
-	{
-		# Note that we assume that 'nodetype' is id 1.  If this changes,
-		# this will break.
-		$NODE = $this->getNode($idOrName, 1);
-	}
-	elsif($idOrName > 0)
-	{
-		$NODE = $this->getNode($idOrName);
-	}
+	# The thing they passed in is good to go.
+	return $idOrName if UNIVERSAL::isa( $idOrName, 'Everything::Node' );
 
-	return $NODE;
+	return $this->getNode($idOrName, 1) if $idOrName =~ /\D/;
+	return $this->getNode($idOrName)    if $idOrName > 0;
+	return;
 }
 
 
@@ -1210,24 +1171,18 @@ sub getType
 sub getAllTypes
 {
 	my ($this) = @_;
-	my $sql;
-	my $cursor;
-	my @allTypes = ();
-	my $node_id;
-	my $TYPE;
-	
-	$cursor = $this->sqlSelectMany("node_id", "node", "type_nodetype=1");
 
-	if($cursor)
+	my $cursor = $this->sqlSelectMany('node_id', 'node', 'type_nodetype=1');
+	return unless $cursor;
+
+	my @allTypes;
+
+	while( my ($node_id) = $cursor->fetchrow() )
 	{
-		while( ($node_id) = $cursor->fetchrow() )
-		{
-			$TYPE = $this->getNode($node_id);
-			push @allTypes, $TYPE;
-		}
-		
-		$cursor->finish();
+		push @allTypes, $this->getNode($node_id);
 	}
+
+	$cursor->finish();
 
 	return @allTypes;
 }
@@ -1273,33 +1228,22 @@ sub dropNodeTable
 	my ($this, $table) = @_;
 	
 	# These are the tables that we don't want to drop.  Dropping one
-	# of these, could cause the entire system to break.  If you really
+	# of these could cause the entire system to break.  If you really
 	# want to drop one of these, do it from the command line.
-	my $nodrop = {
-		"container" => 1,
-		"document" => 1,
-		"htmlcode" => 1,
-		"htmlpage" => 1,
-		"image" => 1,
-		"links" => 1,
-		"maintenance" => 1,
-		"node" => 1,
-		"nodegroup" => 1,
-		"nodelet" => 1,
-		"nodetype" => 1,
-		"note" => 1,
-		"rating" => 1,
-		"user" => 1 };
+	my $nodrop = { map { $_ => 1 } qw(
+		container document htmlcode htmlpage image links maintenance node
+		nodegroup nodelet nodetype note rating user
+	)};
 
-	if(exists $$nodrop{$table})
+	if (exists $nodrop->{$table})
 	{
-		Everything::printLog("WARNING! Attempted to drop core table $table!");
+		Everything::logErrors( '', "Attempted to drop core table '$table'!" );
 		return 0;
 	}
 	
-	return 0 unless($this->tableExists($table));
+	return 0 unless $this->tableExists($table);
 
-	Everything::printLog("Dropping table $table");
+	Everything::printLog("Dropping table '$table'");
 	return $this->{dbh}->do("drop table " . $this->genTableName($table));
 }
 
@@ -1322,7 +1266,7 @@ sub quote
 {
 	my ($this, $str) = @_;
 
-	return ($this->{dbh}->quote($str));
+	return $this->{dbh}->quote($str);
 }
 
 
@@ -1492,17 +1436,16 @@ sub getNodetypeTables
 #
 sub getRef
 {
-	my $this = shift @_;
-	
-	for (my $i = 0; $i < @_; $i++)
-	{ 
-		unless (ref ($_[$i]))
-		{
-			$_[$i] = $this->getNode($_[$i]) if(defined $_[$i]);
-		}
+	my $this = shift;
+	local $_;
+
+	for (@_)
+	{
+		next if UNIVERSAL::isa( $_, 'Everything::Node' );
+		$_ = $this->getNode( $_ ) if defined $_;
 	}
-	
-	ref $_[0];
+
+	return $_[0];
 }
 
 
@@ -1525,16 +1468,8 @@ sub getId
 	my ($this, $node) = @_;
 
 	return unless $node;
-	if(ref $node)
-	{
-		return $$node{node_id};
-	}
-	elsif($node =~ /^-?\d+$/)
-	{
-		# If it is a number, just return it.
-		return $node;
-	}
-
+	return $node->{node_id} if UNIVERSAL::isa( $node, 'Everything::Node' );
+	return $node if $node =~ /^-?\d+$/;
 	return;
 }
 
@@ -1573,11 +1508,10 @@ sub hasPermission
 {
 	my ($this, $USER, $permission, $modes) = @_;
 	my $PERM = $this->getNode($permission, 'permission');
-	my $perms;
 
-	return 0 unless($PERM);
+	return 0 unless $PERM;
 
-	$perms = eval($$PERM{code});
+	my $perms = eval $PERM->{code};
 
 	return Everything::Security::checkPermissions($perms, $modes);
 }
