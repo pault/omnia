@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
+use vars qw( $AUTOLOAD );
 
 BEGIN {
 	chdir 't' if -d 't';
@@ -136,14 +137,17 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 
 # applyXMLFix()
 {
-	local (*Everything::XML::patchXMLwhere, *applyXMLFix);
+	local (*Everything::XML::patchXMLwhere, *Everything::logErrors);
 	my $patch;
 	*Everything::XML::patchXMLwhere = sub {
 		$patch = shift;
 		return { type_nodetype => 'nodetype' };
 	};
 
-	*applyXMLFix = \&Everything::Node::setting::applyXMLFix;
+	my @errors;
+	*Everything::logErrors = sub {
+		push @errors, join(' ', @_);
+	};
 
 	is( applyXMLFix($node, { fixBy => '' }), undef,
 		'applyXMLFix() should return undef unless called for a setting field' );
@@ -169,7 +173,7 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 		type_nodetype	=> 'type'
 	}, 1);
 
-	like( $out->read(), qr/Unable to find 'title'.+'type'.+field/s, 
+	like( $errors[0], qr/Unable to find 'title'.+'type'.+field/s, 
 		'... should print error if node is not found and printError is true' );
 
 	$node->{node_id} = 0;
@@ -196,3 +200,16 @@ is( Everything::Node::setting::updateFromImport($node, $node), 10,
 is( $node->{_calls}[-2][0], 'setVars', '... and should call setVars()' );
 is( join('', @$node{'a', 'b'}), '12', '... and merge keys from new node' );
 
+sub AUTOLOAD {
+    return if $AUTOLOAD =~ /DESTROY$/;
+
+	no strict 'refs';
+	$AUTOLOAD =~ s/^main:://;
+
+	my $sub = "Everything::Node::setting::$AUTOLOAD";
+
+	if (defined &{ $sub }) {
+		*{ $AUTOLOAD } = \&{ $sub };
+		goto &{ $sub };
+	}
+}

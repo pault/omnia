@@ -8,11 +8,11 @@ BEGIN {
 	@INC{'Everything.pm', 'Everything/XML.pm', 'XML/DOM.pm'} = (1, 1, 1);
 }
 
-use vars qw( $AUTOLOAD );
+use vars qw( $AUTOLOAD $errors );
 
 use TieOut;
 use FakeNode;
-use Test::More tests => 136;
+use Test::More tests => 137;
 
 use_ok( 'Everything::Node::nodegroup' );
 
@@ -109,8 +109,6 @@ $node->{DB} = $node->{dbh} = $node;
 $node->{node_id} = 411;
 $node->{_calls} = [];
 
-my $out = tie *STDERR, 'TieOut';
-
 ok( updateGroup($node, 'user'), '... should succeed otherwise' );
 is( join(' ', @{ $node->{_calls}[1] }), "restrict_type $node->{group}",
 	'... should restrict group members' );
@@ -122,7 +120,7 @@ my %group;
 @group{ @$node{group} } = ();
 ok( ! (exists $group{6} and exists $group{10} ),
 	'... should delete nodes that do not exist in new group' );
-like( $out->read(), qr/Wrong number of group members deleted!/,
+like( $errors, qr/Wrong number of group members deleted!/,
 	'... and should warn if deleting the wrong number of nodes' );
 is( join(' ', @{ $node->{_calls}[4] }), 
 	'sqlSelect MAX(rank) gtable gtable_id=411',
@@ -448,8 +446,6 @@ is( $result, 14, '... returning its results' );
 		orderby => 1, 
 	};
 
-	$$out = '';
-
 	$result = applyXMLFix( $node, $fix );
 	ok( $pxw, '... should call patchXMLwhere() to get the right node data' );
 	like( join(' ', @{ $node->{_calls}[-1] }), qr/getNode HASH.+type/,
@@ -458,11 +454,12 @@ is( $result, 14, '... returning its results' );
 		'... should replace dummy node with fixed node if it worked' );
 	
 	$result = applyXMLFix( $node, $fix, 1);
-	like( $out->read(), qr/Unable to find 'title' of type/,
+	like( $errors, qr/Unable to find 'title' of type/,
 		'... should warn about missing node if error flag is set' );
 
+	$errors = '';
 	$result = applyXMLFix( $node, $fix );
-	is( $out->read(), '', '... but should not warn without flag' );
+	is( $errors, '', '... but should not warn without flag' );
 
 	isa_ok( $result, 'HASH', '... should return fixup data if it failed' );
 }
@@ -545,7 +542,12 @@ $node->{modified} = 7;
 $node->{group} = [ 1, 4, 6, 8 ];
 $node->{_subs}{SUPER} = [ 11 ];
 
-is( conflictsWith($node, { group => [ 1, 4, 6, 9 ] }), 1,
+my $group = { group => [ 1, 4, 6 ] };
+is( conflictsWith($node, $group ), 1,
+	'... should return true if groups are different sizes' );
+
+push @{ $group->{group} }, 9;
+is( conflictsWith($node, $group ), 1,
 	'... should return true if a node conflicts between the two nodes' );
 
 $result = conflictsWith( $node, $node );
@@ -564,4 +566,10 @@ sub AUTOLOAD {
 		*{ $AUTOLOAD } = \&{ $sub };
 		goto &{ $sub };
 	}
+}
+
+package Everything;
+
+sub logErrors {
+	$main::errors = join(' ', @_);
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use vars qw( $AUTOLOAD );
+use vars qw( $AUTOLOAD $errors );
 
 BEGIN {
 	chdir 't' if -d 't';
@@ -10,7 +10,7 @@ BEGIN {
 
 use TieOut;
 use FakeNode;
-use Test::More tests => 188;
+use Test::More tests => 198;
 
 my $node = FakeNode->new();
 
@@ -48,14 +48,21 @@ ok( destruct(), 'destruct() should return true' );
 $node->{node_id} = 5;
 $node->{_subs} = {
 	getId => [ 4 .. 7 ],
-	hasAccess => [ 0, 1, 1, 1 ],
+	hasAccess => [ 0, 1, 1, 1, 1 ],
 	sqlSelect => [ 1, 0, 1, 1 ],
+	restrictTitle => [0, 1, 1, 1, 1 ],
 };
 is( insert($node, $node), 0, 
 	'insert() should return 0 if user lacks create access' );
 is( join(' ', @{ $node->{_calls}[-1] }), "hasAccess $node c",
 	'... so should check for create access' );
-is( $node->{_calls}[-2][0], 'getId', 
+
+is( insert($node, $node), 0,
+	'... should return 0 if title is restricted' );
+is( $node->{_calls}[-1][0], 'restrictTitle',
+	'... so should check for restriction' );
+
+is( $node->{_calls}[-3][0], 'getId', 
 	'... and should get node_id of inserting user' );
 is( insert($node, $node), 5, 
 	'... and should return it if it has already been inserted' );
@@ -353,6 +360,10 @@ ok( ! hasVars(), 'hasVars() should return false' );
 	is( scalar @gbt, 1, '... and should call genBasicTag()' );
 	is( join(' ', @{ $gbt[0] }), "$node field afield thisfield", 
 		'... with the correct arguments' );
+	
+	ok( ! fieldToXML($node, $node, 'notafield'),
+		'... and should return false if field does not exist' );
+	ok( ! exists $node->{notafield}, '... and should not create field' );
 }
 
 # xmlTag()
@@ -364,13 +375,10 @@ $node->{_subs} = {
 $node->{title} = 'thistype';
 my $out;
 {
-	local *STDOUT;
-	$out = tie *STDOUT, 'TieOut';
 	$result = xmlTag($node, $node);
 	is( $node->{_calls}[0][0], 'getTagName', 'xmlTag() should fetch tag name' );
 	ok( ! $result, '... and should return false unless it contains "field"' );
-	like( $out->read(), qr/Error.+tag 'badtag'.+thistype/, 
-		'... logging an error' );
+	like( $errors, qr/^|Err.+tag 'badtag'.+'thistype'/, '... logging an error');
 
 	local *Everything::XML::parseBasicTag;
 	my @pbt;
@@ -412,9 +420,6 @@ is( $result, $node->{node_id}, '... returning the new node_id' );
 
 # applyXMLFix()
 {
-	local *STDOUT;
-	$out = tie *STDOUT, 'TieOut';
-
 	my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
 	my $fix = { where => $where, field => 'fixme' };
 
@@ -424,7 +429,7 @@ is( $result, $node->{node_id}, '... returning the new node_id' );
 	$fix->{fixBy} = 'fixme';
 	is( applyXMLFix($node, $fix, 1), $fix,
 		'... or if the field is not set to "node"' );
-	like( $out->read(), qr/Error!.+handle fix by 'fixme'/, 
+	like( $errors, qr/^|Error!.+handle fix by 'fixme'/, 
 		'... and should log error if flag is set' );
 	
 	$fix->{fixBy} = 'node';
@@ -439,15 +444,17 @@ is( $result, $node->{node_id}, '... returning the new node_id' );
 	$node->{_subs} = {
 		getNode => [ 0, 0, { node_id => 42 } ],
 	};
-
+	
+	$errors = '';
 	$result = applyXMLFix($node, $fix);
 	is( $pxw[0][0], $where, '... should try to resolve node' );
 	is( join(' ', @{ $node->{_calls}[-1] }), "getNode $where type",
 		'... should fetch resolved node' );
 	is( $result, $fix, '... returning the fix if that did not work' );
-	is( $out->read(), '', '... returning no error without flag' );
+	is( $errors, '', '... returning no error without flag' );
+
 	$result = applyXMLFix($node, $fix, 1);
-	like( $out->read(), qr/Error.+find 'title' of type 'type'.+field b/,
+	like( $errors, qr/^|Error.+find 'title' of type 'type'.+field b/,
 		'... and logging an error if flag is set' );
 
 	$result = applyXMLFix($node, $fix);
@@ -545,7 +552,7 @@ $node->{DB} = $node;
 $node->{workspace}{node_id} = 7;
 $node->{_calls} = [];
 $node->{_subs} = {
-	sqlSelectHashref => [ 0, { xml => 'xml' } ],
+	sqlSelect => [ 0, 'xml' ],
 };
 
 is( getRevision($node, ''), 0, 
@@ -554,10 +561,10 @@ is( getRevision($node, ''), 0,
 $result = getRevision($node, 0);
 
 $call = join(' ', @{ $node->{_calls}[0] }); 
-like( $call, qr/^sqlSelectHashref/, 
+like( $call, qr/^sqlSelect/, 
 	'... should fetch for revision from database' );
 
-like( $call, qr/\* revision node_id=.+revision_id=.+inside_workspace=7/, 
+like( $call, qr/xml revision node_id=.+revision_id=.+inside_workspace=7/, 
 	'... should use workspace id, if it exists' );
 is( $result, 0, '... should return 0 if fetch fails' );
 
@@ -577,7 +584,7 @@ delete $node->{workspace};
 	$result = getRevision($node, 1);
 
 	like( join(' ', @{ $node->{_calls}[1] }), 
-		qr/\* revision node_id=.+revision_id=.+inside_workspace=0/, 
+		qr/xml revision node_id=.+revision_id=.+inside_workspace=0/, 
 		'... should use 0, with no workspace' );
 	is( join(' ', @{ $x2n[0] }), 'xml noupdate', '... should xml-ify revision');
 
@@ -643,7 +650,6 @@ is( $node->{_calls}[2][0], 'toXML',
 	'... and should XMLify node for workspace' );
 
 # undo()
-# 23
 $node->{workspace} = $node;
 $node->{_subs} = {
 	hasAccess => [ 0, (1) x 7 ],
@@ -705,7 +711,7 @@ $node->{_subs} = {
 
 $result = undo($node, 'user', 0, 0);
 like( join(' ', @{ $node->{_calls}[1] }), 
-	qr/sqlSelectHashref.+_id=13.+BY rev.+DESC/,
+	qr/sqlSelectHashref xml, revision_id .+_id=13.+BY rev.+DESC/,
 	'... if not in workspace, should fetch revision for node' );
 ok( ! $result, '... should return false unless found' );
 
@@ -805,6 +811,21 @@ is( join(' ', @{ $node->{_calls}[4] }), "removeNode $node",
 	'... should remove node from cache' );
 is( $result, 41, '... and should return node_id' );
 
+# restrictTitle()
+ok( ! restrictTitle({ foo => 1 }),
+    'restrictTitle() with no title field should return false' );
+
+ok( ! restrictTitle({ title => '[foo]' }),
+    '... or if title contains a square bracket' );
+
+ok( ! restrictTitle({ title => 'f>o<o' }), '... or an angle bracket' );
+
+ok( ! restrictTitle({ title => 'o|o' }), '... or a pipe' );
+like( $errors, qr/node.+invalid characters/, '... and should log error' );
+
+ok( restrictTitle({ title => 'a good name zz9' }), 
+	'... but should return true otherwise' );
+
 sub AUTOLOAD {
     return if $AUTOLOAD =~ /DESTROY$/;
 
@@ -817,4 +838,10 @@ sub AUTOLOAD {
 		*{ $AUTOLOAD } = \&{ $sub };
 		goto &{ $sub };
 	}
+}
+
+package Everything;
+
+sub logErrors {
+	$main::errors = join('|', @_);
 }

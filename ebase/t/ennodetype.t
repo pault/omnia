@@ -10,7 +10,7 @@ BEGIN {
 }
 
 use FakeNode;
-use Test::More tests => 45;
+use Test::More tests => 47;
 
 use_ok( 'Everything::Node::nodetype' );
 
@@ -143,6 +143,10 @@ is( getTableArray($node, 1)->[-1], 'node',
 is( getDefaultTypePermissions($node, 'author'),
 	$node->{derived_defaultauthoraccess},
 	'getDefaultTypePermissions() should return derived permissions for class' );
+ok( ! getDefaultTypePermissions($node, 'fakefield'),
+	'... should return false if field does not exist' );
+ok( ! exists $node->{derived_defaultfakefieldaccess},
+	'... and should not autovivify bad field' );
 
 # getParentType()
 $node->{_subs}{getType} = [ 88 ];
