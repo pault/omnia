@@ -1,28 +1,22 @@
+=head1 Everything::Node::usergroup
+
+Package that implements the base functionality for usergroup 
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
 package Everything::Node::usergroup;
-
-#############################################################################
-#   Everything::Node::usergroup
-#       Package the implements the base functionality for usergroup 
-#
-#   Copyright 2000 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 
-
-sub conflictsWith {
-	0;
-}
+sub conflictsWith { 0 }
 	
-sub updateFromImport {
-	#usergroups are considered part of permissions, and therefore cannot
-	#be updated from a nodeball
-	0;
-}
-
+# usergroups are considered part of permissions, and therefore cannot be
+# updated from a nodeball
+sub updateFromImport { 0 }
 
 #############################################################################
 # End of package

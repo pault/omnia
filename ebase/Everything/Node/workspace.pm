@@ -1,14 +1,14 @@
+=head1 Everything::Node::workspace
+
+Package that implements the base functionality for workspaces 
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
 package Everything::Node::workspace;
-
-#############################################################################
-#   Everything::Node::workspace
-#       Package the implements the base functionality for workspaces 
-#
-#   Copyright 2000 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 

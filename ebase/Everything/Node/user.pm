@@ -1,27 +1,26 @@
+=head1 Everything::Node::user
+
+Package that implements the base node functionality
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
 package Everything::Node::user;
-
-#############################################################################
-#   Everything::Node::user
-#       Package the implements the base node functionality
-#
-#   Copyright 2000 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 use Everything;
 
+=cut
 
+=head2 C<insert>
 
-#############################################################################
-#	Sub
-#		insert
-#
-#	Purpose
-#		We want all users to default to be owned by themselves.
-#
+We want all users to default to be owned by themselves.
+
+=cut
+
 sub insert
 {
 	my ($this, $USER) = @_;
@@ -36,24 +35,27 @@ sub insert
 	return $id;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		isGod
-#
-#	Purpose
-#		Checks to see if the given user is a god (in the gods group).
-#
-#	Parameters
-#		$recurse - for speed purposes, this assumes that the gods group
-#			is flat (it does not contain any other nodegroups that it would
-#			need to traverse).  However, if the gods group does contain
-#			nested groups, you can pass true here to check everything.
-#			Note that turning this on is significantly slower.
-#
-#	Returns
-#		True if the given user is a "god".  False otherwise.
-#
+=head2 C<isGod>
+
+Checks to see if the given user is a god (in the gods group).
+
+=over 4
+
+=item * $recurse
+
+for speed purposes, this assumes that the gods group is flat (it does not
+contain any other nodegroups that it would need to traverse).  However, if the
+gods group does contain nested groups, you can pass true here to check
+everything.  Note that turning this on is significantly slower.
+
+=back
+
+Returns true if the given user is a "god".  False otherwise.
+
+=cut
+
 sub isGod
 {
 	my ($this, $recurse) = @_;
@@ -65,19 +67,18 @@ sub isGod
 	return $GODS->inGroupFast($this);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		isGuest
-#
-#	Purpose
-#		Checks to see if the given user is the guest user.  Certain
-#		system nodes need to exist for this check, if they do not,
-#		this will default to true for security purposes.
-#
-#	Returns
-#		True if the user is the guest user.  False if the user is not.
-#
+=head2 C<isGuest>
+
+Checks to see if the given user is the guest user.  Certain system nodes need
+to exist for this check, if they do not, this will default to true for security
+purposes.
+
+Returns true if the user is the guest user, false otherwise.
+
+=cut
+
 sub isGuest
 {
 	my ($this) = @_;
@@ -101,14 +102,14 @@ sub getNodeKeys
 	return $keys;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		verifyFieldUpdate
-#
-#	Purpose
-#		See Everything::Node::node::verifyFieldUpdate() for info.
-#
+=head2 C<verifyFieldUpdate>
+
+See Everything::Node::node::verifyFieldUpdate() for info.
+
+=cut
+
 sub verifyFieldUpdate
 {
 	my ($this, $field) = @_;
@@ -133,14 +134,17 @@ sub updateFromImport { 0 }
 
 =head2 C<restrictTitle>
 
-Purpose:
-	Prevent invalid characters in usernames (and optional near-duplicates)
+Prevent invalid characters in usernames (and optional near-duplicates)
 
-Takes:
-	$node, the node containing a C<title> field to check
+=over 4
 
-Returns:
-	true, if the title is allowable, false otherwise
+=item * $node
+
+the node containing a C<title> field to check
+
+=back
+
+Returns true, if the title is allowable, false otherwise.
 
 =cut
 
@@ -152,19 +156,21 @@ sub restrictTitle
 	return $title =~ tr/-<> !a-zA-Z0-9_//c ? 0 : 1;
 }
 
-
 =cut
 
 =head2 C<getNodelets>
 
-Purpose:
-	Get the nodelets for the user, using the defaults if necessary.
+Get the nodelets for the user, using the defaults if necessary.
 
-Takes:
-	$defaultGroup, the default nodelet group to use
+=over 4
 
-Returns:
-	a reference to a list of nodelets to display
+=item * $defaultGroup
+
+the default nodelet group to use
+
+=back
+
+Returns a reference to a list of nodelets to display.
 
 =cut
 
