@@ -31,25 +31,17 @@ use strict;
 sub inheritPermissions
 {
 	my ($child, $parent) = @_;
-	my @childperms = split '', $child;
-	my @parentperms = split '', $parent;
-    my @perms;
-	
-	foreach my $i (0..@parentperms-1)
-	{
-		if($childperms[$i] eq "i")
-		{
-			# We inherit the parent's setting.
-			push @perms, $parentperms[$i]
-		}
-		else
-		{
-			# use the child setting.
-			push @perms, $childperms[$i];
-		}
+
+	unless (length $child == length $parent) {
+		warn "Permission length mismatch!";
+		return;
 	}
 
-	return (join('', @perms));
+	my $pos;
+	while (($pos = index($child, 'i')) > -1) {
+		substr($child, $pos, 1, substr($parent, $pos, 1));
+	}
+	return $child;
 }
 
 
@@ -76,19 +68,12 @@ sub checkPermissions
 	
 	# if no modes are passed in, we have nothing to check against.  For
 	# security purposes, we will return false.  We need something to check!
-	return 0 if($modes eq "");
+	return 0 unless (defined $modes and $modes);
 	
-	# We remove any allowed permissions from the given modes.  We need to do
-	# this dymanically (evaled) because tr/// does not interpret variables.
-	# So, we need to create some code on the fly.
-	my $dynamic = "\$modes =~ tr/$perms//d;";
-	
-	eval($dynamic);
+	# We remove any allowed permissions from the given modes.
+	$modes =~ s/[$perms]//g;
 
-	# If our string is empty, the user has all the needed permissions.
-	return 1 if($modes eq "");
-
-	return 0;
+	return $modes ? 0 : 1;
 }
 
 
