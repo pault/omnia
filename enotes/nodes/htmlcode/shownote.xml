@@ -1,6 +1,6 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<code table="htmlcode">my @notes = getNodeWhere ({'parent_node' =&gt; getId ($NODE)}, $NODETYPES{note});
+	<code table="htmlcode">my @notes = $DB-&gt;getNodeWhere ({'parent_node' =&gt; getId ($NODE)}, $DB-&gt;getType("note"));
 
 my $str = "&lt;font size=2&gt;";
 foreach my $NOTE (@notes) {

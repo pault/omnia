@@ -5,11 +5,11 @@
 	<package table="node">0</package>
 	<page table="htmlpage">[% if ($query-&gt;param("op") eq "new") {
 	$$NODE{parent_node} = $query-&gt;param("lastnode_id");
-	updateNode $NODE, $USER;
+	i$DB-&gt;updateNode($NODE, $USER);
 	
 }
   if ($$NODE{parent_node}) {
-	my $PARENT = selectNode ($$NODE{parent_node});
+	my $PARENT = $DB-&gt;selectNode($$NODE{parent_node});
 	return "&lt;font size=2&gt;&lt;p align=right&gt;in reply to " . linkNode ($PARENT) ."&lt;/font&gt;&lt;br&gt;&lt;p&gt;";
 }
 %]
