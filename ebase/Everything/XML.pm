@@ -5,8 +5,6 @@ package Everything::XML;
 #        Everything::XML.pm
 #                A module for the XML stuff in Everything
 #
-#	(C) 1999 Everything Development Company
-#
 ############################################################
 
 use strict;
@@ -449,9 +447,9 @@ sub makeXmlSafe {
 	my ($str) = @_;
 
 	#we use an HTML convention...  
-	$str =~ s/\&/\&amp\;/g;
-	$str =~ s/\</\&lt\;/g;
-	$str =~ s/\>/\&gt\;/g;
+	$str =~ tr/\&/\&amp\;/;
+	$str =~ tr/\</\&lt\;/;
+	$str =~ tr/\>/\&gt\;/;
 
 	$str;
 }
@@ -468,9 +466,9 @@ sub makeXmlSafe {
 sub unMakeXmlSafe {
 	my ($str) = @_;
 
-	$str =~ s/\&amp\;/\&/g;
-	$str =~ s/\&lt\;/\</g;
-	$str =~ s/\&gt\;/\>/g;
+	$str =~ tr/\&amp\;/\&/;
+	$str =~ tr/\&lt\;/\</;
+	$str =~ tr/\&gt\;/\>/;
 	$str;
 }
 

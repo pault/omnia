@@ -138,15 +138,15 @@ sub encodeHTML
 
 	# Note that '&amp;' must be done first.  Otherwise, it would convert
 	# the '&' of the other encodings.
-	$html =~ s/\&/\&amp\;/g;
-	$html =~ s/\</\&lt\;/g;
-	$html =~ s/\>/\&gt\;/g;
-	$html =~ s/\"/\&quot\;/g;
+	$html =~ tr/\&/\&amp\;/;
+	$html =~ tr/\</\&lt\;/;
+	$html =~ tr/\>/\&gt\;/;
+	$html =~ tr/\"/\&quot\;/;
 
 	if($adv)
 	{
-		$html =~ s/\[/\&\#91\;/g;
-		$html =~ s/\]/\&\#93\;/g;
+		$html =~ tr/\[/\&\#91\;/;
+		$html =~ tr/\]/\&\#93\;/;
 	}
 
 	return $html;
@@ -175,15 +175,15 @@ sub decodeHTML
 {
 	my ($html, $adv) = @_;
 
-	$html =~ s/\&amp\;/\&/g;
-	$html =~ s/\&lt\;/\</g;
-	$html =~ s/\&gt\;/\>/g;
-	$html =~ s/\&quot\;/\"/g;
+	$html =~ tr/\&amp\;/\&/;
+	$html =~ tr/\&lt\;/\</;
+	$html =~ tr/\&gt\;/\>/;
+	$html =~ tr/\&quot\;/\"/;
 
 	if($adv)
 	{
-		$html =~ s/\&\#91\;/\[/g;
-		$html =~ s/\&\#93\;/\]/g;
+		$html =~ tr/\&\#91\;/\[/;
+		$html =~ tr/\&\#93\;/\]/;
 	}
 
 	return $html;
@@ -361,7 +361,7 @@ sub urlGen {
 	}
 	chop $str;
 	$str .= '"' unless $noquotes;
-	$str
+	$str;
 }
 
 
@@ -853,9 +853,7 @@ sub updateNodelet
 	my ($NODELET) = @_;
 	my $interval;
 	my $lastupdate;
-	my $currTime = `date +%s`;
-	#this should be re-written to use internal perl functions
-	#sometimes it fails
+	my $currTime = time; 
 
 	getRef $NODELET;
 
@@ -1294,14 +1292,14 @@ sub handleUserRequest
 		$nodename =~ s/^\s*|\s*$//g;
 		$nodename =~ s/\s+/ /g;
 		$nodename ="" if $nodename=~/^\W$/;
-		$nodename = substr ($nodename, 0, 80);
+		#$nodename = substr ($nodename, 0, 80);
 		$query->param("node", $nodename);
 		
 		if ($query->param('op') ne 'new')
 		{
 			nodeName ($nodename, $user_id, $type); 
 		}
-		elsif (canCreateNode($user_id, $TYPE))
+		elsif (canCreateNode($user_id, $DB->getType($type)))
 		{
 			$node_id = insertNode($nodename,$TYPE, $user_id);
 
@@ -1372,6 +1370,14 @@ sub mod_perlInit
 
 	# Do the work.
 	handleUserRequest();
+	if ($$USER{title} eq 'root') {
+		open (BONESLOG, ">> /home/oostendo/boneslog/bones.log");
+		my $log = localtime(time)
+		 ."\t$$USER{title}\t$$GNODE{title} ($$GNODE{type}{title})\n";
+		print BONESLOG $log;
+		close BONESLOG;
+	}
+
 }
 
 

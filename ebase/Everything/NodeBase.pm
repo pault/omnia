@@ -781,12 +781,6 @@ sub updateNode
 	$this->getRef($NODE);
 	return 0 unless ($this->canUpdateNode($USER, $NODE)); 
 
-	# This node has just been updated.  Do any maintenance if needed.
-	# NOTE!  This is turned off for now since nothing uses it currently.
-	# (helps performance).  If you need to do some special updating for
-	# a particualr nodetype, uncomment this line.
-	$this->nodeMaintenance($NODE, 'update');
-	
 	$tableArray = $$NODE{type}{tableArray};
 
 	# Cache this node since it has been updated.  This way the cached
@@ -822,6 +816,11 @@ sub updateNode
 	# We are done with tableArray.  Remove the "node" table that we put on
 	pop @$tableArray;
 
+	# This node has just been updated.  Do any maintenance if needed.
+	# NOTE!  This is turned off for now since nothing uses it currently.
+	# (helps performance).  If you need to do some special updating for
+	# a particualr nodetype, uncomment this line.
+	#$this->nodeMaintenance($NODE, 'update');
 
 	return 1;
 }
@@ -1720,12 +1719,11 @@ sub getMaintenanceCode
 	my %WHEREHASH;
 	my $TYPE;
 	my $done = 0;
-	my $MAINTENANCE = $this->getType("maintenance");
-	
+
 	# If the maintenance nodetype has not been loaded, don't try to do
-	# anything (the only time this should happen is when we are
+	# any thing (the only time this should happen is when we are
 	# importing everything from scratch).
-	return 0 unless((defined $MAINTENANCE) && ($$MAINTENANCE{sqltable} ne "")); 
+	return 0 if(not defined $this->getType("maintenance")); 
 
 	$this->getRef($NODE);
 	$TYPE = $this->getType($$NODE{type_nodetype});
@@ -1740,7 +1738,7 @@ sub getMaintenanceCode
 			maintain_nodetype => $$TYPE{node_id}, maintaintype => $op);
 		
 		$maintain = $this->selectNodeWhere(\%WHEREHASH, 
-			$MAINTENANCE);
+			$this->getType("maintenance"));
 
 		if(not defined $maintain)
 		{

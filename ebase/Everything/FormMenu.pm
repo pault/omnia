@@ -34,6 +34,7 @@ my @VALUES;
 #	Purpose
 #		This gets called when somebody creates a new instance of this
 #		object.  We init our stuff here.
+#		inheiritence added by chromatic?
 #
 #	Parameters
 #		None
@@ -43,8 +44,9 @@ my @VALUES;
 #
 sub new
 {
+	my $class = shift;
 	my $this = {};
-	bless $this;
+	bless ($this, $class);
 	return $this;
 }
 
@@ -241,18 +243,14 @@ sub writeScrollingListHTML
 #
 #	Purpose
 #		Internal helper function to make an array of the values for the menu.
-#
+# 	changed by chromatic on 30 December 1999, more efficient
+
 sub assignValues
 {
 	my ($this) = @_;
-	my $key;
 	
 	undef @VALUES; # clear them out
-
-	foreach $key (keys %$this)
-	{
-		push @VALUES, $key;
-	}
+	@VALUES = keys %$this;
 }
 
 #############################################################################

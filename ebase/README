@@ -5,6 +5,20 @@ directory and creates the basic database needed to "boot-strap" the
 system.  Once the base is installed, you will need to install the
 ecore nodeball.
 
+Requirements:
+
+here's whats required for Everything to work:
+
+Perl (5.005)
+Apache (1.3.6) with mod_perl module 
+	(note-- you'll probably have to edit your http.conf) 
+Mysql (3.22.27)
+	(note-- all scripts currently run as root, with no password.  This is /not/ recommended
+	 if you are doing a live site.  You'll have to hard-code it, for now)
+
+Currently the version numbers are what I'm running on my devel server.  Older versions might work,
+but newer versions probably work better.  For more information about system requirements, check out
+the REDHAT_SETUP and/or DEBIAN_SETUP files.
 
 Nodeballs
 
@@ -79,9 +93,6 @@ Note that executing 'make realclean' will remove everything.  This
 includes the perl modules and the associated database.  After this
 is executed the Everything system will not exist.  Don't execute it
 unless you really mean it.  I'm serious.
-
-
-
 
 Other Information
 

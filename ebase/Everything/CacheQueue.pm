@@ -43,12 +43,14 @@ sub BEGIN
 #
 #	Returns
 #		The newly constructed module object
+# constructor improved to allow inheritance -- chromatic, 30 December 1999
 #
 sub new
 {
+	my $class = shift;
 	my $this = {};
 	
-	bless $this;
+	bless ($this, $class);
 	
 	$this->{queueHead} = $this->createQueueData("HEAD");
 	$this->{queueTail} = $this->createQueueData("TAIL");
