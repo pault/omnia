@@ -17,14 +17,13 @@ use strict;
 use DBI;
 use Everything::NodeBase;
 
-
-use vars qw($DB);
+use vars qw($DB $VERSION);
 
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
 
 # Used by Makefile.PL to determine the version of the install.
-my $VERSION = 0.8;
+$VERSION = 'pre-1.0';
 
 # Arrays for error caching
 use vars qw(@fsErrors);
@@ -211,8 +210,8 @@ sub clearLog
 #
 sub getParamArray
 {
-	my $names = shift @_;
-	my ($first) = @_;
+	my $names = shift;
+	my $first = $_[0];
 
 	if($first =~ /^-/)
 	{
@@ -220,15 +219,7 @@ sub getParamArray
 		# @_ is a hash/value pair.  We need to convert this into an
 		# array based on the order specified.
 		my %hash = @_;
-		my @names = split('\s*,\s*', $names);
-		my @params;
-
-		foreach (@names)
-		{
-			push @params, $hash{'-'.$_};
-		}
-
-		return @params;
+		return @hash{ map { "-$_" } split(/\s*,\s*/, $names) };
 	}
 	else
 	{
@@ -462,7 +453,7 @@ sub searchNodeName
 	my ($searchWords, $TYPE) = @_;
 	my $typestr = '';
 
-	$TYPE=[$TYPE] if (ref($TYPE) ne "ARRAY");
+	$TYPE = [$TYPE] if defined $TYPE and $TYPE and ref($TYPE) eq "SCALAR";
 
 	if(ref($TYPE) eq 'ARRAY' and @$TYPE)
 	{
@@ -473,7 +464,7 @@ sub searchNodeName
 			$typestr .= " OR type_nodetype = ". getId($_);
 		}
 		
-		$typestr.=')';
+		$typestr .= ')';
 	}
 
 	my @prewords = split ' ', $searchWords;
@@ -498,7 +489,6 @@ sub searchNodeName
 		$word = "(lower(title) rlike " .
 			$DB->getDatabaseHandle()->quote($word) . ")";
 	}
-
 
 	$match = '('. join(' + ',@words).')';
 	my $cursor = $DB->sqlSelectMany("*, $match AS matchval",
@@ -526,20 +516,12 @@ sub searchNodeName
 #
 sub dumpCallStack
 {
-	my @callStack;
-	my $func;
-	
-	@callStack = getCallStack();
-	
-	# Pop this function off the stack.  We don't need to see "dumpCallStack"
-	# in the stack output.
-	pop @callStack;
-	
 	print "*** Start Call Stack ***\n";
-	while($func = pop @callStack)
-	{
-		print "$func\n";
-	}
+
+	# remove this call frame, print in order of calling
+	my @callStack = getCallStack();
+	print "$_\n" for @callStack[reverse (0 .. $#callStack - 1)];
+
 	print "*** End Call Stack ***\n";
 }
 
@@ -549,7 +531,9 @@ sub getCallStack
 {
 	my ($package, $file, $line, $subname, $hashargs);
 	my @callStack;
-	my $i = 0;
+
+	# ignore this frame -- we don't need to see "getCallStack" in the stack.
+	my $i = 1;
 	
 	while(($package, $file, $line, $subname, $hashargs) = caller($i++))
 	{
@@ -557,10 +541,6 @@ sub getCallStack
 		# desired order.
 		unshift @callStack, "$file:$line:$subname";
 	}
-
-	# Get rid of this function.  We don't need to see "getCallStack" in
-	# the stack.
-	pop @callStack;
 
 	return @callStack;
 }
@@ -573,13 +553,8 @@ sub logCallStack
 	my $func;
 	my $str = "Call Stack:\n";
 	
-	pop @callStack;
-
-	while($func = pop @callStack)
-	{
-		$str .= $func . "\n";
-	}
-
+	# report stack in reverse order, skipping current frame 
+	$str .= "$_\n" for (@callStack[reverse(1 .. $#callStack)]);
 	printLog($str);
 }
 
