@@ -45,6 +45,7 @@ sub BEGIN
 		confirmYN
 		exportTables
 		buildSqlCmdline
+		printSettings
 		);
 }
 
@@ -826,6 +827,7 @@ sub installModules
 		my ($file) = $File::Find::name;
 			if ($file =~ /pm$/)
 			{
+				($_ = $file) =~ s!.+?Everything/!!;
 				print "Copying $file\n   to " . $includeDir . "/" . $_ . "\n";
 				copy($file, $includeDir . "/" . $_);
 				$result = 1;
