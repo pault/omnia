@@ -347,12 +347,15 @@ sub flushCache
 	undef $this->{typeCache};
 	undef $this->{idCache};
 	undef $this->{version};
+	undef $this->{groupCache};
 
 	$this->{nodeQueue} = new Everything::CacheQueue();
 	$this->{typeCache} = {};
 	$this->{idCache} = {};
 	$this->{version} = {};
+	$this->{groupCache} = {};
 }
+
 
 
 #############################################################################
