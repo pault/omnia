@@ -2,8 +2,11 @@ package Everything::XML;
 
 ############################################################
 #
-#        Everything::XML.pm
-#                A module for the XML stuff in Everything
+#	Everything::XML.pm
+#	Copyright 2000 - 2002 Everything Development
+#	http://www.everydevel.com/
+#
+#	A module for the XML stuff in Everything
 #
 ############################################################
 
@@ -125,19 +128,21 @@ sub xml2node
 {
 	my ($xml, $nofinal) = @_;
 
+	my $XMLPARSER = XML::DOM::Parser->new(
+		ErrorContext => 2,
+		ProtocolEncoding => 'ISO-8859-1'
+	);
+
 	# XML::Parser doen't like it when there is more than one top level
 	# document tag.  If we have an XML file that contains more than one
 	# node, XML::Parser will error on it.  So, to make everything happy,
 	# we just wrap the entire doc in a single tag.  Ya, its a hack, but
 	# does exactly what we need with minimal pain.  So, shuddup.
-	$xml = "<everything>\n" . $xml . "\n</everything>";
-	
-	my $XMLPARSER = new XML::DOM::Parser (ErrorContext => 2,
-		ProtocolEncoding => 'ISO-8859-1');
-	my $doc = $XMLPARSER->parse ($xml);
+
+	my $doc = $XMLPARSER->parse( "<everything>\n$xml\n</everything>" );
+
 	my @ids;
 	my $NODE;
-
 
 	# A single XML file may contain multiple nodes (same name/type).  We
 	# iterate through each defined node.
@@ -145,15 +150,16 @@ sub xml2node
 
 	foreach my $node (@nodes)
 	{
-		my $title = $node->getAttribute("title");
-		my $type = $node->getAttribute("nodetype");
+		my $title   = $node->getAttribute("title");
+		my $type    = $node->getAttribute("nodetype");
 		my $version = $node->getAttribute("export_version");
 		my @FIXES;
 
-		if($version > $XML_PARSER_VERSION)
+		if ($version > $XML_PARSER_VERSION)
 		{
-			print STDERR "Warning!  XML was created with a newer version of " .
-				"Everything.  This\nmay not import correctly.\n";
+			Everything::logErrors(
+				"XML was created with a newer version of Everything.\n" .
+				"This may not import correctly.", '', "'$title'" );
 		}
 		
 		# Start with a basic node.  We force create this to avoid over
@@ -162,20 +168,18 @@ sub xml2node
 
 		# Note, we are using XML::DOM::Node here.  Don't get the DOM
 		# API confused with our API.  The 'Nodes' idea can be confusing.
-		my @childFields = $node->getChildNodes();
-		foreach my $field (@childFields)
+		foreach my $field ( $node->getChildNodes() )
 		{
 			# If this child is not a tag (node) skip it.  We don't care
 			# about text within the <NODE> tag.
-			next if($field->getNodeType() == XML::DOM::TEXT_NODE());
+			next if $field->getNodeType() == XML::DOM::TEXT_NODE();
 			
 			my $fixes = $NODE->xmlTag($field);
-			push @FIXES, @$fixes if($fixes);
+			push @FIXES, @$fixes if $fixes;
 		}
 
-	    if ($nofinal) { push(@ids, $NODE); next; } 
+	    if ($nofinal) { push(@ids, $NODE); next; }
 		my $id = $NODE->xmlFinal();
-		
 
 		if($id > 0)
 		{
@@ -183,12 +187,12 @@ sub xml2node
 		}
 		else
 		{
-			print STDERR "Error!  Failed to import node '$$NODE{title}'\n";
+			Everything::logErrors('', "Failed to import node '$$NODE{title}'");
 		}
 
 		# We store any fixes that node reported so we can hopefully
 		# resolve them later.
-		$UNFIXED_NODES{$id} = \@FIXES if(@FIXES > 0);
+		$UNFIXED_NODES{$id} = \@FIXES if @FIXES;
 	}
 
 	return \@ids;
@@ -208,14 +212,16 @@ sub xml2node
 sub xmlfile2node
 {
     my ($filename, $nofinal) = @_;
-	my $file;
 
+	local *MYXML;
 	open MYXML, $filename or die "could not access file $filename";
 	
-	$file = join "", <MYXML>;
+	my $file = do { local $/; <MYXML> };
 	close MYXML;
 	
-	xml2node($file, $nofinal);
+	my $result = eval{ xml2node($file, $nofinal) };
+	Everything::logErrors( '', "Node XML error in '$filename':\n'$@'" ) if $@;
+	return $result;
 }
 
 
