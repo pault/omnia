@@ -46,11 +46,8 @@ sub BEGIN {
 		gotoNode
 		confirmUser
 		urlDecode
-		createPopupMenu
-		addSettingsToPopupMenu
-		addGroupToPopupMenu
-		addHashToPopupMenu
-		writePopupMenuHTML
+		encodeHTML
+		decodeHTML
 		mod_perlInit);
 }
 
@@ -88,31 +85,218 @@ sub htmlScreen {
 }
 
 
+#############################################################################
+#	Sub
+#		encodeHTML
+#
+#	Purpose
+#		Convert the HTML markup characters (>, <, ", etc...) into encoded
+#		characters (&gt;, &lt;, &quot;, etc...).  This causes the HTML to be
+#		displayed as raw text in the browser.  This is useful for debugging
+#		and displaying the HTML.
+#
+#	Parameters
+#		$html - the HTML text that needs to be encoded.
+#		$adv - Advanced encoding.  Pass 1 if some non-HTML, but Everything
+#			specific characters should be encoded.
+#
+#	Returns
+#		The encoded string
+#
+sub encodeHTML
+{
+	my ($html, $adv) = @_;
+
+	# Note that '&amp;' must be done first.  Otherwise, it would convert
+	# the '&' of the other encodings.
+	$html =~ s/\&/\&amp\;/g;
+	$html =~ s/\</\&lt\;/g;
+	$html =~ s/\>/\&gt\;/g;
+	$html =~ s/\"/\&quot\;/g;
+
+	if($adv)
+	{
+		$html =~ s/\[/\&\#91\;/g;
+		$html =~ s/\]/\&\#93\;/g;
+	}
+
+	return $html;
+}
+
 
 #############################################################################
-#needs to be fleshed out... but it's more or less functional
-sub htmlFormatErr {
+#	Sub
+#		decodeHTML
+#
+#	Purpose
+#		This takes a string that contains encoded HTML (&gt;, &lt;, etc..)
+#		and decodes them into their respective ascii characters (>, <, etc).
+#
+#		Also see encodeHTML().
+#
+#	Parameters
+#		$html - the string that contains the encoded HTML
+#		$adv - Advanced decoding.  Pass 1 if you would also like to decode
+#			non-HTML, Everything-specific characters.
+#
+#	Returns
+#		The decoded HTML
+#
+sub decodeHTML
+{
+	my ($html, $adv) = @_;
+
+	$html =~ s/\&amp\;/\&/g;
+	$html =~ s/\&lt\;/\</g;
+	$html =~ s/\&gt\;/\>/g;
+	$html =~ s/\&quot\;/\"/g;
+
+	if($adv)
+	{
+		$html =~ s/\&\#91\;/\[/g;
+		$html =~ s/\&\#93\;/\]/g;
+	}
+
+	return $html;
+}
+
+
+#############################################################################
+#	Sub
+#		htmlFormatErr
+#
+#	Purpose
+#		An error has occured and we need to print or log it.  This will
+#		do the appropriate action based on who the user is.
+#
+#	Parameters
+#		$code - the code snipit that is causing the error
+#		$err - the error message returned from the system
+#		$warn - the warning message returned from the system
+#
+#	Returns
+#		An html/text string that will be displayed to the browser.
+#
+sub htmlFormatErr
+{
 	my ($code, $err, $warn) = @_;
+	my $str;
+
+	if(isGod($USER))
+	{
+		$str = htmlErrorGods($code, $err, $warn);
+	}
+	else
+	{
+		$str = htmlErrorUsers($code, $err, $warn);
+	}
+
+	$str;
+}
 
 
-	$code =~ s/\&/\&amp\;/g;
-	$code =~ s/\</\&lt\;/g;
-	$code =~ s/\>/\&gt\;/g;
-	$code =~ s/\"/\&quot\;/g;
+#############################################################################
+#	Sub
+#		htmlErrorUsers
+#
+#	Purpose
+#		Format an error for the general user.  In this case we do not
+#		want them to see the error or the perl code.  So we will log
+#		the error and give them a simple one.
+#
+#		You can define a custom error text by creating an htmlcode
+#		node that formats a string error.  The code is passed a single
+#		numeric value that can be used to reference the error that is
+#		written to the log file.  However, be very careful that your
+#		htmlcode for your custom message doesn't have an error, or
+#		you may cause a user to get stuck in an infinite loop.  Since,
+#		an error in that code would cause the system to call itself
+#		to handle the error.
+#
+#	Parameters
+#		$code - the code snipit that is causing the error
+#		$err - the error message returned from the system
+#		$warn - the warning message returned from the system
+#
+#	Returns
+#		An html/text string that will be displayed to the browser.
+#
+sub htmlErrorUsers
+{
+	my ($code, $err, $warn) = @_;
+	my $errorId = int(rand(9999999));  # just generate a random error id.
+	my $str = htmlcode("htmlError", $errorId);
+
+	# If the site does not have a piece of htmlcode to format this error
+	# for the users, we will provide a default.
+	if((not defined $str) || $str eq "")
+	{
+		$str = "Server Error (Error Id $errorId)!";
+		$str = "<font color=\"#CC0000\"><b>$str</b></font>";
+		
+		$str .= "<p>An error has occured.  Please contact the site";
+		$str .= " administrator with the Error Id.  Thank you.";
+	}
+
+	# Print the error to the log instead of the browser.  That way users
+	# do see all the messy perl code.
+	Everything::printLog("Server Error (#" . $errorId .
+		"):\nCode:\n$code\nError:\n$err\nWarning:\n$warn");
+
+	$str;
+}
+
+
+#############################################################################
+#	Sub
+#		htmlErrorGods
+#
+#	Purpose
+#		Print an error for a god user.  This will dump the code, the call
+#		stack and any other error information.  You probably don't want
+#		the average user of a site to see this stuff.
+#
+#	Parameters
+#		$code - the code snipit that is causing the error
+#		$err - the error message returned from the system
+#		$warn - the warning message returned from the system
+#
+#	Returns
+#		An html/text string that will be displayed to the browser.
+#
+sub htmlErrorGods
+{
+	my ($code, $err, $warn) = @_;
+	my $errLine = $err . $warn;
+	my $linenum;
+
+	$code = encodeHTML($code);
 
 	my @mycode = split /\n/, $code;
-	while($err =~ /line (\d+)/sg) {
+	while($errLine =~ /line (\d+)/sg)
+	{
+		# This highlights the offendling line in red.
 		$mycode[$1-1] = "<FONT color=cc0000><b>" . $mycode[$1-1] .
 			"</b></font>";
 	}
 
-	my $str = "<B>$@ . $warn</B><BR>";
+	my $str = "<B>$@ $warn</B><BR>";
 
 	my $count = 1;
 	$str.= "<PRE>";
-	foreach my $line (@mycode) {
-		if ($count < @mycode) {$str.= $count++." :".$line . "\n";}
+	foreach my $line (@mycode)
+	{
+		$linenum = sprintf("%4d:", $count++);
+		if ($count < @mycode) {$str.= $linenum . $line . "\n";}
 	}
+
+	$str .= "\n\n<b>Call Stack</b>:\n";
+	my @callStack = getCallStack();
+	while(my $func = pop @callStack)
+	{
+		$str .= "$func\n";
+	}
+	$str .= "<b>End Call Stack</b>\n";
 	
 	$str.= "</PRE>";
 	$str;
@@ -186,7 +370,10 @@ sub getCode
 	my $str = ""; 
 	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if defined $args;
 	
-	$str . $$CODE{code};
+	$str .= $$CODE{code};
+
+	printLog("str = $str");
+	return $str;
 }
 
 
@@ -497,7 +684,8 @@ sub evalCode {
 #
 sub htmlcode {
 	my ($func, $args) = @_;
-	evalCode(getCode($func,$args));
+	my $code = getCode($func, $args);
+	evalCode($code) if($code);
 }
 
 #############################################################################
@@ -570,12 +758,7 @@ sub listCode {
 	my ($code, $numbering) = @_;
 	return unless($code); 
 
-	$code =~ s/\&/\&amp\;/g;
-	$code =~ s/\</\&lt\;/g;
-	$code =~ s/\>/\&gt\;/g;
-	$code =~ s/\"/\&quot\;/g;
-	$code =~ s/\[/\&\#91\;/g;
-	$code =~ s/\]/\&\#93\;/g;
+	$code = encodeHTML($code, 1);
 
 	my @lines = split /\n/, $code;
 	my $count = 0;
@@ -1073,14 +1256,14 @@ sub handleUserRequest
 #
 sub mod_perlInit
 {
-	my ($db) = @_;
+	my ($db, $staticNodetypes) = @_;
 
 
 	#blow away the globals
 	($GNODE, $USER, $VARS, $NODELET) = ("", "", "", "");
 
 	$query = "";
-	Everything::initEverything $db;
+	Everything::initEverything($db);
 
 	# Get the HTML variables for the system.  These include what
 	# pages to show when a node is not found (404-ish), when the

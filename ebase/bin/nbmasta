@@ -32,7 +32,7 @@ if (@ARGV < 3) {
 
 my ($function, $nodeball, $database) = @ARGV[0..2];
 
-Everything::initEverything($database)
+Everything::initEverything($database, 1)
 	or die "couldn't connect to $database";
 
 #############################################################################
@@ -125,7 +125,7 @@ sub addTablesToDB{
 sub getTablesHashref{
    my ($db)=@_; 
    
-   initEverything($db); 
+   initEverything($db, 1); 
    my $st = $DB->getDatabaseHandle()->prepare("show tables");
    $st->execute;
    my %tables;
@@ -145,7 +145,7 @@ sub getTablesHashref{
 sub getColumns {
 	my ($table, $dbname) = @_;
 
-	initEverything($dbname); 
+	initEverything($dbname, 1); 
 	my $st=$DB->getDatabaseHandle()->prepare("show columns from $table");    
 	$st->execute;
 	
@@ -230,14 +230,14 @@ sub checkTables {
 	my ($tabledir) = @_;
 	my $dummydb="dummy" . int(rand(1000));
 	
-	initEverything($database);
+	initEverything($database, 1);
 	createDB $dummydb;
 	addTablesToDB $dummydb, $tabledir;
 	my $ret = compareAllTables($DB->getTablesHashref($database),
 		$DB->getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
 	dropDB $dummydb;
 	
-	initEverything($database);
+	initEverything($database, 1);
 	$ret;
 }
 
@@ -461,7 +461,6 @@ sub checkDeps {
 			next unless ($key =~ /_(\w+)$/ and $1 ne "id"); 
 			next unless ($$NODE{$key});
 			next if ($nodes{$$NODE{$key}});	#eliminate if it's in our dependancies
-			next if isCore($$NODE{$key});	#eliminate it if it's in core
 			my $N = getNodeById ($$NODE{$key});	
 			print "$$N{title} ($$N{type}{title}) is referenced by $$NODE{title}, but is not included as a dependancy\n";
 		}

@@ -252,7 +252,6 @@ sub sqlSelectMany
 	$sql .= "WHERE $where " if $where;
 	$sql .= "$other" if $other;
 
-	print "sql = $sql\n" if($sql =~ /0x/);
 	my $cursor = $this->{dbh}->prepare($sql);
 	
 	return $cursor if($cursor->execute());
@@ -450,7 +449,7 @@ sub getNodeById
 
 	$selectop ||= '';
 
-	$N = Everything::getId($N);
+	$N = $this->getId($N);
 	return undef unless $N;
 	
 	# See if we have this node cached already
@@ -519,7 +518,7 @@ sub loadGroupNodeIDs
 	my $groupTable;
 
 	# If this node is a group node, add the nodes in its group to its array.
-	if ($groupTable = Everything::isGroup($$NODE{type}))
+	if ($groupTable = $this->isGroup($$NODE{type}))
 	{
 		my $cursor;
 		my $nid;
@@ -628,7 +627,6 @@ sub selectNodeWhere
 
 	$select .= " WHERE " . $wherestr if($wherestr);
 	$cursor = $this->{dbh}->prepare($select);
-	Everything::printLog("select ===== \n$select");
 	if($cursor->execute())
 	{
 		while (($node_id) = $cursor->fetchrow) 
@@ -669,8 +667,8 @@ sub updateNode
 	my @fields;
 	my $field;
 
-	Everything::getRef($NODE);
-	return 0 unless (Everything::canUpdateNode($USER, $NODE)); 
+	$this->getRef($NODE);
+	return 0 unless ($this->canUpdateNode($USER, $NODE)); 
 
 	$tableArray = $$NODE{type}{tableArray};
 
@@ -744,7 +742,7 @@ sub insertNode
 	
 	$TYPE = $this->getType($TYPE) unless (ref $TYPE);
 
-	unless (Everything::canCreateNode($USER, $TYPE))
+	unless ($this->canCreateNode($USER, $TYPE))
 	{
 		Everything::printErr(
 			"$$USER{title} not allowed to create this type of node!");
@@ -754,7 +752,8 @@ sub insertNode
 	if ($$TYPE{restrictdupes})
 	{ 
 		# Check to see if we already have a node of this title.
-		my $DUPELIST = $this->getNode($title, $TYPE);
+		my $DUPELIST = $this->sqlSelect("*", "node", "title=" .
+			$this->quote($title) . " && type_nodetype=" . $$TYPE{node_id});
 
 		if ($DUPELIST)
 		{
@@ -767,7 +766,7 @@ sub insertNode
 	$this->sqlInsert("node", 
 			{title => $title, 
 			type_nodetype => $$TYPE{node_id}, 
-			author_user => Everything::getId($USER), 
+			author_user => $this->getId($USER), 
 			hits => 0,
 			-createtime => 'now()'}); 
 
@@ -823,9 +822,9 @@ sub nukeNode
 	my $result = 0;
 	my $groupTable;
 	
-	Everything::getRef($NODE, $USER);
+	$this->getRef($NODE, $USER);
 	
-	return unless (Everything::canDeleteNode($USER, $NODE));
+	return unless ($this->canDeleteNode($USER, $NODE));
 
 	# This node is about to be deleted.  Do any maintenance if needed.
 	$this->nodeMaintenance($NODE, 'delete');
@@ -852,7 +851,7 @@ sub nukeNode
 
 	# If this node is a group node, we will remove all of its members
 	# from the group table.
-	if($groupTable = Everything::isGroup($$NODE{type}))
+	if($groupTable = $this->isGroup($$NODE{type}))
 	{
 		# Remove all group entries for this group node
 		$this->{dbh}->do("DELETE FROM $groupTable WHERE " . $groupTable . 
@@ -1334,7 +1333,7 @@ sub genWhereString
 		# want to compare the ID of the node, not the hash reference.
 		if (ref ($$WHERE{$key}) eq "HASH")
 		{
-			$$WHERE{$key} = Everything::getId($$WHERE{$key});
+			$$WHERE{$key} = $this->getId($$WHERE{$key});
 		}
 		
 		# If $key starts with a '-', it means its a single value.
@@ -1354,7 +1353,7 @@ sub genWhereString
 				foreach my $item (@$LIST)
 				{
 					$orstr .= " or " if($orstr ne "");
-					$item = Everything::getId($item);
+					$item = $this->getId($item);
 					$orstr .= $key . '=' . $this->quote($item); 
 				}
 
@@ -1584,7 +1583,7 @@ sub getMaintenanceCode
 	# importing everything from scratch).
 	return 0 if(not defined $this->getType("maintenance")); 
 
-	Everything::getRef($NODE);
+	$this->getRef($NODE);
 	$TYPE = $this->getType($$NODE{type_nodetype});
 	
 	# Maintenance code is inherited by derived nodetypes.  This will
@@ -1656,8 +1655,512 @@ sub nodeMaintenance
 
 	if($code)
 	{
-		$node_id = Everything::getId($node_id);
+		$node_id = $this->getRef($node_id);
 		my $args = "\@\_ = \"$node_id\";\n";
 		Everything::HTML::embedCode("%" . $args . $code . "%", @_);
 	}
 }
+
+#############################################################################
+#	Sub
+#		getId
+#
+#	Purpose
+#		Opposite of getRef.  This makes sure we have node id's not hashes.
+#
+#	Parameters
+#		Array of node hashes to convert to id's
+#
+#	Returns
+#		An array (if there are more than one to be converted) of node id's.
+#
+sub getId
+{
+	my ($this, @args) = @_;
+	
+	foreach my $arg (@args)
+	{
+		if (ref $arg eq "HASH") {$arg = $$arg{node_id};}  
+	}
+	
+	return (@args == 1 ? $args[0] : @args);
+}
+
+
+#############################################################################
+#	Sub
+#		getRef
+#
+#	Purpose
+#		This makes sure that we have an array of node hashes, not node id's.
+#
+#	Parameters
+#		Any number of node id's or node hashes (ie getRef( $n[0], $n[1], ...))
+#
+#	Returns
+#		The node hash of the first element passed in.
+#
+sub getRef
+{
+	my $this = shift @_;
+	
+	for (my $i = 0; $i < @_; $i++)
+	{ 
+		unless (ref ($_[$i]))
+		{
+			$_[$i] = $this->getNodeById($_[$i]) if($_[$i]);
+		}
+	}
+	
+	ref $_[1];
+}
+
+
+#############################################################################
+#	Sub
+#		isNodetype
+#
+#	Purpose
+#		Checks to see if the given node is nodetype or not.
+#
+#	Parameters
+#		$NODE - the node to check
+#
+#	Returns
+#		true if the node is a nodetype, false otherwise.
+#
+sub isNodetype
+{
+	my ($this, $NODE) = @_;
+	$this->getRef($NODE);
+	
+	return 0 if (not ref $NODE);
+
+	# If this node's type is a nodetype, its a nodetype.
+	my $TYPE = $this->getType("nodetype");
+	return ($$NODE{type_nodetype} == $$TYPE{node_id});
+}
+
+
+#############################################################################
+#	Sub
+#		isGroup
+#
+#	Purpose
+#		Check to see if a nodetpye is a group.  Groups have a value
+#		in the grouptable field.
+#
+#	Parameters
+#		$NODETYPE - the node hash or hashreference to a nodetype node.
+#
+#	Returns
+#		The name of the grouptable if the nodetype is a group, 0 (false)
+#		otherwise.
+#
+sub isGroup
+{
+	my ($this, $NODETYPE) = @_;
+	my $groupTable;
+	$this->getRef($NODETYPE);
+	
+	$groupTable = $$NODETYPE{grouptable};
+
+	return $groupTable if($groupTable);
+
+	return 0;
+}
+
+
+#############################################################################
+sub canCreateNode {
+	#returns true if nothing is set
+	my ($this, $USER, $TYPE) = @_;
+	$this->getRef($TYPE);
+
+	return 1 unless $$TYPE{writers_user};	
+	$this->isApproved ($USER, $$TYPE{writers_user});
+}
+
+
+#############################################################################
+sub canDeleteNode {
+	#returns false if nothing is set (except for SU)
+	my ($this, $USER, $NODE) = @_;
+	$this->getRef($NODE);
+
+	return 0 if((not defined $NODE) || ($NODE == 0));
+	return $this->isApproved($USER, $$NODE{type}{deleters_user});
+}
+
+
+#############################################################################
+sub canUpdateNode {
+	my ($this, $USER, $NODE) = @_;
+	$this->getRef($NODE);
+	
+	return 0 if((not defined $NODE) || ($NODE == 0));
+	return $this->isApproved ($USER, $$NODE{author_user});
+}
+
+
+#############################################################################
+sub canReadNode { 
+	#returns true if nothing is set
+	my ($this, $USER, $NODE) = @_;
+
+	$this->getRef($NODE);
+
+	return 0 if((not defined $NODE) || ($NODE == 0));
+	return 1 unless $$NODE{type}{readers_user};	
+	$this->isApproved($USER, $$NODE{type}{readers_user});
+}
+
+
+#############################################################################
+#	Sub
+#		isApproved
+#
+#	Purpose
+#		Checks to see if the given user is approved to modify the nodes.
+#
+#	Parameters
+#		$user - reference to a user node hash  (-1 if super user)
+#		$NODE - reference to a node to check if the user is approved for
+#
+#	Returns
+#		true if the user is authorized to change the nodes, false otherwise
+#
+sub isApproved
+{
+	my ($this, $USER, $NODE) = @_;	
+	my $user_id;
+
+	return 0 if(not defined $USER);
+	return 0 if(not defined $NODE);
+
+	return 1 if($this->isGod($USER));
+
+	$this->getRef($USER);
+	
+	# A user is always allowed to view their own node
+	return 1 if ($this->getId($USER) == $this->getId($NODE));
+
+
+	# NATE NATE NATE!
+	# I'm not exactly sure what this is doing.  Nate, can you explain?
+	# The logic seems to be that if a user owns a node that belongs to
+	# a group, they are approved to change that group, which is bad.
+	foreach my $approveduser (@{ $this->selectNodegroupFlat($NODE) })
+	{
+		return 1 if ($user_id == $this->getId($approveduser)); 
+	}
+	
+	return 0;
+}
+
+
+#############################################################################
+#	Sub
+#		isGod
+#
+#	Purpose
+#		Checks to see if a user is in the gods group.  This includes root
+#		and '-1' as gods.  This also checks sub groups so you can have
+#		other usergroups in the gods group.
+#
+#	Parameters
+#		$USER - an id or HASH ref to a user node.
+#
+#	Returns
+#		1 if the user is a god, 0 otherwise
+#
+sub isGod
+{
+	my ($this, $USER) = @_;
+	my $user_id;
+	my $usergroup;
+	my $GODS;
+	my $godsgroup;
+	my $god;  # he's my god too...
+
+	return 1 if($USER == -1);
+
+	$this->getRef($USER);
+
+	$user_id = $this->getId($USER);
+	$usergroup = $this->getType("usergroup");
+	($GODS) = $this->getNode("gods", $usergroup);
+	$godsgroup = $this->selectNodegroupFlat($GODS);
+	
+	foreach $god (@$godsgroup)
+	{
+		return 1 if ($user_id == $this->getId($god));
+	}
+
+	return 0;
+}
+
+
+#############################################################################
+#	Sub
+#		selectNodegroupFlat
+#
+#	Purpose
+#		This recurses through the nodes and node groups that this group
+#		contains getting the node hash for each one on the way.
+#
+#	Parameters
+#		$NODE - the group node to get node hashes for.
+#
+#	Returns
+#		An array of node hashes that belong to this group.
+#
+sub selectNodegroupFlat
+{
+	my ($this, $NODE) = @_;
+
+	return $this->flattenNodegroup($NODE);
+}
+
+
+#############################################################################
+#	Sub
+#		flattenNodegroup
+#
+#	Purpose
+#		Returns an array of node hashes that all belong to the given
+#		group.  If the given node is not a group, its just assumed that
+#		a single node is in its own "group".
+#
+#	Parameters
+#		$NODE - the node (preferably a group node) in which to get the
+#			nodes that are within its group.
+#
+#	Returns
+#		An array of node hashrefs of all of the nodes in this group.
+#
+sub flattenNodegroup
+{
+	my ($this, $NODE, $groupsTraversed) = @_;
+	my @listref;
+	my $group;
+
+	return undef if (not defined $NODE);
+
+	# If groupsTraversed is not defined, initialize it to an empty
+	# hash reference.
+	$groupsTraversed ||= {};  # anonymous empty hash
+
+	$this->getRef($NODE);
+	
+	if ($this->isGroup($$NODE{type}))
+	{
+		# return if we have already been through this group.  Otherwise,
+		# we will get stuck in infinite recursion.
+		return undef if($$groupsTraversed{$$NODE{node_id}});
+		$$groupsTraversed{$$NODE{node_id}} = $$NODE{node_id};
+		
+		foreach my $groupref (@{ $$NODE{group} })
+		{
+			$group = $this->flattenNodegroup($groupref);
+			push(@listref, @$group) if(defined $group);
+		}
+		
+		return \@listref;
+  	}
+	else
+	{ 
+		return [$NODE];
+	}
+}
+
+
+#############################################################################
+#	Sub
+#		insertIntoNodegroup
+#
+#	Purpose
+#		This will insert a node(s) into a nodegroup.
+#
+#	Parameters
+#		NODE - the group node to insert the nodes.
+#		USER - the user trying to add to the group (used for authorization)
+#		insert - the node or array of nodes to insert into the group
+#		orderby - the criteria of which to order the nodes in the group
+#
+#	Returns
+#		The group NODE hash that has been refreshed after the insert.
+#		undef if the user does not have permissions to change this group.
+#
+sub insertIntoNodegroup
+{
+	my ($this, $NODE, $USER, $insert, $orderby) = @_;
+	$this->getRef($NODE);
+	my $insertref;
+	my $TYPE;
+	my $groupTable;
+	my $rank;	
+
+
+	return undef unless($this->canUpdateNode ($USER, $NODE)); 
+	
+	$TYPE = $$NODE{type};
+	$groupTable = $this->isGroup($TYPE);
+
+	# We need a nodetype, darn it!
+	if(not defined $TYPE)
+	{
+		return 0;
+	}
+	elsif(not $groupTable)
+	{
+		return 0;
+	}
+
+	if(ref ($insert) eq "ARRAY")
+	{
+		$insertref = $insert;
+
+		# If we have an array, the order is specified by the order of
+		# the elements in the array.
+		undef $orderby;
+	}
+	else
+	{
+		#converts to a list reference w/ 1 element if we get a scalar
+		$insertref = [$insert];
+	}
+	
+	foreach my $INSERT (@$insertref)
+	{
+		$this->getRef($INSERT);
+		my $maxOrderBy;
+		
+		# This will return a value if the select is not empty.  If
+		# it is empty (there is nothing in the group) it will be null.
+		($maxOrderBy) = $this->sqlSelect('MAX(orderby)', $groupTable, 
+			$groupTable . "_id=$$NODE{node_id}"); 
+
+		if (defined $maxOrderBy)
+		{
+			# The group is not empty.  We may need to change some ordering
+			# information.
+			if ((defined $orderby) && ($orderby <= $maxOrderBy))
+			{ 
+				# The caller of this function specified an order position
+				# for the new node in the group.  We need to make a spot
+				# for it.  To do this, we will increment each orderby
+				# field that is the same or higher than the orderby given.
+				# If orderby is greater than the current max orderby, we
+				# don't need to do this.
+				$this->sqlUpdate($groupTable, { '-orderby' => 'orderby+1' }, 
+					$groupTable. "_id=$$NODE{node_id} && orderby>=$orderby");
+			}
+			elsif(not defined $orderby)
+			{
+				$orderby = $maxOrderBy+1;
+			}
+		}
+		elsif(not defined $orderby)
+		{
+			$orderby = 0;  # start it off
+		}
+		
+		$rank = $this->sqlSelect('MAX(rank)', $groupTable, 
+			$groupTable . "_id=$$NODE{node_id}");
+
+		# If rank exists, increment it.  Otherwise, start it off at zero.
+		$rank = ((defined $rank) ? $rank+1 : 0);
+
+		$this->sqlInsert($groupTable, { $groupTable . "_id" => $$NODE{node_id}, 
+			rank => $rank, node_id => $$INSERT{node_id},
+			orderby => $orderby});
+
+		# if we have more than one, we need to clear this so the other
+		# inserts work.
+		undef $orderby;
+	}
+	
+	#we should also refresh the group list ref stuff
+	$_[1] = $this->getNodeById($NODE, 'force'); #refresh the group
+}
+
+
+#############################################################################
+#	Sub
+#		removeFromNodegroup
+#
+#	Purpose
+#		Remove a node from a group.
+#
+#	Parameters
+#		$GROUP - the group in which to remove the node from
+#		$NODE - the node to remove
+#		$USER - the user who is trying to do this (used for authorization)
+#
+#	Returns
+#		The newly refreshed nodegroup hash.  If you had called
+#		selectNodegroupFlat on this before, you will need to do it again
+#		as all data will have been blown away by the forced refresh.
+#
+sub removeFromNodegroup 
+{
+	my ($this, $GROUP, $NODE, $USER) = @_;
+	$this->getRef($GROUP);
+	my $groupTable;
+	my $success;
+	
+	($groupTable = $this->isGroup($$GROUP{type})) or return; 
+	$this->canUpdateNode($USER, $GROUP) or return; 
+
+	my $node_id = $this->getId($NODE);
+
+	$success = $this->sqlDelete ($groupTable,
+		$groupTable . "_id=$$GROUP{node_id} && node_id=$node_id");
+
+	if($success)
+	{
+		# If the delete did something, we need to refresh this group node.	
+		$_[1] = $this->getNodeById($GROUP, 'force'); #refresh the group
+	}
+
+	return $_[1];
+}
+
+
+#############################################################################
+#	Sub
+#		replaceNodegroup
+#
+#	Purpose
+#		This removes all nodes from the group and inserts new nodes.
+#
+#	Parameters
+#		$GROUP - the group to clean out and insert new nodes
+#		$REPLACE - A node or array of nodes to be inserted
+#		$USER - the user trying to do this (used for authorization).
+#
+#	Returns
+#		The group NODE hash that has been refreshed after the insert
+#
+sub replaceNodegroup
+{
+	my ($this, $GROUP, $REPLACE, $USER) = @_;
+	$this->getRef($GROUP);
+	my $groupTable;
+
+	$this->canUpdateNode($USER, $GROUP) or return; 
+	($groupTable = $this->isGroup($$GROUP{type})) or return; 
+	
+	$this->sqlDelete ($groupTable, $groupTable . "_id=$$GROUP{node_id}");
+
+	return $this->insertIntoNodegroup ($_[1], $USER, $REPLACE);  
+}
+
+
+
+#############################################################################
+#	End of Package
+#############################################################################
+
+1;

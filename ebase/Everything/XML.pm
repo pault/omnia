@@ -170,13 +170,16 @@ sub end_handler {
 #
 sub findRef {
 	my ($FIX, $printError) = @_;
+	
+	my ($REFNODE) = $DB->getNodeWhere( { title=>$$FIX{title} },
+		$DB->getType($$FIX{type}) );
 
-	my ($REFNODE) = $DB->getNodeWhere({title=>$$FIX{title}}, $DB->getType($$FIX{type}));
 	if (not getId($REFNODE)) {
 		print "ERROR!  Fix failed on $$FIX{node_id}: needs" .
 				" a $$FIX{type} named $$FIX{title}\n" if $printError;	 
 		return -1;
 	}
+
 	getId $REFNODE;
 }
 
@@ -211,7 +214,7 @@ sub fixNodes
 			setVars $$_{node_id}, $TEMPVARS;
 		} elsif ($$_{field} =~ /^groupnode/) {	
 			my $GROUP = $$_{node_id};
-			insertIntoNodegroup ($GROUP, -1, $id);	
+			insertIntoNodegroup($GROUP, -1, $id);
 		} else {
 			my $N = $DB->getNodeById($$_{node_id});
 			$$N{$$_{field}} = $id; 

@@ -2,8 +2,8 @@ package Everything;
 
 #############################################################################
 #	Everything perl module.  
-#
-# 	BSI -- Nate Oostendorp <nate@oostendorp.net> 
+#	Copyright 1999 Everything Development
+#	http://www.everydevel.com
 #
 #	Format: tabs = 4 spaces
 #
@@ -40,7 +40,6 @@ sub BEGIN
 		insertNode
 		updateNode
 
-		selectNodegroupFlat 
 		removeFromNodegroup 
 		replaceNodegroup
 		insertIntoNodegroup 
@@ -56,10 +55,12 @@ sub BEGIN
 		searchNodeName 
 		isGroup
 		isNodetype
-		isCore
+		isGod
 		lockNode
 		unlockNode
+
 		dumpCallStack
+		getCallStack
 		printErr
 		printLog
         );
@@ -83,18 +84,20 @@ my $VERSION = 0.8;
 #   a few wrapper functions for the NodeBase stuff
 #	this allows the $DB to be optional for the general node functions
 #
-sub getNode { $DB->getNode(@_); }
-sub getNodeById { $DB->getNodeById(@_); }
-sub getType { $DB->getType(@_); }
-sub getNodeWhere { $DB->getNodeWhere(@_); }
-sub selectNodeWhere  { $DB->selectNodeWhere(@_); }
-sub selectNode { $DB->getNodeById(@_); }
+sub getNode			{ $DB->getNode(@_); }
+sub getNodeById		{ $DB->getNodeById(@_); }
+sub getType 		{ $DB->getType(@_); }
+sub getNodeWhere 	{ $DB->getNodeWhere(@_); }
+sub selectNodeWhere	{ $DB->selectNodeWhere(@_); }
+sub selectNode		{ $DB->getNodeById(@_); }
 
-sub nukeNode { $DB->nukeNode(@_);}
-sub insertNode { $DB->insertNode(@_); }
-sub updateNode { $DB->updateNode(@_); }
+sub nukeNode		{ $DB->nukeNode(@_);}
+sub insertNode		{ $DB->insertNode(@_); }
+sub updateNode		{ $DB->updateNode(@_); }
 
-
+sub isNodetype		{ $DB->isNodetype(@_); }
+sub isGroup			{ $DB->isGroup(@_); }
+sub isGod			{ $DB->isGod(@_); };
 
 
 #############################################################################
@@ -179,15 +182,7 @@ sub clearLog
 #
 sub getRef
 {
-	for (my $i = 0; $i < @_; $i++)
-	{ 
-		unless (ref ($_[$i]))
-		{
-			$_[$i] = $DB->getNodeById($_[$i]) if $_[$i];
-		}
-	}
-	
-	ref $_[0];
+	return $DB->getRef(@_);
 }
 
 
@@ -206,69 +201,7 @@ sub getRef
 #
 sub getId
 {
-	my @args = @_;
-	
-	foreach my $arg (@args)
-	{
-		if (ref $arg eq "HASH") {$arg = $$arg{node_id};}  
-	}
-	
-	return (@args == 1 ? $args[0] : @args);
-}
-
-
-#############################################################################
-#	Sub
-#		isNodetype
-#
-#	Purpose
-#		Checks to see if the given node is nodetype or not.
-#
-#	Parameters
-#		$NODE - the node to check
-#
-#	Returns
-#		true if the node is a nodetype, false otherwise.
-#
-sub isNodetype
-{
-	my ($NODE) = @_;
-	getRef $NODE;
-	
-	return 0 if (not ref $NODE);
-
-	# If this node's type is a nodetype, its a nodetype.
-	my $TYPE = $DB->getType("nodetype");
-	return ($$NODE{type_nodetype} == $$TYPE{node_id});
-}
-
-
-#############################################################################
-#	Sub
-#		isGroup
-#
-#	Purpose
-#		Check to see if a nodetpye is a group.  Groups have a value
-#		in the grouptable field.
-#
-#	Parameters
-#		$NODETYPE - the node hash or hashreference to a nodetype node.
-#
-#	Returns
-#		The name of the grouptable if the nodetype is a group, 0 (false)
-#		otherwise.
-#
-sub isGroup
-{
-	my ($NODETYPE) = $_[0];
-	my $groupTable;
-	getRef $NODETYPE;
-	
-	$groupTable = $$NODETYPE{grouptable};
-
-	return $groupTable if($groupTable);
-
-	return 0;
+	return $DB->getId(@_);
 }
 
 
@@ -369,12 +302,13 @@ sub setVars
 	my ($NODE, $varsref) = @_;
 	my $str;
 
-	getRef $NODE;
+	getRef($NODE);
 
 	unless (exists $$NODE{vars}) {
 		warn ("setVars:\t'vars' field does not exist for node ".getId($NODE)."
 		perhaps it doesn't join on the settings table?\n");
 	}
+
 	# Clean out the keys that have do not have a value.
 	foreach (keys %$varsref) {
 		$$varsref{$_} = " " unless $$varsref{$_};
@@ -393,46 +327,30 @@ sub setVars
 
 
 #############################################################################
-sub canCreateNode {
-	#returns true if nothing is set
-	my ($USER, $TYPE) = @_;
-	getRef $TYPE;
-
-	return 1 unless $$TYPE{writers_user};	
-	isApproved ($USER, $$TYPE{writers_user});
+sub canCreateNode
+{
+	return $DB->canCreateNode(@_);
 }
 
 
 #############################################################################
-sub canDeleteNode {
-	#returns false if nothing is set (except for SU)
-	my ($USER, $NODE) = @_;
-	getRef $NODE;
-
-	return 0 if((not defined $NODE) || ($NODE == 0));
-	return isApproved ($USER, $$NODE{type}{deleters_user});
+sub canDeleteNode
+{
+	return $DB->canDeleteNode(@_);
 }
 
 
 #############################################################################
-sub canUpdateNode {
-	my ($USER, $NODE) = @_;
-	getRef $NODE;
-	
-	return 0 if((not defined $NODE) || ($NODE == 0));
-	return isApproved ($USER, $$NODE{author_user});
+sub canUpdateNode
+{
+	return $DB->canUpdateNode(@_);
 }
 
 
 #############################################################################
-sub canReadNode { 
-	#returns true if nothing is set
-	my ($USER, $NODE) = @_;
-	getRef $NODE;
-
-	return 0 if((not defined $NODE) || ($NODE == 0));
-	return 1 unless $$NODE{type}{readers_user};	
-	isApproved ($USER, $$NODE{type}{readers_user});
+sub canReadNode
+{ 
+	return $DB->canReadNode(@_);
 }
 
 
@@ -454,189 +372,7 @@ sub canReadNode {
 #
 sub insertIntoNodegroup
 {
-	my ($NODE, $USER, $insert, $orderby) = @_;
-	getRef $NODE;
-	my $insertref;
-	my $TYPE;
-	my $groupTable;
-	my $rank;	
-
-
-	return unless(canUpdateNode ($USER, $NODE)); 
-	
-	$TYPE = $$NODE{type};
-	$groupTable = isGroup($TYPE);
-
-	# We need a nodetype, darn it!
-	if(not defined $TYPE)
-	{
-		printLog("insertIntoNodegroup: no nodetype!!!");
-		return 0;
-	}
-	elsif(not $groupTable)
-	{
-		printLog("insertIntoNodegroup: the node is not a group node!");
-		return 0;
-	}
-
-	if(ref ($insert) eq "ARRAY")
-	{
-		$insertref = $insert;
-
-		# If we have an array, the order is specified by the order of
-		# the elements in the array.
-		undef $orderby;
-	}
-	else
-	{
-		#converts to a list reference w/ 1 element if we get a scalar
-		$insertref = [$insert];
-	}
-	
-	foreach my $INSERT (@$insertref)
-	{
-		getRef $INSERT;
-		my $maxOrderBy;
-		
-		# This will return a value if the select is not empty.  If
-		# it is empty (there is nothing in the group) it will be null.
-		($maxOrderBy) = $DB->sqlSelect('MAX(orderby)', $groupTable, 
-			$groupTable . "_id=$$NODE{node_id}"); 
-
-		if (defined $maxOrderBy)
-		{
-			# The group is not empty.  We may need to change some ordering
-			# information.
-			if ((defined $orderby) && ($orderby <= $maxOrderBy))
-			{ 
-				# The caller of this function specified an order position
-				# for the new node in the group.  We need to make a spot
-				# for it.  To do this, we will increment each orderby
-				# field that is the same or higher than the orderby given.
-				# If orderby is greater than the current max orderby, we
-				# don't need to do this.
-				$DB->sqlUpdate($groupTable, { '-orderby' => 'orderby+1' }, 
-					$groupTable. "_id=$$NODE{node_id} && orderby>=$orderby");
-			}
-			elsif(not defined $orderby)
-			{
-				$orderby = $maxOrderBy+1;
-			}
-		}
-		elsif(not defined $orderby)
-		{
-			$orderby = 0;  # start it off
-		}
-		
-		$rank = $DB->sqlSelect('MAX(rank)', $groupTable, 
-			$groupTable . "_id=$$NODE{node_id}");
-
-		# If rank exists, increment it.  Otherwise, start it off at zero.
-		$rank = ((defined $rank) ? $rank+1 : 0);
-
-		$DB->sqlInsert($groupTable, { $groupTable . "_id" => $$NODE{node_id}, 
-			rank => $rank, node_id => $$INSERT{node_id},
-			orderby => $orderby});
-
-		# if we have more than one, we need to clear this so the other
-		# inserts work.
-		undef $orderby;
-	}
-	
-	#we should also refresh the group list ref stuff
-	$_[0] = $DB->getNodeById($NODE, 'force'); #refresh the group
-}
-
-
-
-
-#############################################################################
-#	Sub
-#		getNodeRecurse
-#
-#	Purpose
-#		Node groups can contain other node groups.  This will recurse
-#		through each group node that we encounter, converting each node
-#		ID into a node hash.
-#
-#	Parameters
-#		$NODE - the group node to start from
-#		$groupsTraversed - leave this undefined when calling this
-#			function.  This is used internally to prevent infinite
-#			recursion.
-#	Returns
-#		The group node hash passed in, but with the 'group' field
-#		filled with an array of node hashes.
-#
-sub getNodeRecurse
-{
-	my ($NODE, $groupsTraversed) = @_;
-
-	getRef $NODE;
-	
-	# If groupsTraversed is not defined, initialize it to an empty
-	# hash reference.
-	$groupsTraversed ||= {};  # anonymous empty hash
-
-	return $NODE if (ref $NODE ne "HASH");
-
-	if (isGroup($$NODE{type}))
-	{
-		# return if we have already been through this group.  Otherwise,
-		# we will get stuck in infinite recursion.
-		return $NODE if($$groupsTraversed{$$NODE{node_id}});
-
-		# Add this group node to the ones we have seen.
-		$$groupsTraversed{$$NODE{node_id}} = $$NODE{node_id};
-	
-		foreach my $groupie (@{ $$NODE{group} })
-		{
-			getNodeRecurse ($groupie, $groupsTraversed);
-		}
-	}
-
-	$NODE;
-}
-
-
-#############################################################################
-#	Sub
-#		flattenNodegroup
-#
-#	Purpose
-#		Returns an array of node hashes that all belong to the given
-#		group.  If the given node is not a group, its just assumed that
-#		a single node is in its own "group".
-#
-#	Parameters
-#		$NODE - the node (preferably a group node) in which to get the
-#			nodes that are within its group.
-#
-#	Returns
-#		An array of node hashrefs of all of the nodes in this group.
-#
-sub flattenNodegroup
-{
-	my ($NODE) = @_;
-	my $listref;
-
-	return if (not defined $NODE);
-
-	getRef $NODE;
-	
-	if (isGroup($$NODE{type}))
-	{
-		foreach my $groupref (@{ $$NODE{group} })
-		{
-			push @$listref, @{ flattenNodegroup ($groupref) };
-		}
-		
-		return $listref;
-  	}
-	else
-	{ 
-		return [$NODE];
-	}
+	return ($DB->insertIntoNodegroup(@_));
 }
 
 
@@ -656,9 +392,7 @@ sub flattenNodegroup
 #
 sub selectNodegroupFlat
 {
-	my ($NODE) = @_;
-
-	return flattenNodegroup (getNodeRecurse($NODE));
+	return $DB->selectNodegroupFlat(@_);
 }
 
 
@@ -681,26 +415,7 @@ sub selectNodegroupFlat
 #
 sub removeFromNodegroup 
 {
-	my ($GROUP, $NODE, $USER) = @_;
-	getRef $GROUP;
-	my $groupTable;
-	my $success;
-	
-	($groupTable = isGroup($$GROUP{type})) or return; 
-	canUpdateNode($USER, $GROUP) or return; 
-
-	my $node_id = getId $NODE;
-
-	$success = $DB->sqlDelete ($groupTable,
-		$groupTable . "_id=$$GROUP{node_id} && node_id=$node_id");
-
-	if($success)
-	{
-		# If the delete did something, we need to refresh this group node.	
-		$_[0] = $DB->getNodeById($GROUP, 'force'); #refresh the group
-	}
-
-	return $_[0];
+	return $DB->removeFromNodegroup(@_);
 }
 
 
@@ -721,22 +436,13 @@ sub removeFromNodegroup
 #
 sub replaceNodegroup
 {
-	my ($GROUP, $REPLACE, $USER) = @_;
-	getRef $GROUP;
-	my $groupTable;
-
-	canUpdateNode($USER, $GROUP) or return; 
-	($groupTable = isGroup($$GROUP{type})) or return; 
-	
-	$DB->sqlDelete ($groupTable, $groupTable . "_id=$$GROUP{node_id}");
-
-	return insertIntoNodegroup ($_[0], $USER, $REPLACE);  
+	return $DB->replaceNodegroup(@_);
 }
 
 
 #############################################################################
 #	Sub
-#		udpateLinks
+#		updateLinks
 #
 #	Purpose
 #		A link has been traversed.  If it exists, increment its hit and
@@ -913,19 +619,6 @@ sub cleanLinks
 }
 
 
-#these are common words that we don't want to include in our searching
-# Should these be stored in a system properties node in the db? DPB 09-14-99
-my @nosearchwords = (
-		"this",
-		"the",
-		"there",
-		"and",
-		"you",
-		"are"
-		);
-
-
-
 #############################################################################
 sub lockNode {
 	my ($NODE, $USER)=@_;
@@ -943,60 +636,6 @@ sub unlockNode {
 }
 
 
-
-#############################################################################
-#	Sub
-#		isApproved
-#
-#	Purpose
-#		Checks to see if the given user is approved to modify the nodes.
-#
-#	Parameters
-#		$user - reference to a user node hash  (-1 if super user)
-#		$NODE - reference to a nodes to check if the user is approved for
-#
-#	Returns
-#		true if the user is authorized to change the nodes, false otherwise
-#
-sub isApproved
-{
-	my ($USER, $NODE) = @_;	
-	my $user_id;
-	my $usergroup;
-	my $GODS;
-	my $godgroup;
-	my $god;  # he's my god too...
-	
-
-	#superuser for scripting
-	if ($USER == -1) { return 1; }
-
-	getRef $USER;
-
-	$NODE or return 0;
-
-	# A user is always allowed to view their own node
-	if (getId($USER) == getId($NODE)) { return 1; }	
-
-	$user_id = getId $USER;
-	$usergroup = $DB->getType("usergroup");
-	($GODS) = $DB->getNodeWhere({title => 'gods'}, $usergroup);
-	$godgroup = $$GODS{group};
-	
-	foreach $god (@$godgroup)
-	{
-		return 1 if ($user_id == getId ($god));
-	}
-	
-	foreach my $approveduser (@{ selectNodegroupFlat $NODE })
-	{
-		return 1 if ($user_id == getId ($approveduser)); 
-	}
-	
-	return 0;
-}
-
-
 #############################################################################
 #	Sub
 #		initEverything
@@ -1005,34 +644,22 @@ sub isApproved
 #		The "main" function.  Initialize the Everything module.
 #
 #	Parameters
-#		db - the string name of the database to connect to.
+#		$db - the string name of the database to connect to.
+#		$staticNodetypes - (optional) 1 if the system should derive the
+#			nodetypes once and cache them.  This will speed performance,
+#			but changes to nodetypes will not take effect until the httpd
+#			is restarted.  A really good performance enhancement IF the
+#			nodetypes do not change.
 #
 sub initEverything
 {
-	my ($db) = @_;
+	my ($db, $staticNodetypes) = @_;
 
-	$DB = new Everything::NodeBase($db);
+	$DB = new Everything::NodeBase($db, $staticNodetypes);
 
 	# This is for legacy code.  You should not use $dbh!  Use
 	# $DB->getDatabaseHandle() going forward.
 	$dbh = $DB->getDatabaseHandle();
-}
-
-
-
-###########################################################################
-#	sub
-#		isCore
-#
-#	purpose
-#		tell whether a node is in core or not
-#
-sub isCore {
-	my ($NODE) = @_;
-	getRef $NODE;
-	return $$NODE{core} if $NODE;
-	0;
-	#seems stupid, but we'll need to change it later
 }
 
 
@@ -1137,15 +764,44 @@ sub getTables
 #
 sub dumpCallStack
 {
-	my ($package, $file, $line, $subname, $hashargs);
-	my $i = 0;
-
+	my @callStack;
+	my $func;
+	
+	@callStack = getCallStack();
+	
+	# Pop this function off the stack.  We don't need to see "dumpCallStack"
+	# in the stack output.
+	pop @callStack;
+	
 	print "*** Start Call Stack ***\n";
-	while(($package, $file, $line, $subname, $hashargs) = caller($i++))
+	while($func = pop @callStack)
 	{
-		print "$file:$line:$subname\n";
+		print "$func\n";
 	}
 	print "*** End Call Stack ***\n";
+}
+
+
+#############################################################################
+#	
+sub getCallStack
+{
+	my ($package, $file, $line, $subname, $hashargs);
+	my @callStack;
+	my $i = 0;
+	
+	while(($package, $file, $line, $subname, $hashargs) = caller($i++))
+	{
+		# We unshift it so that we can use "pop" to get them in the
+		# desired order.
+		unshift @callStack, "$file:$line:$subname";
+	}
+
+	# Get rid of this function.  We don't need to see "getCallStack" in
+	# the stack.
+	pop @callStack;
+
+	return @callStack;
 }
 
 
