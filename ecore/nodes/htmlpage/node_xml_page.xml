@@ -12,10 +12,7 @@
   <field type="noderef" type_nodetype="location,nodetype" name="loc_location">htmlpage</field>
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="literal_value" name="ownedby_theme">0</field>
-  <field type="literal_value" name="page">[%
-  use Everything::XML;
-  node2xml($NODE);
-%]</field>
+  <field type="literal_value" name="page">[% $NODE->toXML(); %]</field>
   <field type="noderef" type_nodetype="nodetype,nodetype" name="pagetype_nodetype">node</field>
   <field type="literal_value" name="parent_container">0</field>
   <field type="literal_value" name="permissionneeded">w</field>
