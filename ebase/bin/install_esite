@@ -90,7 +90,7 @@ sub getEverythingDir {
 	$script =~ s/\/[^\/]+$/\/../;
 	
 	#try the following directories
-	my @trythese = qw(. .. /usr/local/everything $script);
+	my @trythese = qw(. .. /usr/local/everything /usr/share/everything $script);
 	foreach (@trythese) {
 		if (checkEdir($_)) {
 			$OPTIONS{edir} = absPath $_;
