@@ -30,7 +30,7 @@ sub nuke
 	
 	if($result > 0)
 	{
-		# Set all the nodes that where in this location to be in the
+		# Set all the nodes that were in this location to be in the
 		# parent location... deleting a location does not delete all
 		# the nodes inside of it.
 		$$this{DB}->sqlUpdate("node", { loc_location => $parentLoc },
