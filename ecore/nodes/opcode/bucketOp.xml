@@ -78,6 +78,7 @@ if($query->param("bdrop") or $query->param("dropexec"))
   }
 
   $$VARS{nodebucket} = $bucket;
+  delete $$VARS{nodebucket} unless($bucket && $bucket ne "");
 }</field>
   <field type="literal_value" name="dynamicauthor_permission">-1</field>
   <field type="literal_value" name="dynamicgroup_permission">-1</field>
