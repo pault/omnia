@@ -82,6 +82,18 @@ sub new
 }
 
 
+#########################################################################
+#
+#	sub
+#		joinWorkspace
+#
+#	purpose
+#		create the $DB->{workspace} object if a workspace is specified.  If
+#		the sole parameter is 0, then the workspace is deleted.
+#
+#	params 
+#		WORKSPACE -- workspace_id, node, or 0 for none
+#
 sub joinWorkspace {
 	my ($this, $WORKSPACE) = @_;
 	
