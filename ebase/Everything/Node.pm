@@ -39,7 +39,7 @@ use XML::DOM;
 #			so that when we implement these methods, we can access
 #			the basic sql functions.
 #		$nocache - (optional) True if the new node should not be cached.
-#			Preferably pass 'nocache', so that its obvious what you are
+#			Preferably pass 'nocache', so that it's obvious what you are
 #			doing.
 #
 sub new
@@ -155,7 +155,6 @@ sub AUTOLOAD
 	$func =~ s/.*:://;
 
 	if ((defined($$this{SUPERfunc})) && ($func ne $$this{SUPERfunc}))
-#	if ($func ne $$this{SUPERfunc})
 	{
 		# If the function being called is different from what we have
 		# as a SUPERfunc, that means the implementation has called
@@ -758,7 +757,7 @@ sub deriveUsergroup
 #			getUserNodeRelation().
 #
 #	Returns
-#		A hashref that contains the strings of the permissions.  The
+#		A string containing valid permission characters.  The
 #		strings can contain any of these characters "rwxdc-".
 #
 sub getDefaultPermissions
@@ -891,8 +890,9 @@ sub updateLinks
 
 	return unless($FROMNODE);
 
-	$type ||= 0;
 	$type = $$this{DB}->getId($type);
+	$type ||= 0;
+
 	my $to_id = $$this{node_id};
 	my $from_id = $$this{DB}->getId($FROMNODE);
 
@@ -901,7 +901,9 @@ sub updateLinks
 			"from_node=$from_id && to_node=$to_id && linktype=" .
 			$$this{DB}->getDatabaseHandle()->quote($type));
 
-	if (not $rows)
+	# '0E0' returned from the DBI indicates successful statement execution
+	# with 0 rows affected.  They just didn't like '0 but true'.
+	if (not $rows or $rows eq '0E0')
 	{ 
 		$$this{DB}->sqlInsert("links", {'from_node' => $from_id,
 				'to_node' => $to_id, 'linktype' => $type,
@@ -1128,7 +1130,7 @@ sub getNodeDatabaseHash
 		@fields = $$this{DB}->getFields($table);
 
 		# And add only those fields to the hash.
-		@keys{@fields} = $$this{@fields};	
+		@keys{@fields} = @$this{@fields};	
 	}
 
 	return \%keys;
