@@ -1,0 +1,171 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<group >
+		<groupnode1 table="nodegroup" type="nodetype">nodetype</groupnode1>
+		<groupnode2 table="nodegroup" type="nodetype">container</groupnode2>
+		<groupnode3 table="nodegroup" type="nodetype">dbtable</groupnode3>
+		<groupnode4 table="nodegroup" type="nodetype">document</groupnode4>
+		<groupnode5 table="nodegroup" type="nodetype">file</groupnode5>
+		<groupnode6 table="nodegroup" type="nodetype">htmlcode</groupnode6>
+		<groupnode7 table="nodegroup" type="nodetype">htmlpage</groupnode7>
+		<groupnode8 table="nodegroup" type="nodetype">image</groupnode8>
+		<groupnode9 table="nodegroup" type="nodetype">maintenance</groupnode9>
+		<groupnode10 table="nodegroup" type="nodetype">meta-user</groupnode10>
+		<groupnode11 table="nodegroup" type="nodetype">node</groupnode11>
+		<groupnode12 table="nodegroup" type="nodetype">nodeball</groupnode12>
+		<groupnode13 table="nodegroup" type="nodetype">nodegroup</groupnode13>
+		<groupnode14 table="nodegroup" type="nodetype">nodelet</groupnode14>
+		<groupnode15 table="nodegroup" type="nodetype">nodeletgroup</groupnode15>
+		<groupnode16 table="nodegroup" type="nodetype">restricted_superdoc</groupnode16>
+		<groupnode17 table="nodegroup" type="nodetype">setting</groupnode17>
+		<groupnode18 table="nodegroup" type="nodetype">superdoc</groupnode18>
+		<groupnode19 table="nodegroup" type="nodetype">user</groupnode19>
+		<groupnode20 table="nodegroup" type="nodetype">usergroup</groupnode20>
+		<groupnode21 table="nodegroup" type="container">e2container</groupnode21>
+		<groupnode22 table="nodegroup" type="container">formcontainer</groupnode22>
+		<groupnode23 table="nodegroup" type="container">general container</groupnode23>
+		<groupnode24 table="nodegroup" type="container">nodelet container</groupnode24>
+		<groupnode25 table="nodegroup" type="container">nodeletshadow container</groupnode25>
+		<groupnode26 table="nodegroup" type="container">stdcontainer</groupnode26>
+		<groupnode27 table="nodegroup" type="dbtable">document</groupnode27>
+		<groupnode28 table="nodegroup" type="dbtable">container</groupnode28>
+		<groupnode29 table="nodegroup" type="dbtable">htmlcode</groupnode29>
+		<groupnode30 table="nodegroup" type="dbtable">htmlpage</groupnode30>
+		<groupnode31 table="nodegroup" type="dbtable">image</groupnode31>
+		<groupnode32 table="nodegroup" type="dbtable">links</groupnode32>
+		<groupnode33 table="nodegroup" type="dbtable">mail</groupnode33>
+		<groupnode34 table="nodegroup" type="dbtable">maintenance</groupnode34>
+		<groupnode35 table="nodegroup" type="dbtable">node</groupnode35>
+		<groupnode36 table="nodegroup" type="dbtable">nodegroup</groupnode36>
+		<groupnode37 table="nodegroup" type="dbtable">nodelet</groupnode37>
+		<groupnode38 table="nodegroup" type="dbtable">nodetype</groupnode38>
+		<groupnode39 table="nodegroup" type="dbtable">setting</groupnode39>
+		<groupnode40 table="nodegroup" type="dbtable">user</groupnode40>
+		<groupnode41 table="nodegroup" type="document">Everything 2 Idea List</groupnode41>
+		<groupnode42 table="nodegroup" type="document">Everything 2 Todo list</groupnode42>
+		<groupnode43 table="nodegroup" type="htmlcode">adminbar</groupnode43>
+		<groupnode44 table="nodegroup" type="htmlcode">basichead</groupnode44>
+		<groupnode45 table="nodegroup" type="htmlcode">checkvar</groupnode45>
+		<groupnode46 table="nodegroup" type="htmlcode">closeform</groupnode46>
+		<groupnode47 table="nodegroup" type="htmlcode">coreStatus</groupnode47>
+		<groupnode48 table="nodegroup" type="htmlcode">create_nodes</groupnode48>
+		<groupnode49 table="nodegroup" type="htmlcode">displayInherited</groupnode49>
+		<groupnode50 table="nodegroup" type="htmlcode">displayNODE</groupnode50>
+		<groupnode51 table="nodegroup" type="htmlcode">displaySetting</groupnode51>
+		<groupnode52 table="nodegroup" type="htmlcode">displaytable</groupnode52>
+		<groupnode53 table="nodegroup" type="htmlcode">displayvars</groupnode53>
+		<groupnode54 table="nodegroup" type="htmlcode">editvars</groupnode54>
+		<groupnode55 table="nodegroup" type="htmlcode">encodehtml</groupnode55>
+		<groupnode56 table="nodegroup" type="htmlcode">groupList</groupnode56>
+		<groupnode57 table="nodegroup" type="htmlcode">groupMenu</groupnode57>
+		<groupnode58 table="nodegroup" type="htmlcode">groupeditor</groupnode58>
+		<groupnode59 table="nodegroup" type="htmlcode">listFields</groupnode59>
+		<groupnode60 table="nodegroup" type="htmlcode">listcode</groupnode60>
+		<groupnode61 table="nodegroup" type="htmlcode">listgroup</groupnode61>
+		<groupnode62 table="nodegroup" type="htmlcode">node_menu</groupnode62>
+		<groupnode63 table="nodegroup" type="htmlcode">nodelet meta-container</groupnode63>
+		<groupnode64 table="nodegroup" type="htmlcode">onepix</groupnode64>
+		<groupnode65 table="nodegroup" type="htmlcode">openform</groupnode65>
+		<groupnode66 table="nodegroup" type="htmlcode">parsecode</groupnode66>
+		<groupnode67 table="nodegroup" type="htmlcode">parselinks</groupnode67>
+		<groupnode68 table="nodegroup" type="htmlcode">parsetime</groupnode68>
+		<groupnode69 table="nodegroup" type="htmlcode">password_field</groupnode69>
+		<groupnode70 table="nodegroup" type="htmlcode">searchform</groupnode70>
+		<groupnode71 table="nodegroup" type="htmlcode">serverstats</groupnode71>
+		<groupnode72 table="nodegroup" type="htmlcode">set_htmlvars</groupnode72>
+		<groupnode73 table="nodegroup" type="htmlcode">settingList</groupnode73>
+		<groupnode74 table="nodegroup" type="htmlcode">settingMenu</groupnode74>
+		<groupnode75 table="nodegroup" type="htmlcode">setvar</groupnode75>
+		<groupnode76 table="nodegroup" type="htmlcode">showChoiceFunc</groupnode76>
+		<groupnode77 table="nodegroup" type="htmlcode">textarea</groupnode77>
+		<groupnode78 table="nodegroup" type="htmlcode">textfield</groupnode78>
+		<groupnode79 table="nodegroup" type="htmlcode">titlebar</groupnode79>
+		<groupnode80 table="nodegroup" type="htmlcode">updatetable</groupnode80>
+		<groupnode81 table="nodegroup" type="htmlcode">userbody</groupnode81>
+		<groupnode82 table="nodegroup" type="htmlcode">uploadimage</groupnode82>
+		<groupnode83 table="nodegroup" type="htmlcode">varmenu</groupnode83>
+		<groupnode84 table="nodegroup" type="htmlcode">windowview</groupnode84>
+		<groupnode85 table="nodegroup" type="htmlcode">yesno_field</groupnode85>
+		<groupnode86 table="nodegroup" type="htmlpage">container display page</groupnode86>
+		<groupnode87 table="nodegroup" type="htmlpage">container edit page</groupnode87>
+		<groupnode88 table="nodegroup" type="htmlpage">dbtable display page</groupnode88>
+		<groupnode89 table="nodegroup" type="htmlpage">dbtable edit page</groupnode89>
+		<groupnode90 table="nodegroup" type="htmlpage">document display page</groupnode90>
+		<groupnode91 table="nodegroup" type="htmlpage">document edit page</groupnode91>
+		<groupnode92 table="nodegroup" type="htmlpage">htmlcode display page</groupnode92>
+		<groupnode93 table="nodegroup" type="htmlpage">htmlcode edit page</groupnode93>
+		<groupnode94 table="nodegroup" type="htmlpage">htmlpage display page</groupnode94>
+		<groupnode95 table="nodegroup" type="htmlpage">htmlpage edit page</groupnode95>
+		<groupnode96 table="nodegroup" type="htmlpage">image display page</groupnode96>
+		<groupnode97 table="nodegroup" type="htmlpage">image edit page</groupnode97>
+		<groupnode98 table="nodegroup" type="htmlpage">image upload page</groupnode98>
+		<groupnode99 table="nodegroup" type="htmlpage">maintenance display page</groupnode99>
+		<groupnode100 table="nodegroup" type="htmlpage">maintenance edit page</groupnode100>
+		<groupnode101 table="nodegroup" type="htmlpage">node display page</groupnode101>
+		<groupnode102 table="nodegroup" type="htmlpage">node edit page</groupnode102>
+		<groupnode103 table="nodegroup" type="htmlpage">nodeball display page</groupnode103>
+		<groupnode104 table="nodegroup" type="htmlpage">nodeball edit page</groupnode104>
+		<groupnode105 table="nodegroup" type="htmlpage">nodegroup display page</groupnode105>
+		<groupnode106 table="nodegroup" type="htmlpage">nodegroup edit page</groupnode106>
+		<groupnode107 table="nodegroup" type="htmlpage">nodegroup editor page</groupnode107>
+		<groupnode108 table="nodegroup" type="htmlpage">nodelet display page</groupnode108>
+		<groupnode109 table="nodegroup" type="htmlpage">nodelet edit page</groupnode109>
+		<groupnode110 table="nodegroup" type="htmlpage">nodetype display page</groupnode110>
+		<groupnode111 table="nodegroup" type="htmlpage">nodetype edit page</groupnode111>
+		<groupnode112 table="nodegroup" type="htmlpage">setting display page</groupnode112>
+		<groupnode113 table="nodegroup" type="htmlpage">setting edit page</groupnode113>
+		<groupnode114 table="nodegroup" type="htmlpage">superdoc display page</groupnode114>
+		<groupnode115 table="nodegroup" type="htmlpage">superdoc edit page</groupnode115>
+		<groupnode116 table="nodegroup" type="htmlpage">user display page</groupnode116>
+		<groupnode117 table="nodegroup" type="htmlpage">user edit page</groupnode117>
+		<groupnode118 table="nodegroup" type="image">noisy sunset</groupnode118>
+		<groupnode119 table="nodegroup" type="maintenance">dbtable maintenance create</groupnode119>
+		<groupnode120 table="nodegroup" type="maintenance">dbtable maintenance delete</groupnode120>
+		<groupnode121 table="nodegroup" type="maintenance">nodeball maintenance create</groupnode121>
+		<groupnode122 table="nodegroup" type="nodegroup">htmlvars nodegroup</groupnode122>
+		<groupnode123 table="nodegroup" type="nodelet">%$NODE</groupnode123>
+		<groupnode124 table="nodegroup" type="nodelet">CGI::param</groupnode124>
+		<groupnode125 table="nodegroup" type="nodelet">Links</groupnode125>
+		<groupnode126 table="nodegroup" type="nodelet">New Nodes</groupnode126>
+		<groupnode127 table="nodegroup" type="nodelet">Node Statistics</groupnode127>
+		<groupnode128 table="nodegroup" type="nodelet">Other Users</groupnode128>
+		<groupnode129 table="nodegroup" type="nodelet">Server Statistics</groupnode129>
+		<groupnode130 table="nodegroup" type="nodelet">Tick tock</groupnode130>
+		<groupnode131 table="nodegroup" type="nodelet">admin nodelet</groupnode131>
+		<groupnode132 table="nodegroup" type="nodelet">nodecache</groupnode132>
+		<groupnode133 table="nodegroup" type="nodeletgroup">all nodelets</groupnode133>
+		<groupnode134 table="nodegroup" type="nodeletgroup">default nodelets</groupnode134>
+		<groupnode135 table="nodegroup" type="nodeletgroup">system nodelets</groupnode135>
+		<groupnode136 table="nodegroup" type="restricted_superdoc">Gigantic Code Lister</groupnode136>
+		<groupnode137 table="nodegroup" type="restricted_superdoc">Gigantic Node Lister</groupnode137>
+		<groupnode138 table="nodegroup" type="restricted_superdoc">create node</groupnode138>
+		<groupnode139 table="nodegroup" type="restricted_superdoc">node locked</groupnode139>
+		<groupnode140 table="nodegroup" type="setting">system settings</groupnode140>
+		<groupnode141 table="nodegroup" type="superdoc">Create A New User</groupnode141>
+		<groupnode142 table="nodegroup" type="superdoc">Duplicates Found</groupnode142>
+		<groupnode143 table="nodegroup" type="superdoc">Not found</groupnode143>
+		<groupnode144 table="nodegroup" type="superdoc">Permission Denied</groupnode144>
+		<groupnode145 table="nodegroup" type="superdoc">Search Results</groupnode145>
+		<groupnode146 table="nodegroup" type="superdoc">The Default Node</groupnode146>
+		<groupnode147 table="nodegroup" type="superdoc">The Everything Tour</groupnode147>
+		<groupnode148 table="nodegroup" type="superdoc">User settings</groupnode148>
+		<groupnode149 table="nodegroup" type="superdoc">login</groupnode149>
+		<groupnode150 table="nodegroup" type="superdoc">user variables</groupnode150>
+		<groupnode151 table="nodegroup" type="user">Guest User</groupnode151>
+		<groupnode152 table="nodegroup" type="user">qauser</groupnode152>
+		<groupnode153 table="nodegroup" type="user">root</groupnode153>
+		<groupnode154 table="nodegroup" type="usergroup">gods</groupnode154>
+		<groupnode155 table="nodegroup" type="nodetype">mail</groupnode155>
+		<groupnode156 table="nodegroup" type="htmlpage">mail display page</groupnode156>
+	</group>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">core system</title>
+	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
+	<vars table="setting">
+		<author >Nate Oostendorp and Darrick Brown</author>
+		<description >The core system of Everything.   </description>
+		<version >0.7.9</version>
+	</vars>
+</NODE>
