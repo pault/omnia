@@ -367,14 +367,22 @@ sub main {
 	getEverythingDir();
 	$OPTIONS{edir} = absPath $OPTIONS{edir};
 
-	unless (defined $OPTIONS{rootpass}) {
-		ReadMode 'noecho';
-		$OPTIONS{rootpass} = RLquick("Please enter the root password for mysql");
-		print "\n";
-		ReadMode 'normal';
-	}
+	my $dbh;
+	while(not $dbh){
+		unless (defined $OPTIONS{rootpass}) {
+			ReadMode 'noecho';
+			$OPTIONS{rootpass} = RLquick("Please enter the root password for mysql");
+			print "\n";
+			ReadMode 'normal';
+		}
 
-	my $dbh = DBI->connect("DBI:mysql:mysql:$OPTIONS{host}", "root", $OPTIONS{rootpass});
+		$dbh = DBI->connect("DBI:mysql:mysql:$OPTIONS{host}", "root", $OPTIONS{rootpass});
+
+		unless($dbh){
+			print "\n\nYour password was incorrect. Please try again.\n";
+			delete $OPTIONS{rootpass};
+		}
+	}
 
 	#confirm to clobber DB if exists
 	unless ($OPTIONS{nocreatedb}) { 
