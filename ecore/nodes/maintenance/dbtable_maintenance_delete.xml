@@ -8,7 +8,7 @@ getRef $NODE;
 $DB-&gt;dropNodeTable($$NODE{title});</code>
 	<core table="node">R</core>
 	<maintain_nodetype table="maintenance" type="nodetype">dbtable</maintain_nodetype>
-	<maintaintype table="maintenance">delete</maintaintype>
+	<maintaintype table="maintenance">delete before</maintaintype>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
 	<title table="node">dbtable maintenance delete</title>

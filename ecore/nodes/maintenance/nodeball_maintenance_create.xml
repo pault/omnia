@@ -9,7 +9,7 @@ my $VARS= {
 setVars $NODE, $VARS;</code>
 	<core table="node">0</core>
 	<maintain_nodetype table="maintenance" type="nodetype">nodeball</maintain_nodetype>
-	<maintaintype table="maintenance">create</maintaintype>
+	<maintaintype table="maintenance">create after</maintaintype>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
 	<title table="node">nodeball maintenance create</title>
