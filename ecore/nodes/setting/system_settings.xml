@@ -14,8 +14,9 @@
 		<default_theme type="theme">default theme</default_theme>
 		<generalParent_container type="container">e2container</generalParent_container>
 		<default_node type="superdoc">The Default Node</default_node>
-		<searchResults_node type="superdoc">Search Results</searchResults_node>
+		<default_nodeletgroup type="nodeletgroup">default nodelets</default_nodeletgroup>
 		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>
+		<searchResults_node type="superdoc">Search Results</searchResults_node>
 		<duplicatesFound_node type="superdoc">Duplicates Found</duplicatesFound_node>
 	</vars>
 </NODE>

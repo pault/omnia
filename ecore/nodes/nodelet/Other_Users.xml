@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node"></core>
-	<lastupdate table="nodelet">945575803</lastupdate>
+	<lastupdate table="nodelet">945821796</lastupdate>
 	<nlcode table="nodelet">Your fellow noders:&lt;br&gt;
 [%
 
@@ -26,7 +26,7 @@ return $str if $str;
 %] </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">Your fellow noders:&lt;br&gt;
-&lt;i&gt;no users logged in&lt;/i&gt; </nltext>
+&lt;A HREF="/index.pl?node_id=170&amp;lastnode_id=164"&gt;root&lt;/a&gt;&lt;br&gt; </nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>

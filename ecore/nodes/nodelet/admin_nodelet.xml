@@ -1,14 +1,14 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945580128</lastupdate>
+	<lastupdate table="nodelet">945821901</lastupdate>
 	<nlcode table="nodelet">[{adminbar}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/index.pl?displaytype=display&amp;node_id=70&amp;lastnode_id=70"&gt;display&lt;/a&gt; edit 
+	<nltext table="nodelet">&lt;A HREF="/index.pl?displaytype=display&amp;node_id=133&amp;lastnode_id=133"&gt;display&lt;/a&gt; edit 
 &lt;SCRIPT language="javascript"&gt;
        function confirmDelete(){
-          if(confirm("Delete 'nodelet meta-container'?")){
-		parent.location="/index.pl?node_id=70&amp;op=nuke"; }
+          if(confirm("Delete 'core system'?")){
+		parent.location="/index.pl?node_id=133&amp;op=nuke"; }
         }
        &lt;/SCRIPT&gt;
 

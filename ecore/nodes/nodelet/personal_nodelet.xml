@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<core table="node">0</core>
-	<lastupdate table="nodelet">945580129</lastupdate>
+	<lastupdate table="nodelet">945821901</lastupdate>
 	<nlcode table="nodelet">[%
   my $limit = $HTMLVARS{personalNodeletLimit};
   $limit||=10;
@@ -30,7 +30,7 @@
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">
-&lt;p align=right&gt;&lt;A HREF="/index.pl?addpersonalnodelet=70&amp;node_id=70&amp;lastnode_id=70"&gt;add "nodelet meta-container"&lt;/a&gt;</nltext>
+&lt;p align=right&gt;&lt;A HREF="/index.pl?addpersonalnodelet=133&amp;node_id=133&amp;lastnode_id=133"&gt;add "core system"&lt;/a&gt;</nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>

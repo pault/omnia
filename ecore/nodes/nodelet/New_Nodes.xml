@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">945575798</lastupdate>
+	<lastupdate table="nodelet">945821789</lastupdate>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
@@ -22,7 +22,9 @@ $str;
 
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=165&amp;lastnode_id=161"&gt;user variables&lt;/a&gt;&lt;BR&gt;
+	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=173&amp;lastnode_id=161"&gt;nate oostendorp&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=172&amp;lastnode_id=161"&gt;mail settings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=165&amp;lastnode_id=161"&gt;user variables&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/index.pl?node_id=166&amp;lastnode_id=161"&gt;default theme&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/index.pl?node_id=167&amp;lastnode_id=161"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/index.pl?node_id=168&amp;lastnode_id=161"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
@@ -35,8 +37,6 @@ $str;
 &lt;A HREF="/index.pl?node_id=157&amp;lastnode_id=161"&gt;Duplicates Found&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/index.pl?node_id=158&amp;lastnode_id=161"&gt;Not found&lt;/a&gt;&lt;BR&gt;
 &lt;A HREF="/index.pl?node_id=159&amp;lastnode_id=161"&gt;Permission Denied&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=160&amp;lastnode_id=161"&gt;Search Results&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/index.pl?node_id=161&amp;lastnode_id=161"&gt;The Default Node&lt;/a&gt;&lt;BR&gt;
 </nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
