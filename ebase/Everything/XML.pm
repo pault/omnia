@@ -370,7 +370,7 @@ sub parseBasicTag
 		patchXMLwhere(\%WHERE);
 
 		my $TYPE = getType($WHERE{type_nodetype});
-		delete $WHERE{type_nodetype};	
+		#delete $WHERE{type_nodetype};	
 
 		my $NODEID;
 		$NODEID = selectNodeWhere(\%WHERE, $TYPE);

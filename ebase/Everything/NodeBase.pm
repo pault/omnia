@@ -1561,7 +1561,7 @@ sub genWhereString
 
 			# if your where hash includes a hash to a node, you probably really
 			# want to compare the ID of the node, not the hash reference.
-			if (ref ($$WHERE{$key}) eq "HASH")
+			if (ref ($$WHERE{$key}) eq "Everything::Node")
 			{
 				$$WHERE{$key} = $this->getId($$WHERE{$key});
 			}
