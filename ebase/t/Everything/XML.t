@@ -67,15 +67,19 @@ can_ok( $package, 'fixNodes' );
 	$mock->set_series( applyXMLFix => 1, 0, 1 )
 		 ->set_true( 'commitXMLFixes' )
 		 ->clear();
-	@$unfixed{qw( foo bar )} = ([1, 2], []);
+	$unfixed->{foo} = [1, 2];
 
 	fixNodes( 'printflag' );
 	($method, $args) = $mock->next_call();
 	is( $method, 'applyXMLFix', '... calling applyXMLFix() for all unfixed' );
 	is( join('-',@$args), "$mock-1-printflag", '... with fix and print error' );
-
 	is_deeply( $unfixed, { foo => [ 1 ] }, '... saving only unfixed nodes' );
-	is( $mock->next_call( 3 ), 'commitXMLFixes', '... commiting fixes' );
+
+	$mock->clear();
+
+	$unfixed = { bar => [] };
+	fixNodes( 'printflag' );
+	is( $mock->next_call( 2 ), 'commitXMLFixes', '... committing fixes' );
 }
 
 can_ok( $package, 'xml2node' );
