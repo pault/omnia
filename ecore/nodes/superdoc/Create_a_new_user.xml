@@ -121,7 +121,7 @@ s/\&lt;login\&gt;/$HTMLVARS{site_url}index\.pl\?node_id=$HTMLVARS{login_node}/g;
 
 
 
-use Everything::MAIL;
+use Everything::Mail;
 node2mail($NEWUSER-&gt;{email},$n);
 
 $str;
