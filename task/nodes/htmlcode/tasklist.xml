@@ -35,21 +35,27 @@ unless ((defined $orderby) || (exists $fields{$orderby})) {
 }
 $orderby = $fields{$orderby};
 
-my ($where, $checked);
-$where = "owner = '$USER-&gt;{user_id}'" unless ($big);
+my $moreorder = '';
+my $order = $query-&gt;param('order');
+$order = $VARS-&gt;{task_list_sort_order} unless (defined $order);
+$order = 0 unless (defined $order &amp;&amp; $order =~ /^[01]$/);
+$moreorder .= " DESC" if ($order);
 
-if ($query-&gt;param('no_closed') or $VARS-&gt;{task_no_closed}) {
-	$checked = " CHECKED";
-	$where .= " status &lt;&gt; 'closed'";
-	$$VARS{task_no_closed} = 1;
+my (@where, $checked);
+push @where, "owner = '$USER-&gt;{user_id}'" unless ($big);
+
+$checked = $VARS-&gt;{task_no_closed} || 0;
+if ($query-&gt;param('no_closed') =~ /^[01]$/) {
+	$VARS-&gt;{task_no_closed} = ($checked = $query-&gt;param('no_closed')) ? 1 : '';
 }
+push @where, "status &lt;&gt; 'closed'" if $checked;
 
 if ($small) {
-	$orderby .= " limit " . ($VARS-&gt;{'small_task_list_limit'} || '8');
+	$moreorder .= " limit " . ($VARS-&gt;{'small_task_list_limit'} || '8');
 }
 
-my $cursor = $DB-&gt;getNodeCursor(join(", ", @fields{@order}, 'task_id'), $where,
-	'task', $orderby);
+my $cursor = $DB-&gt;getNodeCursor(join(", ", @fields{@order}, 'task_id'), 
+	join(" and ", @where), 'task', $orderby . $moreorder);
 return 'None found in database!' unless $cursor;
 return 'Database call failed!' unless $cursor-&gt;execute();
 
@@ -60,18 +66,26 @@ if ($small) {
 	$open = '&lt;td&gt;&lt;font size="2"&gt;';
 	$close = '&lt;/font&gt;&lt;/td&gt;';
 } else {
-	$str .= &lt;&lt;SORT;
-&lt;form method="POST"&gt;
-&lt;input type="hidden" name="node_id" value="$$NODE{node_id}"&gt;
-&lt;input type="checkbox" name="no_closed"$checked&gt;Ignore closed tasks&lt;/input&gt;
-&lt;select name="sortby"&gt;
-SORT
+	$str .= qq|&lt;form method="POST"&gt;&lt;input type="hidden" name="node_id" value="$$NODE{node_id}"&gt;|;
+	$str .= qq|&lt;table border=0&gt;&lt;tr&gt;&lt;th&gt;Include closed?&lt;/th&gt;&lt;th&gt;Sort Field&lt;/th&gt;&lt;th&gt;Sort Order&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;|;
+	for (0 .. 1) {
+		$str .= qq|&lt;input type="radio" name="no_closed" value="$_"|;
+		$str .= " checked" if $_ == $checked;
+		$str .= "&gt;" . ($_ == 0 ? "Yes" : "No") . "&lt;/input&gt;";
+	}
+	$str .= qq|&lt;/td&gt;&lt;td&gt;&lt;select name="sortby"&gt;|;
 	foreach my $field (keys %fields) {
 		$str .= "&lt;option";
 		$str .= " selected" if ($field eq $orderby);
 		$str .= qq| value="$field"&gt;$fields{$field}&lt;/option&gt;\n|;
 	}
-	$str .= '&lt;/select&gt;&lt;input type="submit" value="sort"&gt;&lt;/form&gt;';
+	$str .= qq|&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;select name="order"&gt;|;
+	for (0 .. 1) {
+		$str .= "&lt;option";
+		$str .= " selected" if ($_ == $order);
+		$str .= qq| value="$_"&gt;| . ($_ == 0 ? "Normal" : "Reverse") . "&lt;/option&gt;\n";
+	}
+	$str .= '&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;input type="submit" value="Refresh"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/form&gt;';
 	$str .= '&lt;table cellpadding="5"&gt;';
 	$open = '&lt;th&gt;';
 	$close = '&lt;/th&gt;';

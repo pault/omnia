@@ -17,7 +17,7 @@ my %fields = (
 
 my ($str, @order_fields);
 
-my $sm_order = $query-&gt;param('sm_order');
+my $sm_order = $query-&gt;param('sm_order') || $VARS-&gt;{'small_task_list_order'};
 
 foreach my $field (split(/\s*,\s*/, $sm_order)) {
 	push @order_fields, $field if (exists $fields{$field});	
@@ -30,12 +30,12 @@ if ((scalar @order_fields)) {
 }
 $VARS-&gt;{'small_task_list_order'} = $sm_order;
 
-my $orderby = $query-&gt;param('orderby');
+my $orderby = $query-&gt;param('orderby') || $VARS-&gt;{'task_orderby'};
 undef $orderby unless (exists $fields{$orderby});
 
 $VARS-&gt;{'task_orderby'} = $orderby;
 
-my $sm_limit = $query-&gt;param('sm_limit');
+my $sm_limit = $query-&gt;param('sm_limit') || $VARS-&gt;{'sm_limit'};
 $sm_limit =~ tr/0-9//dc;
 
 unless (defined($sm_limit)) {
@@ -51,6 +51,23 @@ foreach my $field (keys %fields) {
 	$sort_field .= "&gt;$field&lt;/option&gt;\n";
 }
 
+my $order = $query-&gt;param('order');
+$order = $VARS-&gt;{'task_list_sort_order'} unless (defined $order);
+
+if ($order == 1) {
+	$VARS-&gt;{'task_list_sort_order'} = 1;
+} else {
+	$order = 0;
+	$VARS-&gt;{'task_list_sort_order'} = '';
+}
+
+my $sort_order;
+for (0 .. 1) {
+	$sort_order .= "&lt;option";
+	$sort_order .= " selected" if $_ == $order;
+	$sort_order .= qq| value="$_"&gt;| . ($_ ? "Reverse" : "Normal") . "&lt;/option&gt;\n";
+}
+
 $str .= &lt;&lt;HTML;
 Choose your settings for the Tasklet nodelet:
 &lt;form method="post"&gt;
@@ -63,7 +80,8 @@ Choose your settings for the Tasklet nodelet:
 &lt;tr&gt;&lt;td&gt;Display how many results:&lt;/td&gt;
 &lt;td&gt;&lt;input type="text" name="sm_limit" value="$sm_limit"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Sort results by:&lt;/td&gt;
-&lt;td&gt;&lt;select name="orderby" size="1"&gt;$sort_field&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;td&gt;&lt;select name="orderby" size="1"&gt;$sort_field&lt;/select&gt;
+&lt;select name="order" size="1"&gt;$sort_order&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&lt;input type="submit" value="update!"&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;
 &lt;/table&gt;

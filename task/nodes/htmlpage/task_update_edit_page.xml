@@ -30,19 +30,16 @@
 		$parent ||= $NODE-&gt;{parent_task};
 	}
 
-	my $parent_title = '';
-	if ($NODE-&gt;{title}) {
-		$parent = linkNode($parent);
-	} else {
+	unless ($NODE-&gt;{title}) {
 		my $cursor = $DB-&gt;getNodeCursor('title', { node_id =&gt; $parent });
 		if ($cursor-&gt;execute()) {
-			$parent_title = $cursor-&gt;fetchrow_array();
+			my ($parent_title) = $cursor-&gt;fetchrow_array();
 			$cursor-&gt;finish();
-			$parent = linkNode($parent, $parent_title);
 			$NODE-&gt;{title} = "Re: $parent_title";
 		}
 	}
-	$parent ||= 'none';
+
+	$parent = linkNode($parent) || 'none';
 
 return &lt;&lt;HTML;
 Updated at $date&lt;p&gt;

@@ -13,7 +13,7 @@
 		<groupnode5 table="nodegroup" type="nodemethod">insert</groupnode5>
 		<groupnode6 table="nodegroup" type="nodemethod">update</groupnode6>
 		<groupnode7 table="nodegroup" type="htmlcode">tasklist</groupnode7>
-		<groupnode8 table="nodegroup" type="nodelet">Tasklet</groupnode8>
+		<groupnode8 table="nodegroup" type="nodelet">tasklet</groupnode8>
 		<groupnode9 table="nodegroup" type="superdoc">task lister</groupnode9>
 		<groupnode10 table="nodegroup" type="dbtable">task_update</groupnode10>
 		<groupnode11 table="nodegroup" type="nodetype">task_update</groupnode11>
@@ -36,6 +36,6 @@
 	<vars table="setting">
 		<author >chromatic</author>
 		<description >A task manager allowing for creation of tasks, task_updates, and task sorting and listing.  See documentation on everydevel.com.</description>
-		<version >0.25</version>
+		<version >0.30</version>
 	</vars>
 </NODE>
