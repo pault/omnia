@@ -1004,9 +1004,7 @@ sub getTables
 sub getHash
 {
 	my ($this, $field) = @_;
-	my $store = "hash_" . $field;
 	
-	return $$this{$store} if(exists $$this{$store});
 
 	# We haven't retrieved the hash yet... do it.
 	my %vars;
@@ -1025,9 +1023,8 @@ sub getHash
 		$vars{$_} = "" unless ($vars{$_} =~ /\S/);
 	}
 
-	$$this{$store} = \%vars;
-
-	return $$this{$store};
+    \%vars;
+	
 }
 
 
