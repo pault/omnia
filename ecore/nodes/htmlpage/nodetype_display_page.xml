@@ -140,79 +140,11 @@ foreach (@$pages)
 }
 $str;
 %]
-
-[%
-my $GCL = getNode('code browser', 'restricted_superdoc');
-return unless $GCL;
-
-local *getModuleFunctions = sub {
-    my ($modname) = @_;
-
-    no strict;
-    local *stash;
-    *stash = *{ &quot;${modname}::&quot; };
-    unless (keys %stash) {
-        #we haven't loaded the module.  Make it so.
-        eval &quot;use $modname&quot;;
-        *stash = *{ &quot;${modname}::&quot; };
-    }
-    my @modfuncs;
-
-    require Devel::Peek;
-    Devel::Peek-&gt;import(&quot;CvGV&quot;);
-    foreach(keys %stash) {
-        my $glob = CvGV(\&amp;{$stash{$_}});
-
-        push (@modfuncs, $_)
-            if (defined &amp;{ $stash{$_} }
-                    and $glob eq &quot;\*$modname\:\:$_&quot;);
-    }
-    use strict;
-    return @modfuncs;
-};
-
-
-my %nodemethods = ();
-local *listNodetypeSubs = sub {
-  my ($NT) = @_;
-  my $ret;
-
-  my $dbmethods = getNodeWhere({supports_nodetype =&gt; $NT-&gt;getId}, &quot;nodemethod&quot;);
-  foreach (@$dbmethods) {
-    $ret.=&quot;&lt;li&gt;&quot;.linkNode($_) unless exists $nodemethods{$$_{title}};
-    $nodemethods{$$_{title}} = 1;
-  }
-
-
-  my $module = &quot;Everything\:\:Node\:\:$$NT{title}&quot;;
-  my @functions;
-  @functions = sort {$a cmp $b} getModuleFunctions($module) if exists $DB-&gt;{nodetypeModules}-&gt;{$module};
-  foreach (@functions) {
-    $ret.=&quot;&lt;li&gt;&quot;.linkNode($GCL, $_, { choicefunc =&gt; &quot;$module\:\:$_&quot; }) unless exists $nodemethods{$_};  
-    $nodemethods{$_} = 1;
-  }
-  
-  return $ret;
-};
-my $str = &quot;&lt;p&gt;
-&lt;b&gt;Relevant Nodemethods&lt;/b&gt;:
-&lt;p&gt;&quot;;
-my $NT = $NODE;
-
-while ($NT) {
-  $str.=&quot;&lt;p&gt;Nodemethods provided by &quot;.linkNode($NT).&quot;:&quot;;
-  my $methods = listNodetypeSubs($NT);
-  $methods ||= &quot; &lt;i&gt;none&lt;/i&gt;&quot;;
-  $str.=$methods;
-  last if $$NT{title} eq 'node';
-  $NT = getNode($$NT{extends_nodetype});
-} 
-$str;
-%]</field>
+&lt;br&gt;&lt;br&gt;
+[&lt;availableMethods&gt;]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>
   <field name="title" type="literal_value">nodetype display page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
-
