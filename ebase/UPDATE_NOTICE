@@ -8,3 +8,5 @@
 update maintenance set maintaintype="delete before" where maintaintype="delete";update maintenance set maintaintype="create after" where maintaintype="create";
 update maintenance set maintaintype="update after" where maintaintype="update";
 
+
+alter table node add 
