@@ -173,6 +173,7 @@
 		<groupnode169 table="nodegroup" type="nodelet">personal nodelet</groupnode169>
 		<groupnode170 table="nodegroup" type="htmlcode">titlebar</groupnode170>
 		<groupnode171 table="nodegroup" type="nodetype">opcode</groupnode171>
+		<groupnode172 table="nodegroup" type="restricted_superdoc">node cloner</groupnode172>
 	</group>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
