@@ -1,0 +1,34 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group >
+		<groupnode1 table="nodegroup" type="dbtable">task</groupnode1>
+		<groupnode2 table="nodegroup" type="nodetype">task</groupnode2>
+		<groupnode3 table="nodegroup" type="nodemethod">insert</groupnode3>
+		<groupnode4 table="nodegroup" type="nodemethod">update</groupnode4>
+		<groupnode5 table="nodegroup" type="superdoc">task lister</groupnode5>
+		<groupnode6 table="nodegroup" type="dbtable">task_update</groupnode6>
+		<groupnode7 table="nodegroup" type="nodetype">task_update</groupnode7>
+		<groupnode8 table="nodegroup" type="setting">task settings</groupnode8>
+		<groupnode9 table="nodegroup" type="htmlpage">task edit page</groupnode9>
+		<groupnode10 table="nodegroup" type="htmlpage">task display page</groupnode10>
+		<groupnode11 table="nodegroup" type="htmlcode">popupFromSettings</groupnode11>
+		<groupnode12 table="nodegroup" type="setting">task_update settings</groupnode12>
+		<groupnode13 table="nodegroup" type="htmlpage">task_update edit page</groupnode13>
+		<groupnode14 table="nodegroup" type="htmlpage">task_update display page</groupnode14>
+		<groupnode15 table="nodegroup" type="nodemethod">update</groupnode15>
+	</group>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">nodeball</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">taskball</title>
+	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
+	<vars table="setting">
+	</vars>
+</NODE>
