@@ -20,11 +20,6 @@ foreach ($query-&gt;param) {
 $str;
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;b&gt;node_id&lt;/b&gt;:43&lt;br&gt;
-&lt;b&gt;op&lt;/b&gt;:login&lt;br&gt;
-&lt;b&gt;user&lt;/b&gt;:root&lt;br&gt;
-&lt;b&gt;login&lt;/b&gt;:Login&lt;br&gt;
-</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">CGI::param</field>
