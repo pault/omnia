@@ -138,15 +138,15 @@ sub encodeHTML
 
 	# Note that '&amp;' must be done first.  Otherwise, it would convert
 	# the '&' of the other encodings.
-	$html =~ tr/\&/\&amp\;/;
-	$html =~ tr/\</\&lt\;/;
-	$html =~ tr/\>/\&gt\;/;
-	$html =~ tr/\"/\&quot\;/;
+	$html =~ s/\&/\&amp\;/g;
+	$html =~ s/\</\&lt\;/g;
+	$html =~ s/\>/\&gt\;/g;
+	$html =~ s/\"/\&quot\;/g;
 
 	if($adv)
 	{
-		$html =~ tr/\[/\&\#91\;/;
-		$html =~ tr/\]/\&\#93\;/;
+		$html =~ s/\[/\&\#91\;/g;
+		$html =~ s/\]/\&\#93\;/g;
 	}
 
 	return $html;
@@ -175,15 +175,15 @@ sub decodeHTML
 {
 	my ($html, $adv) = @_;
 
-	$html =~ tr/\&amp\;/\&/;
-	$html =~ tr/\&lt\;/\</;
-	$html =~ tr/\&gt\;/\>/;
-	$html =~ tr/\&quot\;/\"/;
+	$html =~ s/\&amp\;/\&/g;
+	$html =~ s/\&lt\;/\</g;
+	$html =~ s/\&gt\;/\>/g;
+	$html =~ s/\&quot\;/\"/g;
 
 	if($adv)
 	{
-		$html =~ tr/\&\#91\;/\[/;
-		$html =~ tr/\&\#93\;/\]/;
+		$html =~ s/\&\#91\;/\[/g;
+		$html =~ s/\&\#93\;/\]/g;
 	}
 
 	return $html;

@@ -447,9 +447,9 @@ sub makeXmlSafe {
 	my ($str) = @_;
 
 	#we use an HTML convention...  
-	$str =~ tr/\&/\&amp\;/;
-	$str =~ tr/\</\&lt\;/;
-	$str =~ tr/\>/\&gt\;/;
+	$str =~ s/\&/\&amp\;/g;
+	$str =~ s/\</\&lt\;/g;
+	$str =~ s/\>/\&gt\;/g;
 
 	$str;
 }
@@ -466,9 +466,9 @@ sub makeXmlSafe {
 sub unMakeXmlSafe {
 	my ($str) = @_;
 
-	$str =~ tr/\&amp\;/\&/;
-	$str =~ tr/\&lt\;/\</;
-	$str =~ tr/\&gt\;/\>/;
+	$str =~ s/\&amp\;/\&/g;
+	$str =~ s/\&lt\;/\</g;
+	$str =~ s/\&gt\;/\>/g;
 	$str;
 }
 
