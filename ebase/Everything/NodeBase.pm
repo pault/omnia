@@ -114,7 +114,7 @@ sub new
 				#we have to set this, or it crashes when it calls a getRef
 									
 			$vars = Everything::getVars($CACHE);
-			$cacheSize = $$vars{maxSize} if(defined $vars);
+			$cacheSize = $$vars{maxSize} if(exists $$vars{maxSize});
 		}
 
 		$this->{cache}->setCacheSize($cacheSize);
