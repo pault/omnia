@@ -1,11 +1,11 @@
 package Everything::NodeBase::mysql;
 
 #############################################################################
-#       Everything::NodeBase::mysql
-#               Mysql database support.  
+#	Everything::NodeBase::mysql
+#		MySQL database support.  
 #
-#       Copyright 2002 Everything Development Inc.
-#       Format: tabs = 4 spaces
+#	Copyright 2002 - 2003 Everything Development Inc.
+#	Format: tabs = 4 spaces
 #
 #############################################################################
 
@@ -39,20 +39,20 @@ sub databaseConnect
 }
 
 #############################################################################
-#       Sub
-#               lastValue
+#	Sub
+#		lastValue
 #
-#       Purpose
-#               Return the last sequence/auto_increment value inserted into
-#               the database.
+#	Purpose
+#		Return the last sequence/auto_increment value inserted into the
+#		database.
 #
-#       Parameters
-#               table - the table (this MUST be the table used in the last query)
-#               field - the auto_increment field
+#	Parameters
+#		table - the table (this MUST be the table used in the last query)
+#		field - the auto_increment field
 #
-#       Returns
-#               The last sequence/auto_increment value inserted into the
-#               database by this process/connection. undef if error.
+#	Returns
+#		The last sequence/auto_increment value inserted into the database by
+#		this process/connection. undef if error.
 #
 sub lastValue
 {
@@ -101,17 +101,17 @@ sub getFieldsHash
 }
 
 #############################################################################
-#       Sub
-#               tableExists
+#	Sub
+#		tableExists
 #
-#       Purpose
-#               Check to see if a table of the given name exists in this database.
+#	Purpose
+#		Check to see if a table of the given name exists in this database.
 #
-#       Parameters
-#               $tableName - the table to check for.
+#	Parameters
+#		$tableName - the table to check for.
 #
-#       Returns
-#               1 if it exists, 0 if not.
+#	Returns
+#		1 if it exists, 0 if not.
 #
 sub tableExists
 {
@@ -132,19 +132,19 @@ sub tableExists
 }
 
 #############################################################################
-#       Sub
+#	Sub
 #               createNodeTable
 #
-#       Purpose
-#               Create a new database table for a node, if it does not already
-#               exist.  This creates a new table with one field for the id of 
-#               the node in the form of tablename_id.
+#	Purpose
+#		Create a new database table for a node, if it does not already exist.
+#		This creates a new table with one field for the id of the node in the
+#		form of tablename_id.
 #
-#       Parameters
-#               $tableName - the name of the table to create
+#	Parameters
+#		$tableName - the name of the table to create
 #
-#       Returns
-#               1 if successful, 0 if failure, -1 if it already exists.
+#	Returns
+#		1 if successful, 0 if failure, -1 if it already exists.
 #
 sub createNodeTable
 {
@@ -159,21 +159,21 @@ sub createNodeTable
 }
 
 #############################################################################
-#       Sub
-#               createGroupTable
+#	Sub
+#		createGroupTable
 #
-#       Purpose
-#               Creates a new group table if it does not already exist.
+#	Purpose
+#		Creates a new group table if it does not already exist.
 #
-#       Returns
-#               1 if successful, 0 if failure, -1 if it already exists.
+#	Returns
+#		1 if successful, 0 if failure, -1 if it already exists.
 #               
 sub createGroupTable
 {
 	my ($this, $table) = @_;
 
 	return -1 if $this->tableExists($table);
-                
+
 	my $dbh     = $this->getDatabaseHandle();
 	my $tableid = $table . "_id";
 
@@ -191,18 +191,18 @@ sub createGroupTable
 }
 
 #############################################################################
-#       Sub
-#               dropFieldFromTable
+#	Sub
+#		dropFieldFromTable
 #
-#       Purpose
-#               Remove a field from the given table.
+#	Purpose
+#		Remove a field from the given table.
 #
-#       Parameters
-#               $table - the table to remove the field from
-#               $field - the field to drop
+#	Parameters
+#		$table - the table to remove the field from
+#		$field - the field to drop
 #
-#       Returns
-#               1 if successful, 0 if failure
+#	Returns
+#		1 if successful, 0 if failure
 #
 sub dropFieldFromTable
 {
@@ -342,3 +342,46 @@ sub genTableName
 
 	return $table;
 }
+
+=head2 C<databaseExists>
+
+Purpose:
+	See if a database exists
+
+Takes:
+	C<$database>, the name of the database for which to check
+
+Returns:
+	true or false, if the database exists
+
+=cut
+
+sub databaseExists
+{
+	my ($this, $database) = @_;
+	my $sth = $this->{dbh}->prepare( 'show databases' );
+	$sth->execute();
+
+	while (my ($dbname) = $sth->fetchrow())
+	{
+		return 1 if $dbname eq $database;
+	}
+}
+
+sub list_tables
+{
+	my ($this) = @_;
+	my $sth    = $this->{dbh}->prepare( 'show tables' );
+
+	$sth->execute();
+
+	my @tables;
+	while (my ($table) = $sth->fetchrow())
+	{
+		push @tables, $table;
+	}
+
+	return @tables;
+}
+
+sub now { return 'now()' }
