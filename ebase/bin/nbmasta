@@ -120,7 +120,8 @@ sub main {
 		my @tables;
 		foreach my $N (@{ $$NB{group} }) {
 			my $NODE = getNode($N);
-			next unless($NODE && ($$NODE{modified} =~ /[1-9]/));
+			next unless($NODE);
+			next if($dev && (not $$NODE{modified} =~ /[1-9]/));
 			if ($$NODE{type}{title} eq "dbtable") {
 				push @tables, $$NODE{title};
 			}
