@@ -10,7 +10,29 @@ BEGIN {
 
 use TieOut;
 use FakeNode;
-use Test::More tests => 198;
+use Test::More tests => 186;
+
+sub AUTOLOAD {
+    return if $AUTOLOAD =~ /DESTROY$/;
+
+	no strict 'refs';
+	$AUTOLOAD =~ s/^main:://;
+
+	my $sub = "Everything::Node::node::$AUTOLOAD";
+
+	if (defined &{ $sub }) {
+		*{ $AUTOLOAD } = \&{ $sub };
+		goto &{ $sub };
+	}
+}
+
+package Everything;
+
+sub logErrors {
+	$main::errors = join('|', @_);
+}
+
+package main;
 
 my $node = FakeNode->new();
 
@@ -32,11 +54,10 @@ my $result;
 			$import{+shift}++;
 	};
 
-	use_ok( 'Everything::Node::node' );
+	use_ok( 'Everything::Node::node' ) or die;
 	is( scalar keys %import, 4, 
 		'Everything::Node::node should use several packages' );
 }
-
 
 # construct()
 ok( construct(), 'construct() should return true' );
@@ -57,13 +78,18 @@ is( insert($node, $node), 0,
 is( join(' ', @{ $node->{_calls}[-1] }), "hasAccess $node c",
 	'... so should check for create access' );
 
-is( insert($node, $node), 0,
-	'... should return 0 if title is restricted' );
+{
+	local *UNIVERSAL::isa;
+	*UNIVERSAL::isa = sub { 1 };
+
+	is( insert($node, $node), 0,
+		'... should return 0 if title is restricted' );
+}
 is( $node->{_calls}[-1][0], 'restrictTitle',
 	'... so should check for restriction' );
 
 is( $node->{_calls}[-3][0], 'getId', 
-	'... and should get node_id of inserting user' );
+	'... and should get node_id of inserting user if it is a node' );
 is( insert($node, $node), 5, 
 	'... and should return it if it has already been inserted' );
 
@@ -86,8 +112,7 @@ $node->{foo} = 11;
 delete $node->{type}{restrictdupes};
 {
 	package FakeNode;
-	local (*hasAccess, *getTableArray, *getFields, *getNode, *sqlSelect,
-		*sqlInsert);
+	local (*hasAccess, *getTableArray, *getFields, *getNode, *sqlSelect, *sqlInsert, *lastValue);
 
 	my (@ha, @gta, @gf, @gn, @ss, @si);
 
@@ -123,10 +148,14 @@ delete $node->{type}{restrictdupes};
 		push @si, \@args;
 	};
 
+	*lastValue = sub {
+		return sqlSelect( $_[0], "LAST_INSERT_ID()" );
+	};
+
 	package main;
 
 	$node->{node_id} = 0;
-	ok( $result = insert($node, 'user'), 
+	ok( defined($result = insert($node, 'user')), 
 		'... but should return node_id if no dupes exist' );
 
 	is( $si[0][2]{-createtime}, 'now()',
@@ -200,7 +229,7 @@ $node->{_subs} = {
 	sqlSelectMany => [ 0, $node ],
 	getTableArray => [ [ 'deltable'] ],
 	fetchrow => [ 'group' ],
-	do => [ 1, 1, 1 ],
+	sqlDelete => [ 1, 1, 1, 1 ],
 };
 
 $result = nuke($node, 'user');
@@ -224,29 +253,28 @@ $node->{_calls} = [];
 
 isnt( $node->{_calls}[0][0], 'getRef', 
 	'... and should not get user node if it is -1' );
-like( $node->{_calls}[3][1], qr/DELETE FROM links WHERE to_node.+from_node/,
-	'... should delete from or to links in links table' );
-is( $node->{_calls}[4][0], 'isGroupType', 
+like( join(' ', @{ $node->{_calls}[3] } ), qr/sqlDelete links to_node.+from_node/, '... should delete from or to links from links table' );
+is( $node->{_calls}[5][0], 'isGroupType', 
 	'... should check each type is a group node' );
 
-is( join(' ', @{ $node->{_calls}[6] }), 
+is( join(' ', @{ $node->{_calls}[7] }), 
 	'sqlSelectMany table1_id table1 node_id=87',
 	'... should check for node in group table' );
-is( $node->{_calls}[9][0], 'fetchrow',
+is( $node->{_calls}[10][0], 'fetchrow',
 	'... if it exists, should fetch all containing groups' );
-like( join(' ', @{ $node->{_calls}[12] }), qr/do DELETE FROM table2.+e_id=87/,
+like( join(' ', @{ $node->{_calls}[13] }), qr/sqlDelete table2 node_id=87/,
 	'... and should delete from table' );
-is( join(' ', @{ $node->{_calls}[13] }), 'getNode group', 
+is( join(' ', @{ $node->{_calls}[14] }), 'getNode group', 
 	'... and fetch containing node' );
-is( $node->{_calls}[14][0], 'incrementGlobalVersion', '... forcing a reload' );
-is( join(' ', @{ $node->{_calls}[15] }), 'getTableArray 1',
+is( $node->{_calls}[15][0], 'incrementGlobalVersion', '... forcing a reload' );
+is( join(' ', @{ $node->{_calls}[16] }), 'getTableArray 1',
 	'... should fetch all tables for node' );
-like( join(' ', @{ $node->{_calls}[17] }),
-	qr/do DELETE FROM deltable WHERE deltable_id=/,
+like( join(' ', @{ $node->{_calls}[18] }),
+	qr/sqlDelete deltable deltable_id=/,
 	'... should delete node from tables' );
-is( join(' ', @{ $node->{_calls}[18] }), "incrementGlobalVersion $node",
+is( join(' ', @{ $node->{_calls}[19] }), "incrementGlobalVersion $node",
 	'... should mark node as updated in cache' );
-is( join(' ', @{ $node->{_calls}[19] }), "removeNode $node",
+is( join(' ', @{ $node->{_calls}[20] }), "removeNode $node",
 	'... and remove it from cache' );
 is( $node->{node_id}, 0, '... should reset node_id' );
 ok( $result, '... and return true' );
@@ -294,54 +322,32 @@ ok( ! hasVars(), 'hasVars() should return false' );
 
 # clone()
 {
-	local *Everything::Node::node::getNode;
 
-	my @gn;
-	my $gnode = { node_id => 1 };
-	*Everything::Node::node::getNode = sub {
-		push @gn, [ @_ ];
-		return $gnode;
-	};
-	$node->{restrictdupes} = 1;
-
-	clone($node, '', 'title' );
-	is( join(' ', @{ $gn[0] }), "title $node create",
-		'clone() should create a new node of the right type' );
-
-	$node->{restrictdupes} = 0;
-	$result = clone($node, '', 'title');
-	is( join(' ', @{ $gn[1] }), "title $node create force",
-		'... should force creation if nodetype restricts duplicates' );
-	ok( ! $result,
-		'... and should return false if node exists and dupes are prohibited' );
-
-	$gnode->{node_id} = 0;
-
-	# yuck
-	bless($gnode, 'FakeNode');
-
-	$gnode->{_subs} = {
-		insert => [ 0, 1 ],
+	my $gnode = { 
+		node_id => 1,
+		title => "title",
+		createtime => "createtime",
+		type_nodetype => "type_nodetype",
+		type => "type"
 	};
 
-	$result = clone({}, 'user');
+	clone($gnode, {
+		test => 'test',
+		title => "don't copy",
+		node_id => 2,
+		createtime => "don't copy",
+		type_nodetype => "don't copy",
+		type => "don't copy"
+	} );
 
-	is( join(' ', @{ $gnode->{_calls}[0] }), 'insert user',
-		'... should insert new node on behalf of user' );
-
-	ok( ! $result, '... should return false if it fails' );
-	$result = clone({ title => 1, node_id => 4, foo_id => 5, createtime => 6, 
-		foo => 1, bar => 2}, 'user');
-
-	is( $result, $gnode,
-		'... or clone if insert succeeds' );
-	
-	ok( ! exists $result->{title}, '... and should not clone title' );
-	ok( ! exists $result->{createtime}, '... or createtime' );
-
-	# node_id should already exist
-	is( scalar grep(/_id$/, keys %$gnode), 1, '... or id fields' );
-	is( join('', @$gnode{'foo', 'bar'}), '12', '... while keeping the others' );
+	is_deeply( $gnode, {
+		test          => 'test',
+		type          => 'type',
+		title         => 'title',
+		node_id       => 1,
+		createtime    => 'createtime',
+		type_nodetype => 'type_nodetype',
+	}, 'clone() should copy only necessary fields' );
 }
 
 # fieldToXML()
@@ -421,7 +427,7 @@ is( $result, $node->{node_id}, '... returning the new node_id' );
 # applyXMLFix()
 {
 	my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
-	my $fix = { where => $where, field => 'fixme' };
+	my $fix   = { where => $where, field => 'fixme' };
 
 	is( applyXMLFix($node, $fix), $fix,
 		'applyXMLFix() should return fix if it has no "fixBy" field' );
@@ -431,7 +437,7 @@ is( $result, $node->{node_id}, '... returning the new node_id' );
 		'... or if the field is not set to "node"' );
 	like( $errors, qr/^|Error!.+handle fix by 'fixme'/, 
 		'... and should log error if flag is set' );
-	
+
 	$fix->{fixBy} = 'node';
 
 	local *Everything::XML::patchXMLwhere;
@@ -444,7 +450,7 @@ is( $result, $node->{node_id}, '... returning the new node_id' );
 	$node->{_subs} = {
 		getNode => [ 0, 0, { node_id => 42 } ],
 	};
-	
+
 	$errors = '';
 	$result = applyXMLFix($node, $fix);
 	is( $pxw[0][0], $where, '... should try to resolve node' );
@@ -561,10 +567,10 @@ is( getRevision($node, ''), 0,
 $result = getRevision($node, 0);
 
 $call = join(' ', @{ $node->{_calls}[0] }); 
-like( $call, qr/^sqlSelect/, 
+like( $call, qr/^sqlSelectHashref/, 
 	'... should fetch for revision from database' );
 
-like( $call, qr/xml revision node_id=.+revision_id=.+inside_workspace=7/, 
+like( $call, qr/\* revision node_id=.+revision_id=.+inside_workspace=7/, 
 	'... should use workspace id, if it exists' );
 is( $result, 0, '... should return 0 if fetch fails' );
 
@@ -577,17 +583,28 @@ delete $node->{workspace};
 		return [{ x2n => 1 }];
 	};
 
+	package FakeNode;
+	local *sqlSelectHashref;
+
+	my @sshr;
+	*sqlSelectHashref = sub {
+		push @sshr, [ @_ ];
+		return { xml => 'xml' };
+	};
+	
+	package main;
+
 	my @fields = qw( node_id createtime reputation );
 
 	@$node{ @fields } = (8) x 3;
 
 	$result = getRevision($node, 1);
 
-	like( join(' ', @{ $node->{_calls}[1] }), 
-		qr/xml revision node_id=.+revision_id=.+inside_workspace=0/, 
+	like( join(' ', @{ $node->{_calls}[0] }), 
+		qr/^sqlSelectHashref \* revision node_id=.+revision_id=.+inside_workspace=/, 
 		'... should use 0, with no workspace' );
 	is( join(' ', @{ $x2n[0] }), 'xml noupdate', '... should xml-ify revision');
-
+	
 	is( $result->{x2n}, 1, '... returning the revised node' );
 	is( "@$node{@fields}", "@$result{@fields}", 
 		'... and should copy node_id, createtime, and reputation fields' );
@@ -595,9 +612,9 @@ delete $node->{workspace};
 
 # logRevision()
 $node->{_subs} = {
-	hasAccess => [ 0, (1) x 4 ],
+	hasAccess => [ 0, (1) x 3 ],
 	getId => [ 'id' ],
-	getNode => [ $node, $node ],
+	getNode => [ $node ],
 	sqlSelect => [ 0, [ 2, 1, 4 ], 0, [] ],
 };
 $node->{_calls} = [];
@@ -611,11 +628,6 @@ delete $node->{DB}{workspace};
 $node->{type}{maxrevisions} = 0;
 
 $result = logRevision($node, 'user');
-like( join(' ', @{ $node->{_calls}[2] }), qr/sqlDelete revision.+_id < 0/,
-	'... should delete redo revisions for node if not in workspace' );
-is( join(' ', @{ $node->{_calls}[4] }), 'getNode id force',
-	'... and should get node' );
-is( $node->{_calls}[5][0], 'toXML', '... and should XMLify it' );
 is( $result, 0, '... should return 0 if lacking max revisons' );
 
 $node->{_calls} = [];
@@ -711,7 +723,7 @@ $node->{_subs} = {
 
 $result = undo($node, 'user', 0, 0);
 like( join(' ', @{ $node->{_calls}[1] }), 
-	qr/sqlSelectHashref xml, revision_id .+_id=13.+BY rev.+DESC/,
+	qr/sqlSelectHashref \* revision .+_id=13.+BY rev.+DESC/,
 	'... if not in workspace, should fetch revision for node' );
 ok( ! $result, '... should return false unless found' );
 
@@ -825,23 +837,3 @@ like( $errors, qr/node.+invalid characters/, '... and should log error' );
 
 ok( restrictTitle({ title => 'a good name zz9' }), 
 	'... but should return true otherwise' );
-
-sub AUTOLOAD {
-    return if $AUTOLOAD =~ /DESTROY$/;
-
-	no strict 'refs';
-	$AUTOLOAD =~ s/^main:://;
-
-	my $sub = "Everything::Node::node::$AUTOLOAD";
-
-	if (defined &{ $sub }) {
-		*{ $AUTOLOAD } = \&{ $sub };
-		goto &{ $sub };
-	}
-}
-
-package Everything;
-
-sub logErrors {
-	$main::errors = join('|', @_);
-}
