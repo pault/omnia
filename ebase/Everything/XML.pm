@@ -5,6 +5,8 @@ package Everything::XML;
 #        Everything::XML.pm
 #                A module for the XML stuff in Everything
 #
+#	(C) 1999 Everything Development Company
+#
 ############################################################
 
 use strict;
@@ -589,7 +591,7 @@ sub node2xml
 		'lockedby_user',
 		'locktime',
 		'tableArray',
-		'resolvedInheritance');
+		'resolvedInheritance', 'passwd', 'nltext', 'sqltablelist');
 
 	foreach (@NOFIELDS) {
 		delete $$N{$_} if exists $$N{$_};

@@ -383,8 +383,6 @@ sub getCode
 		$DB->getType("htmlcode"));
 	return '"";' unless ($CODELIST);
 	my $CODE = $DB->getNodeById($$CODELIST[0]);
-
-	#$args ||= "";	
 	my $str ='';
 	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
 	$str .= $$CODE{code};
@@ -611,6 +609,18 @@ sub linkNodeTitle {
 sub nodeName
 {
 	my ($node, $user_id) = @_;
+
+	if (my $KW = getNode ('keyword settings', 'setting')) {
+		my $WORDS = getVars $KW;	
+		my $title = lc($node) ."_node";
+		#please note -- this means that keywords must be in lower case...
+
+		if (exists $$WORDS{$title}) {
+			gotoNode($$WORDS{$title}, $user_id);
+			return;
+		}
+	}
+
 
 	my @types = $query->param("type");
 	foreach(@types) {
@@ -1287,6 +1297,7 @@ sub handleUserRequest
 		$nodename =~ s/^\s*|\s*$//g;
 		$nodename =~ s/\s+/ /g;
 		$nodename ="" if $nodename=~/^\W$/;
+		$nodename = substr ($nodename, 0, 80);
 		$query->param("node", $nodename);
 		
 		if ($query->param('op') ne 'new')

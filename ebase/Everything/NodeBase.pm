@@ -1852,14 +1852,14 @@ sub canReadNode {
 #		isApproved
 #
 #	Purpose
-#		Checks to see if the given user is approved to modify the nodes.
+#		Checks to see if the given user is approved within a given group 
 #
 #	Parameters
 #		$user - reference to a user node hash  (-1 if super user)
-#		$NODE - reference to a node to check if the user is approved for
+#		$NODE - reference to a nodegroup that the user might be in 
 #
 #	Returns
-#		true if the user is authorized to change the nodes, false otherwise
+#		true if the user is authorized, false otherwise
 #
 sub isApproved
 {
@@ -1869,11 +1869,11 @@ sub isApproved
 	return 0 if(not defined $NODE);
 
 	return 1 if($this->isGod($USER));
+
 	my $user_id = $this->getId($USER);
-	
-	# A user is always allowed to view their own node
 	return 1 if ($user_id == $this->getId($NODE));
 
+	#you're always approved if it's yourself...
 
 	foreach my $approveduser (@{ $this->selectNodegroupFlat($NODE) })
 	{

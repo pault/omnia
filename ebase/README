@@ -24,9 +24,13 @@ nbmasta export "name_of_nodeball" DATABASE
 are gzipped tarballs, so if you want to see the innards, merely
 tar -xvzf them.
 
+The Ecore nodeball (as well as other distributed nodeballs) are typically in
+the "nodeballs/" directory of your Everything release.  Ecore is required to do 
+anything.  All other nodeballs are optional.
+
 Installation
 
-See the various "readme" files.  You will need to make sure you have
+See the various "setup" files.  You will need to make sure you have
 the appropriate perl modules installed, along with making sure that
 you have apache, mod_perl and mysql set up appropriately.
 
@@ -77,6 +81,10 @@ is executed the Everything system will not exist.  Don't execute it
 unless you really mean it.  I'm serious.
 
 
+
+
 Other Information
 
 For more information see http://www.everydevel.com
+
+and of course, you can always ask for help/report bugs to <nate@oostendorp.net>
