@@ -77,7 +77,7 @@ sub setVars
 
 	$this->setHash($vars, "vars");
 
-	return undef;
+	return;
 }
 
 
@@ -111,6 +111,7 @@ sub hasVars
 sub fieldToXML
 {
 	my ($this, $DOC, $field, $indent) = @_;
+	$indent ||= '';
 
 	if($field eq "vars")
 	{
@@ -206,8 +207,9 @@ sub applyXMLFix
 
 	unless($NODE)
 	{
-		print "Error! Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'".
-			"\nfor field $$FIX{field}\n" if($printError);
+		Everything::logErrors('', 
+		"Error! Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'"
+			. "\nfor field $$FIX{field}\n", '', '') if($printError);
 		return $FIX;
 	}
 
@@ -215,7 +217,7 @@ sub applyXMLFix
 
 	$this->setVars($vars);
 
-	return undef;
+	return;
 }
 
 sub getNodeKeepKeys {
