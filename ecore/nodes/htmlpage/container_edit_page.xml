@@ -16,7 +16,7 @@
   <field name="page" type="literal_value">[&lt;editTitleOwner>]
 
 &lt;b>Parent container:&lt;/b>
-[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;br>
+[{nodeFormObject: TypeMenu, parent_container, parentContainer, container, AUTO, $USER, r, 0}]&lt;br>
 
 container html:&lt;br>
 [{nodeFormObject: TextArea, context}]

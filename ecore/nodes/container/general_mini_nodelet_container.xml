@@ -1,12 +1,22 @@
-<NODE export_version="0.5" nodetype="container" title="show container">
+<NODE export_version="0.5" nodetype="container" title="general mini nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 width=100%>&lt;tr>&lt;td bgcolor="[%
-my $color = $$THEME{showContainerColor};
-$color ||= "#cc99ff";
-$color;%]">
-&amp;lt;[% linkNode($GLOBAL{debugContainer}); %]&amp;gt;&lt;/td>&lt;/tr>&lt;/table>
-CONTAINED_STUFF</field>
+  <field name="context" type="literal_value">[%
+  if (defined($$THEME{miniNodeletParent_container}))
+  {
+    $$CURRENTNODE{parent_container} = $$THEME{miniNodeletParent_container};
+  }
+  else
+  {
+    my $parent;
+    if (defined($parent = $HTMLVARS{generalMiniNodelet_container}) &amp;&amp;
+      $parent != $$CURRENTNODE{parent_container})
+    {
+      $$CURRENTNODE{parent_container} = $parent;
+    }
+}
+"";
+%]CONTAINED_STUFF</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -16,7 +26,7 @@ CONTAINED_STUFF</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="parent_container" type="literal_value">0</field>
-  <field name="title" type="literal_value">show container</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">nodelet container</field>
+  <field name="title" type="literal_value">general mini nodelet container</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
 </NODE>

@@ -42,14 +42,13 @@ $str .= $query->textfield(-name => "node_id",
   &lt;td>
    &lt;font size=2>
 [%
-my $test = $ENV{HTTP_USER_AGENT};
-if ($test=~ /MSIE/ig)
- {my $str = "&lt;a href="; 
+my $str = "&lt;a href="; 
 my $displaytype = $query->param('displaytype');
 $displaytype ||= 'display';
-$str.=urlGen({ 'node_id' => getId($NODE),
+$str .= urlGen({ 'node_id' => getId($NODE),
  'displaytype' => $displaytype,
- 'containers' => 'show'})." >Show containers&lt;/a>";} %]&lt;br>
+ 'containers' => 'show'})." >Show containers&lt;/a>";
+%]&lt;br>
 
    [%
 linkNode(getNode('create node', 'restricted_superdoc'),

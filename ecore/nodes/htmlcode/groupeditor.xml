@@ -5,7 +5,7 @@
 includeJS('findFormObject', 'moveSelectItem');
 
 # Make the object!
-return nodeFormObject('groupEditor', 'daGroup');</field>
+return nodeFormObject('GroupEditor', 'daGroup');</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

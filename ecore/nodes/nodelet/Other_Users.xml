@@ -27,7 +27,7 @@ $str;
 %] </field>
   <field name="nlgoto" type="literal_value">0</field>
   <field name="nltext" type="literal_value">Your fellow noders:&lt;br>
-&lt;i>no users logged in&lt;/i></field>
+&lt;A HREF="/index.pl?node_id=268&amp;lastnode_id=257">root&lt;/a>&lt;br></field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Other Users</field>

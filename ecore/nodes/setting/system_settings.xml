@@ -19,6 +19,8 @@
     <var name="default_nodeletgroup" type="noderef" type_nodetype="nodeletgroup,nodetype">default nodelets</var>
     <var name="default_theme" type="noderef" type_nodetype="theme,nodetype">default theme</var>
     <var name="duplicatesFound_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</var>
+    <var name="generalMiniNodelet_container" type="noderef" type_nodetype="container,nodetype">mini nodelet container</var>
+    <var name="generalNodelet_container" type="noderef" type_nodetype="container,nodetype">nodelet container</var>
     <var name="generalParent_container" type="noderef" type_nodetype="container,nodetype">main container</var>
     <var name="guest_user" type="noderef" type_nodetype="user,nodetype">Guest User</var>
     <var name="nodeLocked_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</var>

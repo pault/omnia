@@ -269,6 +269,9 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">jsWindow</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">general mini nodelet container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">mini nodelet container</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">miniNodelet</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

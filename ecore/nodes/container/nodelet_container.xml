@@ -1,64 +1,39 @@
 <NODE export_version="0.5" nodetype="container" title="nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%>
+  <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=1 width=100%>
 &lt;tr[%
   my $bk = $$THEME{nodeletTitleBackground};
   $bk||="images/titletest.gif";
   return "background='$bk'" if $bk;
 %]>
- &lt;TD bgcolor=[%
+ &lt;td bgcolor=[%
    return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
     "#CC99FF";
   %]>
+  [% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
     &lt;B>&lt;font [%
       my $attr= $$THEME{nodeletTitleFontAttr};
       return $attr if $attr;
       "color=white";
-      %]>[%
-       my $str;
-       if ($$NODELET{title}=~/Mini/i)
-        { $str.="CONTAINED_STUFF"; }
-       else
-        { $str.="$$NODELET{title}"; }
-       $str;
-      %]&lt;/font>&lt;/B>
-  &lt;/TD>
-[%
-my $str; 
-$str.="&lt;td valign=top bgcolor=";
-if ($$THEME{nodeletBodyColor})
- { $str.= $$THEME{nodeletTitleColor} .">"; }
-else
- { $str.="#CC99FF>";  }
-if ($$NODELET{mini_nodelet})
- {
-$str.=linkNode($$NODELET{mini_nodelet}, "&lt;img src=images/minime.gif valign=top align=right border=0>", { 'op' => 'insertMini', 'floyd'=> $$USER{node_id}, 'nodelet' => $$NODELET{node_id},'node' => $$NODE{title}})."&lt;/td>"; }
-else
- { $str.="&amp;nbsp;"; }
-$str;
-%]
-&lt;/TR>
-[%
-my $str;
-if ($$NODELET{title}=~/Mini/i)
-{ $str.="&lt;/table>"; }
-else
-{ $str.="&lt;TR>&lt;TD colspan=2 bgcolor=";
-  if ($$THEME{nodeletBodyColor})
-   { $str.= $$THEME{nodeletBodyColor}; }
-  else
-   { $str.="#CCCCCC"; }
-  $str.=">&lt;FONT ";
-  my $fa = $$THEME{nodeletBodyFontAttr};
-  if ($fa)
-   { $str.= $fa; } 
-  else
-   { $str.="size=2"; }
- $str.="> CONTAINED_STUFF &lt;/FONT>&lt;/TD>&lt;/TR>&lt;/table>";
-}
-$str;
-%]
+      %]>["$$NODELET{title}"]&lt;/font>&lt;/B>
+  &lt;/td>
+&lt;/tr>
+&lt;tr>
+ &lt;td [%
+my $bgcol = $$THEME{nodeletBodyColor};
+$bgcol ||= "#CCCCCC";
+"bgcolor='$bgcol'";
+%]>
+&lt;FONT [%
+my $fa = $$THEME{nodeletBodyFontAttr};
+$fa ||= "size=2";
+$fa;
+%]>
+CONTAINED_STUFF
+&lt;/td>
+&lt;/tr>
+&lt;/table>
 
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

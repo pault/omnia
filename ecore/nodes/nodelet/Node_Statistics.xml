@@ -17,11 +17,12 @@ Last modified:&lt;br> [% return "&lt;i>never&lt;/i>" unless $$NODE{modified} =~ 
 Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br>
 Display page: &lt;br>[% linkNode (getPage($NODE, $query->param("displaytype"))); %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">Node ID:47&lt;br>
-Created on:&lt;br> 2000-08-18 23:13:53&lt;br>
-Hits: 11&lt;br>
-Nodetype: &lt;A HREF="/~paco/temp2/index.pl?node_id=19&amp;lastnode_id=47">superdoc&lt;/a>&lt;br>
-Display page: &lt;br>&lt;A HREF="/~paco/temp2/index.pl?node_id=172&amp;lastnode_id=47">superdoc display page&lt;/a></field>
+  <field name="nltext" type="literal_value">Node ID:258&lt;br>
+Created on:&lt;br> 2001-02-09 12:33:27&lt;br>
+Last modified:&lt;br> &lt;i>never&lt;/i>&lt;br>
+&lt;Hits: 10&lt;br>
+Nodetype: &lt;A HREF="/index.pl?node_id=24&amp;lastnode_id=258">superdoc&lt;/a>&lt;br>
+Display page: &lt;br>&lt;A HREF="/index.pl?node_id=154&amp;lastnode_id=258">superdoc display page&lt;/a></field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Node Statistics</field>

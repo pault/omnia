@@ -1,0 +1,38 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="miniNodelet">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($mini, $align, $valign, $image) = @_;
+
+return "" unless($mini);
+
+my $str;
+my $display = $query->param('displaytype');
+
+$display ||= 'display';
+$image ||= "images/minime.gif";
+
+$str .= "&lt;image src='$image'";
+$str .= " valign='$valign'" if($valign);
+$str .= " align='$align'" if($align);
+$str .= " border=0>";
+
+$mini = $DB->getNode($mini);
+
+return "" unless($$mini{mini_nodelet});
+
+my $link = linkNode($NODE, $str, { 'op' => 'insertMini',
+  'nodelet' => $$mini{node_id}, 'displaytype' => $display } );
+
+$link;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">miniNodelet</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>
