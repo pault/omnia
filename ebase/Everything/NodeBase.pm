@@ -78,14 +78,14 @@ sub new
 		my $cacheSize = 300;
 
 		# Get the settings from the system
-		if(defined $CACHE && (ref $CACHE eq "HASH"))
+		if(defined $CACHE && (ref $CACHE eq "Everything::Node"))
 		{
 			my $vars;
 
 			#we have to set this, or it crashes when it calls a getRef
 			$Everything::DB = $this; 
 									
-			$vars = Everything::getVars($CACHE);
+			$vars = $CACHE->getVars();
 			$cacheSize = $$vars{maxSize} if(exists $$vars{maxSize});
 		}
 
