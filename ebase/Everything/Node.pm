@@ -1085,7 +1085,7 @@ sub setHash
 	foreach (keys %$varsref)
 	{
 		my $value = $$varsref{$_};
-		delete $$varsref{$_} unless($value && $value ne "");
+		delete $$varsref{$_} unless(defined($value) && $value ne "");
 	}
 
 	# Store the changed hash for calls to getVars
