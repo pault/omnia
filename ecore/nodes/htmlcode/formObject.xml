@@ -1,0 +1,29 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="formObject">
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># The difference between this and nodeFormObject is that this creates a form
+# object that is not associated with any node.  Hence, the 'undef' in the
+# unshift line below.  All FormObjects know how to deal with not being bound
+# to a node and will just create a simple form object.
+
+my $objectType = shift @_;
+my $formObject = $DB->newNode($objectType);
+
+die "Unknown FormObject '$objectType' in htmlcode 'formObject"
+  unless($formObject);
+
+unshift @_, ($query, undef);
+
+return $formObject->genItem(@_); </field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">formObject</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
+</NODE>
