@@ -8,7 +8,7 @@ my $str = $query->start_form .
 	$query->textfield(-name => "node",
 		-default => "",
 		-size => 50,
-		-maxlength => 80) .
+		-maxlength => 80) . " " .
 	$query->submit("go_button", "go");
  
 $str.= $query->end_form unless $PARAM eq 'noendform';

@@ -7,37 +7,21 @@ my $str;
 my $align = $$VARS{nodelet_align};
 
 $align ||= "right";
-my @nodelets;
-@nodelets = split ",",$$VARS{nodelets} if exists ($$VARS{nodelets});
-
-my $NODELETGROUP = getNode($$VARS{nodelet_group}) if exists $$VARS{nodelet_group};
-
-if($NODELETGROUP and
-  $$NODELETGROUP{type}{title} eq 'nodeletgroup')
-{
-  push @nodelets, @{ $$NODELETGROUP{group} } unless @nodelets;
-}
-
-if (not @nodelets)
-{ 
-  #push default nodelets on
-  my $DEFAULT = $DB->getNode($HTMLVARS{default_nodeletgroup});
-  @nodelets = @{ $$DEFAULT{group} }; 
-}
+my @nodelets = @{ $USER->getNodelets($HTMLVARS{default_nodeletgroup}) };
 
 return "no nodelets!" unless @nodelets;
 
 if ($$THEME{nodeletMCTableAttr}){
-  $str .= "&lt;TABLE ".$$THEME{nodeletMCTableAttr}.">";
+  $str .= "&lt;TABLE ".$$THEME{nodeletMCTableAttr}.">\n";
 } else {
-  $str .= "&lt;TABLE width=150 cellpadding=1 cellspacing=1>";
+  $str .= "&lt;TABLE width=150 cellpadding=1 cellspacing=1>\n";
 }
 
 foreach (@nodelets)
 {
   my $NODELET = $DB->getNodeById($_);
   my $nl = insertNodelet($NODELET);
-  $str .= "&lt;tr>&lt;td>" . $nl . "&lt;/td>&lt;/tr>" if($nl);
+  $str .= "&lt;tr>&lt;td>" . $nl . "&lt;/td>&lt;/tr>\n" if($nl);
 }
 
 $str .="&lt;/TABLE>";
