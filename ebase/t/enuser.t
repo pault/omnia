@@ -10,6 +10,8 @@ BEGIN
 
 use vars qw( $AUTOLOAD );
 
+my $package = 'Everything::Node::user';
+
 sub AUTOLOAD
 {
 	return if $AUTOLOAD =~ /DESTROY$/;
@@ -17,7 +19,7 @@ sub AUTOLOAD
 	no strict 'refs';
 	$AUTOLOAD =~ s/^main:://;
 
-	my $sub = "Everything::Node::user::$AUTOLOAD";
+	my $sub = "${package}::$AUTOLOAD";
 	if (defined &{ $sub }) {
 		*{ $AUTOLOAD } = \&{ $sub };
 		goto &{ $sub };
@@ -25,14 +27,14 @@ sub AUTOLOAD
 }
 
 use Test::MockObject;
-use Test::More tests => 33;
+use Test::More tests => 38;
 
 my $mock = Test::MockObject->new();
 my ($method, $args, $result);
 
 $mock->fake_module( 'Everything', import => sub { $result = caller() } );
 
-use_ok( 'Everything::Node::user' );
+use_ok( $package ) or exit;
 is( $result, 'Everything::Node::user', '... should use Everything module' );
 
 $mock->{DB} = $mock;
@@ -128,4 +130,28 @@ ok( ! restrictTitle({ title => 'foo|' }),
 	'... or false with bad chars in title' );
 ok( restrictTitle({ title => 'some user_name' }),
 	'... or true if it has only good chars' );
-__END__
+
+can_ok( $package, 'getNodelets' );
+my $nodelets = { nodelets => '1,2,4' };
+$mock->set_always( getVars => $nodelets );
+is_deeply( getNodelets( $mock ), [ 1, 2, 4 ],
+	'getNodelets() should return nodelets vars in array ref, if they exist' );
+
+delete $nodelets->{nodelets};
+$mock->set_always( getNode  => $mock )
+	 ->set_series( isOfType => 1, 0 );
+
+$nodelets->{nodelet_group} = $mock;
+$mock->{group} = [ 4, 2, 1 ];
+is_deeply( getNodelets( $mock ), [ 4, 2, 1 ],
+	'... or from user nodelet group, if specified' );
+
+delete $nodelets->{nodelet_group};
+
+$mock->{group} = [ 8, 6, 1 ];
+$mock->clear();
+
+is_deeply( getNodelets( $mock, 'default' ), [ 8, 6, 1 ],
+	'... or from default group' );
+($method, $args) = $mock->next_call( 2 );
+is( $args->[1], 'default', '... so should fetch default group' );
