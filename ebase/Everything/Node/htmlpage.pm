@@ -1,26 +1,25 @@
+=head1 Everything::Node::htmlpage
+
+Package that implements the base htmlpage functionality
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::Node::htmlpage;
 
-#############################################################################
-#   Everything::Node::htmlpage
-#       Package the implements the base htmlpage functionality
-#
-#   Copyright 2000 - 2002 Everything Development Inc.
 #   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 
+=cut
 
-#############################################################################
-#	Sub
-#		insert
-#
-#	Purpose
-#		We need to set up some default settings when a htmlpage is
-#		inserted.
-#
+=head2 C<insert>
+
+We need to set up some default settings when a htmlpage is inserted.
+
+=cut
+
 sub insert
 {
 	my ($this, $USER) = @_;

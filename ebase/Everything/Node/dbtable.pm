@@ -1,36 +1,36 @@
+=head1 Everything::Node::dbtable
+
+Package that implements the base functionality for dbtable
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::Node::dbtable;
 
-#############################################################################
-#   Everything::Node::dbtable
-#       Package the implements the base functionality for dbtable
-#
-#   Copyright 2000 Everything Development Inc.
 #   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 
+=cut
 
-#############################################################################
-#	Sub
-#		insert
-#
-#	Purpose
-#		We need to create the table in the database.  This gets the
-#		node inserted into the database first, then creates the table.
-#
-#		Allowed characters and length limits are taken from MySQL table naming
-#		conventions.
-#
+=head2 C<insert>
+
+We need to create the table in the database.  This gets the node inserted into
+the database first, then creates the table.
+
+Allowed characters and length limits are taken from MySQL table naming
+conventions.
+
+=cut
+
 sub insert
 {
 	my ($this, $USER) = @_;
 
 	my $result = $this->SUPER();
 
-	$$this{DB}->createNodeTable($$this{title}) if($result > 0);
+	$this-{DB}->createNodeTable($this->{title}) if $result > 0;
 
 	return $result;
 }
@@ -65,21 +65,24 @@ my %reserved = map { $_ => 1 }
 
 =head2 C<restrictTitle>
 
-Purpose:
-	Prevent invalid database names from being created as titles 
+Prevent invalid database names from being created as titles 
 
-Takes:
-	$node, the node containing a C<title> field to check
+=over 4
 
-Returns:
-	true, if the title is allowable, false otherwise
+=item * $node
+
+the node containing a C<title> field to check
+
+=back
+
+Returns true, if the title is allowable, false otherwise.
 
 =cut
 
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title  = $$this{title} or return;
+	my $title  = $this->{title} or return;
 
 	# limit is 61 characters, as we append '_id' to title for primary key name
 	if (length $title > 61) {
@@ -105,26 +108,27 @@ sub restrictTitle
 	return 1;
 }
 
-#############################################################################
-#	Sub
-#		nuke
-#
-#	Purpose
-#		Overrides the base node::nuke so we can drop the database table
+=cut
+
+=head2 C<nuke>
+
+Overrides the base node::nuke so we can drop the database table
+
+=cut
+
 sub nuke
 {
 	my ($this, $USER) = @_;
-	my $title = $$this{title};
 	my $result = $this->SUPER();
-	
-	$$this{DB}->dropNodeTable($$this{title}) if($result > 0);
+
+	$this->{DB}->dropNodeTable($this->{title}) if $result > 0;
 
 	return $result;
 }
 
 
-#############################################################################
-# End of package
-#############################################################################
+############################################################################
+End of package
+############################################################################
 
 1;

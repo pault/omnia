@@ -1,29 +1,33 @@
+=head1 Everything::Node::htmlcode
+
+Package that implements the base functionality for htmlcode
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::Node::htmlcode;
 
-#############################################################################
-#   Everything::Node::htmlcode
-#       Package the implements the base functionality for htmlcode
-#
-#   Copyright 2000 Everything Development Inc.
 #   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 
 =head2 C<restrictTitle>
 
-Purpose:
-	Prevent invalid database names from being created as titles 
+Prevent invalid database names from being created as titles 
 
-Takes:
-	$node, the node containing a C<title> field to check
+=over 4
 
-Returns:
-	true, if the title is allowable, false otherwise
+=item * $node
+
+the node containing a C<title> field to check
+
+=back
+
+Returns true, if the title is allowable, false otherwise.
 
 =cut
+
 sub restrictTitle
 {
 	my ($this) = @_;
