@@ -286,7 +286,7 @@ sub getCache
 # we tried using DBI's quote_identifier, but it doesn't work with mysql.
 sub genTableName
 {
-	my ($this, $table);
+	my ($this, $table) = @_;
 
 	return $table;
 }
