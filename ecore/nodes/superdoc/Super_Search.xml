@@ -1,6 +1,5 @@
 <NODE export_version="0.5" nodetype="superdoc" title="Super Search">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</
-field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[{openform}]
 
@@ -62,8 +61,7 @@ foreach (@$nodetypes) {
 
     $nodetype{$$_{title}} = $$_{node_id};
 
-    push @nttitles, $$_{title} if $_-&gt;hasTypeAccess($USER, 'r') and hasTextF
-ield($_);
+    push @nttitles, $$_{title} if $_-&gt;hasTypeAccess($USER, 'r') and hasTextField($_);
 
 }
 
@@ -71,8 +69,7 @@ local *makeDateMenu=sub{
 
     my ($prefix,$defaultdate,$edge)=@_;
 
-    $defaultdate||=$DB-&gt;sqlSelect(&quot;left(now(),10)&quot;,&quot;node&quot
-;,&quot;&quot;,&quot;limit 1&quot;);
+    $defaultdate||=$DB-&gt;sqlSelect(&quot;left(now(),10)&quot;,&quot;node&quot;,&quot;&quot;,&quot;limit 1&quot;);
 
     my ($year,$month,$day)=split(/-/,$defaultdate);
 
@@ -82,13 +79,9 @@ local *makeDateMenu=sub{
 
     my @dates;
 
-    my %labels=(&quot;01&quot;=&gt;&quot;Jan&quot;,&quot;02&quot;=&gt;&quot;Feb
-&quot;,&quot;03&quot;=&gt;&quot;Mar&quot;,&quot;04&quot;=&gt;&quot;Apr&quot;,&q
-uot;05&quot;=&gt;&quot;May&quot;,&quot;06&quot;=&gt;&quot;Jun&quot;,
+    my %labels=(&quot;01&quot;=&gt;&quot;Jan&quot;,&quot;02&quot;=&gt;&quot;Feb&quot;,&quot;03&quot;=&gt;&quot;Mar&quot;,&quot;04&quot;=&gt;&quot;Apr&quot;,&quot;05&quot;=&gt;&quot;May&quot;,&quot;06&quot;=&gt;&quot;Jun&quot;,
 
-            &quot;07&quot;=&gt;&quot;Jul&quot;,&quot;08&quot;=&gt;&quot;Aug&quo
-t;,&quot;09&quot;=&gt;&quot;Sep&quot;,10=&gt;&quot;Oct&quot;,11=&gt;&quot;Nov&q
-uot;,12=&gt;&quot;Dec&quot;);
+            &quot;07&quot;=&gt;&quot;Jul&quot;,&quot;08&quot;=&gt;&quot;Aug&quot;,&quot;09&quot;=&gt;&quot;Sep&quot;,10=&gt;&quot;Oct&quot;,11=&gt;&quot;Nov&quot;,12=&gt;&quot;Dec&quot;);
 
     for(1..12){
 
@@ -102,14 +95,11 @@ uot;,12=&gt;&quot;Dec&quot;);
 
     }
 
-    $query-&gt;popup_menu(-name=&gt;&quot;$prefix&quot;.&quot;_month&quot;,-val
-ues=&gt;\@months,-labels=&gt;\%labels,-default=&gt;$month).
+    $query-&gt;popup_menu(-name=&gt;&quot;$prefix&quot;.&quot;_month&quot;,-values=&gt;\@months,-labels=&gt;\%labels,-default=&gt;$month).
 
-        $query-&gt;popup_menu(-name=&gt;&quot;$prefix&quot;.&quot;_day&quot;,-v
-alues=&gt;\@dates,-default=&gt;$day).
+        $query-&gt;popup_menu(-name=&gt;&quot;$prefix&quot;.&quot;_day&quot;,-values=&gt;\@dates,-default=&gt;$day).
 
-        $query-&gt;popup_menu(-name=&gt;&quot;$prefix&quot;.&quot;_year&quot;,-
-values=&gt;\@years,-default=&gt;$year);
+        $query-&gt;popup_menu(-name=&gt;&quot;$prefix&quot;.&quot;_year&quot;,-values=&gt;\@years,-default=&gt;$year);
 
 };
 
@@ -125,8 +115,7 @@ local *paramToDate=sub{
 
         $query-&gt;param($prefix.&quot;_day&quot;);
 
-    $str.= $edge eq &quot;end&quot; ? &quot; 23:59:59&quot; : &quot; 00:00:00&q
-uot;;
+    $str.= $edge eq &quot;end&quot; ? &quot; 23:59:59&quot; : &quot; 00:00:00&quot;;
 
     return $str if $str=~/^\d{4}-\d{2}-\d{2} \d\d:\d\d:\d\d$/;
 
@@ -160,27 +149,21 @@ return @st;
 
 $str.=&quot;&lt;TABLE&gt;&quot;;
 
-$str.=&quot;&lt;TR&gt;&lt;TD&gt;Words in title:&lt;/TD&gt;&lt;TD&gt;&quot;.$que
-ry-&gt;textfield('wordsintitle').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
+$str.=&quot;&lt;TR&gt;&lt;TD&gt;Words in title:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;textfield('wordsintitle').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
 
-$str.=&quot;&lt;TR&gt;&lt;TD&gt;Author:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;t
-extfield('author').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
+$str.=&quot;&lt;TR&gt;&lt;TD&gt;Author:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;textfield('author').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
 
-$str.=&quot;&lt;TR&gt;&lt;TD&gt;Words in text:&lt;/TD&gt;&lt;TD&gt;&quot;.$quer
-y-&gt;textfield('wordsintext').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
+$str.=&quot;&lt;TR&gt;&lt;TD&gt;Words in text:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;textfield('wordsintext').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
 
 $str.=&quot;&lt;/TABLE&gt;&quot;.
 
-$query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates
- on search&quot;).&quot;&lt;BR&gt;&quot;.
+$query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates on search&quot;).&quot;&lt;BR&gt;&quot;.
 
-&quot;Between&quot;.makeDateMenu('start','1999-09-01').&quot; and &quot;.makeDa
-teMenu('end').&quot;&lt;BR&gt;&quot;.
+&quot;Between&quot;.makeDateMenu('start','1999-09-01').&quot; and &quot;.makeDateMenu('end').&quot;&lt;BR&gt;&quot;.
 
 &quot;&lt;BR&gt;Choose types to limit results to:&lt;BR&gt;&quot;.
 
-$query-&gt;checkbox_group(-name=&gt;'chosentypes',-rows=&gt;4,-values=&gt; \@nt
-titles).&quot;&lt;/UL&gt;&quot;;
+$query-&gt;checkbox_group(-name=&gt;'chosentypes',-rows=&gt;4,-values=&gt; \@nttitles).&quot;&lt;/UL&gt;&quot;;
 
 $str.=&quot;&lt;BR&gt;&quot;;
 
@@ -204,17 +187,13 @@ if($query-&gt;param('formsubmit')){
 
     my @where;
 
-    push @where, &quot;author_user=&quot;.$dbh-&gt;quote(getId($AUTHOR)) if get
-Id($AUTHOR);
+    push @where, &quot;author_user=&quot;.$dbh-&gt;quote(getId($AUTHOR)) if getId($AUTHOR);
 
-    $errormsg.=&quot;&lt;BR&gt;Couldn't find any author by the name of $author&
-lt;BR&gt;&quot; if  (!getId($AUTHOR) and $author);
+    $errormsg.=&quot;&lt;BR&gt;Couldn't find any author by the name of $author&lt;BR&gt;&quot; if  (!getId($AUTHOR) and $author);
 
 
 
-push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start'
-)).&quot; and &quot;.$dbh-&gt;quote(paramToDate('end','end')) if $query-&gt;par
-am('constraindates');
+push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')).&quot; and &quot;.$dbh-&gt;quote(paramToDate('end','end')) if $query-&gt;param('constraindates');
 
 
 
@@ -222,8 +201,7 @@ am('constraindates');
 
     foreach(@wordsintitle){
 
-        push @where, &quot;title like &quot;.$dbh-&gt;quote(&quot;\%$_\%&quot;)
-;
+        push @where, &quot;title like &quot;.$dbh-&gt;quote(&quot;\%$_\%&quot;);
 
     }
 
@@ -323,8 +301,7 @@ am('constraindates');
 
             foreach my $word (@wordsintext){
 
-                push @tablewhere, &quot;$field like &quot;.$dbh-&gt;quote(&quot
-;\%$word\%&quot;);
+                push @tablewhere, &quot;$field like &quot;.$dbh-&gt;quote(&quot;\%$word\%&quot;);
 
             }
 
@@ -336,8 +313,7 @@ am('constraindates');
 
             my $csr;
 
-            $csr=$DB-&gt;sqlSelectMany(&quot;node_id&quot;,&quot;node,$table&qu
-ot;,$wherestr,&quot;limit 100&quot;);
+            $csr=$DB-&gt;sqlSelectMany(&quot;node_id&quot;,&quot;node,$table&quot;,$wherestr,&quot;limit 100&quot;);
 
 
 
@@ -363,15 +339,13 @@ ot;,$wherestr,&quot;limit 100&quot;);
 
           $searchresults.=&quot;&lt;LI&gt;&quot;.linkNode($N).&quot;\n&quot;;
 
-          #this could potentially link to a node which the user doesn't have R 
-access to
+          #this could potentially link to a node which the user doesn't have R access to
 
     }
 
 
 
-    $searchresults=&quot;&lt;p&gt;&lt;B&gt;Search Results:&lt;/B&gt;&lt;P&gt;$s
-earchresults&quot; if $searchresults;
+    $searchresults=&quot;&lt;p&gt;&lt;B&gt;Search Results:&lt;/B&gt;&lt;P&gt;$searchresults&quot; if $searchresults;
 
     $str=$errormsg.$searchresults.&quot;\n&lt;HR&gt;&lt;P&gt;$str&quot;;
 
@@ -395,11 +369,9 @@ $str;
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">s
-uperdoc</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">superdoc</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="title" type="literal_value">Super Search</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">
-superdoc</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
 </NODE>
 
