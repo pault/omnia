@@ -1119,8 +1119,6 @@ sub getHash
 		return;
 	}
 
-	return unless $this->{$field};
-
 	# We haven't retrieved the hash yet... do it.
 	my %vars = map { split /=/ } split (/&/, $this->{$field});
 
