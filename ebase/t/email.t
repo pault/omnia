@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 42;
+use Test::More tests => 51;
 use Test::MockObject;
 
 my $package = "Everything::MAIL";
@@ -331,8 +331,8 @@ tie *Everything::MAIL::FILE, 'MockHandle',
 $MockHandle_closed = 0;
 
 
-my $m2n_node = Test::MockObject->new();
-my $m2n_user = Test::MockObject->new();
+my $m2n_node = Test::MockObject->new({});
+my $m2n_user = Test::MockObject->new({});
 my $got_root = 0;
 
 $mock->fake_module("Everything",
@@ -361,26 +361,59 @@ $mock->fake_module("Everything",
 	);
 
 $m2n_user->set_always("getMe", undef);
-$m2n_node->set_series("getMe", undef,$m2n_node);
+$m2n_node->set_always("getMe", undef);
 
 $m2n_node->set_always("insert", 1);
 
-
+@ERRORS = (); @WARNINGS = ();
 mail2node('/dummy/file');
 ok(join("", @WARNINGS) =~ /mail2node\: No \'To\:\' parameter specified\. Defaulting to user \'root\'/, 'mail2node should default to root and warn if it doesn\'t find a To: ');
 ok($got_root, '...and actually gets the root user');
 
+untie *Everything::MAIL::FILE;
+tie *Everything::MAIL::FILE, 'MockHandle', 
+"From: testing\@test.com\nSubject: this is a test email!\n\nTesting!\n";
+
+@ERRORS = (); @WARNINGS = ();
 
 mail2node('/dummy/file');
 ok(join("", @ERRORS) =~ /mail2node\: Node creation of type mail failed\!/, "Throw an error if mail2node creation directive fails");
 
+$m2n_node->set_always("getMe", $m2n_node);
+
+$m2n_node->{type_nodetype} = 5; #fake mail nodetype
+
+untie *Everything::MAIL::FILE;
+tie *Everything::MAIL::FILE, 'MockHandle', "To: foo\@bar.com\nFrom: testing\@test.com\nSubject: this is a test email!\n\nTesting!\nHello\n";
+@ERRORS = (); @WARNINGS = ();
+$m2n_node->clear();
+mail2node('/dummy/file');
+$m2n_node->called_ok("insert", "mail2node calls insert");
+is($m2n_node->call_pos(2), "insert", "insert gets called in the right spot");
+is($m2n_node->call_args_pos(2, 2),"-1", "insert gets called without permissions (-1)");
+is($m2n_node->{title}, "this is a test email!", "...and the subject gets set correctly");
+is($m2n_node->{from_address}, "testing\@test.com", "...and the from_address gets set correctly");
+is($m2n_node->{doctext}, "\nTesting!\nHello\n", "...and the doctext gets set correctly");
+is($m2n_node->{author_user}, "5", "...and gets the (faked) root_id correctly!");
+
+$m2n_user->set_always("getMe", $m2n_user);
+
+$m2n_user->{node_id} = 24;
+$m2n_user->{title} = "not root";
+
+untie *Everything::MAIL::FILE;
+tie *Everything::MAIL::FILE, 'MockHandle', "To: foo\@bar.com\nFrom: testing\@test.com\nSubject: this is a test email!\n\nTesting!\nHello\n";
+@ERRORS = (); @WARNINGS = ();
+$m2n_node->clear();
+
+mail2node('/dummy/file');
+$m2n_node->called_ok("insert", "mail2node calls insert when it can get the user");
+is($m2n_node->{author_user}, "24", "...and has the correct (faked) id");
+
+
 ###############################
 #	Tests left:
 ###############################
-#	Check to see if root gets inserted
-#	Test when initial node creation doesn't fail
-#	Make sure insert is actually called
-#	Make sure parameters are called
 #	See what happens if Mail::Address returns null
 #	Badly formed email addresses
 #	Have hard limit of size of email (size of doctext)

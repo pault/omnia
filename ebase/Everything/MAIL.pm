@@ -124,7 +124,8 @@ sub mail2node
 				}
 			}else
 			{
-				$body.=$line;
+				#Need to add the newline to preserve it correctly
+				$body.=$line."\n";
 			}
 		
 		}
@@ -165,7 +166,11 @@ sub mail2node
 
 		$node->{doctext}      = $body;
 		$node->{author_user}  = getId($user);
-		$node->{from_address} = $from;
+
+		if($from =~ /^From:(.*)/){
+			$node->{from_address} = $1;
+		}
+		$node->{title} = $subject;
 
 		unless($node->insert(-1))
 		{
