@@ -16,14 +16,14 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
 
 #quickie function to make an array of #s in two-digit format
-sub doubleDigit { map { (length $_==1)?"0$_":$_ } @_;  }
+sub doubleDigit { map { sprintf "%.2d", $_ } @_;  }
 
 sub makeDatetimeMenu {
 	my ($query, $prefix,$defaultdate)=@_;
 	my ($date, $time) = split ' ', $defaultdate;
 	my ($year,$month,$day)= doubleDigit split(/-/, $date);
 	my ($hour, $minute) = doubleDigit split(/:/, $time); 
-	$minute -= $minute%5;
+	($minute) = doubleDigit($minute - $minute % 5);
 	
 	my @years=(1999..2009);
 	my (@months, @dates, @hours, @minutes);
@@ -98,13 +98,17 @@ sub genObject
 
 	#date binding:
 	#first priority to the database
-	$date = $bindNode->{$field} if ref $bindNode;
+	if (ref $bindNode && $bindNode->{$field} && $bindNode->{$field} =~ /[1-9]/) {
+		$date = $bindNode->{$field}
+	} 
 	#second priority to the defined default
-	$date = $default unless not $default or $date =~ /[1-9]/;
-
+	elsif ($default && $default =~ /[1-9]/) {
+                $date = $default
+	} 
 	#otherwise use "now()"
-	$date = $DB->sqlSelect('now()') unless $date =~ /[1-9]/; 
-	
+	else {
+                $date = $DB->sqlSelect('now()')
+	}
 
 	$html .= makeDatetimeMenu($query, $name, $date) ; 
 	return $html;

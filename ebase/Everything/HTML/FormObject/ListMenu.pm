@@ -73,7 +73,7 @@ sub genObject
 	if($default eq "AUTO")
 	{
 		$default = "";
-		$default = [ split("\s*,\s*", $$bindNode{$field}) ]  if(ref $bindNode);
+		$default = [ split(/\s*,\s*/, $$bindNode{$field}) ]  if(ref $bindNode);
 	}
 
 	$this->addArray($values);
