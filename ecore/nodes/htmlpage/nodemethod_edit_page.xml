@@ -12,7 +12,7 @@
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">title:[{textfield:title}] maintained by:[{node_menu:author_user,usergroup}]&lt;br>
+  <field name="page" type="literal_value">title:[{textfield:title}] maintained by:[{node_menu:author_user}]&lt;br>
 Supports: [{node_menu:supports_nodetype}]&lt;br>
 
 &lt;table width=100%>

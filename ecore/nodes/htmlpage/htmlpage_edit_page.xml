@@ -36,7 +36,7 @@ $str;
 %]&lt;/font>&lt;/td>
  &lt;tr>
   &lt;td>&lt;b>Maintained by:&lt;/b>&lt;/td>
-  &lt;td>[{node_menu:author_user,user,usergroup}]&lt;/td>
+  &lt;td>[{node_menu:author_user,user}]&lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>&lt;b>Pagetype:&lt;/b>&lt;/td>

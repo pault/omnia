@@ -14,7 +14,7 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;h3>Maintenance code has been deprecated!  Do not use!&lt;/h3>
 
-title:[{textfield:title}] maintained by:[{node_menu:author_user,user,usergroup}]&lt;br>
+title:[{textfield:title}] maintained by:[{node_menu:author_user,user}]&lt;br>
 Maintains: [{node_menu:maintain_nodetype}]&lt;br>
 maintaintype:[{textfield:maintaintype}](create, update, or delete)&lt;br>
 

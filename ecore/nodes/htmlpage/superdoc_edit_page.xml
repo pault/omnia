@@ -13,7 +13,7 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;h4>title&lt;/h4>[{textfield:title}]
-&lt;h4>maintainer:&lt;/h4>[{node_menu:author_user,user,usergroup}]
+&lt;h4>maintainer:&lt;/h4>[{node_menu:author_user,user}]
 &lt;p>&lt;FONT SIZE=2>&lt;b>Edit the document text:&lt;/b>&lt;/FONT>&lt;br>
 [{textarea:doctext}]
 

@@ -13,7 +13,7 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">title:[{textfield:title}]
-maintained by:[{node_menu:author_user,user,usergroup}]&lt;br>
+maintained by:[{node_menu:author_user,user}]&lt;br>
 
 Parent container:[{node_menu:parent_container}]&lt;br>
 
