@@ -59,6 +59,7 @@ elsif($isGroup)
 }
 
 $str .= $query->submit( -name => "bdrop", -value => "Drop" ) . "\n";
+$str .= $query->submit( -name => "bflush", -value => "Drop All" ) . "\n";
 
 $str .= "&lt;/font>\n";
 
@@ -67,15 +68,8 @@ $str;
 &lt;/form>
 </field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?bnode_65=1&amp;lastnode_id=65&amp;op=addBucket&amp;node_id=65">Add 'Gigantic Node Lister'&lt;/a>
-
-&lt;form method="post" action="/index.pl?lastnode_id=65&amp;node_id=65&amp;displaytype=edit" enctype="multipart/form-data">
-&lt;input type="hidden" name="displaytype" value="edit">&lt;input type="hidden" name="node_id" value="65">&lt;input type="hidden" name="op" value="bucketop">
-
-&lt;INPUT TYPE='checkbox' NAME='bnode_285' VALUE='ON' UNCHECKED>&lt;A HREF="/index.pl?lastnode_id=65&amp;node_id=285">crap&lt;/a>&lt;br>
-&lt;font size=1>
-&lt;input type="submit" name="bdrop" value="Drop" />
-&lt;/font>
+  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?node_id=237&amp;bnode_237=1&amp;lastnode_id=237&amp;op=addBucket">Add 'bucketOp'&lt;/a>&lt;FORM METHOD="POST"  ENCTYPE="multipart/form-data">
+&lt;INPUT TYPE="hidden" NAME="displaytype" VALUE="edit">&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="237">&lt;INPUT TYPE="hidden" NAME="op" VALUE="bucketop">Empty&lt;br>
 
 &lt;/form>
 </field>

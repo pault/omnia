@@ -1,0 +1,73 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="formatCols">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># Given an array ref and the number of columns, this will return a table
+# with the contents of the array formatted into a table of with the specified
+# number of columns.  This is similar to the &lt;multicol> tag that netscape has,
+# but will work on all browsers.
+
+my ($array, $numcols, $vert, $tableprops) = @_;
+$vert = 1 unless(defined $vert);
+$numcols ||= 3;
+$tableprops ||= "border=0";
+
+my $num = int(@$array);
+my @stuff;
+
+push @stuff, @$array;
+
+if($vert)
+{
+  # Displaying the array in vertical columns is more difficult.  We
+  # need to re-arrange the array.
+  my @sorted;
+  use POSIX;  # needed for ceil()
+  my $collength = ceil(int(@stuff) / $numcols);
+  my %check;
+
+  for(my $i = 0; $i &lt; $numcols; $i++)
+  {
+    for(my $j = 0; $j &lt; $collength; $j++)
+    {
+      my $index = $i + ($numcols * $j);
+      return "something already here! $i,$j\n" if(exists $check{$index});
+      $check{$index} = 1;
+      $sorted[$index] = shift @stuff;
+      $sorted[$index] ||= "&amp;nbsp;";
+    }
+  }
+
+  undef @stuff; # make sure its clean
+  push @stuff, @sorted;
+}
+
+my $str .= "&lt;table $tableprops>\n";
+for(my $i = 0; $i &lt; $num; $i += $numcols)
+{
+  $str .= "&lt;tr>\n";
+  for(my $j = 0; $j &lt; $numcols; $j++)
+  {
+    my $index = $i + $j;
+
+    $str .= "&lt;td>";
+    $str .= $stuff[$index];
+    $str .= "&lt;/td>\n";
+  }
+  $str .= "&lt;/tr>\n";
+}
+
+$str .= "&lt;/table>\n";
+
+return $str;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">formatCols</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>

@@ -13,7 +13,7 @@ which are frequently updated.
 [{openform}]
 &lt;INPUT type=hidden name=confirmpage value=1>
 [%
-    my $nodetypes = getNodeWhere({type_nodetype => 1 }, "nodetype");
+    my $nodetypes = getNodeWhere({type_nodetype => 1 }, "nodetype", "title");
     my $str;
     my %TVERSIONS;
     my %NEWVERSIONS;
@@ -36,12 +36,22 @@ if (defined $query->param('confirmpage')) {
         $DB->sqlDelete("typeversion", "typeversion_id=$_") unless exists $NEWVERSIONS{$_};
     }
 } else { %NEWVERSIONS = %TVERSIONS }
-foreach (@$nodetypes) {
+
+# Split them into three columns
+my @list;
+
+foreach (@$nodetypes)
+{
     #nodemethods must be typeversioned (because of the methodCache)
     next if ($$_{title} eq 'nodemethod');
-    $str.=$query->checkbox('typeify_'.getId($_), exists($NEWVERSIONS{getId($_)}), 1, $$_{title})."&lt;br>";
+    $str = $query->checkbox('typeify_'.getId($_),
+       exists($NEWVERSIONS{getId($_)}), 1, $$_{title}) . "&lt;br>";
+
+    push @list, $str;
 }
-$str;
+
+formatCols(\@list, 3);
+
 %]
 [{closeform}]
 

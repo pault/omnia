@@ -31,25 +31,26 @@ $str;
 &lt;p>
 [{openform}]
 
-Guest user sees nodelets:[{settingradio:system settings,GUshownodelets}]&lt;br>
-Guest user sees searchform:[{settingradio:system settings,GUshowsearchform}]&lt;br>
-Display Location:[{settingradio:system settings,showlocations}]
-
-[{closeform}]
 &lt;b>Warning!&lt;/b> If you turn off these things for the guest user you
 will have to type "&lt;code>index.pl?node=login&lt;/code>" in the URL to 
 get to the login screen!&lt;p>
-&lt;hr width=90% align=center>
-[{openform}]
-[%
-my $str = "&lt;table border=0 cellspacing = 4 width=90%>&lt;tr>";
-$str.="&lt;td align=middle>Flush the Nodebucket : &lt;/td>";
-$str.="&lt;td align=middle>Reset the Nodelets : &lt;/td>";
-$str.="&lt;/tr>&lt;tr>";
-$str.="&lt;td align=middle>".$query->submit("op","Flush")."&lt;/td>";
-$str.="&lt;td align=middle>".$query->submit("op","Zap")."&lt;/td>";
-$str.="&lt;/tr>&lt;/table>";
-%]</field>
+
+&lt;table border=0>
+&lt;tr>
+ &lt;td>Guest user sees nodelets:&lt;/td>
+ &lt;td>[{settingradio:system settings,GUshownodelets}]&lt;/td>
+&lt;/tr>
+&lt;tr>
+ &lt;td>Guest user sees searchform:&lt;/td>
+ &lt;td>[{settingradio:system settings,GUshowsearchform}]&lt;/td>
+&lt;/tr>
+&lt;tr>
+ &lt;td>Display Location:&lt;/td>
+ &lt;td>[{settingradio:system settings,showlocations}]&lt;/td>
+&lt;/tr>
+&lt;/table>
+
+[{closeform}]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

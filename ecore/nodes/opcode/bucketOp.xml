@@ -1,8 +1,7 @@
 <NODE export_version="0.5" nodetype="opcode" title="bucketOp">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">
-if($query->param("bmove"))
+  <field name="code" type="literal_value">if($query->param("bmove"))
 {
   my $loc = getNode($query->param("node_id"));
 
@@ -64,6 +63,14 @@ elsif($query->param("bgroupadd"))
 	$group->update($USER);
   }
 }
+elsif($query->param('bflush'))
+{
+  my $vars = $USER->getVars();
+  delete $$vars{nodebucket};  # flush the nodebucket
+  $USER->setVars($vars);
+  # Don't need to update as $USER automatically gets updated on pageload end
+}
+
 
 if($query->param("bdrop") or $query->param("dropexec"))
 {

@@ -8,7 +8,7 @@ my $formObject = newFormObject($objectType);
 
 return "" unless($formObject);
 
-$bindNode = $DB->getNode($bindNode);
+$bindNode = ($bindNode eq 'new' ? 'new' : $DB->getNode($bindNode));
 unshift @_, ($query, $bindNode);
 
 return $formObject->genObject(@_); </field>
