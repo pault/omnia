@@ -29,7 +29,6 @@
     <var name="notFound_node" type="noderef" type_nodetype="superdoc,nodetype">Not found</var>
     <var name="otherusersTimeLimit" type="literal_value">600</var>
     <var name="permissionDenied_node" type="noderef" type_nodetype="superdoc,nodetype">Permission Denied</var>
-    <var name="preferred_theme" type="noderef" type_nodetype="themesetting,nodetype">root's default themesettings</var>
     <var name="searchResults_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</var>
     <var name="showlocations" type="literal_value">1</var>
     <var name="site_name" type="literal_value">Random Everything Site</var>
