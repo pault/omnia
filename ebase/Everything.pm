@@ -40,7 +40,6 @@ sub BEGIN
 		insertNode
 		updateNode
 
-		
 		selectNodegroupFlat 
 		removeFromNodegroup 
 		replaceNodegroup
@@ -74,6 +73,7 @@ use vars qw($dbh);
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
 
+# Used by Makefile.PL to determine the version of the install.
 my $VERSION = 0.8;
 
 
@@ -330,7 +330,6 @@ sub getVars
 
 	return if ($NODE == -1);
 	
-	dumpCallStack() if(ref $NODE eq "ARRAY");
 	unless (exists $$NODE{vars}) {
 		warn ("getVars:\t'vars' field does not exist for node ".getId($NODE)."
 		perhaps it doesn't join on the settings table?\n");

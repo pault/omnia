@@ -230,10 +230,12 @@ sub getCachedNodeById
 #
 #	Parameters
 #		$NODE - the node hashref to put in the cache
+#		$permanent - True if this node is to never be removed from the
+#			cache when purging.
 #
 sub cacheNode
 {
-	my ($this, $NODE) = @_;
+	my ($this, $NODE, $permanent) = @_;
 	my $name = genHashKey($$NODE{title}, $$NODE{type}{title});
 	my $data;
 
@@ -250,13 +252,14 @@ sub cacheNode
 
 	# Add the NODE to the queue.  This puts the newly cached node at the
 	# end of the queue.
-	$data = $this->{nodeQueue}->queueItem($NODE);
+	$data = $this->{nodeQueue}->queueItem($NODE, $permanent);
 
 	# Store hash keys for its "name" and numeric Id, and set the version.
 	$this->{typeCache}{$name} = $data;
 	$this->{idCache}{$$NODE{node_id}} = $data;
 	$this->{version}{$$NODE{node_id}} = $this->getGlobalVersion($NODE);
 
+	
 	$this->purgeCache();
 
 	return 1;
@@ -373,6 +376,18 @@ sub purgeCache
 {
 	my ($this) = @_;
 
+	# We can't have the number of permanent items in the cache be the
+	# same or greater than the maxSize.  This would cause an infinite
+	# loop here.  So, if we determine that the number of permanent items
+	# is greater than or equal to our max size, we will double the cache
+	# size.  In general practice, the number of permanent nodes should
+	# be small.  So, this is only for cases where the cache size is set
+	# unusually small.
+	if($this->{nodeQueue}->{numPermanent} >= $this->{maxSize})
+	{
+		$this->setCacheSize($this->{maxSize} * 2);
+	}
+	
 	while (($this->{maxSize} > 0) &&
 		($this->{maxSize} < $this->getCacheSize()))
 	{

@@ -34,7 +34,6 @@ sub BEGIN
 		
 		getFields
 		getFieldsHash
-		
 
 		tableExists
 		createNodeTable
@@ -885,7 +884,7 @@ sub getType
 	my $TYPE;
 	my $NODE;
 	my $field;
-	my $fromCache = 0;
+	my $fromCache = 1;
 
 	# We assume that the nodetypes join on the 'nodetype' table and the
 	# nodetype 'nodetype' is always id #1.  If this changes, this will
@@ -895,7 +894,6 @@ sub getType
 	$idOrName = $$idOrName{node_id} if(ref $idOrName eq "HASH");
 	
 	return undef if((not defined $idOrName) || ($idOrName eq ""));
-
 
 	if($idOrName =~ /\D/) # Does it contain non-digits?
 	{
@@ -907,10 +905,8 @@ sub getType
 			$TYPE = $this->sqlSelectHashref("*",
 				"node left join nodetype on node_id=nodetype_id",
 				"title=" . $this->quote($idOrName) . " && type_nodetype=1");
-		}
-		else 
-		{
-			$fromCache = 1;
+			
+			$fromCache = 0;
 		}
 	}
 	elsif($idOrName > 0)
@@ -923,10 +919,8 @@ sub getType
 			$TYPE = $this->sqlSelectHashref("*",
 				"node left join nodetype on node_id=nodetype_id",
 				"node_id=$idOrName && type_nodetype=1");
-		}
-		else
-		{
-			$fromCache = 1;
+			
+			$fromCache = 0;
 		}
 	}
 	else
@@ -955,14 +949,14 @@ sub getType
 	if(not exists $$TYPE{resolvedInheritance})
 	{
 		# If this didn't come from the cache, we need to cache it
-		$this->{cache}->cacheNode($TYPE) if(not $fromCache && 
-			not $this->{staticNodetypes});
+		$this->{cache}->cacheNode($TYPE, 1) if((not $fromCache) && 
+			(not $this->{staticNodetypes}));
 		
 		$TYPE = $this->deriveType($TYPE);
 
 		# If we have static nodetypes, we can do a performance enhancement
 		# by caching the completed nodes.
-		$this->{cache}->cacheNode($TYPE) if($this->{staticNodetypes});
+		$this->{cache}->cacheNode($TYPE, 1) if($this->{staticNodetypes});
 	}
 	
 	return $TYPE;
@@ -1083,7 +1077,6 @@ sub getFieldsHash
 sub tableExists
 {
 	my ($this, $tableName) = @_;
-	Everything::dumpCallStack() if(not defined ($this->{dbh}));
 	my $cursor = $this->{dbh}->prepare("show tables");
 	my $table;
 	my $exists = 0;

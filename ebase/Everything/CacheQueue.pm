@@ -31,7 +31,6 @@ sub BEGIN
 		listItems); 
 }
 
-
 #############################################################################
 #	Sub
 #		new
@@ -60,6 +59,9 @@ sub new
 	
 	$this->{queueSize} = 0;
 
+	# Keep track of how many permanent items we have in the cache.
+	$this->{numPermanent} = 0;
+
 	return $this;
 }
 
@@ -73,6 +75,9 @@ sub new
 #
 #	Parameters
 #		$item - The data to put in the queue
+#		$permanent - True if this item should never be returned from
+#			getNextItem.  An item marked permanent can still be removed
+#			manually using the removeItem function.
 #
 #	Returns
 #		A reference to the queue data that represents the item.  Hold on
@@ -81,8 +86,8 @@ sub new
 #
 sub queueItem
 {
-	my ($this, $item) = @_;
-	my $data = $this->createQueueData($item);
+	my ($this, $item, $permanent) = @_;
+	my $data = $this->createQueueData($item, $permanent);
 
 	$this->queueData($data);	
 	
@@ -128,6 +133,8 @@ sub getItem
 #		This pulls the "oldest" item off the head of the queue.  This removes
 #		the item from the queue.  Any queue data references (returned from
 #		queueItem()) that you are holding for this item should be deleted.
+#		If the "oldest" item is permanent, we will re-queue that item and
+#		find one that is not permanent.
 #
 #	Parameters
 #		None
@@ -139,6 +146,15 @@ sub getNextItem
 {
 	my ($this) = @_;
 	my $firstData = $this->{queueHead}{prev};
+
+	while($$firstData{permanent})
+	{
+		# The oldest thing in the queue is permanent.  Put it at the end.
+		$this->removeData($firstData);
+		$this->queueData($firstData);
+
+		$firstData = $this->{queueHead}{prev};
+	}
 
 	$this->removeData($firstData);
 
@@ -230,6 +246,7 @@ sub queueData
 {
 	my ($this, $data) = @_;
 
+	$this->{numPermanent}++ if($$data{permanent});
 	$this->insertData($data, $this->{queueTail});
 }
 
@@ -269,6 +286,7 @@ sub removeData
 	$$data{next} = 0;
 	$$data{prev} = 0;
 	
+	$this->{numPermanent}-- if($$data{permanent});
 	$this->{queueSize}--;
 }
 
@@ -282,8 +300,12 @@ sub removeData
 #
 sub createQueueData
 {
-	my ($this, $item) = @_;
-	my $data = { "item" => $item, "next" => 0, "prev" => 0 };
+	my ($this, $item, $permanent) = @_;
+	my $data;
+	
+	$permanent ||= 0;
+	$data = { "item" => $item, "next" => 0, "prev" => 0,
+		"permanent" => $permanent};
 
 	return $data;
 }
