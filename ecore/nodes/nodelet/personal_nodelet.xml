@@ -10,7 +10,7 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
-  <field name="nlcode" type="literal_value">[%
+ <field name="nlcode" type="literal_value">[%
   return if ($$USER{node_id} == $HTMLVARS{guest_user});
   my $limit = $HTMLVARS{personalNodeletLimit} || 10;
 

@@ -1,16 +1,29 @@
 <NODE export_version="0.5" nodetype="superdoc" title="Search Results">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">Here's the stuff: &lt;p>
-[%
-
+  <field name="doctext" type="literal_value">[%
 my $str;
 my $title = $query->param('node');
 return "" unless $title;
-foreach my $ND (@{ $$NODE{group} }) {
-	$str .= "&lt;LI>" . linkNode ($ND) . "\n";
+$str.="&lt;table border=0 cellpadding=2>";
+
+foreach (@{ $GLOBAL{searchgroup} }) {
+  my $ND = getNode $$_{node_id};
+  $str .="&lt;tr>";
+  $str .= "&lt;td>" . linkNode ($ND) . "&lt;/td>";
+  $str .= "&lt;td>(".$$ND{type}{title}.")&lt;/td>";
+  my $keys = $ND->getIdentifyingFields();
+  $keys ||= [];
+  foreach (@$keys) {
+    $str.="&lt;td>$_: ";
+    $str.= Everything::XML::getFieldType($_) eq 'noderef' 
+        ? linkNode($$ND{$_}) : $$ND{$_};
+    $str.="&lt;/td>";    
+  }
+  $str.="&lt;/tr>";
 }
 
+$str.="&lt;/table>";
 $str;
 %]
 [{createnewnode}]</field>
