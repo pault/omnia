@@ -11,7 +11,7 @@ BEGIN
 use vars qw( $AUTOLOAD $errors );
 
 use Test::MockObject;
-use Test::More tests => 10;
+use Test::More tests => 25;
 
 my $package = 'Everything::NodeCache';
 
@@ -59,3 +59,21 @@ ok( !isSameVersion($mock, $node), '... false unless node has global version' );
 ok( !isSameVersion($mock, $node), '... false unless global version matches' );
 ok( isSameVersion( $mock, $node ), '... true if global version matches' );
 ok( $mock->{verified}{12}, '... setting verified flag' );
+
+#stubbing out possible tests:
+
+can_ok($package, 'setCacheSize');
+can_ok($package, 'getCacheSize');
+can_ok($package, 'cacheNode');
+can_ok($package, 'removeNode');
+can_ok($package, 'getCachedNodeById');
+can_ok($package, 'getCachedNodeByName');
+can_ok($package, 'dumpCache');
+can_ok($package, 'flushCache');
+can_ok($package, 'flushCacheGlobal');
+can_ok($package, 'purgeCache');
+can_ok($package, 'removeNodeFromHash');
+can_ok($package, 'getGlobalVersion');
+can_ok($package, 'incrementGlobalVersion');
+can_ok($package, 'resetCache');
+can_ok($package, 'cacheMethod');

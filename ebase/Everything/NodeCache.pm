@@ -328,13 +328,13 @@ sub flushCache
 #		flushCacheGlobal
 #
 #	Purpose
-#		This flushes the global cache by dropping the global version table.
-#		In doing so, the version of the nodes that the various httpd's have
-#		cached will no longer match the global verison, which will cause
-#		nodes to get thrown out when they go to get used.  This will probably
-#		only be needed for debugging (since 'kill -HUP' on the web server
-#		will clear the caches anyway), or when a cache flush is needed for
-#		nodetypes.
+#		This flushes the global cache by incrementing the entire global
+#		version table. In doing so, the version of the nodes that the various 
+#		httpd's have cached will no longer match the global verison, which 
+#		will cause nodes to get thrown out when they go to get used.  This 
+#		will probably only be needed for debugging (since 'kill -HUP' on the 
+#		web server will clear the caches anyway), or when a cache flush is 
+#		needed for nodetypes.
 #
 sub flushCacheGlobal
 {
