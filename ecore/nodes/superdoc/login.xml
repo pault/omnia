@@ -21,7 +21,7 @@ if ($query-&gt;param('op') eq 'login' &amp;&amp; $$USER{title} ne "Guest User") 
 } elsif ($$USER{title} ne "Guest User") {
   $str.="Hey, ".linkNode($USER)."...  this is where you log in:&lt;p&gt;\n";
 }else {
-  $str .="Welcome to Everything 2.  Authenticate yrself:\n&lt;p&gt;\n";
+  $str .="Welcome to $HTMLVARS{site_name}.  Authenticate yrself:\n&lt;p&gt;\n";
 }
 
 $str .= $query-&gt;start_form("POST", $ENV{script_name}) .

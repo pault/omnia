@@ -5,7 +5,7 @@
 my ($NODE) = @_;
 
 getRef $NODE;
-createNodeTable($$NODE{title});</code>
+$DB-&gt;createNodeTable($$NODE{title});</code>
 	<core table="node">R</core>
 	<maintain_nodetype table="maintenance" type="nodetype">dbtable</maintain_nodetype>
 	<maintaintype table="maintenance">create</maintaintype>

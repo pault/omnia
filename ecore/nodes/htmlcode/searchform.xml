@@ -11,7 +11,9 @@
  
  #	foreach (keys %$PARAM) {  $str .= $query-&gt;hidden($_, $$PARAM{$_}); } 
  
- 	$str. $query-&gt;end_form;
+ 	$str.= $query-&gt;end_form unless $PARAM eq 'noendform';
+
+$str;
  </code>
 	<core table="node">R</core>
 	<package table="node">0</package>

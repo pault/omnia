@@ -2,20 +2,30 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
 	<displaytype table="htmlpage">display</displaytype>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<package table="node">0</package>
-	<page table="htmlpage">
-pagetype: 
+	<page table="htmlpage">&lt;b&gt;pagetype&lt;/b&gt;: 
 [%
 	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
 	linkNode $N;
 %]&lt;br&gt;
-parent container:
+&lt;b&gt;parent container&lt;/b&gt;:
 [% return linkNode ($$NODE{parent_container}) if $$NODE{parent_container};
 "&lt;i&gt;none&lt;/i&gt;";
 %]
-&lt;p&gt;
-displaytype:
+&lt;br&gt;
+&lt;b&gt;displaytype&lt;/b&gt;:
 ["$$NODE{displaytype}"]
+&lt;br&gt;
+&lt;b&gt;theme&lt;/b&gt;:
+[%
+unless ($$NODE{ownedby_theme}) {
+  return "&lt;i&gt;this htmlpage does not belong to a theme&lt;/i&gt;";
+}
+my $THEME = getNode $$NODE{ownedby_theme};
+linkNode($THEME);
+
+%]
 &lt;p&gt;[{listcode:page}]
 </page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">htmlpage</pagetype_nodetype>

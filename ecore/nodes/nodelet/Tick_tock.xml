@@ -1,16 +1,16 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">944261330</lastupdate>
+	<lastupdate table="nodelet">945441294</lastupdate>
 	<nlcode table="nodelet">[%
 my $time = `date`;
 $time =~ s/\n.*$//;
 $time;
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Fri Dec  3 17:48:50 EST 1999</nltext>
+	<nltext table="nodelet">Fri Dec 17 09:34:54 EST 1999</nltext>
 	<package table="node">0</package>
-	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>
 	<title table="node">Tick tock</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>

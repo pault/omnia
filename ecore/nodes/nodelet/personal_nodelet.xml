@@ -1,0 +1,40 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<lastupdate table="nodelet">945441400</lastupdate>
+	<nlcode table="nodelet">[%
+  my $limit = $HTMLVARS{personalNodeletLimit};
+  $limit||=10;
+
+  my @nodes = split "&lt;br&gt;",$$VARS{personal_nodelet};
+  if (my $n = $query-&gt;param("addpersonalnodelet")) {
+    $n = getNodeById $n;
+    $$VARS{personal_nodelet} .= '&lt;br&gt;'.$$n{title}
+      if @nodes &lt; $limit;
+    push @nodes, $$n{title};
+  }
+
+
+  my $str;
+  my $i=0;
+  foreach (@nodes) {
+    $str.=linkNodeTitle($_)."&lt;br&gt;\n";
+    last if $i++ &gt;= 10;
+  }
+
+  $str.="\n&lt;p align=right&gt;"
+    .linkNode($NODE, "add \"$$NODE{title}\"", {addpersonalnodelet =&gt; getId($NODE)})
+    if @nodes &lt; $limit;
+  $str;
+
+%]</nlcode>
+	<nlgoto table="nodelet">0</nlgoto>
+	<nltext table="nodelet">
+&lt;p align=right&gt;&lt;A HREF="/index.pl?addpersonalnodelet=154&amp;node_id=154&amp;lastnode_id=154"&gt;add "system settings"&lt;/a&gt;</nltext>
+	<package table="node">0</package>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
+	<reputation table="node">0</reputation>
+	<title table="node">personal nodelet</title>
+	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
+	<updateinterval table="nodelet">0</updateinterval>
+</NODE>

@@ -1,13 +1,12 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<context table="container">[% 
- if(defined $$VARS{themecontainer})
+ if(defined $$THEME{generalParent_container})
  {
-  $$CURRENTNODE{parent_container} = $$VARS{themecontainer};
+  $$CURRENTNODE{parent_container} = $$THEME{generalParent_container};
  } else {
-  my $SETTINGS_NODE = $DB-&gt;getNode('system settings', 'setting');
-  my $SYSSETTINGS = getVars $SETTINGS_NODE;
-  if (my $parent = $$SYSSETTINGS{generalParent_container}) {
+
+  if (my $parent = $HTMLVARS{generalParent_container}) {
     $$CURRENTNODE{parent_container} = $parent;
   }
  }

@@ -36,7 +36,9 @@ my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
 $str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0&gt;\n";
 $str.="&lt;TR&gt;&lt;TH&gt;Remove&lt;/TH&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;/TR&gt;\n";
 foreach(@skeys) {
-$str.="&lt;TR&gt;&lt;TD&gt;&lt;input type=checkbox name=delsetting_$_&gt;&lt;/td&gt;&lt;TD bgcolor=$keyclr&gt;&lt;b&gt;$_&lt;/b&gt;&lt;/TD&gt;&lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=setsetting_$_ VALUE='$$SETTINGS{$_}' size=$valsize&gt;&lt;/TD&gt;&lt;/TR&gt;\n";
+$str.="&lt;TR&gt;&lt;TD&gt;&lt;input type=checkbox name=delsetting_$_&gt;&lt;/td&gt;
+   &lt;TD bgcolor=$keyclr&gt;&lt;b&gt;$_&lt;/b&gt;&lt;/TD&gt;
+   &lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=setsetting_$_ VALUE='$$SETTINGS{$_}' size=$valsize&gt;&lt;/TD&gt;&lt;/TR&gt;\n";
 }
 $str.="&lt;TR&gt;&lt;td&gt;&lt;/td&gt;
   &lt;TD bgcolor=$keyclr&gt;&lt;INPUT TYPE=text NAME=newsetting size=$keysize&gt;&lt;/TD&gt;

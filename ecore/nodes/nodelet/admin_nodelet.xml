@@ -1,14 +1,14 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">944261338</lastupdate>
+	<lastupdate table="nodelet">945441400</lastupdate>
 	<nlcode table="nodelet">[{adminbar}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/every2/index.pl?displaytype=display&amp;node_id=126&amp;lastnode_id=126"&gt;display&lt;/a&gt; edit 
+	<nltext table="nodelet">display &lt;A HREF="/index.pl?displaytype=edit&amp;node_id=154&amp;lastnode_id=154"&gt;edit&lt;/a&gt; 
 &lt;SCRIPT language="javascript"&gt;
        function confirmDelete(){
-          if(confirm("Delete 'core system'?")){
-		parent.location="/every2/index.pl?node_id=126&amp;op=nuke"; }
+          if(confirm("Delete 'system settings'?")){
+		parent.location="/index.pl?node_id=154&amp;op=nuke"; }
         }
        &lt;/SCRIPT&gt;
 
@@ -16,7 +16,7 @@
 	&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
 	&lt;/font&gt;</nltext>
 	<package table="node">0</package>
-	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>
 	<title table="node">admin nodelet</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>

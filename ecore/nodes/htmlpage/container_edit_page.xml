@@ -2,12 +2,15 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
 	<displaytype table="htmlpage">edit</displaytype>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<package table="node">0</package>
-	<page table="htmlpage">[{listcode:context}]
+	<page table="htmlpage">title:[{textfield:title}]
+maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 
 Parent container:[{node_menu:parent_container}]&lt;br&gt;
-container html:&lt;br&gt;[{textarea:context}]
-</page>
+
+
+container html:&lt;br&gt;[{textarea:context}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">container</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
 	<reputation table="node">0</reputation>

@@ -1,0 +1,28 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<group >
+		<groupnode1 table="nodegroup" type="container">e2container</groupnode1>
+	</group>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">default theme</title>
+	<type_nodetype table="node" type="nodetype">theme</type_nodetype>
+	<vars table="setting">
+		<bodyVlinkcolor >#333399</bodyVlinkcolor>
+		<bodyTextcolor >#000000</bodyTextcolor>
+		<author >Nathan Oostendorp and Darrick Brown</author>
+		<description >The default Everything Theme</description>
+		<bodyBgcolor >#FFFFFF</bodyBgcolor>
+		<version >0.2</version>
+		<nodeletParent_container type="container">nodelet container</nodeletParent_container>
+		<nodeletBodyColor >#FFFFFF</nodeletBodyColor>
+		<generalParent_container type="container">e2container</generalParent_container>
+		<bodyLinkcolor >#993333</bodyLinkcolor>
+		<nodeletBodyFontAttr >size=2</nodeletBodyFontAttr>
+		<nodeletTitleColor >#CC99FF</nodeletTitleColor>
+		<nodeletTitleBackground >""</nodeletTitleBackground>
+		<nodeletMCTableAttr >cellpadding=1 cellspacing=1</nodeletMCTableAttr>
+		<nodeletTitleFontAttr >color=white</nodeletTitleFontAttr>
+	</vars>
+</NODE>

@@ -2,6 +2,7 @@
 	<author_user table="node" type="user">root</author_user>
 	<core table="node">R</core>
 	<displaytype table="htmlpage">edit</displaytype>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<package table="node">0</package>
 	<page table="htmlpage">title:[{textfield:title}] maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 Maintains: [{node_menu:maintain_nodetype}]&lt;br&gt;

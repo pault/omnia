@@ -5,7 +5,7 @@
 my ($NODE) = @_;
 
 getRef $NODE;
-dropNodeTable($$NODE{title});</code>
+$DB-&gt;dropNodeTable($$NODE{title});</code>
 	<core table="node">R</core>
 	<maintain_nodetype table="maintenance" type="nodetype">dbtable</maintain_nodetype>
 	<maintaintype table="maintenance">delete</maintaintype>

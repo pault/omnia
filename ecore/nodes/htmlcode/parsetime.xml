@@ -14,7 +14,7 @@ my ($yy, $mm, $dd) = split /-/, $date;
 return "&lt;i&gt;never&lt;/i&gt;" unless (int($yy) and int($mm) and int($dd));
 
 use Time::Local;
-my $epoch_secs=timelocal( $sec, $min, $hrs, $dd, $mm, $yy);
+my $epoch_secs=timelocal( $sec, $min, $hrs, $dd, $mm-1, $yy);
 my $nicedate =localtime ($epoch_secs);
 
 $nicedate =~ s/(\d\d):(\d\d):(\d\d).*$/at $1:$2/;

@@ -25,7 +25,7 @@
 		<groupnode21 table="nodegroup" type="container">e2container</groupnode21>
 		<groupnode22 table="nodegroup" type="container">formcontainer</groupnode22>
 		<groupnode23 table="nodegroup" type="container">general container</groupnode23>
-		<groupnode24 table="nodegroup" type="container">nodelet container</groupnode24>
+		<groupnode24 table="nodegroup" type="container">general nodelet container</groupnode24>
 		<groupnode25 table="nodegroup" type="container">nodeletshadow container</groupnode25>
 		<groupnode26 table="nodegroup" type="container">stdcontainer</groupnode26>
 		<groupnode27 table="nodegroup" type="dbtable">document</groupnode27>
@@ -80,7 +80,7 @@
 		<groupnode76 table="nodegroup" type="htmlcode">showChoiceFunc</groupnode76>
 		<groupnode77 table="nodegroup" type="htmlcode">textarea</groupnode77>
 		<groupnode78 table="nodegroup" type="htmlcode">textfield</groupnode78>
-		<groupnode79 table="nodegroup" type="htmlcode">titlebar</groupnode79>
+		<groupnode79 table="nodegroup" type="htmlcode">searchform</groupnode79>
 		<groupnode80 table="nodegroup" type="htmlcode">updatetable</groupnode80>
 		<groupnode81 table="nodegroup" type="htmlcode">userbody</groupnode81>
 		<groupnode82 table="nodegroup" type="htmlcode">uploadimage</groupnode82>
@@ -162,6 +162,15 @@
 		<groupnode158 table="nodegroup" type="setting">restricted fields</groupnode158>
 		<groupnode159 table="nodegroup" type="setting">restricted fields</groupnode159>
 		<groupnode160 table="nodegroup" type="htmlcode">createnewnode</groupnode160>
+		<groupnode161 table="nodegroup" type="theme">default theme</groupnode161>
+		<groupnode162 table="nodegroup" type="themesetting">root's default themesettings</groupnode162>
+		<groupnode163 table="nodegroup" type="nodetype">theme</groupnode163>
+		<groupnode164 table="nodegroup" type="nodetype">themesetting</groupnode164>
+		<groupnode165 table="nodegroup" type="htmlpage">themesetting display page</groupnode165>
+		<groupnode166 table="nodegroup" type="htmlpage">themesetting edit page</groupnode166>
+		<groupnode167 table="nodegroup" type="dbtable">themesetting</groupnode167>
+		<groupnode168 table="nodegroup" type="container">nodelet container</groupnode168>
+		<groupnode169 table="nodegroup" type="nodelet">personal nodelet</groupnode169>
 	</group>
 	<package table="node">0</package>
 	<reputation table="node">0</reputation>
@@ -170,6 +179,6 @@
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
 		<description >The core system of Everything.   </description>
-		<version >0.7.9.6</version>
+		<version >0.7.9.7</version>
 	</vars>
 </NODE>

@@ -1,7 +1,7 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
-	<lastupdate table="nodelet">944261036</lastupdate>
+	<lastupdate table="nodelet">945441295</lastupdate>
 	<nlcode table="nodelet">[%my $limit = 15;
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
@@ -22,24 +22,24 @@ $str;
 
 %]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;A HREF="/every2/index.pl?node_id=160&amp;lastnode_id=152"&gt;gods&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=159&amp;lastnode_id=152"&gt;root&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=158&amp;lastnode_id=152"&gt;qauser&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=157&amp;lastnode_id=152"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=156&amp;lastnode_id=152"&gt;user variables&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=155&amp;lastnode_id=152"&gt;login&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=154&amp;lastnode_id=152"&gt;User settings&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=153&amp;lastnode_id=152"&gt;The Everything Tour&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=152&amp;lastnode_id=152"&gt;The Default Node&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=151&amp;lastnode_id=152"&gt;Search Results&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=150&amp;lastnode_id=152"&gt;Permission Denied&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=149&amp;lastnode_id=152"&gt;Not found&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=148&amp;lastnode_id=152"&gt;Duplicates Found&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=147&amp;lastnode_id=152"&gt;Create A New User&lt;/a&gt;&lt;BR&gt;
-&lt;A HREF="/every2/index.pl?node_id=146&amp;lastnode_id=152"&gt;restricted fields&lt;/a&gt;&lt;BR&gt;
+	<nltext table="nodelet">&lt;A HREF="/index.pl?node_id=165&amp;lastnode_id=164"&gt;user variables&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=166&amp;lastnode_id=164"&gt;Guest User&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=167&amp;lastnode_id=164"&gt;qauser&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=168&amp;lastnode_id=164"&gt;root&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=169&amp;lastnode_id=164"&gt;gods&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=170&amp;lastnode_id=164"&gt;root's default themesettings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=171&amp;lastnode_id=164"&gt;default theme&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=148&amp;lastnode_id=164"&gt;system nodelets&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=149&amp;lastnode_id=164"&gt;Gigantic Code Lister&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=150&amp;lastnode_id=164"&gt;Gigantic Node Lister&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=151&amp;lastnode_id=164"&gt;create node&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=152&amp;lastnode_id=164"&gt;node locked&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=153&amp;lastnode_id=164"&gt;SQL Prompt&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=154&amp;lastnode_id=164"&gt;system settings&lt;/a&gt;&lt;BR&gt;
+&lt;A HREF="/index.pl?node_id=155&amp;lastnode_id=164"&gt;restricted fields&lt;/a&gt;&lt;BR&gt;
 </nltext>
 	<package table="node">0</package>
-	<parent_container table="nodelet" type="container">nodelet container</parent_container>
+	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>
 	<title table="node">New Nodes</title>
 	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>

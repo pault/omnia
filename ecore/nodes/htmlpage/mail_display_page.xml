@@ -2,6 +2,7 @@
 	<author_user table="node" type="user">root</author_user>
 	<core table="node">0</core>
 	<displaytype table="htmlpage">display</displaytype>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<package table="node">0</package>
 	<page table="htmlpage">&lt;TABLE width=100% cellpadding=0 cellspacing=1 border=0&gt;
 &lt;TR bgcolor=[%
@@ -23,7 +24,7 @@ if (not $$NODE{from_address}) {
 [{parseLinks:doctext}]
 </page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">mail</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">e2container</parent_container>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
 	<reputation table="node">0</reputation>
 	<title table="node">mail display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>

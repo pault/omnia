@@ -20,8 +20,11 @@ if (not @nodelets) {
 	@nodelets = @{ $$DEFAULT{group} }; 
 }
 return "no nodelets!" unless @nodelets;
-
-$str .= "&lt;TABLE cellspacing=1 cellpadding=1&gt;";
+if ($$THEME{nodeletMCTableAttr}){
+  $str .= "&lt;TABLE ".$$THEME{nodeletMCTableAttr}."&gt;";
+} else {
+  $str .= "&lt;TABLE cellpadding=1 cellspacing=1&gt;";
+}
 
 foreach (@nodelets) {
 	my $NODELET = $DB-&gt;getNodeById($_);

@@ -1,19 +1,39 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<context table="container">&lt;TR&gt;&lt;TD bgcolor=[%
-return $$VARS{nodelet_headerclr} if $$VARS{nodelet_headerclr};
-"#CC99FF";
-%]&gt;&lt;B&gt;["$$NODELET{title}"]&lt;/B&gt;&lt;/TD&gt;&lt;/TR&gt;
+	<author_user table="node" type="user">root</author_user>
+	<context table="container">[%
+  my $bk = $$THEME{nodeletTitleBackground};
+  $bk||="images/titletest.gif";
+  return "&lt;TR background=\"$bk\"&gt;" if $bk;
+  "&lt;TR&gt;";
+%]
+ &lt;TD bgcolor=[%
+   return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
+    "#CC99FF";
+  %]&gt;
+    &lt;B&gt;&lt;font [%
+      my $attr= $$THEME{nodeletTitleFontAttr};
+      return $attr if $attr;
+      "color=white";
+      %]&gt;["$$NODELET{title}"]
+    &lt;/font&gt;&lt;/B&gt;
+  &lt;/TD&gt;
+&lt;/TR&gt;
 
-&lt;TR&gt;&lt;TD bgcolor=[%
-return $$VARS{nodelet_textclr} if $$VARS{nodelet_textclr};
-"#FFFFFF";
-%]&gt;
-&lt;FONT size=2&gt;
-CONTAINED_STUFF
-&lt;/FONT&gt;
-&lt;/TD&gt;&lt;/TR&gt;</context>
-	<core table="node">R</core>
+&lt;TR&gt;
+  &lt;TD bgcolor=[%
+    return $$THEME{nodeletBodyColor} if $$THEME{nodeletBodyColor};
+    "#CCCCCC";
+  %]&gt;
+   &lt;FONT [%
+     my $fa = $$THEME{nodeletBodyFontAttr};
+     return $fa if $fa;
+     "size=2";
+   %]&gt;
+    CONTAINED_STUFF
+   &lt;/FONT&gt;
+  &lt;/TD&gt;
+&lt;/TR&gt;</context>
+	<core table="node">0</core>
 	<package table="node">0</package>
 	<parent_container table="container" type="container">nodeletshadow container</parent_container>
 	<reputation table="node">0</reputation>

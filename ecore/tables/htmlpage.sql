@@ -1,8 +1,8 @@
-# MySQL dump 6.4
+# MySQL dump 6.0
 #
-# Host: localhost    Database: everyalpha
+# Host: localhost    Database: everything
 #--------------------------------------------------------
-# Server version	3.22.27
+# Server version	3.22.25
 
 #
 # Table structure for table 'htmlpage'
@@ -13,5 +13,6 @@ CREATE TABLE htmlpage (
   displaytype varchar(20),
   page text,
   parent_container int(11),
+  ownedby_theme int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (htmlpage_id)
 );

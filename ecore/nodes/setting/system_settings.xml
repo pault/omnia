@@ -11,6 +11,7 @@
 		<guest_user type="user">Guest User</guest_user>
 		<permissionDenied_node type="superdoc">Permission Denied</permissionDenied_node>
 		<site_url >http://buddha.blockstackers.com/every2/</site_url>
+		<default_theme type="theme">default theme</default_theme>
 		<default_node type="superdoc">The Default Node</default_node>
 		<generalParent_container type="container">e2container</generalParent_container>
 		<nodeLocked_node type="restricted_superdoc">node locked</nodeLocked_node>

@@ -7,8 +7,8 @@
 	<type_nodetype table="node" type="nodetype">setting</type_nodetype>
 	<vars table="setting">
 		<hits >1</hits>
-		<createtime >1</createtime>
 		<reputation >1</reputation>
+		<createtime >1</createtime>
 		<karma >1</karma>
 	</vars>
 </NODE>

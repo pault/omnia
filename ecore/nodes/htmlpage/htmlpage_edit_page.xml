@@ -2,24 +2,27 @@
 	<author_user table="node" type="usergroup">gods</author_user>
 	<core table="node">R</core>
 	<displaytype table="htmlpage">edit</displaytype>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
 	<package table="node">0</package>
 	<page table="htmlpage">title:[{textfield:title}] maintained by:[{node_menu:author_user,user,usergroup}]&lt;br&gt;
 pagetype: [{node_menu:pagetype_nodetype}]&lt;br&gt;
 displaytype:[{textfield:displaytype}]&lt;br&gt;
 parent container:[{node_menu:parent_container}]&lt;br&gt;
-
+theme:[{node_menu:ownedby_theme}]&lt;br&gt;
 &lt;table width=100%&gt;
 &lt;tr&gt;
 &lt;td width=90%&gt;
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the page:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{textarea:page}]&lt;/td&gt;
 &lt;td width=10%&gt;&lt;font size=2&gt;[%
-my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype});
+
+#return;
+my $N = getType($$NODE{pagetype_nodetype});
 my $str;
 $str .= "&lt;li&gt;";
 $str .= join "\n&lt;li&gt;", $DB-&gt;getFields;
 
-my @tables = @{ $DB-&gt;getNodetypeTables($$NODE{pagetype_nodetype}) };
+my @tables = @{ $DB-&gt;getNodetypeTables($N) };
 foreach (@tables) {
   $str .="\n&lt;li&gt;";
   $str .= join "\n&lt;li&gt;", $DB-&gt;getFields($_);

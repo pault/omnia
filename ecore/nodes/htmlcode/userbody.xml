@@ -1,13 +1,15 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<code table="htmlcode">my $bgcolor = $$VARS{bgcolor};
-my $textcolor = $$VARS{textcolor};
-my $linkcolor = $$VARS{linkcolor};
-my $vlinkcolor = $$VARS{vlinkcolor};
-
+	<code table="htmlcode">my $bgcolor ||= $$THEME{bodyBgcolor};
 $bgcolor ||= "#FFFFFF";
+
+my $textcolor = $$THEME{bodyTextcolor};
 $textcolor ||= "#000000";
+
+my $linkcolor = $$THEME{bodyLinkcolor};
 $linkcolor ||= "#993333";
+
+my $vlinkcolor = $$THEME{bodyVlinkcolor};
 $vlinkcolor ||= "#333399";
 
 "&lt;BODY text=\"$textcolor\" bgcolor=\"$bgcolor\" link=\"$linkcolor\" vlink=\"$vlinkcolor\"&gt;";</code>
