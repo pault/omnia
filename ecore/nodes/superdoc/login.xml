@@ -4,10 +4,7 @@
   <field name="doctext" type="literal_value">[%
 my $str = "";
 
-
-
-
-if ($query->param('op') eq 'login' &amp;&amp; $$USER{title} ne "Guest User") {
+if ($query->param('op') eq 'login' &amp;&amp; $$USER{node_id} != $HTMLVARS{guest_user}) {
   $str.= "Hey.  Glad you're back.  Would you like to go to your " 
     .linkNode($USER, "home node")
     ." or to ".linkNode($HTMLVARS{default_node})."?&lt;br>";
@@ -18,13 +15,13 @@ if ($query->param('op') eq 'login' &amp;&amp; $$USER{title} ne "Guest User") {
   return $str;
 } elsif ($query->param('op') eq 'login') { 
   $str .="Oops.  You must have the wrong login or password or something:\n&lt;P>\n";
-} elsif ($$USER{title} ne "Guest User") {
+} elsif ($$USER{node_id} != $HTMLVARS{guest_user}) {
   $str.="Hey, ".linkNode($USER)."...  this is where you log in:&lt;p>\n";
 }else {
   $str .="Welcome to $HTMLVARS{site_name}.  Authenticate yourself:\n&lt;p>\n";
 }
 
-$str .= $query->start_form("POST", $ENV{script_name}) .
+$str .= $query->start_form("POST", $ENV{SCRIPT_NAME}) .
 		"&lt;input type=\"hidden\" name=\"op\" value=\"login\">".	
  		$query->hidden("node_id", getId($NODE))."\n".
 		$query->hidden("lastnode_id", $query->param("lastnode_id"))."\n".
@@ -36,7 +33,7 @@ $str .= $query->start_form("POST", $ENV{script_name}) .
 			-size => 10,
 			-maxlength => 10) ."&lt;br>".
 		$query->checkbox("expires", "", "+10y", "save me a permanent cookie, cowboy!"). 
-		$query->submit("sexisgood", "stumbit") .
+		$query->submit("submit", "submit") .
 		$query->end_form;
 	$str;
 %]
