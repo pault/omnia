@@ -20,7 +20,6 @@ Great hair</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">user</field>
   <vars>
     <var type_nodetype="nodeletgroup,nodetype" name="nodelet_group" type="noderef">system nodelets</var>
-    <var name="nodelets" type="literal_value">207,209,199,195,202,200,194,204</var>
     <var type_nodetype="themesetting,nodetype" name="preferred_theme" type="noderef">root's default themesettings</var>
   </vars>
 </NODE>
