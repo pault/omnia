@@ -56,11 +56,16 @@ sub insert
 #
 sub isGod
 {
-	my ($this) = @_;
+	my ($this, $recurse) = @_;
 	my $GODS = $$this{DB}->getNode('gods', 'usergroup');
 
 	return 0 unless($GODS);
-	return $GODS->inGroupFast($this);
+
+	if ($recurse) {
+		return $GODS->inGroup($this);
+	} else {
+		return $GODS->inGroupFast($this);
+	}
 }
 
 
