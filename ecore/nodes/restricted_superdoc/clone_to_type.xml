@@ -1,5 +1,5 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="clone to type">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">jaybonci</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
 my $str;
