@@ -110,7 +110,8 @@ $nav .= "&lt;/td>&lt;/tr>";
 
 #construct the table
 my $str = "&lt;TABLE width=100% border=0>";
-my $NODEGROUP = getNode($query->param('whichgroup'));
+my $ngroup = $query->param('whichgroup') || '';
+my $NODEGROUP = getNode($ngroup);
 
 $str .= $nav;
 $str .= "&lt;tr>&lt;th>Node ID&lt;/td>&lt;th>Title&lt;/th>&lt;th>Type&lt;/th>&lt;/tr>";

@@ -6,8 +6,8 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii</field>
-  <field name="guestaccess" type="literal_value">ii-i</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">&lt;font size=2>
@@ -31,7 +31,7 @@ push @links, linkNode ($GCL) if($GCL->hasAccess($USER, 'r'));
 my $ss = getNode('Everything settings', getType('superdoc'));
 push @links, linkNode ($ss) if ($ss->hasAccess($USER, "r"));
 
-my $ss = getNode('Node Armageddon', getType('restricted_superdoc'));
+$ss = getNode('Node Armageddon', getType('restricted_superdoc'));
 push @links, linkNode ($ss) if ($ss->hasAccess($USER, "r"));
 
 $str = join "&lt;br>\n", @links;
@@ -48,7 +48,7 @@ $str = join "&lt;br>\n", @links;
 &lt;A HREF="/index.pl?node_id=173&amp;lastnode_id=0">system settings&lt;/a>&lt;br>
 &lt;A HREF="/index.pl?node_id=192&amp;lastnode_id=0">root location&lt;/a>
 &lt;/font></field>
-  <field name="otheraccess" type="literal_value">iiii</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
   <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
   <field name="title" type="literal_value">Epicenter</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>

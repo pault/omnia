@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="openform">
   <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">$query->start_multipart_form("POST", $ENV{script_name}) .
+  <field name="code" type="literal_value">$query->start_form("POST", $ENV{script_name}) .
 $query->hidden("displaytype") .
 $query->hidden("node_id", getId $NODE);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

@@ -6,10 +6,10 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">ii-i</field>
-  <field name="guestaccess" type="literal_value">ii-i</field>
+  <field name="groupaccess" type="literal_value">ii-i-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">themesetting</field>
-  <field name="otheraccess" type="literal_value">ii-i</field>
+  <field name="otheraccess" type="literal_value">ii-i-</field>
   <field type_nodetype="theme,nodetype" name="parent_theme" type="noderef">default theme</field>
   <field name="title" type="literal_value">root's default themesettings</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">themesetting</field>

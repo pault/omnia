@@ -79,7 +79,7 @@ if($NODE->isGroup())
 &lt;p>&lt;b>Restrict Duplicates&lt;/b> (identical titles): 
 	[% if($$NODE{restrictdupes} == -1) { "parent"; }
 	   else{ $$NODE{restrictdupes}?"Yes":"No";} %]
-[{displayInherted:restrictdups}]
+
 &lt;p> &lt;b>Sql Table&lt;/b>: 
 [%
 if ($$NODE{sqltable} ne "")

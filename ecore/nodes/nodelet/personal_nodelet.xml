@@ -11,10 +11,10 @@
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
-  my $limit = $HTMLVARS{personalNodeletLimit};
-  $limit||=10;
+  my $limit = $HTMLVARS{personalNodeletLimit} || 10;
 
-  my @nodes = split "&lt;br>",$$VARS{personal_nodelet};
+  my @nodes;
+  @nodes = split("&lt;br>",$$VARS{personal_nodelet}) if ($$VARS{personal_nodelet);
   if (my $n = $query->param("addpersonalnodelet")) {
     $n = getNodeById $n;
     $$VARS{personal_nodelet} .= '&lt;br>'.$$n{title}

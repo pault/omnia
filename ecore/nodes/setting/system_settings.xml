@@ -6,10 +6,10 @@
   <field name="dynamicguest_permission" type="literal_value">0</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii</field>
-  <field name="guestaccess" type="literal_value">----</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">-----</field>
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">setting</field>
-  <field name="otheraccess" type="literal_value">----</field>
+  <field name="otheraccess" type="literal_value">-----</field>
   <field name="title" type="literal_value">system settings</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">setting</field>
   <vars>

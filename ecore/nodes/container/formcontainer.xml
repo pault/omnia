@@ -2,7 +2,7 @@
   <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">[%
-$query->start_multipart_form("POST", $ENV{script_name}) .
+$query->start_form("POST", $ENV{script_name}) .
 $query->hidden("displaytype") .
 $query->hidden("node_id", getId $NODE);
 %]

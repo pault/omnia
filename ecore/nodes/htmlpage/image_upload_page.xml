@@ -12,8 +12,16 @@
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[{uploadimage:src}]
-[% $query->submit('sexisgood', 'stumbit'); %]</field>
+  <field name="page" type="literal_value">[%
+	$query->start_multipart_form('POST', $ENV{script_name}) .
+	$query->hidden('displaytype') .
+	$query->hidden('node_id', getId $NODE);
+%]
+[{uploadimage:src}]
+[%
+	$query->submit('sexisgood', 'stumbit') .
+	$query->end_form();
+%]</field>
   <field type_nodetype="nodetype,nodetype" name="pagetype_nodetype" type="noderef">image</field>
   <field type_nodetype="container,nodetype" name="parent_container" type="noderef">formcontainer</field>
   <field name="permissionneeded" type="literal_value">c</field>

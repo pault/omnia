@@ -16,7 +16,7 @@
 maintained by:[{node_menu:author_user,user,usergroup}]&lt;br>
 parent container:[{node_menu:parent_container}]&lt;br>
 update interval: [{textfield:updateinterval}] (in seconds)&lt;br>
-Mini Nodelet: [{node_menu: mini_nodelet, nodelet}]
+Mini Nodelet: [{node_menu:mini_nodelet, nodelet}]
 &lt;br>
 
 nodelet code:&lt;br>

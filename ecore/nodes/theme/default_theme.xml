@@ -9,10 +9,10 @@
     <member type="noderef" type_nodetype="container,nodetype" name="group_node">main container</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iixi</field>
-  <field name="guestaccess" type="literal_value">ii-i</field>
+  <field name="groupaccess" type="literal_value">iixi-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">theme</field>
-  <field name="otheraccess" type="literal_value">iixi</field>
+  <field name="otheraccess" type="literal_value">iixi-</field>
   <field name="title" type="literal_value">default theme</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">theme</field>
   <vars>

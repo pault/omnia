@@ -25,7 +25,8 @@ $query->hidden(-name => "op", -default => "bucketop", -override => 1);
 %]
 
 [%
-my @bnodes = split ',', $$VARS{nodebucket};
+my @bnodes;
+@bnodes = split ',', $$VARS{nodebucket} if (defined($$VARS{nodebucket}));
 my $isLoc = $NODE->isOfType("location");
 my $isGroup = $NODE->isGroup();
 my $str;

@@ -6,8 +6,8 @@
   <field name="dynamicguest_permission" type="literal_value">0</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">-i-i</field>
-  <field name="guestaccess" type="literal_value">-i-i</field>
+  <field name="groupaccess" type="literal_value">-i-i-</field>
+  <field name="guestaccess" type="literal_value">-i-i-</field>
   <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodelet</field>
   <field type_nodetype="nodelet,nodetype" name="mini_nodelet" type="noderef">admin Nodelet Mini</field>
   <field name="nlcode" type="literal_value">&lt;table border=0>
@@ -120,7 +120,7 @@ function cloneNode()
         }
 &lt;/SCRIPT>
 &lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' border=0>&lt;/a>&lt;/td>&lt;/tr>&lt;/table></field>
-  <field name="otheraccess" type="literal_value">-i-i</field>
+  <field name="otheraccess" type="literal_value">-i-i-</field>
   <field type_nodetype="container,nodetype" name="parent_container" type="noderef">general nodelet container</field>
   <field name="title" type="literal_value">admin nodelet</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodelet</field>
