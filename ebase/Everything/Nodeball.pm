@@ -1024,50 +1024,63 @@ sub updateNodeball {
 #	purpose
 #		kill the sucka!
 #
-sub removeNodeball {
+sub removeNodeball
+{
 	my ($DOOMEDBALL) = @_;
+
 	# we need the root user so we can nuke nodes successfully
-	my $root = $DB->getNode('root', 'user');
+	my $root      = $DB->getNode('root', 'user');
 	my $doomed_id = $DB->getId($DOOMEDBALL);
-	my @members;
 
-	#we should also check dependancies -- am I in any other nodeballs?
-	# this technique avoids 'out of memory' errors
-	my (@NODEBALLS) = $DB->getNodeWhere( { 1 => 1 }, $DB->getType("nodeball"));
-	while (@NODEBALLS) {
-		my $NB = shift @NODEBALLS;
-		push @members, $NB->{group};
-	}
+	unless ($OPTIONS{force})
+	{
+		# we should also check dependencies -- am I in any other nodeballs?
+		# this technique avoids 'out of memory' errors
 
-	foreach my $member (@members) {
-		foreach (@$member) {
-			if ($DB->getId($_) == $doomed_id) {
-				my $DEPENDENT = getNode($_);
-				my $VARS = $DEPENDENT->getVars(-1);
-				die "Nodeball \"$$DEPENDENT{title}\" ($$VARS{version}) " .
-				  "depends on $$DOOMEDBALL{title}\n" .
-				  "Remove \"$$DEPENDENT{title}\" first, or use --force\n"
-				  unless ($OPTIONS{force});
+		my $nodeballs = $DB->getNodeWhere({ 1 => 1 }, $DB->getType('nodeball'));
+
+		my $depends;
+
+		foreach my $nodeball (@$nodeballs)
+		{
+			if ($nodeball->inGroup( $doomed_id ))
+			{
+				my $version = $nodeball->getVars(-1)->{version};
+
+				warn qq|Nodeball "$nodeball->{title}" ($version) depends on | .
+					qq|"$DOOMEDBALL->{title}".\n|;
+				$depends++;
 			}
 		}
+
+		die qq|Cannot remove "$DOOMEDBALL->{title}".\nRemove $depends | .
+			qq|dependencies first or use --force.\n| if $depends;
+
+		print "Are you sure you want to remove $DOOMEDBALL->{title}?\n";
+		my $yesno = <STDIN>;
+		exit unless $yesno =~ /^y/i;
 	}
 
-	unless ($OPTIONS{force}) {
-		print "Are you sure you want to remove $$DOOMEDBALL{title}?\n";
-		my $yesno = <STDIN>;
-		exit unless ($yesno =~ /^y/i);
-	}
-	
-	foreach (@{ $$DOOMEDBALL{group} }) {
-		my $N = getNode($_);
-		next if ($$N{type}{title} eq "nodeball"); #don't remove dependancies
-		print "removing \"$$N{title}\" ($$N{type}{title})...\n"
+	foreach my $node (@{ $DOOMEDBALL->{group} }) {
+		my $N = getNode($node);
+		unless (defined $N)
+		{
+			Everything::logErrors( '', 'Cannot fetch node "' . 
+				( defined $node ? $node : 'UNDEF' ) . '"' );
+			next;
+		}
+
+		# don't remove dependancies
+		next if $N->{type}{title} eq 'nodeball';
+
+		print qq|Removing "$N->{title}" ($N->{type}{title})...\n|
 			if $OPTIONS{verbose};
-		$N->nuke($root) or print "Remove Error!  I can't nuke $$N{title}!!!\n" ;
+		$N->nuke($root) or 
+			Everything::logErrors( '', "Can't nuke $N->{title}!" );
 	}
 
 	$DOOMEDBALL->nuke($root);
-	print "$$DOOMEDBALL{title} removed\n";
+	print "$DOOMEDBALL->{title} removed\n";
 }
 
 1;
