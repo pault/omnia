@@ -2,12 +2,14 @@
 
 use strict;
 
-BEGIN {
+BEGIN
+{
 	chdir 't' if -d 't';
 	unshift @INC, '../blib/lib', '..', 'lib/';
 }
 
-BEGIN {
+BEGIN
+{
 	package Everything;
 	use subs qw( localtime caller );
 	package main;
@@ -18,7 +20,7 @@ BEGIN {
 use TieOut;
 use FakeDBI;
 use File::Spec;
-use Test::More tests => 70;
+use Test::More tests => 71;
 use Test::MockObject;
 
 $ENV{EVERYTHING_LOG} = File::Spec->catfile( File::Spec->curdir(), 'log' );
@@ -92,14 +94,14 @@ SKIP: {
 my $order = 'red, blue, one , two';
 my @results = getParamArray($order, qw( one two red blue ));
 my @args = (-one => 1, -two => 2, -red => 'red', -blue => 'blue');
-is( scalar @results, 4, 'getParamArray() should return array params unchanged');
+is( @results, 4, 'getParamArray() should return array params unchanged');
 
 @results = getParamArray($order, @args);
-is( scalar @results, 4, '... and the right number of args in hash mode' );
+is( @results, 4, '... and the right number of args in hash mode' );
 
 # now ask for a repeated parameter
 @results = getParamArray($order . ', one', @args);
-is( scalar @results, 5, '... (even when being tricky)' );
+is( @results, 5, '... (even when being tricky)' );
 is( join('', @results), 'redblue121', '... the values in hash mode' );
 
 # and leave out some parameters
@@ -135,7 +137,7 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 }
 
 # initEverything()
-{
+SKIP: {
 	local @Everything::fsErrors = '123';
 	local @Everything::bsErrors = '321';
 	local ($Everything::DB, %Everything::NODEBASES);
@@ -144,46 +146,57 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 
 	is( join('', @$Everything::DB), 'onedb1', 
 		'initEverything() should create a new database if needed' );
-	is( scalar @Everything::fsErrors, 0, '... and should clear @fsErrors' );
-	is( scalar @Everything::bsErrors, 0, '... and @bsErrors' );
+	is( @Everything::fsErrors, 0, '... and should clear @fsErrors' );
+	is( @Everything::bsErrors, 0, '... and @bsErrors' );
 
 	initEverything('onedb');
 	is( $Everything::DB, $Everything::NODEBASES{onedb}, 
 		'... should reuse NodeBase object with same DB requested' );
 
 	initEverything('twodb');
-	is( scalar keys %Everything::NODEBASES, 2, '... and should cache objects' );
-
-	local (*Everything::NodeBase::mysql::new, *Everything::NodeBase::Pg::new);
-
-	*Everything::NodeBase::mysql::new = sub { 'mysql' };
-	*Everything::NodeBase::Pg::new    = sub { 'Pg' };
-
-	foreach my $type (qw( mysql Pg ))
-	{
-		initEverything( $type, { dbtype => $type } );
-		is( $Everything::NODEBASES{ $type }, $type,
-			"... and should respect allowed db type '$type'" );
-	}
+	is( keys %Everything::NODEBASES, 2, '... and should cache objects' );
 
 	eval { initEverything( 'threedb', { dbtype => 'badtype' } ) };
 	like($@, qr/Unknown database type 'badtype'/, '... dying given bad dbtype');
+
+	my $status;
+	local (@INC, *OUT);
+
+	@INC = 'lib';
+
+	if (open(OUT, '>', File::Spec->catfile(qw(lib Everything NodeBase foo.pm))))
+	{
+		(my $foo = <<'		END_HERE') =~ s/^\t+//gm;;
+		package Everything::NodeBase::foo;
+
+		sub new { 'foo' }
+
+		1;
+		END_HERE
+
+		print OUT $foo;
+		$status = 1;
+	}
+
+	skip( 'Cannot write fake module', 3 )  unless $status;
+
+	eval { initEverything( 'foo', { dbtype => 'foo' } ) };
+	is( $@, '', '... loading nodebase for requested database type' );
+	is( $Everything::NODEBASES{foo}, 'foo', "... and caching it" );
 }
 
 # clearFrontside()
 {
 	local @Everything::fsErrors = '123';
 	clearFrontside();
-	is( scalar @Everything::fsErrors, 0, 
-		'clearFrontside() should clear @fsErrors' );
+	is( @Everything::fsErrors, 0, 'clearFrontside() should clear @fsErrors' );
 }
 
 # clearBackside()
 {
 	local @Everything::bsErrors = '123';
 	clearBackside();
-	is( scalar @Everything::bsErrors, 0, 
-		'clearBackside() should clear @bsErrors' );
+	is( @Everything::bsErrors, 0, 'clearBackside() should clear @bsErrors' );
 }
 
 # logErrors()
@@ -225,7 +238,7 @@ is( join('', getParamArray('red,blue', @args)), 'redblue',
 	flushErrorsToBackside();
 	is( join('', @Everything::bsErrors), 'a123', 
 		'flushErrorsToBackside() should push @fsErrors onto @bsErrors' );
-	is( scalar @Everything::fsErrors, 0, '... should clear @fsErrors' );
+	is( @Everything::fsErrors, 0, '... should clear @fsErrors' );
 }
 
 is( getFrontsideErrors(), \@Everything::fsErrors, 
@@ -238,15 +251,12 @@ is( getBacksideErrors(), \@Everything::bsErrors,
 	local $Everything::DB;
 	$Everything::DB = Everything::NodeBase->new();
 
-	my $skipwords = FakeNode->new();
-	Everything::NodeBase::setNode(
-		nosearchwords => $skipwords,
-	);
+	my $skipwords = Test::MockObject->new();
+	$skipwords->set_always( getVars => {
+		ab => 1, abcd => 1, });
 
-	$skipwords->{vars} = {
-		'ab'	=> 1,
-		'abcd'	=> 1,
-	};
+	Everything::NodeBase::setNode( nosearchwords => $skipwords );
+
 	is( Everything::searchNodeName(''), undef, 
 		'searchNodeName() should return without workable words to find' );
 	
@@ -259,7 +269,7 @@ is( getBacksideErrors(), \@Everything::bsErrors,
 
 	my $results = FakeDBI->new([ 1, 2, 3 ]);
 	Everything::NodeBase::setResults($results);
-	my $found = Everything::searchNodeName('ab aBc!  abcd a ee', 
+	my $found = Everything::searchNodeName('ab aBc!  abcd a ee',
 		[ 'foo', 'bar' ]);
 	@calls = Everything::NodeBase::calls();
 	is( $calls[4]->[0], 'quote', '... should quote() searchable words' );
@@ -275,7 +285,7 @@ is( getBacksideErrors(), \@Everything::bsErrors,
 		'... and should order results properly' );
 	
 	is( ref $found, 'ARRAY', '... should return an arrayref on success' );
-	is( scalar @$found, 3, '... should find all proper results' );
+	is( @$found, 3, '... should find all proper results' );
 	is( join('', @$found), '123', '... and should return results' );
 }
 
@@ -288,7 +298,7 @@ is( getBacksideErrors(), \@Everything::bsErrors,
 	};
 
 	my @stack = Everything::getCallStack();
-	is( scalar @stack, 4, 'getCallStack() should not report self' );
+	is( @stack, 4, 'getCallStack() should not report self' );
 	is( $stack[0], 'everything.t:104:4', 
 		'... should report file, line, subname' );
 	is( $stack[-1], 'everything.t:101:1',
@@ -334,14 +344,4 @@ local *Everything::printLog;
 	like( $log, qr/\Q$hash\E/, '... and should log hash reference' );
 	like( $log, qr/foo = bar/, '... and hash keys' );
 	like( $log, qr/boo = far/, '... and hash keys (redux)' );
-}
-
-package FakeNode;
-
-sub new {
-	bless({}, $_[0]);
-}
-
-sub getVars {
-	return $_[0]->{vars};
 }
