@@ -32,8 +32,8 @@
 	<title table="node">taskball</title>
 	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
 	<vars table="setting">
-		<author >Chromatic</author>
-		<description >A task manager allowing for creation of tasks, task_updates, and listing of open tasks sorted by criteria.  See documentation on everydevel.com</description>
-		<version >0.1.1</version>
+		<author >chromatic</author>
+		<description >A task manager allowing for creation of tasks, task_updates, and task sorting and listing. See documentation on everydevel.com.</description>
+		<version >0.1.2</version>
 	</vars>
 </NODE>
