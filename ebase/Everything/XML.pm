@@ -3,7 +3,7 @@ package Everything::XML;
 ############################################################
 #
 #	Everything::XML.pm
-#	Copyright 2000 - 2002 Everything Development
+#	Copyright 2000 - 2003 Everything Development
 #	http://www.everydevel.com/
 #
 #	A module for the XML stuff in Everything
@@ -14,7 +14,7 @@ use strict;
 use Everything;
 use XML::DOM;
 
-sub BEGIN
+BEGIN
 {
    use Exporter();
    use vars qw($VERSIONS @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
@@ -34,7 +34,6 @@ sub BEGIN
 # was generated with an equal or earlier version of this parser/exporter.
 my $XML_PARSER_VERSION = 0.5;
 my %UNFIXED_NODES;
-
 
 ###########################################################################
 #	Sub
@@ -61,9 +60,14 @@ sub readTag
 #############################################################################
 sub initXMLParser
 {
-	undef %UNFIXED_NODES;
+	%UNFIXED_NODES = ();
 }
 
+
+sub _unfixed
+{
+	\%UNFIXED_NODES;
+}
 
 #############################################################################
 sub fixNodes
@@ -73,17 +77,19 @@ sub fixNodes
 	foreach my $node (keys %UNFIXED_NODES)
 	{
 		my $NODE = getNode($node);
-		my $UNFIXED = [];
 
-		unless($NODE)
+		unless ($NODE)
 		{
-			print STDERR "Error!  Node that we are supposed to fix is not here " 				.  "(id $node)!\n" if($printError);
+			Everything::logErrors( '', "Node that we are supposed to fix is " .
+				"not here (id $node)!" ) if $printError;
 			next;
 		}
-		
-		foreach my $FIX (@{$UNFIXED_NODES{$node}})
+
+		my $UNFIXED = [];
+
+		foreach my $FIX (@{ $UNFIXED_NODES{$node} })
 		{
-			if($NODE->applyXMLFix($FIX, $printError))
+			if ($NODE->applyXMLFix($FIX, $printError))
 			{
 				# The node attempted to apply the fix, but none was found.
 				# Put them back at the start, so we don't run through them
@@ -92,7 +98,7 @@ sub fixNodes
 			}
 		}
 
-		if(@$UNFIXED > 0)
+		if (@$UNFIXED)
 		{
 			$UNFIXED_NODES{$node} = $UNFIXED;
 		}
@@ -100,7 +106,7 @@ sub fixNodes
 		{
 			delete $UNFIXED_NODES{$node};
 		}
-		
+
 		# All the fixes for this node have been applied.
 		$NODE->commitXMLFixes();
 	}
@@ -178,10 +184,15 @@ sub xml2node
 			push @FIXES, @$fixes if $fixes;
 		}
 
-	    if ($nofinal) { push(@ids, $NODE); next; }
+	    if ($nofinal)
+		{
+			push @ids, $NODE;
+			next;
+		}
+
 		my $id = $NODE->xmlFinal();
 
-		if($id > 0)
+		if ($id > 0)
 		{
 			push @ids, $id;
 		}
@@ -253,64 +264,63 @@ sub genBasicTag
 	my $isNum = 0;
 	my $type;
 	my $xml;
-	my $PARAMS;
+	my $PARAMS = { name => $fieldname };
 	my $data;
 
 	# Check to see if the field name ends with a "_typename"
-	if($fieldname =~ /_(\w+)$/)
+	if ($fieldname =~ /_(\w+)$/)
 	{
 		$type = $1;
 
 		# if the numeric value is not greater than zero, it is a liter value.
 		# Nodes cannot have an id of less than 1.
-		$isRef = 1 if($content =~ /^\d+$/ && $content > 0);
+		$isRef = 1 if $content =~ /^\d+$/ && $content > 0;
 	}
 
-	if($isRef)
+	if ($isRef)
 	{
 		# This field references a node
 		my $REF = getNode($content);
 
-		unless($REF->isOfType($type, 1))
+		unless ($REF->isOfType($type, 1))
 		{
-			print STDERR "Warning! Field '$fieldname' needs a node of type '$type', " .
-				"but it is pointing to a node of type '$$REF{type}{title}'!\n";
+			Everything::logErrors( "Field '$fieldname' needs a node of type " .
+				"'$type',\nbut it is pointing to a node of type " .
+				"'$REF->{type}{title}'!" );
 		}
 
 		$data = makeXmlSafe($$REF{title});
-		$PARAMS = { name => $fieldname, type => "noderef",
-			type_nodetype => "$$REF{type}{title},nodetype" };
+		@$PARAMS{qw( type type_nodetype )} = 
+			( 'noderef', "$REF->{type}{title},nodetype" );
 
 		# Merge the standard title/type with any unique identifiers given
 		# by the node.
-		my $ID = $REF->getIdentifyingFields();
-		$ID ||= ();
+		my $ID = $REF->getIdentifyingFields() || ();
 
 		foreach my $id (@$ID)
 		{
-			if($id =~ /_(\w*)$/)
+			if ($id =~ /_(\w*)$/)
 			{
-				my $N = getNode($$REF{$id});
-				$$PARAMS{$id} = "$$N{title},$$N{type}{title}";
+				my $N          = getNode($REF->{$id});
+				$PARAMS->{$id} = "$N->{title},$N->{type}{title}";
 			}
 			else
 			{
-				$$PARAMS{$id} = $$REF{$id};
+				$PARAMS->{$id} = $REF->{$id};
 			}
 		}
 	}
 	else
 	{
 		# This is just a literal value
-		#$data = makeXmlSafe($content);
-		$data = $content;
-		$PARAMS = { name => $fieldname, type => "literal_value" };
+		$data           = $content;
+		$PARAMS->{type} = 'literal_value';
 	}
 
 	# Now that we have gathered the attributes and data for this tag, we
 	# need to construct it.
-	my $tag = new XML::DOM::Element($doc, $tagname);
-	my $contents = new XML::DOM::Text($doc, $data);
+	my $tag      = XML::DOM::Element->new($doc, $tagname);
+	my $contents = XML::DOM::Text->new($doc, $data);
 
 	# Set the attributes on the tag.  We sort the keys so that the
 	# attributes come out in an ordered fashion.  That way we won't
@@ -319,7 +329,7 @@ sub genBasicTag
 	my @sortAttrs = sort { $a cmp $b } keys %$PARAMS;
 	foreach my $param (@sortAttrs)
 	{
-		$tag->setAttribute($param, $$PARAMS{$param});
+		$tag->setAttribute($param, $PARAMS->{$param});
 	}
 
 	# And insert the content into our tag
@@ -347,29 +357,29 @@ sub parseBasicTag
 	my $first = $TAG->getFirstChild();
 	my $contents;
 	
-	$contents = $first->toString() if($first);
-	$contents ||= "";
+	$contents   = $first->toString() if $first;
+	$contents ||= '';
 
 	$contents = unMakeXmlSafe($contents);
 
 	my $ATTRS = $TAG->getAttributes();
-	my $type = $$ATTRS{type}->getValue();
-	my $name = $$ATTRS{name}->getValue();
+	my $type  = $ATTRS->{type}->getValue();
+	my $name  = $ATTRS->{name}->getValue();
 
 	$PARSEDTAG{name} = $name;
-	if($type eq "noderef")
+
+	if ($type eq 'noderef')
 	{
 		my %WHERE;
 
 		my $len = $ATTRS->getLength();
-		for (my $i = 0;  $i < $len; $i++)
+		for my $i (0 .. $len)
 		{
-			my $ATTR = $ATTRS->item($i);
-			my $attr = $ATTR->getName();
+			my $ATTR  = $ATTRS->item($i);
+			my $attr  = $ATTR->getName();
 			my $value = $ATTR->getValue();
 
-			next if($attr eq "type");
-			next if($attr eq "name");
+			next if $attr eq 'type' or $attr eq 'name';
 
 			$WHERE{$attr} = $value;
 		}
@@ -379,13 +389,12 @@ sub parseBasicTag
 		patchXMLwhere(\%WHERE);
 
 		my $TYPE = getType($WHERE{type_nodetype});
-		#delete $WHERE{type_nodetype};	
 
-		my $NODEID;
-		$NODEID = selectNodeWhere(\%WHERE, $TYPE);
-		if($NODEID)
+		my $NODEID = selectNodeWhere(\%WHERE, $TYPE);
+
+		if ($NODEID)
 		{
-			$PARSEDTAG{$name} = $$NODEID[0];
+			$PARSEDTAG{$name} = $NODEID->[0];
 		}
 		else
 		{
@@ -393,19 +402,17 @@ sub parseBasicTag
 
 			# Return our "fix".  We need to mark what field this fix is for
 			# and who created it
-			$PARSEDTAG{fixBy} = $fixBy;
-			$PARSEDTAG{field} = $name;
-
-			$PARSEDTAG{where} = \%WHERE;
+			@PARSEDTAG{qw( fixBy field where )} = ( $fixBy, $name, \%WHERE );
 		}
 	}
-	elsif($type eq "literal_value")
+	elsif ($type eq 'literal_value')
 	{
 		$PARSEDTAG{$name} = $contents;
 	}
 	else
 	{
-		print STDERR "Error! XML::parseBasicTag does not understand field type '$type'\n";
+		Everything::logErrors( '',
+			"XML::parseBasicTag does not understand field type '$type'" );
 	}
 
 	return \%PARSEDTAG;
@@ -466,7 +473,8 @@ sub patchXMLwhere
 #	Returns
 #		The encoded string.
 #
-sub makeXmlSafe {
+sub makeXmlSafe
+{
 	my ($str) = @_;
 
 	#we use an HTML convention...  
@@ -490,7 +498,8 @@ sub makeXmlSafe {
 #	Returns
 #		The decoded string.
 #
-sub unMakeXmlSafe {
+sub unMakeXmlSafe
+{
 	my ($str) = @_;
 
 	$str =~ s/\&lt\;/\</g;
