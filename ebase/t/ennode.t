@@ -255,28 +255,28 @@ $node->{_calls} = [];
 
 isnt( $node->{_calls}[0][0], 'getRef', 
 	'... and should not get user node if it is -1' );
-like( join(' ', @{ $node->{_calls}[3] } ), qr/sqlDelete links to_node.+from_node/, '... should delete from or to links from links table' );
+like( join(' ', @{ $node->{_calls}[2] } ), qr/sqlDelete links to_node.+from_node/, '... should delete from or to links from links table' );
 is( $node->{_calls}[5][0], 'isGroupType', 
 	'... should check each type is a group node' );
 
-is( join(' ', @{ $node->{_calls}[7] }), 
+is( join(' ', @{ $node->{_calls}[6] }), 
 	'sqlSelectMany table1_id table1 node_id=87',
 	'... should check for node in group table' );
-is( $node->{_calls}[10][0], 'fetchrow',
+is( $node->{_calls}[9][0], 'fetchrow',
 	'... if it exists, should fetch all containing groups' );
-like( join(' ', @{ $node->{_calls}[13] }), qr/sqlDelete table2 node_id=87/,
+like( join(' ', @{ $node->{_calls}[12] }), qr/sqlDelete table2 node_id=87/,
 	'... and should delete from table' );
-is( join(' ', @{ $node->{_calls}[14] }), 'getNode group', 
+is( join(' ', @{ $node->{_calls}[13] }), 'getNode group', 
 	'... and fetch containing node' );
-is( $node->{_calls}[15][0], 'incrementGlobalVersion', '... forcing a reload' );
-is( join(' ', @{ $node->{_calls}[16] }), 'getTableArray 1',
+is( $node->{_calls}[14][0], 'incrementGlobalVersion', '... forcing a reload' );
+is( join(' ', @{ $node->{_calls}[15] }), 'getTableArray 1',
 	'... should fetch all tables for node' );
-like( join(' ', @{ $node->{_calls}[18] }),
+like( join(' ', @{ $node->{_calls}[16] }),
 	qr/sqlDelete deltable deltable_id=/,
 	'... should delete node from tables' );
-is( join(' ', @{ $node->{_calls}[19] }), "incrementGlobalVersion $node",
+is( join(' ', @{ $node->{_calls}[17] }), "incrementGlobalVersion $node",
 	'... should mark node as updated in cache' );
-is( join(' ', @{ $node->{_calls}[20] }), "removeNode $node",
+is( join(' ', @{ $node->{_calls}[18] }), "removeNode $node",
 	'... and remove it from cache' );
 is( $node->{node_id}, 0, '... should reset node_id' );
 ok( $result, '... and return true' );
