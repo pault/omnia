@@ -21,9 +21,9 @@ sub node2mail
 {
 	my ($addr, $node) = @_;
 
-	return undef unless $addr;
+	return unless $addr;
 	$node = getNode($node);
-	return undef unless $node;
+	return unless $node;
 	
 	my @addresses = (UNIVERSAL::isa( $addr, 'ARRAY') ? @$addr : $addr);
 
@@ -59,7 +59,7 @@ sub node2mail
 		unless($sender)
 		{
 			Everything::logErrors('','Mail::Sender creation failed!');
-			return undef;
+			return;
 		}
 
 		my $res = $sender->MailMsg({
