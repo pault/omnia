@@ -1013,7 +1013,7 @@ sub htmlcode
 sub do_args {
 	my $args = shift;
 
-	my @args = split(/\s*,\s*/, $args);
+	my @args = split(/\s*,\s*/, $args) or ();
 	foreach my $arg (@args) {
 		unless($arg =~ /^\$/)
 		{
@@ -1293,13 +1293,9 @@ sub parseCode
 		exists($CURRENTNODE->{DB}->{workspace})) {
 		return oldparseCode($field, $CURRENTNODE);
 	}
-    my $text = $$CURRENTNODE{$field};
 
 	my $result = executeCachedCode($field, $CURRENTNODE);
 	return $result if (defined($result));
-
-	# the /s modifier makes . match newlines.  VERY important.
-	my @tchunks = split(/(\[(?:\{.*?\}|\".*?\"|%.*?%|<.*?>)\])/s, $text);
 
 	my $sub_text =<<'	SUB';
 	sub {
@@ -1307,33 +1303,26 @@ sub parseCode
 		return
 	SUB
 
-	while (@tchunks) {
-		my $chunk = shift @tchunks;
+	# the /s modifier makes . match newlines.  VERY important.
+	for my $chunk (split(/(\[(?:\{.*?\}|\".*?\"|%.*?%|<.*?>)\])/s,
+		$$CURRENTNODE{$field})) {
 		next unless $chunk =~ /\S/;
 
+		my ($start, $code, $end);
+		if (($start, $code, $end) = $chunk =~ /^\[([%"<{])(.+?)([%">}])\]$/s) { 
 		# embedded code
-		if ($chunk =~ /^(\[[%"<{])/) {
-			my $code = $chunk;
 			$code =~ s!"!\"!g;
-
-			# gotta do it twice to get rid of [% and %]
-			my ($start, $end) = (substr($code, 0, 1, ''), chop $code);
-			($start, $end) = (substr($code, 0, 1, ''), chop $code);
 
 			# htmlcode turns into a function call:
 			#	( htmlcode('arg1', 'arg2') || '')
 			if ($start eq '{') {
 				my ($func, $args) = split(/\s*:\s*/, $code);
-				my $htmlcode;
-				$htmlcode .= "( $func(";
+				$sub_text .= "( $func(";
 				if (defined $args) {
 					my @args = do_args($args);
-					if (@args) {
-						$htmlcode .= join(", ", @args);
-					}
+					$sub_text .= join(", ", @args) if (@args);
 				}
-				$htmlcode .= ") || '' ) . ";
-				$sub_text .= $htmlcode;
+				$sub_text .= ") || '' ) . ";
 
 			# htmlsnippets turn into simpler function calls:
 			#	htmlsnippet('snippetname')
@@ -1365,7 +1354,7 @@ sub parseCode
 
 	my $sub_ref = eval $sub_text;
 	if (!$sub_ref || $@) {
-		Everything::printLog("Eval error for $CURRENTNODE->{title} -> $field: ($@)\n");
+		Everything::printLog("Eval error $$CURRENTNODE{title} $field: ($@)\n");
 #		print STDERR listCode($sub_text, 1), "\n";
 	} else {
 		$CURRENTNODE->{DB}->{cache}->cacheMethod($CURRENTNODE,
@@ -1375,7 +1364,6 @@ sub parseCode
 			print STDERR "Warning for $CURRENTNODE->{title}:\n\t$warn\n";
 #			print STDERR listCode($sub_text, 1), "\n";
 		}
-#		Everything::printLog("Cached $$CURRENTNODE{title} in $$!");
 		return $result;
 	}
 
@@ -2566,17 +2554,12 @@ sub getOpCode
 #
 sub execOpCode
 {
-	my $ops = $query->param('op');
 	my $handled = 0;
 	my $OPCODE;
 	
-	return 0 unless(defined $ops);
-
-	$ops = [$ops] unless(ref $ops eq 'ARRAY');
-	
 	# The CGI parameter for 'op' can be an array of several operations
 	# we want to do, so we need to execute each of them.
-	foreach my $op (@$ops)
+	foreach my $op ($query->param('op'))
 	{
 		$handled = 0;
 
