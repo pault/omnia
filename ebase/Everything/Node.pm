@@ -989,7 +989,7 @@ sub selectLinks
 	my $obstr = $orderby ? " ORDER BY $orderby" : '';
 
 	my $cursor = $this->{DB}->sqlSelectMany( '*', 'links',
-		'from_node=?', $obstr, $this->{node_id} ); 
+		'from_node=?', $obstr, [$this->{node_id}]); 
 
 	return unless $cursor;
 
