@@ -109,7 +109,7 @@ sub main {
 		my $NB = getNode($nodeball, "nodeball");
 		$NB or die "no nodeball $nodeball exists for export!\n";
 	
-		printSettings ($NB->getVars());
+		Everything::Nodeball::printSettings ($NB->getVars());
 		checkDeps ($NB);
 
 		my $dir = "/tmp/everything".int(rand(1000));
