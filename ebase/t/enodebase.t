@@ -10,7 +10,7 @@ BEGIN {
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More tests => 38;
+use Test::More tests => 58;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -75,6 +75,51 @@ is_deeply( sqlSelect( $mock ), [ 'two', 'three' ],
 	'... and a list reference if many' );
 
 can_ok( $package, 'sqlSelectJoined' );
+$mock->clear()
+	->set_always( 'genTableName', 'gentable' )
+	->set_series( 'prepare', ($mock) x 2, 0 )
+	->set_series( 'execute', 1, 0 );
+
+my $joins = { one => 1, two => 2 };
+$result = sqlSelectJoined( $mock, 'select', 'table', $joins, 'where', 'other',
+	'bound', 'values' );
+
+($method, $args) = $mock->next_call();
+is( $method, 'genTableName', 'sqlSelectJoined() should generate table name' );
+is( $args->[1], 'table', '... if provided' );
+
+foreach my $join (keys %$joins)
+{
+	($method, $args) = $mock->next_call();
+	is( $method, 'genTableName', '... and genTable name' );
+	is( $args->[1], $join, '... for each joined table' );
+}
+
+($method, $args) = $mock->next_call();
+is( $method, 'prepare', '... preparing a SQL call' );
+like( $args->[1], qr/SELECT select/, '... selecting the requested columns' );
+like( $args->[1], qr/FROM gentable/,
+	'... from the generated table name if supplied' );
+like( $args->[1], qr/LEFT JOIN gentable ON 1/,
+	'... left joining joined tables' );
+like( $args->[1], qr/LEFT JOIN gentable ON 2/, '... as necessary' );
+like( $args->[1], qr/WHERE where/, '... adding the where clause if present' );
+like( $args->[1], qr/other/, '... and the other clause' );
+
+($method, $args) = $mock->next_call();
+is( $method, 'execute', '... executing the query' );
+is( join('-', @$args), "$mock-bound-values", '... with bound values' );
+
+is( $result, $mock, '... returning the cursor if it executes' );
+$result = sqlSelectJoined( $mock, 'select' );
+is( $result, undef, '... or undef otherwise' );
+($method, $args) = $mock->next_call(1);
+is( $method, 'prepare', '... not joining tables if they are not present' );
+is( $args->[1], 'SELECT select ',
+	'... nor any table, where, or other clauses unless requested' );
+ok( ! sqlSelectJoined( $mock, 'select' ),
+	'... returning false if prepare fails' );
+
 can_ok( $package, 'sqlSelectMany' );
 $mock->clear()
 	 ->set_always( 'genTableName', 'gentable' )
