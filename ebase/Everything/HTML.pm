@@ -141,16 +141,21 @@ sub deprecate
 sub newFormObject
 {
 	my ($objName) = @_;
-	my $obj;
+	return unless $objName;
 
-	$objName = "Everything::HTML::FormObject::$objName";
+	my $module      = "Everything::HTML::FormObject::$objName";
+	(my $modulepath = $module . '.pm') =~ s!::!/!g;
 
-	# We eval so that if the requested nodetype doesn't exist, we don't
-	# crap a brick.	
-	eval("require $objName; \$obj = new $objName()");
-	Everything::logErrors($@);
+	# We eval so that if the requested nodetype doesn't exist, we don't die
+	my $object = eval
+	{
+		require $modulepath;
+		$module->new();
+	};
 
-	return $obj;
+	Everything::logErrors( $@ ) if $@;
+
+	return $object;
 }
 
 
