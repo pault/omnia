@@ -1,0 +1,92 @@
+.\" man page by Jay Bonci jay@bonci.com
+.TH INSTALL_ESITE 1 "Dec 12, 2002"
+.SH NAME
+install_esite \- installs and sets up an ecore-based site
+.SH SYNOPSIS
+.B install_esite
+.RI [OPTIONS] 
+\<DATABASE\>
+.br
+.SH DESCRIPTION
+.B install_esite
+is the command-line utility for installing an ecore site onto a system that already meets the prerequisites.  For more information see the 
+.B TIPS
+section below
+.SH OPTIONS
+This script follows the usual GNU command line syntax, with long options starting with two dashes (`-'). A summary of options is included below.
+.TP
+.B Generic installation options
+.TP
+.B \-\-nocreatedb
+Skip database creation
+.TP
+.B \-\-nocreateuser
+Skip mySQL user creation / privilege grant
+.TP
+.B \-\-noapacheconf
+Skip modification of the Apache .conf files
+.TP
+.B \-\-nocoreinstall
+Skip installation of the core system
+.P
+.TP
+.B File ownership options
+.TP 
+.B \-g=GROUP
+The GROUP who should own created files
+.TP
+.B \-o=USER
+The USER who should own created files
+.TP
+.B Installation directory options
+.TP
+.B \-\-web=WEBDIR
+Specify your web directory
+.TP
+.B \-\-edir=EVERYTHINGDIR
+Specify your Everything library / script directory
+.TP
+.B mySQL options
+.TP
+.B \-\-rootpass=ROOT_DB_PASS
+Specify your mySQL root password
+.TP 
+.B \-h=SQLHOST
+Hostname for the mySQL database (if not localhost)
+.TP
+.B \-u=SQLUSER
+Username to create for use with the mySQL database
+.TP
+.B \-p=SQLPASS
+Password for the new mySQL user
+.P
+.SH TIPS
+.P 
+It bears mentioning that install_esite runs mostly interactively.  You can script out the entire process if you need to, but installation is done infrequently and as such there is little need to do so outside of some sort of package mechanism. These hooks are provided mostly for that manner of automation.  The command is usually invoked simply as:
+.P
+\t\t install_esite DBNAME
+.P
+Where DBNAME is the name of the database to create for use with Everything.  You can override this and install into an existing database if need be with the 
+.B \-\-nocreatedb
+option, however there are numerous potential problems with this and should be avoided if at all possible.
+.P
+Everything installation using install_esite is best run as root, although it is possible to do so as a normal user.  You need to supply your own database, mySQL user, and have ownership over directories for your web files and Everything libraries.  
+.P
+For those of you who simply cannot manage to get this working, we have pre-cooked "shoehorn" images in the form of a mySQL dump that you can simply shovel into a new or existing database and be good to go.  That image is available for download from sourceforge.net/projects/everydevel or everydevel.com
+.P
+The major hurdle to getting Everything setup is the Apache configuration.  The assumed Apache setup that comes with this distribution may or may not work for your particular system/OS/distribution, so that's most likely the first thing to check if you don't get a page right off the bat.  We also assume that you have a working mySQL installation and that you have the root password.  For future versions we'd like to remove this crutch, but for now, we live with it.  If you don't have that password, try the shoehorn install.
+.BR
+.SH BUGS
+.P 
+This script doesn't run under Win32 well, if at all.
+.P 
+Installation requires the mySQL root password. See above.
+.SH SEE ALSO
+.BR nbmasta (1)
+.br
+.SH AUTHOR
+Copyright 2002 The Everything Development Company \- http://everydevel.com.  install_esite is released as part of the Everything distribution and is licenced under the same terms as perl itself.
+.P
+.P
+This manual page was written and maintained by Jay Bonci
+<jay@bonci.com>.  Corrections and general gripes there please.

@@ -1,0 +1,80 @@
+.\" man page by Jay Bonci jay@bonci.com
+.TH NBMASTA 1 "Dec 12, 2002"
+.SH NAME
+nbmasta \- import or export nodeball objects from an ecore site
+.SH SYNOPSIS
+.B nbmasta
+.RI [OPTIONS] 
+(import | export | remove) \<NODEBALL\> \<DATABASE\>
+.P
+.SH DESCRIPTION
+.B nbmasta
+is the command-line utility for XML-based transport of nodes to and from Everything-based systems
+.SH OPTIONS
+This script follows the usual GNU command line syntax, with long options starting with two dashes (`-'). A summary of options is included below.
+.TP
+.B Database connection options
+.TP
+.B \-h SQLHOST
+Use HOSTNAME as the remote site for which to connect to the Everything database. Defaults to localhost
+.TP
+.B \-u SQLUSER
+Use SQLUSER to connect to the mySQL database.  This defaults to root.
+.TP
+.B \-p SQLPASS
+Use SQLPASS to connect to the mySQL database.  This defaults to no password.
+.TP
+.B Miscellaneous options
+.TP
+.B -v
+Use verbose messages
+.TP
+.B --force
+Force actions even when possibly a bad idea (import only)
+.TP
+.B Nodeball manipulation directives
+.TP 
+.B import
+Install a nodeball into the current nodebase.  \<NODEBALL\> must specify either a nodeball file (.nbz) in your local path or the resolved name of the folder under your in your nodeballs/ directory
+.TP
+.B export
+Export nodes to a .nbz file.  \<NODEBALL\> must be the name of a nodeball object inside of your ecore system.
+.TP
+.B remove
+Remove the nodeball specified by \<NODEBALL\> from your system.
+.P
+.SH TIPS
+.P 
+The most common use of nbmasta is to import nodeballs into your account.  If your database is called 
+.B myesite 
+you can invoke this simply through: 
+.P
+\t\t nbmasta -u USERNAME -p PASSWORD import myNodeBall.nbz myesite
+.P
+This will add the contents of myNodeBall.nbz into your Everything system.  If you'd like to share your brilliant nodeball with the rest of the world, the best way to do so is by exporting it as a nodeball.
+.P
+\t\t nbmasta -u USERNAME -p PASSWORD export mycoolnodeball myesite
+.P
+This should create a nodeball with the information contained in the node [mycoolnodeball] with type [nodeball] in your myesite database.  The actual filename is chosen by the version and the internal name of the nodeball. One non-blatantly obvious note is that if your nodeball title has a space, you need to escape it.  For instance:
+.P
+\t\t [my nodeball]
+.P
+Should be properly escaped on the command like as:
+.P
+\t\t my\\ nodeball
+.P
+Removal of nodeballs can be a fairly involved process and is something that is not normally done on sites in production. Typically an everything site builds up from the tools and nodeballs that are available. Deconstructing that is a tricky and rarely undertaken action. Another option is to simply delete all of the nodes and the nodeball object itself, from within ecore. If you need help here, best bet is to ask.
+.SH BUGS
+.P 
+This script doesn't run under Win32 well, if at all.
+.P 
+Some nodeball merging scenarios are undefined and are being addressed for the 1.0 release.
+.SH SEE ALSO
+.BR install_esite (1)
+.br
+.SH AUTHOR
+Copyright 2002 The Everything Development Company \- http://everydevel.com.  nbmasta is released as part of the Everything distribution and is licenced under the same terms as perl itself.
+.P
+.P
+This manual page was written and maintained by Jay Bonci
+<jay@bonci.com>.  Corrections and general gripes there please.
