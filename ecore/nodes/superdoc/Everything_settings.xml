@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">[%
  my $str="";
@@ -15,6 +15,7 @@
  }
 $str;
 %]
+&lt;p&gt;
 &lt;hr width=90% align=center&gt;
 &lt;h3&gt;Theme Nodes:&lt;/h3&gt;
 [%
@@ -36,7 +37,18 @@ Guest user sees searchform:[{settingradio:system settings,GUshowsearchform}]
 [{closeform}]
 &lt;b&gt;Warning!&lt;/b&gt; If you turn off these things for the guest user you
 will have to type "&lt;code&gt;index.pl?node=login&lt;/code&gt;" in the URL to 
-get to the login screen!</doctext>
+get to the login screen!&lt;p&gt;
+&lt;hr width=90% align=center&gt;
+[{openform}]
+[%
+my $str = "&lt;table border=0 cellspacing = 4 width=90%&gt;&lt;tr&gt;";
+$str.="&lt;td align=middle&gt;Flush the Nodebucket : &lt;/td&gt;";
+$str.="&lt;td align=middle&gt;Reset the Nodelets : &lt;/td&gt;";
+$str.="&lt;/tr&gt;&lt;tr&gt;";
+$str.="&lt;td align=middle&gt;".$query-&gt;submit("op","Flush")."&lt;/td&gt;";
+$str.="&lt;td align=middle&gt;".$query-&gt;submit("op","Zap")."&lt;/td&gt;";
+$str.="&lt;/tr&gt;&lt;/table&gt;";
+%]</doctext>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
 	<dynamicguest_permission table="node">-1</dynamicguest_permission>

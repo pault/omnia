@@ -256,6 +256,8 @@
 		<groupnode248 table="nodegroup" type="restricted_superdoc">clone to type</groupnode248>
 		<groupnode249 table="nodegroup" type="htmlcode">clonetotype</groupnode249>
 		<groupnode250 table="nodegroup" type="superdoc">Create a new user</groupnode250>
+		<groupnode251 table="nodegroup" type="opcode">Flush</groupnode251>
+		<groupnode252 table="nodegroup" type="opcode">Zap</groupnode252>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
@@ -267,6 +269,6 @@
 	<vars table="setting">
 		<author >Nate Oostendorp and Darrick Brown</author>
 		<description >The core system of Everything.   (Slightly Less BETA!)</description>
-		<version >0.9.0.7</version>
+		<version >0.9.0.8</version>
 	</vars>
 </NODE>
