@@ -30,7 +30,7 @@ sub insert
 
 	my $result = $this->SUPER();
 
-	$this-{DB}->createNodeTable($this->{title}) if $result > 0;
+	$this->{DB}->createNodeTable($this->{title}) if $result > 0;
 
 	return $result;
 }
@@ -128,7 +128,7 @@ sub nuke
 
 
 ############################################################################
-End of package
+# End of package
 ############################################################################
 
 1;
