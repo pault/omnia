@@ -463,10 +463,8 @@ sub removeNodeFromHash
 sub getGlobalVersion
 {
 	my ($this, $NODE) = @_;
-	my %version;
-	my $ver;
 	
-	$ver = $this->{nodeBase}->sqlSelect("version", "version",
+	my $ver = $this->{nodeBase}->sqlSelect("version", "version",
 		"version_id=$$NODE{node_id}");
 
 	if( (not defined $ver) || (not $ver) )
