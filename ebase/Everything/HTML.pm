@@ -380,16 +380,16 @@ sub getCode
 	my ($funcname, $args) = @_;
 
 	my $CODELIST = $DB->selectNodeWhere ({title=>$funcname},
-		$DB->getType("htmlcode"));
+			$DB->getType("htmlcode"));
 	return '"";' unless ($CODELIST);
 	my $CODE = $DB->getNodeById($$CODELIST[0]);
-	$args ||= "";	
 	my $str ='';
-	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n";
+	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
 	$str .= $$CODE{code};
 
 	return $str;
 }
+
 
 
 #############################################################################

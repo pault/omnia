@@ -409,6 +409,9 @@ sub getNode
 	my ($this, $title, $TYPE) = @_;
 	my $NODE;
 
+	if (not $TYPE and $title =~ /^\d+$/) {
+		return $this->getNodeById($title);
+	}
 	$TYPE = $this->getType($TYPE) unless(ref $TYPE eq "HASH");
 
 	($NODE) = $this->getNodeWhere({ "title" => $title }, $TYPE);
@@ -670,6 +673,12 @@ sub updateNode
 	$this->getRef($NODE);
 	return 0 unless ($this->canUpdateNode($USER, $NODE)); 
 
+	# This node has just been updated.  Do any maintenance if needed.
+	# NOTE!  This is turned off for now since nothing uses it currently.
+	# (helps performance).  If you need to do some special updating for
+	# a particualr nodetype, uncomment this line.
+	$this->nodeMaintenance($NODE, 'update');
+	
 	$tableArray = $$NODE{type}{tableArray};
 
 	# Cache this node since it has been updated.  This way the cached
@@ -705,11 +714,6 @@ sub updateNode
 	# We are done with tableArray.  Remove the "node" table that we put on
 	pop @$tableArray;
 
-	# This node has just been updated.  Do any maintenance if needed.
-	# NOTE!  This is turned off for now since nothing uses it currently.
-	# (helps performance).  If you need to do some special updating for
-	# a particualr nodetype, uncomment this line.
-	#$this->nodeMaintenance($NODE, 'update');
 
 	return 1;
 }
@@ -1860,23 +1864,17 @@ sub canReadNode {
 sub isApproved
 {
 	my ($this, $USER, $NODE) = @_;	
-	my $user_id;
 
 	return 0 if(not defined $USER);
 	return 0 if(not defined $NODE);
 
 	return 1 if($this->isGod($USER));
-
-	$this->getRef($USER);
+	my $user_id = $this->getId($USER);
 	
 	# A user is always allowed to view their own node
-	return 1 if ($this->getId($USER) == $this->getId($NODE));
+	return 1 if ($user_id == $this->getId($NODE));
 
 
-	# NATE NATE NATE!
-	# I'm not exactly sure what this is doing.  Nate, can you explain?
-	# The logic seems to be that if a user owns a node that belongs to
-	# a group, they are approved to change that group, which is bad.
 	foreach my $approveduser (@{ $this->selectNodegroupFlat($NODE) })
 	{
 		return 1 if ($user_id == $this->getId($approveduser)); 
