@@ -5,7 +5,6 @@ use strict;
 BEGIN {
 	chdir 't' if -d 't';
 	unshift @INC, '../blib/lib', 'lib/', '..';
-	push @INC, '/home/shane/dev/TestMockObject/Test/MockObject/lib';
 }
 
 package Everything::HTML::FormObject::AuthorMenu;
