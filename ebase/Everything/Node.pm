@@ -1,47 +1,55 @@
+=head1 Everything::Node
+
+The basic class that implements the node object.
+
+All methods in this package are intended to be methods that pertain to nodes of
+*ALL* types.  If a method is needed by a specific nodetype, it must be
+implemented in its own package, or implemented as a nodemethod.  Methods in
+this package have the performance benefit of not having to go through AUTOLOAD.
+However, if the method is not used by all nodetypes, it must go in its own
+package.
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::Node;
 
-#############################################################################
-#	Everything::Node
-#		The basic class that implements the node object.
-#
-#	Notes
-#		All methods in this package are intended to be methods that
-#		pertain to nodes of *ALL* types.  If a method is needed by
-#		a specific nodetype, it must be implemented in its own package,
-#		or implemented as a nodemethod.  Methods in this package have
-#		the performance benefit of not having to go through AUTOLOAD.
-#		However, if the method is not used by all nodetypes, it must
-#		go in its own package.
-#
-#	Copyright 2000 - 2003 Everything Development Inc.
 #	Format: tabs = 4 spaces
-#
-#############################################################################
 
 use strict;
 use Everything ();
 use Everything::Util;
 use XML::DOM;
 
+=cut
 
-#############################################################################
-#	Sub
-#		new
-#
-#	Purpose
-#		"Constructor" for the Node object.  This takes the given node hash
-#		and just blesses it.  This should only be called by NodeBase when
-#		it retrieves the nodes from the database to "objectify" them.
-#
-#	Parameters
-#		$NODE - a reference to the node hash to bless, not an id or name!
-#		$DB - when NodeBase.pm calls this, it passes a ref to itself
-#			so that when we implement these methods, we can access
-#			the basic sql functions.
-#		$nocache - (optional) True if the new node should not be cached.
-#			Preferably pass 'nocache', so that it's obvious what you are
-#			doing.
-#
+=head2 C<new>
+
+"Constructor" for the Node object.  This takes the given node hash and just
+blesses it.  This should only be called by NodeBase when it retrieves the nodes
+from the database to "objectify" them.
+
+=over 4
+
+=item * $NODE
+
+a reference to the node hash to bless, not an id or name!
+
+=item * $DB
+
+when NodeBase.pm calls this, it passes a ref to itself so that when we
+implement these methods, we can access the basic sql functions.
+
+=item * $nocache
+
+(optional) True if the new node should not be cached.  Preferably pass
+'nocache', so that it's obvious what you are doing.
+
+=back
+
+=cut
+
 sub new
 {
 	my ($className, $NODE, $DB, $nocache) = @_;
@@ -76,16 +84,15 @@ sub new
 	return $NODE;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		DESTROY
-#
-#	Purpose
-#		Gets called by perl when an object is about to be freed.  We
-#		delete any pointers that we have to get rid of possible circular
-#		references.
-#
+=head2 C<DESTROY>
+
+Gets called by perl when an object is about to be freed.  We delete any
+pointers that we have to get rid of possible circular references.
+
+=cut
+
 sub DESTROY
 {
 	my ($this) = @_;
@@ -104,41 +111,36 @@ sub DESTROY
 	delete $$this{SUPERfunc};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getId
-#
-#	Purpose
-#		Gets the numeric id of this object.
-#
-#	Returns
-#		Duh
-#
+=head2 C<getId>
+
+Gets the numeric id of this object.
+
+Returns duh
+
+=cut
+
 sub getId
 {
 	my ($this) = @_;
 	return $$this{node_id};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		AUTOLOAD
-#
-#	Purpose
-#		This allows us to call functions like $NODE->someFunc(), while
-#		implementing them in either a .pm or a nodemethod node.  This is
-#		the magic behind how Everything implements its method inheritance.
-#		MAKE SURE YOU UNDERSTAND HOW THIS WORKS before changing anything in
-#		here.  You could break the whole system if this is wrong.
-#
-#	Parameters
-#		See the function you are trying to call for parameter info
-#
-#	Returns
-#		Whatever the function you are calling returns
-#
+=head2 C<AUTOLOAD>
+
+This allows us to call functions like $NODE-E<gt>someFunc(), while implementing
+them in either a .pm or a nodemethod node.  This is the magic behind how
+Everything implements its method inheritance.  MAKE SURE YOU UNDERSTAND HOW
+THIS WORKS before changing anything in here.  You could break the whole system
+if this is wrong.
+
+Returns whatever the function you are calling returns
+
+=cut
+
 sub AUTOLOAD
 {
 	my $this = shift;
@@ -224,27 +226,19 @@ sub AUTOLOAD
 	return $result;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		SUPER
-#
-#	Purpose
-#		This implements the idea of calling a parent (inherited)
-#		implementation from a overrided function.  This allows you to call
-#		$this->SUPER();
-#		from a function implementation and it will call the parent's
-#		implementation of that function.  This is similar to the concept
-#		in java.
-#
-#	Parameters
-#		Any parameters that the parent implementation may take.  If nothing,
-#		this will automatically pass the parameters that were passed to call
-#		the overrided implemention of the function.
-#
-#	Returns
-#		The result of calling the parent implementation
-#
+=head2 C<SUPER>
+
+This implements the idea of calling a parent (inherited) implementation from a
+overrided function.  This allows you to call $this-E<gt>SUPER(); from a
+function implementation and it will call the parent's implementation of that
+function.  This is similar to the concept in Java.
+
+Returns the result of calling the parent implementation
+
+=cut
+
 sub SUPER
 {
 	my $this = shift @_;
@@ -292,30 +286,36 @@ sub SUPER
 	die "No SUPER for function $$this{SUPERfunc} for type $$TYPE{title}\n";
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNodeMethod
-#
-#	Purpose
-#		This is a utility function that finds the method of the given name
-#		for the given type.  This searches for 'nodemethod' nodetypes and
-#		the installed .pm implementations.  If it does not find one for that
-#		type, it will run up the nodetype inheritence hierarchy until it
-#		finds one, or determines that one does not exist.
-#
-#	Parameters
-#		$func - the name of the method/function to find
-#		$TYPE - the type of the node that is looking for this function
-#
-#	Returns
-#		A hash structure that contains the method if found.  undef if no
-#		method is found.  The hash returned has a 'type' field which is
-#		either "nodemethod', or 'pm'.  Where 'nodemethod' indicates that
-#		the function was found in a nodemethod node, and 'pm' indicates 
-#		that it found the function implemented in a .pm file.  See the
-#		code for the hash structures (grin).
-#
+=head2 C<getNodeMethod>
+
+This is a utility function that finds the method of the given name for the
+given type.  This searches for 'nodemethod' nodetypes and the installed .pm
+implementations.  If it does not find one for that type, it will run up the
+nodetype inheritence hierarchy until it finds one, or determines that one does
+not exist.
+
+=over 4
+
+=item * $func
+
+the name of the method/function to find
+
+=item * $TYPE
+
+the type of the node that is looking for this function
+
+=back
+
+Returns a hash structure that contains the method if found.  undef if no method
+is found.  The hash returned has a 'type' field which is either "nodemethod',
+or 'pm'.  Where 'nodemethod' indicates that the function was found in a
+nodemethod node, and 'pm' indicates that it found the function implemented in a
+.pm file.  See the code for the hash structures (grin).
+
+=cut
+
 sub getNodeMethod
 {
 	my ($this, $func, $TYPE) = @_;
@@ -379,30 +379,39 @@ sub getNodeMethod
 	return $RETURN;
 }
 
+=cut
 
-#############################################################################
-#       Sub
-#               getClone 
-#
-#       Purpose  
-#               Clone this node!  This will make an exact duplicate of this node
-#               and insert it into the database.  The only difference is that the
-#               cloned node will have a different ID.
-#
-#               If sub types have special data (ie nodegroups) that would also
-#               need to be cloned, they should override this function to do       
-#               that work.
-#
-#       Parameters
-#               $title - the new title of the cloned node
-#               $USER - the user trying to clone this node (for permissions)
-#               $workspace - the id or workspace hash into which this node
-#                       should be cloned.  This is primarily for internal purposes
-#                       and should not be used normally.  (NOT IMPLEMENTED YET!)
-#
-#       Returns
-#               The newly cloned node, if successful.  undef otherwise.
-#
+=head2 C<getClone>
+
+Clone this node!  This will make an exact duplicate of this node and insert it
+into the database.  The only difference is that the cloned node will have a
+different ID.
+
+If sub types have special data (ie nodegroups) that would also need to be
+cloned, they should override this function to do       that work.
+
+=over 4
+
+=item * $title
+
+the new title of the cloned node
+
+=item * $USER
+
+the user trying to clone this node (for permissions)
+
+=item * $workspace
+
+the id or workspace hash into which this node should be cloned.  This is
+primarily for internal purposes and should not be used normally.  (NOT
+IMPLEMENTED YET!)
+
+=back
+
+Returns the newly cloned node, if successful.  undef otherwise.
+
+=cut
+
 sub getClone
 {
         my ($this, $title, $USER, $workspace) = @_;
@@ -424,15 +433,16 @@ sub getClone
 
 }
 
-#############################################################################
-#	Sub
-#		assignType
-#
-#	Purpose
-#		This is an "private" function that should never be needed to be
-#		called from outside packages.  This just assigns the node's type
-#		to the {type} field of the hash.
-#
+=cut
+
+=head2 C<assignType>
+
+This is an "private" function that should never be needed to be called from
+outside packages.  This just assigns the node's type to the {type} field of the
+hash.
+
+=cut
+
 sub assignType
 {
 	my ($this) = @_;
@@ -447,17 +457,16 @@ sub assignType
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		cache
-#
-#	Purpose
-#		Cache this node in the node cache (say that real fast 3 times).
-#
-#	Returns
-#		result of cacheNode call (pretty much guaranteed to be 1)
-#
+=head2 C<cache>
+
+Cache this node in the node cache (say that real fast 3 times).
+
+Returns result of cacheNode call (pretty much guaranteed to be 1)
+
+=cut
+
 sub cache
 {
 	my ($this) = @_;
@@ -466,17 +475,16 @@ sub cache
 	$$this{DB}->{cache}->cacheNode($this);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		removeFromCache
-#
-#	Purpose
-#		Remove this object from the cache.
-#
-#	Returns
-#		result of removeNode call (pretty much guaranteed to be 1)
-# 
+=head2 C<removeFromCache>
+
+Remove this object from the cache.
+
+Returns result of removeNode call (pretty much guaranteed to be 1)
+
+=cut
+
 sub removeFromCache
 {
 	my ($this) = @_;
@@ -485,50 +493,60 @@ sub removeFromCache
 	$$this{DB}->{cache}->removeNode($this);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		quoteField
-#
-#	Purpose
-#		Quick way to quote a specific field on this object so that it does
-#		not affect the sql query.
-#
-#	Parameters
-#		$field - the field of this object to quote (ie 
-#			$this->quoteField("title");
-#
-#	Returns
-#		The field in a quoted string form.
-#
+=head2 C<quoteField>
+
+Quick way to quote a specific field on this object so that it does not affect
+the sql query.
+
+=over 4
+
+=item * $field
+
+the field of this object to quote (ie 
+
+  $this-E<gt>quoteField("title");
+
+=back
+
+Returns the field in a quoted string form.
+
+=cut
+
 sub quoteField
 {
 	my ($this, $field) = @_;
 	return ($$this{DB}->{dbh}->quote($$this{$field}));
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		isOfType
-#
-#	Purpose
-#		Checks to see if a node is of a certain type.
-#
-#	Parameters
-#		$type - a nodetype node, numeric id, or string name of a type
-#		$recurse - Nodetypes can derive from other nodetypes.  Superdoc
-#			derives from document, and restricted_superdoc derives from
-#			superdoc.  If you have a superdoc and you ask
-#			isOfType('document'), you will get false unless you turn
-#			on the recurse flag.  If you don't turn it on, its an easy
-#			way to see if a node is of a specific type (by name, etc).
-#			If you turn it on, its good to see if a node is of the
-#			specified type or somehow derives from that type.
-#
-#	Returns
-#		True if the node is of the specified type.  False otherwise.
-#
+=head2 C<isOfType>
+
+Checks to see if a node is of a certain type.
+
+=over 4
+
+=item * $type
+
+a nodetype node, numeric id, or string name of a type
+
+=item * $recurse
+
+Nodetypes can derive from other nodetypes.  Superdoc derives from document, and
+restricted_superdoc derives from superdoc.  If you have a superdoc and you ask
+isOfType('document'), you will get false unless you turn on the recurse flag.
+If you don't turn it on, its an easy way to see if a node is of a specific type
+(by name, etc).  If you turn it on, its good to see if a node is of the
+specified type or somehow derives from that type.
+
+=back
+
+Returns true if the node is of the specified type.  False otherwise.
+
+=cut
+
 sub isOfType
 {
 	my ($this, $type, $recurse) = @_;
@@ -542,38 +560,42 @@ sub isOfType
 	return 0;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		hasAccess
-#
-#	Purpose
-#		This checks to see if the given user has the necessary permissions
-#		to access the given node.
-#
-#	Note
-#		Passing "c" (create) as one of the modes to a node that is not a
-#		nodetype does nothing.  You can only create nodes of a nodetype.
-#		So, when you want to see if a user has permission to create a node,
-#		you need to pass the nodetype of the node that they wish to create
-#
-#	Parameters
-#		$USER - the user trying to access the node
-#		$modes - the access modes to check for.  This is a string that
-#			contain one or more of any of the following characters in any
-#			order:
-#			'r' (read), 'w' (write), 'd' (delete), 'c' (create),
-#			'x' (execute).  For example, "rw" would return 1 (true) if
-#			the user has read AND write permissions to the node.  Note that
-#			order does not matter.  "rw" will return the same result as "wr".
-#
-#	Returns
-#		1 (true) if the user has access to all modes given.  0 (false)
-#		otherwise.  The user must have access for all modes given for this to
-#		return true.  For example, if the user has read, write and delete
-#		permissions, and the modes passed were "wrx", the return would be
-#		0 since the user does not have the "execute" permission.
-#
+=head2 C<hasAccess>
+
+This checks to see if the given user has the necessary permissions
+to access the given node.
+
+Note: passing "c" (create) as one of the modes to a node that is not a nodetype
+does nothing.  You can only create nodes of a nodetype.  So, when you want to
+see if a user has permission to create a node, you need to pass the nodetype of
+the node that they wish to create
+
+=over 4
+
+=item * $USER
+
+the user trying to access the node
+
+=item * $modes
+
+the access modes to check for.  This is a string that contain one or more of
+any of the following characters in any order: 'r' (read), 'w' (write), 'd'
+(delete), 'c' (create), 'x' (execute).  For example, "rw" would return 1 (true)
+if the user has read AND write permissions to the node.  Note that order does
+not matter.  "rw" will return the same result as "wr".
+
+=back
+
+Returns 1 (true) if the user has access to all modes given.  0 (false)
+otherwise.  The user must have access for all modes given for this to return
+true.  For example, if the user has read, write and delete permissions, and the
+modes passed were "wrx", the return would be 0 since the user does not have the
+"execute" permission.
+
+=cut
+
 sub hasAccess
 {
 	my ($this, $USER, $modes) = @_;
@@ -638,25 +660,32 @@ sub hasAccess
 
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getUserPermissions
-#
-#	Purpose
-#		Given the user and a node, this will return what permissions the
-#		user has on that node.
-#
-#	Parameters
-#		NODE - The node for which we wish to check permissions
-#		USER - The user that to get permissions for.
-#
-#	Returns
-#		A string that contains the permission flags that the user has access.
-#		For example, if the user can read and write to the node, the return
-#		value will be "rw".  If the user has no permissions for the node, an
-#		empty string ("") will be returned.
-#
+=head2 C<getUserPermissions>
+
+Given the user and a node, this will return what permissions the user has on
+that node.
+
+=over 4
+
+=item * NODE
+
+The node for which we wish to check permissions
+
+=item * USER
+
+The user that to get permissions for.
+
+=back
+
+Returns a string that contains the permission flags that the user has access.
+For example, if the user can read and write to the node, the return value will
+be "rw".  If the user has no permissions for the node, an empty string ("")
+will be returned.
+
+=cut
+
 sub getUserPermissions
 {
 	my ($this, $USER) = @_;
@@ -675,23 +704,27 @@ sub getUserPermissions
 	return $perms;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getUserRelation
-#
-#	Purpose
-#		Every user has some relation to every node.  They are either the
-#		"author", in the "group", a "guest" user, or "other".  This will
-#		return the relation the given user has with the given node.
-#
-#	Parameters
-#		$USER - the user
-#
-#	Returns
-#		Either "author", "group", "guest", or "other" which can be used to
-#		get the appropriate permissions for the user.
-#
+=head2 C<getUserRelation>
+
+Every user has some relation to every node.  They are either the "author", in
+the "group", a "guest" user, or "other".  This will return the relation the
+given user has with the given node.
+
+=over 4
+
+=item * $USER
+
+the user
+
+=back
+
+Returns either "author", "group", "guest", or "other" which can be used to get
+the appropriate permissions for the user.
+
+=cut
+
 sub getUserRelation
 {
 	my ($this, $USER) = @_;
@@ -733,22 +766,26 @@ sub getUserRelation
 	return $class;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		deriveUsergroup
-#
-#	Purpose
-#		The usergroup of a node can inherit from its type (specify -1).
-#		This returns the group of the node.  Either what it has specified,
-#		or what its nodetype defaults to.
-#
-#	Parameters
-#		$NODE - the node in which to get the usergroup for.
-#
-#	Returns
-#		The node id of the usergroup
-#
+=head2 C<deriveUsergroup>
+
+The usergroup of a node can inherit from its type (specify -1).  This returns
+the group of the node.  Either what it has specified, or what its nodetype
+defaults to.
+
+=over 4
+
+=item * $NODE
+
+the node in which to get the usergroup for.
+
+=back
+
+Returns the node id of the usergroup
+
+=cut
+
 sub deriveUsergroup
 {
 	my ($this) = @_;
@@ -763,25 +800,31 @@ sub deriveUsergroup
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getDefaultPermissions
-#
-#	Purpose
-#		This takes the given node and returns the permissions for the given
-#		class of users.
-#
-#	Parameters
-#		$NODE - the node to get the permissions for
-#		$class - the class of permissions to get.  Either "author", "group",
-#			"guest", or "other".  This can be obtained from calling
-#			getUserNodeRelation().
-#
-#	Returns
-#		A string containing valid permission characters.  The
-#		strings can contain any of these characters "rwxdc-".
-#
+=head2 C<getDefaultPermissions>
+
+This takes the given node and returns the permissions for the given class of
+users.
+
+=over 4
+
+=item * $NODE
+
+the node to get the permissions for
+
+=item * $class
+
+the class of permissions to get.  Either "author", "group", "guest", or
+"other".  This can be obtained from calling getUserNodeRelation().
+
+=back
+
+Returns a string containing valid permission characters.  The strings can
+contain any of these characters "rwxdc-".
+
+=cut
+
 sub getDefaultPermissions
 {
 	my ($this, $class) = @_;
@@ -797,23 +840,26 @@ sub getDefaultPermissions
 	return $perms;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getDynamicPermissions
-#
-#	Purpose
-#		You can specify a "permission" node to calculate the permissions
-#		for a node.  This checks to see if there is a permission for the
-#		node.  If so, it evals the permission code and returns the
-#		generated permissions.
-#
-#	Parameters
-#		$USER - the user that is trying gain access
-#
-#	Returns
-#		The permissions flags generated by the permission code
-#
+=head2 C<getDynamicPermissions>
+
+You can specify a "permission" node to calculate the permissions for a node.
+This checks to see if there is a permission for the node.  If so, it evals the
+permission code and returns the generated permissions.
+
+=over 4
+
+=item * $USER
+
+the user that is trying gain access
+
+=back
+
+Returns the permissions flags generated by the permission code
+
+=cut
+
 sub getDynamicPermissions
 {
 	my ($this, $USER) = @_;
@@ -834,20 +880,19 @@ sub getDynamicPermissions
 	return $perms;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		lock
-#
-#	Purpose
-#		For race condition purposes.  This marks a node as "locked" so
-#		that others cannot access it.
-#
-#	*** NOTE *** Not implemented!
-#
-#	Returns
-#		True if the lock was granted.  False if otherwise.
-#
+=head2 C<lock>
+
+For race condition purposes.  This marks a node as "locked" so that others
+cannot access it.
+
+*** NOTE *** Not implemented!
+
+Returns true if the lock was granted.  False if otherwise.
+
+=cut
+
 sub lock
 {
 	my ($this, $USER) = @_;
@@ -855,20 +900,19 @@ sub lock
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		unlock
-#
-#	Purpose
-#		This removes the "lock" flag from a node.
-#
-#	*** NOTE *** Not implemented!
-#
-#	Returns
-#		True if the lock was removed.  False if not (usually means that
-#		you did not have the lock in the first place).
-#
+=head2 C<unlock>
+
+This removes the "lock" flag from a node.
+
+*** NOTE *** Not implemented!
+
+Returns true if the lock was removed.  False if not (usually means that you did
+not have the lock in the first place).
+
+=cut
+
 sub unlock
 {
 	my ($this, $USER) = @_;
@@ -876,24 +920,34 @@ sub unlock
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		updateLinks
-#
-#	Purpose
-#		A link has been traversed.  If it exists, increment its hit and
-#		food count.  If it does not exist, add it.
-#
-#	Parameters
-#		$this - (the object) the node that the link goes to
-#		$FROMNODE - the node the link comes from
-#		$type - the type of the link, can either refer to a nodetype, or 
-#			be an arbitrary int value
-#
-#	Returns
-#		1 if successful	
-#
+=head2 C<updateLinks>
+
+A link has been traversed.  If it exists, increment its hit and food count.  If
+it does not exist, add it.
+
+=over 4
+
+=item * $this
+
+(the object) the node that the link goes to
+
+=item * $FROMNODE
+
+the node the link comes from
+
+=item * $type
+
+the type of the link, can either refer to a nodetype, or be an arbitrary int
+value
+
+=back
+
+Returns 1 if successful	
+
+=cut
+
 sub updateLinks
 {
 	my ($this, $FROMNODE, $type) = @_;
@@ -935,20 +989,24 @@ sub updateLinks
 	'';
 }
 
+=cut
 
-#############################################################################
-#   Sub
-#       updateHits
-#
-#   Purpose
-#       Increment the number of hits on a node.
-#
-#   Parameters
-#       $NODE - the node in which to update the hits on
-#
-#   Returns
-#       The new number of hits
-#
+=head2 C<updateHits>
+
+Increment the number of hits on a node.
+
+=over 4
+
+=item * $NODE
+
+the node in which to update the hits on
+
+=back
+
+Returns the new number of hits
+
+=cut
+
 sub updateHits
 {
 	my ($this) = @_;
@@ -960,21 +1018,24 @@ sub updateHits
 	++$$this{hits};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getLinks
-#
-#	Purpose
-#		Gets an array of hashes for the links that originate from this
-#		node.
-#
-#	Parameters
-#		$orderby - the field in which the sql should order the list
-#
-#	Returns
-#		A reference to an array that contains the links
-#
+=head2 C<getLinks>
+
+Gets an array of hashes for the links that originate from this node.
+
+=over 4
+
+=item * $orderby
+
+the field in which the sql should order the list
+
+=back
+
+Returns a reference to an array that contains the links
+
+=cut
+
 sub selectLinks
 {
 	my ($this, $orderby) = @_;
@@ -997,25 +1058,28 @@ sub selectLinks
 	return \@links;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getTables
-#
-#	Purpose
-#		Get the tables that this node needs to join on to be created.
-#
-#	Parameters
-#		$nodetable - pass 1 (true) if you want the node table included
-#			in the array (the node table is usually assumed so it is
-#			not included).  pass undef (nothing) or 0 (zero) if you
-#			don't need the node table.
-#
-#	Returns
-#		An array ref of the table names that this node joins on.
-#		Note that the array is a copy of the internal data structures.
-#		Feel free to change it or what ever you need to do.
-#
+=head2 C<getTables>
+
+Get the tables that this node needs to join on to be created.
+
+=over 4
+
+=item * $nodetable
+
+pass 1 (true) if you want the node table included in the array (the node table
+is usually assumed so it is not included).  pass undef (nothing) or 0 (zero) if
+you don't need the node table.
+
+=back
+
+Returns an array ref of the table names that this node joins on.  Note that the
+array is a copy of the internal data structures.  Feel free to change it or
+what ever you need to do.
+
+=cut
+
 sub getTables
 {
 	my ($this, $nodetable) = @_;
@@ -1023,21 +1087,24 @@ sub getTables
 	return $$this{type}->getTableArray($nodetable);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getHash
-#
-#	Purpose
-#		General purpose function to get a hash structure from a field in
-#		the node.
-#
-#	Parameters
-#		$field - the field to hashify from the node
-#
-#	Returns
-#		Hash reference, if found, undef if not.
-#
+=head2 C<getHash>
+
+General purpose function to get a hash structure from a field in the node.
+
+=over 4
+
+=item * $field
+
+the field to hashify from the node
+
+=back
+
+Returns hash reference, if found, undef if not.
+
+=cut
+
 sub getHash
 {
 	my ($this, $field) = @_;
@@ -1066,35 +1133,39 @@ sub getHash
 	return $this->{$store} = \%vars;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		setHash
-#
-#	Purpose
-#		This takes a hash of variables and assigns it to the 'vars' of the
-#		given node.  If the new vars are different, we will update the
-#		node.
-#
-#	NOTE!
-#		If the vars hash contains an undefined value or the value is an
-#		empty string, it will be removed from the hash as it would
-#		generate a string like:
-#
-#		key1=value1&key2=&key3=value3
-#
-#		When we try to reconstruct the hash in getHash, it will fail because
-#		of the 'key2='  blank value.  So, just be aware that setting a hash
-#		may cause a key to be deleted.
-#
-#	Parameters
-#		$varsref - the hashref to get the vars from
-#		$field - the field of the node to set.  Different types may
-#			store their hashes in different places.
-#
-#	Returns
-#		Nothing
-#
+=head2 C<setHash>
+
+This takes a hash of variables and assigns it to the 'vars' of the given node.
+If the new vars are different, we will update the node.
+
+NOTE!  If the vars hash contains an undefined value or the value is an empty
+string, it will be removed from the hash as it would generate a string like:
+
+  key1=value1&key2=&key3=value3
+
+When we try to reconstruct the hash in getHash, it will fail because of the
+'key2=' blank value.  So, just be aware that setting a hash may cause a key to
+be deleted.
+
+=over 4
+
+=item * $varsref
+
+the hashref to get the vars from
+
+=item * $field
+
+the field of the node to set.  Different types may store their hashes in
+different places.
+
+=back
+
+Returns nothing.
+
+=cut
+
 sub setHash
 {
 	my ($this, $varsref, $field) = @_;
@@ -1120,20 +1191,18 @@ sub setHash
 	return undef;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNodeDatabaseHash
-#
-#	Purpose
-#		This will retrieve a hash of this node, but with only the keys
-#		that exist in the database.  We store a lot of extra info on the
-#		node and its sometimes needed to get just the keys that exist
-#		in the database.
-#
-#	Returns
-#		Hashref of the node with only the keys that exist in the database
-#
+=head2 C<getNodeDatabaseHash>
+
+This will retrieve a hash of this node, but with only the keys that exist in
+the database.  We store a lot of extra info on the node and its sometimes
+needed to get just the keys that exist in the database.
+
+Returns hashref of the node with only the keys that exist in the database
+
+=cut
+
 sub getNodeDatabaseHash
 {
 	my ($this) = @_;
@@ -1155,19 +1224,18 @@ sub getNodeDatabaseHash
 	return \%keys;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		isNodetype
-#
-#	Purpose
-#		Quickie function to see if a node is a nodetype.  This basically
-#		abstracts out the isOfType(1) call.  In case nodetype is not id 1
-#		in the future, we can easily change this.
-#
-#	Returns
-#		True if this node is a nodetype, false otherwise.
-#
+=head2 C<isNodetype>
+
+Quickie function to see if a node is a nodetype.  This basically abstracts out
+the isOfType(1) call.  In case nodetype is not id 1 in the future, we can
+easily change this.
+
+Returns true if this node is a nodetype, false otherwise.
+
+=cut
+
 sub isNodetype
 {
 	my ($this) = @_;
@@ -1175,14 +1243,14 @@ sub isNodetype
 	return $this->isOfType(1);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getParentLocation
-#
-#	Purpose
-#		Get the parent location of this node.
-#
+=head2 C<getParentLocation>
+
+Get the parent location of this node.
+
+=cut
+
 sub getParentLocation
 {
 	my ($this) = @_;
@@ -1190,23 +1258,20 @@ sub getParentLocation
 	return $$this{DB}->getNode($$this{loc_location});
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		toXML
-#
-#	Purpose
-#		This returns a string that contains an XML representation for this
-#		node.  Basically a way to export this node.
-#
-#	Notes
-#		We use the XML::Generator to create the XML because the XML::DOM
-#		API is not very friendly for creating XML documents as it is
-#		for reading them.
-#
-#	Returns
-#		XML string
-#
+=head2 C<toXML>
+
+This returns a string that contains an XML representation for this node.
+Basically a way to export this node.
+
+We use the XML::Generator to create the XML because the XML::DOM API is not
+very friendly for creating XML documents as it is for reading them.
+
+Returns the XML string.
+
+=cut
+
 sub toXML
 {
 	my ($this) = @_;
@@ -1250,23 +1315,20 @@ sub toXML
 	return $DOC->toString();
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		existingNodeMatches
-#
-#	Purpose
-#		Mainly used for importing purposes to see of a node matching
-#		this one already exists in the database.  It doesn't make much
-#		sense to call this on a node that already exists.  Its pretty
-#		much used for "dummy" nodes that do not exist in the database
-#		yet.
-#
-#	Returns
-#		The node in the database if one exists that matches this one
-#		(matching is based on the getIdentifyingFields() method)
-#		undef if no match was found.
-#
+=head2 C<existingNodeMatches>
+
+Mainly used for importing purposes to see of a node matching this one already
+exists in the database.  It doesn't make much sense to call this on a node that
+already exists.  Its pretty much used for "dummy" nodes that do not exist in
+the database yet.
+
+Returns the node in the database if one exists that matches this one (matching
+is based on the getIdentifyingFields() method) undef if no match was found.
+
+=cut
+
 sub existingNodeMatches
 {
 	my ($this) = @_;
