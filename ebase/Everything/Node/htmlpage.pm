@@ -25,20 +25,19 @@ sub insert
 {
 	my ($this, $USER) = @_;
 
-	my $GNC = $$this{DB}->getNode("general container", "container");
+ # If there is no parent container set, we need a default
+ unless($$this{parent_container})
+ {
+ my $GNC = getNode("general nodelet container", "container");
+ $$this{parent_container} = 0;
+ $$this{parent_container} = $GNC if($GNC);
+ }
 
-	# If this gets set to something inappropriate, we can have some
-	# infinite container loops.
-	if($GNC)
-	{
-		$$this{parent_container} = $$GNC{node_id};
-	}
-	else
-	{
-		$$this{parent_container} = 0;
-	}
+$this->SUPER();
 
-	$this->SUPER();
+
+
+
 }
 
 #############################################################################
