@@ -657,7 +657,7 @@ sub linkNode
 	my ($NODE, $title, $PARAMS, $SCRIPTS) = @_;
     my $link;
 	
-	return "" unless $NODE;
+	return "" unless defined($NODE);
 
 	# We do this instead of calling getRef, because we only need the node
 	# table data to create the link.
@@ -965,15 +965,32 @@ sub AUTOLOAD
 	# We can only execute this if the logged in user has execute permissions.
 	return undef unless($CODE->hasAccess($user, 'x'));
 
-	# The reason we do not call evalXTrapErrors is because we want
-	# htmlcode that is called like normal functions to fail like
-	# normal function and not return some kind of bogus string that
-	# they were not expecting.
-	return evalX($$CODE{code}, $CODE, @_);
+	my $result;
+
+	# this htmlcode may have been Compil-O-Cached
+	# check if we can execute the cached sub and try to do it
+	unless ((exists($HTMLVARS{noCompile}) and $HTMLVARS{noCompile}) or
+		exists($CODE->{DB}->{workspace})) {
+ 		$result = executeCachedCode('code', $CODE, \@_);
+		return $result if (defined($result));
+
+	# otherwise, run it through Compil-O-Cache
+		if ($$CODE{code}) {
+			my $code = "sub {\nmy \$NODE = \$GNODE;\n$$CODE{code}\n}";
+			$result = compileCache($code, $CODE, 'code', \@_);
+			return $result if defined $result;
+		}
+	}
+
+    # The reason we do not call evalXTrapErrors is because we want
+    # htmlcode that is called like normal functions to fail like
+    # normal function and not return some kind of bogus string that
+    # they were not expecting.
+    return evalX($$CODE{code}, $CODE, @_);
 }
 
 
-#############################################################################
+###############################################################################
 #	Sub
 #		htmlcode
 #
@@ -981,7 +998,7 @@ sub AUTOLOAD
 #		THIS IS A DEPRECATED FUNCTION!  DO NOT USE!  This is here to
 #		maintain some compatibility with some older code.  The AUTOLOAD
 #		method has replaced this for a more direct implementation.
-#		This basically allows the calling of htmlcode with dynamic paramters
+#		This basically allows the calling of htmlcode with dynamic parameters
 #
 sub htmlcode
 {
@@ -989,7 +1006,7 @@ sub htmlcode
 	my $code;
 	my @args;
 
-	if($args && $args ne "")
+	if(defined($args) && $args ne "")
 	{
 		@args = split(/\s*,\s*/, $args);
 	}
@@ -997,6 +1014,191 @@ sub htmlcode
 	$code = "$function(\@_);";
 
 	return evalX($code, undef, @args);
+}
+
+
+###############################################################################
+#	Sub
+#		do_args
+#
+#	Purpose
+#		This is a supporting function for compileCache().  It turns a
+#		comma-delimited list of arguments into an array, performing variable
+#		interpolation on them.  It's probably not necessary once things move
+#		over to the new AUTOLOAD htmlcode scheme.
+#
+#	Takes
+#		$args, a comma-delimited list of arguments
+#
+#	Returns
+#		an array of manipulated arguments
+#
+sub do_args {
+	my $args = shift;
+
+	my %interp = (
+		'$NODE' => $GNODE,
+		'$THEME' => $THEME,
+		'$USER' => $USER,
+		'$VARS' => $VARS,
+		'HTMLVARS' => \%HTMLVARS,
+	);
+	my @args = split(/\s*,\s*/, $args);
+	foreach my $arg (@args) {
+		if ($arg =~ /\$(\$?[A-Z]+){(\w+)}/) {
+			$arg = $interp{$1}->{$2};
+		}
+	}
+
+	return @args;
+}
+
+
+###############################################################################
+#	Sub
+#		executeCachedCode
+#
+#	Purpose
+#		This is a supporting function for Compile-O-Cache.  It attempts to
+#		execute a compiled subroutine.  It does support arguments, via the
+#		third parameter.  This exists to make it easier for nodes with embedded
+#		code that don't go through the new parseCode.
+#
+#		Note that it doesn't check if $HTMLVARS{noCompile} is set, or if the
+#		user is in a workspace.  If this is important to you, check them!
+#
+#	Takes
+#		$field, the name of the field of the node that contains embedded code
+#		$CURRENTNODE, the node object to check for compiled code
+#		$args, an optional array reference of arguments for the	subroutine
+#
+#	Returns
+#		The return value of the compiled code on success, undef on failure.
+#		Note that if the compiled code returns undef, this function returns an
+#		empty string instead.  This is the expected behavior of htmlcode and
+#		other page components.
+#
+sub executeCachedCode {
+	my ($field, $CURRENTNODE, $args) = @_;
+	$args ||= [];
+
+	my ($warn, $code_ref);
+	
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0];
+	};
+
+	if ($code_ref = $CURRENTNODE->{"_cached_$field"}) {
+		if (ref($code_ref) eq 'CODE' and defined &$code_ref) {
+			my $result = $code_ref->(@$args) || '';
+			print STDERR "Error in $$CURRENTNODE{title}:\n\t$warn\n" if ($warn);
+			return $result;
+		}
+	}
+}
+
+
+###############################################################################
+# Sub
+#	compileCache
+#
+#	Purpose
+#		Common compilation and caching and initial calling of htmlcode and
+#		nodemethod functions.  Hopefully it keeps common code in one spot.  For
+#		internal use only!
+#
+#	Arguments
+#		$code, the text to eval() into an anonymous subroutine
+#		$NODE, the node object from which the code came
+#		$field, the field of the node that holds the code for that nodetype
+#		$args, a reference to a list of arguments to pass
+#
+#	Returns
+#		A string containing results of the code or a blank string.  Undef if
+#		the compilation fails -- in case we need to default to old behavior.
+#
+sub compileCache
+{
+	my ($code, $NODE, $field, $args) = @_;
+	
+	my $code_ref = eval $code;
+
+	if ($@ or !($code_ref)) {
+		print STDERR "Error compiling $$NODE{type} $$NODE{title}!\n$@\n";
+#		print STDERR "$code\n";
+	} else {
+		my $s = $NODE->{DB}->{cache}->cacheMethod($NODE, $field, $code_ref);
+#		print STDERR "Compiled $$NODE{type} $$NODE{title} okay!\n" if ($s);
+		my $warn;
+		local $SIG{__WARN__} = sub {
+			$warn .= $_[0];
+		};
+		my $result = $code_ref->(@$args) || '';
+		if ($warn) {
+			print STDERR "--\nWarning for $$NODE{title}:\n";
+			print STDERR "$warn(" . join(', ', @$args) . ")\n";
+			print STDERR listCode($code, 1), "\n";
+		}
+		return $result;
+	}
+}
+
+
+###############################################################################
+# Sub
+#	nodemethod
+#
+#	Purpose
+#		Allow compil-o-caching and calling of nodemethods.  Internal use only.
+#
+#	Arguments
+#		$CURRENTNODE, the nodemethod node in question
+#		@_, further arguments for the nodemethod code
+#
+#	Returns
+#		The text results of the nodemethod code, if it succeeded.  Undef
+#		otherwise.  See Everything::Node::AUTOLOAD for the emergency backup
+#		plan.
+#
+sub nodemethod
+{
+	# args for the nodemethod may be passed here
+	my ($CURRENTNODE) = shift;
+	
+	unless ((exists($HTMLVARS{noCompile}) and $HTMLVARS{noCompile}) or
+		exists($CURRENTNODE->{DB}->{workspace})) {
+		my $result = executeCachedCode('code', $CURRENTNODE, \@_);
+		return $result if (defined($result));
+
+		my $code = "sub {\nmy \$NODE = \$GNODE;\n$$CURRENTNODE{code}\n}";
+		return compileCache($code, $CURRENTNODE, 'code', \@_);
+	}
+}
+
+
+################################################################################
+#	Sub
+#		htmlsnippet
+#
+#	Purpose
+#		allow for easy use of htmlsnippet functions in embedded perl
+#		[<BacksideErrors>] would become: htmlsnippet('BacksideErrors');
+#
+#	Parameters
+#		$snippet -- the htmlsnippet name
+#
+#	Returns
+#		The HTML from the snippet
+#
+sub htmlsnippet {
+	my ($snippet) = @_;
+	my $node = getNode($snippet, 'htmlsnippet');
+	my $html = '';
+	# User must have execute permissions for this to be embedded.
+	if((defined $node) && $node->hasAccess($USER, "x")) {
+		$html = parseCode('code', $node); 
+	}
+	return $html;
 }
 
 
@@ -1087,11 +1289,12 @@ sub embedCode
 
 #############################################################################
 #	Sub
-#		parseCode
+#		parseCode (new)
 #
 #	Purpose
 #		Given the text from a node that is to be displayed, parse out the
-#		code blocks and eval them.
+#		code blocks, compile the whole thing into an anonymous subroutine,
+#		cache it, and call it.  Or call it if it's already compiled.  WHOOSH!
 #
 #		NOTE!!! This is a full parse and eval.  You do NOT NOT NOT want to
 #		call this on text that an untrusted user can modify.  You don't
@@ -1110,33 +1313,138 @@ sub embedCode
 #		Will return:
 #			<p>Hello Bob
 #
-#
 sub parseCode
 {
 	my ($field, $CURRENTNODE) = @_;
 
+	if ((exists($HTMLVARS{noCompile}) and $HTMLVARS{noCompile}) or
+		exists($CURRENTNODE->{DB}->{workspace})) {
+		return oldparseCode($field, $CURRENTNODE);
+	}
     my $text = $$CURRENTNODE{$field};
+
+	my $result = executeCachedCode($field, $CURRENTNODE);
+	return $result if (defined($result));
+
+	# the /s modifier makes . match newlines.  VERY important.
+	my @tchunks = split(/(\[(?:\{.*?\}|\".*?\"|%.*?%|<.*?>)\])/s, $text);
+
+	my $sub_text =<<'	SUB';
+	sub {
+		my $NODE = $GNODE;
+		return
+	SUB
+
+	while (@tchunks) {
+		my $chunk = shift @tchunks;
+		next unless $chunk =~ /\S/;
+
+		# embedded code
+		if ($chunk =~ /^(\[[%"<{])/) {
+			my $code = $chunk;
+			$code =~ s!"!\"!g;
+
+			# gotta do it twice to get rid of [% and %]
+			my ($start, $end) = (substr($code, 0, 1, ''), chop $code);
+			($start, $end) = (substr($code, 0, 1, ''), chop $code);
+
+			# htmlcode turns into a function call:
+			#	( htmlcode('arg1', 'arg2') || '')
+			if ($start eq '{') {
+				my ($func, $args) = split(/\s*:\s*/, $code);
+				my $htmlcode;
+				$htmlcode .= "( $func(";
+				if (defined $args) {
+					my @args = do_args($args);
+					if (@args) {
+						$htmlcode .= "'" . join("', '", @args) . "'";
+					}
+				}
+				$htmlcode .= ") || '' ) . ";
+				$sub_text .= $htmlcode;
+
+			# htmlsnippets turn into simpler function calls:
+			#	htmlsnippet('snippetname')
+			} elsif ($start eq '<') {
+				$sub_text .= "htmlsnippet('$code') . ";
+
+			# embedded code needs a dedicated block to work unmodified:
+			#	( eval { return 'foo'; } || '' )
+			} elsif ($start eq '"' or $start eq '%') {
+				$sub_text .= "( eval {\n$code\n} || '' ) . ";
+			}
+
+		# raw text, needs to be quoted -- the quoting should work correctly
+		# as there's no need to escape quotes in raw HTML sections anyway
+		} else {
+			next unless ($chunk =~ /\S/);
+			$chunk =~ s!\"!\\"!g;
+			$sub_text .= qq|"$chunk" . |;
+		}
+	}
+
+	# add newlines so trailing comments don't cause eval() errors
+	$sub_text .= qq|\n"";\n}|;
+	
+	my $warn;
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0];
+	};
+
+	my $sub_ref = eval $sub_text;
+	if (!$sub_ref || $@) {
+		Everything::printLog("Eval error for $CURRENTNODE->{title} -> $field: ($@)\n");
+#		print STDERR listCode($sub_text, 1), "\n";
+	} else {
+		$CURRENTNODE->{DB}->{cache}->cacheMethod($CURRENTNODE,
+			 $field, $sub_ref);
+		$result = $sub_ref->() || '';
+		if ($warn) {
+			print STDERR "Warning for $CURRENTNODE->{title}:\n\t$warn\n";
+#			print STDERR listCode($sub_text, 1), "\n";
+		}
+#		Everything::printLog("Cached $$CURRENTNODE{title} in $$!");
+		return $result;
+	}
+
+	# on failure, use old behavior
+	return oldparseCode($field, $CURRENTNODE);
+}
+
+
+#############################################################################
+#	Sub
+#		oldparseCode
+#
+#	Purpose
+#		Given the text from a node that is to be displayed, parse out the
+#		code blocks and eval them.  No caching here, plod plod.
+#
+#	Parameters
+#		$field - the field to be parsed for the code blocks
+#		$CURRENTNODE - the node which this text is coming from.  
+#
+sub oldparseCode
+{
+	my ($field, $CURRENTNODE) = @_;
+
+    my $text = $$CURRENTNODE{$field};
+
 	# the embedding styles are:  
-	# [% %]s -- full embedded perl
-	# [{ }]s -- calls to the code database
-	# [< >]s -- embedded HTML
-	# [" "]s -- embedded code strings
-	# this is important to know when you are writing pages -- you 
-	# always want to print user data through [" "] so that they
-	# cannot embed arbitrary code...
 	$text=~s/
 	 \[
 	 (
-	 \{.*?\}
-	 |".*?"
-	 |%.*?%
-	 |<.*?>
+	 \{.*?\} # [{ }]s -- calls to the code database
+	 |".*?"  # [" "]s -- embedded code strings
+	 |%.*?%  # [% %]s -- full embedded perl
+	 |<.*?>  # [< >]s -- embedded HTML
 	 )
 	 \]
 	  /embedCode($1,$CURRENTNODE)/egsx;
 
 	$text;
 }
+
 
 ###################################################################
 #	Sub
@@ -2093,7 +2401,7 @@ sub opUnlock
 #		is bound to, and the form object handles the update of the node.
 #
 #		If any of the fields fail the verification, the system will go
-#		to the node specified by the node_id paramter (in most cases,
+#		to the node specified by the node_id parameter (in most cases,
 #		this should be back to the page that contained the form that
 #		was doing the update).
 #
@@ -2102,7 +2410,7 @@ sub opUnlock
 #		is valid, then we proceed to update the fields of the node(s).
 #		None of the nodes are actually updated until all fields have
 #		been updated.  This is to allow us to make 1 update() call per
-#		node rather than calling update per field update.
+#		node rather than calling update once per field update.
 #
 #		Once all of the nodes have been updated, this will look for
 #		two more optional parameters: 'opupdate_redirect', and

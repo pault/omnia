@@ -313,6 +313,11 @@ sub removeNode
 	my ($this, $NODE) = @_;
 	my $data = $this->removeNodeFromHash($NODE);
 
+	# temporary keys are marked with a leading underscore
+	# this gets rid of cached subs, for example
+	my @tempkeys = grep(/^_/, keys %$NODE);
+	delete @$NODE{@tempkeys};
+
 	# Removing a node for any reason from the cache warrants a version
 	# increment.  Usually when a node is removed from the cache, it is
 	# being deleted.
@@ -650,6 +655,35 @@ sub resetCache
 	"";
 }
 
+#############################################################################
+#	Sub
+#		cacheMethod
+#
+#	Purpose
+#		We like being able to compile embedded code sections and cache them to
+#		save parsing/compiling time on future page displays.  This fiddles with
+#		the internals of the cache queue to associate anonymous sub refs with
+#		the associated node.  It's not completely beautiful, but it works with
+#		the present caching system.
+#
+#	Parameters
+#		$NODE - the node object containing the embedded code
+#		$field - the field of $NODE directly containing the embedded code
+#		$sub_ref - a reference to the compiled sub
+#
+#	Returns
+#		1 on success, 0 on failure ($NODE probably isn't cached)
+#
+sub cacheMethod {
+	my ($this, $NODE, $field, $sub_ref) = @_;
+	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
+	my $data = $this->{typeCache}{$type}{$title};
+	if (defined($data->{item})) {
+		$data->{item}{"_cached_$field"} = $sub_ref;
+		return 1;
+	}
+	return 0;
+}
 
 #############################################################################
 # End of package Everything::NodeCache

@@ -27,7 +27,7 @@ use Everything::Node;
 #		$dbname - the database name to connect to
 #		$staticNodetypes - a performance enhancement.  If the nodetypes in
 #			your system are fairly constant (you are not changing their
-#			permissions dynmically or not manually changing them often) set
+#			permissions dynamically or not manually changing them often) set
 #			this to 1.  By turning this on we will derive the nodetypes
 #			once and thus save that work each time we get a nodetype.  The
 #			downside to this is that if you change a nodetype, you will need
@@ -131,18 +131,18 @@ sub getNodeWorkspace {
 	my @results;
 	$TYPE = $this->getType($TYPE) if $TYPE;
 
-	sub cmpval {
+	my $cmpval = sub {
 		my ($val1, $val2) = @_;
 
 		if (ref $val1 eq "Everything::Node") { $val1 = $$val1{node_id}; }
 		if (ref $val2 eq "Everything::Node") { $val2 = $$val2{node_id}; }
 
 		$val1 eq $val2;
-	}
+	};
 
 	#we need to iterate through our workspace
-	foreach (keys %{ $this->{workspace}{nodes} }) {
-		my $N = $this->getNode($_);
+	foreach my $node (keys %{ $this->{workspace}{nodes} }) {
+		my $N = $this->getNode($node);
 		next if $TYPE and $$N{type}{node_id} != $$TYPE{node_id};
 
 		my $match = 1;
@@ -150,11 +150,11 @@ sub getNodeWorkspace {
 			if (ref $$WHERE{$_} eq 'ARRAY') {
 				my $matchor = 0;
 				foreach my $orval (@{ $$WHERE{$_} }) {
-					$matchor = 1 if cmpval($$N{$_}, $orval);
+					$matchor = 1 if $cmpval->($$N{$_}, $orval);
 				}
 				$match = 0 unless $matchor;
 			} else {
-				$match = 0 unless cmpval($$N{$_}, $$WHERE{$_});
+				$match = 0 unless $cmpval->($$N{$_}, $$WHERE{$_});
 			}
 		}
 		push @results, $N if $match;
@@ -315,7 +315,7 @@ sub sqlDelete
 #		records, use sqlSelectMany.
 #
 #	Parameters
-#		select - what colums to return from the select (ie "*")
+#		select - what columns to return from the select (ie "*")
 #		table - the table to do the select on
 #		where - string containing the search criteria
 #		other - any other sql options thay you may want to pass
@@ -351,10 +351,10 @@ sub sqlSelect
 #		This returns the DBI cursor.
 #
 #	Parameters
-#		select - what colums to return from the select (ie "*")
+#		select - what columns to return from the select (ie "*")
 #		table - the table to do the select on
 #		where - the search criteria
-#		other - any other sql options thay you may wan to pass
+#		other - any other sql options that you may want to pass
 #
 #	Returns
 #		The sql cursor of the select.  Call fetchrow() on it to get
@@ -456,7 +456,7 @@ sub sqlUpdate
 
 	$sql .= "\nWHERE $where\n" if $where;
 
-	 return ($this->{dbh}->do($sql));
+	return ($this->{dbh}->do($sql));
 }
 
 
@@ -605,8 +605,7 @@ sub getNode
 	elsif($ref eq "HASH")
 	{
 		# This a "where" select
-		
-		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2);
+		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2, 1);
 		if (exists $this->{workspace}) {
 			my $wspaceArray = $this->getNodeWorkspace($node, $ext);
 			#the nodes we get back are unordered, must be merged
