@@ -79,7 +79,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingList</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingMenu</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">setvar</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">showChoiceFunc</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textarea</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textfield</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">updatetable</member>
@@ -134,7 +133,6 @@
     <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">all nodelets</member>
     <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">default nodelets</member>
     <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</member>
-    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Gigantic Code Lister</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Gigantic Node Lister</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">create node</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</member>

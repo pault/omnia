@@ -22,7 +22,7 @@
 [{submit}]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">document</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">form container</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">document edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
