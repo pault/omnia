@@ -1,6 +1,7 @@
 <NODE export_version="0.5" nodetype="nodetype" title="maintenance">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="canworkspace" type="literal_value">-1</field>
   <field name="defaultauthor_permission" type="literal_value">0</field>
   <field name="defaultauthoraccess" type="literal_value">rwxd</field>
   <field name="defaultgroup_permission" type="literal_value">0</field>

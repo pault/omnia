@@ -1,28 +1,29 @@
-<NODE export_version="0.5" nodetype="htmlcode" title="coreStatus">
+<NODE export_version="0.5" nodetype="htmlcode" title="otherUsers">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return unless $$USER{title} eq 'root';
+  <field name="code" type="literal_value">my $time 
+$time = $HTMLVARS{otherusersTimeLimit};
+$time ||= 3 * 60;
+my $limit = 50;
+
+my $USRS = getNodeWhere("(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)", "user", "node_id", $limit);
 
 my $str;
-
-if ($$NODE{core}) {
-  $str .=linkNode($NODE,"remove", {"$$NODE{type}{title}_core" => "0"})
-     ." from core";
-} else {
-  $str .=linkNode ($NODE, "include", {"$$NODE{type}{title}_core" => 'R'})
-    ." in core";
-
+foreach (@$USRS) {
+	$str .= linkNode($_) ."&lt;br>";
 }
-</field>
+$str ||= "&lt;i>no users logged in&lt;/i>";
+
+$str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="title" type="literal_value">coreStatus</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">otherUsers</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>

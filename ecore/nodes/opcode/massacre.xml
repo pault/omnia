@@ -6,7 +6,7 @@
 my @params = $query->param;
 my @deathrow;
 foreach (@params) {
-  next unless /^killnode(\d+)$/;
+  next unless /^bnode_(\d+)$/;
   push @deathrow, $1;
 }
 

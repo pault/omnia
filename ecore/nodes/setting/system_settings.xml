@@ -24,6 +24,7 @@
     <var name="nodeLocked_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</var>
     <var name="nodelet_group" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</var>
     <var name="notFound_node" type="noderef" type_nodetype="superdoc,nodetype">Not found</var>
+    <var name="otherusersTimeLimit" type="literal_value">600</var>
     <var name="permissionDenied_node" type="noderef" type_nodetype="superdoc,nodetype">Permission Denied</var>
     <var name="preferred_theme" type="noderef" type_nodetype="themesetting,nodetype">root's default themesettings</var>
     <var name="searchResults_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</var>

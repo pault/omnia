@@ -10,45 +10,41 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
-  <field name="nlcode" type="literal_value">[%my $limit = 15;
+  <field name="nlcode" type="literal_value">[%
+my $limit;
+
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
+$limit ||= 15;
 
 my $str;
-my $csr = $DB->getDatabaseHandle()->prepare("
-	SELECT * FROM node
-	ORDER BY createtime DESC
-	LIMIT $limit");
+my $ref = getNodeWhere({}, "", "createtime DESC", $limit);
 
-$csr->execute or return "SHIT";
-while(my $N = $csr->fetchrow_hashref){
-	$str .= linkNode($N) . "&lt;BR>\n";	
+foreach my $N (@$ref) {
+	$str .= linkNode($N) . "&lt;BR>\n" if $N->hasAccess($USER, 'r');	
 }
-$csr->finish;
+
 $str;
-
-
-
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=259">nodelet outline container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=260">nodeletshadow container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=261">show container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=262">stdcontainer&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=249">setting&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=250">symlink&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=251">themesetting&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=252">typeversion&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=253">user&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=254">formcontainer&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=255">general container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=256">general nodelet container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=257">main container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=258">nodelet container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=242">mail&lt;/a>&lt;BR>
+  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=281">vs&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=280">vttest&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=279">Epicenter Nodes&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=270">formcontainer&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=271">general container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=272">general nodelet container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=273">main container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=274">nodelet container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=275">nodelet outline container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=276">nodeletshadow container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=277">show container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=278">stdcontainer&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=256">mail&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=257">maintenance&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=258">node&lt;/a>&lt;BR>
 </field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">New Nodes</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
-  <field name="updateinterval" type="literal_value">60</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

@@ -33,12 +33,12 @@ my $str;
 
 return "Empty&lt;br>\n" unless(@bnodes);
 
-foreach my $node (@bnodes)
+foreach $_ (@bnodes)
 {
-  getRef($node);
+  my $node = getNode $_;
 
   # Can't use CGI::checkbox here because it insists on having a label...
-  $str .= "&lt;INPUT TYPE='checkbox' NAME='bnode_$$node{node_id}' " .
+  $str .= "&lt;INPUT TYPE='checkbox' NAME='bnode_$_' " .
      "VALUE='ON' UNCHECKED>";
   $str .= linkNode($node) . "&lt;br>\n";
 }
@@ -67,12 +67,17 @@ $str;
 &lt;/form>
 </field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?node_id=199&amp;bnodes=199&amp;lastnode_id=199&amp;op=addBucket">Add 'Node Bucket'&lt;/a>
+  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?bnode_65=1&amp;lastnode_id=65&amp;op=addBucket&amp;node_id=65">Add 'Gigantic Node Lister'&lt;/a>
 
-&lt;FORM METHOD="POST"  ENCTYPE="multipart/form-data">
-&lt;INPUT TYPE="hidden" NAME="node_id" VALUE="199">&lt;INPUT TYPE="hidden" NAME="op" VALUE="bucketop">
+&lt;form method="post" action="/index.pl?lastnode_id=65&amp;node_id=65&amp;displaytype=edit" enctype="multipart/form-data">
+&lt;input type="hidden" name="displaytype" value="edit">&lt;input type="hidden" name="node_id" value="65">&lt;input type="hidden" name="op" value="bucketop">
 
-Empty&lt;br>
+&lt;INPUT TYPE='checkbox' NAME='bnode_285' VALUE='ON' UNCHECKED>&lt;A HREF="/index.pl?lastnode_id=65&amp;node_id=285">crap&lt;/a>&lt;br>
+&lt;font size=1>
+&lt;input type="submit" name="bdrop" value="Drop" />
+&lt;/font>
+
+&lt;/form>
 </field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>

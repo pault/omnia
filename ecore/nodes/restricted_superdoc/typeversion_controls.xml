@@ -6,7 +6,7 @@ updated often, you can save some database resources by only checking
 if any nodes of that type have changed instead of checking each node.  
 &lt;p>Good nodetypes to turn typeversion on: [nodetype], [htmlpage], [nodemethod], [htmlcode], [container]
 or anything else which is rarely updated, but frequently read.
-&lt;p>Bad nodes to turn typeversion on: [user], [document] or any nodetypes
+&lt;p>Nodetypes which should &lt;b>NOT&lt;/b> have typeversion on: [user], [document] or any nodetypes
 which are frequently updated.
 
 &lt;p>
@@ -37,6 +37,8 @@ if (defined $query->param('confirmpage')) {
     }
 } else { %NEWVERSIONS = %TVERSIONS }
 foreach (@$nodetypes) {
+    #nodemethods must be typeversioned (because of the methodCache)
+    next if ($$_{title} eq 'nodemethod');
     $str.=$query->checkbox('typeify_'.getId($_), exists($NEWVERSIONS{getId($_)}), 1, $$_{title})."&lt;br>";
 }
 $str;
@@ -51,7 +53,7 @@ $str;
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="literal_value">0</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="title" type="literal_value">typeversion controls</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>

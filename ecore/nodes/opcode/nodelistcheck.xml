@@ -1,6 +1,17 @@
-<NODE export_version="0.5" nodetype="dbtable" title="revision">
+<NODE export_version="0.5" nodetype="opcode" title="nodelistcheck">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">#this opcode handles killing/bucket ops on the [Gigantic Node Lister]
+
+
+if ($query->param('addtonb')) {
+  my $OP = getOpCode("addBucket", $USER);
+  evalX($$OP{code}, $OP);
+} elsif ($query->param('massacre')) {
+  
+  $query->param("node_id", getNode('the killing floor','restricted_superdoc')->getId);
+}
+"1";</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -8,8 +19,8 @@
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">dbtable</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">opcode</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">revision</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">dbtable</field>
+  <field name="title" type="literal_value">nodelistcheck</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
 </NODE>

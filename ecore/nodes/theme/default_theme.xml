@@ -7,6 +7,10 @@
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">main container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">stdcontainer</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">basichead</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">userbody</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">general container</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iixi-</field>
@@ -21,8 +25,10 @@
     <var name="bodyLinkcolor" type="literal_value">#993333</var>
     <var name="bodyTextcolor" type="literal_value">#000000</var>
     <var name="bodyVlinkcolor" type="literal_value">#333399</var>
+    <var name="cornerIcon_image" type="noderef" type_nodetype="image,nodetype">eicon</var>
     <var name="description" type="literal_value">The default Everything Theme</var>
     <var name="generalParent_container" type="noderef" type_nodetype="container,nodetype">main container</var>
+    <var name="gnlcolor" type="literal_value">#DDCCCC</var>
     <var name="nodeletBodyColor" type="literal_value">#FFFFFF</var>
     <var name="nodeletBodyFontAttr" type="literal_value">size=2</var>
     <var name="nodeletMCTableAttr" type="literal_value">width=150 cellpadding=1 cellspacing=1</var>

@@ -11,42 +11,17 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">&lt;font size=2>
-[%
-linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op => 'logout'});
-%]&lt;br>
-
-[% 
-my @links;
-my $str;
-
-push @links, linkNode ($USER);
-push @links, linkNodeTitle ("user settings");
-
-my $GNL = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GNL) if($GNL->hasAccess($USER, 'r'));
-
-my $GCL = getNode('Code Browser', getType('restricted_superdoc'));
-push @links, linkNode ($GCL) if($GCL and $GCL->hasAccess($USER, 'r'));
-
-my $ss = getNode('Everything settings', getType('restricted_superdoc'));
-push @links, linkNode ($ss) if ($ss->hasAccess($USER, "r"));
-
-$ss = getNode('Node Armageddon', getType('restricted_superdoc'));
-push @links, linkNode ($ss) if ($ss->hasAccess($USER, "r"));
-
-$str = join "&lt;br>\n", @links;
-%]
+[{titlebar:&lt;br>}]
 &lt;/font></field>
   <field name="nlgoto" type="literal_value">0</field>
   <field name="nltext" type="literal_value">&lt;font size=2>
-&lt;A HREF="/index.pl?lastnode_id=224&amp;op=logout&amp;node_id=45">log root out&lt;/a>&lt;br>
-
-&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=36">root&lt;/a>&lt;br>
-&lt;a href="/index.pl?node=user%20settings">user settings&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=57">Gigantic Node Lister&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=56">Gigantic Code Lister&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=55">Everything settings&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=58">Node Armageddon&lt;/a>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;op=logout&amp;node_id=54">log root out&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=45">root&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=54">The Default Node&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=56">User settings&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=64">Everything settings&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=65">Gigantic Node Lister&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=238&amp;node_id=53">Super Search&lt;/a>
 &lt;/font></field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>

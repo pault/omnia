@@ -8,7 +8,7 @@ $width||=300;
 $height||=400;
 
 "&lt;SCRIPT language=\"javascript\">
-	function launchThaDamnWinda() {
+	function launchTheWinda() {
 	window.open('" .
 		urlGen({node_id => getId ($NODE),
 			displaytype => $displaytype}, "noquotes") .
@@ -16,7 +16,7 @@ $height||=400;
 		'width=$width,height=$height,scrollbars=yes');	
 	}
 &lt;/SCRIPT>
-&lt;A href=\"javascript:launchThaDamnWinda()\">$title&lt;/a>";</field>
+&lt;A href=\"javascript:launchTheWinda()\">$title&lt;/a>";</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

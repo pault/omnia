@@ -10,8 +10,6 @@ return if (($$USER{title} eq "Guest User") and not($HTMLVARS{GUshowsearchform}) 
                  -maxlength => 80) .
  	$query->submit("go_button", "go");
  
- #	foreach (keys %$PARAM) {  $str .= $query->hidden($_, $$PARAM{$_}); } 
- 
  	$str.= $query->end_form unless $PARAM eq 'noendform';
 
 $str;

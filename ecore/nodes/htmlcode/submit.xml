@@ -3,9 +3,8 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($buttonName, $label) = @_;
 
-# Default to the "nate" defaults
-$label ||= "stumbit";
-$buttonName ||= "sexisgood";
+$label ||= "submit";
+$buttonName ||= "button";
 return $query->submit($buttonName, $label);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

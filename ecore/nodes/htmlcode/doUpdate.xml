@@ -59,7 +59,7 @@ return $html;</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="literal_value">0</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="title" type="literal_value">doUpdate</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>

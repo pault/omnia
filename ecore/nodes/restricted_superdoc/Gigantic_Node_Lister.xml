@@ -32,12 +32,10 @@ $str .= $query->hidden(-name => 'next', -default => 0);
 
 $str;
 %]
+[{submit}]
 
-[{closeform}]
-
-[{openform}]
 [%
-$query->hidden(-name => 'op', -default => 'addBucket', -override => 1) .
+$query->hidden(-name => 'op', -default => 'nodelistcheck', -override => 1) .
 $query->hidden(-name => 'next', -default => 0);
 %]
 [%
@@ -103,7 +101,7 @@ $nav .= "&lt;/td>&lt;td align=center>($offset-" . ($offset+int(@$ref)) .
 	
 $nav .= "&lt;a href=" .
   urlGen ({node_id => getId ($NODE), next => $next}) . 
-  ">Next " . ($totalRows - $next > $limit ? $totalRows - $next : $limit) .
+  ">Next " . ($totalRows - $next > $limit ?  $limit : $totalRows - $next ) .
   " entries...&lt;/a>" if ($next &lt; $totalRows);
 
 $nav .= "&lt;/td>&lt;/tr>";
@@ -112,27 +110,46 @@ $nav .= "&lt;/td>&lt;/tr>";
 my $str = "&lt;TABLE width=100% border=0>";
 my $ngroup = $query->param('whichgroup') || '';
 my $NODEGROUP = getNode($ngroup);
+my $colfields = { 
+    "MAINTAINER" => "author_user",
+    "CREATE TIME" => "createtime"};
+my @columns = ( "MAINTAINER", "CREATE TIME");
+my $linkcols = {  "MAINTAINER" => 1 };
+my $gnlcolor = $$THEME{gnlcolor};
+$gnlcolor ||= "#DDCCCC";
 
 $str .= $nav;
-$str .= "&lt;tr>&lt;th>Node ID&lt;/td>&lt;th>Title&lt;/th>&lt;th>Type&lt;/th>&lt;/tr>";
+$str .= "&lt;tr>&lt;TH>NODE ID&lt;/TH>&lt;TH>TITLE&lt;/TH>&lt;TH>&lt;TYPE>&lt;/TH>";
+foreach (@columns) {
+  $str.="&lt;TH>$_&lt;/TH>";
+}
+$str.="&lt;/tr>\n";
 
 for (my $i=0; $i &lt; @$ref; $i++)
 {
   my $N = getNode($$ref[$i], 'light');
 
-  $str .= "&lt;tr>&lt;td>&lt;font size=1>";
+  $str .= "&lt;tr>&lt;td>&lt;font size=-2>";
   $str .= "&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' UNCHECKED>";
-  $str .= "&lt;/font>";
+  $str .= "&lt;/font>"; 
   $str .= getId($N);
   if ($NODEGROUP &amp;&amp; ($NODEGROUP->inGroupFast($N)))
   {
     $str .= " is in '$$NODEGROUP{title}'";
   }
 
-  $str .= "&lt;/td>&lt;td bgcolor=#DDCCCC>" . linkNode ($N) .
+  $str .= "&lt;/td>&lt;td bgcolor=$gnlcolor>" . linkNode ($N) .
      "&lt;/td>&lt;td bgcolor=" . 
      ($CLR{$$N{type}{title}} || $CLR{default}) . 
-     ">$$N{type}{title}&lt;/td>&lt;/tr>\n" if (ref $$N{type});	
+     ">$$N{type}{title}&lt;/td>" if (ref $$N{type});
+  foreach (@columns) {
+    $str.="&lt;td bgcolor=$gnlcolor>";
+    if (exists($$linkcols{$_})) {
+       $str.= linkNode($$N{$$colfields{$_}})
+    } else { $str.= $$N{$$colfields{$_}}; }
+    $str.="&lt;/td>";
+  }	
+  $str.="&lt;/tr>";
 }
 $str .= $nav;
 	
@@ -141,6 +158,7 @@ $str;
 %]
 
 [{submit:addtonb,Add checked to Node Bucket}]
+[{submit:massacre,Send to the killing floor}]
 [%
 $query->endform;
 %]</field>

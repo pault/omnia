@@ -1,20 +1,24 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="titlebar">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $str = "&lt;font size=2>[ ";
+  <field name="code" type="literal_value">my ($delimiter) = @_;
+
+$delimiter ||= " | ";
+my $str;
 my @links;
 
-my $GNL = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GNL) if($GNL->hasAccess($USER, 'r'));
 
-my $ROOT = getNode('root', getType('user'));
-my $ss = getNode('system settings', getType('setting'));
+push @links, linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op => 'logout'});
+push @links, linkNode ($USER);
 
-push @links, linkNode ($ss) if ($USER eq $ROOT);
-push @links, linkNode ($HTMLVARS{default_node});
+my $EN = getNode('epicenter nodes', 'nodegroup');
+foreach (@{ $$EN{group} }) {
+  my $N = getNode $_;
+  push @links, linkNode($N) if $N->hasAccess($USER, 'r');
+}
 
-$str .= join " |\n", @links;
-$str . " ] &lt;p>&lt;/font>";</field>
+
+$str = join "$delimiter\n", @links;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
