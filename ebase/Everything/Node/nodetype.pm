@@ -46,11 +46,11 @@ sub construct
 		# node nodetype (would cause infinite loop).  So, we need to 
 		# kinda fake it.
 		my $nodeid = $$this{DB}->sqlSelect("node_id", "node",
-			"title='node' && type_nodetype=1");
-		my $cursor = $$this{DB}{dbh}->prepare_cached("select * from nodetype " .
-			"left join node on nodetype_id=node_id where nodetype_id=$nodeid");
+			"title='node' AND type_nodetype=1");
+		my $cursor = $$this{DB}->sqlSelectJoined("*", "nodetype",
+			{ node => "nodetype_id=node_id" }, "nodetype_id=$nodeid");
 
-		if($cursor->execute())
+		if($cursor)
 		{
 			$PARENT = $cursor->fetchrow_hashref();
 			$cursor->finish();

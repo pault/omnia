@@ -70,7 +70,7 @@ sub insert
 		my $id = $$this{type}->getId();
 
 		my $DUPELIST = $$this{DB}->sqlSelect("*", "node", "title=" .
-				$this->quoteField("title") . " && type_nodetype=" .
+				$this->quoteField("title") . " AND type_nodetype=" .
 				$id);
 
 		if ($DUPELIST)
@@ -241,8 +241,7 @@ sub nuke
 	return 0 unless($this->hasAccess($USER, "d"));
 
 	# Remove all links that go from or to this node that we are deleting
-	$$this{DB}->{dbh}->do("DELETE FROM links WHERE to_node=" . 
-		   $this->getId() . " OR from_node=" . $this->getId());
+	$$this{DB}->sqlDelete("links", "to_node=".$this->getId()." OR from_node=".$this->getId());
 
 	# Remove all revisions of this node 
 	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id}");	
@@ -280,8 +279,7 @@ sub nuke
 			# Now that we have a list of which group nodes that contains
 			# this node, we are free to delete all rows from the node
 			# table that reference this node.
-			$$this{DB}->{dbh}->do(
-				"DELETE FROM $table where node_id=$$this{node_id}");
+			$$this{DB}->sqlDelete($table, "node_id=".$$this{node_id});
 
 			foreach (keys %GROUPS)
 			{
@@ -299,8 +297,7 @@ sub nuke
 	my $tableArray = $$this{type}->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
-		$result += $$this{DB}->{dbh}->do("DELETE FROM $table WHERE " . $table .
-				"_id=". $this->getId());
+		$result += $$this{DB}->sqlDelete($table, $table . "_id=" . $this->getId());
 	}
 
 	# Now we can remove the nuked node from the cache so we don't get

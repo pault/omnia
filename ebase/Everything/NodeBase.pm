@@ -1650,7 +1650,7 @@ sub genWhereString
 			if($tempstr ne "")
 			{
 				#different elements are joined together with ANDS
-				$wherestr .= " && \n" if($wherestr ne "");
+				$wherestr .= " AND \n" if($wherestr ne "");
 				$wherestr .= $tempstr;
 			}
 		}
@@ -1662,7 +1662,7 @@ sub genWhereString
 
 	if(defined $TYPE)
 	{
-		$wherestr .= " &&" if($wherestr ne "");
+		$wherestr .= " AND" if($wherestr ne "");
 		$wherestr .= " type_nodetype=" . $this->getId($TYPE);
 	}
 

@@ -257,12 +257,9 @@ sub cleanLinks
 	my @from_array;
 	my $badlink;
 
-	$select = "SELECT to_node,node_id from links";
-	$select .= " left join node on to_node=node_id";
+	$cursor = $DB->sqlSelectJoined("to_node, node_id", "links", { node => "to_node=node_id" });
 
-	$cursor = $DB->getDatabaseHandle()->prepare($select);
-
-	if($cursor->execute())
+	if($cursor)
 	{
 		while($row = $cursor->fetchrow_hashref())
 		{
@@ -274,12 +271,9 @@ sub cleanLinks
 		}
 	}
 
-	$select = "SELECT from_node,node_id from links";
-	$select .= " left join node on from_node=node_id";
+	$cursor = $DB->sqlSelectJoined("from_node, node_id", "links", { node => "from_node=node_id" });
 
-	$cursor = $DB->getDatabaseHandle()->prepare($select);
-
-	if($cursor->execute())
+	if($cursor)
 	{
 		while($row = $cursor->fetchrow_hashref())
 		{
