@@ -3,48 +3,58 @@
 ########################################################################
 #
 use strict;
+
 use DBI;
+use File::Spec;
+use Getopt::Long;
 use Term::ReadKey;
+
 use Everything;
 use Everything::Nodeball;
-
 
 my $usagestr = <<USAGE;
 Usage: install_esite [OPTIONS] <DATABASE>
 Options include:
-[--nocreatedb]			skip database creation 
-[--nocreateuser]		skip user creation/grant
-[--noapacheconf]		don't muck with the apache.conf files
-[--nocoreinstall]		don't install the core system
+[--nocreatedb]            skip database creation 
+[--nocreateuser]          skip user creation/grant
+[--noapacheconf]          don't muck with the apache.conf files
+[--nocoreinstall]         don't install the core system
+
+[--web=WEB_DIR]           specify where the web directory should go	
+[--edir=EVERYTHING_DIR]   specify Everything install directory 
+[--rootpass=ROOTDB_PASS]  root mysql password 
 	
-[--edir=EVERYTHING_DIR]		specify Everything install directory 
-[--web=WEB_DIR] 		specify where the web directory should go	
-	
-[--rootpass=ROOTDB_PASS]	root mysql password 
-[-h=SQLHOST]			remote host for sql database	
-[-u=SQLUSER] 			sql user to create/grant database access
-[-p=SQLPASS] 			sql user's password	
+[-g=GROUP]                the user group who should own created files
+[-o=OWNER]                the user account who should own created files
+[-h=SQLHOST]              remote host for sql database	
+[-u=SQLUSER]              sql user to create/grant database access
+[-p=SQLPASS]              sql user's password	
 
 USAGE
 
-use Getopt::Long;
-GetOptions( "edir=s" => \$OPTIONS{edir},
-	"elib=s" => \$OPTIONS{libdir},
-	"web=s" => \$OPTIONS{webdir},
-	"rootpass:s" => \$OPTIONS{rootpass},
-	"h=s" => \$OPTIONS{host},
-	"u=s" => \$OPTIONS{user},
-	"p:s" => \$OPTIONS{password},
-	"nocreatedb" => \$OPTIONS{nocreatedb},
-	"nocreateuser" =>\$OPTIONS{nocreateuser},
-	"noapacheconf" => \$OPTIONS{noapacheconf},
-	"nocoreinstall" => \$OPTIONS{nocoreinstall});
+GetOptions(
+	'h=s'           => \$OPTIONS{host},
+	'g:s'	        => \$OPTIONS{group},
+	'o:s'	        => \$OPTIONS{owner},
+	'p:s'           => \$OPTIONS{password},
+	'u=s'           => \$OPTIONS{user},
+	'web=s'         => \$OPTIONS{webdir},
+	'edir=s'        => \$OPTIONS{edir},
+	'elib=s'        => \$OPTIONS{libdir},
+	'rootpass:s'    => \$OPTIONS{rootpass},
+	'nocreatedb'    => \$OPTIONS{nocreatedb},
+	'noapacheconf'  => \$OPTIONS{noapacheconf},
+	'nocreateuser'  =>\$OPTIONS{nocreateuser},
+	'nocoreinstall' => \$OPTIONS{nocoreinstall},
+);
 	
-my $defaults =  { 
-	user => '', 
-	host => '', 
+my $defaults = { 
+	user     => '', 
+	host     => '', 
+	owner    => 'nobody',
+	group    => 'nobody',
 	password => '-1',  #speshul, 'cuz we allow blank passwords
-	};
+};
 
 foreach (keys %$defaults) {
 	$OPTIONS{$_} = $$defaults{$_} unless defined $OPTIONS{$_};
@@ -252,31 +262,36 @@ sub createWebdir {
 	"";
 }
 
-sub createIndex {
-	my $infile = $OPTIONS{edir} ."/web/index.in";
-	my $outfile = $OPTIONS{webdir} ."/index.pl";
+sub createIndex
+{
+	my $infile  = File::Spec->catfile( $OPTIONS{edir}, 'web', 'index.in' );
+	my $outfile = File::Spec->catfile( $OPTIONS{webdir}, 'index.pl' );
 
 	my $dbstr = "$database:$OPTIONS{user}:$OPTIONS{password}:$OPTIONS{host}";
-	
-	my @index;
-	
-	open INDEX, $infile or die "cannot read $infile!  The Everything directory might be wrong!";
+
+	local (*INDEX, *OUTDEX);
+
+	my $libpath = '';
+	if ($OPTIONS{libdir}) {
+		die "Can't find Everything.pm in $OPTIONS{libdir}!"
+			unless -e File::Spec->catfile( $OPTIONS{libdir}, 'Everything.pm' );
+		$libpath = qq|\nuse lib "$OPTIONS{libdir}"\n|;
+	}
+
+	open INDEX, $infile or
+		die "Cannot read $infile, the Everything directory might be wrong: $!";
+	open OUTDEX, "> $outfile" or die "Cannot write to '$outfile': $!";
+	print OUTDEX scalar <INDEX>, $libpath;
+
 	while (<INDEX>) {
 		s/\#DB_NAME\#/$dbstr/;
-		push @index, $_;
-	}
-	close INDEX;
-
-	if ($OPTIONS{libdir}) {
-		die "can't find Everything.pm in $OPTIONS{libdir}!" unless -e "$OPTIONS{libdir}/Everything.pm";
-		$index[1] .= "\nuse libs \"$OPTIONS{libdir}\"\n";
+		print OUTDEX $_;
 	}
 
-	open INDEX, "> $outfile" or die "cannot write to $outfile!";
-	foreach (@index) { print INDEX $_ } 
-	close INDEX;
-
-	chmod 0755, $outfile;
+	chmod 0741, $outfile;
+	my $uid = getpwnam( $OPTIONS{owner} );
+	my $gid = getgrgid( $OPTIONS{group} );
+	chown $uid, $gid, $outfile;
 }
 
 sub createIncoming {
