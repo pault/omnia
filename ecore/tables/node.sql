@@ -24,7 +24,7 @@ CREATE TABLE node (
   guestaccess char(5) DEFAULT 'iiiii' NOT NULL,
   dynamicauthor_permission int(11) DEFAULT '-1' NOT NULL,
   dynamicgroup_permission int(11) DEFAULT '-1' NOT NULL,
-  dynamicother_permssion int(11) DEFAULT '-1' NOT NULL,
+  dynamicother_permission int(11) DEFAULT '-1' NOT NULL,
   dynamicguest_permission int(11) DEFAULT '-1' NOT NULL,
   group_usergroup int(11) DEFAULT '-1' NOT NULL,
   PRIMARY KEY (node_id),
