@@ -24,7 +24,7 @@ use Everything::Util;
 use XML::DOM;
 
 
-my %methodCache;
+use vars qw(%methodCache);
 
 
 #############################################################################
@@ -347,7 +347,7 @@ sub getNodeMethod
 	my $METHODTYPE;
 	my $METHOD;
 	my $RETURN;
-	my $done = 0;
+	my $found = 0;
 	my $cacheName = $$TYPE{title} . ":" . $func;
 
 	# If we have it cached, return what we found
@@ -355,44 +355,43 @@ sub getNodeMethod
 	
 	$METHODTYPE = $$this{DB}->getType('nodemethod');
 
-	do
+	if($METHODTYPE)
 	{
-		if($METHODTYPE)
+		# First check to see if a nodemethod exists for this type.
+		$METHOD = $$this{DB}->getNodeWhere( { 'title' => $func,
+			'supports_nodetype' => $$TYPE{node_id} }, $METHODTYPE );
+
+		$METHOD = shift @$METHOD;
+	}
+
+	if(not $METHOD)
+	{
+		# Ok, we don't have a nodemethod.  Check to see if we have
+		# the function implemented in a .pm
+		my $package = "Everything::Node::$$TYPE{title}";
+		$found = functionExists($package, $func);
+
+		if($found)
 		{
-			# First check to see if a nodemethod exists for this type.
-			$METHOD = $$this{DB}->getNodeWhere( { 'title' => $func,
-				'supports_nodetype' => $$TYPE{node_id} }, $METHODTYPE );
-
-			$METHOD = shift @$METHOD;
+			# We need to call a function that exists in a pm.
+			$RETURN = { 'SUPERtype' => $$TYPE{node_id}, 'type' => "pm",
+				'name' => $package . "::" . $func };
 		}
+	}
+	else
+	{
+		# The stuff is stored in the node.
+		$RETURN = { 'SUPERtype' => $$TYPE{node_id}, 
+			'type' => 'nodemethod', 'node' => $METHOD };
+		$found = 1;
+	}
 
-		if(not $METHOD)
-		{
-			# Ok, we don't have a nodemethod.  Check to see if we have
-			# the function implemented in a .pm
-			my $package = "Everything::Node::$$TYPE{title}";
-			$done = functionExists($package, $func);
-
-			if($done)
-			{
-				# We need to call a function that exists in a pm.
-				$RETURN = { 'SUPERtype' => $$TYPE{node_id}, 'type' => "pm",
-					'name' => $package . "::" . $func };
-			}
-		}
-		else
-		{
-			# The stuff is stored in the node.
-			$RETURN = { 'SUPERtype' => $$TYPE{node_id}, 
-				'type' => 'nodemethod', 'node' => $METHOD };
-			$done = 1;
-		}
-
-		# Move one type up the inheritence hierarchy
-		$TYPE = $$this{DB}->getType($$TYPE{extends_nodetype}) unless($done);
+	if((not $found) && ($TYPE = $TYPE->getParentType()))
+	{
+		# Move up the inheritence hierarchy and recursively call this.
+		$RETURN = $this->getNodeMethod($func, $TYPE);
+	}
 			
-	} while((not $done) && (defined $TYPE));
-
 	# Cache what we found for future reference.
 	$methodCache{$cacheName} = $RETURN;
 
