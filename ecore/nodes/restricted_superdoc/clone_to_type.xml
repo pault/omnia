@@ -1,32 +1,32 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="clone to type">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">jaybonci</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
 my $str;
-my $src_id = $query->param("srcnode_id");
-my $newtype = $query->param("newtype");
-my $newname = $query->param("newname");
+my $src_id = $query-&gt;param(&quot;srcnode_id&quot;);
+my $newtype = $query-&gt;param(&quot;newtype&quot;);
+my $newname = $query-&gt;param(&quot;newname&quot;);
 my $CLONE;
 my $SRCNODE = getNode($src_id);
 if(defined $newname)
 {
-  return "No node to clone!" unless($SRCNODE);
-  return "No name provided!" unless($newname);
+  return &quot;No node to clone!&quot; unless($SRCNODE);
+  return &quot;No name provided!&quot; unless($newname);
 
   my $NEWTYPE = getType($newtype);
   if($$NEWTYPE{node_id} != $$SRCNODE{type}{node_id})
    {
     # We want to clone this node as a different type
-    my $NEWNODE = getNode($newname, $NEWTYPE, "create force");
-    $str.= "New node of type $$NEWTYPE{title}";
+    my $NEWNODE = getNode($newname, $NEWTYPE, &quot;create force&quot;);
+    $str.= &quot;New node of type $$NEWTYPE{title}&quot;;
     # Insert this node into the database.  Doing so will fill out the
     # fields with the default values.
-    $NEWNODE->insert($USER);
+    $NEWNODE-&gt;insert($USER);
 
     # This gets a hashref of the node that contains only the keys that
     # exist in the database (similar to what you were doing with the
     # getNodetypeTables() and getFields()).
-    my $nodeKeys = $NEWNODE->getNodeKeys();
+    my $nodeKeys = $NEWNODE-&gt;getNodeKeys();
 
     foreach my $key (keys %$nodeKeys)
      {
@@ -40,33 +40,49 @@ if(defined $newname)
       $$NEWNODE{$key} = $$SRCNODE{$key} if(exists $$SRCNODE{$key});
      }
 
-    $NEWNODE->update($USER);
+    $NEWNODE-&gt;update($USER);
 
     $CLONE = $NEWNODE;
    }
   else
    {
     # Just make an exact clone of this node
-    $CLONE = $SRCNODE->clone($USER, $newname);
+    $CLONE = $SRCNODE-&gt;clone($USER, $newname);
    }
 
+  if($query-&gt;param(&quot;deleteorig&quot;) eq &quot;on&quot; &amp;&amp; $CLONE)
+  {
+    if($SRCNODE-&gt;nuke($USER))
+    {
+       $str.=&quot;&lt;br&gt;Original node ($$SRCNODE{title}) removed.&quot;;
+    }
+    else
+    {
+       $str.=&quot;&lt;br&gt;You do not have permission to remove the original (&quot;.linkNode($SRCNODE).&quot;).&quot;;
+    }
+  }
+  else
+  {
+    $str.=&quot;&lt;br&gt;Originial node (&quot;.linkNode($SRCNODE).&quot;) preserved.&quot;;
+  }
+
   $CLONE;  # CLONE is the cloned node. 
-  return "Cloned node at: ".linkNode($CLONE)."&lt;BR>$str";
+  return &quot;Cloned node at: &quot;.linkNode($CLONE).&quot;&lt;BR&gt;$str&quot;;
 }
 else
 {
   # Then you have some HTML form stuff...
-  $str.="Cloning node ".linkNode($SRCNODE)." of type: ".linkNode($$SRCNODE{type})."&lt;BR>";
+  $str.=&quot;Cloning node &quot;.linkNode($SRCNODE).&quot; of type: &quot;.linkNode($$SRCNODE{type}).&quot;&lt;BR&gt;&quot;;
      $str.=htmlcode('openform');
-     $str.="&lt;INPUT TYPE=\"hidden\" name=\"srcnode_id\" value=\"$src_id\">";
-     $str.="To node with:&lt;BR>";
-     $str.="Title: ".$query->textfield('newname',$$SRCNODE{title},50,240)."&lt;BR>";
+     $str.=&quot;&lt;INPUT TYPE=\&quot;hidden\&quot; name=\&quot;srcnode_id\&quot; value=\&quot;$src_id\&quot;&gt;&quot;;
+     $str.=&quot;To node with:&lt;BR&gt;&quot;;
+     $str.=&quot;Title: &quot;.$query-&gt;textfield('newname',$$SRCNODE{title},50,240).&quot;&lt;BR&gt;&quot;;
 
 
      my @idlist;
      my %items;
      my $id;
-     my @allTypes = $DB->getAllTypes();
+     my @allTypes = $DB-&gt;getAllTypes();
      foreach my $N (@allTypes)
       {
        $id = getId $N;
@@ -79,8 +95,8 @@ else
       }
 
      @idlist=sort{lc($items{$a}) cmp lc($items{$b})} @idlist;
-     $str.="and type of ".$query->popup_menu("newtype", \@idlist, "", \%items)."&lt;BR>";
-     $str.=$query->checkbox('deleteorig',"","on","Delete original node:");
+     $str.=&quot;and type of &quot;.$query-&gt;popup_menu(&quot;newtype&quot;, \@idlist, &quot;&quot;, \%items).&quot;&lt;BR&gt;&quot;;
+     $str.=$query-&gt;checkbox('deleteorig',&quot;&quot;,&quot;on&quot;,&quot;Delete original node:&quot;);
      $str.=htmlcode('closeform');
 } 
 %]</field>
@@ -91,8 +107,9 @@ else
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</field>
+  <field name="loc_location" type="literal_value">0</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="title" type="literal_value">clone to type</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>
 </NODE>
+
