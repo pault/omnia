@@ -71,8 +71,7 @@ sub fixNodes
 
 		unless($NODE)
 		{
-			print "Error!  Node that we are supposed to fix is not here " .
-				"(id $node)!\n" if($printError);
+			print STDERR "Error!  Node that we are supposed to fix is not here " 				.  "(id $node)!\n" if($printError);
 			next;
 		}
 		
@@ -150,7 +149,7 @@ sub xml2node
 
 		if($version > $XML_PARSER_VERSION)
 		{
-			print "Warning!  XML was created with a newer version of " .
+			print STDERR "Warning!  XML was created with a newer version of " .
 				"Everything.  This\nmay not import correctly.\n";
 		}
 		
@@ -179,7 +178,7 @@ sub xml2node
 		}
 		else
 		{
-			print "Error!  Failed to import node '$$NODE{title}'\n";
+			print STDERR "Error!  Failed to import node '$$NODE{title}'\n";
 		}
 
 		# We store any fixes that node reported so we can hopefully
@@ -263,7 +262,7 @@ sub genBasicTag
 
 		unless($REF->isOfType($type, 1))
 		{
-			print "Warning! Field '$fieldname' needs a node of type '$type', " .
+			print STDERR "Warning! Field '$fieldname' needs a node of type '$type', " .
 				"but it is pointing to a node of type '$$REF{type}{title}'!\n";
 		}
 
@@ -389,7 +388,7 @@ sub parseBasicTag
 	}
 	else
 	{
-		print "Error! XML::parseBasicTag does not understand field type '$type'\n";
+		print STDERR "Error! XML::parseBasicTag does not understand field type '$type'\n";
 	}
 
 	return \%PARSEDTAG;
