@@ -58,7 +58,8 @@ sub insert
 
 	$user_id ||= $USER;
 	
-	return 0 unless($this->hasAccess($USER, "c"));
+	return 0 unless $this->hasAccess($USER, "c");
+	return 0 unless $this->restrictTitle();
 
 	# If the node_id greater than zero, this has already been inserted and
 	# we are not forcing it.
@@ -1077,6 +1078,33 @@ sub updateWorkspaced {
 	$this->{DB}->{cache}->removeNode($this);
 
 	return $$this{node_id};
+}
+
+
+=head2 C<restrictTitle>
+
+Purpose:
+    Prevent invalid database names from being created as titles
+
+Takes:
+    $node, the node containing a C<title> field to check
+
+Returns:
+    true, if the title is allowable, false otherwise
+
+=cut
+sub restrictTitle
+{
+	my ($this) = @_;
+	my $title  = $$this{title} or return;
+
+	if ($title =~ tr/[]|<>//) {
+		Everything::logErrors('node name contains invalid characters.  No' .
+			'square or angle brackets or pipes are allowed.', '', '', '');
+			return;
+	}
+
+	return 1;
 }
 
 ##############################################################################
