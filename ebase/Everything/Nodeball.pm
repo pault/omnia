@@ -409,11 +409,13 @@ sub exportNodes
 	my %nodeindex=();
 	my @nodefiles=();
 
+	$dev ||= 0;
+
 	for(my $i =0; $i < @$nodes;$i++) {
 		my $ID = $$nodes[$i];
 		my $N = getNode($ID);
 		push @{ $nodetypes{$$N{type}{title}} }, $ID
-			if($$N{modified} =~ /[1-9]/);
+			if(not $dev or $$N{modified} =~ /[1-9]/);
 		$nodeindex{$ID}=$i;
 	}
 	
@@ -426,7 +428,11 @@ sub exportNodes
 		createDir $dir unless (-e $dir);	
 		foreach my $N (@{ $nodetypes{$NODETYPE} }) {
 			my $NODE = getNode($N);
-			next unless($NODE && $$NODE{modified} =~ /[1-9]/);
+			next unless($NODE);
+
+			# If this is a dev export and the modified is all zeros
+			# then this node needs to be skipped.
+			next if($dev && (not ($$NODE{modified} =~ /[1-9]/)));
 			my $file = $$NODE{title};
 			$file =~ tr/ /_/;
 			
