@@ -103,6 +103,7 @@ sub joinWorkspace {
 	}
 
 	$this->getRef($WORKSPACE);
+	return -1 unless $WORKSPACE;
 	$this->{workspace} = $WORKSPACE;
 	$this->{workspace}{nodes} = $WORKSPACE->getVars;
 	$this->{workspace}{nodes} ||= {};
@@ -212,6 +213,7 @@ sub buildNodetypeModules
 		if ($found) {
 			eval "use $modname"; 
 			$modules{$modname} = 1 unless $@;
+			warn "using $modname gave errors: $@" if $@;
 		}
 	}
 	\%modules;

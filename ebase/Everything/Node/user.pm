@@ -132,6 +132,16 @@ sub verifyFieldUpdate
 	return ($verify && $this->SUPER());
 }
 
+sub conflictsWith {
+	#no conflicts if the user exists
+	0;
+}
+
+sub updateFromImport {
+	#we don't allow user nodes to update
+	0;
+}
+
 
 #############################################################################
 # End of package

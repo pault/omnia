@@ -112,6 +112,17 @@ sub update
 	return $return;
 }
 
+sub updateFromImport
+{
+	my ($this, $NEW, $USER) = @_;
+	
+	$$this{group} = $$NEW{group};
+	$this->updateGroup($USER);
+
+	return $this->SUPER();
+}
+
+
 
 #############################################################################
 #	Sub
@@ -848,6 +859,28 @@ sub restrict_type {
     }
     return \@cleaned;
 }
+
+sub getNodeKeepKeys {
+	my ($this) = @_;
+	my $nodekeys = $this->SUPER();
+
+	$$nodekeys{group} = 1;
+	$nodekeys;
+}
+
+sub conflictsWith {
+	my ($this, $NEWNODE) = @_;
+
+    return 0 unless $$this{modified} =~ /[1-9]/;
+	my $count = 0;
+	foreach (@{ $$this{group} }) {
+		return 1 if $_ != $$NEWNODE{group}[$count++];
+	}
+	$this->SUPER();
+}
+
+
+
 
 #############################################################################
 # End of package

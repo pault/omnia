@@ -147,13 +147,14 @@ sub insert
 #	Parameters
 #		$USER - the user attempting to update this node (used for
 #			authorization)
+#		$nomodified - skip updating the modfied field, used in nodeball imports
 #
 #	Returns
 #		The node id of the node updated if successful, 0 (false) otherwise.
 #
 sub update
 {
-	my ($this, $USER) = @_;
+	my ($this, $USER, $nomodified) = @_;
 	my %VALUES;
 	my $tableArray;
 	my $table;
@@ -168,10 +169,13 @@ sub update
 		return $id if $id;
 	}
 
+
+	
 	# Cache this node since it has been updated.  This way the cached
 	# version will be the same as the node in the db.
 	$this->{DB}->{cache}->incrementGlobalVersion($this);
 	$this->cache();
+	$this->{modified} = $this->{DB}->sqlSelect("now()") unless $nomodified;
 
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
@@ -189,13 +193,10 @@ sub update
 			}
 		}
 
-		# we don't want to chance mucking with the primary key
-		# So, remove this from the hash
-		delete $VALUES{$table . "_id"}; 
-
 		$$this{DB}->sqlUpdate($table, \%VALUES, $table . "_id=$$this{node_id}");
 	}
 
+	
 	return $$this{node_id};
 }
 
@@ -350,6 +351,7 @@ sub getNodeKeys
 		# addition to the "bogus" keys that we have, there are some
 		# fields that just don't make sense for exporting.
 		delete $$keys{createtime};
+		delete $$keys{modified};
 		delete $$keys{hits};
 		delete $$keys{reputation};
 		delete $$keys{lockedby_user};
@@ -625,7 +627,6 @@ sub applyXMLFix
 	return undef;
 }
 
-
 #############################################################################
 #	Sub
 #		commitXMLFixes
@@ -640,7 +641,7 @@ sub commitXMLFixes
 
 	# A basic node has no complex data structures, so all we need to do
 	# is a simple update.
-	$this->update(-1);
+	$this->update(-1, 'nomodify');
 
 	return;
 }
@@ -693,10 +694,80 @@ sub updateFromImport
 
 	# We use the export keys
 	my $keys = $this->getNodeKeys(1);
+	my $keepkeys = $this->getNodeKeepKeys();
 
-	@$this{keys %$keys} = @$IMPORT{keys %$keys};
+	foreach (keys %$keys) {
+		$$this{$_} = $$IMPORT{$_} unless exists $$keepkeys{$_};
+	}
 
-	$this->update($USER);
+	$$this{modified} = "0";
+	$this->update($USER, 'nomodify');
+}
+
+#########################################################################
+#
+#	sub
+#		conflictsWith
+#
+#	purpose
+#		when called on a node in the database, tests to see whether
+#		or not a new version of the node would be OK for updateFromImport 
+#		used by nbmasta to check which nodes should be inserted
+#
+#	params
+#		NEWNODE - the new version of the node
+#
+#	returns false if ok,  true if a conflict has been found
+#
+sub conflictsWith {
+	my ($this, $NEWNODE) = @_;
+
+	return 0 unless $$this{modified} =~ /[1-9]/;
+	#if the node hasn't been modified since update, it should be ok
+
+	my $keys = $this->getNodeKeys(1);
+	my $keypers = $this->getNodeKeepKeys();
+
+	foreach (keys %$keypers) {
+		delete $$keys{$_} if exists $$keys{$_};
+	}
+
+	foreach (keys %$keys) {
+		next unless exists $$NEWNODE{$_};
+		return 1 if $$this{$_} ne $$NEWNODE{$_};
+	}
+	return 0;
+}
+
+#########################################################################
+#
+#	sub
+#		getNodeKeepKeys
+#
+#	purpose
+#		This method returns a hash of keys that are kept on import 
+#		changes like permissions, locations, etc are non-critical
+#		and should be kept if the user changes them
+#		also note, the this is a subset of getNodeKeys -- anything
+#		excluded from getNodeKeys is assumed to be kept, or handled
+#		by the nodetype's own updateFromImportFunction
+#
+#	returns - hashref of node fields which are kept on import
+#
+sub getNodeKeepKeys {
+	my ($this) = @_;
+
+	{
+		"authoraccess" => 1,
+		"groupaccess" => 1,
+		"otheraccess" => 1,
+		"guestaccess" => 1,
+		"dynamicauthor_permission" => 1,
+		"dynamicgroup_permission" => 1,
+		"dynamicother_permission" => 1,
+		"dynamicguest_permission" => 1,
+		"loc_location" => 1
+	};
 }
 
 
@@ -963,7 +1034,7 @@ sub canWorkspace {
 	my ($this) = @_;
 
 	return 0 unless $$this{type}{canworkspace};
-	return 1 unless $$this{type}{canworkspace} != -1;
+	return 1 unless $$this{type}{canworkspace} == -1;
 	return 0 unless $$this{type}{derived_canworkspace};
 	1;
 }
@@ -1034,7 +1105,6 @@ sub updateWorkspaced {
 
 	return $$this{node_id};
 }
-
 
 ##############################################################################
 # End of package

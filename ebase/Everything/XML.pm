@@ -40,11 +40,14 @@ my %UNFIXED_NODES;
 #	purpose - to quickly read an xml tag, without parsing the whole document
 #		right now, it doesn't read attributes, only contents.
 #
+#
 sub readTag
 {
-	my ($tag, $xml) = @_;
+	my ($tag, $xml, $type) = @_;
+
+	$type ||= "field";
 	
-	if ($xml =~ /\<field\s*name="$tag".*?\>(.*?)\<\/field\>/gsi)
+	if ($xml =~ /\<$type\s*name="$tag".*?\>(.*?)\<\/$type\>/gsi)
 	{
 		return unMakeXmlSafe($1);
 	}
@@ -204,7 +207,7 @@ sub xml2node
 #
 sub xmlfile2node
 {
-    my ($filename) = @_;
+    my ($filename, $nofinal) = @_;
 	my $file;
 
 	open MYXML, $filename or die "could not access file $filename";
@@ -212,7 +215,7 @@ sub xmlfile2node
 	$file = join "", <MYXML>;
 	close MYXML;
 	
-	xml2node($file);
+	xml2node($file, $nofinal);
 }
 
 

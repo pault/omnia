@@ -377,6 +377,28 @@ sub derivesFrom
 	return 0;
 }
 
+sub getNodeKeepKeys {
+	my ($this) = @_;
+
+	my %nodekeys = %{ $this->SUPER() };
+
+	my $ntkeys = {
+		"defaultauthoraccess" => 1,
+		"defaultgroupaccess" => 1,
+		"defaultotheraccess" => 1,
+		"defaultguestaccess" => 1,
+		"defaultgroup_usergroup" => 1,
+		"defaultauthor_permission" => 1,
+		"defaultgroup_permission" => 1,
+		"defaultother_permission" => 1,
+		"defaultguest_permission" => 1
+	};
+	#permissions will prevail in the current version
+
+	@nodekeys{keys %$ntkeys} = values %$ntkeys;
+
+	\%nodekeys;
+}
 
 #############################################################################
 # End of package

@@ -218,10 +218,31 @@ sub applyXMLFix
 	return undef;
 }
 
+sub getNodeKeepKeys {
+	my ($this) = @_;
+
+	my $nodekeys = $this->SUPER();
+	$$nodekeys{vars} = 1; 
+
+	$nodekeys;
+}
+
+#vars are preserved upon import
+sub updateFromImport {
+	my ($this, $NEWNODE, $USER) = @_;
+
+	my $V = $this->getVars;
+	my $NEWV = $NEWNODE->getVars;
+
+	@$NEWV{keys %$V} = values %$V;
+
+	$this->setVars($NEWV);
+	$this->SUPER();
+}
+
 
 #############################################################################
 # End of package
 #############################################################################
 
 1;
-

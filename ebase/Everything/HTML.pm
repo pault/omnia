@@ -1725,6 +1725,9 @@ sub displayPage
 	my ($NODE, $user_id) = @_;
 	die "NO NODE!" unless $NODE;
 	
+	# Fill out the THEME hash
+	getTheme($NODE);
+	
 	my $displaytype = $query->param('displaytype');
 	$displaytype ||= 'display';
 	
@@ -2309,6 +2312,8 @@ sub opLogin
 	my $passwd = $query->param("passwd");
 	my $cookie;
 
+	my $U = getNode($user,'user');
+	$user = $$U{title} if $U;
 	$USER = confirmUser ($user, crypt ($passwd, $user));
 	
 	# If the user/passwd was correct, set a cookie on the users
@@ -2758,8 +2763,6 @@ sub mod_perlInit
 	# DEPRECATED!  DO NOT USE!
 	# updateNodeData();
 	
-	# Fill out the THEME hash
-	getTheme();
 
 	# Do the work.
 	handleUserRequest();

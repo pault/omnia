@@ -467,7 +467,7 @@ sub buildNodeballMembers {
 	}
 	#we build a hash to make lookups easier.
 
-	my $NODEBALLS = getNodeWhere({type_nodetype => getType('nodeball')});
+	my $NODEBALLS = getNodeWhere({type_nodetype => getType('nodeball')}, 'nodeball');
 	
 	my %nbmembers;
 	foreach (@$NODEBALLS) {
@@ -761,40 +761,51 @@ sub getPMDir
 }
 
 
-#########################################################################
+
+
+###########################################################################
+#
 #	sub
-#		getFileInfo
+#		handleConflicts
 #
-#	purpose
-#		get the title and type of the node for the file we describe
-#		returns a hash of the following fields:
-#		type -- the nodes type (string)
-#		title -- the node's title (string)
-#		file -- the filename
+#	purpose 
+#		we have a list of nodes that have potentially been edited since
+#		our last update.  We need to "safely" handle them
+#		nodes that can be workspaced, will -- nodes that cannot
+#		are confirmed by user
 #
-sub getFileInfo {
-	my ($filename) = @_;
+sub handleConflicts {
+	my ($CONFLICTS, $NEWBALL) = @_;
 
-	return unless -e $filename and $filename =~ /xml$/;
-	
-	open XMLFILE, $filename;
-	my $xml;
-	{
-		local $/;
-	 	$xml = <XMLFILE>;
+	my @workspaceable;
+
+	foreach (@$CONFLICTS) {
+		push(@workspaceable, $_), next if $_->canWorkspace;	
+		
+		my $yesno;	
+		my $N = $_->existingNodeMatches();
+		$N->updateFromImport($_, -1) if confirmYN("$$_{title} ($$_{type}{title}) has been modified, seems to conflict with the new nodeball, and cannot be workspaced.\nDo you want me to update it anyway? (N/y)\n");
 	}
-	close XMLFILE;
 
-	my %info = ();
-
-	$info{title} = readTag 'title', $xml;
-	$info{type} = readTag 'type_nodetype', $xml;
-	$info{file} = $filename;
+	return unless @workspaceable;
+	#the rest we put in a workspace
+	my $ROOT = getNode('root', 'user');
+	my $NBV = $NEWBALL->getVars;
+	my $WS = getNode("$$NEWBALL{title}-$$NBV{version} changes", "workspace", "create");
+	$WS->insert($ROOT);
+	$DB->joinWorkspace($WS);
 	
-	return \%info;
+	print "The following nodes may have conflicts:\n";
+	foreach (@workspaceable) {
+		print "\t$$_{title} ($$_{type}{title})\n"; 
+		my $N = $_->existingNodeMatches();
+		$N->updateFromImport($_, -1);
+	}
+	print "\nThe new versions have been put in workspace \"$$WS{title}\"\nJoin that workspace as the root user to test and commit or discard the changes\n";
+	
+	$DB->joinWorkspace(0);
+	"";
 }
-
-
 
 ############################################################################
 #	sub 
@@ -805,23 +816,24 @@ sub getFileInfo {
 #		out which files to add, remove, and update
 #
 sub updateNodeball {
-	my ($OLDBALL, $dir) = @_;
+	my ($OLDBALL, $NEWBALL, $dir) = @_;
 
 	#check the tables and make sure that they're compatable
 	my $tabledir = $dir."/tables";
-	unless (checkTables ($tabledir) or $OPTIONS{force}) { 
+	unless (not -d $tabledir or checkTables ($tabledir) or $OPTIONS{force}) { 
 		die "your tables weren't exactly alike.  Change your tables in the "
 		."mysql client or use --force";
 	}
 
 	my $nodesdir = $dir."/nodes";
 	my @nodes = ();
+	my @conflictnodes = ();
 	
 	use File::Find;
 	find sub {
 			my $file = $File::Find::name;
-			my $info = getFileInfo $file;
-			push @nodes, $info if $info;
+			my $info = xmlfile2node($file, 'nofinal');
+			push @nodes, @$info if $info;
 	  	}, $nodesdir;
 
 	#check to make sure all dependencies are installed
@@ -835,44 +847,42 @@ sub updateNodeball {
 	my $nbmembers = buildNodeballMembers($OLDBALL);
 	my $new_nbfile;
 	foreach my $N (@nodes) {
-		if ($$N{type} eq "nodeball" and $$N{title} eq $$OLDBALL{title}) {
-			$new_nbfile = $$N{file};	
-			next;
-		}
+		next if $$N{type}{title} eq 'nodeball' and $$N{title} eq $$NEWBALL{title};
 		#we'll take care of this later
 		
-		#we need to get the id of nodes --- 
-		#also check any deps	
-		my $OLDNODE = getNode($$N{title},$$N{type});
+		my $OLDNODE = $N->existingNodeMatches(); 
 		if ($OLDNODE) {
+			next if $$N{type}{title} eq 'nodeball';
 			if ($oldgroup{getId($OLDNODE)}) {
 				delete $oldgroup{getId($OLDNODE)};
 			} 
-			next if ($$N{type} eq 'nodeball'); #good 
-			next if ($$N{type} eq 'user'); #users shouldn't be replaced 
-			next if ($$N{type} eq 'usergroup'); #usergroups shoudn't be replaced
 
 			if ($$nbmembers{getId($OLDNODE)}) {
-				my $OTHERNB = getNodeById $$nbmembers{getId($OLDNODE)};
-				next unless confirmYN("Node $$OLDNODE{title} is also included in the \"$$OTHERNB{title}\" nodeball.  Do you want to replace it (N/y)?");
+				my $OTHERNB = getNode $$nbmembers{getId($OLDNODE)};
+				next unless confirmYN("$$OLDNODE{title} ($$OLDNODE{type}{title}) is also included in the \"$$OTHERNB{title}\" nodeball.  Do you want to replace it (N/y)?");
 			}
-		
+			if (not $OLDNODE->conflictsWith($N)) {
+				$OLDNODE->updateFromImport($N, -1);	
+			} else {
+				push @conflictnodes, $N;
+			}
 		} else {
-			if ($$N{type} eq 'nodeball') {
+			if ($$N{type}{title} eq 'nodeball') {
 				print "shoot!  Your nodeball says it needs $$N{title}.  You need to go get that.";
 				die unless $OPTIONS{force};
 			}
+			$N->xmlFinal();
 		}
-		xmlfile2node $$N{file};
 	}
 	
 	fixNodes(0);
 	#fix broken dependancies
 
+	handleConflicts(\@conflictnodes, $NEWBALL);
+
 	#insert the new nodeball
-	my $NB  = xmlfile2node $new_nbfile;
-	getRef($NB);
-	
+	$OLDBALL->updateFromImport($NEWBALL, -1);
+
 	#find the unused nodes and remove them
 	foreach (values %oldgroup) {
 		my $NODE = getNode($_);
@@ -880,13 +890,13 @@ sub updateNodeball {
 		next unless($NODE);
 
 		#we should probably confirm this
-		$NODE->nuke(-1);
+		#$NODE->nuke(-1);
 	}
 	fixNodes(1);
 
 	installModules($dir);
 	
-	print "$$NB{title} updated.\n";
+	print "$$NEWBALL{title} updated.\n";
 }
 
 
@@ -967,11 +977,10 @@ sub main {
 
 		my $nodeball_xml = join '', <NODEBALL>;
 		close NODEBALL;	
-		
-		my $settings_xml = readTag ('vars', $nodeball_xml);
-		my $version = readTag('version', $settings_xml);
-		my $author = readTag('author', $settings_xml);
-		my $description = readTag('description', $settings_xml);
+
+		my $version = readTag('version', $nodeball_xml, 'var');
+		my $author = readTag('author', $nodeball_xml, 'var');
+		my $description = readTag('description', $nodeball_xml, 'var');
 		my $title = readTag('title', $nodeball_xml);
 
 		if ($OPTIONS{verbose}) {
@@ -982,6 +991,7 @@ sub main {
 		my $OLDBALL = getNode($title, "nodeball");
 
 		if ($OLDBALL) {
+			my ($NEWBALL) = @{ xml2node($nodeball_xml, 'nofinal') } ;
 			#we have the same nodeball already installed
 			my $VARS = $OLDBALL->getVars();
 			my @oldversion = split /\./, $$VARS{version};
@@ -999,7 +1009,7 @@ sub main {
 				."Do --force if you want to force it anyway.\n" 
 				if ($version eq $$VARS{version} and not $OPTIONS{force});
 			print "updating nodeball $$OLDBALL{title}\n";	
-			updateNodeball ($OLDBALL, $dir);
+			updateNodeball ($OLDBALL, $NEWBALL, $dir);
 			cleanUpDir($dir) if $cleanme;
 			exit;
 		} 
