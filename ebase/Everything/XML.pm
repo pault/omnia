@@ -9,7 +9,6 @@ package Everything::XML;
 
 use strict;
 use Everything;
-use XML::Generator;
 use XML::DOM;
 
 sub BEGIN
