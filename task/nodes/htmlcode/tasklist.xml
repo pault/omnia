@@ -18,7 +18,7 @@ my %fields = ( title =&gt; 'title',
 
 if ($small) {
 	@order = split(/\s*,\s*/, $VARS-&gt;{'small_task_list_order'})
-		|| ('title','rating','due');
+	@order = ('title','rating','due');
 } elsif ($big) {
 	if ($vars &amp;&amp; exists($vars-&gt;{'task list order'})) {
 		@order = split(/\s*,\s*/, $vars-&gt;{'task_list_order'});
