@@ -10,7 +10,7 @@ BEGIN {
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More tests => 58;
+use Test::More tests => 87;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -164,4 +164,80 @@ is( sqlSelectHashref( $mock ), 'hash', '... or a fetched hashref on success' );
 is( $mock->next_call( 3 ), 'finish', '... finishing the statement handle' );
 
 can_ok( $package, 'sqlUpdate' );
+$mock->clear()
+	 ->mock( _quoteData => sub { [ 'n', 'm', 's' ], [ '?', 1, 8 ], [ 'foo' ] } )
+	 ->set_always( 'genTableName', 'gentable' )
+	 ->set_always( 'sqlExecute', 'executed' );
+
+ok( ! sqlUpdate( $mock, 'table', {} ),
+	'sqlUpdate() should return false without update data' );
+
+my $data = { foo => 'bar' };
+$result = sqlUpdate( $mock, 'table', $data );
+($method, $args) = $mock->next_call();
+is( $method, '_quoteData', '... quoting data, if present' );
+is( $args->[1], $data, '... passing in the data argument' );
+($method, $args) = $mock->next_call();
+is( $method, 'genTableName', '... quoting the table name' );
+is( $args->[1], 'table', '... passing in the table argument' );
+($method, $args) = $mock->next_call();
+is( $method, 'sqlExecute', '... and should execute query' );
+is( $args->[1], "UPDATE gentable SET n = ?,\nm = 1,\ns = 8",
+	'... with names and values quoted appropriately' );
+is_deeply( $args->[2], [ 'foo' ], '.. and bound args as appropriate' );
+
+$mock->clear();
+sqlUpdate( $mock, 'table', $data, 'where clause' );
+($method, $args) = $mock->next_call(3);
+like( $args->[1], qr/\nWHERE where clause\n/m,
+	'... adding the where clause as necessary' );
+
 can_ok( $package, 'sqlInsert' );
+
+$data = { foo => 'bar' };
+$result = sqlInsert( $mock, 'table', $data );
+($method, $args) = $mock->next_call();
+is( $method, '_quoteData', 'sqlInsert() should quote data, if present' );
+is( $args->[1], $data, '... passing in the data argument' );
+($method, $args) = $mock->next_call();
+is( $method, 'genTableName', '... quoting the table name' );
+is( $args->[1], 'table', '... passing in the table argument' );
+($method, $args) = $mock->next_call();
+is( $method, 'sqlExecute', '... and should execute query' );
+is( $args->[1], "INSERT INTO gentable (n, m, s) VALUES(?, 1, 8)",
+	'... with names and values quoted appropriately' );
+is_deeply( $args->[2], [ 'foo' ], '.. and bound args as appropriate' );
+
+can_ok( $package, '_quoteData' );
+my ($names, $values, $bound) =
+	_quoteData( 'fake', { foo => 'bar', -baz => 'quux' } );
+is( join('|', sort @$names), 'baz|foo',
+	'_quoteData() should remove leading minus from names' );
+ok( (grep { /bar/ } @$values), '... treating unquoted values literally' );
+ok( (grep { /\?/, } @$values), '... and using placeholders for quoted ones' );
+is( join('|', @$bound), 'quux', '... returning quoted values in bound arg' );
+
+can_ok( $package, 'sqlExecute' );
+{
+	my $log;
+
+	local *Everything::printLog;
+	*Everything::printLog = sub { $log = shift };
+
+	$mock->clear()
+		 ->set_series( 'prepare', $mock, 0 )
+		 ->set_always( 'execute', 'success' );
+
+	$result = sqlExecute( $mock, 'sql here', [ 1, 2, 3 ] );
+	($method, $args) = $mock->next_call();
+	is( $method, 'prepare', 'sqlExecute() should prepare a statement' );
+	is( $args->[1], 'sql here', '... with the passed in SQL' );
+
+	($method, $args) = $mock->next_call();
+	is( $method, 'execute', '... executing the statement' );
+	is( join('-', @$args), "$mock-1-2-3", '... with bound variables' );
+	is( $result, 'success', '... returning the results' );
+
+	ok( ! sqlExecute( $mock, 'bad', [ 6, 5, 4 ] ), '... or false on failure' );
+	is( $log, "SQL failed: bad [6 5 4]\n", '... logging SQL and bound values' );
+}
