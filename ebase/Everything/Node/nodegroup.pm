@@ -45,8 +45,6 @@ sub selectGroupArray
 {
 	my ($this) = @_;
 	my $groupTable = $this->isGroup();
-	my $nid;
-	my @group;
 	
 	# Make sure the table exists first
 	$$this{DB}->createGroupTable($groupTable);
@@ -55,7 +53,8 @@ sub selectGroupArray
 	my $cursor = $$this{DB}->sqlSelectMany('node_id', $groupTable,
 		$groupTable . "_id=$$this{node_id}", 'ORDER BY orderby');
 
-	while($nid = $cursor->fetchrow)
+	my @group;
+	while (my $nid = $cursor->fetchrow())
 	{
 		push @group, $nid;
 	}
@@ -72,8 +71,8 @@ sub destruct
 
 	$this->SUPER();
 
-	delete $$this{group};
-	delete $$this{flatgroup};
+	delete $this->{group};
+	delete $this->{flatgroup};
 }
 
 
@@ -82,19 +81,19 @@ sub insert
 {
 	my ($this, $USER) = @_;
 
-	return 0 unless($this->hasAccess($USER, 'c'));
+	return 0 unless $USER and $this->hasAccess($USER, 'c');
 	
 	# We need to h4x0r this a bit.  node::insert clears the $this hash.
 	# This clears all fields (including our group field).  Normally,
 	# we would insert the group nodes first, but the problem is, this
 	# node has not been inserted yet, so we don't have a node id to
 	# insert them with.  So, we hold onto the group array for now.	
-	my $group = $$this{group};
+	my $group  = $this->{group};
 	my $return = $this->SUPER();
 
 	# Now that the node has been inserted, we need to reassign our group
 	# array.
-	$$this{group} = $group;
+	$this->{group} = $group;
 
 	$this->updateGroup($USER);
 
@@ -116,7 +115,7 @@ sub updateFromImport
 {
 	my ($this, $NEW, $USER) = @_;
 	
-	$$this{group} = $$NEW{group};
+	$this->{group} = $NEW->{group};
 	$this->updateGroup($USER);
 
 	return $this->SUPER();
@@ -168,16 +167,13 @@ sub updateGroup
 {
 	my ($this, $USER) = @_;
 
-	return 0 unless($USER);
-	return 0 unless($this->hasAccess($USER, 'w'));
+	return 0 unless $USER and $this->hasAccess( $USER, 'w' );
 
-	my $group = $$this{group};
-	$group = $this->restrict_type($group);
+	my $group = $this->restrict_type( $this->{group} );
 
 	my %DIFF;
-	my $table = $this->isGroup();
-	my $updated = 0;
-
+	my $updated  = 0;
+	my $table    = $this->isGroup();
 	my $orgGroup = $this->selectGroupArray();
 
 	# We need to determine how many nodes have been inserted or removed
@@ -191,12 +187,12 @@ sub updateGroup
 	# being in the current group).
 	foreach (@$orgGroup)
 	{
-		$DIFF{$_} = 0 unless(exists $DIFF{$_});
+		$DIFF{$_} = 0 unless exists $DIFF{$_};
 		$DIFF{$_}--;
 	}
 	foreach (@$group)
 	{
-		$DIFF{$_} = 0 unless(exists $DIFF{$_});
+		$DIFF{$_} = 0 unless exists $DIFF{$_};
 		$DIFF{$_}++;
 	}
 
@@ -207,25 +203,25 @@ sub updateGroup
 	{
 		my $diff = $DIFF{$node};
 
-		if($diff < 0)
+		if ($diff < 0)
 		{
 			my $abs = abs($diff);
 
 			# diff is negative, so we need to remove abs($diff) number
 			# of entries.
-			$$this{DB}->sqlDelete($table, $table . "_id=" . $$this{node_id} .
+			$this->{DB}->sqlDelete($table, $table . "_id=" . $this->{node_id} .
 				 " AND node_id=$node LIMIT $abs");
 
 			$updated = 1;
 		}
-		elsif($diff > 0)
+		elsif ($diff > 0)
 		{
 			# diff is positive, so we need to insert $diff number
 			# of new members for this particular node_id.
 
 			# Find what the current max rank of the group is.
-			my $rank = $$this{DB}->sqlSelect('MAX(rank)', $table, 
-				$table . "_id=$$this{node_id}");
+			my $rank = $this->{DB}->sqlSelect('MAX(rank)', $table, 
+				$table . "_id=$this->{node_id}");
 
 			$rank ||= 0;
 
@@ -233,27 +229,29 @@ sub updateGroup
 			{
 				$rank++;
 
-				$$this{DB}->sqlInsert($table,
-					{ $table . "_id" => $$this{node_id}, 
-					rank => $rank, node_id => $node,
-					orderby => '0' });
+				$this->{DB}->sqlInsert($table, {
+					$table . "_id" => $this->{node_id}, 
+					rank           => $rank,
+					node_id        => $node,
+					orderby        => 0,
+				});
 
 				$updated = 1;
 			}
 		}
 	}
 
-	if(not $updated)
+	unless ($updated)
 	{
 		# There were no additions, nor were any nodes removed.  However,
 		# the order may have changed.  We need to check for that.
-		for(my $i = 0; $i < int(@$group); $i++)
+		for my $i (0 .. @$group)
 		{
-			$updated = 1, last if($$group[$i] != $$orgGroup[$i]);
+			$updated = 1, last unless $$group[$i] == $$orgGroup[$i];
 		}
 	}
 
-	if($updated)
+	if ($updated)
 	{
 		# Ok, we have removed and inserted what we needed.  Now we need to
 		# reassign the orderby;
@@ -265,7 +263,7 @@ sub updateGroup
 		# everything and update each member one at a time, and we are
 		# guaranteed not to miss anything.
 		$$this{DB}->sqlUpdate($table, { orderby => 0 }, $table .
-			"_id=$$this{node_id}");
+			"_id=$this->{node_id}");
 		
 		my $orderby = 0;
 		foreach my $id (@$group)
@@ -275,18 +273,18 @@ sub updateGroup
 			# "LIMIT #" on the update, we could just say update 'where
 			# orderby=0 LIMIT 1'.  So, until the database supports that we
 			# need to find the specific one we want using select
-			my $rank = $$this{DB}->sqlSelect("rank", $table, $table .
-				"_id=$$this{node_id} && node_id=$id && orderby=0", "LIMIT 1");
+			my $rank = $this->{DB}->sqlSelect("rank", $table, $table .
+				"_id=$this->{node_id} && node_id=$id && orderby=0", "LIMIT 1");
 			
-			my $sql = $table . "_id=$$this{node_id} && node_id=$id && " .
+			my $sql = $table . "_id=$this->{node_id} && node_id=$id && " .
 				"rank=$rank";
-			$$this{DB}->sqlUpdate($table, { orderby => $orderby }, $sql);
+			$this->{DB}->sqlUpdate($table, { orderby => $orderby }, $sql);
 
 			$orderby++;
 		}
 	}
 
-	$$this{group} = $group;
+	$this->{group} = $group;
 
 	#remove from groupCache
 	$this->groupUncache();
@@ -311,10 +309,10 @@ sub nuke
 	my $sql;
 	my $table = $this->isGroup();
 
-	$$this{DB}->getRef($USER);
-	return 0 unless($this->hasAccess($USER, 'd'));
+	$this->{DB}->getRef($USER);
+	return 0 unless $this->hasAccess($USER, 'd');
 
-	$$this{DB}->sqlDelete($table, $table . "_id=$$this{node_id}");
+	$$this{DB}->sqlDelete($table, $table . "_id=$this->{node_id}");
 
 	# Now go delete the node!
 	$this->SUPER();
@@ -325,7 +323,7 @@ sub nuke
 sub isGroup
 {
 	my ($this) = @_;
-	return $$this{type}{derived_grouptable};
+	return $this->{type}{derived_grouptable};
 }
 
 
@@ -359,7 +357,7 @@ sub isGroup
 sub inGroupFast
 {
 	my ($this, $NODE) = @_;
-	my $nodeId = $$this{DB}->getId($NODE);
+	my $nodeId = $this->{DB}->getId($NODE);
 
 	$this->groupCache();
 	return $this->existsInGroupCache($nodeId);
@@ -387,15 +385,13 @@ sub inGroupFast
 sub inGroup
 {
 	my ($this, $NODE) = @_;
-	return 0 unless($NODE);
+	return 0 unless $NODE;
 
-	my $nodeId = $$this{DB}->getId($NODE);
+	my $nodeId = $this->{DB}->getId($NODE);
 
-        unless($this->hasGroupCache())        
-        {
-		my $group = $this->selectNodegroupFlat();
-		$this->groupCache($group);
-        }
+	$this->groupCache( $this->selectNodegroupFlat() )
+		unless $this->hasGroupCache();
+
 	return $this->existsInGroupCache($nodeId);
 }
 
@@ -417,39 +413,36 @@ sub inGroup
 sub selectNodegroupFlat
 {
 	my ($this, $groupsTraversed) = @_;
-	my @listref;
-	my $group;
 
 	# If we have already calculated this group, return it.
-	return $$this{flatgroup} if(exists $$this{flatgroup});
+	return $this->{flatgroup} if exists $this->{flatgroup};
 
-	# If groupsTraversed is not defined, initialize it to an empty
-	# hash reference.
-	$groupsTraversed ||= {};  # anonymous empty hash
+	# If groupsTraversed is not defined, initialize it
+	$groupsTraversed ||= {};
 
 	# return if we have already been through this group.  Otherwise,
 	# we will get stuck in infinite recursion.
-	return undef if(exists $$groupsTraversed{$$this{node_id}});
-	$$groupsTraversed{$$this{node_id}} = $$this{node_id};
+	return if exists $groupsTraversed->{ $this->{node_id} };
+	$groupsTraversed->{ $this->{node_id} } = $this->{node_id};
 	
-	foreach my $groupref (@{ $$this{group} })
+	my @nodes;
+	foreach my $node_id (@{ $$this{group} })
 	{
-		my $NODE = $$this{DB}->getNode($groupref);
+		my $NODE = $this->{DB}->getNode($node_id);
+		next unless defined $NODE;
 		
-		if($NODE->isGroup())
+		if ($NODE->isGroup())
 		{
-			$group = $NODE->selectNodegroupFlat($groupsTraversed);
-			push(@listref, @$group) if(defined $group);
+			my $group = $NODE->selectNodegroupFlat($groupsTraversed);
+			push @nodes, @$group if defined $group;
 		}
 		else
 		{
-			push @listref, $NODE;
+			push @nodes, $NODE;
 		}
 	}
 	
-	$$this{flatgroup} = \@listref;
-	
-	return $$this{flatgroup};
+	return $this->{flatgroup} = \@nodes;
 }
 
 
@@ -478,37 +471,32 @@ sub selectNodegroupFlat
 sub insertIntoGroup
 {
 	my ($this, $USER, $insert, $orderby) = @_;
-	my $group = $$this{group};
-	my $len;
-	my $insertref;
-	my $rank;	
+	my $group = $this->{group};
 
-	return 0 unless($USER);
-	return 0 unless($insert);
-	return 0 unless($this->hasAccess($USER, "w")); 
+	return 0 unless $USER and $insert and $this->hasAccess($USER, 'w');
 	
 	# converts to a list reference w/ 1 element if we get a scalar
-	$insertref = [$insert] unless(ref ($insert) eq "ARRAY");
+	my $insertref = [$insert] unless UNIVERSAL::isa( $insert, 'ARRAY');
 
 	$insertref = $this->restrict_type($insertref);
 
-	$len = int(@$group);
+	my $len = int(@$group);
 	$orderby ||= $len;
 	$orderby = ($orderby > $len ? $len : $orderby);
 
 	# Make sure we only have id's
 	foreach (@$insertref)
 	{
-		$_ = $$this{DB}->getId($_);
+		$_ = $this->{DB}->getId($_);
 	}
 	
 	# Insert the new nodes into the group array at the orderby offset.
 	splice(@$group, $orderby, 0, @$insertref);
 
-	$$this{group} = $group;
+	$this->{group} = $group;
 
 	# If a flatgroup exists, it is no longer valid.
-	delete $$this{flatgroup} if(exists $$this{flatgroup});
+	delete $this->{flatgroup};
 	
 	# Wipe out any cached group
 	$this->groupUncache();
@@ -541,23 +529,21 @@ sub removeFromGroup
 	my ($this, $NODE, $USER) = @_;
 	my $success;
 	
-	return 0 unless($USER);
-	return 0 unless($NODE);
-	return 0 unless($this->hasAccess($USER, "w"));
+	return 0 unless $USER and $NODE and $this->hasAccess($USER, 'w');
 
-	my $node_id = $$this{DB}->getId($NODE);
-	my $group = $$this{group};
-	my @newgroup;
+	my $node_id = $this->{DB}->getId($NODE);
+	my $group   = $this->{group};
 
-	foreach my $id ( @$group )
+	# manipulate group in place for a speed boost
+	my $pos = 0;
+	while ($pos < $#{ $group })
 	{
-		push @newgroup, $id unless $id == $node_id;
+		$pos++, next unless $group->[ $pos ] == $node_id;
+		splice( @$group, $pos, 1 );
 	}
 
-	# Assign the new group back to our hash
-	$$this{group} = \@newgroup;
-
-	# XXX - flatgroup ?
+	# If a flatgroup exists, it is no longer valid.
+	delete $this->{flatgroup};
 
 	#remove from groupCache
 	$this->groupUncache();
@@ -585,17 +571,17 @@ sub replaceGroup
 	my ($this, $REPLACE, $USER) = @_;
 	my $groupTable = $this->isGroup();
 
-	$this->hasAccess($USER, "w") or return 0; 
+	return 0 unless $this->hasAccess($USER, 'w'); 
 	
-	$REPLACE = [$REPLACE] if(ref $REPLACE ne "ARRAY");
+	$REPLACE = [$REPLACE] unless UNIVERSAL::isa($REPLACE, 'ARRAY');
 
 	$REPLACE = $this->restrict_type($REPLACE);
 
 	# Just replace the group
-	$$this{group} = $REPLACE;
+	$this->{group} = $REPLACE;
 
 	# If a flatgroup exists, it is no longer valid.
-	delete $$this{flatgroup} if(exists $$this{flatgroup});
+	delete $this->{flatgroup};
 
 	# Remove it from the groupCache
 	$this->groupUncache();
@@ -613,12 +599,12 @@ sub getNodeKeys
 	my ($this, $forExport) = @_;
 	my $keys = $this->SUPER();
 	
-	if($forExport)
+	if ($forExport)
 	{
 		# Groups are special.  There is one field that we do want to
 		# include for export... the group field that is generated
 		# when the group node is constructed.
-		$$keys{group} = $$this{group};
+		$keys->{group} = $this->{group};
 	}
 
 	return $keys;
@@ -644,25 +630,21 @@ sub fieldToXML
 {
 	my ($this, $DOC, $field, $indent) = @_;
 
-	if($field eq "group")
+	if ($field eq 'group')
 	{
-		my $GROUP = new XML::DOM::Element($DOC, "group");
-		my $group = $$this{group};
-		my $tag;
-		my $text;
-		my $title;
-		my $indentself = "\n" . $indent;
+		my $GROUP       = XML::DOM::Element->new($DOC, 'group');
+		my $indentself  = "\n" . $indent;
 		my $indentchild = $indentself . "  ";
 
-		foreach my $member (@$group)
+		foreach my $member (@{ $this->{group} })
 		{
-			$GROUP->appendChild(new XML::DOM::Text($DOC, $indentchild));
+			$GROUP->appendChild(XML::DOM::Text->new($DOC, $indentchild));
 			
-			$tag = genBasicTag($DOC, "member", "group_node", $member);
+			my $tag = genBasicTag($DOC, 'member', 'group_node', $member);
 			$GROUP->appendChild($tag);
 		}
 
-		$GROUP->appendChild(new XML::DOM::Text($DOC, $indentself));
+		$GROUP->appendChild(XML::DOM::Text->new($DOC, $indentself));
 
 		return $GROUP;
 	}
@@ -679,46 +661,45 @@ sub xmlTag
 	my ($this, $TAG) = @_;
 	my $tagname = $TAG->getTagName();
 
-	if($tagname eq "group")
+	if ($tagname eq 'group')
 	{
 		my @fixes;
 		my @childFields = $TAG->getChildNodes();
-		my $orderby = 0;
+		my $orderby     = 0;
 
 		foreach my $child (@childFields)
 		{
-			next if($child->getNodeType() == XML::DOM::TEXT_NODE());
+			next if $child->getNodeType() == XML::DOM::TEXT_NODE();
 
-			my $PARSE = Everything::XML::parseBasicTag($child, "nodegroup");
+			my $PARSE = Everything::XML::parseBasicTag($child, 'nodegroup');
 
-			if(exists $$PARSE{where})
+			if (exists $PARSE->{where})
 			{
-				$$PARSE{orderby} = $orderby;
-				$$PARSE{fixBy} = "nodegroup";
+				$PARSE->{orderby} = $orderby;
+				$PARSE->{fixBy}   = 'nodegroup';
 
 				# The where contains our fix
 				push @fixes, $PARSE;
 
-				# Insert a dummy node into the group which we can then later
-				# fix.
+				# Insert a dummy node into the group which we can later fix.
 				$this->insertIntoGroup(-1, -1, $orderby);
 			}
 			else
 			{
-				$this->insertIntoGroup(-1, $$PARSE{$$PARSE{name}}, $orderby);
+				$this->insertIntoGroup(-1, $PARSE->{ $PARSE->{name} },$orderby);
 			}
 
 			$orderby++;
 		}
 
-		return \@fixes if(@fixes > 0);
+		return \@fixes if @fixes;
 	}
 	else
 	{
 		return $this->SUPER();
 	}
 
-	return undef;
+	return;
 }
 
 
@@ -744,32 +725,29 @@ sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
 
-	if($$FIX{fixBy} ne "nodegroup")
-	{
-		return $this->SUPER();
-	}
+	return $this->SUPER() unless $FIX->{fixBy} eq 'nodegroup';
 
-	my $where = Everything::XML::patchXMLwhere($$FIX{where});
-	my $TYPE  = $$where{type_nodetype};
-	my $NODE  = $$this{DB}->getNode($where, $TYPE);
+	my $where = Everything::XML::patchXMLwhere($FIX->{where});
+	my $TYPE  = $where->{type_nodetype};
+	my $NODE  = $this->{DB}->getNode($where, $TYPE);
 
 	unless ($NODE)
 	{
 		Everything::logErrors( '',
-			"Unable to find '$$where{title}' of type '$$where{type_nodetype}'\n"
-			. "for field '$$where{field}'\nin node '$this->{title}' of type " 
-			. "'$this->{type}{title}'"
+			"Unable to find '$where->{title}' of type " .
+			"'$where->{type_nodetype}'\n for field '$$where{field}'\n" .
+			" in node '$this->{title}' of type '$this->{type}{title}'"
 		 ) if $printError;
 
 		return $FIX;
 	}
 
-	my $group = $$this{group};
+	my $group = $this->{group};
 
 	# Patch our group array with the now found node id!
-	$$group[$$FIX{orderby}] = $$NODE{node_id};
+	$group->[$FIX->{orderby}] = $NODE->{node_id};
 
-	return undef;
+	return;
 }
 
 
@@ -797,12 +775,10 @@ sub clone
 
 	# we need $USER for Everything::Node::node::clone() _and_ insertIntoGroup
 	my ($USER) = @_;
-	my $NODE = $this->SUPER(@_);
-	return undef unless (defined $NODE);
-	if (defined(my $group = $this->{group})) 
-	{
-		$NODE->insertIntoGroup($USER, $group);
-	}
+	my $NODE   = $this->SUPER(@_);
+	return unless defined $NODE;
+
+	$NODE->insertIntoGroup($USER, $this->{group}) if exists $this->{group};
 
 	# Update the node since the new group info has not been saved yet.
 	$NODE->update($USER);
@@ -826,54 +802,60 @@ sub clone
 #   Returns
 #       A reference to a list of nodes allowable in this group.
 #
-sub restrict_type {
+sub restrict_type
+{
     my ($this, $groupref) = @_;
     my $restricted_type;
 
 	# anything is allowed without a valid restriction
-	my $nodetype = getNode($$this{type_nodetype});
-    return $groupref unless ($restricted_type = $$nodetype{restrict_nodetype});
+	my $nodetype = getNode($this->{type_nodetype});
+    return $groupref unless $restricted_type = $nodetype->{restrict_nodetype};
 
     my @cleaned;
 
-    foreach (@$groupref) 
+    foreach my $group (@$groupref) 
 	{
-        my $node = getNode($_);
+        my $node = getNode($group);
 
 		# check if the member matches directly
         if ($node->{type_nodetype} == $restricted_type) 
 		{
-            push @cleaned, $_;
+            push @cleaned, $group;
         } 
 
 		# check if the member is a nodegroup with similar restrictions
 		elsif (defined($node->{type}{restrict_nodetype}))
 		{
-			if ($node->{type}{restrict_nodetype} == $restricted_type) 
-			{
-				push @cleaned, $_;
-			}
+			push @cleaned, $group
+				if $node->{type}{restrict_nodetype} == $restricted_type;
 		}
     }
     return \@cleaned;
 }
 
-sub getNodeKeepKeys {
+sub getNodeKeepKeys
+{
 	my ($this) = @_;
-	my $nodekeys = $this->SUPER();
 
-	$$nodekeys{group} = 1;
-	$nodekeys;
+	my $nodekeys       = $this->SUPER();
+	$nodekeys->{group} = 1;
+
+	return $nodekeys;
 }
 
-sub conflictsWith {
+sub conflictsWith
+{
 	my ($this, $NEWNODE) = @_;
 
-    return 0 unless $$this{modified} =~ /[1-9]/;
-	my $count = 0;
-	foreach (@{ $$this{group} }) {
-		return 1 if $_ != $$NEWNODE{group}[$count++];
+    return 0 unless $this->{modified} =~ /[1-9]/;
+	my ($old, $new) = ( $this->{group}, $NEWNODE->{group} );
+	return 1 unless @$new == @$old;
+
+	for my $pos (0 .. $#{ $new })
+	{
+		return 1 unless $new->[ $pos ] == $old->[ $pos ];
 	}
+
 	$this->SUPER();
 }
 
@@ -897,40 +879,41 @@ sub conflictsWith {
 # I wouldn't do it this way unless we got ridiculous speed out of it, which
 # we do.
 
-sub hasGroupCache {
+sub hasGroupCache
+{
 	my ($this) = @_;
-	return 1 if exists($this->{DB}->{cache}->{groupCache}->{$$this{node_id}});
-	return 0;
+	return exists $this->{DB}->{cache}->{groupCache}->{$this->{node_id}};
 }
 
-sub getGroupCache {
+sub getGroupCache
+{
   my ($this) = @_;
   return $this->{DB}->{cache}->{groupCache}->{$$this{node_id}}; 
-
-
 }
 
-sub groupCache {
-
+sub groupCache
+{
 	my ($this, $group) = @_;
-	$group ||= $$this{group};
+	$group ||= $this->{group};
 
 	return 1 if $this->hasGroupCache();
-	%{$this->{DB}->{cache}->{groupCache}->{$$this{node_id}}} = map {$_ => 1} @{$group};
-	return 1;	
+	%{$this->{DB}->{cache}->{groupCache}->{$this->{node_id}}}
+		= map {$_ => 1} @$group;
 }
 
-sub groupUncache {
-	
+sub groupUncache
+{
 	my ($this) = @_;
-	delete $this->{DB}->{cache}->{groupCache}->{$$this{node_id}};	
-	return 1;
+	
+	delete $this->{DB}->{cache}->{groupCache}->{$this->{node_id}};	
 }
 
-sub existsInGroupCache {
+sub existsInGroupCache
+{
 
 	my ($this, $nid) = @_;
-	return exists($this->{DB}->{cache}->{groupCache}->{$$this{node_id}}->{$nid});
+	return
+		exists $this->{DB}->{cache}->{groupCache}->{$this->{node_id}}->{$nid};
 }
 
 #############################################################################
