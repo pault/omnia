@@ -91,7 +91,7 @@ sub insert
 
 	# Assign the author_user to whoever is trying to insert this.
 	# Unless, an author has already been specified.
-	$tableData{author_user} = $user_id unless(exists $tableData{author_user});
+	$tableData{author_user} ||= $user_id;
 	$tableData{hits} = 0;
 	
 	$$this{DB}->sqlInsert('node', \%tableData);
