@@ -105,9 +105,11 @@ sub main {
 		}
 		cleanUpDir($dir) if $cleanme;
 	
-	} elsif ($function eq "export") {
+	} elsif ($function eq "export" or $function eq "devexport") {
 		my $NB = getNode($nodeball, "nodeball");
 		$NB or die "no nodeball $nodeball exists for export!\n";
+
+		my $dev = ($function eq 'devexport' ? 1 : 0);
 	
 		Everything::Nodeball::printSettings ($NB->getVars());
 		checkDeps ($NB);
@@ -118,6 +120,7 @@ sub main {
 		my @tables;
 		foreach my $N (@{ $$NB{group} }) {
 			my $NODE = getNode($N);
+			next unless($NODE && ($$NODE{modified} =~ /[1-9]/));
 			if ($$NODE{type}{title} eq "dbtable") {
 				push @tables, $$NODE{title};
 			}
@@ -133,7 +136,7 @@ sub main {
 		my $basedir .= $dir ."/nodes"; 
 		createDir($basedir);
 		my @FILES = exportNodes ([$$NB{node_id}, @{ $$NB{group} }],
-			$basedir, 1);
+			$basedir, 1, $dev);
 		
 		my $melink = $dir."/ME";
 		my $mefile = $FILES[0];

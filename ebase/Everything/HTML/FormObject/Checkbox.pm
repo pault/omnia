@@ -62,7 +62,8 @@ sub genObject
 	
 	if($default eq "AUTO")
 	{
-		$CHECK = 1 if($bindNode && ($checked eq $$bindNode{$field}));
+		$CHECK = 0;
+		$CHECK = 1 if(ref $bindNode && ($checked eq $$bindNode{$field}));
 	}
 	else
 	{

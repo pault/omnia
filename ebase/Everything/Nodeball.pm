@@ -398,10 +398,13 @@ sub createDir {
 #		nodes - ref to an array of node ID's (do not pass node refs!)
 #		basedir - the dir to export them to
 #		loud - print a message for each node	
+#		dev - true if this is a dev export.  If so, this will only export
+#			nodes that have a modified time greater than zero (only the
+#			nodes that you have touched)
 #
 sub exportNodes
 {
-	my ($nodes, $basedir, $loud) = @_;
+	my ($nodes, $basedir, $loud, $dev) = @_;
 	my %nodetypes=();
 	my %nodeindex=();
 	my @nodefiles=();
@@ -409,7 +412,8 @@ sub exportNodes
 	for(my $i =0; $i < @$nodes;$i++) {
 		my $ID = $$nodes[$i];
 		my $N = getNode($ID);
-		push @{ $nodetypes{$$N{type}{title}} }, $ID; 
+		push @{ $nodetypes{$$N{type}{title}} }, $ID
+			if($$N{modified} =~ /[1-9]/);
 		$nodeindex{$ID}=$i;
 	}
 	
@@ -422,6 +426,7 @@ sub exportNodes
 		createDir $dir unless (-e $dir);	
 		foreach my $N (@{ $nodetypes{$NODETYPE} }) {
 			my $NODE = getNode($N);
+			next unless($NODE && $$NODE{modified} =~ /[1-9]/);
 			my $file = $$NODE{title};
 			$file =~ tr/ /_/;
 			

@@ -65,7 +65,7 @@ sub genObject
 
 	my $html = $this->SUPER::genObject($query, $bindNode, $field, $name) . "\n";
 	
-	if($bindNode)
+	if(ref $bindNode)
 	{
 		my $author = $DB->getNode($$bindNode{$field});
 		if($author && $author->isOfType('user'))

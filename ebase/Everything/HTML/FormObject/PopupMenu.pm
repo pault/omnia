@@ -60,7 +60,7 @@ sub genObject
 	if($default eq "AUTO")
 	{
 		$default = "";
-		$default = $$bindNode{$field} if($bindNode);
+		$default = $$bindNode{$field} if(ref $bindNode);
 	}
 
 	$html .= $this->genPopupMenu($query, $name, $default);

@@ -74,12 +74,12 @@ sub genObject
 	my $html = $this->SUPER::genObject($query, $bindNode,
 		$field.":$perm", $name) . "\n";
 	
-	if($default eq "AUTO" && $bindNode)
+	if($default eq "AUTO" && (ref $bindNode))
 	{
 		my $perms = $$bindNode{$field};
 		$default = substr($perms, $masks{$perm}, 1);
 	}
-	elsif(not $bindNode)
+	else
 	{
 		$default = undef;
 	}

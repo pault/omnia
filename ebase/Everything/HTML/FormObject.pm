@@ -220,13 +220,23 @@ sub genBindField
 
 	my $order = $$this{updateExecuteOrder};
 	$order ||= 50;
+	my $bindid;
 
 	# Make sure any single digit "order" numbers are preceeded by a zero
 	$order = "0" . $order if(length($order) == 1);
 	
+	if(ref $bindNode)
+	{
+		$bindid = $$bindNode{node_id};
+	}
+	elsif($bindNode eq 'new')
+	{
+		$bindid = 'new';
+	}
+	
 	return $query->hidden(
 		-name => 'formbind_' . $$this{objectName} . '_' . $name,
-		-value => "$order:$$bindNode{node_id}:$field", -override => 1);
+		-value => "$order:$bindid:$field", -override => 1);
 }
 
 
@@ -255,7 +265,10 @@ sub getBindNode
 
 	$value =~ /^\d\d\:(.*?)\:/;
 
-	return $DB->getNode($1);
+	my $nodeid = $1;
+	$nodeid = $query->param('node_id') if($nodeid eq 'new');
+
+	return $DB->getNode($nodeid);
 }
 
 

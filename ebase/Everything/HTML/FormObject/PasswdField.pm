@@ -55,7 +55,7 @@ sub genObject
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
 	my $default = "";
-	$default = $$bindNode{$field} if($bindNode);
+	$default = $$bindNode{$field} if(ref $bindNode);
 	$vertical ||= 1;
 	$labels ||= 0;
 

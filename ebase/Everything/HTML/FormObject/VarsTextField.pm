@@ -71,7 +71,7 @@ sub genObject
 	my $html = $this->SUPER::genObject($query, $bindNode,
 		$field . ":$var", $name) . "\n";
 	
-	if($default eq "AUTO" && $bindNode)
+	if($default eq "AUTO" && (ref $bindNode))
 	{
 		my $vars = $bindNode->getHash($field);
 		$default = "";

@@ -53,7 +53,7 @@ sub genObject
 	my ($query, $bindNode, $name, $USER, $perm, $color) = getParamArray(
 		"query, bindNode, name, USER, perm, color", @_);
 
-	return "No Node to get group from!" unless($bindNode);
+	return "No Node to get group from!" unless(ref $bindNode);
 
 	$color ||= '#cc99ff';
 

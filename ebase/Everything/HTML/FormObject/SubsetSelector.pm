@@ -63,7 +63,7 @@ sub genObject
 	$default ||= 'AUTO';
 	$size ||= 20;
 
-	if($default eq "AUTO" && $bindNode)
+	if($default eq "AUTO" && (ref $bindNode))
 	{
 		if($var)
 		{
