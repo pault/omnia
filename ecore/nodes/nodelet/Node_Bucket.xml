@@ -21,7 +21,7 @@ linkNode($NODE, &quot;Add '$$NODE{title}'&quot;, $PARAMS);
 $query-&gt;start_multipart_form(&quot;POST&quot;, $ENV{script_name}) .
 $query-&gt;hidden(&quot;displaytype&quot;) .
 $query-&gt;hidden(&quot;node_id&quot;, $$NODE{node_id}) .
-$query-&gt;hidden(-name =&gt; &quot;op&quot;, -default =&gt; &quot;bucketop&quot;, -override =&gt; 1);
+$query-&gt;hidden(-name =&gt; &quot;op&quot;, -default =&gt; &quot;bucketOp&quot;, -override =&gt; 1);
 %]
 
 [%
