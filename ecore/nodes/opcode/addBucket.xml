@@ -5,6 +5,9 @@
 {
   next unless($bnode =~ /^bnode_([0-9]*)$/);
 
+  my $node = getNode($1, 'light');
+  next unless $node and $node->hasAccess($USER, 'r');
+
   $$VARS{nodebucket} .= "," if($$VARS{nodebucket} &amp;&amp; $$VARS{nodebucket} ne "");
   $$VARS{nodebucket} .= $1;
 }
