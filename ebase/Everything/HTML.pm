@@ -407,7 +407,7 @@ sub htmlErrorGods
 		$str .= "<PRE>";
 		foreach my $line (@mycode)
 		{
-			$str .= sprintf("%4d: $line\n", $count++, $str);
+			$str .= sprintf("%4d: $line\n", $count++);
 		}
 
 		# Print the callstack to the browser too, so we can see where this
@@ -421,7 +421,6 @@ sub htmlErrorGods
 		$str .= "<b>End Call Stack</b>\n";
 		$str.= "</PRE>";
 	}
-	
 	return $str;
 }
 
@@ -896,9 +895,13 @@ sub evalCode
 #		However, this does not mean that it can't be called from other
 #		packages.  Just be aware that HTML.pm globals will be in scope.
 #
+#		Note all variables in scope when the eval() is called should be
+#		namespaced with $EVALX_ -- avoiding  "accidents" involving
+#		the same variable names in the evalled code.
+#
 #	Parameters
-#		$code - the string of code that is to be evaled.
-#		$scope - a hashref that contains variables that should be
+#		$EVALX_CODE - the string of code that is to be evaled.
+#		$EVALX_SCOPE - a hashref that contains variables that should be
 #			in scope when the code is evaled.  ie { '$NODE' => $NODE, etc }.
 #			The keys are the names of the variable (and must include the
 #			$, @, % at the beginning) and the values are what they need to
@@ -908,22 +911,22 @@ sub evalCode
 #
 sub evalX
 {
-	my ($code, $scope, $NODE) = @_;
-	my $str = "";
-	my $warn;
+	my ($EVALX_CODE, $EVALX_SCOPE, $NODE) = @_;
+	my $EVALX_STR = "";
+	my $EVALX_WARN;
 
-	if(defined $scope)
+	if(defined $EVALX_SCOPE)
 	{
-		foreach my $var (keys %$scope)
+		foreach my $var (keys %$EVALX_SCOPE)
 		{
-			$str .= "my $var = \$\$scope{'$var'};\n";
+			$EVALX_STR .= "my $var = \$\$EVALX_SCOPE{'$var'};\n";
 		}
 	}
 
-	$str .= $code;
+	$EVALX_STR .= $EVALX_CODE;
 	
 	local $SIG{__WARN__} = sub {
-		$warn .= $_[0]
+		$EVALX_WARN .= $_[0]
 		 unless $_[0] =~ /^Use of uninitialized value/;
 	};
 
@@ -931,12 +934,12 @@ sub evalX
     # us from getting the "subroutine * redefined" warning.
 	local $^W = 0;
 		
-	my $result = eval($str);
+	my $result = eval($EVALX_STR);
 
 	local $SIG{__WARN__} = sub { };
 
 	# Log any errors that we get so that we may display them later.
-	logErrors($warn, $@, $code, $NODE);
+	logErrors($EVALX_WARN, $@, $EVALX_CODE, $NODE);
 
 	return $result;
 }

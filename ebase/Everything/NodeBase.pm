@@ -1331,7 +1331,7 @@ sub quote
 #
 #	Parameters
 #		WHERE - a reference to a hash that contains the criteria (ie
-#			title => 'the node', etc).
+#			title => 'the node', etc) or a string 'title="thenode"'.
 #		TYPE - a hash reference to the nodetype
 #		orderby - a string that contains information on how the sql
 #		limit - a limit to the max number of rows returned
@@ -1349,7 +1349,7 @@ sub genWhereString
 	my $wherestr = "";
 	my $tempstr;
 	
-	if($WHERE)
+	if(ref $WHERE eq "HASH")
 	{
 		foreach my $key (keys %$WHERE)
 		{
@@ -1398,6 +1398,10 @@ sub genWhereString
 				$wherestr .= $tempstr;
 			}
 		}
+	} else {
+		$wherestr.= $WHERE;
+		#note that there is no protection when you use a string
+		#play it safe and use $dbh->quote, kids.
 	}
 
 	if(defined $TYPE)
