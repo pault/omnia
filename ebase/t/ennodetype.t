@@ -31,10 +31,17 @@ $node->{_calls} = [];
 $node->{node_id} = 1;
 $node->{DB} = $node->{dbh} = $node;
 $node->{_subs} = {
-	execute				=> [ 1 ],
-	prepare_cached		=> [ $node ],
-	fetchrow_hashref	=> [ undef ],
+	sqlSelect        => [ 1 ],
+	sqlSelectJoined  => [ $node ],
+	fetchrow_hashref => [ $node ],
 };
+
+@$node{ qw(
+	defaultguest_permission defaultguestaccess defaultgroupaccess
+	defaultauthoraccess canworkspace maxrevisions defaultauthor_permission
+	defaultgroup_permission defaultgroup_usergroup defaultotheraccess
+	defaultother_permission grouptable
+)} = ( '' ) x 12 ;
 
 construct($node);
 is( $node->{type}, $node, '... should set node number 1 type to itself' );
@@ -42,9 +49,9 @@ is( join(' ', @{ $node->{_calls}[1] }),
 	"sqlSelect node_id node title='node' && type_nodetype=1", 
 	'... should fetch the "node" node if node_id is 1' );
 like( join(' ', @{ $node->{_calls}[2] }), 
-	qr/^prepare.+select.+from nodetype.+nodetype_id=node_id.+nodetype_id=/,
+	qr/^sqlSelectJoined \* nodetype.+nodetype_id=/,
 	'... and fetch its nodetype data' );
-is( $node->{_calls}[4][0], 'fetchrow_hashref', 
+is( $node->{_calls}[3][0], 'fetchrow_hashref', 
 	'... should populate nodetype node with nodetype data' );
 
 my @fields =
