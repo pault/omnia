@@ -995,6 +995,8 @@ sub getAllTypes
 			$TYPE = $this->getType($node_id);
 			push @allTypes, $TYPE;
 		}
+		
+		$cursor->finish();
 	}
 
 	return @allTypes;
@@ -1057,6 +1059,8 @@ sub getFieldsHash
 		push @fields, $value;
 	}
 
+	$cursor->finish();
+
 	@fields;
 }
 
@@ -1086,6 +1090,8 @@ sub tableExists
 	{
 		  $exists = 1 if($table eq $tableName);
 	}
+
+	$cursor->finish();
 
 	return $exists;
 }
