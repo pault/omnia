@@ -2,7 +2,8 @@
 
 use strict;
 
-BEGIN {
+BEGIN
+{
 	chdir 't' if -d 't';
 	unshift @INC, '../blib/lib', 'lib/', '..';
 }
@@ -10,7 +11,7 @@ BEGIN {
 use strict;
 use vars qw( $AUTOLOAD );
 
-use Test::More tests => 216;
+use Test::More tests => 220;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -321,6 +322,34 @@ $mock->set_series( getNode => 0, { code => 'return 1' } )
 can_ok( $package, 'joinWorkspace' );
 can_ok( $package, 'joinWorkspace' );
 can_ok( $package, 'buildNodetypeModules' );
+
+my @le;
+$mock->set_series( sqlSelectMany => 0, $mock )
+	 ->set_series( fetchrow_array => qw( user nodetype blah ) )
+	 ->fake_module( Everything, logErrors => sub { push @le, [ @_ ] } );
+
+is( buildNodetypeModules( $mock ), undef,
+	'buildNodetypeModules() should return with no database cursor' );
+
+{
+	local *Everything::import;
+	*Everything::import = sub
+	{
+		my $caller = caller;
+		no strict 'refs';
+		*{ $caller . '::DB' } = \$mock;
+	};
+
+	$result = buildNodetypeModules( $mock );
+}
+
+is_deeply( $result,
+	{ Everything::Node::user => 1, Everything::Node::nodetype => 1 },
+	'... returning a hashref of available nodetype names' );
+
+is( @le, 1, '... logging error if load fails' );
+like( $le[0][1], qr/Can't locate.+blah\.pm/, '... with require error' );
+
 can_ok( $package, 'getNode' );
 can_ok( $package, 'getNodeByName' );
 can_ok( $package, 'getNodeByIdNew' );
