@@ -1,10 +1,9 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<code table="htmlcode">return if $$USER{title} eq "Guest User";
-
-my $disp = $query-&gt;param("displaytype");
-my @nodes;
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">my $disp = $query-&gt;param("displaytype");
 my $str;
+my @links;
 
 my $CLONER = getNode("node cloner", "restricted_superdoc");
 my $PARAMS = { "srcnode_id" =&gt; $$NODE{node_id}, 
@@ -35,65 +34,68 @@ $str = $script;
 
 $disp ||= "display";
 
-# This will recurse up the nodetype inheritance hierarchy
-# and find the appropriate display and edit pages for this
-# node.
-push @nodes, getPages($NODE);
+# If you want to have other default display links in the
+# adminbar, add them to this array.
+my @displaytypes = ("display", "edit", "permissions" );
 
-foreach my $N (@nodes)
+foreach my $type (@displaytypes)
 {
-	if ($disp eq $$N{displaytype}){
-		$str .= $$N{displaytype} ." ";
-	} else {
-		next if ($$N{displaytype} eq 'edit' and not canUpdateNode($USER, $NODE));
-		$str .= linkNode ($NODE, $$N{displaytype}, {displaytype =&gt; $$N{displaytype}}) . " ";
-	}
+  if ($disp eq $type)
+  {
+    push @links, $type;
+  } 
+  else
+  {
+    push @links, linkNode ($NODE, $type, 
+      {displaytype =&gt; $type}) . " ";
+  }
 }
 
-$str .= "&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;";
+$str .= join ' | ', @links;
+$str .= "&lt;br&gt;&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;";
 
 # If a group editor is open, add a link to add this node to
 # the group.  We will need to check if the nodegroup has
 # a restriction on what nodetypes can be in the group.
-if ($$VARS{group}) {
-	my $GR = $DB-&gt;getNodeById($$VARS{group}, 'light');
+if ($$VARS{group} &amp;&amp; hasAccess($$VARS{group}, $USER, "w"))
+{
+  my $GR = $DB-&gt;getNodeById($$VARS{group}, 'light');
 
-	if(canUpdateNode($USER, $GR))
-	{
-		$str .=
+  $str .=
 "&lt;SCRIPT language=\"javascript\"&gt;
-	function updateGroup() {
-	window.open('" .
-		urlGen({node_id =&gt; $$VARS{group},
+  function updateGroup() {
+  window.open('" . urlGen({node_id =&gt; $$VARS{group},
 			displaytype =&gt; 'editor',
 			add =&gt; getId ($NODE)}, "noquotes") .
 		"','". $$VARS{group} ."',
 		'');	
-	}
+  }
 &lt;/SCRIPT&gt;
 &lt;A href=\"javascript:updateGroup()\"&gt;add to &amp;quot;$$GR{title}&amp;quot;&lt;/a&gt;";
-	}
 }
 
-
-
-
-$str.="\n&lt;SCRIPT language=\"javascript\"&gt;
-       function confirmDelete(){
-          if(confirm(\"Delete '$$NODE{title}'?\")){
-		parent.location=" .
-		urlGen({node_id=&gt;getId($NODE),op=&gt;"nuke"}) .
+$str.="
+&lt;SCRIPT language=\"javascript\"&gt;
+  function confirmDelete(){
+    if(confirm(\"Delete '$$NODE{title}'?\")){
+      parent.location=" .
+        urlGen({node_id=&gt;getId($NODE),op=&gt;"nuke"}) .
 		"; }
         }
-       &lt;/SCRIPT&gt;\n
-	&lt;br&gt;&lt;font size=1&gt;
-	&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
-	&lt;/font&gt;" 
-			if(canDeleteNode($USER, $NODE));                                                                                          
+&lt;/SCRIPT&gt;
+&lt;br&gt;&lt;font size=1&gt;
+&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
+&lt;/font&gt;" if(hasAccess($NODE, $USER, "d"));                                                                                          
 
 $str;</code>
-	<core table="node">R</core>
-	<package table="node">0</package>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node" type="literal_value">0</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">rwxd</groupaccess>
+	<guestaccess table="node">----</guestaccess>
+	<otheraccess table="node">----</otheraccess>
 	<reputation table="node">0</reputation>
 	<title table="node">adminbar</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>

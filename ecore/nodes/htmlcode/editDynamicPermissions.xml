@@ -1,0 +1,39 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">use Everything::FormMenu;
+
+# class - the class of user (author, group, other, guest)
+# forType - 1, if the dynamic permissions to edit are the
+#  default permissions on the nodetype.  nothing if this
+#  is to edit the permissions on the node itself.  This
+#  just determines what fields we need to access.
+
+my ($class, $forType) = @_;
+my $str;
+my $name;
+my $menu = new Everything::FormMenu();
+
+$menu-&gt;addHash({"-1" =&gt; "inherit", "0" =&gt; "none"});
+$menu-&gt;addType("permission", 1);
+
+$name = ($forType ? "default" : "dynamic");
+$name .= $class . "_permission";
+
+$str = $menu-&gt;writePopupHTML($query,
+  $$NODE{type}{title} . "_" . $name, $$NODE{$name});
+
+return $str;
+</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
+	<reputation table="node">0</reputation>
+	<title table="node">editDynamicPermissions</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

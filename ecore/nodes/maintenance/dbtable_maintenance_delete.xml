@@ -1,15 +1,22 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode"># This gets called each time a dbtable node gets deleted.
 # We want to delete the associated table here.
 my ($NODE) = @_;
 
 getRef $NODE;
 $DB-&gt;dropNodeTable($$NODE{title});</code>
-	<core table="node">R</core>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
 	<maintain_nodetype table="maintenance" type="nodetype">dbtable</maintain_nodetype>
 	<maintaintype table="maintenance">delete before</maintaintype>
-	<package table="node">0</package>
+	<otheraccess table="node">iiii-</otheraccess>
 	<reputation table="node">0</reputation>
 	<title table="node">dbtable maintenance delete</title>
 	<type_nodetype table="node" type="nodetype">maintenance</type_nodetype>

@@ -1,35 +1,93 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node">R</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<displaytype table="htmlpage">display</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<package table="node">0</package>
-	<page table="htmlpage">&lt;p&gt;&lt;b&gt;Authorized Readers&lt;/b&gt;: [{listgroup:readers_user}]
-[{displayInherited:readers_user}]
-&lt;p&gt; &lt;b&gt;Authorized Creators&lt;/b&gt;: [{listgroup:writers_user}]
-[{displayInherited:writers_user}]
-&lt;p&gt; &lt;b&gt;Authorized Deleters&lt;/b&gt;: [{listgroup:deleters_user}]
-[{displayInherited:deleters_user}]
+	<page table="htmlpage">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;br&gt;
+&lt;table cellspacing=1 cellpadding=3&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Class&lt;/b&gt;&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Permissions&lt;/b&gt;&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Inherited values&lt;/b&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Author:&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultauthoraccess}"]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $TYPE = getType($$NODE{node_id});
+$$TYPE{defaultauthoraccess};
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Group: [%
+my $str;
+if($$NODE{defaultgroup_usergroup} &gt; 0)
+{ 
+  $str = linkNode($$NODE{defaultgroup_usergroup});
+}
+else
+{
+  $str = "No group";
+}
+
+$str;
+%]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultgroupaccess}"]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $TYPE = getType($$NODE{node_id});
+$$TYPE{defaultgroupaccess};
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Other:&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultotheraccess}"]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $TYPE = getType($$NODE{node_id});
+$$TYPE{defaultotheraccess};
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;Guest:&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;["$$NODE{defaultguestaccess}"]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $TYPE = getType($$NODE{node_id});
+$$TYPE{defaultguestaccess};
+%]&lt;/code&gt;&lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
 
 [%
 if(isGroup($NODE))
 { 
-	"&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: ";
+  "&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: ";
 }
 %]
 
-&lt;p&gt; &lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
+&lt;p&gt;&lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
 	[% if($$NODE{restrictdupes} == -1) { "parent"; }
 	   else{ $$NODE{restrictdupes}?"Yes":"No";} %]
 [{displayInherted:restrictdups}]
 &lt;p&gt; &lt;b&gt;Sql Table&lt;/b&gt;: 
 [%
-if (exists $$NODE{sqltable}) {
+if ($$NODE{sqltable} ne "")
+{
    my $TABLE = getNode $$NODE{sqltable}, 'dbtable';
-   linkNode $TABLE;
-} else { "&lt;i&gt;none&lt;/i&gt;";}
-%]
-[{displayInherited:sqltable}]
+   linkNode($TABLE);
+}
+else
+{
+  "&lt;i&gt;none&lt;/i&gt;";
+}
+%] [{displayInherited:sqltable}]
+
 &lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; 
 [% linkNode ($$NODE{extends_nodetype}) 
 	if ($$NODE{extends_nodetype});%]
@@ -58,6 +116,7 @@ $str;
 %]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodetype</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<permissionneeded table="htmlpage">r</permissionneeded>
 	<reputation table="node">0</reputation>
 	<title table="node">nodetype display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>

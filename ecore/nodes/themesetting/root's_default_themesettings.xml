@@ -1,7 +1,14 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
-	<core table="node">0</core>
-	<package table="node">0</package>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<parent_theme table="themesetting" type="theme">default theme</parent_theme>
 	<reputation table="node">0</reputation>
 	<title table="node">root's default themesettings</title>

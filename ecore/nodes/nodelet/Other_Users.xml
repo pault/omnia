@@ -1,6 +1,13 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node"></core>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
 	<lastupdate table="nodelet">946339422</lastupdate>
 	<nlcode table="nodelet">Your fellow noders:&lt;br&gt;
 [%
@@ -25,7 +32,7 @@ return $str if $str;
 "&lt;i&gt;no users logged in&lt;/i&gt;";
 %] </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<package table="node">0</package>
+	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>
 	<title table="node">Other Users</title>

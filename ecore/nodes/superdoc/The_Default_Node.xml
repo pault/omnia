@@ -1,13 +1,20 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node">R</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">this is the clean everything.&lt;br&gt;
 this is the master everything.&lt;br&gt;
 New Everythings are merely a shadow of this...
 
 
 &lt;p align=right&gt;--[nate]</doctext>
-	<package table="node">0</package>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<reputation table="node">0</reputation>
 	<title table="node">The Default Node</title>
 	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>

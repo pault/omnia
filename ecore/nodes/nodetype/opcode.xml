@@ -1,16 +1,29 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
-	<core table="node">0</core>
-	<deleters_user table="nodetype" type="usergroup">gods</deleters_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<defaultauthor_permission table="nodetype">-1</defaultauthor_permission>
+	<defaultauthoraccess table="nodetype">iiii</defaultauthoraccess>
+	<defaultgroup_permission table="nodetype">-1</defaultgroup_permission>
+	<defaultgroup_usergroup table="nodetype">-1</defaultgroup_usergroup>
+	<defaultgroupaccess table="nodetype">iiiii</defaultgroupaccess>
+	<defaultguest_permission table="nodetype">-1</defaultguest_permission>
+	<defaultguestaccess table="nodetype">iiiii</defaultguestaccess>
+	<defaultother_permission table="nodetype">-1</defaultother_permission>
+	<defaultotheraccess table="nodetype">iiiii</defaultotheraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<extends_nodetype table="nodetype" type="nodetype">htmlcode</extends_nodetype>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
 	<grouptable table="nodetype"></grouptable>
-	<package table="node">0</package>
-	<readers_user table="nodetype" type="usergroup">gods</readers_user>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<reputation table="node">0</reputation>
 	<restrict_nodetype table="nodetype" type="literal_value">0</restrict_nodetype>
 	<restrictdupes table="nodetype">1</restrictdupes>
 	<sqltable table="nodetype"></sqltable>
 	<title table="node">opcode</title>
 	<type_nodetype table="node" type="nodetype">nodetype</type_nodetype>
-	<writers_user table="nodetype" type="usergroup">gods</writers_user>
 </NODE>

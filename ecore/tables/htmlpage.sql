@@ -14,5 +14,6 @@ CREATE TABLE htmlpage (
   page text,
   parent_container int(11),
   ownedby_theme int(11) DEFAULT '0' NOT NULL,
+  permissionneeded char(1) DEFAULT 'r' NOT NULL,
   PRIMARY KEY (htmlpage_id)
 );

@@ -1,9 +1,16 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node">R</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<displaytype table="htmlpage">edit</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<package table="node">0</package>
 	<page table="htmlpage">&lt;b&gt;Real Name&lt;/b&gt;: ["$$NODE{realname}"]&lt;br&gt;
 [{textfield:realname}]
 &lt;p&gt;Change password:&lt;br&gt;[{password_field:passwd}]
@@ -13,6 +20,7 @@
 &lt;p&gt;[{textarea:doctext}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">user</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
+	<permissionneeded table="htmlpage">w</permissionneeded>
 	<reputation table="node">0</reputation>
 	<title table="node">user edit page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>

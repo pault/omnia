@@ -1,6 +1,6 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node">R</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document">Here's the stuff: &lt;p&gt;
 [%
 
@@ -14,7 +14,14 @@ foreach my $ND (@{ $$NODE{group} }) {
 $str;
 %]
 [{createnewnode}]</doctext>
-	<package table="node">0</package>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<reputation table="node">0</reputation>
 	<title table="node">Search Results</title>
 	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>

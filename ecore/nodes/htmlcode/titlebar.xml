@@ -1,34 +1,41 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<code table="htmlcode">my $str = "
-
-&lt;font size=2&gt;
-[ ";
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">my $str = "&lt;font size=2&gt;[ ";
+my @links;
 
 if (getId($USER) == $HTMLVARS{guest_user}) {
-	$str .= linkNodeTitle ("login", $NODE, "Log in") 	
-	  . " | " . linkNodeTitle("Create a new user");
+  push @links, linkNodeTitle ("login", $NODE, "Log in"); 	
+  push @links, linkNodeTitle("Create a new user");
 } else {
-	$str .= linkNode ($HTMLVARS{default_node}, "log $$USER{title} out", {op =&gt; 'logout'})
-		. " | " . linkNode ($USER);
-	$str .= " | " . linkNodeTitle ("user settings");
+  push @links, linkNode ($HTMLVARS{default_node},
+    "log $$USER{title} out", {op =&gt; 'logout'});
+  push @links, linkNode ($USER);
+  push @links, linkNodeTitle ("user settings");
 }
 
-
 my ($GNL) = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
-$str .= " | " . linkNode ($GNL) if canReadNode ($USER, $GNL);
+push @links, linkNode ($GNL) if hasAccess($GNL, $USER, 'r');
 
 my ($GCL) = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
-$str .= " | " . linkNode ($GCL) if canReadNode ($USER, $GCL);
+push @links, linkNode ($GCL) if hasAccess($GCL, $USER, 'r');
 
 my ($ROOT) = getNode('root', getType('user'));
 my ($ss) = getNode('system settings', getType('setting'));
 
-$str .= " | " . linkNode ($ss) if ($USER eq $ROOT);
-$str .= " | " . linkNode ($HTMLVARS{default_node});
+push @links, linkNode ($ss) if ($USER eq $ROOT);
+push @links, linkNode ($HTMLVARS{default_node});
+
+$str .= join ' | ', @links;
 $str . " ] &lt;p&gt;&lt;/font&gt;";</code>
-	<core table="node">R</core>
-	<package table="node">0</package>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<reputation table="node">0</reputation>
 	<title table="node">titlebar</title>
 	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>

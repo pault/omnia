@@ -1,0 +1,74 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">use Everything::FormMenu;
+my ($who, $default) = @_;
+my $menu;
+my $str;
+my @menus;
+my @perms;
+my $field = "";
+
+$field = "default" if($default);
+$field .= $who . "access";
+
+@perms = split '', $$NODE{$field};
+
+for(my $i = 0; $i &lt; @perms; $i++)
+{
+  # We don't want to deal with the "create" case, if it
+  # is not the nodetype defaults.
+  next if($i == 4 &amp;&amp; not $default);
+
+  my $options = { 'i' =&gt; "inherit", '-' =&gt; "disable" };
+  my $name = $who;
+
+  $name = "default_" . $name if($default);
+
+  $menu = new Everything::FormMenu();
+  # The order is always "rwxdc"
+  if($i == 0)
+  {
+    $name .= "_read";
+    $$options{r} = "read";
+  }
+  elsif($i == 1)
+  {
+    $name .= "_write";
+    $$options{w} = "write";
+  }
+  elsif($i == 2)
+  {
+    $name .= "_exec";
+    $$options{x} = "execute";
+  }
+  elsif($i == 3)
+  {
+    $name .= "_delete";
+    $$options{d} = "delete";
+  }
+  elsif($i == 4)
+  {
+    $name .= "_create";
+    $$options{c} = "create";
+  }
+
+  $menu-&gt;addHash($options);
+  push @menus, $menu-&gt;writePopupHTML($query, $name, $perms[$i]);
+}
+
+$str = join "&lt;/td&gt;\n&lt;td bgcolor=#999999&gt;", @menus;
+
+return $str;</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
+	<reputation table="node">0</reputation>
+	<title table="node">editPermissions</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

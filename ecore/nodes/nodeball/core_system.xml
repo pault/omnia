@@ -1,6 +1,10 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
-	<core table="node">0</core>
+	<authoraccess table="node">iiii</authoraccess>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<group >
 		<groupnode1 table="nodegroup" type="nodetype">nodetype</groupnode1>
 		<groupnode2 table="nodegroup" type="nodetype">container</groupnode2>
@@ -160,23 +164,37 @@
 		<groupnode156 table="nodegroup" type="htmlpage">mail display page</groupnode156>
 		<groupnode157 table="nodegroup" type="htmlpage">node xml page</groupnode157>
 		<groupnode158 table="nodegroup" type="setting">restricted fields</groupnode158>
-		<groupnode159 table="nodegroup" type="setting">restricted fields</groupnode159>
-		<groupnode160 table="nodegroup" type="htmlcode">createnewnode</groupnode160>
-		<groupnode161 table="nodegroup" type="theme">default theme</groupnode161>
-		<groupnode162 table="nodegroup" type="themesetting">root's default themesettings</groupnode162>
-		<groupnode163 table="nodegroup" type="nodetype">theme</groupnode163>
-		<groupnode164 table="nodegroup" type="nodetype">themesetting</groupnode164>
-		<groupnode165 table="nodegroup" type="htmlpage">themesetting display page</groupnode165>
-		<groupnode166 table="nodegroup" type="htmlpage">themesetting edit page</groupnode166>
-		<groupnode167 table="nodegroup" type="dbtable">themesetting</groupnode167>
-		<groupnode168 table="nodegroup" type="container">nodelet container</groupnode168>
-		<groupnode169 table="nodegroup" type="nodelet">personal nodelet</groupnode169>
-		<groupnode170 table="nodegroup" type="htmlcode">titlebar</groupnode170>
-		<groupnode171 table="nodegroup" type="nodetype">opcode</groupnode171>
-		<groupnode172 table="nodegroup" type="restricted_superdoc">Node Cloner</groupnode172>
-		<groupnode173 table="nodegroup" type="container">show container</groupnode173>
+		<groupnode159 table="nodegroup" type="htmlcode">createnewnode</groupnode159>
+		<groupnode160 table="nodegroup" type="theme">default theme</groupnode160>
+		<groupnode161 table="nodegroup" type="themesetting">root's default themesettings</groupnode161>
+		<groupnode162 table="nodegroup" type="nodetype">theme</groupnode162>
+		<groupnode163 table="nodegroup" type="nodetype">themesetting</groupnode163>
+		<groupnode164 table="nodegroup" type="htmlpage">themesetting display page</groupnode164>
+		<groupnode165 table="nodegroup" type="htmlpage">themesetting edit page</groupnode165>
+		<groupnode166 table="nodegroup" type="dbtable">themesetting</groupnode166>
+		<groupnode167 table="nodegroup" type="container">nodelet container</groupnode167>
+		<groupnode168 table="nodegroup" type="nodelet">personal nodelet</groupnode168>
+		<groupnode169 table="nodegroup" type="htmlcode">titlebar</groupnode169>
+		<groupnode170 table="nodegroup" type="nodetype">opcode</groupnode170>
+		<groupnode171 table="nodegroup" type="restricted_superdoc">Node Cloner</groupnode171>
+		<groupnode172 table="nodegroup" type="container">show container</groupnode172>
+		<groupnode173 table="nodegroup" type="nodetype">permission</groupnode173>
+		<groupnode174 table="nodegroup" type="nodetype">htmlsnippet</groupnode174>
+		<groupnode175 table="nodegroup" type="htmlcode">editPermissions</groupnode175>
+		<groupnode176 table="nodegroup" type="htmlcode">updatePermissions</groupnode176>
+		<groupnode177 table="nodegroup" type="htmlcode">displayInheritedPermissions</groupnode177>
+		<groupnode178 table="nodegroup" type="htmlcode">editDynamicPermissions</groupnode178>
+		<groupnode179 table="nodegroup" type="htmlpage">node permissions page</groupnode179>
+		<groupnode180 table="nodegroup" type="htmlsnippet">editNodePermissions</groupnode180>
+		<groupnode181 table="nodegroup" type="restricted_superdoc">nodetype hierarchy</groupnode181>
+		<groupnode182 table="nodegroup" type="htmlpage">node basicedit page</groupnode182>
+		<groupnode183 table="nodegroup" type="restricted_superdoc">SQL Prompt</groupnode183>
+		<groupnode184 table="nodegroup" type="htmlsnippet">editDefaultPermissions</groupnode184>
 	</group>
-	<package table="node">0</package>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<reputation table="node">0</reputation>
 	<title table="node">core system</title>
 	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>

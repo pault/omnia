@@ -1,11 +1,18 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node">R</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<doctext table="document"></doctext>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
 	<email table="user">Nobody@nobody.com</email>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
 	<karma table="user">0</karma>
 	<nick table="user"></nick>
-	<package table="node">0</package>
+	<otheraccess table="node">iiii-</otheraccess>
 	<realname table="user">The Guest User</realname>
 	<reputation table="node">0</reputation>
 	<title table="node">Guest User</title>

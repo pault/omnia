@@ -1,0 +1,53 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">[{updatePermissions}]
+&lt;table cellspacing=1 border=0&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&amp;nbsp;&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;Read&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;Write&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;Execute&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;Delete&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;Parent Settings&lt;/td&gt;
+  &lt;td bgcolor=#cccccc&gt;Dynamic&lt;td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;author&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editPermissions:author}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{displayInheritedPermissions:author}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editDynamicPermissions:author}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td nowrap bgcolor=#cccccc&gt;group 
+      [{node_menu:defaultgroup_usergroup,usergroup}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editPermissions:group}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{displayInheritedPermissions:group}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editDynamicPermissions:group}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;other&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editPermissions:other}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{displayInheritedPermissions:other}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editDynamicPermissions:other}]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor=#cccccc&gt;guest&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editPermissions:guest}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{displayInheritedPermissions:guest}]&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;[{editDynamicPermissions:guest}]&lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
+</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
+	<reputation table="node">0</reputation>
+	<title table="node">editNodePermissions</title>
+	<type_nodetype table="node" type="nodetype">htmlsnippet</type_nodetype>
+</NODE>

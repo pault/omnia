@@ -1,35 +1,64 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<core table="node">R</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<displaytype table="htmlpage">display</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<package table="node">0</package>
-	<page table="htmlpage">&lt;b&gt;pagetype&lt;/b&gt;: 
-[%
+	<page table="htmlpage">&lt;table border=0&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;pagetype&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[%
 	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
 	linkNode $N;
-%]&lt;br&gt;
-&lt;b&gt;parent container&lt;/b&gt;:
-[% return linkNode ($$NODE{parent_container}) if $$NODE{parent_container};
-"&lt;i&gt;none&lt;/i&gt;";
-%]
-&lt;br&gt;
-&lt;b&gt;displaytype&lt;/b&gt;:
-["$$NODE{displaytype}"]
-&lt;br&gt;
-&lt;b&gt;theme&lt;/b&gt;:
-[%
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;parent container&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[% 
+return linkNode ($$NODE{parent_container})
+  if $$NODE{parent_container};
+return "&lt;i&gt;none&lt;/i&gt;";
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;displaytype&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;["$$NODE{displaytype}"]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;theme&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[%
 unless ($$NODE{ownedby_theme}) {
   return "&lt;i&gt;this htmlpage does not belong to a theme&lt;/i&gt;";
 }
 my $THEME = getNode $$NODE{ownedby_theme};
 linkNode($THEME);
 
-%]
-&lt;p&gt;[{listcode:page}]
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Permission needed&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[%
+my $trans = { 'r' =&gt; "read", 'w' =&gt; "write",
+  'x' =&gt; "execute", 'd' =&gt; "delete", 'c' =&gt; "create" };
+
+$$trans{$$NODE{permissionneeded}};
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
+ 
+&lt;p&gt;&lt;b&gt;Code:&lt;/b&gt;&lt;br&gt;
+[{listcode:page}]
 </page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">htmlpage</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<permissionneeded table="htmlpage">r</permissionneeded>
 	<reputation table="node">0</reputation>
 	<title table="node">htmlpage display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>

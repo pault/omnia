@@ -1,9 +1,16 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
-	<core table="node">0</core>
+	<authoraccess table="node">iiii</authoraccess>
 	<displaytype table="htmlpage">display</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<package table="node">0</package>
 	<page table="htmlpage">[% unless ($$NODE{group}) {
 	"&lt;i&gt;This nodeball is empty&lt;/i&gt;";
 } else {
@@ -20,6 +27,7 @@
 &lt;p&gt;[{displayvars}]</page>
 	<pagetype_nodetype table="htmlpage" type="nodetype">nodeball</pagetype_nodetype>
 	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<permissionneeded table="htmlpage">r</permissionneeded>
 	<reputation table="node">0</reputation>
 	<title table="node">nodeball display page</title>
 	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
