@@ -372,8 +372,6 @@ sub inGroupFast
 
 	$this->groupCache();
 	return $this->existsInGroupCache($nodeId);
-
-	return 0;
 }
 
 
