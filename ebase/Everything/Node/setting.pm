@@ -193,7 +193,7 @@ sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
 
-	if($$FIX{fixBy} ne "setting")
+	unless ($FIX->{fixBy} eq 'setting')
 	{
 		$this->SUPER();
 		return;
@@ -201,21 +201,21 @@ sub applyXMLFix
 
 	my $vars = $this->getVars();
 	
-	my $where = Everything::XML::patchXMLwhere($$FIX{where});
-	my $TYPE = $$where{type_nodetype};
-	my $NODE = $$this{DB}->getNode($where, $TYPE);
+	my $where = Everything::XML::patchXMLwhere($FIX->{where});
+	my $TYPE = $where->{type_nodetype};
+	my $NODE = $this->{DB}->getNode($where, $TYPE);
 
 	unless($NODE)
 	{
 		Everything::logErrors('', 
-			"Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'\n" .
-			"for field '$$FIX{field}' in '$this->{title}'" .
+			"Unable to find '$FIX->{title}' of type '$FIX->{type_nodetype}'\n" .
+			"for field '$FIX->{field}' in '$this->{title}'" .
 			"of type '$this->{nodetype}{title}'"
 		) if $printError;
 		return $FIX;
 	}
 
-	$$vars{$$FIX{field}} = $$NODE{node_id};
+	$vars->{$FIX->{field}} = $NODE->{node_id};
 
 	$this->setVars($vars);
 
