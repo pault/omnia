@@ -1,11 +1,12 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="nodeletMetaContainer">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return &quot;you have this off&quot; 
-if $$VARS{nodelets_off};
-return if (($$USER{title} eq &quot;Guest User&quot;) and not($HTMLVARS{GUshownodelets}) );
+  <field name="code" type="literal_value">return &quot;you have this off&quot; if $$VARS{nodelets_off};
+return if (($$USER{node_id} == $HTMLVARS{guest_user}) and not($HTMLVARS{GUshownodelets}) );
 my $str;
+my $align = $$VARS{nodelet_align};
 
+$align ||= &quot;right&quot;;
 my @nodelets = @{ $USER-&gt;getNodelets($HTMLVARS{default_nodeletgroup}) };
 
 return &quot;no nodelets!&quot; unless @nodelets;
