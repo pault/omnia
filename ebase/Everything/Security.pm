@@ -4,7 +4,7 @@ package Everything::Security;
 #	Everything::NodeBase
 #		Support functions for Security and permissions
 #
-#	Copyright 2000 Everything Development Corp.
+#	Copyright 2000 - 2003 Everything Development Corp.
 #	Format: tabs = 4 spaces
 #
 #############################################################################
@@ -33,7 +33,7 @@ sub inheritPermissions
 	my ($child, $parent) = @_;
 
 	unless (length $child == length $parent) {
-		warn "Permission length mismatch!";
+		Everything::logErrors( "Permission length mismatch!" );
 		return;
 	}
 
@@ -68,7 +68,7 @@ sub checkPermissions
 	
 	# if no modes are passed in, we have nothing to check against.  For
 	# security purposes, we will return false.  We need something to check!
-	return 0 unless (defined $perms and $perms and defined $modes and $modes);
+	return 0 unless defined $perms and $perms and defined $modes and $modes;
 	
 	# We remove any allowed permissions from the given modes.
 	$modes =~ s/[$perms]//g;
