@@ -80,6 +80,7 @@ use vars qw($dbh);
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
 
+my $VERSION = 0.8;
 
 #############################################################################
 sub printErr {
