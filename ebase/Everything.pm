@@ -74,7 +74,7 @@ sub BEGIN
 	
 	# This will be true if we are being run from a command line, in which
 	# case all errors should be printed to STDOUT
-	$commandLine = (-t STDIN && -t STDOUT);
+	$commandLine = (-t STDIN && -t STDOUT) ? 1 : 0;
 }
 
 
@@ -355,9 +355,7 @@ sub logErrors
 	if ($commandLine)
 	{
 		print "############################################################\n" .
-			"Warning: $warning\n" .
-			"Error: $error\n" .
-			"Code:\n$code\n" .
+			"Warning: $warning\nError: $error\nCode:\n$code\n" .
 			'(', join(')(', caller()), ")\n";
 	}
 	else
