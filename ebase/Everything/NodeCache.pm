@@ -95,6 +95,7 @@ sub new
 
 	# We will keep different hashes for ids and name/type combos
 	$this->{typeCache} = {};
+	$this->{groupCache} = {};
 	$this->{idCache} = {};
 	$this->{version} = {};
 	$this->{verified} = {};
@@ -472,6 +473,7 @@ sub removeNodeFromHash
 		delete ($this->{typeCache}{$type}{$title});
 		delete ($this->{idCache}{$$NODE{node_id}});
 		delete ($this->{version}{$$NODE{node_id}});
+		delete $this->{groupCache}{$$NODE{node_id}};
 
 		return $data;
 	}

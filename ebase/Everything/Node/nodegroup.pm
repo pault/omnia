@@ -293,6 +293,9 @@ sub updateGroup
 
 	$$this{group} = $group;
 
+	#remove from groupCache
+	$this->groupUncache();
+
 	return 1;
 }
 
@@ -366,13 +369,10 @@ sub inGroupFast
 {
 	my ($this, $NODE) = @_;
 	my $nodeId = $$this{DB}->getId($NODE);
-	my $group = $$this{group};
 
-	foreach (@$group)
-	{
-		return 1 if($_ eq $nodeId);
-	}
-	
+	$this->groupCache();
+	return $this->existsInGroupCache($nodeId);
+
 	return 0;
 }
 
@@ -398,19 +398,16 @@ sub inGroupFast
 sub inGroup
 {
 	my ($this, $NODE) = @_;
-	my $members;
-
 	return 0 unless($NODE);
 
-	my $id = $$this{DB}->getId($NODE);
-	
-	$members = $this->selectNodegroupFlat();
-	foreach my $member (@$members)
-	{
-		return 1 if(($member->getId()) == $id);
-	}
+	my $nodeId = $$this{DB}->getId($NODE);
 
-	return 0;
+        unless($this->hasGroupCache())        
+        {
+		my $group = $this->selectNodegroupFlat();
+		$this->groupCache($group);
+        }
+	return $this->existsInGroupCache($nodeId);
 }
 
 
@@ -523,6 +520,9 @@ sub insertIntoGroup
 
 	# If a flatgroup exists, it is no longer valid.
 	delete $$this{flatgroup} if(exists $$this{flatgroup});
+	
+	# Wipe out any cached group
+	$this->groupUncache();
 
 	return 1;
 }
@@ -569,6 +569,10 @@ sub removeFromGroup
 	$$this{group} = \@newgroup;
 
 	# XXX - flatgroup ?
+
+	#remove from groupCache
+	$this->groupUncache();
+
 	return 1;
 }
 
@@ -603,6 +607,9 @@ sub replaceGroup
 
 	# If a flatgroup exists, it is no longer valid.
 	delete $$this{flatgroup} if(exists $$this{flatgroup});
+
+	# Remove it from the groupCache
+	$this->groupUncache();
 
 	return 1;
 }
@@ -879,8 +886,61 @@ sub conflictsWith {
 	$this->SUPER();
 }
 
+#############################################################################
+# PRIVATE: Group caching functions
+#############################################################################
+
+# The group caching code is stored here rather than in NodeCache.pm because
+# we need to intelligently cache something, IE only bother doing so if
+# someone is going to call inGroup or inGroupFast on a nodegroup; otherwise
+# we are simply wasting our cycles and memory mapping into the nodecache hash
+# Originally inspired by a hack nate threw into E2.
+#
+# This consists of four functions
+# 
+# hasGroupCache($this)
+# groupCache($this)
+# groupUncache($this)
+# existsInGroupCache($this, node_id)
+#
+# I wouldn't do it this way unless we got ridiculous speed out of it, which
+# we do.
+
+sub hasGroupCache {
+	my ($this) = @_;
+	return 1 if exists($this->{DB}->{cache}->{groupCache}->{$$this{node_id}});
+	return 0;
+}
+
+sub getGroupCache {
+  my ($this) = @_;
+  return $this->{DB}->{cache}->{groupCache}->{$$this{node_id}}; 
 
 
+}
+
+sub groupCache {
+
+	my ($this, $group) = @_;
+	$group ||= $$this{group};
+
+	return 1 if $this->hasGroupCache();
+	%{$this->{DB}->{cache}->{groupCache}->{$$this{node_id}}} = map {$_ => 1} @{$group};
+	return 1;	
+}
+
+sub groupUncache {
+	
+	my ($this) = @_;
+	delete $this->{DB}->{cache}->{groupCache}->{$$this{node_id}};	
+	return 1;
+}
+
+sub existsInGroupCache {
+
+	my ($this, $nid) = @_;
+	return exists($this->{DB}->{cache}->{groupCache}->{$$this{node_id}}->{$nid});
+}
 
 #############################################################################
 # End of package
