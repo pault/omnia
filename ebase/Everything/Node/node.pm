@@ -4,7 +4,7 @@ package Everything::Node::node;
 #   Everything::Node::node
 #	   Package the implements the base node functionality
 #
-#   Copyright 2000 - 2002 Everything Development Inc.
+#   Copyright 2000 - 2003 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
@@ -17,18 +17,8 @@ use Everything::NodeBase;
 use Everything::XML;
 
 
-#############################################################################
-sub construct
-{
-	1;
-}
-
-
-#############################################################################
-sub destruct
-{
-	1;
-}
+sub construct { 1 }
+sub destruct  { 1 }
 
 
 #############################################################################
@@ -216,37 +206,37 @@ sub nuke
 	my ($this, $USER) = @_;
 	my $result = 0;
 
-	$$this{DB}->getRef($USER) unless($USER eq '-1');
+	$this->{DB}->getRef($USER) unless $USER eq '-1';
 
-	return 0 unless($this->hasAccess($USER, "d"));
+	return 0 unless $this->hasAccess($USER, 'd');
+
+	my $id = $this->getId();
 
 	# Remove all links that go from or to this node that we are deleting
-	$$this{DB}->sqlDelete("links", "to_node=".$this->getId()." OR from_node=".$this->getId());
+	$this->{DB}->sqlDelete( 'links', "to_node=$id OR from_node=$id" );
 
 	# Remove all revisions of this node 
-	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id}");	
+	$this->{DB}->sqlDelete('revision', "node_id=$this->{node_id}");	
 
 	# Now lets remove this node from all nodegroups that contain it.  This
 	# is a bit more complicated than removing the links as nodegroup types
 	# can specify their own group table if desired.  This needs to find
 	# all used group tables and check for the existance of this node in
 	# any of those groups.
-	my @allTypes = $$this{DB}->getAllTypes();
-	foreach my $TYPE (@allTypes)
+	foreach my $TYPE ( $this->{DB}->getAllTypes() )
 	{
 		my $table = $TYPE->isGroupType();
-		next unless($table);
+		next unless $table;
 
 		# This nodetype is a group.  See if this node exists in any of its
 		# tables.
-		my $csr = $$this{DB}->sqlSelectMany($table . "_id", $table,
-			"node_id=$$this{node_id}");
+		my $csr = $this->{DB}->sqlSelectMany($table . "_id", $table,
+			"node_id=$this->{node_id}");
 
-		if($csr)
+		if ($csr)
 		{
-			my $group;
 			my %GROUPS;
-			while($group = $csr->fetchrow())
+			while(my $group = $csr->fetchrow())
 			{
 				# For each entry, mark each group that this node belongs
 				# to.  A node may be in a the same group more than once.
@@ -259,7 +249,7 @@ sub nuke
 			# Now that we have a list of which group nodes that contains
 			# this node, we are free to delete all rows from the node
 			# table that reference this node.
-			$$this{DB}->sqlDelete($table, "node_id=".$$this{node_id});
+			$this->{DB}->sqlDelete( $table, "node_id=$this->{node_id}" );
 
 			foreach (keys %GROUPS)
 			{
@@ -267,27 +257,26 @@ sub nuke
 				# group, we need to increment its global version such
 				# that it will get reloaded from the database the next
 				# time it is used.
-				my $GROUP = $$this{DB}->getNode($_);
-				$$this{DB}->{cache}->incrementGlobalVersion($GROUP);
+				my $GROUP = $this->{DB}->getNode($_);
+				$this->{DB}->{cache}->incrementGlobalVersion($GROUP);
 			}
 		}
 	}
 
 	# Actually remove this node from the database.
-	my $tableArray = $$this{type}->getTableArray(1);
+	my $tableArray = $this->{type}->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
-		$result += $$this{DB}->sqlDelete($table, $table . "_id=" . $this->getId());
+		$result += $this->{DB}->sqlDelete( $table, $table . "_id=$id" );
 	}
 
 	# Now we can remove the nuked node from the cache so we don't get
 	# stale data.
-	$$this{DB}->{cache}->incrementGlobalVersion($this);
-	$$this{DB}->{cache}->removeNode($this);
+	$this->{DB}->{cache}->incrementGlobalVersion($this);
+	$this->{DB}->{cache}->removeNode($this);
 
-	# Clear out the node id so that we can tell this is a "non-existant"
-	# node.
-	$$this{node_id} = 0;
+	# Clear out the node id so that we can tell this is a "non-existant" node.
+	$this->{node_id} = 0;
 
 	return $result;
 }
@@ -325,23 +314,20 @@ sub getNodeKeys
 	my ($this, $forExport) = @_;
 	my $keys = $this->getNodeDatabaseHash();
 	
-	if($forExport)
+	if ($forExport)
 	{
 		# We want the keys that are good for exporting (ie XML), in
 		# addition to the "bogus" keys that we have, there are some
 		# fields that just don't make sense for exporting.
-		delete $$keys{createtime};
-		delete $$keys{modified};
-		delete $$keys{hits};
-		delete $$keys{reputation};
-		delete $$keys{lockedby_user};
-		delete $$keys{locktime};
-		delete $$keys{lastupdate};
+		delete @$keys{qw(
+			createtime modified hits reputation lockedby_user locktime
+			lastupdate
+		)};
 		
 		foreach my $k (keys %$keys)
 		{
 			# We do not want to export ids!
-			delete $$keys{$k} if($k =~ /_id$/);
+			delete $keys->{$k} if $k =~ /_id$/;
 		}
 	}
 
@@ -395,8 +381,8 @@ sub getFieldDatatype
 {
 	my ($this, $field) = @_;
 
-	return "noderef" if($field =~ /_\w+$/ and $$this{$field} =~ /^\d+$/);
-	return "literal_value";
+	return 'noderef' if $field =~ /_\w+$/ and $this->{$field} =~ /^\d+$/;
+	return 'literal_value';
 }
 
 
@@ -429,16 +415,15 @@ sub clone
 
 	return unless $NODE and UNIVERSAL::isa( $NODE, 'HASH' );
 
+	my %unique = map { $_ => 1 } qw( title createtime type_nodetype type );
+
 	foreach my $field (keys %$NODE)
 	{
-		# We don't want to overwrite this stuff
-		next if($field eq "title");
-		next if($field =~ /_id$/);
-		next if($field eq "createtime");  # we want the clone to have its own
-		next if($field eq "type_nodetype");
-		next if($field eq "type");
+		# We don't want to overwrite these fields
+		next if exists $unique{ $field };
+		next if $field =~ /_id$/;
 
-		$$this{$field} = $$NODE{$field};
+		$this->{$field} = $NODE->{$field};
 	}
 
 	return 1;
@@ -481,7 +466,7 @@ sub xmlTag
 	my ($this, $TAG) = @_;
 	my $tagname = $TAG->getTagName();
 
-	unless($tagname =~ /field/i)
+	unless ($tagname =~ /field/i)
 	{
 		Everything::logErrors( '', 
 			"node.pm does not know how to handle XML tag '$tagname' " .
@@ -491,17 +476,16 @@ sub xmlTag
 
 	my $PARSE = Everything::XML::parseBasicTag($TAG, 'node');
 	my @fixes;
-	
-	if(exists $$PARSE{where})
-	{
-		$$this{$$PARSE{name}} = -1;
 
-		# The where contains our fix
+	# The where contains our fix
+	if (exists $PARSE->{where})
+	{
+		$this->{ $PARSE->{name} } = -1;
 		push @fixes, $PARSE;
 	}
 	else
 	{
-		$$this{$$PARSE{name}} = $$PARSE{$$PARSE{name}};
+		$this->{$PARSE->{name}} = $PARSE->{ $PARSE->{name} };
 	}
 
 	return \@fixes if @fixes;
@@ -528,12 +512,12 @@ sub xmlFinal
 	my ($this) = @_;
 
 	# First lets check to see if this node already exists.
-	my $NODE =  $this->existingNodeMatches();
+	my $NODE = $this->existingNodeMatches();
 
-	if($NODE)
+	if ($NODE)
 	{
 		$NODE->updateFromImport($this, -1);
-		return $$NODE{node_id};
+		return $NODE->{node_id};
 	}
 	else
 	{
@@ -541,7 +525,7 @@ sub xmlFinal
 		$this->insert(-1);
 	}
 
-	return $$this{node_id};
+	return $this->{node_id};
 }
 
 
@@ -565,10 +549,10 @@ sub applyXMLFix
 	my $where = $FIX->{where};
 	my $type  = $where->{type_nodetype};
 
-	$where = Everything::XML::patchXMLwhere($where);
+	$where    = Everything::XML::patchXMLwhere($where);
 	
-	my $TYPE = $where->{type_nodetype};
-	my $NODE = $this->{DB}->getNode($where, $TYPE);
+	my $TYPE  = $where->{type_nodetype};
+	my $NODE  = $this->{DB}->getNode($where, $TYPE);
 
 	unless ($NODE)
 	{
@@ -651,14 +635,14 @@ sub updateFromImport
 	my ($this, $IMPORT, $USER) = @_;
 
 	# We use the export keys
-	my $keys = $this->getNodeKeys(1);
+	my $keys     = $this->getNodeKeys(1);
 	my $keepkeys = $this->getNodeKeepKeys();
 
-	foreach (keys %$keys) {
-		$$this{$_} = $$IMPORT{$_} unless exists $$keepkeys{$_};
+	foreach my $key (keys %$keys) {
+		$this->{$key} = $IMPORT->{$key} unless exists $keepkeys->{$key};
 	}
 
-	$$this{modified} = "0";
+	$this->{modified} = '0';
 	$this->update($USER, 'nomodify');
 }
 
@@ -677,22 +661,23 @@ sub updateFromImport
 #
 #	returns false if ok,  true if a conflict has been found
 #
-sub conflictsWith {
+sub conflictsWith
+{
 	my ($this, $NEWNODE) = @_;
 
-	return 0 unless $$this{modified} =~ /[1-9]/;
-	#if the node hasn't been modified since update, it should be ok
+	# if the node hasn't been modified since update, it should be ok
+	return 0 unless $this->{modified} =~ /[1-9]/;
 
-	my $keys = $this->getNodeKeys(1);
+	my $keys    = $this->getNodeKeys(1);
 	my $keypers = $this->getNodeKeepKeys();
 
-	foreach (keys %$keypers) {
-		delete $$keys{$_} if exists $$keys{$_};
+	for my $keep (keys %$keypers) {
+		delete $keys->{$keep} if exists $keys->{$keep};
 	}
 
-	foreach (keys %$keys) {
-		next unless exists $$NEWNODE{$_};
-		return 1 if $$this{$_} ne $$NEWNODE{$_};
+	foreach my $key (keys %$keys) {
+		next unless exists $NEWNODE->{$key};
+		return 1 if $this->{$key} ne $NEWNODE->{$key};
 	}
 	return 0;
 }
@@ -712,20 +697,13 @@ sub conflictsWith {
 #
 #	returns - hashref of node fields which are kept on import
 #
-sub getNodeKeepKeys {
-	my ($this) = @_;
-
-	{
-		"authoraccess" => 1,
-		"groupaccess" => 1,
-		"otheraccess" => 1,
-		"guestaccess" => 1,
-		"dynamicauthor_permission" => 1,
-		"dynamicgroup_permission" => 1,
-		"dynamicother_permission" => 1,
-		"dynamicguest_permission" => 1,
-		"loc_location" => 1
-	};
+sub getNodeKeepKeys
+{
+	return { map { $_ => 1 } qw(
+		authoraccess groupaccess otheraccess guestaccess dynamicguest_permission
+		dynamicauthor_permission dynamicgroup_permission dynamicother_permission
+		loc_location
+	)};
 }
 
 
@@ -763,29 +741,18 @@ sub getNodeKeepKeys {
 sub verifyFieldUpdate
 {
 	my ($this, $field) = @_;
-	my $restrictedFields = {
-		'createtime' => 1,
-		'node_id' => 1,
-		'type_nodetype' => 1,
-		'hits' => 1,
-		'loc_location' => 1,
-		'reputation' => 1,
-		'lockedby_user' => 1,
-		'locktime' => 1,
-		'authoraccess' => 1,
-		'groupaccess' => 1,
-		'otheraccess' => 1,
-		'guestaccess' => 1,
-		'dynamicauthor_permission' => 1,
-		'dynamicgroup_permission' => 1,
-		'dynamicother_permission' => 1,
-		'dynamicguest_permission' => 1
-	};
+
+	my $restrictedFields = { map { $_ => 1 } qw(
+		createtime node_id type_nodetype hits loc_location reputation locktime
+		lockedby_user authoraccess groupaccess otheraccess guestaccess
+		dynamicauthor_permission dynamicgroup_permission dynamicother_permission
+		dynamicguest_permission
+	)};
 
 	# We don't want to be able to directly modify the primary keys of
 	# the various tables we join on.
 	my $isID = ($field =~ /_id$/);
-	return (not (exists $$restrictedFields{$field} or $isID) );
+	return (not (exists $restrictedFields->{$field} or $isID) );
 }
 
 
@@ -805,24 +772,28 @@ sub verifyFieldUpdate
 #	returns
 #		the revision node object, if successful, otherwise 0
 #
-sub getRevision {
+sub getRevision
+{
 	my ($this, $revision) = @_;
 
 	return 0 unless $revision =~ /^\d+$/;
-	my $workspace = 0; 
-	$workspace = $this->{DB}->{workspace}{node_id} if exists $this->{DB}->{workspace};
 
-	my $REVISION = $this->{DB}->sqlSelectHashref('*', 'revision', "node_id=$$this{node_id} and revision_id=$revision and inside_workspace=$workspace");
+	my $workspace = 0; 
+	$workspace = $this->{DB}->{workspace}{node_id}
+		if exists $this->{DB}->{workspace};
+
+	my $REVISION = $this->{DB}->sqlSelectHashref('*', 'revision',
+		"node_id=$this->{node_id} and revision_id=$revision and " .
+		"inside_workspace=$workspace");
 
 	return 0 unless $REVISION;
 
 	use Everything::XML;
-	my ($RN) = @{ xml2node($$REVISION{xml}, 'noupdate') };
-	$$RN{node_id} = $$this{node_id};
-	$$RN{createtime} = $$this{createtime};
-	$$RN{reputation} = $$this{reputation};
-	return $RN;
+	my ($RN)      = @{ xml2node($REVISION->{xml}, 'noupdate') };
+	my @copy      = qw( node_id createtime reputation );
+	@$RN{ @copy } = @$this{ @copy };
 
+	return $RN;
 }
 
 
@@ -843,56 +814,67 @@ sub getRevision {
 #	Returns
 #		0 if failed for any reason.  otherwise the latest revision_id
 #
-sub logRevision {
+sub logRevision
+{
 	my ($this, $USER) = @_;
+	return 0 unless $this->hasAccess($USER, 'w');
 	
 	my $workspace; 
-    $workspace = $this->{DB}->{workspace}{node_id} if exists $this->{DB}->{workspace};	
+    $workspace = $this->{DB}->{workspace}{node_id}
+		if exists $this->{DB}->{workspace};	
     $workspace ||= 0;
 
-	my $maxrevisions = $this->{type}{maxrevisions};
-	$maxrevisions ||= 0;
-	return 0 unless $this->hasAccess($USER, 'w');
+	my $maxrevisions  = $this->{type}{maxrevisions};
 	$maxrevisions = $this->{type}{derived_maxrevisions} if $maxrevisions == -1;
+	$maxrevisions   ||= 0;
 
-	#We should never revise a node, even if we are in a workspace.
+	# We should never revise a node, even if we are in a workspace.
 	return 0 unless $maxrevisions;
 
 	#we are updating the node -- remove any "redo" revisions 
 	
 	if (not $workspace) {
-	    $this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id < 0 and inside_workspace=$workspace");
-	} else {
-		if (exists $this->{DB}->{workspace}{nodes}{$$this{node_id}}) {
-			my $rev = $this->{DB}->{workspace}{nodes}{$$this{node_id}};
-	    	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id > $rev and inside_workspace=$workspace");
+	    $this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} " .
+			"and revision_id < 0 and inside_workspace=$workspace");
+	}
+	else
+	{
+		if (exists $this->{DB}->{workspace}{nodes}{$this->{node_id}})
+		{
+			my $rev = $this->{DB}->{workspace}{nodes}{$this->{node_id}};
+	    	$this->{DB}->sqlDelete('revision', "node_id=$this->{node_id} " .
+				"and revision_id > $rev and inside_workspace=$workspace");
 		}
 	}
 	
- 	my $data;
-    if (not $workspace) {
-    		$data = $this->{DB}->getNode($this->getId, "force")->toXML();
-	} else {
-		$data = $this->toXML();
-	}
+ 	my $data = $workspace ?
+		$this->toXML() : $this->{DB}->getNode($this->getId, 'force')->toXML();
 
-	my $rev_id = $DB->sqlSelect("max(revision_id)+1", "revision", "node_id=$$this{node_id} and inside_workspace=$workspace");
-	$rev_id ||= 1;
+	my $rev_id = $DB->sqlSelect("max(revision_id)+1", "revision",
+		"node_id=$$this{node_id} and inside_workspace=$workspace") || 1;
 
     #insert the node as a revision
-	$this->{DB}->sqlInsert('revision', {node_id => $this->getId, xml => $data, inside_workspace => $workspace, revision_id => $rev_id});
+	$this->{DB}->sqlInsert('revision', {
+		xml              => $data,
+		node_id          => $this->getId,
+		revision_id      => $rev_id,
+		inside_workspace => $workspace,
+	});
 
-	
-    #remove the oldest revision, if it's greater than the set maxrevisions
-	#only if we're not in a workspace
+    # remove the oldest revision, if it's greater than the set maxrevisions
+	# only if we're not in a workspace
 
 	my ($numrevisions, $oldest, $newest) = 
-		@{ $this->{DB}->sqlSelect('count(*), min(revision_id), max(revision_id)', 'revision', "inside_workspace=$workspace and node_id=$$this{node_id}") };
+		@{$this->{DB}->sqlSelect('count(*), min(revision_id), max(revision_id)',
+			'revision',
+			"inside_workspace=$workspace and node_id=$this->{node_id}") };
+
 	if (not $workspace and $maxrevisions < $numrevisions) {
-		$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id=$oldest and inside_workspace=$workspace");
+		$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} " .
+		"and revision_id=$oldest and inside_workspace=$workspace");
 	}
 
-   $newest; 
+   return $newest;
 }
 
 ###########################################################################
@@ -913,16 +895,22 @@ sub logRevision {
 #		test -- if this is true, don't apply the revision, just return true
 #				if the revision exists
 #
-sub undo {
+sub undo
+{
 	my ($this, $USER, $redoit, $test) = @_;
 
 	return 0 unless $this->hasAccess($USER, 'w');
+
 	my $workspace = 0;
 	my $DB = $this->{DB}; 
-	if (exists $DB->{workspace}) {
+
+	if (exists $DB->{workspace})
+	{
 		$workspace = $DB->{workspace}{node_id};
-		return 0 unless exists $DB->{workspace}{nodes}{$$this{node_id}};
-		#you may not undo while inside a workspace unless the node is in the workspace
+		return 0 unless exists $DB->{workspace}{nodes}{$this->{node_id}};
+
+		# you may not undo while inside a workspace unless the node is in the
+		# workspace
 
 		my $csr = $DB->sqlSelectMany('revision_id', 'revision',
 			"node_id=$$this{node_id} and inside_workspace=$workspace");
@@ -939,15 +927,20 @@ sub undo {
 
 		my $position = $DB->{workspace}{nodes}{$$this{node_id}};
 
-		if ($test) {
+		if ($test)
+		{
 			return 1 if $redoit and $revisions[$position+1];
 			return 1 if not $redoit and $position >= 1;
 			return 0;
 		}
-		if ($redoit) {
+
+		if ($redoit)
+		{
 			return 0 unless $revisions[$position+1];
 			$position++;
-		} else {
+		}
+		else
+		{
 			return 0 unless $position >=1;
 			$position--;
 		}
@@ -957,27 +950,30 @@ sub undo {
 		return 1;
 	}
 
-	my $where = "node_id=$$this{node_id} and inside_workspace=0";
-	$where.=" and revision_id < 0" if $redoit;
+	my $where  = "node_id=$$this{node_id} and inside_workspace=0";
+	$where    .=" and revision_id < 0" if $redoit;
 
-	my $REVISION = $this->{DB}->sqlSelectHashref("*", "revision", $where, "ORDER BY revision_id DESC LIMIT 1");
+	my $REVISION = $this->{DB}->sqlSelectHashref("*", "revision", $where,
+		"ORDER BY revision_id DESC LIMIT 1");
+
 	return 0 unless $REVISION;
-	return 0 if ($redoit and $$REVISION{revision_id} >= 0);
-	return 0 if (not $redoit and $$REVISION{revision_id} < 0);
+	return 0 if $redoit and $$REVISION{revision_id} >= 0;
+	return 0 if not $redoit and $$REVISION{revision_id} < 0;
 	return 1 if $test;
 
-	my $xml = $$REVISION{xml};
-	my $revision_id = $$REVISION{revision_id};
+	my ($xml, $revision_id) = @$REVISION{qw( xml revision_id )};
 
-	#prepare the redo/undo (inverse of what's being called)
+	# prepare the redo/undo (inverse of what's being called)
 
-	$$REVISION{xml} = $this->toXML();
-	$$REVISION{revision_id} = -$revision_id; #invert the revision
+	$REVISION->{xml}         = $this->toXML();
+	$REVISION->{revision_id} = -$revision_id;
 
 	use Everything::XML;
 	my ($NEWNODE) = @{ xml2node($xml) };
 
-	$this->{DB}->sqlUpdate("revision", $REVISION, "node_id=$$this{node_id} and inside_workspace=$workspace and revision_id=$revision_id");
+	$this->{DB}->sqlUpdate('revision', $REVISION,
+		"node_id=$this->{node_id} and inside_workspace=$workspace " .
+		"and revision_id=$revision_id");
 
 	1;
 }
@@ -995,12 +991,13 @@ sub undo {
 #	returns: true if the node's type's canworkspace field is true, or 
 #	if it's set to inheirit, and it's parent canworkspace.  Otherwise false
 #
-sub canWorkspace {
+sub canWorkspace
+{
 	my ($this) = @_;
 
-	return 0 unless $$this{type}{canworkspace};
-	return 1 unless $$this{type}{canworkspace} == -1;
-	return 0 unless $$this{type}{derived_canworkspace};
+	return 0 unless $this->{type}{canworkspace};
+	return 1 unless $this->{type}{canworkspace} == -1;
+	return 0 unless $this->{type}{derived_canworkspace};
 	1;
 }
 
@@ -1020,20 +1017,21 @@ sub canWorkspace {
 #	params: none
 #	returns: node object if successful, otherwise null
 #
-sub getWorkspaced {
+sub getWorkspaced
+{
 	my ($this) = @_;
 
 	return unless $this->canWorkspace();
 
-    #check to see if we should be returning a workspaced version of such
+    # check to see if we should be returning a workspaced version of such
 	my $workspace = $this->{DB}->{workspace};
+	my $rev       = $workspace->{nodes}{$this->{node_id}};
 
-	my $rev = $workspace->{nodes}{$this->{node_id}};
 	return unless defined $rev;
 
 	return $workspace->{cached_nodes}{"$this->{node_id}_$rev"}
 		if exists $workspace->{cached_nodes}{"$this->{node_id}_$rev"};
-	
+
 	my $RN = $this->getRevision($rev);
 	$workspace->{cached_nodes}{"$this->{node_id}_$rev"} = $RN;
 
@@ -1057,20 +1055,21 @@ sub getWorkspaced {
 #	returns
 #		node_id of the node, if successful otherwise null
 #
-sub updateWorkspaced {
+sub updateWorkspaced
+{
 	my ($this, $USER) = @_;
 
 	return unless $this->canWorkspace();  
 
 	my $revision = $this->logRevision($USER);
-	$this->{DB}->{workspace}{nodes}{$$this{node_id}} = $revision;
+	$this->{DB}->{workspace}{nodes}{$this->{node_id}} = $revision;
 	$this->{DB}->{workspace}->setVars($this->{DB}->{workspace}{nodes});
 	$this->{DB}->{workspace}->update($USER);
 
-	#however, this does pollute the cache
+	# however, this does pollute the cache
 	$this->{DB}->{cache}->removeNode($this);
 
-	return $$this{node_id};
+	return $this->{node_id};
 }
 
 
