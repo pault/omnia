@@ -51,7 +51,7 @@ sub initMethodCache
 #		it retrieves the nodes from the database to "objectify" them.
 #
 #	Parameters
-#		$NODE - the node hash to bless.  This is not an id or name!
+#		$NODE - a reference to the node hash to bless, not an id or name!
 #		$DB - when NodeBase.pm calls this, it passes a ref to itself
 #			so that when we implement these methods, we can access
 #			the basic sql functions.
@@ -171,7 +171,8 @@ sub AUTOLOAD
 	# We just want the function name, not all the package info.
 	$func =~ s/.*:://;
 
-	if($func ne $$this{SUPERfunc})
+	if ((defined($$this{SUPERfunc})) && ($func ne $$this{SUPERfunc}))
+#	if ($func ne $$this{SUPERfunc})
 	{
 		# If the function being called is different from what we have
 		# as a SUPERfunc, that means the implementation has called
@@ -202,7 +203,7 @@ sub AUTOLOAD
 		my $N;
 
 		# When we search for a method, on type X, we may find it on
-		# on of its parent types.  So, we want to make sure we set
+		# one of its parent types.  So, we want to make sure we set
 		# the current type appropriately otherwise we may end up
 		# executing the same function 2 or more times (bad).
 		$$this{SUPERtype} = $$METHOD{SUPERtype};
@@ -226,7 +227,7 @@ sub AUTOLOAD
 			# the corresponding .pm.
 			$code = $$METHOD{name} . "(\@_);";
 			$result = eval($code);
-			$error = $@
+			$error = $@;
 		}
 
 		local $SIG{__WARN__} = sub { };
@@ -283,8 +284,8 @@ sub SUPER
 		
 		$$this{SUPERtype} = $PARENT->getId();
 
-		# If no parameters where passed, we will use the parameters passed
-		# to the orginial call to this function.
+		# If no parameters were passed, we will use the parameters passed
+		# to the original call to this function.
 		unless(@_)
 		{
 			my $params = $$this{SUPERparams};
@@ -460,6 +461,9 @@ sub assignType
 #	Purpose
 #		Cache this node in the node cache (say that real fast 3 times).
 #
+#	Returns
+#		result of cacheNode call (pretty much guaranteed to be 1)
+#
 sub cache
 {
 	my ($this) = @_;
@@ -476,6 +480,9 @@ sub cache
 #	Purpose
 #		Remove this object from the cache.
 #
+#	Returns
+#		result of removeNode call (pretty much guaranteed to be 1)
+# 
 sub removeFromCache
 {
 	my ($this) = @_;
@@ -519,7 +526,7 @@ sub quoteField
 #		$recurse - Nodetypes can derive from other nodetypes.  Superdoc
 #			derives from document, and restricted_superdoc derives from
 #			superdoc.  If you have a superdoc and you ask
-#			isOfType('document'), you will get false.  Unless you turn
+#			isOfType('document'), you will get false unless you turn
 #			on the recurse flag.  If you don't turn it on, its an easy
 #			way to see if a node is of a specific type (by name, etc).
 #			If you turn it on, its good to see if a node is of the
@@ -615,8 +622,8 @@ sub hasAccess
 		# against the permissions that are *not* the author permissions.
 		# This is because author permissions do not have create flags.
 		# Its kind of a chicken/egg thing.  How can you be the author
-		# if its not created yet?  If it is created and you are the
-		# author, why do you need to check (its already created!)?
+		# if it's not created yet?  If it is created and you are the
+		# author, why do you need to check (it's already created!)?
 		# So to get around this, we set the author user to be something
 		# non-existant to force it to use one of the other permission
 		# classes.
@@ -681,7 +688,7 @@ sub getUserPermissions
 	
 	# Remove any '-' chars and spaces, we only want the permissions of those
 	# that are on.
-	$perms =~ s/[\-\ ]//g;
+	$perms =~ tr/- //d;
 
 	return $perms;
 }
@@ -845,6 +852,9 @@ sub getDynamicPermissions
 		if($PERM)
 		{
 			$perms = eval($$PERM{code});
+			if ($@) {
+				Everything::logErrors('undef', $@, $$PERM{code}, $PERM);
+			}
 		}
 	}
 	
@@ -903,7 +913,7 @@ sub unlock
 #		food count.  If it does not exist, add it.
 #
 #		DPB 24-Sep-99: We need to better define how food gets allocated to
-#		to links.  I think t should be in the system vars somehow.
+#		to links.  I think it should be in the system vars somehow.
 #
 #	Parameters
 #		$this - (the object) the node that the link goes to
@@ -1040,6 +1050,12 @@ sub getTables
 #		General purpose function to get a hash structure from a field in
 #		the node.
 #
+#	Parameters
+#		$field - the field to hashify from the node
+#
+#	Returns
+#		Hash reference, if found, undef if not.
+#
 sub getHash
 {
 	my ($this, $field) = @_;
@@ -1062,7 +1078,7 @@ sub getHash
 	foreach (keys %vars)
 	{
 		$vars{$_} = Everything::Util::unescape($vars{$_});
-		$vars{$_} = "" if ($vars{$_} =~ /^ +$/);
+		$vars{$_} = "" unless ($vars{$_} =~ /\S/);
 	}
 
 	$$this{$store} = \%vars;
@@ -1180,6 +1196,9 @@ sub isNodetype
 #
 #	Purpose
 #		Get the parent location of this node.
+#
+#	Returns
+#		Parent node.
 #
 sub getParentLocation
 {
