@@ -32,3 +32,16 @@ ReadMode('normal');
 my $U = getNode('root','user');
 $$U{passwd} = $password;
 $U->update(-1);
+
+print "optimizing the Guest User's nodelets...\n";
+my $GU = getNode("Guest User","user");
+my $GUv = $GU->getVars();
+my $nodeletgrp = getNodeById(getNode("system settings","setting")->getVars()->{default_nodeletgroup});
+my @newgrp;
+foreach(@{$nodeletgrp->{group}})
+{
+  push @newgrp,$_ if getNode($_)->hasAccess($GU,"x");
+}
+$GUv->{nodelets} = join ",",@newgrp;
+$GU->setVars($GUv);
+$GU->update(-1);
