@@ -244,6 +244,9 @@ sub nuke
 	$$this{DB}->{dbh}->do("DELETE FROM links WHERE to_node=" . 
 		   $this->getId() . " OR from_node=" . $this->getId());
 
+	# Remove all revisions of this node 
+	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id}");	
+
 	# Now lets remove this node from all nodegroups that contain it.  This
 	# is a bit more complicated than removing the links as nodegroup types
 	# can specify their own group table if desired.  This needs to find
