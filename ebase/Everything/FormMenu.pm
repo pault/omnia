@@ -25,7 +25,6 @@ sub BEGIN
 		writeScrollingListHTML); 
 }
 
-my @VALUES;
 
 #############################################################################
 #	Sub
@@ -46,7 +45,12 @@ sub new
 {
 	my $class = shift;
 	my $this = {};
+	
 	bless ($this, $class);
+
+	$this->{VALUES} = [];
+	$this->{LABELS} = {};
+
 	return $this;
 }
 
@@ -62,10 +66,12 @@ sub new
 #	Paramters
 #		$setting - the string name of the settings node that you wish
 #			to add to the menu.
+#		$sort - Set to true if the menu labels should  be sorted
+#			alphabetically
 #
 sub addSettings
 {
-	my ($this, $setting) = @_;
+	my ($this, $setting, $sort) = @_;
 	my $NODE = $DB->getNode($setting, $DB->getType("setting"));
 	my $vars;
 	my $key;
@@ -73,7 +79,7 @@ sub addSettings
 	return if(not defined $NODE);
 	$vars = getVars($NODE);
 
-	$this->addHash($vars);
+	$this->addHash($vars, $sort);
 }
 
 
@@ -87,19 +93,37 @@ sub addSettings
 #
 #	Parameters
 #		$type - the string name of the nodetype of the nodes to add.
+#		$sort - Set to true if the menu labels should  be sorted
+#			alphabetically
 #
 sub addType
 {
-	my ($this, $type) = @_;
+	my ($this, $type, $sort) = @_;
 	my $TYPE = $DB->getType($type);
 	my $typeid = $$TYPE{node_id} if(defined $TYPE);
 	my $NODES = $DB->selectNodeWhere({type_nodetype => $typeid});
 	my $NODE;
+	my $gValues = $this->{VALUES};
+	my @values;
+
+	$sort ||= 0;
 	
 	foreach $NODE (@$NODES)
 	{
 		getRef $NODE;
-		$this->{$$NODE{node_id}} = $$NODE{title};
+		$this->{LABELS}->{$$NODE{node_id}} = $$NODE{title};
+		push @values, $$NODE{node_id};
+	}
+
+	if($sort)
+	{
+		my @sorted = sort { $this->{LABELS}->{$a} cmp $this->{LABELS}->{$b} }
+			@values;
+		push @$gValues, @sorted;
+	}
+	else
+	{
+		push @$gValues, @values;
 	}
 }
 
@@ -113,23 +137,41 @@ sub addType
 #
 #	Parameters
 #		$group - the string name of the group to add.
+#		$sort - Set to true if the menu labels should  be sorted
+#			alphabetically
 #
 sub addGroup
 {
-	my ($this, $group) = @_;
+	my ($this, $group, $sort) = @_;
 	my $GROUP = $DB->getNode($group);
 	my $groupnode;
 	my $NODE;
 	my $GROUPNODES;
+	my $gValues = $this->{VALUES};
+	my @values;
 	
 	return if(not defined $GROUP);
 	return if(ref $GROUP ne "HASH");
+
+	$sort ||= 0;
 
 	$GROUPNODES = selectNodegroupFlat($GROUP);
 	foreach $groupnode (@$GROUPNODES)
 	{
 		$NODE = $DB->getNodeById($groupnode);
-		$this->{$$NODE{node_id}} = $$NODE{title};
+		$this->{LABELS}->{$$NODE{node_id}} = $$NODE{title};
+		push @values, $$NODE{node_id};
+	}
+
+	if($sort)
+	{
+		my @sorted = sort { $this->{LABELS}->{$a} cmp $this->{LABELS}->{$b} }
+			@values;
+		push @$gValues, @sorted;
+	}
+	else
+	{
+		push @$gValues, @values;
 	}
 }
 
@@ -149,15 +191,33 @@ sub addGroup
 #	Parameters
 #		$hashref - the reference to the hash that you want to add to the
 #			menu.
+#		$sort - Set to true if the menu labels should  be sorted
+#			alphabetically
 #
 sub addHash
 {
-	my ($this, $hashref) = @_;
+	my ($this, $hashref, $sort) = @_;
 	my $key;
+	my $gValues = $this->{VALUES};
+	my @values;
+
+	$sort ||= 0;
 	
 	foreach $key (keys %$hashref)
 	{
-		$this->{$key} = $$hashref{$key};
+		$this->{LABELS}->{$key} = $$hashref{$key};
+		push @values, $key;
+	}
+
+	if($sort)
+	{
+		my @sorted = sort { $this->{LABELS}->{$a} cmp $this->{LABELS}->{$b} }
+			@values;
+		push @$gValues, @sorted;
+	}
+	else
+	{
+		push @$gValues, @values;
 	}
 }
 
@@ -186,12 +246,10 @@ sub writePopupHTML
 	# We need a CGI object
 	return "" if(not defined $cgi);
 
-	$this->assignValues();
-	
 	return $cgi->popup_menu(-name => $name,
-	                        -values => \@VALUES,
+	                        -values => $this->{VALUES},
 	                        -default => $selected,
-	                        -labels => $this);
+	                        -labels => $this->{LABELS});
 }
 
 
@@ -224,34 +282,17 @@ sub writeScrollingListHTML
 	# We want an array.  If we have a scalar, make it an array with one elem
 	$selected = [$selected] if(ref $selected ne "ARRAY");
 
-	$this->assignValues();
 	$multi ||= 0;
 	$size ||= 6;
 
 	return $cgi->scrolling_list(-name => $name,
-	                            -values => \@VALUES,
+	                            -values => $this->{VALUES},
 	                            -default => $selected,
 	                            -size => $size,
 	                            -multiple => $multi,
-	                            -labels => $this);
+	                            -labels => $this->{LABELS});
 }
 
-
-#############################################################################
-#	Sub
-#		assignValues
-#
-#	Purpose
-#		Internal helper function to make an array of the values for the menu.
-# 	changed by chromatic on 30 December 1999, more efficient
-
-sub assignValues
-{
-	my ($this) = @_;
-	
-	undef @VALUES; # clear them out
-	@VALUES = keys %$this;
-}
 
 #############################################################################
 # End of Package Everything::FormMenu
