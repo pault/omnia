@@ -586,7 +586,6 @@ sub makeXmlSafe {
 sub unMakeXmlSafe {
 	my ($str) = @_;
 
-	$str =~ s/\&amp\;/\&/g;
 	$str =~ s/\&lt\;/\</g;
 	$str =~ s/\&gt\;/\>/g;
 	$str =~ s/\&amp\;/\&/g;
