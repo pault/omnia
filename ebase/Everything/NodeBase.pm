@@ -11,6 +11,7 @@ package Everything::NodeBase;
 
 use strict;
 use DBI;
+use File::Spec;
 use Everything ();
 use Everything::NodeCache;
 use Everything::Node;
@@ -199,8 +200,17 @@ sub buildNodetypeModules
 		my $modname = "Everything::Node::$title";
 		(my $modpath = $modname . '.pm') =~ s!::!/!g;
 
-		eval { require $modpath };
-		if ($@)
+		foreach my $path (@INC)
+		{
+			eval {
+				require File::Spec->canonpath(
+					File::Spec->catfile( $path, $modpath )
+				)
+			};
+			last unless $@ =~ /Can't locate/;
+		}
+
+		if ($@ and $@ !~ /Can't locate/)
 		{
 			Everything::logErrors( '', "Using '$modname' gave errors: '$@'" );
 			next;
@@ -407,6 +417,7 @@ sub sqlSelectMany
 	my $cursor = $this->{dbh}->prepare($sql) or return;
 
 	return $cursor if $cursor->execute( @$bound );
+	return;
 }
 
 
@@ -558,7 +569,8 @@ sub sqlExecute
 		return;
 	}
 
-	$sth->execute( @$bound );
+	$sth->execute( @$bound ) or
+		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
 }
 
 #############################################################################
@@ -654,11 +666,11 @@ sub getNode
 	my $NODE;
 	my $cache = "";
 	my $ref = ref $node;
-	
+
 	if($ref eq "HASH")
 	{
 		# This a "where" select
-		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2, 1);
+		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2, 1) || [];
 		if (exists $this->{workspace}) {
 			my $wspaceArray = $this->getNodeWorkspace($node, $ext);
 			#the nodes we get back are unordered, must be merged
@@ -728,9 +740,9 @@ sub getNode
 		}
 	}
 
-	return unless($NODE);
-	
-	$NODE = new Everything::Node($NODE, $this, $cache);
+	return unless $NODE;
+
+	$NODE = Everything::Node->new($NODE, $this, $cache);
 
 	if (exists($$this{workspace}) and exists($$this{workspace}{nodes}{$$NODE{node_id}}) and $$this{workspace}{nodes}{$$NODE{node_id}}) {
 		my $WS = $NODE->getWorkspaced();
