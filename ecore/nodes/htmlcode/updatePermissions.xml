@@ -8,16 +8,14 @@
 
 my ($forType) = @_;
 my @who = ( "author", "group", "other", "guest" );
-my @what = ( "read", "write", "exec", "delete" );
+my @what = ( "read", "write", "exec", "delete", "create" );
 my $item;
 my $perms;
 my $perm;
 my $field;
 my $gfound = 0;
 my $found;
-my $set;
 
-push @what, "create" if($forType);
 
 foreach my $user (@who)
 {
@@ -26,6 +24,10 @@ foreach my $user (@who)
 
   foreach my $access (@what)
   {
+    # We need to append a default 'i' for the create flag for non-type nodes 
+	$perms .= "i", next
+      if (($access eq "create") and ($user ne "author") and (!$forType));
+	  
     $item = "$user" . "_" . $access;
     $item = "default_" . $item if($forType);
 
@@ -40,11 +42,9 @@ foreach my $user (@who)
   $field = $user . "access";
   $field = "default" . $field if($forType);
 
-  $set .= "$field=$perms " if($found);  
   $$NODE{$field} = $perms if($found);
 }
 
-#die "$set" if($gfound);
 $NODE->update($USER) if($gfound);
 
 ""; # don't return anything</field>
