@@ -9,7 +9,7 @@ $small = 1 if (lc($size) eq 'small');
 my ($settings, $vars) = $DB-&gt;getNode('task settings', 'setting');
 $vars = $settings-&gt;getVars() if $settings;
 
-my %fields = ( title =&gt; 'task_id',
+my %fields = ( title =&gt; 'title',
 	status 	 =&gt; 'status',
  	owner 	 =&gt; 'owner',
 	category =&gt; 'category',
@@ -17,16 +17,16 @@ my %fields = ( title =&gt; 'task_id',
 	due =&gt; 'due_date');
 
 if ($small) {
-	@order = split(/\s*,\s*/, $VARS-&gt;{'small task list order'})
-		|| ('title','rating','due_date');
+	@order = split(/\s*,\s*/, $VARS-&gt;{'small_task_list_order'})
+		|| ('title','rating','due');
 } elsif ($big) {
 	if ($vars &amp;&amp; exists($vars-&gt;{'task list order'})) {
-		@order = split(/\s*,\s*/, $vars-&gt;{'task list order'});
+		@order = split(/\s*,\s*/, $vars-&gt;{'task_list_order'});
 	} else {
-		@order = ('title','category','status','rating','due_date');
+		@order = ('title','category','status','rating','due');
 	}
 } else {
-	@order = ('title','category','status','rating','due_date');
+	@order = ('title','category','status','rating','due');
 }
 
 my $orderby = $query-&gt;param('sortby') || $VARS-&gt;{task_orderby};
@@ -45,10 +45,10 @@ if ($query-&gt;param('no_closed') or $VARS-&gt;{task_no_closed}) {
 }
 
 if ($small) {
-	$orderby .= " limit " . ($VARS-&gt;{'small task list limit'} || '8');
+	$orderby .= " limit " . ($VARS-&gt;{'small_task_list_limit'} || '8');
 }
 
-my $cursor = $DB-&gt;getNodeCursor(join(", ", @order, 'task_id'), $where,
+my $cursor = $DB-&gt;getNodeCursor(join(", ", @fields{@order}, 'task_id'), $where,
 	'task', $orderby);
 return 'None found in database!' unless $cursor;
 return 'Database call failed!' unless $cursor-&gt;execute();
@@ -57,7 +57,7 @@ my ($str, $open, $close);
 
 if ($small) {
 	$str = '&lt;table cellpadding="2" width="145" align="center"&gt;';
-	$open = '&lt;td&gt;&lt;font size="1"&gt;';
+	$open = '&lt;td&gt;&lt;font size="2"&gt;';
 	$close = '&lt;/font&gt;&lt;/td&gt;';
 } else {
 	$str .= &lt;&lt;SORT;
@@ -81,7 +81,7 @@ $str .= "&lt;tr&gt;$open";
 $str .= join("$close$open", @order) . "$close&lt;/tr&gt;\n";
 
 if ($small) {
-	$open = '&lt;font size="1"&gt;';
+	$open = '&lt;font size="2"&gt;';
 	$close = '&lt;/font&gt;';
 } else {
 	$open = '';
@@ -96,7 +96,7 @@ if ($vars and defined $vars-&gt;{row_colors}) {
 }
 
 my $count = 0;
-my $c = shift @colors;
+my $c = pop @colors;
 while (my $task = $cursor-&gt;fetchrow_hashref()) {
 	$count ||= 1;
 	push @colors, $c;
@@ -106,11 +106,12 @@ while (my $task = $cursor-&gt;fetchrow_hashref()) {
 	$task-&gt;{owner} = linkNode(getNodeById($task-&gt;{owner}));
 
 	$str.= "&lt;tr&gt;";
-	foreach my $field (@order) {
+	foreach my $field (@fields{@order}) {
 		$str.="&lt;td $c&gt;$open$task-&gt;{$field}$close&lt;/td&gt;";
 	}
 	$str.="&lt;/tr&gt;\n";
 }
+$cursor-&gt;finish();
 $str .= "&lt;/table&gt;";
 $str = "No tasks found.  Lucky." unless $count;
 $str .= '&lt;p align="right"&gt;' . linkNodeTitle("Task lister preferences|edit view")
