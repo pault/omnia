@@ -17,7 +17,8 @@ Theme: [{themeselector}]
 
 
 [%
-my @nodelets = split ",", $$VARS{nodelets};
+my @nodelets;
+@nodelets = split ",", $$VARS{nodelets} if (defined($$VARS{nodelets}));
 my $PN = getNode('personal nodelet', 'nodelet');
 return unless $PN;
 return unless grep /^$$PN{node_id}$/, @nodelets;
