@@ -1070,9 +1070,10 @@ sub setHash
 	my $store = "hash_" . $field;
 
 	# Clean out the keys that have do not have a value.
+	# we use defined() because 0 is a valid value -- but not a true one
 	foreach (keys %$varsref)
 	{
-		delete $$varsref{$_} unless $$varsref{$_};
+		delete $$varsref{$_} unless defined $$varsref{$_};
 	}
 
 	# Store the changed hash for calls to getVars
