@@ -155,12 +155,12 @@ sub createDatabase {
 
 sub setupSqlUser {
 	my ($dbh, $database) = @_;
-	my ($user, $pass, $host);
 	
 	my $existsuser = 0;
 	
-	$user = $OPTIONS{user};
-	$pass = $OPTIONS{password};
+	my $user = $OPTIONS{user};
+	my $pass = $OPTIONS{password};
+	my $host = $OPTIONS{host};
 
 	$user ||= RLquick("Which SQL user do you want to control '$database' [root]");
 	$user ||= "root";
