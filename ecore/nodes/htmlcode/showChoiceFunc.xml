@@ -94,8 +94,8 @@ unless ($parentmod) {
    return "&lt;i>sorry, man.  No dice on $choicefunc&lt;/i>&lt;br>\n"; 
 }
 
-my $parentfile = "/usr/lib/perl5/site_perl/5.005/" . $parentmod.".pm";
-$parentfile =~ s/\:\:/\//g;
+$parentmod =~ s/\:\:/\//g;
+my $parentfile = $INC{"${parentmod}.pm"};
 
 open MODULE, $parentfile or die;
 my @mod = &lt;MODULE>;
