@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="htmlcode" title="nodelet meta-container">
+<NODE export_version="0.5" nodetype="htmlcode" title="nodeletMetaContainer">
   <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
   <field type="literal_value" name="authoraccess">iiii</field>
   <field type="literal_value" name="code">return "you have this off" if $$VARS{nodelets_off};
@@ -50,6 +50,6 @@ $str;</field>
   <field type="literal_value" name="guestaccess">iiii-</field>
   <field type="noderef" type_nodetype="location,nodetype" name="loc_location">htmlcode</field>
   <field type="literal_value" name="otheraccess">iiii-</field>
-  <field type="literal_value" name="title">nodelet meta-container</field>
+  <field type="literal_value" name="title">nodeletMetaContainer</field>
   <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">htmlcode</field>
 </NODE>
