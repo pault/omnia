@@ -1757,7 +1757,10 @@ sub displayPage
 	# If the user does not have the needed permission to view this
 	# node through the desired htmlpage, we send them to the permission
 	# denied node.
-	unless($NODE->hasAccess($USER, $$PAGE{permissionneeded}))
+
+        #Also check to see if the particular displaytype can be executed by the user 
+
+	unless($NODE->hasAccess($USER, $$PAGE{permissionneeded}) and $PAGE->hasAccess($USER, "x"))
 	{
 		# Make sure the display type is set to display.  Otherwise we
 		# may get stuck in an infinite loop of permission denied.
