@@ -721,7 +721,7 @@ sub loadGroupNodeIDs
 #
 #	Parameters
 #		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select.
+#			restrict the select or a plain text WHERE string.
 #		$TYPE - the nodetype to search.  If this is not given, this
 #			will only search the fields on the "node" table since
 #			without a nodetype we don't know what other tables to join
@@ -769,7 +769,7 @@ sub getNodeWhere
 #
 #	Parameters
 #		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select.
+#			restrict the select or a plain text WHERE string.
 #		$TYPE - the nodetype to search.  If this is not given, this
 #			will only search the fields on the "node" table since
 #			without a nodetype we don't know what other tables to join
@@ -843,7 +843,7 @@ sub selectNodeWhere
 #		$select - The fields to select.  "*" for all, or provide a string
 #			of comma delimited fields.
 #		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select.
+#			restrict the select or a plain text WHERE string.
 #		$TYPE - the nodetype to search.  If this is not given, this
 #			will only search the fields on the "node" table since
 #			without a nodetype we don't know what other tables to join
@@ -916,7 +916,8 @@ sub getNodeCursor
 #		It is much faster than doing a full query.
 #
 #	Paramters
-#		$WHERE - a hash that contains the criteria for the search
+#		$WHERE - a hash that contains the criteria for the search or a plain
+#		WHERE text string.
 #		$TYPE - the type of nodes this search is for.  If this is not
 #			provided, it will only do the search on the node table.
 #	
@@ -1330,12 +1331,14 @@ sub quote
 # 		I haven't had to worry about it yet.  That day may come
 #
 #	Parameters
-#		WHERE - a reference to a hash that contains the criteria (ie
-#			title => 'the node', etc) or a string 'title="thenode"'.
-#		TYPE - a hash reference to the nodetype
-#		orderby - a string that contains information on how the sql
-#		limit - a limit to the max number of rows returned
-#		offset - (only if limit is provided) offset from the start of
+#		$WHERE - a reference to a hash that contains the criteria (ie
+#			title => 'the node', etc) or a string 'title="thenode"' or a plain
+#			text WHERE clause.  Note that it should be quoted, if necessary,
+#			before passed in here.
+#		$TYPE - a hash reference to the nodetype
+#		$orderby - a string that contains information on how to order results
+#		$limit - a limit to the max number of rows returned
+#		$offset - (only if limit is provided) offset from the start of
 #			the matched rows.  By using this an limit, you can retrieve
 #			a specific range of rows.
 #			query should order the result if more than one match is found.
@@ -1362,7 +1365,7 @@ sub genWhereString
 				$$WHERE{$key} = $this->getId($$WHERE{$key});
 			}
 			
-			# If $key starts with a '-', it means its a single value.
+			# If $key starts with a '-', it means it's a single value.
 			if ($key =~ /^\-/)
 			{ 
 				$key =~ s/^\-//;
