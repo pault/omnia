@@ -141,47 +141,41 @@ sub getId
 #
 sub AUTOLOAD
 {
-	my $func = $Everything::Node::AUTOLOAD;
-	my ($this) = @_;
-	my $METHOD;
+	my $this = shift;
 
-	my $TYPE = $$this{DB}->getType($$this{SUPERtype});
-	my $origType = $$this{SUPERtype};
-	my $origFunc = $$this{SUPERfunc};
-	my $origParams = $$this{SUPERparams};
-	my $result;
-	my @backup;
-	
 	# We just want the function name, not all the package info.
-	$func =~ s/.*:://;
+	my ($func) = $Everything::Node::AUTOLOAD =~ /::(\w+)$/;
 
-	if ((defined($$this{SUPERfunc})) && ($func ne $$this{SUPERfunc}))
+	my $TYPE       = $this->{DB}->getType($$this{SUPERtype});
+	my $origType   = $this->{SUPERtype};
+	my $origFunc   = $this->{SUPERfunc};
+	my $origParams = $this->{SUPERparams};
+	my $result;
+
+	if ((defined($this->{SUPERfunc})) && ($func ne $this->{SUPERfunc}))
 	{
 		# If the function being called is different from what we have
 		# as a SUPERfunc, that means the implementation has called
 		# another function on this same object.  We don't want to have
 		# this call the function on the SUPERtype
-		$TYPE = $$this{type};
+		$TYPE = $this->{type};
 	}
 	else
 	{
-		$TYPE ||= $$this{type};
+		$TYPE ||= $this->{type};
 	}
 	
-	$$this{SUPERtype} = $$TYPE{node_id};
-	$$this{SUPERfunc} = $func;
+	$this->{SUPERtype} = $TYPE->{node_id};
+	$this->{SUPERfunc} = $func;
 
 	# Make a copy of the parameters in case they modify the default array.
-	push @backup, @_;
-	shift @backup;  # And we don't need 'this'
-	$$this{SUPERparams} = \@backup;
-		
-	$METHOD = $this->getNodeMethod($func, $TYPE);
+	$this->{SUPERparams} = [ @_ ];
 
-	if(defined $METHOD)
+	my $METHOD = $this->getNodeMethod($func, $TYPE);
+
+	if (defined $METHOD)
 	{
 		my $warn;
-		my $error;
 		my $code;
 		my $N;
 
@@ -189,45 +183,43 @@ sub AUTOLOAD
 		# one of its parent types.  So, we want to make sure we set
 		# the current type appropriately otherwise we may end up
 		# executing the same function 2 or more times (bad).
-		$$this{SUPERtype} = $$METHOD{SUPERtype};
-		
+		$this->{SUPERtype} = $METHOD->{SUPERtype};
+
 		local $SIG{__WARN__} = sub {
 			$warn .= $_[0]
 				unless $_[0] =~ /^Use of uninitialized value/;
 		};
-						 
-		if($$METHOD{type} eq "nodemethod")
+
+		if ($METHOD->{type} eq 'nodemethod')
 		{
 			# This a method that is in a node.  Eval it.
-			$N = $$this{DB}->getNode($$METHOD{node});
-			$code = $$N{code};
-			$code =~ s/\015//gs;
+			unshift @_, $this;
+			$N      = $this->{DB}->getNode($METHOD->{node});
+			$code   = $N->{code};
+			$code   =~ tr/\015//d;
 			$result = eval($code);
-			$error = $@;
 		}
-		elsif($$METHOD{type} eq "pm")
+		elsif ($METHOD->{type} eq 'pm')
 		{
 			# We didn't find a method in node form.  Execute the default in
 			# the corresponding .pm.
-			$code = $$METHOD{name} . "(\@_);";
-			$result = eval($code);
-			$error = $@;
+			$code    = $METHOD->{name} . "(\@_);";
+			my $meth = $METHOD->{name};
+			$result  = eval { $this->$meth( @_ ) };
 		}
 
-		local $SIG{__WARN__} = sub { };
-
-		Everything::logErrors($warn, $error, $code, $N);
+		Everything::logErrors($warn, $@, $code, $N) if $warn or $@;
 	}
 	else
 	{
 		# A function of the given name was not found for us!  Throw an error!
-		die "Error!  No function '$func' for nodetype $$this{type}{title}.\n($$TYPE{node_id},$$this{title},$$this{node_id})";
+		die "Error!  No function '$func' for nodetype $this->{type}{title}.\n($TYPE->{node_id},$this->{title},$this->{node_id})";
 	}
 
 	# Set these back to what they were.  
-	$$this{SUPERtype} = $origType;
-	$$this{SUPERfunc} = $origFunc;
-	$$this{SUPERparams} = $origParams;
+	$this->{SUPERtype}   = $origType;
+	$this->{SUPERfunc}   = $origFunc;
+	$this->{SUPERparams} = $origParams;
 
 	return $result;
 }
@@ -914,23 +906,33 @@ sub updateLinks
 	my $to_id = $$this{node_id};
 	my $from_id = $$this{DB}->getId($FROMNODE);
 
-	my $rows = $$this{DB}->sqlUpdate('links',
-			{ -hits => 'hits+1' ,  -food => 'food+1'}, 
-			"from_node=$from_id AND to_node=$to_id AND linktype=" .
-			$$this{DB}->quote($type));
+	my $rows = $this->{DB}->sqlSelect( 'count(*)', 'links',
+		'to_node = ? AND from_node = ? AND linktype = ?', '',
+		[ $to_id, $from_id, $type ] );
 
 	# '0E0' returned from the DBI indicates successful statement execution
 	# with 0 rows affected.  They just didn't like '0 but true'.
-	if (not $rows or $rows eq '0E0')
-	{ 
-		$$this{DB}->sqlInsert("links", {'from_node' => $from_id,
-				'to_node' => $to_id, 'linktype' => $type,
-				'hits' => 1, 'food' => '500' }); 
-		$$this{DB}->sqlInsert("links", {'from_node' => $to_id,
-				'to_node' => $from_id, 'linktype' => $type,
-				'hits' => 1, 'food' => '500' }) unless $type; 
+	if ($rows and $rows ne '0E0')
+	{
+		$this->{DB}->sqlUpdate('links', {-hits => 'hits+1' , -food => 'food+1'},
+		'from_node = ? AND to_node = ? AND linktype= ?',
+		[ $from_id, $to_id, $type ] );
 	}
-	"";
+	else
+	{
+		my $atts = {
+			food      => 500,
+			hits      => 1,
+			to_node   => $to_id,
+			linktype  => $type,
+			from_node => $from_id,
+		};
+		$this->{DB}->sqlInsert( 'links', $atts );
+
+		@$atts{qw( from_node to_node )} = @$atts{qw( to_node from_node )};
+		$this->{DB}->sqlInsert( 'links', $atts ) unless $type; 
+	}
+	'';
 }
 
 
