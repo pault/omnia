@@ -203,7 +203,7 @@ sub buildNodetypeModules
 
 	return \%modules;
 }
-		
+
 sub loadNodetypeModule
 {
 	my ($self, $modname) = @_;
@@ -475,7 +475,7 @@ sub sqlSelectHashref
 #
 sub sqlUpdate
 {
-	my($this, $table, $data, $where) = @_;
+	my($this, $table, $data, $where, $prebound) = @_;
 
 	return unless keys %$data;
 	my ($names, $values, $bound) = $this->_quoteData( $data );
@@ -484,6 +484,7 @@ sub sqlUpdate
 		join(",\n", map { "$_ = " . shift @$values } @$names);
 
 	$sql .= "\nWHERE $where\n" if $where;
+	push @$bound, @$prebound if $prebound and @$prebound;
 
 	return $this->sqlExecute( $sql, $bound );
 }
@@ -573,8 +574,10 @@ sub sqlExecute
 		return;
 	}
 
-	$sth->execute( @$bound ) or
+	$sth->execute( @$bound ) or do {
+		local $" = '][';
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+	};
 }
 
 #############################################################################
@@ -669,37 +672,35 @@ sub getNode
 
 	my $NODE;
 	my $cache = "";
-	my $ref = ref $node;
 
-	if($ref eq "HASH")
+	if (ref $node eq 'HASH')
 	{
 		# This a "where" select
 		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2, 1) || [];
-		if (exists $this->{workspace}) {
+		if (exists $this->{workspace})
+		{
 			my $wspaceArray = $this->getNodeWorkspace($node, $ext);
 			#the nodes we get back are unordered, must be merged
 			#with the workspace.  Also any nodes which were in the 
 			#nodearray, and the workspace, but not the wspace array
 			#must be removed
 
-			my @results;
-			foreach (@$nodeArray) { 
-				push @results, $_ unless exists $this->{workspace}{nodes}{$$_{node_id}} 
-			}
-			push @results, @$wspaceArray;
-			return unless @results;
-			my $orderby = $ext2;
+			my @results = (( grep {
+				! exists $this->{workspace}{nodes}{ $_->{node_id } }
+			} @$nodeArray ), @$wspaceArray);
 
-			$orderby ||= "node_id";
-			my $desc = 0;
-			if ($orderby =~ s/\s+(asc|desc)//i) {
-				$desc = 1 if $1 =~ /desc/i;
-			}
-			@results = sort {$$a{$orderby} cmp $$b{$orderby}} @results;
-			@results = reverse @results if $desc;
+			return unless @results;
+			my $orderby = $ext2 || 'node_id';
+
+			my $position = ( $orderby =~ /\s+desc/i ) ? -1 : 0;
+
+			@results = sort {$a->{$orderby} cmp $b->{$orderby}} @results;
+			return $results[ $position ];
 			return shift @results;
-		} else { 
-			return shift @$nodeArray if @$nodeArray;
+		}
+		else
+		{ 
+			return $nodeArray->[0] if @$nodeArray;
 			return;
 		}
 	}
@@ -722,22 +723,21 @@ sub getNode
 			($ext2 eq "create" && (not defined $NODE)))
 		{
 			# We need to create a dummy node for possible insertion!
-			$NODE = {};
-
-			$$NODE{node_id} = -1;
-			$$NODE{title} = $node;
-			$$NODE{type_nodetype} = $this->getId($ext);
-
 			# Give the dummy node pemssions to inherit everything
-			$$NODE{authoraccess} = "iiii";
-			$$NODE{groupaccess} = "iiiii";
-			$$NODE{otheraccess} = "iiiii";
-			$$NODE{guestaccess} = "iiiii";
-			$$NODE{group_usergroup} = -1;
-			$$NODE{dynamicauthor_permission} = -1;
-			$$NODE{dynamicgroup_permission} = -1;
-			$$NODE{dynamicother_permission} = -1;
-			$$NODE{dynamicguest_permission} = -1;
+			$NODE = {
+				node_id => -1,
+				title => $node,
+				type_nodetype => $this->getId($ext),
+				authoraccess => 'iiii',
+				groupaccess => 'iiiii',
+				otheraccess => 'iiiii',
+				guestaccess => 'iiiii',
+				group_usergroup => -1,
+				dynamicauthor_permission => -1,
+				dynamicgroup_permission => -1,
+				dynamicother_permission => -1,
+				dynamicguest_permission => -1,
+			};
 
 			# We do not want to cache dummy nodes
 			$cache = "nocache";
@@ -748,7 +748,10 @@ sub getNode
 
 	$NODE = Everything::Node->new($NODE, $this, $cache);
 
-	if (exists($$this{workspace}) and exists($$this{workspace}{nodes}{$$NODE{node_id}}) and $$this{workspace}{nodes}{$$NODE{node_id}}) {
+	if (exists $this->{workspace} and
+		exists $this->{workspace}{nodes}{$NODE->{node_id}} and
+		$this->{workspace}{nodes}{$NODE->{node_id}})
+	{
 		my $WS = $NODE->getWorkspaced();
 		return $WS if $WS;
 	}
