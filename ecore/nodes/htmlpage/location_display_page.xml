@@ -13,12 +13,12 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;multicol cols=3 width=100%>
-&lt;ul>
+  <field name="page" type="literal_value">&lt;multicol cols=3 width=100%&gt;
+&lt;ul&gt;
 [%
-my $nodes = $NODE->listNodes();
+my $nodes = $NODE-&gt;listNodes();
 
-return "No nodes in this location" unless(@$nodes > 0);
+return &quot;No nodes in this location&quot; unless(@$nodes &gt; 0);
 
 my $str;
 my $title;
@@ -28,22 +28,31 @@ foreach my $node (@$nodes)
   $node = getNode($node, 'light');
 
   $title = $$node{title};
-  $title .= "/" if($node->isOfType('location'));
-  $title .= "@" if($node->isOfType('symlink'));
+  $title .= &quot;/&quot; if($node-&gt;isOfType('location'));
+  $title .= &quot;@&quot; if($node-&gt;isOfType('symlink'));
 
   undef %params;
-  $params{onMouseOver} = "\"window.status='$$node{title}" .
-     "($$node{node_id}) - $$node{type}{title}';\"";
-  $str .= "&lt;li>&lt;nowrap>" . linkNode($node, $title, undef, \%params) . "\n";  
+  my $jstitle = $$node{title};
+  my $jstypetitle = $$node{type}{title};
+
+  $jstitle =~ s/\'/\\\'/g;
+  $jstypetitle = s/\&quot;/\\\&quot;/g;
+
+  $params{onMouseOver} = &quot;\&quot;window.status='$jstitle&quot; .
+     &quot;($$node{node_id}) - $jstypetitle';\&quot;&quot;;
+  $str .= &quot;&lt;li&gt;&lt;nowrap&gt;&quot; . linkNode($node, $title, undef, \%params) . &quot;\n&quot;;
+  
 }
 
 return $str;
 %]
-&lt;/ul>
-&lt;/multicol></field>
+&lt;/ul&gt;
+&lt;/multicol&gt;</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">location</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field
+>
   <field name="permissionneeded" type="literal_value">r</field>
   <field name="title" type="literal_value">location display page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
+
