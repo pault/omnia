@@ -28,6 +28,11 @@ Everything::MAIL
 And to use the Gigantic Code Lister:
 	Devel::Peek
 
+Everything::Nodeball
+	File::Spec (0.82)
+		(this IS a file in std distribution, but early versions (.6) don't have
+			rel2abs())
+
 each of these is simple to install from a tar.gz file:
 
 tar -xvzf MODULE.tar.gz

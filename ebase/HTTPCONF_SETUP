@@ -1,7 +1,8 @@
-There's a world of fun in http.conf (usually located in the /etc/apache
-or /etc/httpd -- /usr/local/apache/conf if you grew your own apache). 
-Here's the lines to make sure are commented in:
+There's a world of fun in http.conf, and while our Makefile.PL and
+install_esite /should/ make manipulating it easier -- sometimes it's
+better to roll your own.
 
+Here's the lines to make sure are commented in:
 
 LoadModule perl_module /usr/lib/apache/1.3/mod_perl.so
 	#unless you have mod_perl compiled in...
@@ -31,8 +32,7 @@ PerlSetupEnv On
 __END__
 
 You probably won't be able to just append this to your http.conf, but 
-you can put this in a separate file and append
+search for the tags, and some of these lines you'll probably just have to
+comment in.  The default install will put these lines in a separate file,
+(everything.apache.conf) and use an "Include" directive to include them in.
 
-Include /path/to/my/file
-
-to the end of your httpd.conf

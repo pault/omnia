@@ -14,9 +14,90 @@ Apache (1.3.6) with mod_perl module
 	(note-- you'll probably have to edit your http.conf) 
 Mysql (3.22.27)
 
-Currently the version numbers are what I'm running on my devel server.  Older versions might work,
-but newer versions probably work better.  For more information about system requirements, check out
-the REDHAT_SETUP and/or DEBIAN_SETUP files.
+Currently the version numbers are what I'm running on my devel server.  Older
+versions might work, but newer versions probably work better.  For more 
+information about system requirements, check out the REDHAT_SETUP and/or 
+DEBIAN_SETUP files.
+
+Installation
+
+(read QUICKINSTALL for the down-n-dirty scoop!)
+
+There are two parts to installation: first setting up your machine to
+handle Everything, second is installing sites.
+
+to do the base install:
+
+> perl Makefile.PL
+> make
+> make install   (as root)
+
+to do the site-specific install
+
+bin/install_esite <NEWDATABASE>
+
+Running 'perl Makefile.PL' will ask you some questions about how you
+want to install the system.  By default, it will install it on the
+machine.  You will need to run 'make install' as root.
+
+If you get errors when your run Makefile.PL about your modules, try installing
+Bundle::Everything -- this should fetch the relevant modules from CPAN.pm.
+If CPAN.pm doesn't work on your system, check out PERLMOD_SETUP for a list
+of dependancies you'll have to download and install.  It's a long list, so
+getting CPAN to work might be worth the effort.
+
+install_esite will ask you a few questions (most of which can also be 
+specified via the command line).  It will try to detect some things (such
+as Apache's DocumentRoot directory) -- but you may also need to know where
+some files are.  Please post any feedback on your experiences with the
+installer to Everydevel.com
+
+If you are only a mortal user on the system (no root access), you
+can specify alternate directories to install where you have write
+permissions.  Since you cannot copy the perl modules (Everything.pm
+and the Everything directory) to the proper perl system directories,
+you will need to copy them somewhere else and specify that directory
+in the index.pl file by adding the line:
+
+use lib "path_to_directory_that_contains_Everything";
+
+before "use Everything::HTML".  Otherwise, the Everything modules
+will not be found.  You will need to make similar changes to the scripts in 
+/bin.  You /will/ need to have root database access for creation of databases.
+
+After you have Everything installed, you may want to add the bin
+directory in the Everything install to your path so you have access
+to the maintainence scripts for your Everything system (nbmasta, install_esite).
+
+Also see the various "setup" files.  You will need to make sure you have
+the appropriate perl modules installed, along with making sure that
+you have apache, mod_perl and mysql set up appropriately.
+
+the files are:
+
+DEBIAN_SETUP -- information on installing your system primarily with debs
+REDHAT_SETUP -- also for other flavors of Linux.  Required packages
+HTTPCONF_SETUP -- the lines you will need in your httpd.conf file for E to work
+PERLMOD_SETUP -- a list of required perl modules
+
+After you have installed a default database you will need to add the core 
+system, as well as whatever nodeballs you want. 
+
+
+Uninstall
+
+> make realclean (as root)
+
+Note that executing 'make realclean' will remove the perl modules for 
+Everything.  After this is executed the Everything system will not exist.  
+Don't execute it unless you really mean it.  I'm serious.
+
+Other Information
+
+For more information see http://www.everydevel.com
+
+and of course, you can always ask for help/report bugs to <nate@oostendorp.net>
+
 
 Nodeballs
 
@@ -36,70 +117,11 @@ nbmasta export "name_of_nodeball" DATABASE
 are gzipped tarballs, so if you want to see the innards, merely
 tar -xvzf them.
 
-The Ecore nodeball (as well as other distributed nodeballs) are typically in
-the "nodeballs/" directory of your Everything release.  Ecore is required to do 
-anything.  All other nodeballs are optional.
+A NOTE ON NODEBALLS WITH RELEASE (>= 0.9.1):
 
-A NOTE ON NODEBALLS WITH RELEASE (0.9.1 and later):
-
-We have changed our XML file structure between 0.9 and 0.9.1 
--- you can still read old nodeballs (exported under 0.9.0 or 0.8) with "nbmasta_old".  If you download a nodeball and it doesn't install, try nbmasta_old.
-
-Installation
-
-See the various "setup" files.  You will need to make sure you have
-the appropriate perl modules installed, along with making sure that
-you have apache, mod_perl and mysql set up appropriately.
-
-the various files are:
-
-QUICKINSTALL -- quick and dirty how to get down
-DEBIAN_SETUP -- information on installing your system primarily with debs
-REDHAT_SETUP -- also for other flavors of Linux.  Required packages
-HTTPCONF_SETUP -- the lines you will need in your httpd.conf file for E to work
-PERLMOD_SETUP -- a list of required perl modules
-
-to do the base install
-
-> perl Makefile.PL
-> make
-> make install
-
-Running 'perl Makefile.PL' will ask you some questions about how you
-want to install the system.  By default, it will install it on the
-machine.  You will need to run 'make install' as root.
-
-After you have installed a default database you will need to add the core 
-system, as well as whatever nodeballs you want. 
-
-If you are only a mortal user on the system (no root access), you
-can specify alternate directories to install where you have write
-permissions.  Since you cannot copy the perl modules (Everything.pm
-and the Everything directory) to the proper perl system directories,
-you will need to copy them somewhere else and specify that directory
-in the index.pl file by adding the line:
-
-use lib "path_to_directory_that_contains_Everything";
-
-before "use Everything::HTML".  Otherwise, the Everything modules
-will not be found.
-
-After you have Everything installed, you may want to add the bin
-directory in the Everything install to your path so you have access
-to the scripts needed to maintain your Everything system.
+We have recently changed our XML file structure -- you can still read 
+old nodeballs (exported under 0.9.0 or 0.8) with "nbmasta_old".  If you
+download a nodeball and it doesn't install, try nbmasta_old.
 
 
-Uninstall
 
-> make realclean (as root)
-
-Note that executing 'make realclean' will remove everything.  This
-includes the perl modules and the associated database.  After this
-is executed the Everything system will not exist.  Don't execute it
-unless you really mean it.  I'm serious.
-
-Other Information
-
-For more information see http://www.everydevel.com
-
-and of course, you can always ask for help/report bugs to <nate@oostendorp.net>

@@ -18,6 +18,8 @@ you know of any dependencies that they have when you rpm -i them.
 If you have any more information on running Everything on Red Hat email
 Nate Oostendorp <nate@blockstackers.com>...
 
-other stuff you need to do to set up is mentioned in HTTPD_CONF and PERLMOD_CONF
+other stuff you need to do to set up is mentioned in QUICKINSTALL,
+HTTPCONF_SETUP and PERLMOD_SETUP
+
 the default mod_perl rpm installs as an apache loadable module.  
 
