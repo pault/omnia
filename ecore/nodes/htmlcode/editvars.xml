@@ -29,7 +29,6 @@ foreach (@params) {
       my $nodename = $query->param("node name$1") || '';
       my $nodetype = $query->param("node type$1") || '';
 
-      next unless $nodetype and $nodename;
       if (defined(my $N = getNode($nodename, $nodetype))) {
         $setvalue = $$N{node_id};
       }
