@@ -242,7 +242,7 @@ sub createWebdir {
 	}
 	if ($webdir and not -d	$webdir) {
 		if (confirmYN("$webdir doesn't exist, should I create it?")) {
-			if (not mkdir $webdir) {
+			if (not mkdir($webdir, 0755)) {
 				die "could not create directory '$webdir'!";
 			} else {
 			}
@@ -295,7 +295,7 @@ sub createIncoming {
 	do {
 	  return unless confirmYN("Would you like me to create an $OPTIONS{webdir}\/incoming directory where you can upload images and files?");
 
-	  mkdir $OPTIONS{webdir}."/images/incoming";	
+	  mkdir($OPTIONS{webdir}."/images/incoming", 0755);	
 	  
 	  $user = RLquick("What user does Apache run as? $defaultstr");
 	  $user ||= $default;
@@ -303,7 +303,7 @@ sub createIncoming {
 	} while (not $user or not getpwnam($user));
 
 
-	mkdir $OPTIONS{webdir}."/incoming";
+	mkdir ($OPTIONS{webdir}."/incoming", 0755);
 	chown((getpwnam($user))[2,3], $OPTIONS{webdir}."/incoming"); 
 		
 	print "$OPTIONS{webdir}\/incoming created and chown to $user!\n";
