@@ -26,7 +26,7 @@ sub insert
 {
 	my ($this, $USER) = @_;
 
-	my $id = $this->SUPER();
+	my $id = $this->SUPER() or return;
 
 	# Make all new users default to owning themselves.
 	$$this{author_user} = $id;
@@ -84,11 +84,9 @@ sub isGod
 sub isGuest
 {
 	my ($this) = @_;
-	my $SYS = $$this{DB}->getNode('system settings', 'setting');
+	my $SYS = $$this{DB}->getNode('system settings', 'setting') or return 1;
 
-	return 1 unless($SYS);
-	my $VARS = $SYS->getVars();
-	return 1 unless($VARS);
+	my $VARS = $SYS->getVars() or return 1;
 
 	return ($$VARS{guest_user} == $$this{node_id});
 }
@@ -140,6 +138,28 @@ sub conflictsWith {
 sub updateFromImport {
 	#we don't allow user nodes to update
 	0;
+}
+
+=cut
+
+=head2 C<restrictTitle>
+
+Purpose:
+	Prevent invalid characters in usernames (and optional near-duplicates)
+
+Takes:
+	$node, the node containing a C<title> field to check
+
+Returns:
+	true, if the title is allowable, false otherwise
+=cut
+sub restrictTitle
+{
+	my ($this) = @_;
+	my $title  = $$this{title} or return;
+
+	return if $title =~ tr/-<> !a-zA-Z0-9_//c;
+	return 1;
 }
 
 
