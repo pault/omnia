@@ -1,13 +1,10 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<code table="htmlcode">my ($SETTINGNODE) = $DB-&gt;getNodeWhere ({title=&gt;'system settings'}, $DB-&gt;getType('setting'));
+	<code table="htmlcode">my ($SETTINGNODE) = getNode('system settings',
+  getType('setting'));
 my $SETTINGS = getVars $SETTINGNODE;
-
-
-my ($HTMLVARS) = $DB-&gt;getNodeWhere ({title=&gt;'htmlvars nodegroup'}, $DB-&gt;getType('nodegroup'));
+my ($HTMLVARS) = getNode('htmlvars nodegroup', getType('nodegroup'));
 my (@htvars) = @{ $$HTMLVARS{group} };
-
-
 my $OLDSETTINGS = 
 {
 not_found =&gt; $$SETTINGS{notFound_node}, 
