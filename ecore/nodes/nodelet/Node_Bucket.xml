@@ -61,10 +61,11 @@ elsif($isGroup)
 $str .= $query->submit( -name => "bdrop", -value => "Drop" ) . "\n";
 
 $str .= "&lt;/font>\n";
-$str .= $query->end_form;
 
 $str;
-%]</field>
+%]
+&lt;/form>
+</field>
   <field type="literal_value" name="nlgoto">0</field>
   <field type="literal_value" name="nltext">&lt;A HREF="/index.pl?node_id=199&amp;bnodes=199&amp;lastnode_id=199&amp;op=addBucket">Add 'Node Bucket'&lt;/a>
 
