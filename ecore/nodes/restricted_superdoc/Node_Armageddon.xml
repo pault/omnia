@@ -1,5 +1,5 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="Node Armageddon">
-  <field name="author_user" type="literal_value">-1</field>
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">&lt;center>&lt;h3>Node Armageddon&lt;/h3>&lt;/center>
 

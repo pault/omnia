@@ -1,5 +1,5 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="settingradio">
-  <field name="author_user" type="literal_value">-1</field>
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">#given a setting name or id, create a checkbox tied to
 #that settings value.  You can optionally send a label

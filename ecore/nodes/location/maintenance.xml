@@ -1,5 +1,5 @@
 <NODE export_version="0.5" nodetype="location" title="maintenance">
-  <field name="author_user" type="literal_value">-1</field>
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

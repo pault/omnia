@@ -1,5 +1,5 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="adminbox">
-  <field name="author_user" type="literal_value">-1</field>
+  <field type_nodetype="user,nodetype" name="author_user" type="noderef">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"># This provides links to display, edit, clone, or delete 
 # the current node if the user has the authority to do so.  
