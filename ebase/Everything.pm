@@ -310,22 +310,24 @@ sub initEverything
 	clearFrontside();
 	clearBackside();
 
-	unless($DB = $NODEBASES{$db})
-	{
-		$$options{dbtype} ||= "mysql";
-		if ($$options{dbtype} eq "mysql") {
-			$DB = new Everything::NodeBase::mysql($db, $$options{staticNodetypes});
-		} elsif ($$options{dbtype} eq "Pg") {
-			$DB = new Everything::NodeBase::Pg($db, $$options{staticNodetypes});
-		} else {
-			die "unknown database type $$options{dbtype}";
-		}
+	my %types = (
+		mysql => 'Everything::NodeBase::mysql',
+		Pg    => 'Everything::NodeBase::Pg',
+	);
 
-		# We keep a NodeBase for each database that we connect to. 
-		# That way one machine can handle multiple installations in
-		# multiple databases, even with different db servers.
-		$NODEBASES{$db} = $DB;
-	}
+	return if exists $NODEBASES{$db} and $DB = $NODEBASES{db};
+
+	my $dbtype = $options->{dbtype} || 'mysql';
+
+	die "Unknown database type '$options->{dbtype}'\n"
+		unless exists $types{ $dbtype };
+	
+	$DB = $types{ $dbtype }->new( $db, $options->{staticNodetypes} );
+
+	# We keep a NodeBase for each database that we connect to. 
+	# That way one machine can handle multiple installations in
+	# multiple databases, even with different db servers.
+	$NODEBASES{$db} = $DB;
 }
 
 
@@ -354,10 +356,13 @@ sub logErrors
 	
 	if ($commandLine)
 	{
+		my $context = join ')(', map { defined $_ ? $_ : 'undef' } CORE::caller;
+
 		$code    = "Code: $code\n"       if $code;
 		$error   = "Error: $error\n"     if $error;
 		$warning = "Warning: $warning\n" if $warning;
-		print "#" x 60, $warning, $error, $code, '(', join(')(', caller), ")\n";
+
+		print "#" x 60, $warning, $error, $code, "($context)\n";
 	}
 	else
 	{
@@ -485,6 +490,8 @@ sub searchNodeName
 	$match = '('. join(' + ',@words).')';
 	my $cursor = $DB->sqlSelectMany("*, $match AS matchval",
 		"node", "$match >= 1 $typestr", "ORDER BY matchval DESC");
+
+	return unless $cursor;
 	
 	my @ret;
 	while(my $m = $cursor->fetchrow_hashref)
