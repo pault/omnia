@@ -3,133 +3,137 @@
   <field type="literal_value" name="authoraccess">iiii</field>
   <field type="literal_value" name="code"># This allows users to edit or add values to a setting node.
 # It grabs all the variables, displays the values in text
-# fields that can be editted, and provides a blank field
+# fields that can be edited, and provides a blank field
 # for a new value.  Also present with each value is an
 # Auto Set value box, that allows users to specify a node
 # by title and nodetype, rather than node Id.  The node Id
 # is automatically set as the value when the page is 
 # submitted.
 
-
-
 return "&lt;i>you can't update this node&lt;/i>" unless $NODE->hasAccess($USER, 'w');
+
+# get the settings of the current node and the current parameters
 my $SETTINGS = $NODE->getVars();
 my @params = $query->param;
-my $str=""; 
+my $str = ''; 
 
 foreach (@params) {
-  if (/setsetting_(\w*)$/) {
-    $$SETTINGS{$1}=$query->param("setsetting_$1");    
+
+# update any settings in the node passed through CGI
+        if (/setsetting_(\w+)$/) {
+                my $setvalue = $query->param("setsetting_$1") || '';
+
+                unless ($setvalue) {
+                        my $nodename = $query->param("node name$1") || '';
+                        my $nodetype = $query->param("node type$1") || '';
+
+                        next unless $nodetype and $nodename;
+                        if (defined(my $N = getNode($nodename, $nodetype))) {
+                                $setvalue = $$N{node_id};
+                        }
+                }
+                $$SETTINGS{$1} = $setvalue;
+
+        } elsif (/delsetting_(\w*)$/) {
+                delete $$SETTINGS{$1};
+        }
+}
+
+my $newsetting = $query->param('newsetting') || '';
+
+if ($newsetting) {
+        my $newval = $query->param('newval') || '';
+        my $nodenamenew = $query->param('node namenew') || '';
+        my $nodetypenew = $query->param('node typenew') || '';
+
+        (my $title = $newsetting) =~ s/\W//g;
+        if ($newval) {
+                $$SETTINGS{$title} = $newval;
+        } elsif ($nodenamenew and $nodetypenew) {
+                my $N = getNode($nodenamenew, $nodetypenew);
+                $$SETTINGS{$title} = $$N{node_id} if (defined($N));
+        }
+}
+
+# get all nodetypes
+my @idlist = map { $_->{title} } $DB->getAllTypes();
   
-   }
-
-  if (($query->param("node name$1")) and ($query->param("node type$1")) and ($query->param("setsetting_$1") eq ""))
-   { 
-     my $NO = getNode($query->param("node name$1"), $query->param("node type$1"));
-     my $nodeID = getId($NO);
-     if ($query->param("setsettings_$1") eq "")
-      {    $$SETTINGS{$1}=$nodeID; }
-   }
-}
-
-foreach (@params) {
-  if (/delsetting_(\w*)$/) {
-    delete $$SETTINGS{$1};
-  }
-}
-
-
-if (($query->param("newsetting") ne "") and ($query->param("newval") ne "")){
-  my $title = $query->param("newsetting");
-  $title =~ s/\W//g;
-  $$SETTINGS{$title} = $query->param("newval");
-}
-elsif (($query->param("node namenew") ne "") and ($query->param("newsetting") ne ""))
-   { 
-     my $title = $query->param("newsetting");
-     $title =~ s/\W//g;
-     $$SETTINGS{$title} = $query->param("newval");
-     
-     my $NOD = getNode($query->param("node namenew"), $query->param("node typenew"));
-     my $nodenewID = getId($NOD);
-     if ($query->param("newsetting") eq "")
-      {    $$SETTINGS{$1}=$nodenewID; }
-   }  
-  my @idlist;
-  my $id;
-  my @allTypes = $DB->getAllTypes();
-  foreach my $N (@allTypes)
-   {
-     $id = $$N{title};
-     push @idlist, $id;
-   }
-   
+# update node with new settings and save it in the DB
 $NODE->setVars($SETTINGS);
 $NODE->update($USER);
-my @skeys = keys %$SETTINGS;
-@skeys = sort {$a cmp $b} @skeys;
 
+my @skeys = sort {$a cmp $b} keys %$SETTINGS;
+
+# hardcoded defaults, may not be appropriate
+# could update them in system settings
 my ($keysize, $valsize) = (15, 30);
-my ($keyclr, $valclr, $setclr) = ("#CCCCFF", "#DEDEFF", "#ABABFF");
-$str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0>\n";
-$str.="&lt;TR>&lt;TH>Remove&lt;/TH>&lt;TH>Setting&lt;/TH>&lt;TH>Value&lt;/TH>&lt;TH>Auto Set Value&lt;/TH>&lt;/TR>\n";
-my $tempvar;
-my $titevar;
-my $tipevar;
-foreach(@skeys) 
-{
-   $str.="&lt;TR>&lt;TD>&lt;input type=checkbox name=delsetting_$_>&lt;/td>
-   &lt;TD bgcolor=$keyclr>&lt;b>$_&lt;/b>&lt;/TD>
-   &lt;TD bgcolor=$valclr>&lt;INPUT TYPE=text NAME=setsetting_$_ VALUE='$$SETTINGS{$_}' size=$valsize>&lt;/TD>\n";
+my ($keyclr, $valclr, $setclr) = @$THEME{qw( setting_key setting_value
+        setting_autoset )};
+$keyclr ||= "#CCCCFF";
+$valclr ||= "#DEDEFF";  
+$setclr ||= "#ABABFF";
 
-   if ($$SETTINGS{$_}!~/\D/ )   
-    {$tempvar = getNodeById($$SETTINGS{$_});
-         if ($tempvar)
-          { $titevar = $$tempvar{title}; 
-            $tipevar = $$tempvar{type}{title};
-          }
-    }  
-   else
-    {  $titevar = ""; 
-       $tipevar ="";
-    }
-    $query->param("node name$_", $titevar);
-   $str.="&lt;TD bgcolor=$setclr>&lt;font size=0>";
-if ($_=~/(.+?)\_(.+?)/)
-{
-  $str.="Node Title:".$query->textfield("node name$_", $titevar) . "&lt;br>Nodetype: ";
-   $query->popup_menu("node type$_", \@idlist, $tipevar);
-   $str.= $query->popup_menu("node type$_", \@idlist,   $tipevar);
-  }
-   $str.="&lt;/TD>&lt;/TR>";
+$str .= &lt;&lt;HEAD;
+&lt;TABLE width="100%" cellpadding="1" cellspacing="0">
+&lt;TR>&lt;TH>Remove&lt;/TH>&lt;TH>Setting&lt;/TH>&lt;TH>Value&lt;/TH>&lt;TH>Auto Set Value&lt;/TH>&lt;/TR>
+HEAD
+
+foreach (@skeys) {
+        $str .= &lt;&lt;SETTING;
+&lt;TR>&lt;TD>&lt;input type="checkbox" name="delsetting_$_">&lt;/td>
+&lt;TD bgcolor="$keyclr">&lt;b>$_&lt;/b>&lt;/TD>
+&lt;TD bgcolor="$valclr">&lt;INPUT TYPE="text" NAME="setsetting_$_"
+VALUE="$$SETTINGS{$_}" size="$valsize">&lt;/TD>
+SETTING
+
+        my ($nodetitle, $nodetype) = ('', '');
+
+        unless ($$SETTINGS{$_} =~ /\D/) {
+                my $tempnode = getNodeById($$SETTINGS{$_});
+                if ($tempnode) {
+                        $nodetitle = $$tempvar{title}; 
+                        $nodetype = $$tempvar{type}{title};
+                }
+        }
+
+        $query->param("node name$_", $nodetitle);
+        $str .= qq|&lt;TD bgcolor="$setclr">&lt;font size="0">|;
+
+        if (/(.+?)\_(.+?)/) {
+                $str .= "Node Title:" . $query->textfield("node name$_", $nodetitle) .
+                        "&lt;br>Nodetype: " . $query->popup_menu("node type$_", \@idlist, $nodetype);
+        }
+        $str .= "&lt;/TD>&lt;/TR>";
 }
-  $str.="&lt;TR>&lt;td>&lt;/td>
-  &lt;TD bgcolor=$keyclr>&lt;INPUT TYPE=text NAME=newsetting size=$keysize>&lt;/TD>
-  &lt;TD bgcolor=$valclr>&lt;INPUT TYPE=text NAME=newval size=$valsize>&lt;/TD>
-  &lt;TD bgcolor=$setclr>&lt;font size=0>Node Title:".$query->textfield("node namenew") . "&lt;br>Nodetype: ";
-  
 
-   $query->popup_menu("node typenew", \@idlist, "");
-   $str.= $query->popup_menu("node typenew", \@idlist, "");
+$str .= &lt;&lt;NEWSETTING;
+&lt;TR>&lt;td>&lt;/td>
+&lt;TD bgcolor="$keyclr">&lt;INPUT TYPE="text" NAME="newsetting"
+size="$keysize">&lt;/TD>
+&lt;TD bgcolor="$valclr">&lt;INPUT TYPE="text" NAME="newval"
+size="$valsize">&lt;/TD>
+&lt;TD bgcolor="$setclr">&lt;font size="0">Node Title: 
+&lt;input type="text" name="node namenew">&lt;br>Nodetype: 
+NEWSETTING
 
+$str .= $query->popup_menu("node typenew", \@idlist, "") . 
+        '&lt;FONT>&lt;/TD>&lt;/TR>&lt;/TABLE>&lt;div align="right">';
 
-   $str.="&lt;/TD>&lt;/TR>&lt;/TABLE>&lt;div align=right>";
- if ($$VARS{hintson})
- {
-  $str.=(htmlcode('hintlaunch', 'Using the setting edit page, short, #000000'));
- }
-
+if ($$VARS{hintson}) {
+        $str .= htmlcode('hintlaunch', 'Using the setting edit page, short,
+#000000');
+}
 
 $str;</field>
-  <field type="literal_value" name="dynamicauthor_permission">-1</field>
-  <field type="literal_value" name="dynamicgroup_permission">-1</field>
-  <field type="literal_value" name="dynamicguest_permission">-1</field>
-  <field type="literal_value" name="dynamicother_permission">-1</field>
-  <field type="literal_value" name="group_usergroup">-1</field>
-  <field type="literal_value" name="groupaccess">iiii-</field>
-  <field type="literal_value" name="guestaccess">iiii-</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">htmlcode</field>
-  <field type="literal_value" name="otheraccess">iiii-</field>
-  <field type="literal_value" name="title">editvars</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">htmlcode</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">editvars</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">htmlcode</field>
 </NODE>
