@@ -79,6 +79,8 @@ t/base
 t/ecachequeue.t
 t/ehfhiddenfield.t
 t/ehfpopupmenu.t
+t/ehftextarea.t
+t/ehftextfield.t
 t/email.t
 t/endbtable.t
 t/enhtmlcode.t
