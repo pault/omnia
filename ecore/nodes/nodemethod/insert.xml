@@ -20,3 +20,25 @@ return $this->SUPER();</field>
   <field name="title" type="literal_value">insert</field>
   <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodemethod</field>
 </NODE>
+<NODE export_version="0.5" nodetype="nodemethod" title="insert">
+  <field type_nodetype="usergroup,nodetype" name="author_user" type="noderef">gods</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($this) = @_;
+my $N = $$this{DB}->getNode("general container", "container");
+
+$$this{parent_container} = $N->getId() if(ref $N);
+
+return $this->SUPER();</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field type_nodetype="location,nodetype" name="loc_location" type="noderef">nodemethod</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field type_nodetype="nodetype,nodetype" name="supports_nodetype" type="noderef">htmlpage</field>
+  <field name="title" type="literal_value">insert</field>
+  <field type_nodetype="nodetype,nodetype" name="type_nodetype" type="noderef">nodemethod</field>
+</NODE>
