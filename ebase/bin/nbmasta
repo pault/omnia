@@ -14,158 +14,182 @@ use Everything;
 use Everything::Nodeball;
 use Everything::XML;
 
-my $usagestr = "Usage: nbmasta [-h SQLHOST] [-u SQLUSER] [-p SQLPASS] [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
+my $usagestr =<<END_HERE;
+Usage:
+	nbmasta [-h SQLHOST] [-u SQLUSER] [-p SQLPASS] [-v] [--force]
+	(import|export|remove) <NODEBALL> <DATABASE>
+END_HERE
 
-setupOptions ( { 
-	force => 0, 
-	verbose => 0, 
-	user => 'root', 
-	host => '', 
-	password => '' 
-	}, \@ARGV);
+setupOptions ({ 
+	host     => '', 
+	user     => 'root', 
+	force    => 0, 
+	password => '',
+	verbose  => 0, 
+}, \@ARGV);
 
-if (@ARGV < 3) {
-	print $usagestr; 
-	exit;
-}
-my ($function, $nodeball, $database) = @ARGV[0..2];
+die $usagestr if @ARGV < 3;
 
-$database .= ":$OPTIONS{user}";
-$database .= ":$OPTIONS{password}";
-$database .= ":$OPTIONS{host}";
-initEverything($database, {staticNodeTypes => 1})
+my ($function, $nodeball, $database) = @ARGV;
+
+$database .= join(':', @OPTIONS{qw( user password host )});
+
+initEverything($database, { staticNodeTypes => 1 })
 	or die "couldn't connect to $database";
-
 
 #############################################################################
 #
 #	main function
 #
-sub main {
-	
-	my ($dir, $cleanme) = ("", "");
-	eval {
-	if ($function eq "import") {
-		my ($nbfile) = $nodeball;
+sub main
+{
+	my ($dir, $cleanme) = ('', '');
+	eval
+	{
+		if ($function eq 'import')
+		{
+			my ($nbfile) = $nodeball;
 
-		if (-d $nbfile) {
-			$dir = absPath($nbfile);
-		} else {
-			$dir = expandNodeball $nbfile;
-			$cleanme = 1;	
-		}
-
-		open NODEBALL, $dir."/ME" or die 
-			"Can't find the nodeball link '$dir\/ME'-- try running in " .
-			"-V and make sure it's not empty\n";
-
-		my $nodeball_xml = join '', <NODEBALL>;
-		close NODEBALL;	
-
-		my $version = readTag('version', $nodeball_xml, 'var');
-		my $author = readTag('author', $nodeball_xml, 'var');
-		my $description = readTag('description', $nodeball_xml, 'var');
-		my $title = readTag('title', $nodeball_xml);
-
-		if ($OPTIONS{verbose}) {
-			print "\n\ntitle: $title\nversion: $version\nauthor: $author\ndescription:$description\n";
-
-		}
-
-		my $OLDBALL = getNode($title, "nodeball");
-
-		if ($OLDBALL) {
-			my ($NEWBALL) = @{ xml2node($nodeball_xml, 'nofinal') } ;
-			#we have the same nodeball already installed
-			my $VARS = $OLDBALL->getVars();
-			my @oldversion = split /\./, $$VARS{version};
-			my @newversion = split /\./, $version;
-
-			for (my $i=0; $i < @oldversion; $i++) {
-				last if $newversion[$i] > $oldversion[$i];
-				die "Your current version of $title ($$VARS{version}) is newer\n"
-				."than the version that you are trying to install ($version). \n" 
-				."Do --force if you want to force this." 
-					if $oldversion[$i] > $newversion[$i] and not $OPTIONS{force}; 	
+			if (-d $nbfile) {
+				$dir = absPath($nbfile);
+			} else {
+				$dir = expandNodeball $nbfile;
+				$cleanme = 1;	
 			}
-			die "Your version of $title ($$VARS{version}) is up to date\n"
-				."according to the version number, at least.\n"
-				."Do --force if you want to force it anyway.\n" 
-				if ($version eq $$VARS{version} and not $OPTIONS{force});
-			print "updating nodeball $$OLDBALL{title}\n";	
-			updateNodeball ($OLDBALL, $NEWBALL, $dir);
+
+			open NODEBALL, $dir.'/ME' or die 
+				"Can't find the nodeball link '$dir\/ME'-- try running in " .
+				"-V and make sure it's not empty\n";
+
+			my $nodeball_xml = join '', <NODEBALL>;
+			close NODEBALL;	
+
+			my $version     = readTag('version', $nodeball_xml, 'var');
+			my $author      = readTag('author', $nodeball_xml, 'var');
+			my $description = readTag('description', $nodeball_xml, 'var');
+			my $title       = readTag('title', $nodeball_xml);
+
+			print "\n\ntitle: $title\nversion: $version\nauthor: $author\n" .
+				"description:$description\n" if $OPTIONS{verbose};
+
+			my $OLDBALL = getNode($title, "nodeball");
+
+			if ($OLDBALL)
+			{
+				my ($NEWBALL) = @{ xml2node($nodeball_xml, 'nofinal') };
+
+				# we have the same nodeball already installed
+				my $VARS = $OLDBALL->getVars();
+				my @oldversion = split /\./, $VARS->{version};
+				my @newversion = split /\./, $version;
+
+				for my $i (0 .. @oldversion)
+				{
+					last if $newversion[$i] > $oldversion[$i];
+
+					my $error = "Your current version of '$title' " .
+					"($VARS->{version}) is newer\nthan the version that you " .
+					"are trying to install ($version).\nUse the --force flag " .
+					"if you want to force this.";
+
+					die $error if $oldversion[$i] > $newversion[$i]
+						 and not $OPTIONS{force}; 	
+				}
+
+				my $error = "Your version of '$title' ($VARS->{version}) is " .
+				"up to date\naccording to the version number, at least.\nUse " .
+				"the --force flag if you want to force it anyway.";
+
+				die $error if ($version eq $VARS->{version} 
+					and not $OPTIONS{force});
+
+				print "Updating nodeball '$OLDBALL->{title}'\n";
+				updateNodeball ($OLDBALL, $NEWBALL, $dir);
+				cleanUpDir($dir) if $cleanme;
+				exit;
+			}
+			installNodeball ($dir);
+			my $errors = getFrontsideErrors;
+			if (@$errors and $OPTIONS{verbose})
+			{
+				use Data::Dumper;
+				print Dumper(@$errors);
+			}
 			cleanUpDir($dir) if $cleanme;
-			exit;
-		} 
-		installNodeball ($dir);
-		my $errors = getFrontsideErrors;
-		if (@$errors and $OPTIONS{verbose}) {
-			use Data::Dumper;
-			print Dumper(@$errors);
+	
 		}
-		cleanUpDir($dir) if $cleanme;
-	
-	} elsif ($function eq "export" or $function eq "devexport") {
-		my $NB = getNode($nodeball, "nodeball");
-		$NB or die "no nodeball $nodeball exists for export!\n";
+		elsif ($function eq 'export' or $function eq 'devexport')
+		{
+			my $NB = getNode($nodeball, 'nodeball');
+			die "no nodeball $nodeball exists for export!\n" unless $NB; 
 
-		my $dev = ($function eq 'devexport' ? 1 : 0);
-	
-		Everything::Nodeball::printSettings ($NB->getVars());
-		checkDeps ($NB);
+			my $dev = ($function eq 'devexport' ? 1 : 0);
 
-		my $dir = "/tmp/everything".int(rand(1000));
-		createDir ($dir);
+			Everything::Nodeball::printSettings( $NB->getVars() );
+			checkDeps ($NB);
+
+			my $dir = "/tmp/everything".int(rand(1000));
+			createDir ($dir);
 		
-		my @tables;
-		foreach my $N (@{ $$NB{group} }) {
-			my $NODE = getNode($N);
-			next unless($NODE);
-			next if($dev && (not $$NODE{modified} =~ /[1-9]/));
-			if ($$NODE{type}{title} eq "dbtable") {
-				push @tables, $$NODE{title};
+			my @tables;
+			foreach my $N (@{ $NB->{group} })
+			{
+				my $NODE = getNode($N);
+				next unless $NODE;
+				next if($dev && (not $$NODE{modified} =~ /[1-9]/));
+
+				push @tables, $$NODE{title}
+					if $NODE->{type}{title} eq 'dbtable';
 			}
+		
+			if (@tables)
+			{
+				print "exporting table @tables\n";
+				my $tabledir .= $dir . "/tables";
+				createDir $tabledir;
+				exportTables( \@tables, $tabledir );
+  			}
+
+			my $basedir .= $dir ."/nodes"; 
+			createDir($basedir);
+			my @FILES = exportNodes( [$NB->{node_id}, @{ $NB->{group} }],
+				$basedir, 1, $dev );
+		
+			my $melink = $dir."/ME";
+			my $mefile = $FILES[0];
+			$mefile =~ s/^$dir/\./;	
+
+			use Cwd; 
+			my $cwd = getcwd;
+			chdir $dir;
+			link $mefile, $melink;
+			chdir $cwd;
+
+			createNodeball($dir, $NB);
+			cleanUpDir ($dir);
 		}
-		
-		if (@tables) {
-			print "exporting table @tables\n";
-			my $tabledir .= $dir . "/tables";
-			createDir $tabledir;
-			exportTables (\@tables, $tabledir);	
-  		}
+		elsif ($function eq 'remove')
+		{
+			# don't order by anything, but limit the number of rows returned to
+			# one maybe not a great idea, but it changes functionality here not
+			# at all
 
-		my $basedir .= $dir ."/nodes"; 
-		createDir($basedir);
-		my @FILES = exportNodes ([$$NB{node_id}, @{ $$NB{group} }],
-			$basedir, 1, $dev);
-		
-		my $melink = $dir."/ME";
-		my $mefile = $FILES[0];
-		$mefile =~ s/^$dir/\./;	
+			my ($NB) = $DB->getNodeWhere({title=>$nodeball},
+				$DB->getType("nodeball"), '', 1);
 
-		use Cwd; 
-		my $cwd = getcwd;
-		chdir $dir;
-		`ln $mefile $melink`;
-		chdir $cwd;
-		
-		createNodeball($dir, $NB);
-		cleanUpDir ($dir);
-	} elsif ($function eq "remove") {
-		# don't order by anything, but limit the number of rows returned to one
-		# maybe not a great idea, but it changes functionality here not at all
-		my ($NB) = $DB->getNodeWhere({title=>$nodeball},
-			$DB->getType("nodeball"), '', 1);
-		# we receive an array ref from getNodeWhere, but we want a single node
-		$NB = shift @$NB;
-		$NB or 
-		  die "There isn't a \"$nodeball\" nodeball installed on this system!";
-		removeNodeball ($NB);
-	} else {
-		print $usagestr;
-	}
+			# we receive an array ref from getNodeWhere, but want a single node
+			$NB = shift @$NB;
+			die qq|There is no "$nodeball" nodeball installed on this system!|
+				unless $NB;
+
+			removeNodeball ($NB);
+		}
+		else
+		{
+			print $usagestr;
+		}
 	};
-	print $@ if ($@);
+	print $@ if $@;
 	cleanUpDir($dir) if ($cleanme);
 }
 
