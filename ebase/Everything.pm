@@ -84,7 +84,7 @@ sub BEGIN
 #	this allows the $DB to be optional for the general node functions
 #
 sub getNode			{ $DB->getNode(@_); }
-sub getNodeById		{ $DB->getNodeById(@_); }
+sub getNodeById		{ $DB->getNode(@_); }
 sub getType 		{ $DB->getType(@_); }
 sub getNodeWhere 	{ $DB->getNodeWhere(@_); }
 sub selectNodeWhere	{ $DB->selectNodeWhere(@_); }
