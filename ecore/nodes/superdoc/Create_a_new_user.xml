@@ -21,7 +21,7 @@ local *generateLogin = sub {
 
 
 
-if ($$USER{title} ne $HTMLVARS{guest_user}) {
+if ($$USER{node_id} != $HTMLVARS{guest_user}) {
  # return &quot;You already &lt;i&gt;are&lt;/i&gt; a user -- you don't need an alter-ego...&quot;;
 }
 
