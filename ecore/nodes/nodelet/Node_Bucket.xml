@@ -66,8 +66,8 @@ $str;
 %]
 &lt;/form>
 </field>
-  <field type="literal_value" name="nlgoto">0</field>
-  <field type="literal_value" name="nltext">&lt;A HREF="/index.pl?node_id=199&amp;bnodes=199&amp;lastnode_id=199&amp;op=addBucket">Add 'Node Bucket'&lt;/a>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?node_id=199&amp;bnodes=199&amp;lastnode_id=199&amp;op=addBucket">Add 'Node Bucket'&lt;/a>
 
 &lt;FORM METHOD="POST"  ENCTYPE="multipart/form-data">
 &lt;INPUT TYPE="hidden" NAME="node_id" VALUE="199">&lt;INPUT TYPE="hidden" NAME="op" VALUE="bucketop">

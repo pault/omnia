@@ -37,8 +37,8 @@ push @links, linkNode ($ss) if ($ss->hasAccess($USER, "r"));
 $str = join "&lt;br>\n", @links;
 %]
 &lt;/font></field>
-  <field type="literal_value" name="nlgoto">0</field>
-  <field type="literal_value" name="nltext">&lt;font size=2>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;font size=2>
 &lt;A HREF="/index.pl?lastnode_id=224&amp;op=logout&amp;node_id=45">log root out&lt;/a>&lt;br>
 
 &lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=36">root&lt;/a>&lt;br>

@@ -29,8 +29,8 @@ $str;
 
 
 %]</field>
-  <field type="literal_value" name="nlgoto">0</field>
-  <field type="literal_value" name="nltext">&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=259">nodelet outline container&lt;/a>&lt;BR>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=259">nodelet outline container&lt;/a>&lt;BR>
 &lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=260">nodeletshadow container&lt;/a>&lt;BR>
 &lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=261">show container&lt;/a>&lt;BR>
 &lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=262">stdcontainer&lt;/a>&lt;BR>
