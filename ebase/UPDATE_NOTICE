@@ -1,0 +1,10 @@
+
+# 2-23-99  Nathan Oostendorp
+#
+#if you are upgrading Everything from a version that did not have before
+#	and after maintainences, you will need to run these lines through the 
+#  sql client.  (We made a non-backwards compatable spec change, sorry)
+# either that or just "cat UPDATE_NOTICE | mysql -u root DATABASE"
+update maintenance set maintaintype="delete before" where maintaintype="delete";update maintenance set maintaintype="create after" where maintaintype="create";
+update maintenance set maintaintype="update after" where maintaintype="update";
+
