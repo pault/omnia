@@ -31,9 +31,13 @@ apache-common
 apache-dev
 apache-doc
 libapache-mod-perl
-(optionally, apache-perl can replace libapache-mod-perl)
-libdbd-mysql-perl
 libmysqlclient6-dev
+(optionally, apache-perl can replace libapache-mod-perl)
+
+these are packages for perl modules -- I highly recommend that you use
+Bundle::Everything and/or CPAN.pm instead, but these will work
+
+libdbd-mysql-perl
 libxml-perl
 libxml-generator-perl
 
