@@ -71,7 +71,7 @@ sub new
 	$this->{cache} = $dbases->{$dbname}->{cache};
 	$this->{dbname} = $dbname;
 	$this->{staticNodetypes} = $staticNodetypes;
-	$this->{nodetypeModules} = $this->buildNodetypeModules;
+	$this->{nodetypeModules} = $this->buildNodetypeModules();
 
 	if($setCacheSize && $this->getType("setting"))
 	{
@@ -97,6 +97,26 @@ sub new
 	return $this;
 }
 
+
+############################################################################
+#	Sub
+#		rebuildNodetypeModules
+#
+#	Purpose
+#		Call this to account for any new nodetypes that may have been
+#		installed.  Primarily used by nbmasta when installing a new
+#		nodeball.
+#
+sub rebuildNodetypeModules
+{
+	my ($this) = @_;
+	
+	$this->{nodetypeModules} = $this->buildNodetypeModules();
+
+	return undef;
+}
+
+
 ############################################################################
 #	Sub
 #		buildNodetypeModules
@@ -107,7 +127,8 @@ sub new
 #		the modules that exist in the Everything::Node:: dir
 #		This also casts "use" on the modules, loading them into memory
 #
-sub buildNodetypeModules {
+sub buildNodetypeModules
+{
 	my ($this) = @_;
 	my %modules;	
 	my $csr = $this->sqlSelectMany('title', "node", "type_nodetype=1");

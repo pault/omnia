@@ -650,6 +650,11 @@ sub installNodeball {
 	# the cache, we will reload all the types as they are needed and they
 	# will be properly derived.
 	$DB->{cache}->flushCache();
+
+	# Also, we need to rebuild the cache of Nodetype .pm's so that we
+	# what does and does not exist since new nodetypes may have been
+	# installed.
+	$DB->rebuildNodetypeModules();
 	
 	print "Installing nodes...\n";
 	find sub  {

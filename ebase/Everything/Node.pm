@@ -371,7 +371,9 @@ sub getNodeMethod
 		my $name = $$TYPE{title};
 		$name =~ s/\W//g;
 		my $package = "Everything::Node::$name";
-		$found = $package->can($func) if exists $this->{DB}->{nodetypeModules}->{$package};
+
+		$found = $package->can($func)
+			if(exists $this->{DB}->{nodetypeModules}->{$package});
 
 		if($found)
 		{
@@ -394,8 +396,9 @@ sub getNodeMethod
 		$RETURN = $this->getNodeMethod($func, $TYPE);
 	}
 			
-	# Cache what we found for future reference.
-	$methodCache{$cacheName} = $RETURN;
+	# Cache what we found for future reference.  However, only cache it
+	# if we actually found something.
+	$methodCache{$cacheName} = $RETURN if($RETURN);
 
 	return $RETURN;
 }
