@@ -13,7 +13,9 @@ use strict;
 use Everything;
 use Everything::XMLold;
 
-my $usagestr = "Usage: nbmasta [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
+my $usagestr = "Usage: nbmasta_old [-v] [--force] (import|export|remove) <NODEBALL> <DATABASE>\n"; 
+$usagestr .= "This should be used *only* for importing nodeballs in the old XML format.\n";
+
 my %OPTIONS = ( force => 0, verbose => 0 );
 while (@ARGV and $ARGV[0] =~ s/^\-(.*?)/$1/) {
 	my $arg = shift @ARGV;
@@ -942,6 +944,13 @@ sub removeNodeball {
 sub main {
 	
 	my ($dir, $cleanme) = ("", "");
+
+	if($function ne "import")
+	{
+		print "nbmasta_old is only to be used to import nodeballs of the old XML style.\nFunction '$function' is not supported.  Use nbmasta\n";
+		return;
+	}
+
 	eval {
 	if ($function eq "import") {
 		my ($nbfile) = $nodeball;
@@ -1005,6 +1014,7 @@ sub main {
 		cleanUpDir($dir) if $cleanme;
 	
 	} elsif ($function eq "export") {
+
 		my $NB = getNode($nodeball, "nodeball");
 		$NB or die "no nodeball $nodeball exists for export!\n";
 	
