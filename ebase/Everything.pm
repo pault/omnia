@@ -130,7 +130,7 @@ sub getTime
 #		printLog
 #
 #	Purpose
-#		Debugging utiltiy that will write the given string to the everything
+#		Debugging utility that will write the given string to the everything
 #		log (aka "elog").  Each entry is prefixed with the time and date
 #		to make for easy debugging.
 #
@@ -167,7 +167,9 @@ sub clearLog
 {
 	my $time = getTime();
 
-	`echo "$time: Everything log cleared" > $everythingLog`;
+	if (open(ELOG, "> $everythingLog")) {	
+		print ELOG "$time: Everything log cleared";
+	}
 }
 
 
@@ -317,7 +319,7 @@ sub logErrors
 #		the backside error cache.  This way a new group of frontside errors
 #		can be created.
 #
-#		Backside errors are generally errors that cannot me associated with
+#		Backside errors are generally errors that cannot be associated with
 #		a specific piece of the page.  These are errors caused by opcodes,
 #		evals in Node.pm, or other such cases.  Backside errors get displayed
 #		on the page in a location given by the placement of the
@@ -364,7 +366,7 @@ sub getBacksideErrors
 #		$searchWords - the search string to use to find node matches.
 #		$TYPE - an array of nodetype IDs of the types that we want to
 #			restrict the search (useful for only returning results of a
-#			particular nodetype.
+#			particular nodetype).
 #
 #	Returns
 #		A sorted list of node hashes (just the node table info), in
@@ -457,8 +459,7 @@ sub dumpCallStack
 }
 
 
-#############################################################################
-#	
+##############################################################################	
 sub getCallStack
 {
 	my ($package, $file, $line, $subname, $hashargs);
