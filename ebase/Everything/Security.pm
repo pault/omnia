@@ -19,7 +19,7 @@ use strict;
 #	Purpose
 #		This is just a utility function that takes two strings and combines
 #		them in a way such that any 'i' (inherit) flags in the child
-#		permssions get over written by the corresponding parent permission.
+#		permissions get over written by the corresponding parent permission.
 #
 #	Parameters
 #		$child - the child permissions
