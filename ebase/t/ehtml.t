@@ -13,7 +13,7 @@ use vars qw( $AUTOLOAD );
 
 use File::Spec;
 use File::Path;
-use Test::More tests => 68;
+use Test::More tests => 70;
 use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
@@ -113,6 +113,20 @@ can_ok( $package, 'htmlFormatErr' );
 can_ok( $package, 'htmlErrorUsers' );
 can_ok( $package, 'htmlErrorGods' );
 can_ok( $package, 'urlGen' );
+{
+	local $ENV{SCRIPT_NAME} = 'http://this/';
+	my $q = CGI->new();
+
+	local *Everything::HTML::query;
+	*Everything::HTML::query = \$q;
+
+	$result = urlGen( { foo => [ 'bar', 'baz' ], 'quux' => 1 } );
+	is( $result, '"?foo=bar;foo=baz;quux=1"',
+		'urlGen() should generate relative URL from params' );
+	is( urlGen( { foo => 'bar' }, 1 ), '?foo=bar',
+		'... without quotes, if noflags is true' );
+}
+
 can_ok( $package, 'getPageForType' );
 can_ok( $package, 'getPage' );
 can_ok( $package, 'linkNode' );
