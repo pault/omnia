@@ -24,7 +24,7 @@
 	$query->end_form();
 %]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">c</field>
   <field name="title" type="literal_value">image upload page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
