@@ -4,7 +4,7 @@ package Everything::Node::location;
 #   Everything::Node::location
 #       Package the implements the base functionality for locations
 #
-#   Copyright 2000 Everything Development Inc.
+#   Copyright 2000 - 2002 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
@@ -41,31 +41,82 @@ sub nuke
 }
 
 
-#############################################################################
-#	Sub
-#		listNodes
-#
-#	Purpose
-#		Get a list of all the nodes in this location.  The result is
-#		similar to doing an "ls".  The nodes are ordered by title.
-#
-#	Parameters
-#		$full - (optional) set to true if you want a list of node objects.
-#			if false/undef, the list will contain only node id's.
-#
-#	Returns
-#		An array ref to an array that contains the nodes.
-#
+=cut
+
+=head2 C<listNodes>
+
+=head3 Purpose
+	
+Get a list of all the nodes in this location, just like an 'ls'.  The nodes are
+ordered by title.
+
+=head3 Parameters
+
+=over 4
+
+=item * $full
+
+(optional) set to true if you want a list of node objects.  if false/undef, the
+list will contain only node id's.
+
+=back
+
+=head3 Returns
+
+An array ref to an array that contains the nodes.
+
+=cut
 sub listNodes
 {
 	my ($this, $full) = @_;
-	my $where = "loc_location=$$this{node_id}";
+
+	return $this->listNodesWhere('', '', $full);
+}
+
+=cut
+
+=head2 C<listNodesWhere>
+
+=head3 Purpose
+	
+Get a list of all the nodes in this location, similar to doing an 'ls' with
+options.  The results can be resricted and ordered as desired.
+
+=head3 Parameters
+
+=over 4
+
+=item * $where
+
+(optional) a where clause.  Note that the location will already be restricted
+automatically.
+
+=item * $order
+
+(optional) an order clause.  This defaults to ordering results by their title.
+
+=item * $full
+
+(optional) set to true if you want a list of node objects.  if false/undef, the
+list will contain only node id's.
+
+=back
+
+=head3 Returns
+
+An array ref to an array that contains the nodes.
+
+=cut
+sub listNodesWhere
+{
+	my ($this, $where, $order, $full) = @_;
+	$where ||= '';
+	$order ||= "order by title";
+	$where  .= " loc_location='$$this{node_id}'";
+
 	my @nodes;
 
-	my $csr = $$this{DB}->sqlSelectMany("node_id", "node", $where,
-		"order by title");
-
-	if($csr)
+	if (my $csr = $$this{DB}->sqlSelectMany("node_id", "node", $where, $order))
 	{
 		while(my $id = $csr->fetchrow())
 		{
@@ -78,7 +129,6 @@ sub listNodes
 	
 	return \@nodes;
 }
-
 
 #############################################################################
 # End of package
