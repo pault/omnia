@@ -32,9 +32,8 @@ if (@ARGV < 3) {
 
 my ($function, $nodeball, $database) = @ARGV[0..2];
 
-sqlConnect($database)
+Everything::initEverything($database)
 	or die "couldn't connect to $database";
-loadTypes;
 
 #############################################################################
 #	Function
@@ -75,7 +74,7 @@ sub exportTables {
 #	create a database of the given name
 sub createDB{
 	my ($dbname) = @_;
-   $Everything::dbh->do("create database $dbname"); 
+   $DB->getDatabaseHandle()->do("create database $dbname"); 
 }
 
 #############################################################################
@@ -86,7 +85,7 @@ sub createDB{
 #
 sub dropDB{
 	my ($dbname) = @_;
-   $Everything::dbh->do("drop database $dbname"); 
+   $DB->getDatabaseHandle()->do("drop database $dbname"); 
 }
 
 ##########################################################################
@@ -125,8 +124,9 @@ sub addTablesToDB{
 #
 sub getTablesHashref{
    my ($db)=@_; 
-   sqlConnect $db; 
-   my $st=$Everything::dbh->prepare("show tables");
+   
+   initEverything($db); 
+   my $st = $DB->getDatabaseHandle()->prepare("show tables");
    $st->execute;
    my %tables;
    while(my $ref=$st->fetchrow_arrayref){
@@ -145,8 +145,8 @@ sub getTablesHashref{
 sub getColumns {
 	my ($table, $dbname) = @_;
 
-	sqlConnect $dbname; 
-	my $st=$Everything::dbh->prepare("show columns from $table");    
+	initEverything($dbname); 
+	my $st=$DB->getDatabaseHandle()->prepare("show columns from $table");    
 	$st->execute;
 	
 	my %colhash;
@@ -228,14 +228,16 @@ sub compareAllTables{
 #
 sub checkTables {
 	my ($tabledir) = @_;
-	sqlConnect $database;
 	my $dummydb="dummy" . int(rand(1000));
+	
+	initEverything($database);
 	createDB $dummydb;
 	addTablesToDB $dummydb, $tabledir;
-	my $ret = compareAllTables(getTablesHashref($database),getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
+	my $ret = compareAllTables($DB->getTablesHashref($database),
+		$DB->getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
 	dropDB $dummydb;
 	
-	sqlConnect $database;
+	initEverything($database);
 	$ret;
 }
 
@@ -477,30 +479,43 @@ sub installNodeball {
 	#import any tables that need it
 	use File::Find;	
 
+	print "Installing nodeball.  Hang on.\n";
+	print "Creating tables...\n";
 	find sub {
 		my ($file) = $File::Find::name;
 			if ($file =~ /sql$/) {
 				`mysql -u root $database < $file`
 			}
 		}, $tables_dir;
-
+	print "   - Done.\n";
 
 	my $nodetypes_dir = $dir."/nodes/nodetype";
-	
-	
+
+	print "Installing nodetypes...\n";
 	find sub {
 		my ($file) = $File::Find::name;
 		xmlfile2node($file) if $file =~ /\.xml$/;  
 		}, $nodetypes_dir if -e $nodetypes_dir;
+	print "Fixing references...\n";
 	fixNodes(0);
+	print "   - Done.\n";
 
-	loadTypes;
-
+	# Now that the nodetypes are installed, we can install the nodes
+	print "Installing nodes...\n";
 	find sub  {
 		my ($file) = $File::Find::name;
+		my ($currDir) = $File::Find::dir;
+		
+		# Don't do the nodetypes again!  We already installed them and fixed
+		# some of their references.  If we install them again, they will be
+		# broken for the rest of the nodes that we need to install.
+		return if($currDir =~ /nodes\/nodetype/);
+		
 		xmlfile2node($file) if $file =~ /\.xml$/;  
 		}, $dir;
+	print "Fixing references...\n";
 	fixNodes(1);
+	print "   - Done.\n";
 
 	#memo to myself -- we should give warnings if dependant 
 	#nodeballs are not installed
@@ -585,7 +600,7 @@ sub updateNodeball {
 		
 		#we need to get the id of nodes --- 
 		#also check any deps	
-		my ($OLDNODE) = getNodeWhere({title=>$$N{title}}, $NODETYPES{$$N{type}});
+		my ($OLDNODE) = getNodeWhere({title=>$$N{title}}, $DB->getType($$N{type}));
 		if ($OLDNODE) {
 			if ($oldgroup{getId($OLDNODE)}) {
 				delete $oldgroup{getId($OLDNODE)};
@@ -611,7 +626,7 @@ sub updateNodeball {
 	#find the unused nodes and remove them
 	foreach (values %oldgroup) {
 		#we should probably confirm this
-		nukeNode $_, -1; 
+		$DB->nukeNode($_, -1); 
 	}
 	fixNodes(1);
 	print "$$NB{title} updated.\n";
@@ -629,7 +644,7 @@ sub removeNodeball {
 	my ($DOOMEDBALL) = @_;
 
 	#we should also check dependancies -- am I in any other nodeballs?
-	my (@NODEBALLS) = getNodeWhere( { 1 => 1 }, $NODETYPES{nodeball});
+	my (@NODEBALLS) = $DB->getNodeWhere( { 1 => 1 }, $DB->getType("nodeball"));
 	foreach my $NB (@NODEBALLS) {
 		foreach (@{ $$NB{group} }) {
 			if (getId($_) == getId($DOOMEDBALL)) {
@@ -657,7 +672,7 @@ sub removeNodeball {
 		nukeNode($N, -1) or die "huh?  I can't nuke $$N{title}!!!" ;
 	}
 
-	nukeNode $DOOMEDBALL, -1;
+	$DB->nukeNode($DOOMEDBALL, -1);
 	print "$$DOOMEDBALL{title} removed\n";
 }
 
@@ -695,7 +710,9 @@ sub main {
 
 		}
 
-		my ($OLDBALL) = getNodeWhere({title=>$title}, $NODETYPES{nodeball});
+		my ($OLDBALL) = $DB->getNodeWhere({title=>$title},
+			$DB->getType("nodeball"));
+
 		if ($OLDBALL) {
 			#we have the same nodeball already installed
 			my $VARS = getVars $OLDBALL;
@@ -721,7 +738,8 @@ sub main {
 		cleanUpDir($dir) if $cleanme;
 	
 	} elsif ($function eq "export") {
-		my ($NB) = getNodeWhere({title=>$nodeball}, $NODETYPES{nodeball});
+		my ($NB) = $DB->getNodeWhere({title=>$nodeball},
+			$DB->getType("nodeball"));
 		$NB or die "no nodeball $nodeball exists for export!\n";
 	
 		printSettings (getVars $NB);
@@ -760,7 +778,8 @@ sub main {
 		createNodeball($dir, $NB);
 		cleanUpDir ($dir);
 	} elsif ($function eq "remove") {
-		my ($NB) = getNodeWhere({title=>$nodeball}, $NODETYPES{nodeball});
+		my ($NB) = $DB->getNodeWhere({title=>$nodeball},
+			$DB->getType("nodeball"));
 		$NB or die "There isn't a \"$nodeball\" nodeball installed on this system!";
 		removeNodeball ($NB);
 	} else {

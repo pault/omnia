@@ -144,8 +144,8 @@ sub end_handler {
 			# it loaded.  If not, we need to mark the nodetype field as
 			# unknown for now.
 			$nodetype = $$NODE{type_nodetype}; 
-			if ($NODETYPES{$nodetype}) {
-				$$NODE{type_nodetype} = getId $NODETYPES{$nodetype}; 	
+			if ($DB->getType($nodetype)) {
+				$$NODE{type_nodetype} = getId $DB->getType($nodetype); 	
 			} else {
 				$$NODE{type_nodetype} = -1;
 			}
@@ -171,7 +171,7 @@ sub end_handler {
 sub findRef {
 	my ($FIX, $printError) = @_;
 
-	my ($REFNODE) = getNodeWhere({title=>$$FIX{title}}, $NODETYPES{$$FIX{type}});
+	my ($REFNODE) = $DB->getNodeWhere({title=>$$FIX{title}}, $DB->getType($$FIX{type}));
 	if (not getId($REFNODE)) {
 		print "ERROR!  Fix failed on $$FIX{node_id}: needs" .
 				" a $$FIX{type} named $$FIX{title}\n" if $printError;	 
@@ -213,9 +213,9 @@ sub fixNodes
 			my $GROUP = $$_{node_id};
 			insertIntoNodegroup ($GROUP, -1, $id);	
 		} else {
-			my $N = selectNode $$_{node_id};
+			my $N = $DB->getNodeById($$_{node_id});
 			$$N{$$_{field}} = $id; 
-			updateNode($N, -1);
+			$DB->updateNode($N, -1);
 		}
 	}
 	push @FIXES, @UNFIXED;
@@ -274,6 +274,7 @@ sub initXmlParse {
 #
 sub xml2node{
 	my ($xml) = @_;
+	my $TYPE;
 	
 	# Start with a clean "vars".
 	%TABLES = ();
@@ -287,12 +288,13 @@ sub xml2node{
 	# parse the XML
 	$XMLPARSE = initXmlParse unless $XMLPARSE;
 	$XMLPARSE->parse($xml);
-
-	if (defined $NODETYPES{$nodetype}) {
+	
+	$TYPE = $DB->getType($nodetype);
+	if (defined $TYPE) {
 		#we already have the nodetype for this loaded...
 		my $title = $$NODE{title};
 		my %data = ();
-		my $tableArray = $NODETYPES{$nodetype}{tableArray};
+		my $tableArray = $$TYPE{tableArray};
 		
 		my @fields;
 		my $table;
@@ -304,8 +306,7 @@ sub xml2node{
 		pop @$tableArray;
 		
 		#perhaps we already have this node, in which case we should update it
-		
-		my ($OLDNODE) = getNodeWhere({title=>$title}, $NODETYPES{$nodetype});
+		my $OLDNODE = $DB->getNode($title, $TYPE);
 		my $OLDVARS = {};
 	
 		if ($OLDNODE) {
@@ -314,19 +315,19 @@ sub xml2node{
 			if (isGroup($$OLDNODE{type})) {
 				replaceNodegroup ($OLDNODE, [], -1);
 			}
-			updateNode ($OLDNODE, -1);
+			$DB->updateNode ($OLDNODE, -1);
 			$node_id = getId($OLDNODE);
 		} else {
 			#otherwise, we insert the node into the database
 			@data{@fields} = @$NODE{@fields};
-			if (isGroup($NODETYPES{$nodetype})) {
+			if (isGroup($DB->getType($nodetype))) {
 				foreach (keys %data) {
 					delete $data{$_} if /^groupnode/;
 				}
-				$node_id = insertNode ($title, getId ($NODETYPES{$nodetype}), -1);
+				$node_id = $DB->insertNode ($title, getId($TYPE), -1);
 			} else {
-				$node_id = insertNode ($title, getId ($NODETYPES{$nodetype}), 
-						-1, \%data);
+				$node_id = $DB->insertNode ($title,
+					getId($TYPE), -1, \%data);
 			}
 		}
 
@@ -347,7 +348,7 @@ sub xml2node{
 	#  exist!  This only works for simple types of nodes
 
 	foreach (keys %$NODE) {
-		$$NODE{$_} = $Everything::dbh->quote($$NODE{$_});
+		$$NODE{$_} = $DB->quote($$NODE{$_});
 	}
 	
 	# First, insert the node table information.  We need to do this to get
@@ -356,8 +357,8 @@ sub xml2node{
 	my $sql = "INSERT INTO node ";
 	$sql .= "(createtime,". join(",",@fields) . ")\n";
 	$sql .= "VALUES (now(),". join(",",@$NODE{@fields}) .")\n";
-	$Everything::dbh->do($sql) or die "SQL insert for node failed.";
-	$node_id = Everything::sqlSelect 'LAST_INSERT_ID()';
+	$DB->getDatabseHandle()->do($sql) or die "SQL insert for node failed.";
+	$node_id = $DB->sqlSelect('LAST_INSERT_ID()');
 	
 	# Now that we have our node id, we can insert the infor the rest
 	# of the tables.
@@ -370,7 +371,8 @@ sub xml2node{
 		my $sql = "INSERT INTO $table ";
 		$sql .= "(" . $table . "_id," . join(", ", @fields).")\n";	
 		$sql .= "VALUES ($node_id,".join(', ', @$NODE{@fields}).")\n";	
-		$Everything::dbh->do($sql) or die "owie.  SQL insert for table $table failed";
+		$DB->getDatabaseHandle()->do($sql) or 
+			die "owie.  SQL insert for table $table failed";
 		delete @$NODE{@fields};
 	}
 
@@ -538,7 +540,7 @@ sub noderef2xml {
 	my ($tag, $node_id, $PARAMS) = @_;
 	$PARAMS ||= {};
 
-	my $POINTED_TO = selectNode $node_id;
+	my $POINTED_TO = $DB->selectNode($node_id);
 	my ($title, $typetitle, $TYPE);
 
 	if (keys %$POINTED_TO) {
@@ -613,7 +615,6 @@ sub node2xml
 	#now we catch the node table
 	my @keys = sort {$a cmp $b} (keys %$N);	
 	foreach my $field (@keys) {
-		#print "generating stuff for $field\n";
 		my %attr = (table => $fieldtable{$field});
 		$str .= "\t";	
 		if (ref $$N{$field} eq "ARRAY") {

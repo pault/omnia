@@ -41,8 +41,8 @@ package Everything::NodeCache;
 #############################################################################
 
 use strict;
-use Everything;
 use Everything::CacheQueue;
+use Everything::NodeBase;
 
 
 sub BEGIN
@@ -69,6 +69,8 @@ sub BEGIN
 #		Constructor for this "object".
 #
 #	Parameters
+#		$nodeBase - the Everything::NodeBase that we should use for database
+#			access.
 #		$maxSize - the maximum number of nodes that this cache should hold.
 #			-1 if unlimited.  If you have a large everything implementation,
 #			setting this to -1 would be bad.
@@ -78,10 +80,11 @@ sub BEGIN
 #
 sub new
 {
-	my ($packageName, $maxSize) = @_;
+	my ($packageName, $nodeBase, $maxSize) = @_;
 	my $this = {};
 	
 	$this->{maxSize} = $maxSize;
+	$this->{nodeBase} = $nodeBase;
 
 	$this->{nodeQueue} = new Everything::CacheQueue();
 
@@ -90,19 +93,18 @@ sub new
 	$this->{idCache} = {};
 	$this->{version} = {};
 	
-	if(not Everything::tableExists("version"))
+	if(not $this->{nodeBase}->tableExists("version"))
 	{
 		# The global version table does not exist, we need to create it.
 		my $createTable;
-		my $dbh = $Everything::dbh;
+		my $dbh = $this->{nodeBase}->getDatabaseHandle();
 		
 		$createTable = "create table version (";
 		$createTable .= "version_id int(11) default '0' not null, ";
 		$createTable .= "version int(11) default '1' not null, ";
 		$createTable .= "primary key (version_id))";
 	
-		my $cursor = $dbh->prepare($createTable);
-		$cursor->execute();
+		$dbh->do($createTable);
 	}
 	
 	bless $this;  # oh, my lord
@@ -325,10 +327,11 @@ sub flushCache
 sub flushCacheGlobal
 {
 	my ($this) = @_;
+	my $dbh = $this->{nodeBase}->getDatabaseHandle();
 
 	$this->flushCache();
 
-	$Everything::dbh->do("drop table if exists version");
+	$dbh->do("drop table if exists version");
 }
 
 
@@ -423,13 +426,13 @@ sub getGlobalVersion
 	my %version;
 	my $ver;
 	
-	$ver = Everything::sqlSelect("version", "version",
+	$ver = $this->{nodeBase}->sqlSelect("version", "version",
 		"version_id=$$NODE{node_id}");
 
 	if( (not defined $ver) || (not $ver) )
 	{
 		# The version for this node does not exist.  We need to start it off.
-		Everything::sqlInsert('version',
+		$this->{nodeBase}->sqlInsert('version',
 			{ version_id => $$NODE{node_id}, version => 1 } );
 
 		$ver = 1;
@@ -466,16 +469,15 @@ sub incrementGlobalVersion
 {
 	my ($this, $NODE) = @_;
 	my %version;
-	my $dbh = $Everything::dbh;
 	my $rowsEffected;
 	
-	$rowsEffected = Everything::sqlUpdate('version',
+	$rowsEffected = $this->{nodeBase}->sqlUpdate('version',
 		{ -version => 'version+1' },  "version_id=$$NODE{node_id}");
 
 	if($rowsEffected == 0)
 	{
 		# The version for this node does not exist.  We need to start it off.
-		Everything::sqlInsert('version',
+		$this->{nodeBase}->sqlInsert('version',
 			{ version_id => $$NODE{node_id}, version => 1 } );
 	}
 }

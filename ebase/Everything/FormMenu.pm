@@ -64,12 +64,11 @@ sub new
 sub addSettings
 {
 	my ($this, $setting) = @_;
-	my $NODE = selectNodeByName($setting, $NODETYPES{setting});
+	my $NODE = $DB->getNode($setting, $DB->getType("setting"));
 	my $vars;
 	my $key;
 
-
-	$NODE = $$NODE[0] if(ref $NODE eq "ARRAY");
+	return if(not defined $NODE);
 	$vars = getVars($NODE);
 
 	$this->addHash($vars);
@@ -90,8 +89,9 @@ sub addSettings
 sub addType
 {
 	my ($this, $type) = @_;
-	my $typeid = $NODETYPES{$type}{node_id};
-	my $NODES = selectNodeWhere({type_nodetype => $typeid});
+	my $TYPE = $DB->getType($type);
+	my $typeid = $$TYPE{node_id} if(defined $TYPE);
+	my $NODES = $DB->selectNodeWhere({type_nodetype => $typeid});
 	my $NODE;
 	
 	foreach $NODE (@$NODES)
@@ -115,20 +115,18 @@ sub addType
 sub addGroup
 {
 	my ($this, $group) = @_;
-	my $GROUP = selectNodeByName($group);
+	my $GROUP = $DB->getNode($group);
 	my $groupnode;
 	my $NODE;
 	my $GROUPNODES;
 	
-	$GROUP = $$GROUP[0] if(ref $GROUP eq "ARRAY");
-	getRef $GROUP;
-
+	return if(not defined $GROUP);
 	return if(ref $GROUP ne "HASH");
 
 	$GROUPNODES = selectNodegroupFlat($GROUP);
 	foreach $groupnode (@$GROUPNODES)
 	{
-		$NODE = getNodeById($groupnode);
+		$NODE = $DB->getNodeById($groupnode);
 		$this->{$$NODE{node_id}} = $$NODE{title};
 	}
 }

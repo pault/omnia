@@ -15,7 +15,7 @@ package Everything;
 
 use strict;
 use DBI;
-use Everything::NodeCache;
+use Everything::NodeBase;
 
 sub BEGIN
 {
@@ -23,21 +23,11 @@ sub BEGIN
 	use vars	   qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 	@ISA=qw(Exporter);
 	@EXPORT=qw(
-		$nodeCache
-		%NODETYPES
+		$DB
 		$dbh
-		sqlConnect 
-		loadTypes 
 		getRef 
 		getId 
 		getTables
-		getFields
-		getFieldsHash
-		getNodeById
-		getNode
-		selectNode 
-		selectNodeWhere 
-		selectNodeByName 
 		selectNodegroupFlat 
 		removeFromNodegroup 
 		replaceNodegroup
@@ -48,37 +38,30 @@ sub BEGIN
 		canReadNode 
 		updateLinks 
 		updateHits 
-		nukeNode 
 		getVars 
 		setVars 
 		selectLinks 
-		insertNode 
-		updateNode 
-		printNode 
 		searchNodeName 
-		getNodeWhere
 		isGroup
 		isNodetype
 		isCore
 		lockNode
 		unlockNode
 		dumpCallStack
-		getNodetypeTables
-		tableExists
-		createNodeTable
-		dropNodeTable
-		addFieldToTable
-		dropFieldFromTable
-        node2mail);
+		printErr
+		printLog
+        );
  }
 
-use vars qw($nodeCache);
-use vars qw(%NODETYPES);
-use vars qw($dbname); #the name of the database we're connected to
+use vars qw($DB);
+
+# $dbh is deprecated.  Use $DB->getDatabaseHandle() to get the DBI interface
 use vars qw($dbh);
 
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
+
+my $VERSION = 0.8;
 
 
 #############################################################################
@@ -150,270 +133,6 @@ sub clearLog
 
 #############################################################################
 #	Sub
-#		sqlConnect
-#
-#	Purpose
-#		Connect to that sql database.  Everything.pm stays connected to
-#		the database and remembers what database is used.  If a new
-#		database is specified, we close the connection to the old one.
-#
-#	Parameters
-#		$db - name of the database to connect to (ie everyalpha)
-#
-#	Returns
-#		True (1) if the connection was made to a new/different database.
-#		False (0) if the connection did not change.
-#
-sub sqlConnect
-{
-	my ($db) = @_;
-	
-	if((defined $dbname) && ($dbname eq $db) && (defined $dbh))
-	{
-		return 0; # nothing to do.
-	}
-	elsif(defined $dbh)
-	{
-		# If $dbh is defined, we have an old connection to close.
-		$dbh->disconnect();
-	}
-	
-	$dbh = DBI->connect("DBI:mysql:$db", "root", "");
-	printLog("database changed to $db");
-
-	$dbname = $db;
-		
-	return 1;
-}
-
-
-#############################################################################
-#	Sub
-#		sqlDelete
-#
-#	Purpose
-#		Quickie wrapper for deleting a row from a specified table.
-#
-#	Parameters
-#		from - the sql table to delete the row from
-#		where - what the sql query should match when deleting.
-#
-#	Returns
-#		0 (false) if the sql command fails, 1 (true) if successful.
-#
-sub sqlDelete
-{
-	my ($from, $where) = @_;
-
-	$where or return;
-
-	my $sql .= "DELETE FROM $from ";
-	$sql .= "WHERE $where";
-
-	unless ($dbh->do($sql))
-	{  
-		printErr "sqlDelete failed: $sql";
-		return 0;
-	}
-	
-	1;
-}
-
-
-#############################################################################
-#	Sub
-#		sqlSelectMany
-#
-#	Purpose
-#		A general wrapper function for a standard SQL select command.
-#
-#	Parameters
-#		select - what colums to return from the select (ie "*")
-#		from - the table to do the select on
-#		where - the search criteria
-#		other - any other sql options thay you may wan to pass
-#
-#	Returns
-#		The sql cursor of the select.  Call fetchrow() on it to get
-#		the selected rows.  0 (false) if error.
-#
-sub sqlSelectMany
-{
-	my($select,$from,$where,$other)=@_;
-
-	my $sql="SELECT $select ";
-	$sql.="FROM $from " if $from;
-	$sql.="WHERE $where " if $where;
-	$sql.="$other" if $other;
-	my $c=$dbh->prepare($sql);
-	if($c->execute()) {
-		return $c;
-	} else {
-		printErr "sqlSelectMany Error: $sql";
-		return 0;
-	}
-}
-
-
-#############################################################################
-#	Sub
-#		sqlSelect
-#
-#	Purpose
-#		Wrapper for the SQL select command that returns one row.
-#
-#	Parameters
-#		select - the columns to return from the select
-#		from - the table to do the select on
-#		where - the conditional constraints on the select
-#		other - any other select options you may want to add.
-#
-#	Returns
-#		An array if there were more than one column returned.
-#		A scalar if only one column.  0 (false) if error.
-#
-sub sqlSelect
-{
-	my ($select, $from, $where, $other)=@_;
-	my $sql="SELECT $select ";
-	$sql.="FROM $from " if $from;
-	$sql.="WHERE $where " if $where;
-	$sql.="$other" if $other;
-	my $c=$dbh->prepare_cached($sql);
-	if(not $c->execute()) {
-		printErr "sqlSelect Error: $sql";
-		return 0;
-	}
-	my @r=$c->fetchrow();
-	$c->finish();
-
-	(@r == 1)?$r[0]:@r;
-}
-
-
-#############################################################################
-#	Sub
-#		sqlSelectHashref
-#
-#	Purpose
-#		Select a row as a hash and return the reference to that hash.
-#
-#	Parameters
-#		See sqlSelect.
-#
-#	Returns
-#		A hashref to the row
-#
-sub sqlSelectHashref
-{
-	my ($select, $from, $where, $other)=@_;
-	my $cursor;
-	my $ROW;
-
-	my $sql="SELECT $select ";
-	$sql.="FROM $from " if $from;
-	$sql.="WHERE $where " if $where;
-	$sql.="$other" if $other;
-
-	$cursor = $dbh->prepare_cached($sql);
-	
-	unless ($cursor->execute())
-	{
-		printErr "sqlSelectHashref Error: $sql";
-		return 0;
-	}
-
-	$ROW = $cursor->fetchrow_hashref();
-	$cursor->finish();
-
-	return $ROW;
-}
-
-
-#############################################################################
-#	Sub
-#		sqlUpdate
-#
-#	Purpose
-#		Wrapper for sql update command.
-#
-#	Parameters
-#		table - the sql table to udpate
-#		data - a hash reference that contains the fields and their values
-#			that will be changed.
-#		where - the string that contains the constraints as to which rows
-#			will be updated.
-#
-#	Returns
-#		Number of rows affected (true if something happened, false if
-#		nothing was changed).
-#
-sub sqlUpdate
-{
-	my($table,$data,$where)=@_;
-	my $sql="UPDATE $table SET";
-
-
-	return unless keys %$data;
-
-	foreach (keys %$data)
-	{
-		if (/^-/)
-		{
-			s/^-//; 
-			$sql .="\n  $_ = " . $$data{'-'.$_} . ",";
-		}
-		else
-		{ 
-			$sql .="\n  $_ = " . $dbh->quote($$data{$_}) . ",";
-		}
-	}
-
-	chop($sql);
-
-	$sql.="\nWHERE $where\n" if $where;
-
-	$dbh->do($sql) or (printErr "sqlUpdate failed:\n $sql\n" and return 0);
-}
-
-
-#############################################################################
-#	Sub
-#		sqlInsert
-#
-#	Purpose
-#		Wrapper for the sql insert command.
-#
-#	Parameters
-#		table - string name of the sql table to add the new row
-#		data - a hash reference that contains the fieldname => value
-#			pairs.
-#
-#	Returns
-#		true if successful, false otherwise.
-#
-sub sqlInsert
-{
-	my($table,$data)=@_;
-	my($names,$values);
-
-	foreach (keys %$data) {
-		if (/^-/) {$values.="\n  ".$$data{$_}.","; s/^-//;}
-		else { $values.="\n  ".$dbh->quote($$data{$_}).","; }
-		$names.="$_,";
-	}
-
-	chop($names);
-	chop($values);
-
-	my $sql="INSERT INTO $table ($names) VALUES($values)\n";
-
-	$dbh->do($sql) or (printErr "sqlInsert failed:\n $sql" and return 0);
-}
-
-
-#############################################################################
-#	Sub
 #		getRef
 #
 #	Purpose
@@ -431,7 +150,7 @@ sub getRef
 	{ 
 		unless (ref ($_[$i]))
 		{
-			$_[$i] = getNodeById($_[$i]) if $_[$i];
+			$_[$i] = $DB->getNodeById($_[$i]) if $_[$i];
 		}
 	}
 	
@@ -486,7 +205,8 @@ sub isNodetype
 	return 0 if (not ref $NODE);
 
 	# If this node's type is a nodetype, its a nodetype.
-	return ($$NODE{type_nodetype} == $NODETYPES{nodetype}{node_id});
+	my $TYPE = $DB->getType("nodetype");
+	return ($$NODE{type_nodetype} == $$TYPE{node_id});
 }
 
 
@@ -577,6 +297,7 @@ sub getVars
 
 	return if ($NODE == -1);
 	
+	dumpCallStack() if(ref $NODE eq "ARRAY");
 	unless (exists $$NODE{vars}) {
 		warn ("getVars:\t'vars' field does not exist for node ".getId($NODE)."
 		perhaps it doesn't join on the settings table?\n");
@@ -635,7 +356,7 @@ sub setVars
 	# an update on the user info.
 	$$NODE{vars} = $str;
 	my $superuser = -1;
-	updateNode($NODE, $superuser);
+	$DB->updateNode($NODE, $superuser);
 }
 
 
@@ -680,318 +401,6 @@ sub canReadNode {
 	return 0 if((not defined $NODE) || ($NODE == 0));
 	return 1 unless $$NODE{type}{readers_user};	
 	isApproved ($USER, $$NODE{type}{readers_user});
-}
-
-
-#############################################################################
-#	Sub
-#		selectNode
-#
-#	Purpose
-#		Deprecated.  Use getNodeById.
-#
-sub selectNode
-{
-	my ($N, $selectop) = @_;
-
-	return getNodeById($N, $selectop);
-}
-
-
-#############################################################################
-#	Sub
-#		getNodeById
-#
-#	Purpose
-#		This takes a node id or node hash reference (all we need is the id)
-#		and loads the node into a hash by attaching the other table data.
-#
-#		If the node is a group node, the group members will be added to
-#		the "group" key in the hash.
-#
-#	Parameters
-#		N - either an integer node Id, or a reference to a node hash.
-#		selectop - either "force", "light", or "".  If set to "force", this
-#			will do the work even if the node is cached.  If set to "light"
-#			it just attaches the nodetype hash to the node.  If "" or null,
-#			it resolves nodegroup stuff and attaches the extra table data.
-#
-#	Returns
-#		A node hash reference.  False if failure.
-#
-sub getNodeById
-{
-	my ($N, $selectop) = @_;
-	my $groupTable;
-	my $NODETYPE;
-	my $NODE;
-	my $table;
-
-	return -1 if ((not ref $N) and $N eq "-1");
-	
-	$selectop ||= '';
-	my $node_id = getId($N);
-	return unless $node_id;
-
-	my $cachedNode;
-	
-	$cachedNode = $nodeCache->getCachedNodeById($node_id)
-		if(defined $nodeCache);
-
-	unless ($selectop eq 'force' or not $cachedNode)
-	{
-		return $cachedNode;
-	}
-	
-	$NODE = sqlSelectHashref('*', 'node', "node_id=$node_id");
-	if(not defined $NODE)
-	{
-		# the select resulted in no matches.
-		return 0;
-	}
-	
-	$NODETYPE = $NODETYPES{$$NODE{type_nodetype}};
-	if (not defined $NODETYPE)
-	{
-		# Why would we ever get here?  All nodetypes are cached.
-		printLog("Got an invalid nodetype in getNodeById()");
-		return 0;
-	}
-
-	$$NODE{type} = $NODETYPE;
-
-	if ($selectop eq 'light')
-	{
-		# Note that we do not cache the node.  We don't want to cache a
-		# node that does not have its table data (its not complete).
-		return $NODE;
-	}
-
-	# Run through the array of tables and add each one to the node.
-	# This is like joining on each table, be we are doing it manually
-	# instead, because we already get the node table info.
-	foreach $table (@{$$NODETYPE{tableArray}})
-	{
-		my $DATA = sqlSelectHashref('*', $table,
-			"$table" . "_id=$$NODE{node_id}");
-		
-		if ($DATA)
-		{
-			foreach (keys %$DATA)
-			{
-				$$NODE{$_} = $$DATA{$_};
-			}
-		}
-	}
-	
-	# Make sure each field is at least defined to be nothing.
-	foreach (keys %$NODE) {
-		$$NODE{$_} = "" unless defined ($$NODE{$_});
-	}
-
-	# Fill out the group in the node, if its a group node.
-	loadGroupNodeIDs($NODE);
-
-	# Store this node in the cache.
-	$nodeCache->cacheNode($NODE) if(defined $nodeCache);
-
-	$NODE;
-}
-
-
-#############################################################################
-#	Sub
-#		loadGroupNodeIDs
-#
-#	Purpose
-#		A group nodetype has zero or more nodes in its group.  This
-#		will get the node ids from the group, and store them in the
-#		'group' key of the node hash.
-#
-#	Parameters
-#		$NODE - the group node to load node IDs for.  If the given
-#			node is not a group node, this will do nothing.
-#
-sub loadGroupNodeIDs
-{
-	my ($NODE, $hash, $recursive) = @_;
-	my $groupTable;
-
-	# If this node is a group node, add the nodes in its group to its array.
-	if ($groupTable = isGroup($$NODE{type}))
-	{
-		my $cursor;
-		my $nid;
-
-		if(not defined $$NODE{group})
-		{
-			$cursor = sqlSelectMany('node_id', $groupTable,
-				$groupTable . "_id=$$NODE{node_id}", 'ORDER BY orderby');
-		
-			while($nid = $cursor->fetchrow)
-			{
-				push @{ $$NODE{group} }, $nid;
-			}
-			
-			$cursor->finish();
-		}
-	}
-}
-
-
-#############################################################################
-#	Sub
-#		genWhereString
-#
-#	Purpose
-#		This code was stripped from selectNodeWhere.  This takes a WHERE
-#		hash and a string for ordering and generates the appropriate where
-#		string to pass along with a select-type sql command.  The code is
-#		in this function so we can re-use it.
-#
-#	Parameters
-#		WHERE - a reference to a hash that contains the criteria (ie
-#			title => 'the node', etc).
-#		TYPE - a hash reference to the nodetype
-#		orderby - a string that contains information on how the sql
-#			query should order the result if more than one match is found.
-#
-#	Returns
-#		A string that can be used for the sql query.
-#
-sub genWhereString
-{
-	my ($WHERE, $TYPE, $orderby) = @_;
-	my $wherestr;
-	
-	foreach my $key (keys %$WHERE)
-	{
-		# if your where hash includes a hash to a node, you probably really
-		# want to compare the ID of the node, not the hash reference.
-		if (ref ($$WHERE{$key}) eq "HASH")
-		{
-			$$WHERE{$key} = getId($$WHERE{$key});
-		}
-		
-		# If $key starts with a '-', it means its a single value.
-		if ($key =~ /^\-/)
-		{ 
-			$key =~ s/^\-//;
-			$wherestr .= $key . '=' . $$WHERE{'-' . $key}; 
-		}
-		else
-		{
-			#if we have a list, we join each item with ORs
-			if (ref ($$WHERE{$key}) eq "ARRAY")
-			{
-				my $LIST = $$WHERE{$key};
-				my $item = shift @$LIST;
-				
-				if (ref ($item) eq "HASH") { $item = getId $item; }
-				
-				$wherestr .= "(". $key . '=' . $dbh->quote($item); 
-				
-				foreach my $item (@$LIST)
-				{
-					if (ref ($item) eq "HASH") { $item = getId $item; }
-					$wherestr .= " or " . $key . '=' . $dbh->quote($item); 
-				}
-				$wherestr.=")";
-			}
-			elsif($$WHERE{$key})
-			{
-				$wherestr .= $key . '=' .  $dbh->quote($$WHERE{$key});
-			}
-		}
-		
-		#different elements are joined together with ANDS
-		$wherestr .= " && \n";
-	}
-	
-	$wherestr =~ s/\s\W*$//;
-	$wherestr .= " && type_nodetype=$$TYPE{node_id}" if $TYPE;
-
-	$wherestr .= " ORDER BY $orderby" if $orderby;
-	
-	#you will note that this is not a full-featured WHERE generator --
-	#there is no way to do "field1=foo OR field2=bar" 
-	#you can only OR on the same field and AND on different fields
-	#I haven't had to worry about it yet.  That day may come
-	return $wherestr;
-}
-
-
-#############################################################################
-#	Sub
-#		selectNodeWhere
-#
-#	Purpose
-#		Select a node based on some kind of criteria.
-#
-#		XXX - this seems quite inefficient.  We do a huge table join,
-#		search, and retrieval only to get the node id's?  Since we have
-#		the cursor, why don't we just do a fetchrow_hashref()?  This way
-#		we could return the actual nodes instead of the id's.  The person
-#		calling this function will probably call selectNode on each of
-#		them anyway, which is just more sql queries.
-#
-#	Parameters
-#		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select.
-#		$TYPE - the nodetype to search.  If this is not given, this
-#			will only search the fields on the "node" table since
-#			without a nodetype we don't know what other tables to join
-#			on.
-#		$orderby - the field in which to order the results.
-#
-#	Returns
-#		A reference to an array of integer node id's that match the query.
-#
-sub selectNodeWhere
-{
-	my ($WHERE, $TYPE, $orderby) = @_;
-	my $cursor;
-	my $select;
-	my @nodelist;
-	my $node_id;
-	
-
-	getRef($TYPE);
-
-	my $wherestr = genWhereString($WHERE, $TYPE, $orderby);
-
-	# We need to generate an sql join command that has the potential
-	# to join on multiple tables.  This way the SQL engine does the
-	# search for us.
-	$select = "SELECT node_id FROM node";
-
-	# Now we need join on the appropriate tables.
-	if(($TYPE) && (defined $TYPE) && (ref $$TYPE{tableArray}))
-	{
-		my $tableArray = $$TYPE{tableArray};
-		my $table;
-		
-		foreach $table (@$tableArray)
-		{
-			$select .= " LEFT JOIN $table ON node_id=" . $table . "_id";
-		}
-	}
-
-	$select .= " WHERE " . $wherestr if($wherestr);
-
-	$cursor = $dbh->prepare($select);
-	$cursor->execute() or die "SQL Select failed on table join\n$select\n";
-	
-	while (($node_id) = $cursor->fetchrow)
-	{ 
-		push @nodelist, $node_id; 
-	}
-	
-	$cursor->finish();
-	
-	return unless (@nodelist);
-	
-	return \@nodelist;
 }
 
 
@@ -1059,7 +468,7 @@ sub insertIntoNodegroup
 		
 		# This will return a value if the select is not empty.  If
 		# it is empty (there is nothing in the group) it will be null.
-		($maxOrderBy) = sqlSelect('MAX(orderby)', $groupTable, 
+		($maxOrderBy) = $DB->sqlSelect('MAX(orderby)', $groupTable, 
 			$groupTable . "_id=$$NODE{node_id}"); 
 
 		if (defined $maxOrderBy)
@@ -1074,7 +483,7 @@ sub insertIntoNodegroup
 				# field that is the same or higher than the orderby given.
 				# If orderby is greater than the current max orderby, we
 				# don't need to do this.
-				sqlUpdate($groupTable, { '-orderby' => 'orderby+1' }, 
+				$DB->sqlUpdate($groupTable, { '-orderby' => 'orderby+1' }, 
 					$groupTable. "_id=$$NODE{node_id} && orderby>=$orderby");
 			}
 			elsif(not defined $orderby)
@@ -1087,13 +496,13 @@ sub insertIntoNodegroup
 			$orderby = 0;  # start it off
 		}
 		
-		$rank = sqlSelect('MAX(rank)', $groupTable, 
+		$rank = $DB->sqlSelect('MAX(rank)', $groupTable, 
 			$groupTable . "_id=$$NODE{node_id}");
 
 		# If rank exists, increment it.  Otherwise, start it off at zero.
 		$rank = ((defined $rank) ? $rank+1 : 0);
 
-		sqlInsert($groupTable, { $groupTable . "_id" => $$NODE{node_id}, 
+		$DB->sqlInsert($groupTable, { $groupTable . "_id" => $$NODE{node_id}, 
 			rank => $rank, node_id => $$INSERT{node_id},
 			orderby => $orderby});
 
@@ -1103,69 +512,11 @@ sub insertIntoNodegroup
 	}
 	
 	#we should also refresh the group list ref stuff
-	$_[0] = selectNode $NODE, 'force'; #refresh the group
+	$_[0] = $DB->getNodeById($NODE, 'force'); #refresh the group
 }
 
 
 
-#############################################################################
-#	Sub
-#		getNodeWhere
-#
-#	Purpose
-#		selectNodeWhere returns an array of node id's.  We want to have
-#		an array of node hashes.  This will give load the nodes that
-#		match the sql query into hashes.
-#
-#	Parameters
-#		$WHERE - a hash reference of field=value for the 'where' part of
-#			the sql query.
-#		$TYPE - a hash reference to the nodetype we are looking for.  If
-#			this is not given the search will only be done on the 'node'
-#			table since we don't know which tables to join on.
-#		$orderby - a string to create the 'orderby' section of the sql.
-#		$selectop - The select operation to do.  See getNodeById.
-#
-#	Returns
-#		An array of node hashes that matched the given query.
-#
-sub getNodeWhere
-{
-	my ($WHERE, $TYPE, $orderby, $selectop) = @_;
-
-	# DPB - selectNodeWhere has the potential to return the hashes.
-	# Maybe we should just modify it to take a parameter as to whether
-	# you want IDs or hashes of nodes.  It would save some sql queries.
-	my $ret = selectNodeWhere $WHERE, $TYPE, $orderby;
-
-	return unless ref $ret;
-	
-	foreach (@$ret) {
-		$_ = getNodeById $_, $selectop;
-	}
-	
-	@$ret;
-}
-
-######################################################################
-#	sub 
-#		getNode
-#
-#	purpose
-#		much of the time my getNodeWhere queries look like:
-#		getNodeWhere({title=>$title}, $NODETYPES{$type});
-#		this is basically a shortcut so I can just say
-#		getNode($title, $type);
-#
-sub getNode {
-	my ($title, $type) = @_;
-	
-	return getNodeById($title) if not $type and $title =~ /^\d+$/;
-	
-	my @ret = getNodeWhere({title=>$title}, $NODETYPES{$type});
-	return $ret[0] if @ret;
-	"";
-}
 
 #############################################################################
 #	Sub
@@ -1308,13 +659,13 @@ sub removeFromNodegroup
 
 	my $node_id = getId $NODE;
 
-	$success = sqlDelete ($groupTable,
+	$success = $DB->sqlDelete ($groupTable,
 		$groupTable . "_id=$$GROUP{node_id} && node_id=$node_id");
 
 	if($success)
 	{
 		# If the delete did something, we need to refresh this group node.	
-		$_[0] = getNodeById $GROUP, 'force'; #refresh the group
+		$_[0] = $DB->getNodeById($GROUP, 'force'); #refresh the group
 	}
 
 	return $_[0];
@@ -1345,36 +696,9 @@ sub replaceNodegroup
 	canUpdateNode($USER, $GROUP) or return; 
 	($groupTable = isGroup($$GROUP{type})) or return; 
 	
-	sqlDelete ($groupTable, $groupTable . "_id=$$GROUP{node_id}");
+	$DB->sqlDelete ($groupTable, $groupTable . "_id=$$GROUP{node_id}");
 
 	return insertIntoNodegroup ($_[0], $USER, $REPLACE);  
-}
-
-
-#############################################################################
-#	Sub
-#		updateHits
-#
-#	Purpose
-#		Increment the number of hits on a node.
-#
-#	Parameters
-#		$NODE - the node in which to update the hits on
-#
-#	Returns
-#		The new number of hits
-#
-sub updateHits
-{
-	my ($NODE) = @_;
-	getRef $NODE;
-
-	my $id = getId $NODE;
-
-	sqlUpdate('node', { -hits => 'hits+1' }, "node_id=$id");
-
-	# We will just do this, instead of doing a complete refresh of the node.
-	++$$NODE{hits};
 }
 
 
@@ -1406,15 +730,40 @@ sub updateLinks
 	$type = getId $type;
 	my ($to_id, $from_id) = getId $TONODE, $FROMNODE;
 
-	my $rows = sqlUpdate('links',
+	my $rows = $DB->sqlUpdate('links',
 			{ -hits => 'hits+1' ,  -food => 'food+1'}, 
 			"from_node=$from_id && to_node=$to_id && linktype=" .
-			$dbh->quote($type));
+			$DB->getDatabaseHandle()->quote($type));
 
 	if ($rows eq "0E0") { 
-		sqlInsert("links", {'from_node' => $from_id, 'to_node' => $to_id, 
+		$DB->sqlInsert("links", {'from_node' => $from_id, 'to_node' => $to_id, 
 				'linktype' => $type, 'hits' => 1, 'food' => '500' }); 
 	}
+}
+
+
+#############################################################################
+#   Sub
+#       updateHits
+#
+#   Purpose
+#       Increment the number of hits on a node.
+#
+#   Parameters
+#       $NODE - the node in which to update the hits on
+#
+#   Returns
+#       The new number of hits
+#
+sub updateHits
+{
+	my ($NODE) = @_;
+	my $id = $$NODE{node_id};
+
+	$DB->sqlUpdate('node', { -hits => 'hits+1' }, "node_id=$id");
+
+	# We will just do this, instead of doing a complete refresh of the node.
+	++$$NODE{hits};
 }
 
 
@@ -1443,8 +792,9 @@ sub selectLinks
 	
 	$obstr = " ORDER BY $orderby" if $orderby;
 
-	$cursor = sqlSelectMany ("*", 'links',
-		"from_node=". $dbh->quote(getId($FROMNODE)) . $obstr); 
+	$cursor = $DB->sqlSelectMany ("*", 'links',
+		"from_node=". $DB->getDatabaseHandle()->quote(getId($FROMNODE)) .
+		$obstr); 
 	
 	while (my $linkref = $cursor->fetchrow_hashref())
 	{
@@ -1488,7 +838,7 @@ sub cleanLinks
 	$select = "SELECT to_node,node_id from links";
 	$select .= " left join node on to_node=node_id";
 
-	$cursor = $dbh->prepare($select);
+	$cursor = $DB->getDatabaseHandle()->prepare($select);
 
 	if($cursor->execute())
 	{
@@ -1505,7 +855,7 @@ sub cleanLinks
 	$select = "SELECT from_node,node_id from links";
 	$select .= " left join node on from_node=node_id";
 
-	$cursor = $dbh->prepare($select);
+	$cursor = $DB->getDatabaseHandle()->prepare($select);
 
 	if($cursor->execute())
 	{
@@ -1521,240 +871,15 @@ sub cleanLinks
 
 	foreach $badlink (@to_array)
 	{
-		sqlDelete("links", { to_node => $badlink });
+		$DB->sqlDelete("links", { to_node => $badlink });
 	}
 
 	foreach $badlink (@from_array)
 	{
-		sqlDelete("links", { from_node => $badlink });
+		$DB->sqlDelete("links", { from_node => $badlink });
 	}
 }
 
-
-#############################################################################
-#	Sub
-#		nukeNode
-#
-#	Purpose
-#		Given a node, delete it and all of its associated table data.
-#		If it is a group node, this will also clean out all of its
-#		entries in its group table.
-#
-#	Parameters
-#		$NODE - the node in which we wish to delete
-#		$USER - the user trying to do this (used for authorization)
-#
-#	Returns
-#		True if successful, false otherwise.
-#	
-sub nukeNode
-{
-	my ($NODE, $USER) = @_;
-	my $tableArray;
-	my $table;
-	my $result = 0;
-	my $groupTable;
-	
-	getRef ($NODE, $USER);
-	
-	return unless (canDeleteNode($USER, $NODE));
-
-	# This node is about to be deleted.  Do any maintenance if needed.
-	nodeMaintenance($NODE, 'delete');
-	
-	# Delete this node from the cache that we keep.
-	$nodeCache->removeNode($NODE) if(defined $nodeCache);
-
-	$tableArray = $$NODE{type}{tableArray};
-
-	push @$tableArray, "node";  # the node table is not in there.
-
-	foreach $table (@$tableArray)
-	{
-		$result += $dbh->do("DELETE FROM $table WHERE " . $table . 
-			"_id=$$NODE{node_id}");
-	}
-
-	pop @$tableArray; # remove the implied "node" that we put on
-	
-	# Remove all links that go from or to this node that we are deleting
-	$dbh->do("DELETE FROM links 
-		WHERE to_node=$$NODE{node_id} 
-		OR from_node=$$NODE{node_id}");
-
-	# If this node is a group node, we will remove all of its members
-	# from the group table.
-	if($groupTable = isGroup($$NODE{type}))
-	{
-		# Remove all group entries for this group node
-		$dbh->do("DELETE FROM $groupTable WHERE " . $groupTable . 
-			"_id=$$NODE{node_id}");
-	}
-	
-	# This will be zero if nothing was deleted from the tables.
-	return $result;
-}
-
-
-#############################################################################
-#	Sub
-#		updateNode
-#
-#	Purpose
-#		Update the given node in the database.
-#
-#	Parameters
-#		$NODE - the node to update
-#		$USER - the user attempting to update this node (used for
-#			authorization)
-#
-#	Returns
-#		True if successful, false otherwise.
-#
-sub updateNode
-{
-	my ($NODE, $USER) = @_;
-	getRef $NODE;
-	my %VALUES;
-	my $tableArray = $$NODE{type}{tableArray};
-	my $table;
-	my @fields;
-	my $field;
-
-	return 0 unless (canUpdateNode($USER, $NODE)); 
-
-	# Cache this node since it has been updated.  This way the cached
-	# version will be the same as the node in the db.
-	$nodeCache->cacheNode($NODE) if(defined $nodeCache);
-
-	# The node table is assumed, so its not in the "joined" table array.
-	# However, for this update, we need to add it.
-	push @$tableArray, "node";
-
-	# We extract the values from the node for each table that it joins
-	# on and update each table individually.
-	foreach $table (@$tableArray)
-	{
-		undef %VALUES; # clear the values hash.
-
-		@fields = getFields($table);
-		foreach $field (@fields)
-		{
-			if (exists $$NODE{$field})
-			{ 
-				$VALUES{$field} = $$NODE{$field};
-			}
-		}
-
-		# we don't want to chance mucking with the primary key
-		# So, remove this from the hash
-		delete $VALUES{$table . "_id"}; 
-
-		sqlUpdate($table, \%VALUES, $table . "_id=$$NODE{node_id}");
-	}
-
-	# We are done with tableArray.  Remove the "node" table that we put on
-	pop @$tableArray;
-
-	# This node has just been updated.  Do any maintenance if needed.
-	# NOTE!  This is turned off for now since nothing uses it currently.
-	# (helps performance).  If you need to do some special updating for
-	# a particualr nodetype, uncomment this line.
-	nodeMaintenance($NODE, 'update');
-
-	return 1;
-}
-
-
-#############################################################################
-#	Sub
-#		insertNode
-#
-#	Purpose
-#		Insert a new node into the tables.
-#
-#	Parameters
-#		title - the string title of the node
-#		TYPE - the hash of the type that we want to insert
-#		USER - the user trying to do this (used for authorization)
-#		DATA - the fields/values of the node to set.
-#
-#	Returns
-#		The id of the node inserted, or false if error (sql problem, node
-#		already exists).
-#
-sub insertNode
-{
-	my ($title, $TYPE, $USER, $DATA) = @_;
-	my $tableArray;
-	my $table;
-	my $NODE;
-
-	
-	$TYPE = $NODETYPES{$TYPE} unless (ref $TYPE);
-	#can reference with type name as well as "node"
-
-	unless (canCreateNode($USER, $TYPE)) {
-		printErr "$$USER{title} not allowed to create this type of node!";
-		return 0;
-	}
-
-	if ($$TYPE{restrictdupes})
-	{ 
-		# Check to see if we already have a node of this title.
-		my $DUPELIST = selectNodeByName ($title, $TYPE);
-
-		if ($DUPELIST)
-		{
-			# A node of this name already exists and restrict dupes is
-			# on for this nodetype.  Don't do anything
-			return 0;
-		}
-	}
-
-	sqlInsert("node", 
-			{title => $title, 
-			type_nodetype => $$TYPE{node_id}, 
-			author_user => getId($USER), 
-			hits => 0,
-			-createtime => 'now()'}); 
-
-	# Get the id of the node that we just inserted.
-	my ($node_id) = sqlSelect("LAST_INSERT_ID()");
-
-	# Now go and insert the appropriate rows in the other tables that
-	# make up this nodetype;
-	$tableArray = $$TYPE{tableArray};
-	foreach $table (@$tableArray)
-	{
-		sqlInsert($table, { $table . "_id" => $node_id });
-	}
-
-	$NODE = getNodeById $node_id, 'force';
-	
-	# This node has just been created.  Do any maintenance if needed.
-	# We do this here before calling updateNode below to make sure that
-	# the 'created' routines are executed before any 'update' routines.
-	nodeMaintenance($NODE, 'create');
-
-	if ($DATA)
-	{
-		@$NODE{keys %$DATA} = values %$DATA;
-		updateNode $NODE, $USER; 
-	}
-
-	return $node_id;
-}
-
-
-
-#this has been replaced by selectNodeWhere, but I leave it in because I like it
-sub selectNodeByName
-{
-	my ($title, $TYPE) = @_;
-
-	selectNodeWhere ({title => $title}, $TYPE);	
-}
 
 #these are common words that we don't want to include in our searching
 # Should these be stored in a system properties node in the db? DPB 09-14-99
@@ -1767,65 +892,6 @@ my @nosearchwords = (
 		"are"
 		);
 
-
-#############################################################################
-#	Sub
-#		getFields
-#
-#	Purpose
-#		Get the field names of a table.
-#
-#	Parameters
-#		$table - the name of the table of which to get the field names
-#
-#	Returns
-#		An array of field names
-#
-sub getFields
-{
-	my ($table) = @_;
-
-	return getFieldsHash($table, 0);
-}
-
-
-#############################################################################
-#	Sub
-#		getFieldsHash
-#
-#	Purpose
-#		Given a table name, returns a list of the fields or a hash.
-#
-#	Parameters
-#		$table - the name of the table to get fields for
-#		$getHash - set to 1 if you would also like the entire field hash
-#			instead of just the field name. (set to 1 by default)
-#
-#	Returns
-#		Array of field names, if getHash is 1, it will be an array of
-#		hashrefs of the fields.
-#
-sub getFieldsHash
-{
-	my ($table, $getHash) = @_;
-	my $field;
-	my @fields;
-	my $value;
-
-	$getHash = 1 if(not defined $getHash);
-	$table ||= "node";
-
-	my $cursor = $dbh->prepare_cached("show columns from $table");
-	$cursor->execute;
-	
-	while ($field = $cursor->fetchrow_hashref)
-	{
-		$value = ( ($getHash == 1) ? $field : $$field{Field});
-		push @fields, $value;
-	}
-
-	@fields;
-}
 
 
 #############################################################################
@@ -1844,77 +910,6 @@ sub unlockNode {
 	1;
 }
 
-
-
-#############################################################################
-#	Sub
-#		loadTypes
-#
-#	Purpose
-#		This function creates the nodetypes hash, a convienient way of
-#		handling types.  The type nodehashes can be referenced by title
-#		or by node_id.
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		Reference to the generated hash.
-#
-sub loadTypes
-{
-	my $cursor;
-	my $node;
-	my $blah;
-
-	undef %NODETYPES;
-
-	printLog("loading nodetypes");
-
-	# First, we need to load the nodetype nodetype (no I'm not studdering).
-	$NODETYPES{nodetype} = sqlSelectHashref('*',
-		'node left join nodetype on node_id=nodetype_id',
-		'title=' . $dbh->quote("nodetype"));
-
-	# This sets a key for the numeric id.
-	$NODETYPES{$NODETYPES{nodetype}{node_id}} = $NODETYPES{nodetype};
-	
-	# Lastly, make sure the nodetype is properly derived first (this
-	# really doesn't do anything since nodetype 'nodetype' is not
-	# derived from anything, but it does fill out the tableArray).
-	deriveNodetype($NODETYPES{nodetype});
-
-	
-	# OK.  Now that we have created the nodetype 'nodetype', we are
-	# free to do the rest of them.
-	$cursor = sqlSelectMany ('node_id', 'node',
-		"type_nodetype=$NODETYPES{nodetype}{node_id}");
-
-	while (my ($node_id) = $cursor->fetchrow)
-	{
-		my $TYPE = getNodeById $node_id, 'force';
-
-		next if ($$TYPE{title} eq "nodetype");  # We already loaded it.
-
-		$NODETYPES{$$TYPE{title}} = $TYPE;
-		$NODETYPES{$node_id} = $TYPE;
-	}
-	
-	$cursor->finish();
-
-	#we have to hard wire nodetype nodetype to be it's own nodetype :)
-	$NODETYPES{nodetype}{type} = $NODETYPES{nodetype};
-
-	# Now resolve the inheritance for all of the nodetypes.
-	foreach $node (keys %NODETYPES)
-	{
-		deriveNodetype($NODETYPES{$node});
-	}
-	
-	$_[0] = \%NODETYPES;
-
-	\%NODETYPES;
-}
 
 
 #############################################################################
@@ -1952,8 +947,8 @@ sub isApproved
 	if (getId($USER) == getId($NODE)) { return 1; }	
 
 	$user_id = getId $USER;
-	$usergroup = $NODETYPES{usergroup};
-	($GODS) = getNodeWhere({title => 'gods'}, $usergroup);
+	$usergroup = $DB->getType("usergroup");
+	($GODS) = $DB->getNodeWhere({title => 'gods'}, $usergroup);
 	$godgroup = $$GODS{group};
 	
 	foreach $god (@$godgroup)
@@ -1972,118 +967,26 @@ sub isApproved
 
 #############################################################################
 #	Sub
-#		mod_perlInit
+#		initEverything
 #
 #	Purpose
-#		The "main" function.
+#		The "main" function.  Initialize the Everything module.
 #
 #	Parameters
 #		db - the string name of the database to connect to.
 #
-sub mod_perlInit
+sub initEverything
 {
 	my ($db) = @_;
 
-	# if this is the same db we were connected to last time, we
-	# can save some queries...
-	if(sqlConnect($db))
-	{
-		clearLog();
-		
-		$nodeCache = new Everything::NodeCache(100);
-		
-		# Load the nodetypes so that we know how to load the rest
-		# of the nodes. 
-		loadTypes();
-		initCache();
-	}
+	$DB = new Everything::NodeBase($db);
+
+	# This is for legacy code.  You should not use $dbh!  Use
+	# $DB->getDatabaseHandle() going forward.
+	$dbh = $DB->getDatabaseHandle();
 }
 
 
-#############################################################################
-#	Sub
-#		deriveNodetype
-#
-#	Purpose
-#		Nodetypes can inherit properties from parent nodetypes.  This
-#		function takes a reference to a nodetype hash and resolves any
-#		inherited properies (like readers, writers, sqltables, etc).
-#
-#		Note that if the inheritance has already been resolved, this
-#		won't do the work again.
-#
-#	Parameters
-#		nodetype - a reference to a nodetype hash.
-#
-#	Returns
-#		Nothing.
-#
-sub deriveNodetype
-{
-	my ($NODETYPE) = @_;
-	my $field;
-	my @tables;
-	my $table;
-	
-
-	return unless((defined $NODETYPE) && 
-		(not defined $$NODETYPE{resolvedInheritance}));
-
-	# Copy the value of 'sqltable' to our list.  The list is used
-	# to generate the tableArray.  This way we don't corrupt the
-	# actual sqltable field.
-	$$NODETYPE{sqltablelist} = $$NODETYPE{sqltable};
-
-	if($$NODETYPE{extends_nodetype} != 0)
-	{
-		# This nodetype derives from another one.  We need to
-		# resolve some properties.
-		
-		my $PARENT = $NODETYPES{$$NODETYPE{extends_nodetype}};
-		
-		# Make sure our parent nodetype has resolved its inheritance.
-		deriveNodetype($PARENT);
-		
-		foreach $field (keys %$PARENT)
-		{
-			# We add some fields that are not apart of the actual
-			# node, skip these because they are never inherited
-			# anyway. (if more custom fields are added, add them
-			# here.  We don't want to inherit them.
-			next if( ($field eq "tableArray") ||
-			         ($field eq "resolvedInheritance") );
-			
-			# If a field in a nodetype is '-1', this field is derived from
-			# its parent.
-			if($$NODETYPE{$field} eq "-1")
-			{
-				$$NODETYPE{$field} = $$PARENT{$field};
-			}
-			elsif(($field eq "sqltablelist") && ($$PARENT{$field} ne ""))
-			{
-				# Inherited sqltables are added onto the list.  Derived
-				# nodetypes "extend" parent nodetypes.
-				$$NODETYPE{$field} .= "," if($$NODETYPE{$field} ne "");
-				$$NODETYPE{$field} .= "$$PARENT{$field}";
-			}
-			elsif(($field eq "grouptable") && ($$PARENT{$field} ne "") &&
-				($$NODETYPE{$field} eq ""))
-			{
-				# We are inheriting from a group nodetype and we have not
-				# specified a grouptable, so we will use the same table
-				# as our parent nodetype.
-				$$NODETYPE{$field} = $$PARENT{$field};
-			}
-		}	
-	}
-		
-	# Fill out our table array
-	getNodetypeTables($$NODETYPE{node_id});
-	
-	# We have resolved this node's inheritance.  This is used to mark
-	# this nodetype so we don't resolve its inheritance more than once.
-	$$NODETYPE{resolvedInheritance} = 1;
-}
 
 ###########################################################################
 #	sub
@@ -2098,95 +1001,6 @@ sub isCore {
 	return $$NODE{core} if $NODE;
 	0;
 	#seems stupid, but we'll need to change it later
-}
-
-#############################################################################
-#	Sub
-#		getNodetypeTables
-#
-#	Purpose
-#		The %NODETYPES hash contains what tables we need to join on to get
-#		the data for that nodetype.  However, they are stored in a comma
-#		delimited format, which isn't easy to use.  This creates an array
-#		of table names and stores that array for later use.
-#
-#	Parameters
-#		typeNameOrId - The string name or integer Id of the nodetype
-#
-#	Returns
-#		A reference to an array that contains the names of the tables
-#		to join on.  Zero if no array
-#
-sub getNodetypeTables
-{
-	my ($typeNameOrId) = @_;
-	my $NODETYPE = $NODETYPES{$typeNameOrId};
-	my $tables;
-	my @tablelist;
-	my @nodupes;
-	my $warn = "";
-
-	if(defined $$NODETYPE{tableArray})
-	{
-		# We already calculated this, return it.
-		return $$NODETYPE{tableArray};
-	}
-
-	$tables = $$NODETYPE{sqltablelist};
-
-	if((defined $tables) && ($tables ne ""))
-	{
-		my %tablehash;
-		
-		# remove all spaces (table names should not have spaces in them)
-		$tables =~ s/ //g;
-
-		# Remove any crap that the user may put in there (stray commas, etc). 
-		$tables =~ s/,{2,}/,/g;
-		$tables =~ s/^,//;
-		$tables =~ s/,$//;
-		
-		@tablelist = split ",", $tables;
-
-		# Make sure there are no dupes!
-		foreach (@tablelist)
-		{
-			if(defined $tablehash{$_})
-			{
-				$tablehash{$_} = $tablehash{$_} + 1;
-			}
-			else
-			{
-				$tablehash{$_} = 1;
-			}
-		}
-
-		foreach (keys %tablehash)
-		{
-			$warn .= "table '$_' : $tablehash{$_}\n" if($tablehash{$_} > 1);
-			push @nodupes, $_;
-		}
-		
-		if($warn ne "")
-		{
-			$warn = "WARNING: Duplicate tables for nodetype " .
-				$$NODETYPE{title} . ":\n" . $warn;
-
-			printLog($warn);
-		}
-
-		# Store the table array in case we need it again.
-		$$NODETYPE{tableArray} = \@nodupes;
-		
-		return \@nodupes;
-	}
-	else
-	{
-		my @emptyArray;
-		
-		# Just an empty array.
-		$$NODETYPE{tableArray} = \@emptyArray;
-	}
 }
 
 
@@ -2256,8 +1070,9 @@ sub searchNodeName
 		my $cursor;
 		my $hashref;
 		
-		$cursor = sqlSelectMany('*', 'node',
-			"title like " . $dbh->quote("\%$word\%") . $typestr);
+		$cursor = $DB->sqlSelectMany('*', 'node',
+			"title like " . $DB->getDatabaseHandle()->quote("\%$word\%") .
+				$typestr);
 
 		while ($hashref = $cursor->fetchrow_hashref())
 		{ 
@@ -2342,353 +1157,6 @@ sub dumpCallStack
 		print "$file:$line:$subname\n";
 	}
 	print "*** End Call Stack ***\n";
-}
-
-
-#############################################################################
-#	Sub
-#		tableExists
-#
-#	Purpose
-#		Check to see if a table of the given name exists in this database.
-#
-#	Parameters
-#		$tableName - the table to check for.
-#
-#	Returns
-#		1 if it exists, 0 if not.
-#
-sub tableExists
-{
-	my ($tableName) = @_;
-	my $cursor = $dbh->prepare("show tables");
-	my $table;
-	my $exists = 0;
-
-	$cursor->execute();
-	while((($table) = $cursor->fetchrow()) && (not $exists))
-	{
-		  $exists = 1 if($table eq $tableName);
-	}
-
-	return $exists;
-}
-
-
-#############################################################################
-#	Sub
-#		createNodeTable
-#
-#	Purpose
-#		Create a new database table for a node, if it does not already
-#		exist.  This creates a new table with one field for the id of
-#		the node in the form of tablename_id.
-#
-#	Parameters
-#		$tableName - the name of the table to create
-#
-#	Returns
-#		1 if successful, 0 if failure, -1 if it already exists.
-#
-sub createNodeTable
-{
-	my ($table) = @_;
-	my $tableid = $table . "_id";
-	my $result;
-	
-	return -1 if(tableExists($table));
-
-	$result = $dbh->do("create table $table ($tableid int(11)" .
-		" DEFAULT '0' NOT NULL, PRIMARY KEY($tableid))");
-
-	return $result;
-}
-
-
-#############################################################################
-#	Sub
-#		dropNodeTable
-#
-#	Purpose
-#		Drop (delete) a table from a the database.  Note!!! This is
-#		perminent!  You will lose all data in that table.
-#
-#	Parameters
-#		$table - the name of the table to drop.
-#
-#	Returns
-#		1 if successful, 0 otherwise.
-#
-sub dropNodeTable
-{
-	my ($table) = @_;
-	
-	# These are the tables that we don't want to drop.  Dropping one
-	# of these, could cause the entire system to break.  If you really
-	# want to drop one of these, do it from the command line.
-	my @nodrop = (
-		"container",
-		"document",
-		"htmlcode",
-		"htmlpage",
-		"image",
-		"links",
-		"maintenance",
-		"node",
-		"nodegroup",
-		"nodelet",
-		"nodetype",
-		"note",
-		"rating",
-		"user" );
-
-	foreach (@nodrop)
-	{
-		if($_ eq $table)
-		{
-			printLog("WARNING! Attempted to drop core table $table!");
-			return 0;
-		}
-	}
-	
-	return 0 unless(tableExists($table));
-
-	printLog("Dropping table $table");
-	return $dbh->do("drop table $table");
-}
-
-
-#############################################################################
-#	Sub
-#		addFieldToTable
-#
-#	Purpose
-#		Add a new field to an existing database table.
-#
-#	Parameters
-#		$table - the table to add the new field to.
-#		$fieldname - the name of the field to add
-#		$type - the type of the field (ie int(11), char(32), etc)
-#		$primary - (optional) is this field a primary key?  Defaults to no.
-#		$default - (optional) the default value of the field.
-#
-#	Returns
-#		1 if successful, 0 if failure.
-#
-sub addFieldToTable
-{
-	my ($table, $fieldname, $type, $primary, $default) = @_;
-	my $sql;
-
-	return 0 if(($table eq "") || ($fieldname eq "") || ($type eq ""));
-
-    if(not defined $default)
-	{
-		if($type =~ /^int/i)
-		{
-			$default = 0;
-		}
-		else
-		{
-			$default = "";
-		}
-	}
-	elsif($type =~ /^text/i)
-	{
-		# Text blobs cannot have default strings.  They need to be empty.
-		$default = "";
-	}
-	
-	$sql = "alter table $table add $fieldname $type";
-	$sql .= " default \"$default\" not null";
-
-	$dbh->do($sql);
-
-	if($primary)
-	{
-		# This requires a little bit of work.  We need to figure out what
-		# primary keys already exist, drop them, and then add them all
-		# back in with the new key.
-		my @fields = getFieldsHash($table);
-		my @prikeys;
-		my $primaries;
-		my $field;
-
-		foreach $field (@fields)
-		{
-			push @prikeys, $$field{Field} if($$field{Key} eq "PRI");
-		}
-
-		$dbh->do("alter table $table drop primary key") if(@prikeys > 0);
-
-		push @prikeys, $fieldname; # add the new field to the primaries
-
-		$primaries = join ',', @prikeys;
-
-		printLog($primaries);
-
-		$dbh->do("alter table $table add primary key($primaries)");
-	}
-
-	return 1;
-}
-
-
-#############################################################################
-#	Sub
-#		dropFieldFromTable
-#
-#	Purpose
-#		Remove a field from the given table.
-#
-#	Parameters
-#		$table - the table to remove the field from
-#		$field - the field to drop
-#
-#	Returns
-#		1 if successful, 0 if failure
-#
-sub dropFieldFromTable
-{
-	my ($table, $field) = @_;
-	my $sql;
-
-	$sql = "alter table $table drop $field";
-
-	return $dbh->do($sql);
-}
-
-
-#############################################################################
-#	Sub
-#		getMaintenanceCode
-#
-#	Purpose
-#		This finds the code that needs to be executed for the given
-#		node and operation.
-#
-#	Parameters
-#		$NODE - a node hash or id of the node being affected
-#		$op - the operation being performed (typically 'create', 'update',
-#			or 'delete')
-#
-#	Returns
-#		The code to be executed.  0 if no code was found.
-#
-sub getMaintenanceCode
-{
-	my ($NODE, $op) = @_;
-	my $maintain;
-	my $code;
-	my %WHEREHASH;
-	my $TYPE;
-	my $done = 0;
-
-	# If the maintenance nodetype has not been loaded, don't try to do
-	# any thing (the only time this should happen is when we are
-	# importing everything from scratch).
-	return 0 if(not defined $NODETYPES{maintenance}); 
-
-	getRef $NODE;
-	$TYPE = $NODETYPES{$$NODE{type_nodetype}};
-	
-	# Maintenance code is inherited by derived nodetypes.  This will
-	# find a maintenance code from parent nodetypes (if necessary).
-	do
-	{
-		undef %WHEREHASH;
-
-		%WHEREHASH = (
-			maintain_nodetype => $$TYPE{node_id}, maintaintype => $op);
-		
-		$maintain = selectNodeWhere(\%WHEREHASH, $NODETYPES{maintenance});
-
-		if(not defined $maintain)
-		{
-			# We did not find any code for the given type.  Run up the
-			# inheritance hierarchy to see if we can find anything.
-			if($$TYPE{extends_nodetype})
-			{
-				$TYPE = $NODETYPES{$$TYPE{extends_nodetype}};
-			}
-			else
-			{
-				# We have hit the top of the inheritance hierarchy for this
-				# nodetype and we haven't found any maintenance code.
-				return 0;
-			}
-		}
-	} until(defined $maintain);
-	
-	$code = getNodeById($$maintain[0]);
-	return $$code{code};
-}
-
-
-#############################################################################
-#	Sub
-#		nodeMaintenance
-#
-#	Purpose
-#		Some nodetypes need to do some special stuff when a node is
-#		created, updated, or deleted.  Maintenance nodes (similar to
-#		htmlpages) can be created to have code that knows how to
-#		maintain nodes of that nodetype.
-#
-#	Parameters
-#		$node_id -  a node hash or id that is being affected
-#		$op - the operation being performed (typically, 'create', 'update',
-#			or 'delete')
-#
-#	Returns
-#		0 if error.  1 otherwiwse.
-#
-sub nodeMaintenance
-{
-	my ($node_id, $op) = @_;
-	my $code;
-	
-	# NODE and op must be defined!
-	return 0 if(not defined $node_id);
-	return 0 if((not defined $op) || ($op eq ""));
-
-	# Find the maintenance code for this page (if there is any)
-	$code = getMaintenanceCode($node_id, $op);
-
-	if($code)
-	{
-		$node_id = getId($node_id);
-		my $args = "\@\_ = \"$node_id\";\n";
-		Everything::HTML::embedCode("%" . $args . $code . "%", @_);
-	}
-}
-
-
-#############################################################################
-#	Sub
-#		initCache
-#
-#	Purpose
-#		The settings for the cache are retrieved from the "cache settings"
-#		setting node.  This assumes that the cache has been created.
-#
-sub initCache
-{
-	my ($NODE) = getNodeWhere( { "title" => "cache settings" },
-		$NODETYPES{setting});
-	my $cacheSize;
-
-	# Get the settings from the system
-	if(defined $NODE && (ref $NODE eq "HASH"))
-	{
-		my $vars;
-
-		$vars = getVars($$NODE[0]);
-		$cacheSize = $$vars{maxSize} if(defined $vars);
-	}
-	
-	$cacheSize ||= 300;  # default to 300
-	$nodeCache->setCacheSize($cacheSize);
 }
 
 
