@@ -12,14 +12,39 @@ package Everything::Node::nodegroup;
 
 use strict;
 use Everything;
+use Everything::XML;
 
 
 #############################################################################
 sub construct
 {
 	my ($this) = @_;
-	my $groupTable = $$this{type}{derived_grouptable};
+
+	$$this{group} = $this->selectGroupArray();
+
+	# We could call selectNodegroupFlat() here to have that info ready.
+	# However, since that info may not be needed all the time, we will
+	# save the CPU time and memory space and not call it.  If you need
+	# to have the entire group, call selectNodegroupFlat() at that time.
+}
+
+
+#############################################################################
+#	Sub
+#		selectGroupArray
+#
+#	Purpose
+#		Gets an array of node id's of the nodes the belong to this group.
+#
+#	Returns
+#		An array ref of the node id's
+#
+sub selectGroupArray
+{
+	my ($this) = @_;
+	my $groupTable = $this->isGroup();
 	my $nid;
+	my @group;
 	
 	# construct our array of node id's of the nodes in our group
 	my $cursor = $$this{DB}->sqlSelectMany('node_id', $groupTable,
@@ -27,14 +52,11 @@ sub construct
 
 	while($nid = $cursor->fetchrow)
 	{
-		push @{ $$this{group} }, $nid;
+		push @group, $nid;
 	}
 	$cursor->finish();
 
-	# We could call selectNodegroupFlat() here to have that info ready.
-	# However, since that info may not be needed all the time, we will
-	# save the CPU time and memory space and not call it.  If you need
-	# to have the entire group, call selectNodegroupFlat() at that time.
+	return \@group;
 }
 
 
@@ -47,6 +69,142 @@ sub destruct
 
 	delete $$this{group};
 	delete $$this{flatgroup};
+}
+
+
+#############################################################################
+sub insert
+{
+	my ($this, $USER) = @_;
+
+	return 0 unless($this->hasAccess($USER, 'c'));
+	
+	# We need to h4x0r this a bit.  node::insert clears the $this hash.
+	# This clears all fields (including our group field).  Normally,
+	# we would insert the group nodes first, but the problem is, this
+	# node has not been inserted yet, so we don't have a node id to
+	# insert them with.  So, we hold onto the group array for now.	
+	my $group = $$this{group};
+	my $return = $this->SUPER();
+
+	# Now that the node has been inserted, we need to reassign our group
+	# array.
+	$$this{group} = $group;
+
+	$this->updateGroup($USER);
+
+	return $return;
+}
+
+
+#############################################################################
+sub update
+{
+	my ($this, $USER) = @_;
+	$this->updateGroup($USER);
+	my $return = $this->SUPER();
+
+	return $return;
+}
+
+
+#############################################################################
+#	Sub
+#		updateGroup
+#
+#	Purpose
+#		This takes the group data that we have and compares it to what
+#		is in the database for this group.  We determine what nodes have
+#		been inserted and what nodes have been removed, then insert and
+#		remove them as appropriate.  Lastly we update each group member's
+#		orderby.  This way we minimize sql deletes and inserts and do a
+#		simple sql update.
+#
+#	Parameters
+#		$USER - used for authentication
+#
+#	Returns
+#		True if successful, false otherwise.
+#
+sub updateGroup
+{
+	my ($this, $USER) = @_;
+
+	return 0 unless($USER);
+	return 0 unless($this->hasAccess($USER, 'w'));
+
+	my $group = $$this{group};
+	my @inserted;
+	my @removed;
+	my %inOrg;
+	my $table = $this->isGroup();
+	my $updated = 0;
+
+	# Make sure the table exists first
+	$$this{DB}->createGroupTable($table);
+
+	my $orgGroup = $this->selectGroupArray();
+
+	# Find the new nodes that have been added to this group.  If a node
+	# is in the original group (seen), then its not new. 
+	foreach (@$orgGroup) { $inOrg{$_} = 1; }
+	foreach (@$group)
+	{
+		push @inserted, $_ unless(exists $inOrg{$_});
+	}
+
+	# Find the nodes that have been removed from this group.  
+	my %inGroup;
+	foreach (@$group) { $inGroup{$_} = 1; }
+	foreach (@$orgGroup)
+	{
+		push @removed, $_ unless(exists $inGroup{$_});
+	}
+
+	my $sql;
+
+	# Actually remove the nodes from the group 
+	foreach my $remove (@removed)
+	{
+		$sql = "delete from " . $table . " where " . $table .
+			"_id=$$this{node_id} && node_id=$remove LIMIT 1";
+		$$this{DB}->{dbh}->do($sql);
+		$updated = 1;
+	}
+
+	my $rank = $$this{DB}->sqlSelect('MAX(rank)', $table, 
+		$table . "_id=$$this{node_id}");
+
+	$rank ||= 0;
+
+	# Actually insert the new nodes into the group 
+	foreach my $insert (@inserted)
+	{
+		$rank++;
+
+		$$this{DB}->sqlInsert($table,
+			{ $table . "_id" => $$this{node_id}, 
+			rank => $rank, node_id => $insert,
+			orderby => '0' });
+
+		$updated = 1;
+	}
+
+	if($updated)
+	{
+		# Ok, we have removed and inserted what we needed.  Now we need to
+		# reassign the orderby;
+		my $orderby = 1;
+		foreach my $id (@$group)
+		{
+			$$this{DB}->sqlUpdate($table, { orderby => $orderby },
+				{ $table . "_id" => $$this{node_id} , node_id => $id });
+
+			$orderby++;
+		}
+	}
+
+	return 1;
 }
 
 
@@ -98,7 +256,15 @@ sub isGroup
 #
 #	NOTE!!!
 #		This only works for groups that do NOT contain sub groups.  If the
-#		group contains sub groups, you will need to use inGroup()
+#		group contains sub groups, you will need to use inGroup().
+#
+#		Also note that this does not hit the database, it just does a simple
+#		check of our group array.  This avoids an unnecessary DBI query, but
+#		if you have done any inserts or removals without executing an update()
+#		you will be checking against data that is not the same as what the
+#		database has.  For most general cases, this is probably what you
+#		want (considering page loads, etc), but something that you should
+#		be aware of.
 #
 #	Parameters
 #		NODE - the node id or node hash of the node that we wish to check for
@@ -110,15 +276,14 @@ sub isGroup
 sub inGroupFast
 {
 	my ($this, $NODE) = @_;
-	my $table = $$this{type}{derived_grouptable};
-	my $groupId = $this->getId();
 	my $nodeId = $$this{DB}->getId($NODE);
-	my $match = $$this{DB}->sqlSelect("node_id", $table,
-		$table . "_id=$groupId && node_id=$nodeId" );
+	my $group = $$this{group};
 
-	# Note this does not handle sub groups.  If the group contains
-	# sub groups you will need to use inGroup
-	return 1 if($match);
+	foreach (@$group)
+	{
+		return 1 if($_ eq $nodeId);
+	}
+	
 	return 0;
 }
 
@@ -145,14 +310,15 @@ sub inGroup
 {
 	my ($this, $NODE) = @_;
 	my $members;
+
+	return 0 unless($NODE);
+
 	my $id = $$this{DB}->getId($NODE);
-
-	return 0 if(not defined $NODE);
-
+	
 	$members = $this->selectNodegroupFlat();
 	foreach my $member (@$members)
 	{
-		return 1 if($$this{DB}->getId($member) == $id);
+		return 1 if(($member->getId()) == $id);
 	}
 
 	return 0;
@@ -217,13 +383,9 @@ sub selectNodegroupFlat
 #		insertIntoGroup
 #
 #	Purpose
-#		This will insert a node(s) into a nodegroup.
-#
-#		NOTE!  It appears that inserting into a nodegroup does not
-#		update the node itself (the node is added to the group, but
-#		the group node is left untouched).  This prevents other httpd
-#		processes from knowing that the group has been updated, which
-#		means they will probably have stale group info.
+#		This will insert a node(s) into a nodegroup.  THIS DOES NOT UPDATE
+#		THE NODE IN THE DATABASE!  After inserting a node into a group,
+#		you must call update() to update the changes.
 #
 #	Parameters
 #		USER - the user trying to add to the group (used for authorization)
@@ -231,86 +393,43 @@ sub selectNodegroupFlat
 #		orderby - the criteria of which to order the nodes in the group
 #
 #	Returns
-#		The group NODE hash that has been refreshed after the insert.
-#		undef if the user does not have permissions to change this group.
+#		True (1) if the insert was successful.  If you had previously
+#		called selectNodegroupFlat(), you will need to do so again to
+#		refresh the list.  False (0), if the user does not have
+#		permissions, or failure.
 #
 sub insertIntoGroup
 {
 	my ($this, $USER, $insert, $orderby) = @_;
-	my $groupTable = $$this{type}{derived_grouptable};
+	my $group = $$this{group};
+	my $len;
 	my $insertref;
 	my $rank;	
 
-	return undef unless($this->hasAccess($USER, "w")); 
+	return 0 unless($USER);
+	return 0 unless($insert);
+	return 0 unless($this->hasAccess($USER, "w")); 
 	
-	if(ref ($insert) eq "ARRAY")
+	# converts to a list reference w/ 1 element if we get a scalar
+	$insertref = [$insert] unless(ref ($insert) eq "ARRAY");
+
+	$len = int(@$group);
+	$orderby ||= $len;
+	$orderby = ($orderby > $len ? $len : $orderby);
+
+	# Make sure we only have id's
+	foreach (@$insertref)
 	{
-		$insertref = $insert;
-
-		# If we have an array, the order is specified by the order of
-		# the elements in the array.
-		undef $orderby;
-	}
-	else
-	{
-		# converts to a list reference w/ 1 element if we get a scalar
-		$insertref = [$insert];
-	}
-	
-	foreach my $INSERT (@$insertref)
-	{
-		$$this{DB}->getRef($INSERT);
-		my $maxOrderBy;
-		
-		# This will return a value if the select is not empty.  If
-		# it is empty (there is nothing in the group) it will be null.
-		$maxOrderBy = $$this{DB}->sqlSelect('MAX(orderby)', $groupTable, 
-			$groupTable . "_id=$$this{node_id}"); 
-
-		if (defined $maxOrderBy)
-		{
-			# The group is not empty.  We may need to change some ordering
-			# information.
-			if ((defined $orderby) && ($orderby <= $maxOrderBy))
-			{ 
-				# The caller of this function specified an order position
-				# for the new node in the group.  We need to make a spot
-				# for it.  To do this, we will increment each orderby
-				# field that is the same or higher than the orderby given.
-				# If orderby is greater than the current max orderby, we
-				# don't need to do this.
-				$$this{DB}->sqlUpdate($groupTable,
-					{ '-orderby' => 'orderby+1' }, 
-					$groupTable. "_id=$$this{node_id} && orderby>=$orderby");
-			}
-			elsif(not defined $orderby)
-			{
-				$orderby = $maxOrderBy+1;
-			}
-		}
-		elsif(not defined $orderby)
-		{
-			$orderby = 0;  # start it off
-		}
-		
-		$rank = $$this{DB}->sqlSelect('MAX(rank)', $groupTable, 
-			$groupTable . "_id=$$this{node_id}");
-
-		# If rank exists, increment it.  Otherwise, start it off at zero.
-		$rank = ((defined $rank) ? $rank+1 : 0);
-
-		$$this{DB}->sqlInsert($groupTable,
-			{ $groupTable . "_id" => $$this{node_id}, 
-			rank => $rank, node_id => $$INSERT{node_id},
-			orderby => $orderby});
-
-		# if we have more than one, we need to clear this so the other
-		# inserts work.
-		undef $orderby;
+		$_ = $$this{DB}->getId($_);
 	}
 	
-	# we should also refresh the group list ref stuff
-	$_[0] = $$this{DB}->getNode($$this{node_id}, 'force'); #refresh the group
+	# Insert the new nodes into the group array at the orderby offset.
+	splice(@$group, $orderby, 0, @$insertref);
+
+	# If a flatgroup exists, it is no longer valid.
+	delete $$this{flatgroup} if(exists $$this{flatgroup});
+
+	return 1;
 }
 
 
@@ -319,39 +438,43 @@ sub insertIntoGroup
 #		removeFromGroup
 #
 #	Purpose
-#		Remove a node from a group.
+#		Remove a node from a group.  THIS DOES NOT UPDATE THE NODE IN THE
+#		DATABASE! You need to call update() to commit the changes to the
+#		database.
 #
 #	Parameters
 #		$NODE - the node to remove
 #		$USER - the user who is trying to do this (used for authorization)
 #
 #	Returns
-#		The newly refreshed nodegroup hash.  If you had called
-#		selectNodegroupFlat on this before, you will need to do it again
-#		as all data will have been blown away by the forced refresh.
+#		True (1) if the node was successfully removed from the group.
+#		False (0) otherwise.  If you had previously called
+#		selectNodegroupFlat(), you will need to call it again since
+#		things may have significantly changed.
 #
 sub removeFromGroup 
 {
 	my ($this, $NODE, $USER) = @_;
-	my $groupTable = $$this{type}{derived_grouptable}; 
 	my $success;
-	my $node_id;
 	
-	$this->hasAccess($USER, "w") or return; 
+	return 0 unless($USER);
+	return 0 unless($NODE);
+	return 0 unless($this->hasAccess($USER, "w"));
 
-	$node_id = $$this{DB}->getId($NODE);
-	$success = $$this{DB}->sqlDelete ($groupTable,
-		$groupTable . "_id=$$this{node_id} && node_id=$node_id");
+	my $node_id = $$this{DB}->getId($NODE);
+	my $group = $$this{group};
+	my @newgroup;
 
-	if($success)
+	for(my $i = 0; $i < @$group; $i++)
 	{
-		# If the delete did something, we need to refresh this group node.	
-		# We assign it to $_[0] so that the object that the caller is
-		# holding onto will be transparently updated for them.
-		$_[0] = $this->getNode($$this{node_id}, 'force');
+		my $id = shift @$group;
+		push @newgroup, $id if($id ne $node_id);
 	}
 
-	return $_[0];
+	# Assign the new group back to our hash
+	$$this{group} = \@newgroup;
+
+	return 1;
 }
 
 
@@ -367,17 +490,24 @@ sub removeFromGroup
 #		$USER - the user trying to do this (used for authorization).
 #
 #	Returns
-#		The group NODE hash that has been refreshed after the insert
+#		True if successful, false otherwise
 #
 sub replaceGroup
 {
 	my ($this, $REPLACE, $USER) = @_;
-	my $groupTable = $$this{type}{derived_grouptable};
+	my $groupTable = $this->isGroup();
 
-	$this->hasAccess($USER, "w") or return; 
+	$this->hasAccess($USER, "w") or return 0; 
+	
+	$REPLACE = [$REPLACE] if(ref $REPLACE ne "ARRAY");
 
-	$$this{DB}->sqlDelete($groupTable, $groupTable . "_id=$$this{node_id}");
-	return $_[0]->insertIntoGroup($USER, $REPLACE);  
+	# Just replace the group
+	$$this{group} = $REPLACE;
+
+	# If a flatgroup exists, it is no longer valid.
+	delete $$this{flatgroup} if(exists $$this{flatgroup});
+
+	return 1;
 }
 
 
@@ -403,20 +533,136 @@ sub getNodeKeys
 
 
 #############################################################################
-#	Sub
-#		getFieldDatatype
-#
-#	Purpose
-#		Groups have one special field type, groups (surprise!).  We
-#		need to return the correct datatype for that field.
-#
-sub getFieldDatatype
+sub fieldToXML
 {
-	my ($this, $field) = @_;
+	my ($this, $XMLGEN, $field) = @_;
+	my $xml;
 
-	return "group" if($field eq "group");
-	return $this->SUPER();
+	if($field eq "group")
+	{
+		my $group = $$this{group};
+		my $order = 1;
+
+		foreach my $member (@$group)
+		{
+			my $node = $$this{DB}->getNode($member);
+			next unless($node);
+			
+			$xml .= $XMLGEN->member({ orderby => $order,
+				type => "noderef",
+				type_nodetype => "$$node{type}{title},nodetype" },
+				$$node{title});
+
+			$xml .= "\n";
+			
+			$order++;
+		}
+
+		# Indent the members
+		$xml =~ s/^/  /gm;
+		
+		$xml = $XMLGEN->group({}, "\n" . $xml) . "\n";
+	}
+	else
+	{
+		$xml = $this->SUPER();
+	}
+
+	return $xml;
 }
+
+
+#############################################################################
+sub xmlTag
+{
+	my ($this, $TAG) = @_;
+	my $tagname = $TAG->getTagName();
+
+	if($tagname eq "group")
+	{
+		my $fixes = [];
+		my @childFields = $TAG->getChildNodes();
+		print "group - $$this{title}\n";
+
+		foreach my $child (@childFields)
+		{
+			next if($child->getNodeType() == XML::DOM::TEXT_NODE());
+
+			my $ATTRS = $child->getAttributes();
+			my $type = $$ATTRS{type}->getValue();
+			my $orderby = $$ATTRS{orderby}->getValue();
+			my $name = $child->getFirstChild()->toString();
+
+			if($type ne 'noderef')
+			{
+				print "Error!  Non noderef item in group '$$this{title}'!\n";
+				next;
+			}
+
+			$name = Everything::XML::unMakeXmlSafe($name);
+
+			my $ntype = $$ATTRS{type_nodetype}->getValue(); 
+			my ($title, $nodetype) = split ',', $ntype;
+			my $TYPE = $$this{DB}->getNode($title, $nodetype);
+			my $WHERE = { type_nodetype => $$TYPE{node_id}, title => $name };
+			my $N = $$this{DB}->getNode($WHERE);
+			
+			if($N)
+			{
+				$this->insertIntoGroup(-1, $$N{node_id}, $orderby);
+			}
+			else
+			{
+				print "  not found - $name\n";
+				$$WHERE{fixBy} = "nodegroup";
+				$$WHERE{orderby} = $orderby;
+
+				# The where contains our fix
+				push @$fixes, $WHERE;
+
+				# Insert a dummy node into the group which we can then later
+				# fix.
+				$this->insertIntoGroup(-1, -1, $orderby);
+			}
+		}
+
+		return $fixes;
+	}
+	else
+	{
+		return $this->SUPER();
+	}
+}
+
+
+#############################################################################
+sub applyXMLFix
+{
+	my ($this, $FIX, $printError) = @_;
+
+	if($$FIX{fixBy} ne "nodegroup")
+	{
+		return $this->SUPER();
+	}
+
+	print "fixing $$this{title} - $$FIX{title}\n";
+	my $NODE = $$this{DB}->getNode($$FIX{title}, $$FIX{type_nodetype});
+
+	unless($NODE)
+	{
+		print "Error! Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'".
+			"\nfor field $$FIX{field}\n"; # if($printError);
+		return $FIX;
+	}
+
+	my $group = $$this{group};
+	my $orderby = $$FIX{orderby} - 1;
+
+	$$group[$orderby] = $$NODE{node_id};
+
+	return undef;
+}
+
 
 ################################################################################
 #	Sub
@@ -448,6 +694,7 @@ sub clone {
 	}
 	return $NODE;
 }
+
 
 #############################################################################
 # End of package

@@ -493,6 +493,9 @@ sub getNode
 			$$NODE{dynamicgroup_permission} = -1;
 			$$NODE{dynamicother_permission} = -1;
 			$$NODE{dynamicguest_permission} = -1;
+
+			# We do not want to cache dummy nodes
+			$cache = "nocache";
 		}
 	}
 
@@ -669,46 +672,6 @@ sub constructNode
 	}
 
 	return 1;
-}
-
-
-#############################################################################
-#	Sub
-#		loadGroupNodeIDs
-#
-#	Purpose
-#		A group nodetype has zero or more nodes in its group.  This
-#		will get the node ids from the group, and store them in the
-#		'group' key of the node hash.
-#
-#	Parameters
-#		$NODE - the group node to load node IDs for.  If the given
-#			node is not a group node, this will do nothing.
-#
-sub loadGroupNodeIDs
-{
-	my ($this, $NODE, $hash, $recursive) = @_;
-	my $groupTable;
-
-	# If this node is a group node, add the nodes in its group to its array.
-	if ($groupTable = $this->isGroup($NODE))
-	{
-		my $cursor;
-		my $nid;
-
-		if(not defined $$NODE{group})
-		{
-			$cursor = $this->sqlSelectMany('node_id', $groupTable,
-				$groupTable . "_id=$$NODE{node_id}", 'ORDER BY orderby');
-		
-			while($nid = $cursor->fetchrow)
-			{
-				push @{ $$NODE{group} }, $nid;
-			}
-			
-			$cursor->finish();
-		}
-	}
 }
 
 
@@ -1147,6 +1110,40 @@ sub createNodeTable
 
 #############################################################################
 #	Sub
+#		createGroupTable
+#
+#	Purpose
+#		Creates a new group table if it does not already exist.
+#
+#	Returns
+#		1 if successful, 0 if failure, -1 if it already exists.
+#		
+sub createGroupTable
+{
+	my ($this, $table) = @_;
+
+	return -1 if($this->tableExists($table));
+		
+	my $dbh = $this->getDatabaseHandle();
+	my $tableid = $table . "_id";
+
+	my $sql;
+	
+	$sql = <<SQLEND;
+		create table $table (
+			$tableid int(11) DEFAULT '0' NOT NULL auto_increment,
+			rank int(11) DEFAULT '0' NOT NULL,
+			node_id int(11) DEFAULT '0' NOT NULL,
+			orderby int(11) DEFAULT '0' NOT NULL,
+			PRIMARY KEY(" . $table . "_id,rank)
+		);
+SQLEND
+
+	return $dbh->do($sql);
+}
+
+#############################################################################
+#	Sub
 #		dropNodeTable
 #
 #	Purpose
@@ -1388,7 +1385,7 @@ sub genWhereString
 
 					$tempstr .= "(" . $orstr . ")";
 				}
-				elsif($$WHERE{$key})
+				elsif(defined $$WHERE{$key})
 				{
 					$tempstr .= $key . '=' . $this->quote($$WHERE{$key});
 				}

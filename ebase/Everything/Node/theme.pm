@@ -21,12 +21,12 @@ use strict;
 #		that table contains a string that is an '&' delimited hash.  This
 #		function will grab that string and construct a perl hash out of it.
 #
-sub getVars 
-{
-	my ($this) = @_;
-
-	return $this->getHash("vars");
-}
+#sub getVars 
+#{
+#	my ($this) = @_;
+#
+#	return $this->getHash("vars");
+#}
 
 
 #############################################################################
@@ -45,12 +45,20 @@ sub getVars
 #	Returns
 #		Nothing
 #
-sub setVars
-{
-	my ($this, $vars, $USER) = @_;
+#sub setVars
+#{
+#	my ($this, $vars, $USER) = @_;
+#
+#	$this->setHash($vars, $USER, "vars");
+#}
 
-	$this->setHash($vars, $USER, "vars");
-}
+
+#############################################################################
+#	
+#sub fieldToXML
+#{
+#	Everything::Node::setting::fieldToXML(@_);
+#}
 
 
 #############################################################################

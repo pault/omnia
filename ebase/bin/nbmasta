@@ -352,8 +352,8 @@ sub exportNodes
 				if $OPTIONS{verbose};
 			$file = $dir."/".$file; 
 			open(FILE, ">".$file) 
-				or die "couldn't create $file in $dir - $!";
-			print FILE node2xml($NODE);
+				or die "couldn't create $file in $dir - do we have permission?";
+			print FILE $NODE->toXML();
 			close(FILE);
 			$nodefiles[$nodeindex{getId($NODE)}]= $file;
 		}	

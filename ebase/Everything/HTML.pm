@@ -397,7 +397,7 @@ sub htmlErrorGods
 			# case, we don't want some bogus number to add lines.
 			if($1 < (scalar @mycode))
 			{
-				# This highlights the offendling line in red.
+				# This highlights the offending line in red.
 				$mycode[$1-1] = "<FONT color=cc0000><b>" . $mycode[$1-1] .
 					"</b></font>";
 			}
@@ -2141,6 +2141,7 @@ sub updateNodeData
 	return undef unless($node_id);
 	
 	my $NODE = getNode($node_id);
+	my $updateflag = 0;
 
 	return 0 unless($NODE);
 	
@@ -2150,6 +2151,7 @@ sub updateNodeData
 		{
 			$NODE->insertIntoGroup($USER, $groupadd,
 				$query->param('orderby'));
+			$updateflag = 1;
 		}
 		
 		if ($query->param('group'))
@@ -2163,10 +2165,10 @@ sub updateNodeData
 			}
 
 			$NODE->replaceGroup(\@newgroup, $USER);
+			$updateflag = 1;
 		}
 
 		my @updatefields = $query->param;
-		my $updateflag;
 		my $RESTRICT = getNode('restricted fields', 'setting');
 		my $RESTRICTED = $RESTRICT->getVars() if($RESTRICT);
 
@@ -2233,6 +2235,7 @@ sub mod_perlInit
 
 	# Lastly, set the vars on the user node so that things get saved.
 	$USER->setVars($VARS, $USER);
+	$USER->update($USER);
 }
 
 

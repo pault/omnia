@@ -12,6 +12,7 @@ package Everything::Node::nodeball;
 
 use strict;
 use Everything;
+use Everything::Node::setting;
 
 
 #############################################################################
@@ -40,7 +41,7 @@ sub insert
 	# If the node was not inserted with some vars, we need to set some.
 	unless($VARS)
 	{
-		my $user = getNode($USER);
+		my $user = $$this{DB}->getNode($USER);
 		my $title = "ROOT";
 
 		$title = $$user{title} if($user && (ref $user));
@@ -69,9 +70,9 @@ sub getVars
 #############################################################################
 sub setVars
 {
-	my ($this, $vars, $USER) = @_;
+	my ($this, $vars) = @_;
 	
-	$this->setHash($vars, $USER, "vars");
+	$this->setHash($vars, "vars");
 }
 
 
@@ -84,18 +85,61 @@ sub hasVars
 
 #############################################################################
 #	Sub
-#		getFieldDatatype
+#		fieldToXML
 #
 #	Purpose
-#		Nodeballs also have some "setting" type info.  We need to provide
-#		that info here.
+#		A nodeball has both setting and group type information.  A nodeball
+#		derives from nodegroup, but we also need to handle our setting
+#		info.  The base setting object will handle that and pass the rest
+#		to our parent.
 #
-sub getFieldDatatype
+sub fieldToXML
 {
 	my ($this, $field) = @_;
 
-	return "vars" if($field eq "vars");
-	return $this->SUPER();
+	if($field eq 'vars')
+	{
+		return Everything::Node::setting::fieldToXML($this, $field);
+	}
+	else
+	{
+		return $this->SUPER();
+	}
+}
+
+
+#############################################################################
+sub xmlTag
+{
+	my ($this, $TAG) = @_;
+	my $tagname = $TAG->getTagName();
+
+	if($tagname =~ /vars/i)
+	{
+		# Since we derive from nodegroup, but also have some setting
+		# type functionality, we need to use the setting stuff here.
+		return Everything::Node::setting::xmlTag($this, $TAG);
+	}
+	else
+	{
+		return $this->SUPER(); 
+	}
+}
+
+
+#############################################################################
+sub applyXMLFix
+{
+	my ($this, $FIX, $printError) = @_;
+
+	if($$FIX{fixBy} eq "setting")
+	{
+		return Everything::Node::setting::applyXMLFix($this, $FIX, $printError);
+	}
+	else
+	{
+		return $this->SUPER();
+	}
 }
 
 
