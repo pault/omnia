@@ -51,7 +51,6 @@
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">User settings</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">What is my password</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">login</member>
-    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">the killing floor</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">mail settings</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">createnewnode settings</member>
     <member name="group_node" type="noderef" type_nodetype="setting,nodetype">restricted fields</member>
