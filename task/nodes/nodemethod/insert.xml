@@ -1,38 +1,70 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="nodemethod">my ($this, $USER) = @_;
+<NODE export_version="0.5" nodetype="nodemethod" title="insert">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($this, $USER) = @_;
+
+# make sure the updatetime field is valid
+# mm, list slice
+my @time = (localtime)[0 .. 5];
+$time[4] += 1;
+$time[5] += 1900;
+$this->{updatetime} = sprintf("%04d-%02d-%02d %02d:%02d:%02d", reverse @time);
+
+my $settings = $this->{DB}->getNode('task_update settings', 'setting');
+if (defined $settings) {
+	my $vars = $settings->getVars();
+	($this->{update_type},  undef) = split(/\s*,\s*/, $vars->{update_type});
+}
+$this->{update_type} ||= 'default';
+
+$this->SUPER($USER);</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodemethod</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="supports_nodetype" type="noderef" type_nodetype="nodetype,nodetype">task_update</field>
+  <field name="title" type="literal_value">insert</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
+</NODE>
+<NODE export_version="0.5" nodetype="nodemethod" title="insert">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($this, $USER) = @_;
 
 # default time is a week from now
 my @times = (localtime(time + 604800))[3 .. 5];
 $times[1] += 1;
 $times[2] += 1900;
-$this-&gt;{due_date} = join("-", reverse @times);
+$this->{due_date} = join("-", reverse @times);
 
 # default task owner is task author
-$this-&gt;{owner} = $USER-&gt;getId();
+$this->{owner} = $USER->getId();
 
-my $task_loc = $this-&gt;{DB}-&gt;getNodeCursor('node_id',
-	{ title =&gt; 'tasks' }, 'location', '', '', '', 1);
-
-if (defined $task_loc) {
-	($task_loc) = $task_loc-&gt;fetchrow_array();
-}
+# default location is set in 'task settings'
+my ($settings, $vars, $task_loc);
+$settings = $this->{DB}->getNode('task settings', 'setting');
+$vars = $settings->getVars() if (defined($settings));
+$task_loc = $$vars{task_location} if (defined($vars));
 $task_loc ||= 0;
 
-$this-&gt;{loc_location} = $task_loc;
+$this->{loc_location} = $task_loc;
 
-$this-&gt;SUPER($USER);</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="location">nodemethod</loc_location>
-	<otheraccess table="node">iiiii</otheraccess>
-	<supports_nodetype table="nodemethod" type="nodetype">task</supports_nodetype>
-	<title table="node">insert</title>
-	<type_nodetype table="node" type="nodetype">nodemethod</type_nodetype>
+$this->SUPER($USER);</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodemethod</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="supports_nodetype" type="noderef" type_nodetype="nodetype,nodetype">task</field>
+  <field name="title" type="literal_value">insert</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
 </NODE>

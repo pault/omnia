@@ -1,21 +1,22 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="location">setting</loc_location>
-	<otheraccess table="node">iiiii</otheraccess>
-	<title table="node">task settings</title>
-	<type_nodetype table="node" type="nodetype">setting</type_nodetype>
-	<vars table="setting">
-		<row_colors >#ccccff, #eeeeff, #bbbbff</row_colors>
-		<status >open, pending, closed, invalid, denied</status>
-		<rating >normal, trivial, snoozeworthy, hot, severe</rating>
-		<category >unknown, core, base, bugzone</category>
-	</vars>
+<NODE export_version="0.5" nodetype="setting" title="task settings">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">setting</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">task settings</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">setting</field>
+  <vars>
+    <var name="category" type="literal_value">unknown, core, base, bugzone</var>
+    <var name="rating" type="literal_value">normal, trivial, snoozeworthy, hot, severe</var>
+    <var name="row_colors" type="literal_value">#ccccff, #eeeeff, #bbbbff</var>
+    <var name="status" type="literal_value">open, pending, closed, invalid, denied</var>
+    <var name="task_location" type="noderef" type_nodetype="location,nodetype">tasks</var>
+  </vars>
 </NODE>

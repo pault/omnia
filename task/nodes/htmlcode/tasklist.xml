@@ -1,27 +1,28 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my ($size) = @_;
+<NODE export_version="0.5" nodetype="htmlcode" title="tasklist">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($size) = @_;
 my ($big, $small, @order);
 $big = 1 if (lc($size) eq 'big');
 $small = 1 if (lc($size) eq 'small');
 
-my ($settings, $vars) = $DB-&gt;getNode('task settings', 'setting');
-$vars = $settings-&gt;getVars() if $settings;
+my ($settings, $vars) = $DB->getNode('task settings', 'setting');
+$vars = $settings->getVars() if $settings;
 
-my %fields = ( title =&gt; 'title',
-	status 	 =&gt; 'status',
- 	owner 	 =&gt; 'owner',
-	category =&gt; 'category',
-	rating	 =&gt; 'rating',
-	due =&gt; 'due_date');
+my %fields = ( title => 'title',
+	status 	 => 'status',
+ 	owner 	 => 'owner',
+	category => 'category',
+	rating	 => 'rating',
+	due => 'due_date');
 
 if ($small) {
-	@order = split(/\s*,\s*/, $VARS-&gt;{'small_task_list_order'});
-	@order = ('title','rating','due') unless (scalar @order);
+	$VARS->{'small_task_list_order'} ||= '';
+	@order = split(/\s*,\s*/, $VARS->{'small_task_list_order'});
+	@order = ('title','rating','due') unless (@order);
 } elsif ($big) {
-	if ($vars &amp;&amp; exists($vars-&gt;{'task list order'})) {
-		@order = split(/\s*,\s*/, $vars-&gt;{'task_list_order'});
+	if ($vars &amp;&amp; exists($vars->{'task list order'})) {
+		@order = split(/\s*,\s*/, $vars->{'task_list_order'});
 	} else {
 		@order = ('title','category','status','rating','due');
 	}
@@ -29,117 +30,116 @@ if ($small) {
 	@order = ('title','category','status','rating','due');
 }
 
-my $orderby = $query-&gt;param('sortby') || $VARS-&gt;{task_orderby};
-unless ((defined $orderby) || (exists $fields{$orderby})) {
+my $orderby = $query->param('sortby') || $VARS->{task_orderby} || '';
+unless (defined $fields{$orderby}) {
 	$orderby = 'due';
 }
 $orderby = $fields{$orderby};
 
 my $moreorder = '';
-my $order = $query-&gt;param('order');
-$order = $VARS-&gt;{task_list_sort_order} unless (defined $order);
-$order = 0 unless (defined $order &amp;&amp; $order =~ /^[01]$/);
+my $order = $query->param('order') || $VARS->{task_list_sort_order} || 0;
+$order = 0 unless ($order =~ /^[01]$/);
 $moreorder .= " DESC" if ($order);
 
 my (@where, $checked);
-push @where, "owner = '$USER-&gt;{user_id}'" unless ($big);
+push @where, "owner = '$USER->{user_id}'" unless ($big);
 
-$checked = $VARS-&gt;{task_no_closed} || 0;
-if ($query-&gt;param('no_closed') =~ /^[01]$/) {
-	$VARS-&gt;{task_no_closed} = ($checked = $query-&gt;param('no_closed')) ? 1 : '';
+my $closed_flag = $query->param('no_closed');
+$closed_flag = '' unless defined($closed_flag);
+print STDERR "Closed flag is ($closed_flag)\n";
+$checked = $VARS->{task_no_closed} || 0;
+if ($closed_flag =~ /^[01]$/) {
+	$VARS->{task_no_closed} = (($checked = $closed_flag) ? 1 : '');
 }
-push @where, "status &lt;&gt; 'closed'" if $checked;
+
+push @where, "status &lt;> 'closed'" if $checked;
 
 if ($small) {
-	$moreorder .= " limit " . ($VARS-&gt;{'small_task_list_limit'} || '8');
+	$moreorder .= " limit " . ($VARS->{'small_task_list_limit'} || '8');
 }
 
-my $cursor = $DB-&gt;getNodeCursor(join(", ", @fields{@order}, 'task_id'), 
+my $cursor = $DB->getNodeCursor(join(", ", @fields{@order}, 'task_id', 'owner'), 
 	join(" and ", @where), 'task', $orderby . $moreorder);
 return 'None found in database!' unless $cursor;
-return 'Database call failed!' unless $cursor-&gt;execute();
+return 'Database call failed!' unless $cursor->execute();
 
-my ($str, $open, $close);
+my ($str, $open, $close, $form) = ('', '', '', '');
 
 if ($small) {
-	$str = '&lt;table cellpadding="2" width="145" align="center"&gt;';
-	$open = '&lt;td&gt;&lt;font size="2"&gt;';
-	$close = '&lt;/font&gt;&lt;/td&gt;';
+	$str = '&lt;table cellpadding="2" width="145" align="center">';
+	$open = '&lt;td>&lt;font size="2">';
+	$close = '&lt;/font>&lt;/td>';
 } else {
-	$str .= qq|&lt;form method="POST"&gt;&lt;input type="hidden" name="node_id" value="$$NODE{node_id}"&gt;|;
-	$str .= qq|&lt;table border=0&gt;&lt;tr&gt;&lt;th&gt;Include closed?&lt;/th&gt;&lt;th&gt;Sort Field&lt;/th&gt;&lt;th&gt;Sort Order&lt;/th&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;|;
-	for (0 .. 1) {
-		$str .= qq|&lt;input type="radio" name="no_closed" value="$_"|;
-		$str .= " checked" if $_ == $checked;
-		$str .= "&gt;" . ($_ == 0 ? "Yes" : "No") . "&lt;/input&gt;";
-	}
-	$str .= qq|&lt;/td&gt;&lt;td&gt;&lt;select name="sortby"&gt;|;
-	foreach my $field (keys %fields) {
-		$str .= "&lt;option";
-		$str .= " selected" if ($field eq $orderby);
-		$str .= qq| value="$field"&gt;$fields{$field}&lt;/option&gt;\n|;
-	}
-	$str .= qq|&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;select name="order"&gt;|;
-	for (0 .. 1) {
-		$str .= "&lt;option";
-		$str .= " selected" if ($_ == $order);
-		$str .= qq| value="$_"&gt;| . ($_ == 0 ? "Normal" : "Reverse") . "&lt;/option&gt;\n";
-	}
-	$str .= '&lt;/select&gt;&lt;/td&gt;&lt;td&gt;&lt;input type="submit" value="Refresh"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/form&gt;';
-	$str .= '&lt;table cellpadding="5"&gt;';
-	$open = '&lt;th&gt;';
-	$close = '&lt;/th&gt;';
+	$form .= qq|&lt;form method="POST">&lt;input type="hidden" name="node_id" value="$$NODE{node_id}">|;
+	$form .= qq|&lt;table border=0>&lt;tr>&lt;th>Include closed?&lt;/th>&lt;th>Sort Field&lt;/th>&lt;th>Sort Order&lt;/th>&lt;td>&lt;/td>&lt;/tr>&lt;tr>|;
+
+	my $rg = newFormObject('RadioGroup');
+	$rg->addHash({ 0 => 'Yes', 1 => 'No' });
+	$form .= '&lt;td>' . $rg->genObject($query, undef, undef, 'no_closed', $checked) . '&lt;/td>';
+
+	my $pm = newFormObject('PopupMenu');
+	$pm->addArray([ keys %fields ]);
+	$pm->addLabels({ %fields });
+	$form .= '&lt;td>' . $pm->genObject($query, undef, undef, 'sortby', $orderby) . '&lt;/td>';
+
+	$pm->clearMenu();
+	$pm->addHash({ 0 => 'Normal', 1 => 'Reverse' });
+	$form .= '&lt;td>' . $pm->genObject($query, undef, undef, 'order', $order) . '&lt;/td>';
+	$form .= '&lt;td>&lt;input type="submit" value="Refresh">&lt;/td>&lt;/tr>&lt;/table>&lt;/form>';
+	$str .= '&lt;table cellpadding="5">';
+	$open = '&lt;th>';
+	$close = '&lt;/th>';
 }
 
-$str .= "&lt;tr&gt;$open";
-$str .= join("$close$open", @order) . "$close&lt;/tr&gt;\n";
+$str .= "&lt;tr>$open";
+$str .= join("$close$open", @order) . "$close&lt;/tr>\n";
 
 if ($small) {
-	$open = '&lt;font size="2"&gt;';
-	$close = '&lt;/font&gt;';
+	$open = '&lt;font size="2">';
+	$close = '&lt;/font>';
 } else {
 	$open = '';
 	$close = '';
 }
 
 my @colors;
-if ($vars and defined $vars-&gt;{row_colors}) {
-	@colors = map { "bgcolor=\"$_\"" } split(/\s*,\s*/, $vars-&gt;{row_colors});
+if ($vars and defined $vars->{row_colors}) {
+	@colors = map { "bgcolor=\"$_\"" } split(/\s*,\s*/, $vars->{row_colors});
 } else {
 	@colors = ( 'bgcolor="#dddddd"', 'bgcolor="#eeeeee"' );
 }
 
 my $count = 0;
 my $c = pop @colors;
-while (my $task = $cursor-&gt;fetchrow_hashref()) {
+while (my $task = $cursor->fetchrow_hashref()) {
 	$count ||= 1;
 	push @colors, $c;
 	$c = shift @colors;
-               
-	$task-&gt;{title} = linkNode(getNodeById($task-&gt;{task_id}));
-	$task-&gt;{owner} = linkNode(getNodeById($task-&gt;{owner}));
+        
+	$task->{title} = linkNode(getNodeById($task->{task_id}));
+	$task->{owner} = linkNode(getNodeById($task->{owner}));
 
-	$str.= "&lt;tr&gt;";
+	$str .= "&lt;tr>";
 	foreach my $field (@fields{@order}) {
-		$str.="&lt;td $c&gt;$open$task-&gt;{$field}$close&lt;/td&gt;";
+		$str.="&lt;td $c>$open$task->{$field}$close&lt;/td>";
 	}
-	$str.="&lt;/tr&gt;\n";
+	$str.="&lt;/tr>\n";
 }
-$cursor-&gt;finish();
-$str .= "&lt;/table&gt;";
+$cursor->finish();
+$str .= "&lt;/table>";
 $str = "No tasks found.  Lucky." unless $count;
-$str .= '&lt;p align="right"&gt;' . linkNodeTitle("Task lister preferences|edit view")
+$str .= '&lt;p align="right">' . linkNodeTitle("Task lister preferences|edit view")
  	. " | " . linkNodeTitle("Task lister|lister") unless $big;
-return $str;</code>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="location">htmlcode</loc_location>
-	<otheraccess table="node">iiiii</otheraccess>
-	<title table="node">tasklist</title>
-	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+return $form . $str;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">tasklist</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>

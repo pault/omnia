@@ -1,24 +1,61 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<lastupdate table="nodelet">0</lastupdate>
-	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">Your urgent tasks:&lt;p&gt;
-[{tasklist:small}]</nlcode>
-	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Your urgent tasks:&lt;p&gt;
-No tasks found.  Lucky.&lt;p align="right"&gt;&lt;a href="/everything/index.pl?node=Task%20lister%20preferences"&gt;edit view&lt;/a&gt; | &lt;a href="/everything/index.pl?node=Task%20lister"&gt;lister&lt;/a&gt;</nltext>
-	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
-	<otheraccess table="node">iiiii</otheraccess>
-	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
-	<title table="node">tasklet</title>
-	<type_nodetype table="node" type="nodetype">nodelet</type_nodetype>
-	<updateinterval table="nodelet">0</updateinterval>
+<NODE export_version="0.5" nodetype="nodelet" title="tasklet">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">Your urgent tasks:&lt;p>
+[{tasklist:small}]</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">Your urgent tasks:&lt;p>
+&lt;table cellpadding="2" width="145" align="center">&lt;tr>&lt;td>&lt;font size="2">title&lt;/font>&lt;/td>&lt;td>&lt;font size="2">rating&lt;/font>&lt;/td>&lt;td>&lt;font size="2">due&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td bgcolor="#ccccff">&lt;font size="2">&lt;A HREF="/everything/index.pl?node_id=291&amp;lastnode_id=295">a new hope&lt;/a>&lt;/font>&lt;/td>&lt;td bgcolor="#ccccff">&lt;font size="2">trivial&lt;/font>&lt;/td>&lt;td bgcolor="#ccccff">&lt;font size="2">2000-10-02&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td bgcolor="#eeeeff">&lt;font size="2">&lt;A HREF="/everything/index.pl?node_id=298&amp;lastnode_id=295">Location Test&lt;/a>&lt;/font>&lt;/td>&lt;td bgcolor="#eeeeff">&lt;font size="2">normal&lt;/font>&lt;/td>&lt;td bgcolor="#eeeeff">&lt;font size="2">2000-10-06&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td bgcolor="#bbbbff">&lt;font size="2">&lt;A HREF="/everything/index.pl?node_id=279&amp;lastnode_id=295">second task&lt;/a>&lt;/font>&lt;/td>&lt;td bgcolor="#bbbbff">&lt;font size="2">snoozeworthy&lt;/font>&lt;/td>&lt;td bgcolor="#bbbbff">&lt;font size="2">2000-10-26&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td bgcolor="#ccccff">&lt;font size="2">&lt;A HREF="/everything/index.pl?node_id=280&amp;lastnode_id=295">third task&lt;/a>&lt;/font>&lt;/td>&lt;td bgcolor="#ccccff">&lt;font size="2">severe&lt;/font>&lt;/td>&lt;td bgcolor="#ccccff">&lt;font size="2">2001-10-27&lt;/font>&lt;/td>&lt;/tr>
+&lt;tr>&lt;td bgcolor="#eeeeff">&lt;font size="2">&lt;A HREF="/everything/index.pl?node_id=274&amp;lastnode_id=295">first task&lt;/a>&lt;/font>&lt;/td>&lt;td bgcolor="#eeeeff">&lt;font size="2">hot&lt;/font>&lt;/td>&lt;td bgcolor="#eeeeff">&lt;font size="2">2006-10-20&lt;/font>&lt;/td>&lt;/tr>
+&lt;/table>&lt;p align="right">&lt;a href="/everything/index.pl?node=Task%20lister%20preferences">edit view&lt;/a> | &lt;a href="/everything/index.pl?node=Task%20lister">lister&lt;/a>
+&lt;b>syntax error at (eval 259) line 4, at EOF
+&lt;/b>&lt;br>
+&lt;PRE>   1:  no 
+
+
+&lt;b>Call Stack&lt;/b>:
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:276:Everything::HTML::htmlErrorGods
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:876:Everything::HTML::htmlFormatErr
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1026:Everything::HTML::evalCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1087:Everything::HTML::embedCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1253:Everything::HTML::parseCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1208:Everything::HTML::updateNodelet
+(eval 226):38:Everything::HTML::insertNodelet
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:939:(eval)
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:871:Everything::HTML::evalX
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1026:Everything::HTML::evalCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1021:Everything::HTML::embedCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1087:Everything::HTML::embedCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1272:Everything::HTML::parseCode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1306:Everything::HTML::genContainer
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1417:Everything::HTML::genContainer
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1557:Everything::HTML::displayPage
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:807:Everything::HTML::gotoNode
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:1836:Everything::HTML::searchForNodeByName
+/usr/lib/perl5/site_perl/5.005/Everything/HTML.pm:2232:Everything::HTML::handleUserRequest
+/usr/local/apache/htdocs/everything/index.pl:11:Everything::HTML::mod_perlInit
+/usr/lib/perl5/site_perl/5.005/i386-linux/Apache/Registry.pm:143:Apache::ROOT::everything::index_2epl::handler
+/usr/lib/perl5/site_perl/5.005/i386-linux/Apache/Registry.pm:143:(eval)
+(eval 226):0:Apache::Registry::handler
+(eval 226):0:(eval)
+&lt;b>End Call Stack&lt;/b>
+&lt;/PRE></field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
+  <field name="title" type="literal_value">tasklet</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

@@ -1,41 +1,41 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group >
-		<groupnode1 table="nodegroup" type="dbtable">task</groupnode1>
-		<groupnode2 table="nodegroup" type="nodetype">task</groupnode2>
-		<groupnode3 table="nodegroup" type="location">tasks</groupnode3>
-		<groupnode4 table="nodegroup" type="nodemethod">insert</groupnode4>
-		<groupnode5 table="nodegroup" type="nodemethod">insert</groupnode5>
-		<groupnode6 table="nodegroup" type="nodemethod">update</groupnode6>
-		<groupnode7 table="nodegroup" type="htmlcode">tasklist</groupnode7>
-		<groupnode8 table="nodegroup" type="nodelet">tasklet</groupnode8>
-		<groupnode9 table="nodegroup" type="superdoc">task lister</groupnode9>
-		<groupnode10 table="nodegroup" type="dbtable">task_update</groupnode10>
-		<groupnode11 table="nodegroup" type="nodetype">task_update</groupnode11>
-		<groupnode12 table="nodegroup" type="setting">task settings</groupnode12>
-		<groupnode13 table="nodegroup" type="htmlpage">task edit page</groupnode13>
-		<groupnode14 table="nodegroup" type="htmlpage">task display page</groupnode14>
-		<groupnode15 table="nodegroup" type="htmlcode">popupFromSettings</groupnode15>
-		<groupnode16 table="nodegroup" type="setting">task_update settings</groupnode16>
-		<groupnode17 table="nodegroup" type="htmlpage">task_update edit page</groupnode17>
-		<groupnode18 table="nodegroup" type="superdoc">Task lister preferences</groupnode18>
-		<groupnode19 table="nodegroup" type="htmlpage">task_update display page</groupnode19>
-	</group>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="location">nodeball</loc_location>
-	<otheraccess table="node">iiiii</otheraccess>
-	<title table="node">taskball</title>
-	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
-	<vars table="setting">
-		<author >chromatic</author>
-		<description >A task manager allowing for creation of tasks, task_updates, and task sorting and listing.  See documentation on everydevel.com.</description>
-		<version >0.30</version>
-	</vars>
+<NODE export_version="0.5" nodetype="nodeball" title="taskball">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <group>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">task</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">tasks</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">task</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">tasklet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">tasklist</member>
+    <member name="group_node" supports_nodetype="task_update,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
+    <member name="group_node" supports_nodetype="task,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">task lister</member>
+    <member name="group_node" supports_nodetype="task_update,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">update</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">task settings</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">task_update</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">task_update</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">task edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">task display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">popupFromSettings</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">task_update edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Task lister preferences</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">task_update display page</member>
+  </group>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodeball</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">taskball</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>
+  <vars>
+    <var name="author" type="literal_value">chromatic</var>
+    <var name="description" type="literal_value">A task manager allowing for creation of tasks, task_updates, and task sorting and listing.  See documentation on everydevel.com.</var>
+    <var name="documentation" type="literal_value">&lt;a href="http://everydevel.com/?node=About%20Taskball">About Taskball&lt;/a></var>
+    <var name="version" type="literal_value">0.50</var>
+  </vars>
 </NODE>

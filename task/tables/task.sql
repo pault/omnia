@@ -13,6 +13,6 @@ CREATE TABLE task (
   rating char(40) DEFAULT 'normal' NOT NULL,
   owner int(11) DEFAULT '0' NOT NULL,
   due_date date DEFAULT '0000-00-00' NOT NULL,
-  status char(40) DEFAULT 'none' NOT NULL,
+  status char(40) DEFAULT 'open' NOT NULL,
   PRIMARY KEY (task_id)
 );

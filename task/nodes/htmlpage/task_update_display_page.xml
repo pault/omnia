@@ -1,19 +1,20 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">display</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiiii</groupaccess>
-	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiiii</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">[%
-	my ($date, $time) = split(" ", $NODE-&gt;{updatetime});
+<NODE export_version="0.5" nodetype="htmlpage" title="task_update display page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[%
+	my ($date, $time) = split(" ", $NODE->{updatetime});
 	my ($year, $month, $day) = split(/-/, $date);
 
 	my @mnames = qw( null January February March April May June July
@@ -21,26 +22,26 @@
 
 	$date = "$time on $day $mnames[$month] $year";
 
-	my $parent = linkNode($NODE-&gt;{parent_task}) || "none";
-	my $text = parseLinks($NODE-&gt;{doctext});
+	my $parent = linkNode($NODE->{parent_task}) || "none";
+	my $text = parseLinks($NODE->{doctext});
 
 	my $edit = '';
-	if ($NODE-&gt;hasAccess($USER, 'w')) {
-		$edit = linkNode($NODE, 'edit', { displaytype =&gt; 'edit' });
+	if ($NODE->hasAccess($USER, 'w')) {
+		$edit = linkNode($NODE, 'edit', { displaytype => 'edit' });
 	}
 return &lt;&lt;HTML;
-&lt;h3&gt;$$NODE{title}&lt;/h3&gt;&lt;p align="right"&gt;$edit&lt;/p&gt;
-&lt;table border="1" cellpadding="5"&gt;
-&lt;tr&gt;&lt;th&gt;Update time&lt;/th&gt;&lt;th&gt;Category&lt;/th&gt;&lt;th&gt;Parent&lt;/th&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;$date&lt;/td&gt;&lt;td&gt;$$NODE{update_type}&lt;/td&gt;&lt;td&gt;$parent&lt;/td&gt;&lt;/tr&gt;
-&lt;/table&gt;
-&lt;hr&gt;
+&lt;h3>$$NODE{title}&lt;/h3>&lt;p align="right">$edit&lt;/p>
+&lt;table border="1" cellpadding="5">
+&lt;tr>&lt;th>Update time&lt;/th>&lt;th>Category&lt;/th>&lt;th>Parent&lt;/th>&lt;/tr>
+&lt;tr>&lt;td>$date&lt;/td>&lt;td>$$NODE{update_type}&lt;/td>&lt;td>$parent&lt;/td>&lt;/tr>
+&lt;/table>
+&lt;hr>
 $text
 HTML
-%]</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">task_update</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">general container</parent_container>
-	<permissionneeded table="htmlpage">r</permissionneeded>
-	<title table="node">task_update display page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+%]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">task_update</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
+  <field name="permissionneeded" type="literal_value">r</field>
+  <field name="title" type="literal_value">task_update display page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>

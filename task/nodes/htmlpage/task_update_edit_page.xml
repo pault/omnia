@@ -1,20 +1,21 @@
-<NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="usergroup">gods</author_user>
-	<authoraccess table="node">iiii</authoraccess>
-	<displaytype table="htmlpage">edit</displaytype>
-	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
-	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
-	<dynamicguest_permission table="node">-1</dynamicguest_permission>
-	<dynamicother_permission table="node">-1</dynamicother_permission>
-	<group_usergroup table="node">-1</group_usergroup>
-	<groupaccess table="node">iiii-</groupaccess>
-	<guestaccess table="node">iiii-</guestaccess>
-	<loc_location table="node" type="location">htmlpage</loc_location>
-	<otheraccess table="node">iiii-</otheraccess>
-	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">[%
+<NODE export_version="0.5" nodetype="htmlpage" title="task_update edit page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">edit</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[%
 	# NOTE:  DATE field is YYYY-MM-DD hh:mm:ss! 
-	my ($date, $time) = split(" ", $NODE-&gt;{updatetime});
+	my ($date, $time) = split(" ", $NODE->{updatetime});
 	my ($year, $month, $day) = split(/-/, $date);
 
 	my @mnames = qw( null January February March April May June July
@@ -22,50 +23,50 @@
 
 	$date = "$time on $day $mnames[$month] $year";
 
-	my $parent = $query-&gt;param('parent_task');
-	if ($parent &amp;&amp; $parent ne $NODE-&gt;{parent_task}) {
-		$NODE-&gt;{parent_task} = $parent;
-		$NODE-&gt;{"update_$NODE"} = 1;
+	my $parent = $query->param('parent_task');
+	if ($parent &amp;&amp; $parent ne $NODE->{parent_task}) {
+		$NODE->{parent_task} = $parent;
+		$NODE->{"update_$NODE"} = 1;
 	} else {
-		$parent ||= $NODE-&gt;{parent_task};
+		$parent ||= $NODE->{parent_task};
 	}
 
-	unless ($NODE-&gt;{title}) {
-		my $cursor = $DB-&gt;getNodeCursor('title', { node_id =&gt; $parent });
-		if ($cursor-&gt;execute()) {
-			my ($parent_title) = $cursor-&gt;fetchrow_array();
-			$cursor-&gt;finish();
-			$NODE-&gt;{title} = "Re: $parent_title";
+	unless ($NODE->{title}) {
+		my $cursor = $DB->getNodeCursor('title', { node_id => $parent });
+		if ($cursor->execute()) {
+			my ($parent_title) = $cursor->fetchrow_array();
+			$cursor->finish();
+			$NODE->{title} = "Re: $parent_title";
 		}
 	}
 
 	$parent = linkNode($parent) || 'none';
 
 return &lt;&lt;HTML;
-Updated at $date&lt;p&gt;
-attached to $parent&lt;p&gt;
+Updated at $date&lt;p>
+attached to $parent&lt;p>
 HTML
 %]
 
-&lt;table&gt;
-&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;Title:&lt;/td&gt;
-&lt;td bgcolor="#eeeeee"&gt;[{textfield:title}]&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;Category:&lt;/td&gt;
-&lt;td bgcolor="#eeeeee"&gt;[{popupFromSettings:task_update settings,update_type}]&lt;/td&gt;&lt;/tr&gt;
-&lt;/table&gt;
+&lt;table>
+&lt;tr>&lt;td bgcolor="#cccccc">Title:&lt;/td>
+&lt;td bgcolor="#eeeeee">[{textfield:title}]&lt;/td>&lt;/tr>
+&lt;tr>&lt;td bgcolor="#cccccc">Category:&lt;/td>
+&lt;td bgcolor="#eeeeee">[{popupFromSettings:task_update settings,update_type}]&lt;/td>&lt;/tr>
+&lt;/table>
 [%
-	if (exists $NODE-&gt;{"update_$NODE"}) {
-		delete $NODE-&gt;{"update_$NODE"};
-		$NODE-&gt;update($USER);
+	if (exists $NODE->{"update_$NODE"}) {
+		delete $NODE->{"update_$NODE"};
+		$NODE->update($USER);
 	}
 	return '';
 %]
-&lt;p&gt;&lt;h3&gt;Comment text:&lt;/h3&gt;
-[{textarea:doctext}]&lt;br&gt;
-[{submit}]</page>
-	<pagetype_nodetype table="htmlpage" type="nodetype">task_update</pagetype_nodetype>
-	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
-	<permissionneeded table="htmlpage">w</permissionneeded>
-	<title table="node">task_update edit page</title>
-	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+&lt;p>&lt;h3>Comment text:&lt;/h3>
+[{textarea:doctext}]&lt;br>
+[{submit}]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">task_update</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">task_update edit page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
