@@ -17,6 +17,9 @@ These are needed for the Everything::XML module
 	XML-Generator (0.4)
 	XML-Parser (2.26)
 
+Everything::MAIL
+	Mail-Sender (0.6.7)
+	Mail-Tools
 
 each of these is simple to install from a tar.gz file:
 

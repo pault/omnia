@@ -80,7 +80,6 @@ use vars qw($dbh);
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
 
-my $VERSION = 0.8;
 
 #############################################################################
 sub printErr {
@@ -890,13 +889,14 @@ sub genWhereString
 				
 				if (ref ($item) eq "HASH") { $item = getId $item; }
 				
-				$wherestr .= $key . '=' . $dbh->quote($item); 
+				$wherestr .= "(". $key . '=' . $dbh->quote($item); 
 				
 				foreach my $item (@$LIST)
 				{
 					if (ref ($item) eq "HASH") { $item = getId $item; }
 					$wherestr .= " or " . $key . '=' . $dbh->quote($item); 
 				}
+				$wherestr.=")";
 			}
 			elsif($$WHERE{$key})
 			{
@@ -917,7 +917,6 @@ sub genWhereString
 	#there is no way to do "field1=foo OR field2=bar" 
 	#you can only OR on the same field and AND on different fields
 	#I haven't had to worry about it yet.  That day may come
-	
 	return $wherestr;
 }
 
@@ -1661,7 +1660,7 @@ sub updateNode
 	# NOTE!  This is turned off for now since nothing uses it currently.
 	# (helps performance).  If you need to do some special updating for
 	# a particualr nodetype, uncomment this line.
-	#nodeMaintenance($NODE, 'update');
+	nodeMaintenance($NODE, 'update');
 
 	return 1;
 }

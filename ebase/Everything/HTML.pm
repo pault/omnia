@@ -11,6 +11,7 @@ package Everything::HTML;
 
 use strict;
 use Everything;
+use Everything::MAIL;
 require CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
@@ -181,7 +182,7 @@ sub getCode
 	return '"";' unless ($CODELIST);
 	my $CODE = selectNode($$CODELIST[0]);
 	
-	my $str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if $args;
+	my $str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if defined $args;
 	
 	$str.$$CODE{code};
 }
@@ -334,11 +335,12 @@ sub getPage
 sub linkNode {
 	my ($NODE, $title, $PARAMS) = @_;
 	#getRef $NODE;	
-	
-	return unless $NODE;	
+
+	return unless $NODE;
 	unless (ref $NODE) {
 		$NODE = getNodeById($NODE, 'light');
 	}
+	return unless ref $NODE;	
 	
 	if ($NODE == -1) {return "<a>$title</a>";}
 	$title ||= $$NODE{title};
@@ -396,12 +398,18 @@ sub nodeName
 {
 	my ($node, $user_id) = @_;
 
-	my $type = $query->param("type");
-	my $select_group = selectNodeByName($node, $NODETYPES{$type});
+	my @types = $query->param("type");
+	foreach(@types) {
+		$_ = getId $NODETYPES{$_};
+	}
+	
+	my %selecthash = (title => $node);
+	$selecthash{type_nodetype} = \@types if @types;
+	my $select_group = selectNodeWhere(\%selecthash);
 	my $search_group;
 	my $NODE;
 
-
+    my $type = $types[0];
 	$type ||= "";
 
 	if (not $select_group or @$select_group == 0)
@@ -585,17 +593,18 @@ sub quote {
 sub insertNodelet
 {
 	($NODELET) = @_;
-	my $html;
 	getRef $NODELET;
 	
-	$html = genContainer($$NODELET{parent_container});
+	my $html = genContainer($$NODELET{parent_container}) 
+		if $$NODELET{parent_container};
 
 	# Make sure the nltext is up to date
 	updateNodelet($NODELET);
+	return unless ($$NODELET{nltext} =~ /\S/);
 	
 	# now that we are guaranteed that nltext is up to date, sub it in.
-	$html =~ s/CONTAINED_STUFF/$$NODELET{nltext}/s;
-
+	if ($html) { $html =~ s/CONTAINED_STUFF/$$NODELET{nltext}/s; }
+	else { $html = $$NODELET{nltext}; }
 	$html;
 }
 
@@ -1002,7 +1011,7 @@ sub handleUserRequest
 		{
 			nodeName ($nodename, $user_id, $type); 
 		}
-		elsif ($user_id != $HTMLVARS{guest_user} and
+		elsif (#$user_id != $HTMLVARS{guest_user} and
 			canCreateNode($user_id, $NODETYPES{$type}))
 		{
 			#guests can't create nodes -- otherwise
