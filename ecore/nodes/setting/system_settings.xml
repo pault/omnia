@@ -27,7 +27,6 @@
     <var name="nodedeleted_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</var>
     <var name="nodeletSide" type="literal_value">right</var>
     <var name="notFound_node" type="noderef" type_nodetype="superdoc,nodetype">Not found</var>
-    <var name="otherusersTimeLimit" type="literal_value">600</var>
     <var name="permissionDenied_node" type="noderef" type_nodetype="superdoc,nodetype">Permission Denied</var>
     <var name="searchResults_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</var>
     <var name="showlocations" type="literal_value">1</var>
@@ -35,5 +34,3 @@
     <var name="site_url" type="literal_value">http://localhost</var>
   </vars>
 </NODE>
-
-
