@@ -81,6 +81,15 @@ sub node2mail
 sub mail2node
 {
 	my ($files) = @_;
+
+	unless($files)
+	{
+		Everything::logErrors('No input files for mail2node!');
+
+		#Nothing to do here!
+		return;
+	}
+
 	$files = [$files] unless UNIVERSAL::isa( $files, 'ARRAY' );
 
 	use Mail::Address;
@@ -88,40 +97,84 @@ sub mail2node
 	my ($from, $to, $subject, $body);
 	foreach my $file (@$files)
 	{
-		open FILE,"<$file" or die 'suck!\n';
-		my $line = '';
-		until ($line =~ /^Subject\: /)
+		unless(open FILE,"<$file")
 		{
-			$line = <FILE>;
-			if ($line =~ /^From:/)       
-			{ 
-				my ($addr) = Mail::Address->parse($line);
-				$from      = $addr->address;
-			}
-			if ($line =~ /^To:/)  
+			Everything::logErrors("mail2node could not open file: $file");
+			next; 
+		}
+		$from = $to = $subject = $body = '';
+
+		while(<FILE>)
+		{
+			my $line = $_ || "";
+			unless($subject){
+				if ($line =~ /^From\:/)       
+				{ 
+					my ($addr) = Mail::Address->parse($line);
+					$from      = $addr->address;
+
+				}elsif ($line =~ /^To\:/)  
+				{
+					my ($addr) = Mail::Address->parse($line);
+					$to = $addr->address;
+
+				}elsif($line =~ /^Subject\: (.*)/)
+				{
+					$subject = $1;
+				}
+			}else
 			{
-				my ($addr) = Mail::Address->parse($line);
-				$to = $addr->address;
+				$body.=$line;
 			}
-			if ($line =~ /^Subject\: (.*?)/)
-			{
-				$subject = $1;
-			}
-			print "blah: $line" if $line;
+		
 		}
 
-		$body .= $_ while <FILE>;
+		close(FILE);
 
-		my $user = getNode({ email => $to }, getType('user'));
-		my $node = getNode($subject, 'mail', 'create force');
+		unless($subject)
+		{
 
-		$node->insert(-1);
+			Everything::logErrors("mail2node: $file doesn't appear to be a valid mail file");
+			next;
+		}
+
+		my ($user, $node);
+
+		unless($to)
+		{
+			Everything::logErrors("mail2node: No 'To:' parameter specified. Defaulting to user 'root'"); 
+			$user = getNode("root","user");
+		}else{
+
+			$user = getNode({ email => $to }, getType('user'));
+
+			unless($user)
+			{
+				Everything::logErrors("mail2node can't find user for email $to. Reverting to user 'root'");
+				$user ||= getNode("root","user");
+			}
+
+		}
+		$node = getNode($subject, 'mail', 'create force');
+
+		unless($node)
+		{
+			Everything::logErrors("","mail2node: Node creation of type mail failed!");
+			next;
+		}
+
 		$node->{doctext}      = $body;
 		$node->{author_user}  = getId($user);
 		$node->{from_address} = $from;
 
-		$node->update(-1);
+		unless($node->insert(-1))
+		{
+			Everything::logErrors("mail2node: Node insertion failed!");
+			next;
+		}
 	}
+
+	return 1;
 }
 
 #############################################################################

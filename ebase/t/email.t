@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 
-use strict;
-use Test::More tests => 31;
+use Test::More tests => 42;
 use Test::MockObject;
 
 my $package = "Everything::MAIL";
@@ -20,15 +19,14 @@ BEGIN
 {
         chdir 't' if -d 't';
         use lib '../blib/lib', 'lib', '..';
+	
 }
-
 
 # We'll need a few MockObjects here
 
 my $mock = Test::MockObject->new();
 my $MS = Test::MockObject->new();
 my $SETTINGS = Test::MockObject->new();
-
 
 # A few different variables to hold parameters being passed in and out
 
@@ -58,6 +56,11 @@ getNode =>
 			return $mock->SETTINGS;
 		}
 
+		if((ref $nparam) eq "HASH")
+		{
+			
+		}
+
 		my $results = 
 		{
 			1 => undef,
@@ -80,6 +83,8 @@ logErrors =>
        },
 
 );
+
+my $fh = Test::MockObject->new();
 
 # Because we can't actually call $MS->new directly for our
 # aggrigated "mock" method, register another handler for
@@ -130,6 +135,17 @@ $SETTINGS->set_always("getVars", undef);
 local *Everything::MAIL::getNode;
 *Everything::MAIL::getNode = sub { Everything::getNode( @_ ) };
 
+local *Everything::MAIL::getType;
+*Everything::MAIL::getType = sub { return uc($_[0]); };
+
+local *Everything::MAIL::FILE;
+tie *Everything::MAIL::FILE, 'MockHandle', "This will never be read", 1;
+use MockHandle;
+
+my $MockHandle_closed;
+
+local *MockHandle::CLOSE;
+*MockHandle::CLOSE = sub { $MockHandle_closed = 1 };
 
 # Does use Everything::MAIL still return 1? This will tell us:
 
@@ -276,9 +292,96 @@ use_ok($package) or exit;
 #               slurp rest of file into $body (potential bug)
 #               getNode of 'user' type, given registered user email address
 #               getNode for new blank 'mail' node
-#               insert node
 #               set author, from_address, and body
-#               update node
+#               insert node
+
+local *Everything::MAIL::getId;
+*Everything::MAIL::getId = sub { Everything::getId( @_ ) };
 
 can_ok($package, 'mail2node');
 
+use_ok("Mail::Address");
+
+ok(!mail2node(), 'mail2node() should fail without files');
+ok((join "", @WARNINGS) =~ /No input files for mail2node/, '...and should throw a warning saying so');
+
+@WARNINGS = ();
+
+ok(mail2node('/dummy/file'), 'mail2node should return gracefully if it can\'t open up a file');
+ok((join "",@WARNINGS) =~ /mail2node could not open file/, '...and throw a warning saying so');
+
+#Set up tests for invalid reading
+untie *Everything::MAIL::FILE;
+tie *Everything::MAIL::FILE, 'MockHandle', "THIS IS INVALID TEXT";
+
+@WARNINGS = ();
+$MockHandle_closed = 0;
+ok(mail2node('/dummy/file'), 'mail2node should return gracefully if it doesn\'t have enough to make a mail node');
+ok((join "",@WARNINGS) =~ /doesn\'t appear to be a valid mail file/, '...and should throw a warning saying so');
+ok($MockHandle_closed, '...and should close the file handle');
+
+
+#No "To:" parameter
+untie *Everything::MAIL::FILE;
+tie *Everything::MAIL::FILE, 'MockHandle', 
+"From: testing\@test.com\nSubject: this is a test email!\n\nTesting!\n";
+
+@WARNINGS = ();
+@ERRORS = ();
+$MockHandle_closed = 0;
+
+
+my $m2n_node = Test::MockObject->new();
+my $m2n_user = Test::MockObject->new();
+my $got_root = 0;
+
+$mock->fake_module("Everything",
+	getNode => sub{
+
+			my ($param, $nparam) = @_;
+
+			#if we're getting the user
+			return $m2n_user->getMe() if(ref($param) eq "HASH");
+
+			#if we're getting the node itself
+			return $m2n_node->getMe() if($nparam eq "mail");
+			
+			#if we're getting the root user			
+			if($param eq "root" and $nparam eq "user"){
+				$got_root = 1;
+				return {node_id => 5};
+			}
+		},
+
+	getId => sub{
+
+			my ($node) = @_;
+			return $node->{node_id};
+		},
+	);
+
+$m2n_user->set_always("getMe", undef);
+$m2n_node->set_series("getMe", undef,$m2n_node);
+
+$m2n_node->set_always("insert", 1);
+
+
+mail2node('/dummy/file');
+ok(join("", @WARNINGS) =~ /mail2node\: No \'To\:\' parameter specified\. Defaulting to user \'root\'/, 'mail2node should default to root and warn if it doesn\'t find a To: ');
+ok($got_root, '...and actually gets the root user');
+
+
+mail2node('/dummy/file');
+ok(join("", @ERRORS) =~ /mail2node\: Node creation of type mail failed\!/, "Throw an error if mail2node creation directive fails");
+
+###############################
+#	Tests left:
+###############################
+#	Check to see if root gets inserted
+#	Test when initial node creation doesn't fail
+#	Make sure insert is actually called
+#	Make sure parameters are called
+#	See what happens if Mail::Address returns null
+#	Badly formed email addresses
+#	Have hard limit of size of email (size of doctext)
+#	Make sure multiple files works
