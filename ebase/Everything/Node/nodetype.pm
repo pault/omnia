@@ -321,6 +321,64 @@ sub hasTypeAccess
 
 
 #############################################################################
+#	Sub
+#		isGroupType
+#
+#	Purpose
+#		Check to see if this type is a group (ie nodes of this type
+#		are nodegroup nodes).
+#
+#	Returns
+#		The name of the group table if this is a group type.
+#		False otherwise.
+#
+sub isGroupType
+{
+	my ($this) = @_;
+
+	my $table = $$this{derived_grouptable};
+
+	return undef unless($table && $table ne "");
+	return $table;
+}
+
+
+#############################################################################
+#	Sub
+#		derivesFrom
+#
+#	Purpose
+#		Given a nodetype, check to see if this nodetype descends from it
+#		in some way.  For example, restricted_superdoc -> superdoc -> document.
+#		Calling $restrictedSuperdoc->derivesFrom("document") would return
+#		true.
+#
+#	Parameters
+#		$type - the nodetype to check to see if we derive from.  Either
+#			a string name, or a nodetype object.
+#
+#	Returns
+#		True if the this derives from the given nodetype, false otherwise.
+#
+sub derivesFrom
+{
+	my ($this, $type) = @_;
+    my $check = $this;
+	
+	$type = $$this{DB}->getType($type);
+	return 0 unless($type && $$type{type_nodetype} == 1);
+	
+	while($check)
+	{
+		return 1 if($$type{node_id} == $$check{node_id});
+		$check = $check->getParentType();
+	}
+
+	return 0;
+}
+
+
+#############################################################################
 # End of package
 #############################################################################
 

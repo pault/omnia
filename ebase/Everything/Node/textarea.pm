@@ -42,10 +42,18 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $default, $cols,
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $default, $cols,
 		$rows, $wrap) = getParamArray(
-		"this, query, bindNode, field, name, default, cols, rows, wrap", @_);
-	my $html = $this->SUPER() . "\n";
+		"query, bindNode, field, name, default, cols, rows, wrap", @_);
+	
+	$name ||= $field;
+	$default ||= 'AUTO';
+	$cols ||= 80;
+	$rows ||= 20;
+	$wrap ||= 'virtual';
+
+	my $html = $this->SUPER($query, $bindNode, $field, $name) . "\n";
 	
 	if($default eq "AUTO")
 	{

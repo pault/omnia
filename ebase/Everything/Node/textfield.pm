@@ -33,8 +33,7 @@ use Everything;
 #			$bindNode is undef, this is ignored.
 #		$name - the name of the form object.  ie <input type=text name=$name>
 #		$default - value this object will contain as its initial default.
-#			Specify 'AUTO' if you want to use the value of the field this
-#			object is bound to, if it is bound
+#			If undef, this will default to what the field of the bindNode is.
 #		$size - the width in characters of the textfield
 #		$maxlen - the maximum number of characters this textfield will accept
 #
@@ -43,11 +42,17 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $default, $size, $maxlen) =
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $default, $size, $maxlen) =
 		getParamArray(
-		"this, query, bindNode, field, name, default, size, maxlen", @_);
+		"query, bindNode, field, name, default, size, maxlen", @_);
 
-	my $html = $this->SUPER() . "\n";
+	$name ||= $field;
+	$default ||= 'AUTO';
+	$size ||= 20;
+	$maxlen ||= 255;
+
+	my $html = $this->SUPER($query, $bindNode, $field, $name) . "\n";
 	
 	if($default eq "AUTO")
 	{
@@ -56,7 +61,7 @@ sub genObject
 	}
 
 	$html .= $query->textfield(-name => $name, -default => $default,
-		-size => $size, -maxlength => $maxlen);
+		-size => $size, -maxlength => $maxlen, -override => 1);
 	
 	return $html;
 }

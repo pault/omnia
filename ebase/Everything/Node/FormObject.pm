@@ -39,8 +39,9 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name) =
-		getParamArray("this, query, bindNode, field, name", @_); 
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name) =
+		getParamArray("query, bindNode, field, name", @_); 
 
 	return $this->genBindField($query, $bindNode, $field, $name);
 }
@@ -130,6 +131,7 @@ sub cgiUpdate
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
 	$value ||= "";
+
 	$$NODE{$field} = $value;
 
 	return 1;
@@ -162,9 +164,11 @@ sub genBindField
 
 	return "" unless($bindNode);
 
+	my $order = $$this{updateExecuteOrder};
+	$order ||= 50;
 	return $query->hidden(
 		-name => 'formbind_' . $$this{type}{title} . '_' . $name,
-		-value => "$$bindNode{node_id}:$field", -override => 1);
+		-value => "$order:$$bindNode{node_id}:$field", -override => 1);
 }
 
 
@@ -191,7 +195,7 @@ sub getBindNode
 	my $value = $query->param('formbind_' . $$this{type}{title} . '_' . $name);
 	return undef unless($value);
 
-	$value =~ /^(.*?)\:/;
+	$value =~ /^\d\d\:(.*?)\:/;
 
 	return $$this{DB}->getNode($1);
 }
@@ -222,7 +226,7 @@ sub getBindField
 	return undef unless($value);
 
 	my $field;
-	$value =~ /^.*?\:(.*)/;
+	$value =~ /^\d\d\:.*?\:(.*)/;
 	$field = $1;
 
 	return $field;

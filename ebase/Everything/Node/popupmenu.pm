@@ -21,10 +21,9 @@ use Everything;
 #	Purpose
 #		This is called to generate the needed HTML for this popupmenu
 #		form object.  NOTE!!!! This cannot be called from
-#		[{nodeFormObject:...}] style htmlcode.  You need to call
-#		nodeFormObject() as a function.  This is due to the fact
-#		that the $values and $labels are array and hash refs.  You
-#		cannot achieve the desired results calling this from htmlcode.
+#		[{nodeFormObject:...}] style htmlcode.  This is due to the fact
+#		that you need to call the addHash/addArray/addType/addGroup
+#		functions to populate this menu before calling this.
 #
 #	Parameters
 #		Can be passed as either -paramname => value, or an array of 
@@ -39,21 +38,20 @@ use Everything;
 #		$default - value this object will contain as its initial default.
 #			Specify 'AUTO' if you want to use the value of the field this
 #			object is bound to, if it is bound
-#		$values - an array ref that contains the values of the various
-#			radio buttons
-#		$labels - (optional) a hashref containing
-#			$hash{$values[0...]} = $readableLabel
 #
 #	Returns
 #		The generated HTML for this popupmenu object
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $default, $values,
-		$labels, $sortby) = getParamArray(
-		"this, query, bindNode, field, name, default, values, labels, sortby", @_);
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $default) = getParamArray(
+		"query, bindNode, field, name, default", @_);
 
 	my $html = $this->SUPER() . "\n";
+	
+	$name ||= $field;
+	$default ||= 'AUTO';
 	
 	if($default eq "AUTO")
 	{
@@ -61,10 +59,7 @@ sub genObject
 		$default = $$bindNode{$field} if($bindNode);
 	}
 
-	$this->addArray($values);
-	$this->addLabels($labels);
-	
-	$html .= $this->genPopupMenu($name, $values, $default, $labels);
+	$html .= $this->genPopupMenu($query, $name, $default);
 
 	return $html;
 }

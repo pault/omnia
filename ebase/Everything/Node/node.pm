@@ -239,6 +239,59 @@ sub nuke
 
 	return 0 unless($this->hasAccess($USER, "d"));
 
+	# Remove all links that go from or to this node that we are deleting
+	$$this{DB}->{dbh}->do("DELETE FROM links WHERE to_node=" . 
+		   $this->getId() . " OR from_node=" . $this->getId());
+
+	# Now lets remove this node from all nodegroups that contain it.  This
+	# is a bit more complicated than removing the links as nodegroup types
+	# can specify their own group table if desired.  This needs to find
+	# all used group tables and check for the existance of this node in
+	# any of those groups.
+	my @allTypes = $$this{DB}->getAllTypes();
+	foreach my $TYPE (@allTypes)
+	{
+		my $table = $TYPE->isGroupType();
+		next unless($table);
+
+		# This nodetype is a group.  See if this node exists in any of its
+		# tables.
+		my $csr = $$this{DB}->sqlSelectMany($table . "_id", $table,
+			"node_id=$$this{node_id}");
+
+		if($csr)
+		{
+			my $group;
+			my %GROUPS;
+			while($group = $csr->fetchrow())
+			{
+				# For each entry, mark each group that this node belongs
+				# to.  A node may be in a the same group more than once.
+				# This prevents us from working with the same group node
+				# more than once.
+				$GROUPS{$group} = 1;
+			}
+			$csr->finish();
+
+			# Now that we have a list of which group nodes that contains
+			# this node, we are free to delete all rows from the node
+			# table that reference this node.
+			$$this{DB}->{dbh}->do(
+				"DELETE FROM $table where node_id=$$this{node_id}");
+
+			foreach (keys %GROUPS)
+			{
+				# Lastly, for each group that contains this node in its
+				# group, we need to increment its global version such
+				# that it will get reloaded from the database the next
+				# time it is used.
+				my $GROUP = $$this{DB}->getNode($_);
+				$$this{DB}->{cache}->incrementGlobalVersion($GROUP);
+			}
+		}
+	}
+
+	# Actually remove this node from the database.
 	my $tableArray = $$this{type}->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
@@ -246,11 +299,7 @@ sub nuke
 				"_id=". $this->getId());
 	}
 
-	# Remove all links that go from or to this node that we are deleting
-	$$this{DB}->{dbh}->do("DELETE FROM links WHERE to_node=" . 
-		   $this->getId() . " OR from_node=" . $this->getId());
-
-	# Lastly, remove the nuked node from the cache so we don't get
+	# Now we can remove the nuked node from the cache so we don't get
 	# stale data.
 	$$this{DB}->{cache}->incrementGlobalVersion($this);
 	$$this{DB}->{cache}->removeNode($this);
@@ -650,6 +699,67 @@ sub updateFromImport
 	$this->update($USER);
 }
 
+
+#############################################################################
+#	Sub
+#		verifyFieldUpdate
+#
+#	Purpose
+#		This should be called during the cgiUpdate() of all FormObjects
+#		that modify a critical node{field} directly to prevent hacked
+#		CGI parameters from breaching security.
+#
+#		This is called by the FormObject stuff to verify that a particular
+#		field on a node of this nodetype can be updated directly through the
+#		web interface.  There are some fields that should never be able
+#		to update directly through the web interface.  If it were possible
+#		to edit these fields, external pages with the correct form fields
+#		and CGI parameters could be constructed to hack the site and
+#		circumvent normal security procedures.
+#
+#		Any nodetypes that have data in fields that should not be allowd
+#		to be updated directly though the web interface should override
+#		this method and provide their own list *in addition* to this.
+#		Derived implementations should do something like:
+#
+#		my $verify = do_their_own_verification();
+#		return ($verify && $this->SUPER());
+#
+#	Parameters
+#		$field - The field to check to see if it is ok to update directly.
+#
+#	Returns
+#		True if it is ok to update the field directly, false otherwise.
+#
+sub verifyFieldUpdate
+{
+	my ($this, $field) = @_;
+	my $restrictedFields = {
+		'createtime' => 1,
+		'node_id' => 1,
+		'type_nodetype' => 1,
+		'hits' => 1,
+		'loc_location' => 1,
+		'reputation' => 1,
+		'lockedby_user' => 1,
+		'locktime' => 1,
+		'authoraccess' => 1,
+		'groupaccess' => 1,
+		'otheraccess' => 1,
+		'guestaccess' => 1,
+		'dynamicauthor_permission' => 1,
+		'dynamicgroup_permission' => 1,
+		'dynamicother_permission' => 1,
+		'dynamicguest_permission' => 1
+	};
+
+	# We don't want to be able to directly modify the primary keys of
+	# the various tables we join on.
+	my $isID = ($field =~ /_id$/);
+	return (not (exists $$restrictedFields{$field} or $isID) );
+}
+
+
 #########################################################################
 #	
 #	sub
@@ -685,6 +795,7 @@ sub getRevision {
 	return $RN;
 
 }
+
 
 #############################################################################
 #
@@ -726,8 +837,6 @@ sub logRevision {
 	    	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id > $rev and inside_workspace=$workspace");
 		}
 	}
-	
-	
 	
  	my $data;
     if (not $workspace) {

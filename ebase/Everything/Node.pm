@@ -497,25 +497,10 @@ sub isOfType
 	my $TYPE = $$this{DB}->getType($type);
 
 	return 0 unless($TYPE);
-
 	my $typeid = $TYPE->getId();
-
 	return 1 if($typeid == $$this{type}{node_id});
 
-	$recurse ||= 0;
-
-	if($recurse)
-	{
-		my $PARENT = $$this{type}->getParentType();
-
-		while($PARENT)
-		{
-			return 1 if($typeid == $PARENT->getId());
-
-			$PARENT = $PARENT->getParentType();
-		}
-	}
-
+	return $$this{type}->derivesFrom($TYPE) if($recurse);
 	return 0;
 }
 

@@ -51,9 +51,10 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $default, $values,
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $default, $values,
 		$vertical, $labels) = getParamArray(
-		"this, query, bindNode, field, name, default, values, " .
+		"query, bindNode, field, name, default, values, " .
 		"vertical, labels", @_);
 
 	my $html = $this->SUPER() . "\n";

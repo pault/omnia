@@ -57,9 +57,10 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $default, $multiple,
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $default, $multiple,
 		$values, $size, $labels, $sortby) = getParamArray(
-		"this, query, bindNode, field, name, default, multiple, values, " .
+		"query, bindNode, field, name, default, multiple, values, " .
 		"size, labels, sortby", @_);
 
 	$this->clearMenu();

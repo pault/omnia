@@ -60,7 +60,7 @@ use vars qw($USER);
 use vars qw($VARS);
 use vars qw($THEME);
 use vars qw($NODELET);
-
+use vars qw(%INCJS);
 
 
 ####### Deprecated functions #############
@@ -1045,8 +1045,15 @@ sub embedCode
 
 		@args = split(/\s*,\s*/, $args) if($args);
 
-		$args = join("', '", @args);
-		$args = "'" . $args . "'" if($args);
+		foreach (@args)
+		{
+			# Wrap each argument in quotes, except those that start with
+			# a '$'.  This way, global vars can be used in calling htmlcode
+			# ie [{mycode: hello, $USER}]
+			$_ = "'" . $_ . "'" unless($_ =~ /^\$/);
+		}
+
+		$args = join(", ", @args);
 
 		my $code = $func . "(" . $args . ");";
 		$block = evalXTrapErrors($code, $CURRENTNODE);
@@ -1957,6 +1964,7 @@ sub initForPageLoad
 	my ($db) = @_;
 
 	undef %GLOBAL;
+	undef %INCJS;
 
 	$GNODE = {};
 	$USER = {};
@@ -1983,6 +1991,12 @@ sub opNuke
 	my $NODE = getNode($query->param("node_id"));
 	
 	$NODE->nuke($USER) if($NODE);
+
+	if($$NODE{node_id} == 0)
+	{
+		$query->param('node_id', $HTMLVARS{nodedeleted_node});
+		$GLOBAL{nodedeleted} = $NODE;
+	}
 }
 
 
@@ -2104,17 +2118,32 @@ sub opUpdate
 	my %UPDATENODES;
 	my %UPDATEOBJECT;
 	my $CGIVERIFY = 1;  # Assume that we succeed until we fail
+	my @formbind;
+	my @sort;
 	
 	my $preprocess = $query->param('opupdate_preprocess');
 	my $postprocess = $query->param('opupdate_postprocess');
+
+	foreach my $param (@params)
+	{
+		push @formbind, $param if($param =~ /^formbind_(.+?)_(.+)$/);
+	}
+
+	# Nothing to update
+	return 1 if(int(@formbind) == 0);
+
+	# We want to execute them in the order of the first two digits.
+	# This way, form objects that do deletion stuff can go last or
+	# objects that need to do some kind of setup can go first
+	@sort = sort { $query->param($a) cmp $query->param($b) } @formbind;
 
 	htmlcode($preprocess) if($preprocess);
 	
 	# First, we need to verify that all fields in this update are
 	# what we expect.
-	foreach my $param (@params)
+	foreach my $param (@sort)
 	{
-		next unless($param =~ /^formbind_(.*?)_(.*)$/);
+		$param =~ /formbind_(.+?)_(.+)$/;
 		my $objectType = $1;
 		my $objectName = $2;
 		my $formObject = $DB->newNode($objectType);
@@ -2145,9 +2174,9 @@ sub opUpdate
 	# committing the changes to the database via update().  This way we
 	# avoid doing an update() for each change.
 	my $god = $USER->isGod();
-	foreach my $param (@params)
+	foreach my $param (@sort)
 	{
-		next unless($param =~ /^formbind_(.*?)_(.*)$/);
+		$param =~ /formbind_(.*?)_(.*)$/;
 		my $objectType = $1;
 		my $objectName = $2;
 		my $formObject = $DB->newNode($objectType);
@@ -2164,7 +2193,15 @@ sub opUpdate
 	# them to the database.
 	foreach my $node (keys %UPDATENODES)
 	{
+		# Log a revision (for undo/redo) on each of the updated nodes.
+		$UPDATENODES{$node}->logRevision($USER);
 		$UPDATENODES{$node}->update($USER);
+			
+		# This is the case where the user is modifying their own user
+		# node.  If we want the user node to take effect in one page
+		# load, we need to set it here.
+		$USER = $UPDATENODES{$node}
+			if ($$USER{node_id} == $UPDATENODES{$node}{node_id});
 	}
 
 	# Lastly, we need to determine if we have any kind of redirection
@@ -2319,6 +2356,7 @@ sub setHTMLVARS
 #
 sub updateNodeData
 {
+	warn("Using updateNodeData() (deprecated!).  Stop that!");
 	my $node_id = $query->param('node_id');
 
 	return undef unless($node_id);
@@ -2415,7 +2453,8 @@ sub mod_perlInit
 	#an opcode might have changed our workspace.  Join again.
 	$DB->joinWorkspace($$USER{inside_workspace});
 
-	updateNodeData();
+	# DEPRECATED!  DO NOT USE!
+	# updateNodeData();
 	
 	# Fill out the THEME hash
 	getTheme();

@@ -13,7 +13,7 @@ use Everything;
 #	implements the base functionality that all menus will use.
 #
 #	You can use this directly to do make some very custom menus if
-#	need.  However, the derived classes of this will provide specific
+#	needed.  However, the derived classes of this will provide specific
 #	functionality that will make certain types of menus easier to
 #	do.
 #
@@ -43,7 +43,7 @@ sub getLabelsHash
 {
 	my ($this) = @_;
 
-	$$this{LABELS} ||= [];
+	$$this{LABELS} ||= {};
 	return $$this{LABELS};
 }
 
@@ -192,7 +192,7 @@ sub addType
 #
 sub addGroup
 {
-	my ($this, $GROUP, $USER, $perm, $sortby) = @_;
+	my ($this, $GROUP, $showType, $USER, $perm, $sortby) = @_;
 	my $groupnode;
 	my $NODE;
 	my $GROUPNODES;
@@ -200,13 +200,16 @@ sub addGroup
 	my $gLabels = $this->getLabelsHash();
 	my @values;
 	
-	$GROUPNODES = $GROUP->selectNodegroupFlat();
+	$GROUPNODES = $$GROUP{group};
 	foreach $groupnode (@$GROUPNODES)
 	{
 		$NODE = $$this{DB}->getNode($groupnode);
 		next unless((not $USER) or ($NODE->hasAccess($USER, $perm)));
 		
-		$$gLabels{$$NODE{node_id}} = $$NODE{title};
+		my $label = $$NODE{title};
+		$label .= " ($$NODE{type}{title})" if($showType);
+		
+		$$gLabels{$$NODE{node_id}} = $label;
 		push @values, $$NODE{node_id};
 	}
 
@@ -341,7 +344,7 @@ sub addLabels
 	my ($this, $labels, $keysAreLabels) = @_;
 
 	return unless($labels);
-	my $gLabels = $this->getValuesArray();
+	my $gLabels = $this->getLabelsHash();
 
 	$keysAreLabels ||= 0;
 
@@ -430,12 +433,11 @@ sub genListMenu
 #		genObject
 #
 #	Purpose
-#		This is called to generate the needed HTML for this popupmenu
-#		form object.  NOTE!!!! This cannot be called from
-#		[{nodeFormObject:...}] style htmlcode.  You need to call
-#		nodeFormObject() as a function.  This is due to the fact
-#		that the $values and $labels are array and hash refs.  You
-#		cannot achieve the desired results calling this from htmlcode.
+#		This is called to generate the needed HTML for this menu object.
+#		NOTE!!! This does virtually nothing!  You will either need to
+#		call genPopupMenu or genListMenu manually if you want to use this
+#		object directly.  Basically, this object can be used create custom
+#		menus that the other derived objects of this object do not provide.
 #
 #	Parameters
 #		Can be passed as either -paramname => value, or an array of 
@@ -455,7 +457,6 @@ sub genObject
 {
 	my ($this) = @_;
 
-	$this->clearMenu();
 	return $this->SUPER();
 }
 

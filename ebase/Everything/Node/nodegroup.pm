@@ -237,6 +237,16 @@ sub updateGroup
 		}
 	}
 
+	if(not $updated)
+	{
+		# There were no additions, nor were any nodes removed.  However,
+		# the order may have changed.  We need to check for that.
+		for(my $i = 0; $i < int(@$group); $i++)
+		{
+			$updated = 1, last if($$group[$i] != $$orgGroup[$i]);
+		}
+	}
+
 	if($updated)
 	{
 		# Ok, we have removed and inserted what we needed.  Now we need to
@@ -560,7 +570,7 @@ sub removeFromGroup
 #		This removes all nodes from the group and inserts new nodes.
 #
 #	Parameters
-#		$REPLACE - A node or array of nodes to be inserted
+#		$REPLACE - A node id or array of node id's to be inserted
 #		$USER - the user trying to do this (used for authorization).
 #
 #	Returns

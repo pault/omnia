@@ -117,7 +117,7 @@ WriteMakefile(
 	# These are the modules that we require
 	'PREREQ_PM'            => 	{	'Apache'			=> 0.82,
 									'DBI'				=> 1.13,
-									'XML::Generator'	=> 0.4,
+									'XML::DOM'			=> 1.27,
 									'XML::Parser'		=> 2.26,
 									'Mysql'				=> 1.2202
 								},

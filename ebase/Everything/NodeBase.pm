@@ -1161,15 +1161,15 @@ sub getAllTypes
 	my $cursor;
 	my @allTypes = ();
 	my $node_id;
-	my $TYPE = $this->getType("nodetype");
+	my $TYPE;
 	
-	$sql = "select node_id from node where type_nodetype=" . $$TYPE{node_id};
+	$sql = "select node_id from node where type_nodetype=1";
 	$cursor = $this->{dbh}->prepare($sql);
 	if($cursor && $cursor->execute())
 	{
 		while( ($node_id) = $cursor->fetchrow() )
 		{
-			$TYPE = $this->getType($node_id);
+			$TYPE = $this->getNode($node_id);
 			push @allTypes, $TYPE;
 		}
 		
@@ -1268,17 +1268,20 @@ sub tableExists
 	my ($this, $tableName) = @_;
 	my $cursor = $this->{dbh}->prepare("show tables");
 	my $table;
-	my $exists = 0;
 
 	$cursor->execute();
-	while((($table) = $cursor->fetchrow()) && (not $exists))
+	while(($table) = $cursor->fetchrow())
 	{
-		  $exists = 1 if($table eq $tableName);
+		if($table eq $tableName)
+		{
+			$cursor->finish();
+			return 1;
+		}
 	}
 
 	$cursor->finish();
 
-	return $exists;
+	return 0;
 }
 
 
@@ -1332,15 +1335,14 @@ sub createGroupTable
 	my $tableid = $table . "_id";
 
 	my $sql;
-	
 	$sql = <<SQLEND;
 		create table $table (
 			$tableid int(11) DEFAULT '0' NOT NULL auto_increment,
 			rank int(11) DEFAULT '0' NOT NULL,
 			node_id int(11) DEFAULT '0' NOT NULL,
 			orderby int(11) DEFAULT '0' NOT NULL,
-			PRIMARY KEY(" . $table . "_id,rank)
-		);
+			PRIMARY KEY($tableid,rank)
+		)
 SQLEND
 
 	return $dbh->do($sql);

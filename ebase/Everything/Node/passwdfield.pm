@@ -45,20 +45,25 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $vertical) =
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $vertical, $labels) =
 		getParamArray(
-		"this, query, bindNode, field, name, vertical", @_);
+		"query, bindNode, field, name, vertical, labels", @_);
 
 	my $html = $this->SUPER() . "\n";
 	my $default = "";
 	$default = $$bindNode{$field} if($bindNode);
+	$vertical ||= 1;
+	$labels ||= 0;
 
+	$html .= "Password: " if($labels);
 	$html .= $query->password_field(-name => $name, -default => '',
 		-size => 10, -maxlength => 20, -override => 1);
 
 	$html .= "<br>" if($vertical);
 	$html .= "\n";
 
+	$html .= "Re-Confirm: " if($labels);
 	$html .= $query->password_field(-name => $name . '_confirm',
 		-default => '', -size => 10, -maxlength => 20,
 		-override => 1);

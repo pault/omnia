@@ -30,9 +30,10 @@ use Everything;
 #			$bindNode is undef, this is ignored.
 #		$name - the name of the form object.  ie <input type=check name=$name>
 #		$checked - a string value of what should be set if the checkbox
-#			is checked.  Note that if the checkbox is not checked, it will
-#			set the field on the node to "".
-#		$default - either "CHECKED", "UNCHECKED", or "AUTO".  Where AUTO
+#			is checked.
+#		$uncheched - a string value of what should be set if the checkbox
+#			is NOT checked
+#		$default - either 1 (checked), 0 (not checked) or "AUTO".  Where AUTO
 #			will set it based on whatever the bound node's field value is.
 #		$label - a text string that is to be a visible label for the
 #			checkbox
@@ -42,17 +43,28 @@ use Everything;
 #
 sub genObject
 {
-	my ($this, $query, $bindNode, $field, $name, $checked, $default, $label) =
-		getParamArray(
-		"this, query, bindNode, field, name, checked, default, label", @_);
+	my $this = shift @_;
+	my ($query, $bindNode, $field, $name, $checked, $unchecked,
+		$default, $label) = getParamArray(
+		"query, bindNode, field, name, checked, unchecked, default, label", @_);
 		
-	my $html = $this->SUPER() . "\n";
 	my $CHECK = "";
+	$checked ||= 1;
+	$unchecked ||= 0;
+	$default ||= "AUTO";
+	$label ||= "";
+
+
+	my $html = $this->SUPER($query, $bindNode,
+		$field . ":$unchecked", $name) . "\n";
 	
-	if(not defined $default or $default eq "AUTO")
+	if($default eq "AUTO")
 	{
-		$CHECK = "checked" if($bindNode &&
-			$checked eq $$bindNode{$field});
+		$CHECK = 1 if($bindNode && ($checked eq $$bindNode{$field}));
+	}
+	else
+	{
+		$CHECK = $default;
 	}
 
 	$label ||= "";
@@ -61,6 +73,28 @@ sub genObject
 	
 	return $html;
 }
+
+
+#############################################################################
+sub cgiUpdate
+{
+	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
+	my $value = $query->param($name);
+	my $field = $this->getBindField($query, $name);
+	my $unchecked;
+	
+	($field, $unchecked) = split(':', $field);
+	
+	# Make sure this is not a restricted field that we cannot update
+	# directly.
+	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+
+	$value ||= $unchecked;
+	$$NODE{$field} = $value;
+
+	return 1;
+}
+
 
 
 #############################################################################
