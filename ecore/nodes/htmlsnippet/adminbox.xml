@@ -1,0 +1,132 @@
+<NODE export_version="0.5" nodetype="htmlsnippet" title="adminbox">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">[%
+#Setup
+
+includeJS('cloneNode', 'confirmDelete');
+
+# This provides links to display, edit, clone, or delete 
+# the current node if the user has the authority to do so.  
+my $disp = $query->param("displaytype");
+$disp ||= "display";
+
+$GLOBAL{adminboxLinks} = {};
+
+# If you want to have other default display links in the
+# adminbar, add them to this array.
+my @displaytypes = ("display", "edit", "permissions" );
+
+foreach my $type (@displaytypes)
+{
+  if ($disp eq $type)
+  {
+    $GLOBAL{adminboxLinks}{$type} = 
+      "&lt;img src=images/icon_".$type."_current.gif alt=".$type." border=0>";
+  } 
+  else
+  {
+    $GLOBAL{adminboxLinks}{$type} =  linkNode ($NODE,
+      "&lt;img src=images/icon_".$type.".gif  alt=".$type." border=0>", 
+      {displaytype => $type}) . " ";
+  }
+}
+
+# Now theme stuff
+$GLOBAL{adminboxBG} = $$THEME{adminboxBG};
+$GLOBAL{adminboxBG} ||= "#ffffff";
+$GLOBAL{adminboxLite} = $$THEME{adminboxLite};
+$GLOBAL{adminboxLite} ||= "#ffcccc";
+$GLOBAL{adminboxDark} = $$THEME{adminboxDark};
+$GLOBAL{adminboxDark} ||= "#ff9999";
+"";
+%]
+
+&lt;table width=100% border=0 cellpadding=3 bgcolor=["$GLOBAL{adminboxBG}"] cellspacing=1>
+  &lt;tr bgcolor=["$GLOBAL{adminboxBG}"]> 
+    &lt;td bgcolor='["$GLOBAL{adminboxLite}"]' align='center'>
+      ["$GLOBAL{adminboxLinks}{display}"]
+    &lt;/td>
+    &lt;td bgcolor='["$GLOBAL{adminboxDark}"]' align='center'>
+      ["$GLOBAL{adminboxLinks}{edit}"]
+    &lt;/td>
+    &lt;td bgcolor='["$GLOBAL{adminboxLite}"]' align='center'>
+      ["$GLOBAL{adminboxLinks}{permissions}"]
+    &lt;/td>
+  &lt;/tr>
+  &lt;tr>
+    &lt;td bgcolor='["$GLOBAL{adminboxDark}"]' align='center'>
+      &lt;a href='javascript: cloneNode();'>
+       &lt;img src=images/icon_clone.gif alt=clone border=0>&lt;/a>
+    &lt;/td>
+    &lt;td bgcolor='["$GLOBAL{adminboxLite}"]' align=center>
+      [% clonetotype() %]
+    &lt;/td>
+   &lt;td bgcolor='["$GLOBAL{adminboxDark}"]' align=center>
+[%
+my $str;
+if($NODE->hasAccess($USER, "d"))
+{
+  $str .= "&lt;a href='javascript: confirmDelete();'>";
+  $str .= "&lt;img src='images/icon_delete.gif' alt='delete' border=0>&lt;/a>";
+}
+else
+{
+  $str .= "&amp;nbsp;";
+}
+$str; %]
+    &lt;/td>
+  &lt;/tr>
+[%
+#another row for undo/delete
+my $workspace = 0;
+my $disp = $query->param('displaytype');
+$disp ||= 'display';
+my $str;
+
+if ($$NODE{type}{maxrevisions})
+{
+  my $undo = $NODE->undo($USER, 0, 'test');
+  my $redo = $NODE->undo($USER, 1, 'test'); 
+
+  if ($undo or $redo)
+  {
+    $str.="&lt;tr>&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center>";
+    if ($undo) {
+      $str.=linkNode($NODE,
+        "&lt;IMG src=images/icon_undo.gif alt=\"undo\" border=0>",
+        { op => 'undo', displaytype => $disp });
+    } else {
+      $str.="&amp;nbsp;";
+    }
+
+    $str.="&lt;/td>&lt;td bgcolor='$GLOBAL{adminboxDark}' align=center>";
+
+    if ($redo) {
+       $str.=linkNode($NODE,
+         "&lt;IMG src=images/icon_redo.gif alt=\"undo\" border=0>",
+         { op => 'redo', displaytype => $disp });
+    } else {
+      $str.="&amp;nbsp;";
+    }
+  
+   $str.="&lt;/td>&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center>&amp;nbsp;&lt;/td>&lt;/tr>";
+
+  }
+}
+
+$str;
+%]
+&lt;/table></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">adminbox</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</field>
+</NODE>

@@ -13,9 +13,18 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;table border=0 cellspacing='10'>
-&lt;tr>
- &lt;td>
+  <field name="page" type="literal_value">[%
+$GLOBAL{userFontAttr} = $$THEME{nodeletTitleFontAttr};
+$GLOBAL{userFontAttr} ||= "color=white";
+"";
+%]
+
+&lt;table border=0 cellspacing=10>
+ &lt;tr bgcolor=["$$THEME{nodeletTitleColor}"]>&lt;td colspan=2>
+  &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>User Information&lt;/b>&lt;/font>&lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td>
   &lt;b>Real Name&lt;/b>: ["$$NODE{realname}"]&lt;br>
   [{nodeFormObject: TextField, realname}]
  &lt;/td>
@@ -25,30 +34,45 @@
  &lt;/td>
 &lt;/tr>
 &lt;tr>
-  &lt;td>
-  &lt;p>&lt;b>Change password:&lt;/b>&lt;br>[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]
- &lt;/td>
-&lt;/tr>
-&lt;tr>
 &lt;td colspan=2>
-&lt;b>User's Bio&lt;/B>: 
-&lt;p>[{nodeFormObject: TextArea, doctext}]
+&lt;b>User's Bio&lt;/B>:&lt;br>
+[{nodeFormObject: TextArea, doctext}]
 &lt;/td>
 &lt;/tr>
-&lt;/table>
-&lt;h4>User Preferences&lt;/h4>
-&lt;p>Theme: [{themeselector}]
-
-&lt;p>
+&lt;tr>
+  &lt;td bgcolor=["$$THEME{nodeletTitleColor}"]>
+   &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>Authentication&lt;/b>&lt;/font>&lt;/td>
+  &lt;td bgcolor=["$$THEME{nodeletTitleColor}"]>
+   &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>Preferences&lt;/b>&lt;/font>&lt;/td>
+&lt;/tr>
+&lt;tr>
+  &lt;td>[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]&lt;/td>
+  &lt;td>Theme: [{themeselector}]&lt;/td>
+&lt;/tr>
+&lt;tr>&lt;td bgcolor=["$$THEME{nodeletTitleColor}"] colspan=2>
+  &lt;font ["$GLOBAL{userFontAttr}"]>&lt;b>Nodelets&lt;/b>&lt;/font>&lt;/td>
+&lt;/tr>
+&lt;tr>&lt;td colspan=2>
 [{includeJS: findFormObject, moveSelectItem, selectItem}]
 [%
+# First, make sure we have the nodelets field filled out
+my @nodelets = @{ $NODE->getNodelets(); };
+my $VARS = $NODE->getVars();
+unless(exists $$VARS{nodelets})
+{
+  $$VARS{nodelets} = join(',', @nodelets);
+  $NODE->setVars($VARS, $USER);
+  $NODE->update($USER);
+}
+
 use Everything::HTML::FormObject::SubsetSelector;
 my $nodelets = newFormObject('SubsetSelector');
 $nodelets->addType('nodelet', $USER, 'x', 'labels');
 $nodelets->genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
-undef, undef, 'Available Nodelets:', 'Selected Nodelets:');
+10, undef, 'Available Nodelets:', 'Selected Nodelets:');
 %]
-
+&lt;/td>&lt;/tr>
+&lt;/table>
 &lt;p>
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>

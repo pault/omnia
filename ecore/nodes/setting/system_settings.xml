@@ -15,7 +15,7 @@
   <vars>
     <var name="GUshownodelets" type="literal_value">1</var>
     <var name="GUshowsearchform" type="literal_value">1</var>
-    <var name="default_node" type="noderef" type_nodetype="superdoc,nodetype">The Default Node</var>
+    <var name="default_node" type="noderef" type_nodetype="superdoc,nodetype">Welcome to Everything!</var>
     <var name="default_nodeletgroup" type="noderef" type_nodetype="nodeletgroup,nodetype">default nodelets</var>
     <var name="default_theme" type="noderef" type_nodetype="theme,nodetype">default theme</var>
     <var name="duplicatesFound_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</var>
@@ -23,6 +23,7 @@
     <var name="generalNodelet_container" type="noderef" type_nodetype="container,nodetype">nodelet container</var>
     <var name="generalParent_container" type="noderef" type_nodetype="container,nodetype">main container</var>
     <var name="guest_user" type="noderef" type_nodetype="user,nodetype">Guest User</var>
+    <var name="noCompile" type="literal_value">1</var>
     <var name="nodeLocked_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</var>
     <var name="nodedeleted_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</var>
     <var name="nodelet_group" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</var>

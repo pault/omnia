@@ -59,15 +59,14 @@ linkNode(getNode('create node', 'restricted_superdoc'),
  &lt;/tr>
 &lt;/table>
 
-[{adminbox}]</field>
+[&lt;adminbox>]</field>
   <field name="nlgoto" type="literal_value">0</field>
   <field name="nltext" type="literal_value">&lt;table border=0>
  &lt;tr>
   &lt;td nowrap>
     &lt;font size=2>
 &lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
-node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240>
-&lt;INPUT TYPE="submit" NAME="sexisgood" VALUE="submit">&lt;/FORM>
+node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240>&lt;INPUT TYPE="submit" NAME="button" VALUE="submit">&lt;/FORM>
    &lt;/font>
   &lt;/td>
  &lt;/tr>
@@ -75,50 +74,27 @@ node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240>
   &lt;td nowrap>
    &lt;font size=2>
 &lt;FORM METHOD="POST"  ENCTYPE="application/x-www-form-urlencoded">
-&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&lt;INPUT TYPE="text" NAME="node_id"  SIZE=10 MAXLENGTH=240>
-&lt;INPUT TYPE="submit" NAME="sexisgood" VALUE="submit">&lt;/FORM>
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&lt;INPUT TYPE="text" NAME="node_id"  SIZE=10 MAXLENGTH=240>&lt;INPUT TYPE="submit" NAME="button" VALUE="submit">&lt;/FORM>
    &lt;/font>
   &lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>
    &lt;font size=2>
-&lt;br>
+&lt;a href="/index.pl?displaytype=display&amp;node_id=264&amp;containers=show" >Show containers&lt;/a>&lt;br>
 
-   &lt;A HREF="/~paco/index.pl?node_id=212&amp;lastnode_id=138">Create new node&lt;/a>&lt;br>
-   Current node id: 138
+   &lt;A HREF="/index.pl?node_id=247&amp;lastnode_id=264">Create new node&lt;/a>&lt;br>
+   Current node id: 264
    &lt;/font>
   &lt;/td>
  &lt;/tr>
 &lt;/table>
 
-
-&lt;script language="javascript">
-
-function cloneNode()
-{
-  var newname = prompt("Cloning node \"nodelet display page\"\nEnter a new name:", "");
-
-  if(newname)
-  {
-    var url = "/~paco/index.pl?node_id=210&amp;srcnode_id=138&amp;newname=NEWNAME";
-    
-    url = url.replace(/NEWNAME/, newname);
-    url = url.replace(/ /g, "%20");
-    parent.location = url;
-  }
-}
-
-&lt;/script>&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1>
+&lt;table width=100% border=0 cellpadding=3 bgcolor=#FFFFFF cellspacing=1>
          &lt;tr bgcolor=#ffffff> 
-           &lt;td bgcolor='#FFCCCC' align='center'>&lt;A HREF="/~paco/index.pl?displaytype=display&amp;node_id=138&amp;lastnode_id=138">&lt;img src=images/icon_display.gif  border=0>&lt;/a> &lt;/td>&lt;td bgcolor='#FF9999' align='center'>&lt;img src=images/icon_edit_current.gif border=0>&lt;/td>&lt;td bgcolor='#FFCCCC' align='center'>&lt;A HREF="/~paco/index.pl?displaytype=permissions&amp;node_id=138&amp;lastnode_id=138">&lt;img src=images/icon_permissions.gif  border=0>&lt;/a> &lt;/td>&lt;/tr>&lt;tr>&lt;td bgcolor='#FF9999' align='center'>&lt;a href='javascript: cloneNode();'>&lt;img src=images/icon_clone.gif border=0>&lt;/a>&lt;/td>&lt;td bgcolor='#FFCCCC'>&amp;nbsp;&lt;/td>
-&lt;SCRIPT language="javascript">
-  function confirmDelete(){
-    if(confirm("Delete 'nodelet display page'?")){
-      parent.location="/~paco/index.pl?node_id=138&amp;op=nuke"; }
-        }
-&lt;/SCRIPT>
-&lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' border=0>&lt;/a>&lt;/td>&lt;/tr>&lt;/table></field>
+           &lt;td bgcolor='#FFCCCC' align='center'>&lt;img src=images/icon_display_current.gif alt=display border=0>&lt;/td>&lt;td bgcolor='#FF9999' align='center'>&lt;A HREF="/index.pl?displaytype=edit&amp;node_id=264&amp;lastnode_id=264">&lt;img src=images/icon_edit.gif  alt=edit border=0>&lt;/a> &lt;/td>&lt;td bgcolor='#FFCCCC' align='center'>&lt;A HREF="/index.pl?displaytype=permissions&amp;node_id=264&amp;lastnode_id=264">&lt;img src=images/icon_permissions.gif  alt=permissions border=0>&lt;/a> &lt;/td>&lt;/tr>&lt;tr>&lt;td bgcolor='#FF9999' align='center'>&lt;a href='javascript: cloneNode();'>&lt;img src=images/icon_clone.gif alt=clone border=0>&lt;/a>&lt;/td>
+&lt;td bgcolor='#FFCCCC' align=center>&lt;a href="/index.pl?node_id=246&amp;srcnode_id=264">&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle>&lt;/A>&lt;/td>&lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' alt='delete' border=0>&lt;/a>&lt;/td>&lt;/tr>
+&lt;/table></field>
   <field name="otheraccess" type="literal_value">-i-i-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">admin nodelet</field>

@@ -1,0 +1,49 @@
+<NODE export_version="0.5" nodetype="container" title="suit main container">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="context" type="literal_value">&lt;table width=100% border=0 cellspacing=0 cellpadding=0>
+ &lt;tr bgcolor='#000000' nowrap>
+  &lt;td valign=middle width=100%>&lt;ul>
+   [{searchform}]&lt;/ul>
+  &lt;/td>
+  &lt;td align=right width=50>
+[%
+my $default = getNode($HTMLVARS{default_node});
+my $IMG = getNode $$THEME{cornerIcon_image};
+linkNode($default, "&lt;img border=0 src=$$IMG{src}>");
+%]
+   &lt;/td>
+ &lt;/tr>
+ &lt;tr>&lt;td colspan=2 bgcolor='#999999'>&lt;img src="" width=1 height=3>&lt;/td>&lt;/tr>
+ &lt;tr>  
+  &lt;td width=100% valign=top>
+   &lt;table width=100% cellspacing=0 cellpadding=5>&lt;tr>&lt;td>
+    &lt;h3>[{showPath}] ["$$NODE{title}"]&lt;/h3>
+    CONTAINED_STUFF
+    &lt;/td>&lt;/tr>
+   &lt;/table>
+  &lt;/td>
+  &lt;td width=1 valign=top align=right>
+   &lt;!-- nodelets start here -->
+   [% $USER->isGod? "" : adminbar() %]
+   [{nodeletMetaContainer}]
+  &lt;/td>
+ &lt;/tr>
+ &lt;tr>
+  &lt;td colspan=2 align=right>&lt;font size=1>&amp;nbsp;
+    Maintained by [% linkNode ($$NODE{author_user}) %]&amp;nbsp;&lt;/font>&lt;/td>
+ &lt;/tr>
+&lt;/table></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">stdcontainer</field>
+  <field name="title" type="literal_value">suit main container</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
+</NODE>

@@ -14,8 +14,6 @@
 my @links = @{ $NODE->selectLinks("food") };
 my $str = "";
 
-return "No Links" unless(@links);
-
 foreach (@links)
 {
   next if ($$_{linktype});
@@ -24,16 +22,15 @@ foreach (@links)
   $str .= "  &lt;li>".linkNode($N)."($$N{type}{title})&lt;/li>\n" if $N->hasAccess($USER, 'r');  
 }
 
+return "No Links" unless($str ne "");
+
 $str = "&lt;ol>\n" . $str  . "\n&lt;/ol>";
 %]
 </field>
   <field name="nlgoto" type="literal_value">0</field>
   <field name="nltext" type="literal_value">&lt;ol>
-  &lt;li>&lt;A HREF="/index.pl?lastnode_id=280&amp;node_id=280">vttest&lt;/a>(superdoc)&lt;/li>
-  &lt;li>&lt;A HREF="/index.pl?lastnode_id=280&amp;node_id=56">User settings&lt;/a>(superdoc)&lt;/li>
 
-&lt;/ol>
-</field>
+&lt;/ol></field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Links</field>

@@ -1,0 +1,42 @@
+<NODE export_version="0.5" nodetype="nodemethod" title="getNodelets">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my ($this, $defNodeletGroup) = @_;
+my @nodelets;
+my $NODELETGROUP;
+my $VARS = $this->getVars();
+
+@nodelets = split ",",$$VARS{nodelets} if exists ($$VARS{nodelets});
+
+if (not @nodelets)
+{
+  $NODELETGROUP = $$this{DB}->getNode($$VARS{nodelet_group})
+    if (exists $$VARS{nodelet_group});
+
+  if($NODELETGROUP and $NODELETGROUP->isOfType('nodeletgroup'))
+  {
+    push @nodelets, @{ $$NODELETGROUP{group} };
+  }
+
+  if (not @nodelets)
+  { 
+    #push default nodelets on
+    my $DEFAULT = $$this{DB}->getNode($defNodeletGroup);
+    @nodelets = @{ $$DEFAULT{group} };
+  }
+}
+
+return \@nodelets;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodemethod</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="supports_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>
+  <field name="title" type="literal_value">getNodelets</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
+</NODE>

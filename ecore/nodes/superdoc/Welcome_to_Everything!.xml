@@ -1,0 +1,34 @@
+<NODE export_version="0.5" nodetype="superdoc" title="Welcome to Everything!">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">Congratulations!  You have successfully installed the base Everything
+web engine!
+
+&lt;p>For more information, you can visit the following sites:
+&lt;ul>
+  &lt;li>&lt;a href="http://www.everydevel.com/">EveryDevel.com&lt;/a> - The main source
+    of developement information about the Everything engine
+  &lt;li>&lt;a href="http://perlmonks.org/">PerlMonks.org&lt;/a> - Experience
+    enlightenment and learn perl while you're at it
+  &lt;li>&lt;a href="http://www.everydevel.com/index.pl?node=the+everything+bible">
+    The Everything Bible&lt;/a> - Everything you wanted to know about Everything
+    and more! 
+&lt;/ul>
+
+&lt;p>Also, if you have any bugs to report, cool tricks you want to show us,
+clarifications to documentation, or even some new documentation of your
+own, you can &lt;a
+href="http://www.everydevel.com/index.pl?node=submit+an+everything+document">
+submit them to the Everything project&lt;/a>.</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">superdoc</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">Welcome to Everything!</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
+</NODE>

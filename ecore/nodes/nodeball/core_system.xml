@@ -47,7 +47,7 @@
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Permission Denied</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Super Search</member>
-    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">The Default Node</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Welcome to Everything!</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">User settings</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">What is my password</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">login</member>
@@ -174,7 +174,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">workspace display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">adminbar</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">adminbox</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">basichead</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">bindFormObject</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">checkvar</member>
@@ -272,6 +271,14 @@
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general mini nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">mini nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">miniNodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">adminbox</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit main container</member>
+    <member name="group_node" type="noderef" type_nodetype="theme,nodetype">suit theme</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit nodelet container</member>
+    <member name="group_node" type="noderef" type_nodetype="image,nodetype">esuitlogo</member>
+    <member name="group_node" supports_nodetype="user,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">getNodelets</member>
+    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">cloneNode</member>
+    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">confirmDelete</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

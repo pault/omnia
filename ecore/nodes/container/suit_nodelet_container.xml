@@ -1,13 +1,8 @@
-<NODE export_version="0.5" nodetype="container" title="nodelet container">
+<NODE export_version="0.5" nodetype="container" title="suit nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%>
-&lt;tr[%
-  my $bk = $$THEME{nodeletTitleBackground};
-  $bk||="images/titletest.gif";
-  return "background='$bk'" if $bk;
-%]>
- &lt;td bgcolor=[%
+  <field name="context" type="literal_value">&lt;table border=0 cellpadding=0 cellspacing=0 width=100%>
+&lt;tr>&lt;td bgcolor=[%
    return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
     "#CC99FF";
   %]>
@@ -16,26 +11,28 @@
       my $attr= $$THEME{nodeletTitleFontAttr};
       return $attr if $attr;
       "color=white";
-      %]>["$$NODELET{title}"]&lt;/font>&lt;/B>
-  &lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td [%
+      %]>&amp;nbsp;["$$NODELET{title}"]&lt;/font>&lt;/B>
+  &lt;/td>&lt;/tr>
+&lt;tr [%
 my $bgcol = $$THEME{nodeletBodyColor};
 $bgcol ||= "#CCCCCC";
 "bgcolor='$bgcol'";
-%]>
-&lt;FONT [%
+%]>&lt;td>&lt;FONT [%
 my $fa = $$THEME{nodeletBodyFontAttr};
 $fa ||= "size=2";
 $fa;
-%]>
+%]>&lt;ul>
 CONTAINED_STUFF
-&lt;/td>
+&lt;/ul>
+&lt;/font>&lt;/td>
 &lt;/tr>
-&lt;/table>
-
-</field>
+&lt;tr [%
+my $bgcol = $$THEME{nodeletDivColor};
+$bgcol ||= '#999999';
+"bgcolor='$bgcol'";
+%]>&lt;td>&lt;img src="" width=1 height=1>&lt;/td>&lt;/tr>
+&lt;/tr>
+&lt;/table></field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -45,7 +42,7 @@ CONTAINED_STUFF
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">nodelet outline container</field>
-  <field name="title" type="literal_value">nodelet container</field>
+  <field name="parent_container" type="literal_value">0</field>
+  <field name="title" type="literal_value">suit nodelet container</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
 </NODE>

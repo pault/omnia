@@ -13,18 +13,25 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]
-Supports:
-[{nodeFormObject: NodetypeMenu, supports_nodetype, supportstype}]&lt;br>
-
-&lt;table width=100%>
+  <field name="page" type="literal_value">&lt;table border=0 width=100% cellspacing=5>
 &lt;tr>
-&lt;td width=90%>
-&lt;p>&lt;FONT SIZE=2>&lt;b>Edit the code:&lt;/b>&lt;/FONT>&lt;br>
-[{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]&lt;/td>
-&lt;td width=10%>&lt;font size=2>[{listNodetypeFields: $$NODE{supports_nodetype}}]&lt;/font>&lt;/td>
- &lt;/tr>
+ &lt;td width=100%>
+  [&lt;editTitleOwner>]
+  &lt;b>Supports:&lt;/b>
+  [{nodeFormObject: NodetypeMenu, supports_nodetype, supportstype}]&lt;br>
+ &lt;/td>
+ &lt;td width=50 rowspan=2>
+  &lt;font size=2>[{listNodetypeFields: $$NODE{supports_nodetype}}]&lt;/font>
+ &lt;/td>
+&lt;/tr>
+&lt;tr>
+ &lt;td valign=top>
+  &lt;FONT SIZE=2>&lt;b>Edit the code:&lt;/b>&lt;/FONT>&lt;br>
+  [{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]
+ &lt;/td>
+&lt;/tr>
 &lt;/table>
+&lt;p>
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

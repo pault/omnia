@@ -1,8 +1,8 @@
-<NODE export_version="0.5" nodetype="image" title="eicon">
-  <field name="alt" type="literal_value">Vanilla Everything Icon</field>
+<NODE export_version="0.5" nodetype="image" title="esuitlogo">
+  <field name="alt" type="literal_value">"Suit" Everything Icon</field>
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="description" type="literal_value">Why don't you try using a new image?</field>
+  <field name="description" type="literal_value">Darrick's funky try at a logo (again)</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -12,8 +12,8 @@
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">image</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="src" type="literal_value">/images/e.gif</field>
+  <field name="src" type="literal_value">/images/esuitlogo.gif</field>
   <field name="thumbsrc" type="literal_value"></field>
-  <field name="title" type="literal_value">eicon</field>
+  <field name="title" type="literal_value">esuitlogo</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>
 </NODE>

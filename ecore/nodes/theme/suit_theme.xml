@@ -1,0 +1,44 @@
+<NODE export_version="0.5" nodetype="theme" title="suit theme">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iixi</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <group>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit main container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit nodelet container</member>
+    <member name="group_node" type="noderef" type_nodetype="image,nodetype">esuitlogo</member>
+  </group>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iixi-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">theme</field>
+  <field name="otheraccess" type="literal_value">iixi-</field>
+  <field name="title" type="literal_value">suit theme</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">theme</field>
+  <vars>
+    <var name="adminboxDark" type="literal_value">#666666</var>
+    <var name="adminboxLite" type="literal_value">#999999</var>
+    <var name="author" type="literal_value">Darrick Brown</var>
+    <var name="bodyBgcolor" type="literal_value">#FFFFFF</var>
+    <var name="bodyLMargin" type="literal_value">0</var>
+    <var name="bodyLinkcolor" type="literal_value">#993333</var>
+    <var name="bodyTMargin" type="literal_value">0</var>
+    <var name="bodyTextcolor" type="literal_value">#000000</var>
+    <var name="bodyVlinkcolor" type="literal_value">#333399</var>
+    <var name="cornerIcon_image" type="noderef" type_nodetype="image,nodetype">esuitlogo</var>
+    <var name="description" type="literal_value">The default Everything Theme</var>
+    <var name="generalParent_container" type="noderef" type_nodetype="container,nodetype">suit main container</var>
+    <var name="gnlcolor" type="literal_value">#DDCCCC</var>
+    <var name="miniNodeletParent_container" type="noderef" type_nodetype="container,nodetype">mini nodelet container</var>
+    <var name="nodeletBodyColor" type="literal_value">#CCCCCC</var>
+    <var name="nodeletBodyFontAttr" type="literal_value">size=2</var>
+    <var name="nodeletMCTableAttr" type="literal_value">width=150 border=0 cellpadding=0 cellspacing=0</var>
+    <var name="nodeletParent_container" type="noderef" type_nodetype="container,nodetype">suit nodelet container</var>
+    <var name="nodeletTitleBackground" type="literal_value">""</var>
+    <var name="nodeletTitleColor" type="literal_value">#CCCCCC</var>
+    <var name="nodeletTitleFontAttr" type="literal_value">color=#333333</var>
+    <var name="version" type="literal_value">0.5</var>
+  </vars>
+</NODE>
