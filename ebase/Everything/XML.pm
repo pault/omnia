@@ -376,6 +376,7 @@ sub parseBasicTag
 		for my $i (0 .. $len)
 		{
 			my $ATTR  = $ATTRS->item($i);
+			next unless $ATTR;
 			my $attr  = $ATTR->getName();
 			my $value = $ATTR->getValue();
 
