@@ -385,3 +385,5 @@ sub list_tables
 }
 
 sub now { return 'now()' }
+
+sub timediff { "$_[1] - $_[2]" }
