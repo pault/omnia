@@ -17,9 +17,11 @@ BEGIN {
 
 use TieOut;
 use FakeDBI;
-use Test::More tests => 65;
+use File::Spec;
+use Test::More tests => 70;
 use Test::MockObject;
 
+$ENV{EVERYTHING_LOG} = File::Spec->catfile( File::Spec->curdir(), 'log' );
 use_ok( 'Everything' );
 
 foreach my $sub ( qw( 
@@ -27,6 +29,7 @@ foreach my $sub ( qw(
 	can_ok('main', $sub);
 }
 
+# printErr()
 {
 	local *STDERR;
 	my $out = tie *STDERR, 'TieOut';
@@ -36,6 +39,7 @@ foreach my $sub ( qw(
 	is( $out->read, 7, '... and only the first parameter' );
 }
 
+# getTime()
 {
 	local *Everything::localtime = sub { return (0..8) };
 	is( Everything::getTime(), '02:01 05-03-1905', 
@@ -44,13 +48,47 @@ foreach my $sub ( qw(
 		'... and should respect long parameter' );
 }
 
-# printLog
-# 	opens a filehandle to file named in lexical $everythingLog
+# printLog()
+# clearLog()
+SKIP: {
+	local *Everything::getTime;
+	*Everything::getTime = sub { 'timestamp' };
 
-# clearLog
-#	also opens filehandle to lexical $everythingLog file
+	unlink 'log' if -e 'log';
 
-# getParamArray
+	Everything::printLog( 'logme' );
+
+	local *IN;
+	my $skip = ok( open( IN, 'log' ),
+		'printLog() should log to file specified in %ENV' );
+
+	skip( 'log open failed', 4 ) unless $skip;
+	my $line = <IN>;
+
+	is( $line, "timestamp: logme\n", '... logging time and message' );
+	close IN;
+
+	Everything::printLog( 'second' );
+	open( IN, 'log' ) or skip( 'log open failed again', 3 );
+
+	my @lines = <IN>;
+	close IN;
+
+	is( $lines[1], "timestamp: second\n", '... appending to log' );
+
+	Everything::clearLog();
+
+	open( IN, 'log' ) or skip( 'log open failed on third try', 2 );
+	@lines = <IN>;
+
+	is( @lines, 1, 'clearLog() should clear old lines' );
+	is( $lines[0], 'timestamp: Everything log cleared',
+		'... writing a cleared message' );
+
+	unlink 'log';
+}
+
+# getParamArray()
 my $order = 'red, blue, one , two';
 my @results = getParamArray($order, qw( one two red blue ));
 my @args = (-one => 1, -two => 2, -red => 'red', -blue => 'blue');
