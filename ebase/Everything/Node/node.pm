@@ -911,8 +911,8 @@ sub logRevision {
 	
  	my $data;
     if (not $workspace) {
-    	$data = $this->{DB}->getNode($this->getId, "force")->toXML();
 		return 0 unless $maxrevisions;
+    	$data = $this->{DB}->getNode($this->getId, "force")->toXML();
 	} else {
 		$data = $this->toXML();
 	}
