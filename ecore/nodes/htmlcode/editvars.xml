@@ -18,8 +18,7 @@ my @params = $query->param;
 my $str = ''; 
 
 foreach (@params) {
-
-# update any settings in the node passed through CGI
+  # update any settings in the node passed through CGI
   if (/setsetting_(\w+)$/) {
     my $setvalue = $query->param("setsetting_$1");
 
