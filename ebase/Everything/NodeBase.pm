@@ -656,16 +656,16 @@ sub newNode
 sub getNode
 {
 	my ($this, $node, $ext, $ext2) = @_;
+	return unless $node;
+
+	# it may already be a node
+	return $node if UNIVERSAL::isa( $node, 'Everything::Node' );
+
 	my $NODE;
 	my $cache = "";
 	my $ref = ref $node;
 	
-	if($ref =~ /Everything::Node/)
-	{
-		# This thing is already a node!
-		return $node;
-	}
-	elsif($ref eq "HASH")
+	if($ref eq "HASH")
 	{
 		# This a "where" select
 		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2, 1);
