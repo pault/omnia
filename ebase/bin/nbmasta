@@ -120,7 +120,7 @@ sub addTablesToDB{
 	while(defined($file=readdir(DIR))){
 		if($file=~/(.*?)\.sql$/){
 			my $tbname = $1;
-			if ($TABLES) {
+			if (@$TABLES) {
 				next unless (defined($filter{$tbname}));
 			}
 	 		print "adding $tbname to $dbname\n" if $OPTIONS{verbose};
