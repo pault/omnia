@@ -1,13 +1,14 @@
+=head1 Everything::NodeBase
+
+Wrapper for the Everything database and cache.  
+
+Copyright 1999 - 2003 Everything Development Inc.
+
+=cut
+
 package Everything::NodeBase;
 
-#############################################################################
-#	Everything::NodeBase
-#		Wrapper for the Everything database and cache.  
-#
-#	Copyright 1999 - 2003 Everything Development Inc.
 #	Format: tabs = 4 spaces
-#
-#############################################################################
 
 use strict;
 use DBI;
@@ -16,27 +17,33 @@ use Everything ();
 use Everything::NodeCache;
 use Everything::Node;
 
+=cut
 
-#############################################################################
-#	Sub
-#		new
-#
-#	Purpose
-#		Constructor for this module
-#
-#	Parameters
-#		$dbname - the database name to connect to
-#		$staticNodetypes - a performance enhancement.  If the nodetypes in
-#			your system are fairly constant (you are not changing their
-#			permissions dynamically or not manually changing them often) set
-#			this to 1.  By turning this on we will derive the nodetypes
-#			once and thus save that work each time we get a nodetype.  The
-#			downside to this is that if you change a nodetype, you will need
-#			to restart your web server for the change to take. 
-#
-#	Returns
-#		A new NodeBase object
-#
+=head2 C<new>
+
+Constructor for this module
+
+=over 4
+
+=item * $dbname
+
+the database name to connect to
+
+=item * $staticNodetypes
+
+a performance enhancement.  If the nodetypes in your system are fairly constant
+(you are not changing their permissions dynamically or not manually changing
+them often) set this to 1.  By turning this on we will derive the nodetypes
+once and thus save that work each time we get a nodetype.  The downside to this
+is that if you change a nodetype, you will need to restart your web server for
+the change to take. 
+
+=back
+
+Returns a new NodeBase object
+
+=cut
+
 sub new
 {
 	my ($class, $db, $staticNodetypes) = @_;
@@ -73,19 +80,23 @@ sub new
 	return $this;
 }
 
+=cut
 
-#########################################################################
-#
-#	sub
-#		joinWorkspace
-#
-#	purpose
-#		create the $DB->{workspace} object if a workspace is specified.  If
-#		the sole parameter is 0, then the workspace is deleted.
-#
-#	params 
-#		WORKSPACE -- workspace_id, node, or 0 for none
-#
+=head2 C<joinWorkspace>
+
+create the $DB-E<gt>{workspace} object if a workspace is specified.  If the
+sole parameter is 0, then the workspace is deleted.
+
+=over 4
+
+=item * WORKSPACE
+
+workspace_id, node, or 0 for none
+
+=back
+
+=cut
+
 sub joinWorkspace
 {
 	my ($this, $WORKSPACE) = @_;
@@ -104,20 +115,28 @@ sub joinWorkspace
 	1;
 }
 
-##########################################################################
-#
-#	sub 
-#		getNodeWorkspace
-#
-#	purpose
-#		helper funciton for getNode's workspace functionality.  Given
-#		a $WHERE hash ( field => value, or field => [value1, value2, value3])
-#		return a list of nodes in the workspace which fullfill this query
-#
-#	params
-#		$WHERE -- where hash, similar to getNodeWhere
-#		$TYPE -- type discrimination (optional)
-#
+=cut
+
+=head2 C<getNodeWorkspace>
+
+Helper funciton for getNode's workspace functionality.  Given a $WHERE hash (
+field =E<gt> value, or field =E<gt> [value1, value2, value3]) return a list of
+nodes in the workspace which fullfill this query
+
+=over 4
+
+=item * $WHERE
+
+where hash, similar to getNodeWhere
+
+=item * $TYPE
+
+type discrimination (optional)
+
+=back
+
+=cut
+
 sub getNodeWorkspace {
 	my ($this, $WHERE, $TYPE) = @_;
 	my @results;
@@ -155,15 +174,15 @@ sub getNodeWorkspace {
 	\@results;
 }
 
-############################################################################
-#	Sub
-#		rebuildNodetypeModules
-#
-#	Purpose
-#		Call this to account for any new nodetypes that may have been
-#		installed.  Primarily used by nbmasta when installing a new
-#		nodeball.
-#
+=cut
+
+=head2 C<rebuildNodetypeModules>
+
+Call this to account for any new nodetypes that may have been installed.
+Primarily used by nbmasta when installing a new nodeball.
+
+=cut
+
 sub rebuildNodetypeModules
 {
 	my ($this) = @_;
@@ -173,17 +192,17 @@ sub rebuildNodetypeModules
 	return;
 }
 
+=cut
 
-############################################################################
-#	Sub
-#		buildNodetypeModules
-#
-#	Purpose
-#		Perl 5.6 throws errors if we test "can" on a non-existing
-#		module.  This function builds a hashref with keys to all of
-#		the modules that exist in the Everything::Node:: dir
-#		This also casts "use" on the modules, loading them into memory
-#
+=head2 C<buildNodetypeModules>
+
+Perl 5.6 throws errors if we test "can" on a non-existing module.  This
+function builds a hashref with keys to all of the modules that exist in the
+Everything::Node:: dir This also casts "use" on the modules, loading them into
+memory
+
+=cut
+
 sub buildNodetypeModules
 {
 	my ($this) = @_;
@@ -224,18 +243,18 @@ sub loadNodetypeModule
 	return exists $INC{ $modpath };
 }
 
-#############################################################################
-#	Sub
-#		resetNodeCache
-#
-#	Purpose
-#		The node cache holds onto nodes after they have been loaded from
-#		the database.  When a node is requested, it checks to see if it
-#		has the node in its cache.  If it does, the cache will see if the
-#		version of the node is the same as what is in the database.  This
-#		version check is done *once* to save hits to the database.  If you
-#		want the cache to recheck the versions, call this function.
-#
+=cut
+
+=head2 C<resetNodeCache>
+
+The node cache holds onto nodes after they have been loaded from the database.
+When a node is requested, it checks to see if it has the node in its cache.  If
+it does, the cache will see if the version of the node is the same as what is
+in the database.  This version check is done *once* to save hits to the
+database.  If you want the cache to recheck the versions, call this function.
+
+=cut
+
 sub resetNodeCache
 {
 	my ($this) = @_;
@@ -243,19 +262,18 @@ sub resetNodeCache
 	$this->{cache}->resetCache();
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getDatabaseHandle
-#
-#	Purpose
-#		This returns the DBI connection to the database.  This can be used
-#		to do raw database queries.  Unless you are doing something very
-#		specific, you shouldn't need to access this.
-#
-#	Returns
-#		The DBI database connection for this NodeBase.
-#
+=head2 C<getDatabaseHandle>
+
+This returns the DBI connection to the database.  This can be used to do raw
+database queries.  Unless you are doing something very specific, you shouldn't
+need to access this.
+
+Returns the DBI database connection for this NodeBase.
+
+=cut
+
 sub getDatabaseHandle
 {
 	my ($this) = @_;
@@ -263,20 +281,18 @@ sub getDatabaseHandle
 	return $this->{dbh};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getCache
-#
-#	Purpose
-#		This returns the NodeCache object that we are using to cache
-#		nodes.  In general, you should never need to access the cache
-#		directly.  This is more for maintenance type stuff (you want to
-#		check the cache size, etc).
-#
-#	Returns
-#		A reference to the NodeCache object
-#
+=head2 C<getCache>
+
+This returns the NodeCache object that we are using to cache nodes.  In
+general, you should never need to access the cache directly.  This is more for
+maintenance type stuff (you want to check the cache size, etc).
+
+Returns a reference to the NodeCache object
+
+=cut
+
 sub getCache
 {
 	my ($this) = @_;
@@ -284,22 +300,32 @@ sub getCache
 	return $this->{cache};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		sqlDelete
-#
-#	Purpose
-#		Quickie wrapper for deleting a row or rows from a specified table.
-#
-#	Parameters
-#		table - the sql table to delete the row from
-#		where - what the sql query should match when deleting.
-#		bound - an array reference of bound variables
-#
-#	Returns
-#		0 (false) if the sql command fails, 1 (true) if successful.
-#
+=head2 C<sqlDelete>
+
+Quickie wrapper for deleting a row or rows from a specified table.
+
+=over 4
+
+=item * table
+
+the sql table to delete the row from
+
+=item * where
+
+what the sql query should match when deleting.
+
+=item * bound
+
+an array reference of bound variables
+
+=back
+
+Returns 0 (false) if the sql command fails, 1 (true) if successful.
+
+=cut
+
 sub sqlDelete
 {
 	my ($this, $table, $where, $bound) = @_;
@@ -313,26 +339,39 @@ sub sqlDelete
 		or Everything::logErrors( '', "Delete failed: '$sql' [@$bound]" );
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		sqlSelect
-#
-#	Purpose
-#		Select specific fields from a single record.  If you need multiple
-#		records, use sqlSelectMany.
-#
-#	Parameters
-#		select - what columns to return from the select (ie "*")
-#		table - the table to do the select on
-#		where - string containing the search criteria
-#		other - any other sql options thay you may want to pass
-#
-#	Returns
-#		An arrayref of values from the specified fields in $select.  If
-#		there is only one field, the return will be that value, not an
-#		array.  Undef if no matches in the sql select.
-#
+=head2 C<sqlSelect>
+
+Select specific fields from a single record.  If you need multiple records, use
+sqlSelectMany.
+
+=over 4
+
+=item * select
+
+what columns to return from the select (ie "*")
+
+=item * table
+
+the table to do the select on
+
+=item * where
+
+string containing the search criteria
+
+=item * other
+
+any other sql options thay you may want to pass
+
+=back
+
+Returns an arrayref of values from the specified fields in $select.  If there
+is only one field, the return will be that value, not an array.  Undef if no
+matches in the sql select.
+
+=cut
+
 sub sqlSelect
 {
 	my $this = shift;
@@ -346,27 +385,42 @@ sub sqlSelect
 	return \@result;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#               sqlSelectJoined
-#
-#       Purpose
-#               A general wrapper function for a standard SQL select command
-#		involving left joins.
-#               This returns the DBI cursor.
-#
-#       Parameters
-#               select - what columns to return from the select (ie "*")
-#               table - the table to do the select on
-#		joins - a hash consisting of the table name and the join criteria
-#               where - the search criteria
-#               other - any other sql options that you may want to pass
-#
-#       Returns
-#               The sql cursor of the select.  Call fetchrow() on it to get
-#               the selected rows.  undef if error.
-#
+=head2 C<sqlSelectJoined>
+
+A general wrapper function for a standard SQL select command involving left
+joins.  This returns the DBI cursor.
+
+=over 4
+
+=item * select
+
+what columns to return from the select (ie "*")
+
+=item * table
+
+the table to do the select on
+
+=item * joins
+
+a hash consisting of the table name and the join criteria
+
+=item * where
+
+the search criteria
+
+=item * other
+
+any other sql options that you may want to pass
+
+=back
+
+Returns the sql cursor of the select.  Call fetchrow() on it to get the
+selected rows.  undef if error.
+
+=cut
+
 sub sqlSelectJoined
 {
 	my ($this, $select, $table, $joins, $where, $other, @bound) = @_;
@@ -387,26 +441,42 @@ sub sqlSelectJoined
 	return $cursor;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		sqlSelectMany
-#
-#	Purpose
-#		A general wrapper function for a standard SQL select command.
-#		This returns the DBI cursor.
-#
-#	Parameters
-#		select - what columns to return from the select (ie "*")
-#		table - the table to do the select on
-#		where - the search criteria
-#		other - any other sql options that you may want to pass
-# 		bound - any bound values for placeholders 
-#
-#	Returns
-#		The sql cursor of the select.  Call fetchrow() on it to get
-#		the selected rows.  undef if error.
-#
+=head2 C<sqlSelectMany>
+
+A general wrapper function for a standard SQL select command.  This returns the
+DBI cursor.
+
+=over 4
+
+=item * select
+
+what columns to return from the select (ie "*")
+
+=item * table
+
+the table to do the select on
+
+=item * where
+
+the search criteria
+
+=item * other
+
+any other sql options that you may want to pass
+
+=item * bound
+
+any bound values for placeholders 
+
+=back
+
+Returns the sql cursor of the select.  Call fetchrow() on it to get the
+selected rows.  undef if error.
+
+=cut
+
 sub sqlSelectMany
 {
 	my($this, $select, $table, $where, $other, $bound) = @_;
@@ -424,26 +494,39 @@ sub sqlSelectMany
 	return;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		sqlSelectHashref
-#
-#	Purpose
-#		Grab one row from a table and return it as a hash.  This just grabs
-#		the first row from the select and returns it as a hash.  If you
-#		want more than the first row, call sqlSelectMany and retrieve them
-#		yourself.  This is basically a quickie for getting a single row.
-#		
-#	Parameters
-#		select - what colums to return from the select (ie "*")
-#		table - the table to do the select on
-#		where - the search criteria
-#		other - any other sql options thay you may wan to pass
-#
-#	Returns
-#		A hashref to the row that matches the query.  undef if no match.
-#	
+=head2 C<sqlSelectHashref>
+
+Grab one row from a table and return it as a hash.  This just grabs the first
+row from the select and returns it as a hash.  If you want more than the first
+row, call sqlSelectMany and retrieve them yourself.  This is basically a
+quickie for getting a single row.
+
+=over 4
+
+=item * select
+
+what colums to return from the select (ie "*")
+
+=item * table
+
+the table to do the select on
+
+=item * where
+
+the search criteria
+
+=item * other
+
+any other sql options thay you may wan to pass
+
+=back
+
+Returns a hashref to the row that matches the query.  undef if no match.
+
+=cut
+
 sub sqlSelectHashref
 {
 	my $this   = shift;
@@ -454,25 +537,34 @@ sub sqlSelectHashref
 	return $hash;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		sqlUpdate
-#
-#	Purpose
-#		Wrapper for sql update command.
-#
-#	Parameters
-#		table - the sql table to udpate
-#		data - a hash reference that contains the fields and their values
-#			that will be changed.
-#		where - the string that contains the constraints as to which rows
-#			will be updated.
-#
-#	Returns
-#		Number of rows affected (true if something happened, false if
-#		nothing was changed).
-#
+=head2 C<sqlUpdate>
+
+Wrapper for sql update command.
+
+=over 4
+
+=item * table
+
+the sql table to udpate
+
+=item * data
+
+a hash reference that contains the fields and their values that will be
+changed.
+
+=item * where
+
+the string that contains the constraints as to which rows will be updated.
+
+=back
+
+Returns number of rows affected (true if something happened, false if nothing
+was changed).
+
+=cut
+
 sub sqlUpdate
 {
 	my($this, $table, $data, $where, $prebound) = @_;
@@ -489,23 +581,30 @@ sub sqlUpdate
 	return $this->sqlExecute( $sql, $bound );
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		sqlInsert
-#
-#	Purpose
-#		Wrapper for the sql insert command.
-#
-#	Parameters
-#		table - string name of the sql table to add the new row
-#		data - a hash reference that contains the fieldname => value
-#			pairs.  If the fieldname starts with a '-', the value is
-#			treated as a literal value and thus not quoted/escaped.
-#
-#	Returns
-#		true if successful, false otherwise.
-#
+=head2 C<sqlInsert>
+
+Wrapper for the sql insert command.
+
+=over 4
+
+=item * table
+
+string name of the sql table to add the new row
+
+=item * data
+
+a hash reference that contains the fieldname =E<gt> value pairs.  If the
+fieldname starts with a '-', the value is treated as a literal value and thus
+not quoted/escaped.
+
+=back
+
+Returns true if successful, false otherwise.
+
+=cut
+
 sub sqlInsert
 {
 	my ($this, $table, $data) = @_;
@@ -517,13 +616,24 @@ sub sqlInsert
 	return $this->sqlExecute( $sql, $bound );
 }
 
-#############################################################################
-#
-#	Private method
-#		Quote database per existing convention:
-#			- column name => value
-#			- leading '-' means use placeholder (quote) value
-#
+=cut
+
+C<_quoteData>
+
+Private method
+
+Quote database per existing convention:
+
+=over 4
+
+=item * column name =E<gt> value
+
+=item * leading '-' means use placeholder (quote) value
+
+=back
+
+=cut
+
 sub _quoteData
 {
 	my ($this, $data) = @_;
@@ -547,22 +657,29 @@ sub _quoteData
 	return \@names, \@values, \@bound;
 }
 
-#############################################################################
-#	Sub
-#		sqlExecute
-#
-#	Purpose
-#		Wrapper for the SQL execute command.
-#
-#	Parameters
-#		sql   - the SQL to execute
-#		bound - a reference to an array of bound variables to be used with
-#			    placeholders
-#
-#	Returns
-#		true (number of rows affected) if successful, false otherwise.
-#		Failures are logged.
-#
+=cut
+
+=head2 C<sqlExecute>
+
+Wrapper for the SQL execute command.
+
+=over 4
+
+=item * sql  
+
+the SQL to execute
+
+=item * bound
+
+a reference to an array of bound variables to be used with placeholders
+
+=back
+
+Returns true (number of rows affected) if successful, false otherwise.
+Failures are logged.
+
+=cut
+
 sub sqlExecute
 {
 	my ($this, $sql, $bound) = @_;
@@ -589,27 +706,31 @@ sub getNodeById
 	return $this->getNode($node_id, $selectop);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		newNode
-#
-#	Purpose
-#		A more programatically "graceful" way than getNode() to get a node
-#		that does not exist in the database.  This is primarily use when
-#		creating new nodes or needing a node object that just has methods
-#		that you wish to call.
-#
-#	Parameters
-#		$type - a nodetype name, id, or Node object of the type of node
-#			to create
-#		$title - (optional) the title of the node
-#
-#	Returns
-#		The new node.  Note that this node is not in the database.  If
-#		you want to save it to the database, you will need to call insert()
-#		on it.
-#		
+=head2 C<newNode>
+
+A more programatically "graceful" way than getNode() to get a node that does
+not exist in the database.  This is primarily use when creating new nodes or
+needing a node object that just has methods that you wish to call.
+
+=over 4
+
+=item * $type
+
+a nodetype name, id, or Node object of the type of node to create
+
+=item * $title
+
+(optional) the title of the node
+
+=back
+
+Returns the new node.  Note that this node is not in the database.  If you want
+to save it to the database, you will need to call insert() on it.
+
+=cut
+
 sub newNode
 {
 	my ($this, $type, $title) = @_;
@@ -620,48 +741,54 @@ sub newNode
 	return $this->getNode($title, $type, 'create force');
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNode
-#
-#	Purpose
-#		This is the one and only function needed to get a single node.  If
-#		any function other than getNode() is used, the system will not work
-#		properly.
-#
-#		This function has two forms.  One form is for getting a node by its
-#		id, the other is for getting the node by its title and type.  Note
-#		that if duplicate titles are allowed for the nodetype, this will only
-#		get the first one that it finds in the database.
-#
-#	Parameters
-#		$node - either the string title, node id, NODE object, or "where hash
-#			ref".  The NODE object is just for ease of use, so you can call
-#			this function without worrying if the node thingy is an ID or
-#			object.  If this is a where hash ref, this simply does a
-#			getNodeWhere() and returns the first match only (just a quicky way
-#			of doing a getNodeWhere())
-#		$ext - extra info.  If $node is a string title, this must be either
-#			a hashref to a nodetype node, or a nodetype id.  If $node is an
-#			id, $ext is optional and can be either 'light' or 'force'.  If
-#			'light' it will retrieve only the information from the node table
-#			(faster).  If 'force', it will reload the node even if it is
-#			cached.
-#		$ext2 - more extra info.  If this is a "title/type" query, passing
-#			'create' will cause a dummy object to be created and returned if
-#			a node is not found.  Using the dummy node, you can then add or
-#			modify its fields and then do a $NODE->insert($USER) to insert it
-#			into the database.  If you wish to create a node even if a node
-#			of the same "title/type" exists, pass "create force".  A dummy
-#			node has a node_id of '-1'.
-#			If $node is a "where hash ref", this is the "order by" string
-#			that you can pass to order the result by (you will still only
-#			get one node).
-#
-#	Returns
-#		A node object if successful.  undef otherwise.
-#
+=head2 C<getNode>
+
+This is the one and only function needed to get a single node.  If any function
+other than getNode() is used, the system will not work properly.
+
+This function has two forms.  One form is for getting a node by its id, the
+other is for getting the node by its title and type.  Note that if duplicate
+titles are allowed for the nodetype, this will only get the first one that it
+finds in the database.
+
+=over 4
+
+=item * $node
+
+either the string title, node id, NODE object, or "where hash ref".  The NODE
+object is just for ease of use, so you can call this function without worrying
+if the node thingy is an ID or object.  If this is a where hash ref, this
+simply does a getNodeWhere() and returns the first match only (just a quicky
+way of doing a getNodeWhere())
+
+=item * $ext
+
+extra info.  If $node is a string title, this must be either a hashref to a
+nodetype node, or a nodetype id.  If $node is an id, $ext is optional and can
+be either 'light' or 'force'.  If 'light' it will retrieve only the information
+from the node table (faster).  If 'force', it will reload the node even if it
+is cached.
+
+=item * $ext2
+
+more extra info.  If this is a "title/type" query, passing 'create' will cause
+a dummy object to be created and returned if a node is not found.  Using the
+dummy node, you can then add or modify its fields and then do a
+$NODE-E<gt>insert($USER) to insert it into the database.  If you wish to create
+a node even if a node of the same "title/type" exists, pass "create force".  A
+dummy node has a node_id of '-1'.
+
+If $node is a "where hash ref", this is the "order by" string that you can pass
+to order the result by (you will still only get one node).
+
+=back
+
+Returns a node object if successful.  undef otherwise.
+
+=cut
+
 sub getNode
 {
 	my ($this, $node, $ext, $ext2) = @_;
@@ -790,22 +917,20 @@ sub getNodeByName
 	return $NODE;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNodeZero
-#
-#	Purpose
-#		The node with zero as its ID is a "dummy" node that represents the
-#		root location of the system.  Think of this as the "/" (root
-#		directory) on unix.  Only gods have access to this node.
-#
-#	Note
-#		This is just a "dummy" node.  It does not exist in the database.
-#
-#	Returns
-#		The "Zero Node"
-#
+=head2 C<getNodeZero>
+
+The node with zero as its ID is a "dummy" node that represents the root
+location of the system.  Think of this as the "/" (root directory) on unix.
+Only gods have access to this node.
+
+Note: this is just a "dummy" node.  It does not exist in the database.
+
+Returns the "Zero Node".
+
+=cut
+
 sub getNodeZero
 {
 	my ($this) = @_;
@@ -862,26 +987,29 @@ sub getNodeByIdNew
 	return $NODE;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		constructNode
-#
-#	Purpose
-#		Given a hash that contains a row of data from the 'node' table,
-#		get its type and "join" on the appropriate tables.  This function
-#		is designed to work in conjuction with simple queries that only
-#		search the node table, but then want a complete node.  (ie do a
-#		search on the node table, find something, now we want the complete
-#		node).
-#
-#	Parameters
-#		$NODE - the incomplete node that should be filled out.
-#
-#	Returns
-#		True (1) if successful, false (0) otherwise.  If success, the node
-#		hash passed in will now be a complete node.
-#
+=head2 C<constructNode>
+
+Given a hash that contains a row of data from the 'node' table, get its type
+and "join" on the appropriate tables.  This function is designed to work in
+conjuction with simple queries that only search the node table, but then want a
+complete node.  (ie do a search on the node table, find something, now we want
+the complete node).
+
+=over 4
+
+=item * $NODE
+
+the incomplete node that should be filled out.
+
+=back
+
+Returns true (1) if successful, false (0) otherwise.  If success, the node hash
+passed in will now be a complete node.
+
+=cut
+
 sub constructNode
 {
 	my ($this, $NODE) = @_;
@@ -920,35 +1048,51 @@ sub constructNode
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNodeWhere
-#
-#	Purpose
-#		Get a list of NODE hashes.  This constructs a complete node.
-#
-#	Parameters
-#		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select or a plain text WHERE string.
-#		$TYPE - the nodetype to search.  If this is not given, this
-#			will only search the fields on the "node" table since
-#			without a nodetype we don't know what other tables to join
-#			on.
-#		$orderby - the field in which to order the results.
-#		$limit - the maximum number of rows to return
-#		$offset - (only if limit is provided) offset from the start of
-#			the matched rows.  By using this an limit, you can retrieve
-#			a specific range of rows.
-#		$refTotalRows - if you want to know the total number of rows that
-#			match the query, pass in a ref to a scalar (ie: \$totalrows)
-#			and it will be set to the total rows that match the query.
-#			This is really only useful when specifying a limit.
-#
-#	Returns
-#		A reference to an array that contains nodes matching the criteria or
-#		undef, if the operation fails
-#
+=head2 C<getNodeWhere>
+
+Get a list of NODE hashes.  This constructs a complete node.
+
+=over 4
+
+=item * $WHERE
+
+a hash reference to fieldname/value pairs on which to restrict the select or a
+plain text WHERE string.
+
+=item * $TYPE
+
+the nodetype to search.  If this is not given, this will only search the fields
+on the "node" table since without a nodetype we don't know what other tables to
+join on.
+
+=item * $orderby
+
+the field in which to order the results.
+
+=item * $limit
+
+the maximum number of rows to return
+
+=item * $offset
+
+(only if limit is provided) offset from the start of the matched rows.  By
+using this an limit, you can retrieve a specific range of rows.
+
+=item * $refTotalRows
+
+if you want to know the total number of rows that match the query, pass in a
+ref to a scalar (ie: \$totalrows) and it will be set to the total rows that
+match the query.  This is really only useful when specifying a limit.
+
+=back
+
+Returns a reference to an array that contains nodes matching the criteria or
+undef, if the operation fails
+
+=cut
+
 sub getNodeWhere { my $this = shift;
 
 	my $selectNodeWhere = $this->selectNodeWhere( @_ );
@@ -967,38 +1111,57 @@ sub getNodeWhere { my $this = shift;
 	return \@nodelist;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		selectNodeWhere
-#
-#	Purpose
-#		Retrieves node id's that match the given query.
-#
-#	Parameters
-#		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select or a plain text WHERE string.
-#		$TYPE - the nodetype to search.  If this is not given, this
-#			will only search the fields on the "node" table since
-#			without a nodetype we don't know what other tables to join
-#			on.
-#		$orderby - the field in which to order the results.
-#		$limit - a limit to the max number of rows returned
-#		$offset - (only if limit is provided) offset from the start of
-#			the matched rows.  By using this an limit, you can retrieve
-#			a specific range of rows.
-#		$refTotalRows - if you want to know the total number of rows that
-#			match the query, pass in a ref to a scalar (ie: \$totalrows)
-#			and it will be set to the total rows that match the query.
-#			This is really only useful when specifying a limit.
-#		$nodeTableOnly - (performance enhancement) Set to 1 (true) if the
-#			search fields are only in the node table.  This prevents the
-#			database from having to do table joins when they are not needed.
-#
-#	Returns
-#		A reference to an array that contains the node ids that match.
-#		Undef if no matches.
-#
+=head2 C<selectNodeWhere>
+
+Retrieves node id's that match the given query.
+
+=over 4
+
+=item * $WHERE
+
+a hash reference to fieldname/value pairs on which to restrict the select or a
+plain text WHERE string.
+
+=item * $TYPE
+
+the nodetype to search.  If this is not given, this will only search the fields
+on the "node" table since without a nodetype we don't know what other tables to
+join on.
+
+=item * $orderby
+
+the field in which to order the results.
+
+=item * $limit
+
+a limit to the max number of rows returned
+
+=item * $offset
+
+(only if limit is provided) offset from the start of the matched rows.  By
+using this an limit, you can retrieve a specific range of rows.
+
+=item * $refTotalRows
+
+if you want to know the total number of rows that match the query, pass in a
+ref to a scalar (ie: \$totalrows) and it will be set to the total rows that
+match the query.  This is really only useful when specifying a limit.
+
+=item * $nodeTableOnly
+
+(performance enhancement) Set to 1 (true) if the search fields are only in the
+node table.  This prevents the database from having to do table joins when they
+are not needed.
+
+=back
+
+Returns a reference to an array that contains the node ids that match.  Undef
+if no matches.
+
+=cut
+
 sub selectNodeWhere
 {
 	my ($this, $WHERE, $TYPE, $orderby, $limit, $offset, $refTotalRows,
@@ -1026,42 +1189,60 @@ sub selectNodeWhere
 	return \@nodelist;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNodeCursor
-#
-#	Purpose
-#		This returns the sql cursor for node matches.  Users of this object
-#		can call this directly for specific searches, but the more general
-#		functions selectNodeWhere() and getNodeWhere() should be used for
-#		most cases.
-#
-#	Parameters
-#		$select - The fields to select.  "*" for all, or provide a string
-#			of comma delimited fields.
-#		$WHERE - a hash reference to fieldname/value pairs on which to
-#			restrict the select or a plain text WHERE string.
-#		$TYPE - the nodetype to search.  If this is not given, this
-#			will only search the fields on the "node" table since
-#			without a nodetype we don't know what other tables to join
-#			on.
-#		$orderby - the field in which to order the results.
-#		$limit - a limit to the max number of rows returned
-#		$offset - (only if limit is provided) offset from the start of
-#			the matched rows.  By using this an limit, you can retrieve
-#			a specific range of rows.
-#		$nodeTableOnly - (performance enhancement) Set to 1 (true) if the
-#			search fields are only in the node table.  This prevents the
-#			database from having to do table joins when they are not needed.
-#			Note that if this is turned on you will not get "complete" nodes,
-#			just the data from the "node" table.
-#
-#	Returns
-#		The sql cursor from the "select".  undef if there was an error
-#		in the search or no matches.  The caller is responsible for calling
-#		finish() on the cursor.
-#		
+=head2 C<getNodeCursor>
+
+This returns the sql cursor for node matches.  Users of this object can call
+this directly for specific searches, but the more general functions
+selectNodeWhere() and getNodeWhere() should be used for most cases.
+
+=over 4
+
+=item * $select
+
+The fields to select.  "*" for all, or provide a string of comma delimited
+fields.
+
+=item * $WHERE
+
+a hash reference to fieldname/value pairs on which to restrict the select or a
+plain text WHERE string.
+
+=item * $TYPE
+
+the nodetype to search.  If this is not given, this will only search the fields
+on the "node" table since without a nodetype we don't know what other tables to
+join on.
+
+=item * $orderby
+
+the field in which to order the results.
+
+=item * $limit
+
+a limit to the max number of rows returned
+
+=item * $offset
+
+(only if limit is provided) offset from the start of the matched rows.  By
+using this an limit, you can retrieve a specific range of rows.
+
+=item * $nodeTableOnly
+
+(performance enhancement) Set to 1 (true) if the search fields are only in the
+node table.  This prevents the database from having to do table joins when they
+are not needed.  Note that if this is turned on you will not get "complete"
+nodes, just the data from the "node" table.
+
+=back
+
+Returns the sql cursor from the "select".  undef if there was an error in the
+search or no matches.  The caller is responsible for calling finish() on the
+cursor.
+
+=cut
+
 sub getNodeCursor
 {
 	my ($this, $select, $WHERE, $TYPE, $orderby, $limit, $offset,
@@ -1118,25 +1299,31 @@ sub getNodeCursor
 	return $cursor;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		countNodeMatches
-#
-#	Purpose
-#		Doing a full query has some extra overhead.  If you just want
-#		to know how many rows a certain query will match, call this.
-#		It is much faster than doing a full query.
-#
-#	Paramters
-#		$WHERE - a hash that contains the criteria for the search or a plain
-#		WHERE text string.
-#		$TYPE - the type of nodes this search is for.  If this is not
-#			provided, it will only do the search on the node table.
-#	
-#	Returns
-#		The number of matches found.
-#
+=head2 C<countNodeMatches>
+
+Doing a full query has some extra overhead.  If you just want
+to know how many rows a certain query will match, call this.
+It is much faster than doing a full query.
+
+=over 4
+
+=item * $WHERE
+
+a hash that contains the criteria for the search or a plain WHERE text string.
+
+=item * $TYPE
+
+the type of nodes this search is for.  If this is not provided, it will only do
+the search on the node table.
+
+=back
+
+Returns the number of matches found.
+
+=cut
+
 sub countNodeMatches
 {
 	my ($this, $WHERE, $TYPE) = @_;
@@ -1152,18 +1339,17 @@ sub countNodeMatches
 	return $matches;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getType
-#
-#	Purpose
-#		This is just a quickie wrapper to get a nodetype by name or
-#		id.  Saves extra typing.
-#
-#	Returns
-#		A hash ref to a nodetype node.  undef if not found
-#
+=head2 C<getType>
+
+This is just a quickie wrapper to get a nodetype by name or id.  Saves extra
+typing.
+
+Returns a hash ref to a nodetype node.  undef if not found
+
+=cut
+
 sub getType
 {
 	my ($this, $idOrName) = @_;
@@ -1178,21 +1364,17 @@ sub getType
 	return;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getAllTypes
-#
-#	Purpose
-#		This returns an array that contains all of the nodetypes in the
-#		system.  Useful for knowing what nodetypes exist.
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		An array of TYPE hashes of all the nodetypes in the system
-#
+=head2 C<getAllTypes>
+
+This returns an array that contains all of the nodetypes in the system.  Useful
+for knowing what nodetypes exist.
+
+Returns an array of TYPE hashes of all the nodetypes in the system
+
+=cut
+
 sub getAllTypes
 {
 	my ($this) = @_;
@@ -1212,20 +1394,24 @@ sub getAllTypes
 	return @allTypes;
 }
 
+=cut
 
-#############################################################################
-#   Sub
-#       getFields
-#
-#   Purpose
-#       Get the field names of a table.
-#
-#   Parameters
-#       $table - the name of the table of which to get the field names
-#
-#   Returns
-#       An array of field names
-#
+=head2 C<getFields>
+
+Get the field names of a table.
+
+=over 4
+
+=item * $table
+
+the name of the table of which to get the field names
+
+=back
+
+Returns an array of field names
+
+=cut
+
 sub getFields
 {
 	my ($this, $table) = @_;
@@ -1233,21 +1419,25 @@ sub getFields
 	return $this->getFieldsHash($table, 0);
 }
 
+=cut
 
-#############################################################################
-#   Sub
-#		dropNodeTable
-#
-#	Purpose
-#		Drop (delete) a table from the database.  Note!!! This is
-#		permanent!  You will lose all data in that table.
-#
-#	Parameters
-#		$table - the name of the table to drop.
-#
-#	Returns
-#		1 if successful, 0 otherwise.
-#
+=head2 C<dropNodeTable>
+
+Drop (delete) a table from the database.  Note!!! This is permanent!  You will
+lose all data in that table.
+
+=over 4
+
+=item * $table
+
+the name of the table to drop.
+
+=back
+
+Returns 1 if successful, 0 otherwise.
+
+=cut
+
 sub dropNodeTable
 {
 	my ($this, $table) = @_;
@@ -1272,21 +1462,25 @@ sub dropNodeTable
 	return $this->{dbh}->do("drop table " . $this->genTableName($table));
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		quote
-#
-#	Purpose
-#		A quick access to DBI's quote function for quoting strings so that
-#		they do not affect the sql queries.
-#
-#	Paramters
-#		$str - the string to quote
-#
-#	Returns
-#		The quoted string
-#
+=head2 C<quote>
+
+A quick access to DBI's quote function for quoting strings so that they do not
+affect the sql queries.
+
+=over 4
+
+=item * $str
+
+the string to quote
+
+=back
+
+Returns the quoted string.
+
+=cut
+
 sub quote
 {
 	my ($this, $str) = @_;
@@ -1294,35 +1488,38 @@ sub quote
 	return $this->{dbh}->quote($str);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		genWhereString
-#
-#	Purpose
-#		This code was stripped from selectNodeWhere.  This takes a WHERE
-#		hash and a string for ordering and generates the appropriate where
-#		string to pass along with a select-type sql command.  The code is
-#		in this function so we can re-use it. Note that this function
-#		takes less parameters than it used to, and doesn't add the 'WHERE'
-#		to the beginning of the returned string.
-#
-#	Notes
-# 		You will note that this is not a full-featured WHERE generator --
-# 		there is no way to do "field1=foo OR field2=bar" 
-# 		you can only OR on the same field and AND on different fields
-# 		I haven't had to worry about it yet.  That day may come
-#
-#	Parameters
-#		$WHERE - a reference to a hash that contains the criteria (ie
-#			title => 'the node', etc) or a string 'title="thenode"' or a plain
-#			text WHERE clause.  Note that it should be quoted, if necessary,
-#			before passed in here.
-#		$TYPE - a hash reference to the nodetype
-#
-#	Returns
-#		A string that can be used for the sql query.
-#
+=head2 C<genWhereString>
+
+This code was stripped from selectNodeWhere.  This takes a WHERE hash and a
+string for ordering and generates the appropriate where string to pass along
+with a select-type sql command.  The code is in this function so we can re-use
+it. Note that this function takes less parameters than it used to, and doesn't
+add the 'WHERE' to the beginning of the returned string.
+
+You will note that this is not a full-featured WHERE generator -- there is no
+way to do "field1=foo OR field2=bar" you can only OR on the same field and AND
+on different fields I haven't had to worry about it yet.  That day may come
+
+=over 4
+
+=item * $WHERE
+
+a reference to a hash that contains the criteria (ie title =E<gt> 'the node',
+etc) or a string 'title="thenode"' or a plain text WHERE clause.  Note that it
+should be quoted, if necessary, before passed in here.
+
+=item * $TYPE
+
+a hash reference to the nodetype
+
+=back
+
+Returns	a string that can be used for the sql query.
+
+=cut
+
 sub genWhereString
 {
 	my ($this, $WHERE, $TYPE) = @_;
@@ -1393,29 +1590,35 @@ sub genWhereString
 	return $wherestr;
 }
 
-
 #############################################################################
 #	"Private" functions to this module
 #############################################################################
 
 
-#############################################################################
-#	Sub
-#		getNodetypeTables
-#
-#	Purpose
-#		Returns an array of all the tables that a given nodetype joins on.
-#		This will create the array, if it has not already created it.
-#
-#	Parameters
-#		TYPE - The string name or integer Id of the nodetype
-#		addnode - if true, add 'node' to list.  Defaults to false.
-#
-#	Returns
-#		A reference to an array that contains the names of the tables
-#		to join on.  If the nodetype does not join on any tables, the
-#		array is empty.
-#
+=cut
+
+C<getNodetypeTables>
+
+Returns an array of all the tables that a given nodetype joins on.
+This will create the array, if it has not already created it.
+
+=over 4
+
+=item * TYPE
+
+The string name or integer Id of the nodetype
+
+=item * addnode
+
+if true, add 'node' to list.  Defaults to false.
+
+=back
+
+Returns a reference to an array that contains the names of the tables to join
+on.  If the nodetype does not join on any tables, the array is empty.
+
+=cut
+
 sub getNodetypeTables
 {
 	my ($this, $TYPE, $addNode) = @_;
@@ -1445,20 +1648,16 @@ sub getNodetypeTables
 	return \@tablelist;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getRef
-#
-#	Purpose
-#		This makes sure that we have an array of node hashes, not node id's.
-#
-#	Parameters
-#		Any number of node id's or node hashes (ie getRef( $n[0], $n[1], ...))
-#
-#	Returns
-#		The node hash of the first element passed in.
-#
+C<getRef>
+
+This makes sure that we have an array of node hashes, not node id's.
+
+Returns the node hash of the first element passed in.
+
+=cut
+
 sub getRef
 {
 	my $this = shift;
@@ -1473,21 +1672,25 @@ sub getRef
 	return $_[0];
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getId
-#
-#	Purpose
-#		Given a node object or a node id, return the id.  Just a quick
-#		function to call to make sure that you have an id.
-#
-#	Parameters
-#		node - a node object or a node id
-#
-#	Returns
-#		The node id.  undef if not able to obtain an id.
-#
+C<getId>
+
+Given a node object or a node id, return the id.  Just a quick function to call
+to make sure that you have an id.
+
+=over 4
+
+=item * node
+
+a node object or a node id
+
+=back
+
+Returns the node id.  undef if not able to obtain an id.
+
+=cut
+
 sub getId
 {
 	my ($this, $node) = @_;
@@ -1498,37 +1701,47 @@ sub getId
 	return;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		hasPermission
-#
-#	Purpose
-#		This does dynamic permission calculations using the specified
-#		permissions node.  The permissions node contains code that will
-#		calculate what permissions a user has.  For example, if a user
-#		has certain flags on, the code may enable or disable write
-#		permissions.  This is also a great way of abstracting permissions
-#		and assigning them to actions.  In your code you can say
-#		  if(hasPermission($USER, undef, 'allow vote', "x")
-#		  {
-#			 ... show voting stuff ...
-#		  }
-#
-#		The code in 'allow vote' could be something like:
-#		  return "x" if($$USER{experience} > 100)
-#		  return "-";
-#
-#	Parameters
-#		$USER - the user that we want to check for access.
-#		$permission - the name of the permission node that contains the
-#			code we want to run.
-#		$modes - what modes are necessary
-#
-#	Returns
-#		1 (true), if the user has the needed permissions, 0 (false)
-#		otherwise
-#
+=head2 C<hasPermission>
+
+This does dynamic permission calculations using the specified
+permissions node.  The permissions node contains code that will
+calculate what permissions a user has.  For example, if a user
+has certain flags on, the code may enable or disable write
+permissions.  This is also a great way of abstracting permissions
+and assigning them to actions.  In your code you can say
+
+  if(hasPermission($USER, undef, 'allow vote', "x")
+  {
+	... show voting stuff ...
+  }
+
+The code in 'allow vote' could be something like:
+
+  return "x" if($$USER{experience} > 100)
+  return "-";
+
+=over 4
+
+=item * $USER
+
+the user that we want to check for access.
+
+=item * $permission
+
+the name of the permission node that contains the code we want to run.
+
+=item * $modes
+
+what modes are necessary
+
+=back
+
+Returns 1 (true), if the user has the needed permissions, 0 (false) otherwise
+
+=cut
+
 sub hasPermission
 {
 	my ($this, $USER, $permission, $modes) = @_;
