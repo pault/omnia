@@ -117,11 +117,6 @@ nbmasta export "name_of_nodeball" DATABASE
 are gzipped tarballs, so if you want to see the innards, merely
 tar -xvzf them.
 
-A NOTE ON NODEBALLS WITH RELEASE (>= 0.9.1):
-
-We have recently changed our XML file structure -- you can still read 
-old nodeballs (exported under 0.9.0 or 0.8) with "nbmasta_old".  If you
-download a nodeball and it doesn't install, try nbmasta_old.
-
-
-
+(Note: as of 1.0 nbmasta_old has been removed -- if you absolutely
+need to use old nodeballs, d/l XMLold.pm and nbmasta_old which are included
+in the old everything-0.9.1 distro)
