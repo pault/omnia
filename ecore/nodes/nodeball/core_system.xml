@@ -244,7 +244,7 @@
     <member orderby="236" type="noderef" type_nodetype="superdoc,nodetype">the killing floor</member>
     <member orderby="237" type="noderef" type_nodetype="superdoc,nodetype">What is my password</member>
     <member orderby="238" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
-    <member orderby="239" type="noderef" type_nodetype="nodemethod,nodetype">insert2</member>
+    <member orderby="239" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
     <member orderby="240" type="noderef" type_nodetype="mail,nodetype">New User Mail</member>
     <member orderby="241" type="noderef" type_nodetype="document,nodetype">Help with Mini Nodelets</member>
     <member orderby="242" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</member>
