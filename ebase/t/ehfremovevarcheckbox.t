@@ -13,9 +13,6 @@ use Test::More tests => 23;
 
 $INC{ 'Everything.pm' } = $INC{ 'Everything/HTML/FormObject/Checkbox.pm' } = 1;
 
-my $node = FakeNode->new();
-
-# genObject()
 {
 	local (*Everything::import, *Everything::HTML::FormObject::Checkbox::import,
 		*Everything::HTML::FormObject::RemoveVarCheckbox::import);
@@ -35,11 +32,12 @@ my $node = FakeNode->new();
 		'... and Checkbox' );
 }
 
+my $node = FakeNode->new();
+
 # genObject()
 {
 	local (*Everything::HTML::FormObject::RemoveVarCheckbox::getParamArray,
-		*Everything::HTML::FormObject::RemoveVarCheckbox::SUPER::genObject,
-		*FakeNode::radio_group);
+		*Everything::HTML::FormObject::RemoveVarCheckbox::SUPER::genObject);
 
 	my @params;
 	*Everything::HTML::FormObject::RemoveVarCheckbox::getParamArray = sub {
@@ -53,13 +51,6 @@ my $node = FakeNode->new();
 		$node->genObject( @_ );
 		return 'html';
 	};
-
-	*FakeNode::radio_group = sub {
-		my $node = shift;
-		push @{ $node->{_calls} }, [ 'radio_group', @_ ];
-		return ('a', 'b');
-	};
-
 
 	genObject( $node, $node, 'bN', 'f', 'v' );
 	is( $params[0], "query, bindNode, field, var $node bN f v",
