@@ -40,7 +40,9 @@ my $nodeletgrp = getNodeById(getNode("system settings","setting")->getVars()->{d
 my @newgrp;
 foreach(@{$nodeletgrp->{group}})
 {
-  push @newgrp,$_ if getNode($_)->hasAccess($GU,"x");
+  my $nodelet = getNode($_);
+  next unless $nodelet;
+  push @newgrp,$_ if $nodelet->hasAccess($GU,"x");
 }
 $GUv->{nodelets} = join ",",@newgrp;
 $GU->setVars($GUv);
