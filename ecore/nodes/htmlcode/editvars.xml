@@ -10,43 +10,47 @@
 #
 
 my ($varsfield, $N) = @_;
-$varsfield ||= 'vars';
-$N ||= $NODE;
-my $html = "&lt;table border=0>\n";
-my $vars = $N->getHash($varsfield);
-my @keys;
 
+$varsfield ||= 'vars';
+$N         ||= $NODE;
+
+my $html = &quot;&lt;table border=0&gt;\n&quot;;
+my $vars = $N-&gt;getHash($varsfield);
+
+my @keys;
 @keys = sort keys %$vars if($vars);
 
-my $keyColor = $$THEME{keyColor};
-my $valueColor = $$THEME{valueColor};
-my $removeColor = $$THEME{removeColor};
+my ($keyColor, $valueColor, $removeColor)
+	= @{ $THEME }{qw( keyColor valueColor removeColor )};
 
-$keyColor ||= "#cc99cc";
-$valueColor ||= "#cc99ff";
-$removeColor ||= "#999999";
+$keyColor    ||= '#cc99cc';
+$valueColor  ||= '#cc99ff';
+$removeColor ||= '#999999';
 
-$html .= "&lt;tr>&lt;td bgcolor='$removeColor'>Remove&lt;/td>\n";
-$html .= "&lt;td bgcolor='$keyColor'>&lt;b>Keys&lt;/b>&lt;/td>\n";
-$html .= "&lt;td bgcolor='$valueColor'>&lt;b>Values&lt;/b>&lt;/td>&lt;/tr>\n";
+$html .= &quot;&lt;tr&gt;&lt;td bgcolor='$removeColor'&gt;Remove&lt;/td&gt;\n&quot;;
+$html .= &quot;&lt;td bgcolor='$keyColor'&gt;&lt;b&gt;Keys&lt;/b&gt;&lt;/td&gt;\n&quot;;
+$html .= &quot;&lt;td bgcolor='$valueColor'&gt;&lt;b&gt;Values&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
 
-push @keys, "NEWFIELD";
+my $numkeys = @keys;
+push @keys, 'NEWFIELD';
 
-foreach my $key (@keys)
+for my $i (0 .. $numkeys)
 {
-  $html .= "&lt;tr>&lt;td colspan=3>New Key/Value:&lt;/td>&lt;/tr>\n" if($key eq "NEWFIELD");
-  $html .= "&lt;tr>&lt;td bgcolor='$removeColor'>";
+  my $key = $keys[$i];
+  $html .= &quot;&lt;tr&gt;&lt;td colspan=3&gt;New Key/Value:&lt;/td&gt;&lt;/tr&gt;\n&quot;
+    if $i == $numkeys;
+  $html .= &quot;&lt;tr&gt;&lt;td bgcolor='$removeColor'&gt;&quot;;
   $html .= bindFormObject('RemoveVarCheckbox', $N, $varsfield, $key)
-    if($key ne "NEWFIELD");
-  $html .= "&lt;/td>&lt;td bgcolor='$keyColor' nowrap>";
+    unless $i == $numkeys;
+  $html .= &quot;&lt;/td&gt;&lt;td bgcolor='$keyColor' nowrap&gt;&quot;;
   $html .= bindFormObject('VarsTextField', $N, $varsfield, $key, 1);
-  $html .= "&lt;/td>&lt;td bgcolor='$valueColor' nowrap>\n";
+  $html .= &quot;&lt;/td&gt;&lt;td bgcolor='$valueColor' nowrap&gt;\n&quot;;
   $html .= bindFormObject('VarsTextField', $N, $varsfield, $key, 0);
-  $html .= " " . linkVar($key, $$vars{$key});
-  $html .= " &lt;/td>&lt;/tr>\n";
+  $html .= &quot; &quot; . linkVar($key, $$vars{$key});
+  $html .= &quot; &lt;/td&gt;&lt;/tr&gt;\n&quot;;
 }
 
-$html .= "&lt;/table>";
+$html .= &quot;&lt;/table&gt;&quot;;
 $html;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
