@@ -1,0 +1,68 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<doctext table="document">[%
+my $str;
+my $execstr = $query-&gt;param("sqlquery");
+
+$str = $query-&gt;start_multipart_form("POST",
+  $ENV{script_name}) . "\n";
+$str .= $query-&gt;hidden("displaytype") . "\n";
+$str .= $query-&gt;hidden("node_id", getId($NODE)) . "\n";
+$str .= "SQL Query:\n";
+$str .= $query-&gt;textfield("sqlquery", $execstr, 60);
+$str .= $query-&gt;submit('execsql', 'Execute') . "\n";
+$str .= $query-&gt;end_form;
+
+$str;
+%]
+
+&lt;p&gt;
+[%
+my $execstr = $query-&gt;param("sqlquery");
+my $str = "";
+
+if($execstr)
+{
+  my $cursor = $DB-&gt;getDatabaseHandle()-&gt;prepare($execstr);
+
+  if($cursor-&gt;execute())
+  {
+    my $ROW;
+    while($ROW = $cursor-&gt;fetchrow_hashref())
+    {
+      if($str eq "")
+      {
+        $str = "&lt;table border=1&gt;\n";
+        $str .= " &lt;tr&gt;\n";
+        foreach (keys %$ROW)
+        {
+          $_ = "&amp;nbsp;" if((not defined $_) || ($_ eq "")); 
+          $str .= "  &lt;td align=\"center\" bgcolor=\"#CC99CC\"&gt;$_&lt;/td&gt;\n";
+        }
+        $str .= " &lt;/tr&gt;\n";
+      }
+
+      $str .= " &lt;tr&gt;\n";
+      my ($k, $v);
+      foreach (keys %$ROW)
+      {
+        $k = $_;  $v = $$ROW{$_};
+        $v = encodeHTML($v, 1) if(defined $v);
+        $v = linkNode($v, $v) if(($k =~ /_/) &amp;&amp; (not ($v =~ /\D/)));
+        $v = "&amp;nbsp;" if((not defined $v) || ($v eq ""));
+        $str .= "  &lt;td&gt;&lt;pre&gt;$v&lt;/pre&gt;&lt;/td&gt;\n";
+      }
+      $str .= " &lt;/tr&gt;\n";
+    }
+    $str .= "&lt;/table&gt;\n";
+  }
+}
+
+$str;
+%]</doctext>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">SQL Prompt</title>
+	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+</NODE>
