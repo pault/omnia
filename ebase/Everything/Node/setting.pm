@@ -4,7 +4,7 @@ package Everything::Node::setting;
 #   Everything::Node::setting
 #       Package the implements the base functionality for setting
 #
-#   Copyright 2000 - 2002 Everything Development Inc.
+#   Copyright 2000 - 2003 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
@@ -193,6 +193,12 @@ sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
 
+	return unless $FIX and UNIVERSAL::isa( $FIX, 'HASH' );
+	for my $required (qw( fixBy field where ))
+	{
+		return unless exists $FIX->{$required};
+	}
+
 	unless ($FIX->{fixBy} eq 'setting')
 	{
 		$this->SUPER();
@@ -200,12 +206,12 @@ sub applyXMLFix
 	}
 
 	my $vars = $this->getVars();
-	
-	my $where = Everything::XML::patchXMLwhere($FIX->{where});
-	my $TYPE = $where->{type_nodetype};
-	my $NODE = $this->{DB}->getNode($where, $TYPE);
 
-	unless($NODE)
+	my $where = Everything::XML::patchXMLwhere($FIX->{where});
+	my $TYPE  = $where->{type_nodetype};
+	my $NODE  = $this->{DB}->getNode($where, $TYPE);
+
+	unless ($NODE)
 	{
 		Everything::logErrors('', 
 			"Unable to find '$FIX->{title}' of type '$FIX->{type_nodetype}'\n" .
@@ -215,27 +221,29 @@ sub applyXMLFix
 		return $FIX;
 	}
 
-	$vars->{$FIX->{field}} = $NODE->{node_id};
+	$vars->{ $FIX->{field} } = $NODE->{node_id};
 
 	$this->setVars($vars);
 
 	return;
 }
 
-sub getNodeKeepKeys {
+sub getNodeKeepKeys
+{
 	my ($this) = @_;
 
-	my $nodekeys = $this->SUPER();
-	$$nodekeys{vars} = 1; 
+	my $nodekeys      = $this->SUPER();
+	$nodekeys->{vars} = 1; 
 
-	$nodekeys;
+	return $nodekeys;
 }
 
-#vars are preserved upon import
-sub updateFromImport {
+# vars are preserved upon import
+sub updateFromImport
+{
 	my ($this, $NEWNODE, $USER) = @_;
 
-	my $V = $this->getVars;
+	my $V    = $this->getVars;
 	my $NEWV = $NEWNODE->getVars;
 
 	@$NEWV{keys %$V} = values %$V;
