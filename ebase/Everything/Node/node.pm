@@ -644,8 +644,96 @@ sub updateFromImport
 	$this->update($USER);
 }
 
-
 #############################################################################
+#
+#	Sub
+#		logRevision
+#
+#	Purpose
+#		A node is about to be updated.  Load it's old settings from the 
+#		database, convert to XML, and save in the "revision" table
+#		The revision can be re-instated with undo() or redo()
+#		NOTE: this should not be called by update() as undo() and redo()
+#		both use update()
+#
+#	Params
+#		none
+#
+sub logRevision {
+	my ($this, $USER) = @_;
+	my $maxrevisions = $this->{type}{maxrevisions};
+	return 0 unless $maxrevisions;
+	return 0 unless $this->hasAccess($USER, 'w');
+	$maxrevisions = $this->{type}{derived_maxrevisions} if $maxrevisions == -1;
+
+	my $data = $this->{DB}->getNode($this->getId, "force")->toXML();
+
+	my $workspace = 0; # or $this->{DB}->{workspace} or something
+
+	#we are updating the node -- remove any "redo" revisions 
+	$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id < 0 and inside_workspace=$workspace");
+
+    #insert the old node as a revision
+	$this->{DB}->sqlInsert('revision', {node_id => $this->getId, data => $data, inside_workspace => $workspace});
+
+    #remove the oldest revision, if it's greater than the set maxrevisions
+	my ($numrevisions, $oldest) = 
+		@{ $this->{DB}->sqlSelect('count(*), min(revision_id)', 'revision', "inside_workspace=$workspace and node_id=$$this{node_id}") };
+	if ($maxrevisions < $numrevisions) {
+		$this->{DB}->sqlDelete('revision', "node_id=$$this{node_id} and revision_id=$oldest and inside_workspace=$workspace");
+	}
+
+   1; 
+}
+
+###########################################################################
+#
+#	Sub
+#		undo
+#
+#	Purpose	
+#		This function impliments both undo and redo -- it takes the current
+#		node, converts to XML -- then calls xml2node on the most recent
+#		revision (in the undo directon or redo direction).  The revision
+#		is then updated to have the current node's XML, and it's
+#		revision_id is inverted, putting it at the front of the redo or undo
+#		stack
+#
+#	Params
+#		redo -- non-zero executes a redo
+#		test -- if this is true, don't apply the revision, just return true
+#				if the revision exists
+#
+sub undo {
+	my ($this, $USER, $redoit, $test) = @_;
+	my $workspace = 0; #or $DB->{workspace}
+	return 0 unless $this->hasAccess($USER, 'w');
+	my $where = "node_id=$$this{node_id} and inside_workspace=$workspace";
+	$where.=" and revision_id < 0" if $redoit;
+
+	my $REVISION = $this->{DB}->sqlSelectHashref("*", "revision", $where, "ORDER BY revision_id DESC LIMIT 1");
+	return 0 unless $REVISION;
+	return 0 if ($redoit and $$REVISION{revision_id} >= 0);
+	return 0 if (not $redoit and $$REVISION{revision_id} < 0);
+	return 1 if $test;
+
+	my $xml = $$REVISION{data};
+	my $revision_id = $$REVISION{revision_id};
+
+    #prepare the redo/undo (inverse of what's being called)
+	$$REVISION{data} = $this->toXML();
+	$$REVISION{revision_id} = -$revision_id; #invert the revision
+
+	use Everything::XML;
+	my ($NEWNODE) = @{ xml2node($xml) };
+
+	$this->{DB}->sqlUpdate("revision", $REVISION, "node_id=$$this{node_id} and inside_workspace=$workspace and revision_id=$revision_id");
+
+	1;
+}
+
+
+##############################################################################
 # End of package
 #############################################################################
 

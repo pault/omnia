@@ -2250,6 +2250,7 @@ sub updateNodeData
 		
 		if ($updateflag)
 		{
+			$NODE->logRevision($USER);
 			$NODE->update($USER); 
 
 			# This is the case where the user is modifying their own user
