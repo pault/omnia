@@ -528,13 +528,12 @@ sub _quoteData
 	{
 		if ($name =~ s/^-//)
 		{
-			push @values, '?';
-			push @bound, $value;
+			push @values, $value;
 		}
 		else
 		{
-			push @values, $value;
-
+			push @values, '?';
+			push @bound, $value;
 		}
 		push @names, $name;
 	}
