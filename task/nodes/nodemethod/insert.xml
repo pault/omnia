@@ -1,0 +1,27 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="nodemethod">my ($this, $USER) = @_;
+
+# default time is a week from now
+my @times = (localtime(time + 604800))[3 .. 5];
+$times[2] += 1900;
+$this-&gt;{due_date} = join("-", reverse @times);
+
+# default task owner is task author
+$this-&gt;{owner} = $USER-&gt;getId();
+
+$this-&gt;SUPER($USER);</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">nodemethod</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<supports_nodetype table="nodemethod" type="nodetype">task</supports_nodetype>
+	<title table="node">insert</title>
+	<type_nodetype table="node" type="nodetype">nodemethod</type_nodetype>
+</NODE>

@@ -1,0 +1,48 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<displaytype table="htmlpage">display</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
+	<page table="htmlpage">[%
+	my ($date, $time) = split(" ", $NODE-&gt;{updatetime});
+	my ($year, $month, $day) = split(/-/, $date);
+
+	my @mnames = qw( January February March April May June July August 
+	September October November December);
+
+	$date = "$time on $day $mnames[$month] $year";
+
+	my $parent = $query-&gt;param('parent_task');
+	if ($parent &amp;&amp; $parent ne $NODE-&gt;{parent_task}) {
+		$NODE-&gt;{parent_task} = $parent;
+		# mark for update
+	} else {
+		$parent ||= $NODE-&gt;{parent_task};
+	}
+	$parent = linkNode($parent);
+
+return &lt;&lt;HTML;
+&lt;h3&gt;$$NODE{title}&lt;/h3&gt;
+&lt;table border="1" cellpadding="5"&gt;
+&lt;tr&gt;&lt;th&gt;Update time&lt;/th&gt;&lt;th&gt;Category&lt;/th&gt;&lt;th&gt;Parent&lt;/th&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;$date&lt;/td&gt;&lt;td&gt;$$NODE{update_type}&lt;/td&gt;&lt;td&gt;$parent&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+$$NODE{doctext}
+HTML
+%]</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">task_update</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">general container</parent_container>
+	<permissionneeded table="htmlpage">r</permissionneeded>
+	<title table="node">task_update display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

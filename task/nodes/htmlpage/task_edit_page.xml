@@ -1,0 +1,90 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<displaytype table="htmlpage">edit</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
+	<otheraccess table="node">iiii-</otheraccess>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
+	<page table="htmlpage">&lt;table&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;title:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[{textfield:title}]&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;owner:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[{node_menu: owner,user,usergroup}]&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;task author:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[{node_menu: author_user,user,usergroup}]&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;category:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[{popupFromSettings:task settings,category}]&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;status:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[{popupFromSettings:task settings,status}]&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;Ranking:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[{popupFromSettings:task settings,rating}]&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;Due Date:&lt;/td&gt;
+&lt;td bgcolor="#eeeeee"&gt;[%
+	my ($day, $month, $year);
+	# NOTE:  DATE field is YYYY-MM-DD !
+	my ($node_y, $node_m, $node_d) = split(/-/, $NODE-&gt;{due_date});
+
+	$day = $query-&gt;param('day');
+	$month = $query-&gt;param('month');
+	$year = $query-&gt;param('year');
+	if (!defined($day) || $day !~ /^\d\d$/) {
+		$day = $node_d;
+	}
+	if (!defined($month) || $month !~ /^\d\d$/) {
+		$month = $node_m;
+	}
+	if (!defined($year) || $year !~ /^\d{4}$/) {
+		$year = $node_y; 
+	}
+	unless ($NODE-&gt;{due_date} eq "$year-$month-$day") {
+		$NODE-&gt;{due_date} = "$year-$month-$day";
+		$NODE-&gt;{"update_$NODE"} = 1;
+	}
+
+	# super duper magic, necessary for popupFromSettings
+	if ($NODE-&gt;{"update_$NODE"}) {
+		delete $NODE-&gt;{"update_$NODE"};
+		$NODE-&gt;update($USER);
+	}
+	my @mnames = qw( January February March April May June July August 
+		September October November December);
+	my ($days, $months, $years);
+	foreach (1 .. 31) {
+		$_ = sprintf("%02d", $_);
+		$days .= "&lt;option";
+		$days .= " selected" if $day == $_;
+		$days .= "&gt;$_&lt;/option&gt;\n";
+	}
+	foreach (0 .. 11) {
+		$months .= "&lt;option";
+		$months .= " selected" if $month == $_;
+		$months .= " value='$_'&gt;$mnames[$_]&lt;/option&gt;\n";
+	}
+	foreach (($year - 10) .. ($year + 10)) {
+		$years .= "&lt;option";
+		$years .= " selected" if $year == $_;
+		$years .= "&gt;$_&lt;/option&gt;\n";
+	}
+	return &lt;&lt;DATE_FIELD;
+&lt;select name="day" size="1"&gt;$days&lt;/select&gt;
+&lt;select name="month" size="1"&gt;$months&lt;/select&gt;
+&lt;select name="year" size="1"&gt;$years&lt;/select&gt;
+DATE_FIELD
+%]&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;h3&gt;Task description:&lt;/h3&gt;
+[{textarea:doctext}]&lt;br&gt;
+[{submit}]</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">task</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">formcontainer</parent_container>
+	<permissionneeded table="htmlpage">w</permissionneeded>
+	<title table="node">task edit page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

@@ -1,0 +1,85 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<displaytype table="htmlpage">display</displaytype>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">htmlpage</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
+	<page table="htmlpage">[%
+my ($name, $category, $status, $rating) = 
+	@$NODE{ qw ( title category status rating ) };
+my $owner = linkNode(getNode($NODE-&gt;{owner}));
+my $due_date = $NODE-&gt;{due_date};
+my $text = parseLinks($NODE-&gt;{doctext}, $NODE);
+my $edit = '';
+if ($NODE-&gt;{owner} == $USER-&gt;{node_id}) {
+	$edit = linkNode($NODE, 'edit', { displaytype =&gt; 'edit' });
+}
+
+# parse date from MMMM-YY-DD format
+my @months = qw( January February March April May June July
+	August September October November December );
+$due_date =~ s/^(\d{4})-(\d{2})-(\d{2})$/$3 $months[$2] $1/;
+
+my $str = &lt;&lt;HTML;
+&lt;h3&gt;$name&lt;/h3&gt;&lt;p align="right"&gt;$edit&lt;/p&gt;
+&lt;table cellpadding="10" border="1"&gt;
+&lt;tr&gt;&lt;th&gt;Category&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;th&gt;Rating&lt;/th&gt;
+	&lt;th&gt;Owner&lt;/th&gt;&lt;th&gt;Due Date&lt;/th&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;$category&lt;/td&gt;&lt;td&gt;$status&lt;/td&gt;&lt;td&gt;$rating&lt;/td&gt;
+	&lt;td&gt;$owner&lt;/td&gt;&lt;td&gt;$due_date&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5"&gt;$text&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;p&gt;&lt;hr&gt;&lt;h3&gt;Comments:&lt;/h3&gt;
+HTML
+
+# get nodetype id for task_update
+my $tu_node = $DB-&gt;getType('task_update');
+if ($tu_node-&gt;hasTypeAccess($USER, 'c')) {
+	$str .= qq|&lt;p align="right"&gt;&lt;a href="$ENV{SCRIPT_NAME}?op=new&amp;type=task_update|;
+	$str .= qq|&amp;displaytype=edit&amp;parent_task=$$NODE{node_id}"&gt;add comment&lt;/a&gt;&lt;/p&gt;|;
+}
+
+my $comments = getNodeWhere({ parent_task =&gt; $$NODE{node_id} }, 'task_update');
+return $str . "No Comments!" unless (@$comments);
+
+$str .= '&lt;table border="1" cellpadding="10"&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;';
+for (qw ( title updatetime author type )) {
+	$str .= qq|&lt;th&gt;&lt;a href="$ENV{SCRIPT_NAME}?node_id=$$NODE{node_id}&amp;sortby=$_"&gt;$_&lt;/a&gt;&lt;/th&gt;|;
+}
+$str .= '&lt;th&gt;comment&lt;/th&gt;&lt;/tr&gt;';
+
+my $sortby;
+unless (defined ($sortby = $query-&gt;param('sortby')) &amp;&amp; 
+	(exists $comments-&gt;[0]{$sortby})) {
+	$sortby = 'date';
+}
+
+foreach my $comment (sort { $a-&gt;{$sortby} &lt;=&gt; $b-&gt;{$sortby} } @$comments) {
+	my $author = linkNode($comment-&gt;{author_user});
+	my $time = join(" on ", (reverse split(" ", $comment-&gt;{updatetime})));
+	$time =~ s/(\d{4})-(\d{2})-(\d{2})/$3 $months[$2] $1/;
+	my $link = linkNode($comment, 'view');
+	my $text = parseLinks($comment-&gt;{doctext}, $comment);
+
+	if (index($comment-&gt;getUserPermissions($USER), 'w') &gt; 0) {
+		$link .= ' / ' . linkNode($comment, 'edit', { displaytype =&gt; 'edit' });
+	}
+	$str .= "&lt;tr&gt;&lt;td&gt;$link&lt;/td&gt;&lt;td&gt;$comment-&gt;{title}&lt;/td&gt;&lt;td&gt;$time&lt;/td&gt;
+	&lt;td&gt;$author&lt;/td&gt;&lt;td&gt;$comment-&gt;{update_type}&lt;/td&gt;&lt;td&gt;$text&lt;/td&gt;&lt;/tr&gt;";
+}
+$str .= "&lt;/table&gt;";
+return $str;
+%]</page>
+	<pagetype_nodetype table="htmlpage" type="nodetype">task</pagetype_nodetype>
+	<parent_container table="htmlpage" type="container">main container</parent_container>
+	<permissionneeded table="htmlpage">r</permissionneeded>
+	<title table="node">task display page</title>
+	<type_nodetype table="node" type="nodetype">htmlpage</type_nodetype>
+</NODE>

@@ -1,0 +1,43 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">use Everything::FormMenu;
+
+my ($setting, $field) = @_;
+my $settings = $DB-&gt;getNode($setting, 'setting') or return;
+my $vars = $settings-&gt;getVars() or return;
+
+my @vars = split(/\s*,\s*/, $vars-&gt;{$field});
+my %settings;
+@settings{@vars} = @vars;
+
+my $query_field = $query-&gt;param($field);
+if ((exists $settings{$query_field}) and ($NODE-&gt;{$field} ne $query_field)) {
+	$NODE-&gt;{$field} = $query_field;
+	$NODE-&gt;{"update_$NODE"} = 1;
+}
+
+my $selected;
+
+if (!defined($NODE-&gt;{$field}) || (!exists $settings{$NODE-&gt;{$field}})) {
+	$NODE-&gt;{$field} = $selected = $vars[0];
+	$NODE-&gt;{"update_$NODE"} = 1;
+} else {
+	$selected = $NODE-&gt;{$field};
+}
+
+my $menu = Everything::FormMenu-&gt;new();
+$menu-&gt;addHash( \%settings );
+return $menu-&gt;writePopupHTML($query, $field, $selected);</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">htmlcode</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">popupFromSettings</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>
