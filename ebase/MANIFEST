@@ -84,6 +84,7 @@ t/ehfradiogroup.t
 t/ehfremovevarcheckbox.t
 t/ehftextarea.t
 t/ehftextfield.t
+t/ehftypemenu.t
 t/email.t
 t/endbtable.t
 t/enhtmlcode.t
