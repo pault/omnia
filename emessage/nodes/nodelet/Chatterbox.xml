@@ -1,0 +1,99 @@
+<NODE export_version="0.5" nodetype="nodelet" title="Chatterbox">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">[{openform}]
+
+[%
+#private messages
+return if $USER->isGuest;
+
+my $maxmsgs;
+$maxmsgs = $$VARS{maxmessages};
+$maxmsgs ||= 10;
+my $csr = $DB->sqlSelectMany("*", "message", "for_user=".getId($USER), "order by tstamp limit $maxmsgs");
+my $str;
+my ($nummsgs) = $DB->sqlSelect('count(*)', 'message',  "for_user=".getId($USER));
+$nummsgs ||= 0;
+
+while (my $MSG = $csr->fetchrow_hashref) {
+  my $text = $$MSG{msgtext};
+  $text =~ s/(\S{18})/$1 /g; 
+  $text = encodeHTML($text);
+  $str.= $query->checkbox("deletemsg_$$MSG{message_id}", "", "yup", " ");
+  $str.="&lt;i>".linkNode($$MSG{author_user})." says&lt;/i> ".parseLinks($text);
+  $str.="&lt;br>";
+}
+$csr->finish;
+$str.="&lt;br>you have &lt;b>".($nummsgs - $maxmsgs)."&lt;/b> more messages&lt;hr width=40%>" if ($nummsgs - $maxmsgs) > 0;  
+"&lt;font size=2>$str&lt;/font>";
+%]
+
+[%
+
+my $str;
+my $csr = $DB->sqlSelectMany("*", "message", "for_user=0 and now()-tstamp &lt; 500", "order by tstamp");
+
+my $lines;
+my @msgs;
+while (my $MSG = $csr->fetchrow_hashref) {
+  $lines++;
+  push @msgs, $MSG;
+}
+if ($lines >= 10) {
+  @msgs = splice(@msgs, -10);
+}
+
+foreach my $MSG (@msgs) {
+  my $text = $$MSG{msgtext};
+  $text =~ s/(\S{18})/$1 /g; 
+  $text = encodeHTML($text);
+  if ($text =~ /^\/me (.*)/) {
+    $str.="&lt;i>".linkNode($$MSG{author_user})." ".parseLinks($1)."&lt;/i>";
+   } else {
+    $str.="&lt;b>&amp;lt;&lt;/b>".linkNode($$MSG{author_user})."&lt;b>&amp;gt;&lt;/b> ".parseLinks($text);
+   }  
+  $str.="&lt;br>";
+}
+
+
+
+"&lt;font size=2>".$str."&lt;/font>";
+
+%]
+
+&lt;INPUT type=hidden name=op value=message>&lt;br>
+[%
+return if $USER->isGuest;
+my $str;
+$query->param("message","");
+
+if (my $told = $query->param('sentmessage')) {
+  $str.="&lt;font size=2>".$query->param('sentmessage')."&lt;/font>&lt;br>";  
+}
+
+
+$str .=
+  $query->textfield("message","", 15, 255) . "\n"
+  .$query->submit("message_send", "talk") . "\n"
+  .$query->end_form;
+
+"&lt;font size=2>$str&lt;/font>";
+%]
+</field>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value"></field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
+  <field name="title" type="literal_value">Chatterbox</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
+</NODE>

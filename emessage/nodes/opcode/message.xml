@@ -1,0 +1,51 @@
+<NODE export_version="0.5" nodetype="opcode" title="message">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">my $for_user = $query->param("sendto");
+my $message = $query->param("message");
+
+foreach ($query->param) {
+  if ($_ =~ /^deletemsg\_(\d+)$/) {
+    
+     my $MSG = $DB->sqlSelectHashref("*", 'message', "message_id=$1");
+    $DB->sqlDelete('message', "message_id=$$MSG{message_id}") if (getId($USER) eq $$MSG{for_user});
+  }
+}
+
+return unless $message;
+
+$message=htmlScreen($message); #no HTML is allowed in messages
+
+if ($message =~ /^\/(msg|tell)\s+(\S*)\s+(.*)$/s) {
+  $message = $3;
+  my $user=$2;
+  
+
+   my $U = getNode ($user, "user");
+   $user =~ s/\_/ /gs;
+   $U = getNode($user, "user") unless $U;
+
+
+  if ($U) {
+    $DB->sqlInsert("message", {msgtext => $message, author_user => getId($USER), for_user => getId($U)});
+    $query->param("sentmessage", "&lt;i>you said \"$message\" to ".linkNode($U))."&lt;/i>";
+  } else {
+   $DB->sqlInsert("message", {msgtext => "$user doesn't exist on this system!", author_user => getId(getNode('root','user')), for_user =>getId($USER) });
+  }
+} else {
+  $DB->sqlInsert("message", {msgtext => $message, author_user => getId($USER), for_user => 0});
+}
+
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">ii-ii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">message</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
+</NODE>
