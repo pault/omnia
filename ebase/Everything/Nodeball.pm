@@ -569,12 +569,18 @@ sub buildNodeballMembers {
 sub absPath {
 	my ($file) = @_;
 
-	use Cwd;
-	my $cwd = getcwd;
-	
+	#thank you Perl Cookbook!
+	$file =~ s{ ^ ~ ( [^/]* ) }
+	{ $1
+		? (getpwnam($1))[7]
+			: ( $ENV{HOME} || $ENV{LOGDIR}
+					|| (getpwuid($>))[7]
+			  )
+	}ex;
+
 	#make the file abs path
-	$file = $cwd."/".$file unless ($file =~ /^\//);
-	return $file;
+	use File::Spec;
+	return File::Spec->rel2abs($file);
 }
 
 ############################################################################
