@@ -69,12 +69,10 @@ sub new
 		my $cacheSize = 300;
 
 		# Get the settings from the system
-		if(defined $CACHE && (ref $CACHE eq "Everything::Node"))
+		if (defined $CACHE && UNIVERSAL::isa( $CACHE, 'Everything::Node'))
 		{
-			my $vars;
-
-			$vars = $CACHE->getVars();
-			$cacheSize = $$vars{maxSize} if(exists $$vars{maxSize});
+			my $vars   = $CACHE->getVars();
+			$cacheSize = $vars->{maxSize} if exists $vars->{maxSize};
 		}
 
 		$this->{cache}->setCacheSize($cacheSize);
@@ -137,8 +135,8 @@ sub getNodeWorkspace {
 	my $cmpval = sub {
 		my ($val1, $val2) = @_;
 
-		if (ref $val1 eq "Everything::Node") { $val1 = $$val1{node_id}; }
-		if (ref $val2 eq "Everything::Node") { $val2 = $$val2{node_id}; }
+		$val1 = $val1->{node_id} if UNIVERSAL::isa( $val1, 'Everything::Node' );
+		$val2 = $val2->{node_id} if UNIVERSAL::isa( $val2, 'Everything::Node' );
 
 		$val1 eq $val2;
 	};
@@ -1170,7 +1168,7 @@ sub getType
 	my ($this, $idOrName) = @_;
 	
 	my $ref = ref $idOrName;
-	if($ref =~ /Everything::Node/)
+	if (UNIVERSAL::isa( $ref, 'Everything::Node' ))
 	{
 		# The thing they passed in is good to go.
 		return $idOrName;
@@ -1370,9 +1368,9 @@ sub genWhereString
 
 			# if your where hash includes a hash to a node, you probably really
 			# want to compare the ID of the node, not the hash reference.
-			if (ref ($$WHERE{$key}) eq "Everything::Node")
+			if ( UNIVERSAL::isa( $WHERE->{$key}, 'Everything::Node' ) )
 			{
-				$$WHERE{$key} = $this->getId($$WHERE{$key});
+				$$WHERE{$key} = $this->getId($WHERE->{$key});
 			}
 			
 			# If $key starts with a '-', it means it's a single value.
