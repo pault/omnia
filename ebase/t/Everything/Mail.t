@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 51;
+use Test::More tests => 53;
 use Test::MockObject;
 
 my $package = "Everything::Mail";
@@ -30,7 +30,7 @@ my $SETTINGS = Test::MockObject->new();
 # A few different variables to hold parameters being passed in and out
 
 my ($le_wrn,$le_err,$ms_isclosed, $ms_params, $ms_gotsettings, $ms_addr,
-$ms_subject, $ms_body);
+$ms_subject, $ms_body, $ms_from);
 
 my (@WARNINGS, @ERRORS, @RECIPIENTS);
 
@@ -68,7 +68,8 @@ getNode =>
 			3 => {title => "   ", doctext => "test body" },
 			4 => {title => "test title", doctext => "" },
 			5 => {title => "test title", doctext => "  " },
-			6 => {title => "test title", doctext => "test body"},
+			6 => {title => "test title", doctext => "test body" },
+			7 => {title => "test title", from_address => 'me' },
 		};
 		
 		return $results->{$nparam};
@@ -114,6 +115,7 @@ $MS->mock("MailMsg",
 		$ms_addr    = $par_in->{to};
 		$ms_body    = $par_in->{msg};
 		$ms_subject = $par_in->{subject};
+		$ms_from    = $par_in->{from};
 		push @RECIPIENTS, $ms_addr;
 		$MS->MailMsg_return();
 	});
@@ -156,9 +158,9 @@ use_ok($package) or exit;
 
   # Various combinatorics of missing arguments.
 
-  ok(!node2mail(), 'node2mail should return undef if no arguments are given');
-  ok(!node2mail($email), 'node2mail should return undef if $node is null' );
-  ok(!node2mail($email, 1), 'node2mail should return if getNode returns undef');
+  ok(! node2mail(),          'node2mail() should return given no arguments' );
+  ok(! node2mail($email),    '... or if $node is null' );
+  ok(! node2mail($email, 1), '... or if getNode returns undef');
 
   # Warnings that would most likely be helpful for debugging
 
@@ -192,20 +194,18 @@ use_ok($package) or exit;
   ok($ms_params->{smtp} eq "localhost", 'node2mail should default to send via localhost if none is specified');
   ok($ms_params->{from} eq "root\@localhost", 'node2mail should default to send from root@localhost if none is specified');
 
+  node2mail($email, 7);
+  is( $ms_params->{from}, 'me', '... or the from_address in the mail node' );
+
   $ms_gotsettings = 0;
   $ms_params->{smtp} = "";
   $ms_params->{from} = "";
-
 
   # From here on out getVars will return valid psuedo-hashes.
 
   $SETTINGS->remove("getVars");
   $SETTINGS->set_series("getVars", undef, {mailserver => "mymailserver"}, {systemMailFrom => $email},
-	{mailserver => "mymailserver", systemMailFrom => $email},
-	{mailserver => "mymailserver", systemMailFrom => $email},
-	{mailserver => "mymailserver", systemMailFrom => $email},
-	{mailserver => "mymailserver", systemMailFrom => $email},
-	{mailserver => "mymailserver", systemMailFrom => $email},
+	({mailserver => "mymailserver", systemMailFrom => $email}) x 5,
 	);
   $mock->remove("SETTINGS");
   $mock->set_always("SETTINGS", $SETTINGS);
@@ -243,6 +243,8 @@ use_ok($package) or exit;
   ok($ms_body eq "test body", 'node2mail calls MailMsg with the correct $body');
   ok($ms_subject eq "test title", 'node2mail calls MailMsg with the correct $subject');
   ok($ms_addr eq $email, 'node2mail calls MailMsg with the correct $addr');
+  is( $ms_params->{from}, 'root@nowhereinparticular.com',
+		'... and the correct from address' );
   ok($ms_isclosed, 'node2mail closes Mail::Sender when done');
 
   @RECIPIENTS = ();

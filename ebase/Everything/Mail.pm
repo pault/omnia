@@ -26,7 +26,7 @@ sub node2mail
 	return unless $addr;
 	$node = getNode($node);
 	return unless $node;
-	
+
 	my @addresses = (UNIVERSAL::isa( $addr, 'ARRAY') ? @$addr : $addr);
 
 	my $body    = $node->{doctext} || '';
@@ -37,13 +37,16 @@ sub node2mail
 	Everything::logErrors( 'Sending email with empty subject' )
 		unless $subject =~ /\S/;
 
+	my $from    = $node->{from_address} || '';
+
 	my $SETTING = getNode('mail settings', 'setting');
-	my ($mailserver, $from);
+	my $mailserver;
 
 	if ($SETTING)
 	{
 		my $MAILSTUFF = $SETTING->getVars();
-		($mailserver, $from) = @$MAILSTUFF{qw( mailserver systemMailFrom )};
+		$mailserver = $MAILSTUFF->{mailserver};
+		$from     ||= $MAILSTUFF->{systemMailFrom};
 	}
 
 	unless($mailserver and $from)
