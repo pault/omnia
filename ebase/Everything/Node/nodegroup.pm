@@ -426,7 +426,7 @@ sub inGroup
 #		$NODE - the group node to get node hashes for.
 #
 #	Returns
-#		An array of node hashes that belong to this group.
+#		A reference to an array of node hashes that belong to this group.
 #
 sub selectNodegroupFlat
 {
@@ -560,15 +560,15 @@ sub removeFromGroup
 	my $group = $$this{group};
 	my @newgroup;
 
-	for(my $i = 0; $i < @$group; $i++)
+	foreach my $id ( @$group )
 	{
-		my $id = shift @$group;
-		push @newgroup, $id if($id ne $node_id);
+		push @newgroup, $id unless $id == $node_id;
 	}
 
 	# Assign the new group back to our hash
 	$$this{group} = \@newgroup;
 
+	# XXX - flatgroup ?
 	return 1;
 }
 
