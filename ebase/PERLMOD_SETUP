@@ -23,6 +23,9 @@ Everything::MAIL
 	Mail-Sender (0.6.7)
 	Mail-Tools
 
+And to use the Gigantic Code Lister:
+	Devel::Peek
+
 each of these is simple to install from a tar.gz file:
 
 tar -xvzf MODULE.tar.gz
