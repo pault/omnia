@@ -19,7 +19,7 @@ $str;
 %]
 
 Nodetype:&lt;code>
-[{formObject: nodetypemenu, type, 1, $USER}]&lt;/code>
+[{formObject: NodetypeMenu, type, 1, $USER}]&lt;/code>
 
 [%
 my $str = "&lt;input TYPE=\"hidden\" NAME=\"op\" VALUE=\"new\">\n";
