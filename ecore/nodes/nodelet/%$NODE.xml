@@ -4,19 +4,6 @@
 	<lastupdate table="nodelet">945154868</lastupdate>
 	<nlcode table="nodelet">[{displayNODE:30}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">&lt;li&gt;&lt;B&gt;author_user: &lt;/B&gt;&lt;A HREF="/etest.pl?node_id=162&amp;lastnode_id=141"&gt;gods&lt;/a&gt;&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;type: &lt;/B&gt;&lt;A HREF="/etest.pl?node_id=18&amp;lastnode=141&amp;lastnode_id=141"&gt;nodeletgroup&lt;/a&gt;&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;title: &lt;/B&gt;system nodelets&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;node_id: &lt;/B&gt;141&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;createtime: &lt;/B&gt;1999-12-14 01:47:29&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;hits: &lt;/B&gt;1&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;locktime: &lt;/B&gt;0000-00-00 00:00:00&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;core: &lt;/B&gt;0&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;reputation: &lt;/B&gt;0&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;lockedby_user: &lt;/B&gt;none&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;package: &lt;/B&gt;0&lt;BR&gt;
-&lt;li&gt;&lt;B&gt;group: &lt;/B&gt;ARRAY(0x84c8e24)&lt;BR&gt;
-</nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>

@@ -6,7 +6,6 @@
 	<karma table="user">0</karma>
 	<nick table="user"></nick>
 	<package table="node">0</package>
-	<passwd table="user"></passwd>
 	<realname table="user">The Guest User</realname>
 	<reputation table="node">0</reputation>
 	<title table="node">Guest User</title>

@@ -1,12 +1,6 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="usergroup">gods</author_user>
-	<context table="container">[%
-if (defined $$THEME{nodeletParent_container}) {
-  $$CURRENTNODE{parent_container} = $$THEME{nodeletParent_container};
-}
-"";
-%]
-CONTAINED_STUFF</context>
+	<context table="container">CONTAINED_STUFF</context>
 	<core table="node">R</core>
 	<package table="node">0</package>
 	<parent_container table="container" type="container">nodelet container</parent_container>

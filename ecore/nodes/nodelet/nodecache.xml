@@ -19,64 +19,6 @@ $str;
 %]
 </nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Total nodes in cache: 
-53 &lt;br&gt;
-
-onepix:htmlcode&lt;br&gt;
-node:nodetype&lt;br&gt;
-htmlcode:nodetype&lt;br&gt;
-nodeletshadow container:container&lt;br&gt;
-nodelet container:container&lt;br&gt;
-nodecache:nodelet&lt;br&gt;
-nodelet:nodetype&lt;br&gt;
-Tick tock:nodelet&lt;br&gt;
-Links:nodelet&lt;br&gt;
-admin nodelet:nodelet&lt;br&gt;
-qauser:user&lt;br&gt;
-root:user&lt;br&gt;
-gods:usergroup&lt;br&gt;
-nodegroup:nodetype&lt;br&gt;
-usergroup:nodetype&lt;br&gt;
-nodegroup edit page:htmlpage&lt;br&gt;
-htmlpage:nodetype&lt;br&gt;
-nodegroup display page:htmlpage&lt;br&gt;
-nodeletgroup:nodetype&lt;br&gt;
-nodetype:nodetype&lt;br&gt;
-adminbar:htmlcode&lt;br&gt;
-system nodelets:nodeletgroup&lt;br&gt;
-nodelet meta-container:htmlcode&lt;br&gt;
-coreStatus:htmlcode&lt;br&gt;
-searchform:htmlcode&lt;br&gt;
-The Default Node:superdoc&lt;br&gt;
-system settings:setting&lt;br&gt;
-setting:nodetype&lt;br&gt;
-user:nodetype&lt;br&gt;
-Gigantic Code Lister:restricted_superdoc&lt;br&gt;
-document:nodetype&lt;br&gt;
-superdoc:nodetype&lt;br&gt;
-restricted_superdoc:nodetype&lt;br&gt;
-Gigantic Node Lister:restricted_superdoc&lt;br&gt;
-titlebar:htmlcode&lt;br&gt;
-e2container:container&lt;br&gt;
-general container:container&lt;br&gt;
-restricted fields:setting&lt;br&gt;
-htmlvars nodegroup:nodegroup&lt;br&gt;
-set_htmlvars:htmlcode&lt;br&gt;
-parsecode:htmlcode&lt;br&gt;
-userbody:htmlcode&lt;br&gt;
-basichead:htmlcode&lt;br&gt;
-stdcontainer:container&lt;br&gt;
-container:nodetype&lt;br&gt;
-Server Statistics:nodelet&lt;br&gt;
-serverstats:htmlcode&lt;br&gt;
-New Nodes:nodelet&lt;br&gt;
-Node Statistics:nodelet&lt;br&gt;
-superdoc display page:htmlpage&lt;br&gt;
-Other Users:nodelet&lt;br&gt;
-default nodelets:nodeletgroup&lt;br&gt;
-Guest User:user&lt;br&gt;
-
-</nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
 	<reputation table="node">0</reputation>

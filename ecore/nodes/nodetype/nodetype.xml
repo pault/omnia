@@ -10,7 +10,6 @@
 	<restrict_nodetype table="nodetype" type="literal_value">0</restrict_nodetype>
 	<restrictdupes table="nodetype">1</restrictdupes>
 	<sqltable table="nodetype">nodetype</sqltable>
-	<sqltablelist table="">nodetype</sqltablelist>
 	<title table="node">nodetype</title>
 	<type_nodetype table="node" type="nodetype">nodetype</type_nodetype>
 	<writers_user table="nodetype" type="usergroup">gods</writers_user>

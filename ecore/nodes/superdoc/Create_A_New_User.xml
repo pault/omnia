@@ -79,6 +79,7 @@ $str.="Your new user account ("
 
 #send some email;
 my ($n) = $DB-&gt;getNodeWhere({title=&gt;'New User Mail'}, $DB-&gt;getType('mail'));
+$n = getNodeById(getId($n), 'force');
 $$n{doctext} =~ s/\&lt;name\&gt;/$$NEWUSER{realname}/;
 $$n{doctext} =~ s/\&lt;user\&gt;/$$NEWUSER{title}/;
 $$n{doctext} =~ s/\&lt;passwd\&gt;/$$NEWUSER{passwd}/;

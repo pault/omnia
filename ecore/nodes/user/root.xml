@@ -7,7 +7,6 @@ Great hair</doctext>
 	<karma table="user">19</karma>
 	<nick table="user"></nick>
 	<package table="node">0</package>
-	<passwd table="user">urdum</passwd>
 	<realname table="user">Super user</realname>
 	<reputation table="node">0</reputation>
 	<title table="node">root</title>
