@@ -128,14 +128,33 @@ sub printErr {
 #
 #	Purpose
 #		Quickie function to get a date and time string in a nice format.
-#		NOTE!  This needs to use a perl function rather than a system
-#		call to be more portable!
+#
+#	Parameters
+#		$long - Pass 1 (true) if you want the time format in a nice text
+#			based format (ie 13:45 Wed Mar 15 2000).  If false or undef,
+#			the format will be numeric only (ie 13:45 03-15-2000)
 #
 sub getTime
 {
-	my $time = `date +"%a %b %d %R%p"`;
-	chomp $time;
-	return $time;
+	my ($long) = @_;
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	my $str = sprintf("%02d:%02d",$hour,$min);
+	
+	if($long)
+	{
+		$str .= " " . ('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday];
+		$str .= " " . ('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
+			'Sep','Oct','Nov','Dec')[$mon];
+		$str .= " $mday";
+		$str .= sprintf(" %d", 1900 + $year);
+	}
+	else
+	{
+		$str .= " " . sprintf("%02d",$mon+1) . "-" . sprintf("%02d",$mday) .
+			"-" . (1900 + $year);
+	}
+
+	return $str;
 }
 
 

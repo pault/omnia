@@ -988,6 +988,9 @@ sub insertNodelet
 {
 	($NODELET) = @_;
 	getRef $NODELET;
+
+	# If the user can't read this nodelet, we don't let them see it!
+	return undef unless(hasAccess($NODELET, $USER, "r"));
 	
 	my $html = genContainer($$NODELET{parent_container}) 
 		if $$NODELET{parent_container};
@@ -1750,7 +1753,6 @@ sub mod_perlInit
 {
 	my ($db, $staticNodetypes) = @_;
 
-
 	#blow away the globals
 	clearGlobals();
 
@@ -1779,7 +1781,6 @@ sub mod_perlInit
 
 	# Do the work.
 	handleUserRequest();
-
 }
 
 
