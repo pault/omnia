@@ -1370,13 +1370,6 @@ sub mod_perlInit
 
 	# Do the work.
 	handleUserRequest();
-	if ($$USER{title} eq 'root') {
-		open (BONESLOG, ">> /home/oostendo/boneslog/bones.log");
-		my $log = localtime(time)
-		 ."\t$$USER{title}\t$$GNODE{title} ($$GNODE{type}{title})\n";
-		print BONESLOG $log;
-		close BONESLOG;
-	}
 
 }
 
