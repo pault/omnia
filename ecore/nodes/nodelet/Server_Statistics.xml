@@ -8,12 +8,12 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiii-</groupaccess>
 	<guestaccess table="node">iiii-</guestaccess>
-	<lastupdate table="nodelet">967093486</lastupdate>
+	<lastupdate table="nodelet">967505781</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
 	<nlcode table="nodelet">[{serverstats}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet">Thu Aug 24 01:04:46 EDT 2000
-&lt;br&gt;up 26 days 1:26&lt;br&gt;0.16,  0.05,  0.06, &lt;br&gt;</nltext>
+	<nltext table="nodelet">Mon Aug 28 19:36:21 EDT 2000
+&lt;br&gt;up 30 days 19:58&lt;br&gt;0.41,  0.23,  0.08, &lt;br&gt;</nltext>
 	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiii-</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
