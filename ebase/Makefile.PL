@@ -15,6 +15,9 @@ sub MY::install
 	# Create the installation directory
 	$inherited .= "	mkdir $installDir ; \\\n";
 	$inherited .= "	cp -R ./nodeballs $installDir ; \\\n";
+
+	# XXX - hack to make install_esite work correctly
+	$inherited .= "	mkdir $installDir/nodeballs ; \\\n";
 	$inherited .= "	cp -R ./web $installDir ; \\\n";
 	$inherited .= "	cp -R ./tables $installDir ; \\\n";
 	$inherited .= "	cp -R ./bin $installDir ; \\\n";
