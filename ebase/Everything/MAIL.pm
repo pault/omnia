@@ -20,10 +20,18 @@ BEGIN
 sub node2mail
 {
 	my ($addr, $node) = @_;
+
+	return undef unless $addr;
+	$node = getNode($node);
+	return undef unless $node;
+	
 	my @addresses = (UNIVERSAL::isa( $addr, 'ARRAY') ? @$addr : $addr);
-	my $body    = $node->{doctext};
-	my $user    = getNode($node->{author_user});
-	my $subject = $node->{title};
+
+	my $body    = $node->{doctext} || "";
+	Everything::logErrors('Sending email with empty body') unless $body =~ /\S/;
+
+	my $subject = $node->{title} || "";
+	Everything::logErrors('Sending email with empty subject') unless $subject =~ /\S/;
 
 	use Mail::Sender;
 
@@ -35,19 +43,37 @@ sub node2mail
 		my $MAILSTUFF = $SETTING->getVars();
 		($mailserver, $from) = @$MAILSTUFF{qw( mailserver systemMailFrom )};
 	}
-	else
+
+	unless($mailserver and $from)
 	{
-		$mailserver = 'localhost';
-		$from       = 'root@localhost';
+		Everything::logErrors('Can\'t find the mail settings; sending email with default server parameters');
+		$mailserver ||= 'localhost';
+		$from       ||= 'root@localhost';
 	}
 
 	my $sender = Mail::Sender->new({ smtp => $mailserver, from => $from });
 
-	$sender->MailMsg({
-		to      => $addr,
-		msg     => $body,
-		subject => $subject,
-	});
+	foreach my $out_addr (@addresses)
+	{
+
+		unless($sender)
+		{
+			Everything::logErrors('','Mail::Sender creation failed!');
+			return undef;
+		}
+
+		my $res = $sender->MailMsg({
+			to      => $out_addr,
+			msg     => $body,
+			subject => $subject,
+		});
+
+		if(int($res) < 0)
+		{
+			Everything::logErrors("MailMsg failed with code: $res");
+		}
+
+	}
 
 	$sender->Close();                
 }
