@@ -15,7 +15,6 @@ my %fields = (
 	due	 =&gt; 'due_date'
 );
 
-my $update = 0;
 my ($str, @order_fields);
 
 my $sm_order = $query-&gt;param('sm_order');
@@ -79,7 +78,7 @@ return $str;
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiiii</groupaccess>
 	<guestaccess table="node">iiiii</guestaccess>
-	<loc_location table="node" type="literal_value">0</loc_location>
+	<loc_location table="node" type="location">superdoc</loc_location>
 	<otheraccess table="node">iiiii</otheraccess>
 	<title table="node">Task lister preferences</title>
 	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>

@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<displaytype table="htmlpage">display</displaytype>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
@@ -17,7 +17,7 @@
 	my ($year, $month, $day) = split(/-/, $date);
 
 	my @mnames = qw( null January February March April May June July
-		 August September October November December);
+		August September October November December);
 
 	$date = "$time on $day $mnames[$month] $year";
 

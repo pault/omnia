@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<displaytype table="htmlpage">edit</displaytype>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
@@ -12,14 +12,13 @@
 	<loc_location table="node" type="location">htmlpage</loc_location>
 	<otheraccess table="node">iiii-</otheraccess>
 	<ownedby_theme table="htmlpage" type="literal_value">0</ownedby_theme>
-	<page table="htmlpage">&lt;table&gt;
-[%
-	# NOTE:  DATE field is YYYY-MM-DD ! 
+	<page table="htmlpage">[%
+	# NOTE:  DATE field is YYYY-MM-DD hh:mm:ss! 
 	my ($date, $time) = split(" ", $NODE-&gt;{updatetime});
 	my ($year, $month, $day) = split(/-/, $date);
 
 	my @mnames = qw( null January February March April May June July
-		 August September October November December);
+		August September October November December);
 
 	$date = "$time on $day $mnames[$month] $year";
 
@@ -32,20 +31,25 @@
 	}
 
 	my $parent_title = '';
-	my $cursor = $DB-&gt;getNodeCursor('title', { node_id =&gt; $parent });
-	if ($cursor-&gt;execute()) {
-		$parent_title = $cursor-&gt;fetchrow_array();
-		$cursor-&gt;finish();
+	if ($NODE-&gt;{title}) {
+		$parent = linkNode($parent);
+	} else {
+		my $cursor = $DB-&gt;getNodeCursor('title', { node_id =&gt; $parent });
+		if ($cursor-&gt;execute()) {
+			$parent_title = $cursor-&gt;fetchrow_array();
+			$cursor-&gt;finish();
+			$parent = linkNode($parent, $parent_title);
+			$NODE-&gt;{title} = "Re: $parent_title";
+		}
 	}
-
-	$parent = linkNode($parent, $parent_title);
-	$NODE-&gt;{title} ||= "Re: $parent_title";
+	$parent ||= 'none';
 
 return &lt;&lt;HTML;
 Updated at $date&lt;p&gt;
 attached to $parent&lt;p&gt;
 HTML
 %]
+
 &lt;table&gt;
 &lt;tr&gt;&lt;td bgcolor="#cccccc"&gt;Title:&lt;/td&gt;
 &lt;td bgcolor="#eeeeee"&gt;[{textfield:title}]&lt;/td&gt;&lt;/tr&gt;

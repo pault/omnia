@@ -8,21 +8,23 @@
 	<group >
 		<groupnode1 table="nodegroup" type="dbtable">task</groupnode1>
 		<groupnode2 table="nodegroup" type="nodetype">task</groupnode2>
-		<groupnode3 table="nodegroup" type="nodemethod">insert</groupnode3>
-		<groupnode4 table="nodegroup" type="nodemethod">update</groupnode4>
-		<groupnode5 table="nodegroup" type="superdoc">task lister</groupnode5>
-		<groupnode6 table="nodegroup" type="dbtable">task_update</groupnode6>
-		<groupnode7 table="nodegroup" type="nodetype">task_update</groupnode7>
-		<groupnode8 table="nodegroup" type="setting">task settings</groupnode8>
-		<groupnode9 table="nodegroup" type="htmlpage">task edit page</groupnode9>
-		<groupnode10 table="nodegroup" type="htmlpage">task display page</groupnode10>
-		<groupnode11 table="nodegroup" type="htmlcode">popupFromSettings</groupnode11>
-		<groupnode12 table="nodegroup" type="setting">task_update settings</groupnode12>
-		<groupnode13 table="nodegroup" type="htmlpage">task_update edit page</groupnode13>
-		<groupnode14 table="nodegroup" type="htmlpage">task_update display page</groupnode14>
-		<groupnode15 table="nodegroup" type="nodemethod">update</groupnode15>
-		<groupnode16 table="nodegroup" type="nodelet">tasklet</groupnode16>
-		<groupnode17 table="nodegroup" type="htmlcode">tasklist</groupnode17>
+		<groupnode3 table="nodegroup" type="location">tasks</groupnode3>
+		<groupnode4 table="nodegroup" type="nodemethod">insert</groupnode4>
+		<groupnode5 table="nodegroup" type="nodemethod">insert</groupnode5>
+		<groupnode6 table="nodegroup" type="nodemethod">update</groupnode6>
+		<groupnode7 table="nodegroup" type="htmlcode">tasklist</groupnode7>
+		<groupnode8 table="nodegroup" type="nodelet">Tasklet</groupnode8>
+		<groupnode9 table="nodegroup" type="superdoc">task lister</groupnode9>
+		<groupnode10 table="nodegroup" type="dbtable">task_update</groupnode10>
+		<groupnode11 table="nodegroup" type="nodetype">task_update</groupnode11>
+		<groupnode12 table="nodegroup" type="setting">task settings</groupnode12>
+		<groupnode13 table="nodegroup" type="htmlpage">task edit page</groupnode13>
+		<groupnode14 table="nodegroup" type="htmlpage">task display page</groupnode14>
+		<groupnode15 table="nodegroup" type="htmlcode">popupFromSettings</groupnode15>
+		<groupnode16 table="nodegroup" type="setting">task_update settings</groupnode16>
+		<groupnode17 table="nodegroup" type="htmlpage">task_update edit page</groupnode17>
+		<groupnode18 table="nodegroup" type="superdoc">Task lister preferences</groupnode18>
+		<groupnode19 table="nodegroup" type="htmlpage">task_update display page</groupnode19>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiiii</groupaccess>
@@ -32,8 +34,8 @@
 	<title table="node">taskball</title>
 	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
 	<vars table="setting">
-		<author >Chromatic</author>
-		<description >A task manager allowing for creation of tasks, task_updates, and listing of open tasks sorted by criteria.  See documentation on everydevel.com</description>
-		<version >0.1.1</version>
+		<author >chromatic</author>
+		<description >A task manager allowing for creation of tasks, task_updates, and task sorting and listing.  See documentation on everydevel.com.</description>
+		<version >0.25</version>
 	</vars>
 </NODE>

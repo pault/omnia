@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">my ($size) = @_;
 my ($big, $small, @order);
@@ -17,8 +17,8 @@ my %fields = ( title =&gt; 'title',
 	due =&gt; 'due_date');
 
 if ($small) {
-	@order = split(/\s*,\s*/, $VARS-&gt;{'small_task_list_order'})
-	@order = ('title','rating','due');
+	@order = split(/\s*,\s*/, $VARS-&gt;{'small_task_list_order'});
+	@order = ('title','rating','due') unless (scalar @order);
 } elsif ($big) {
 	if ($vars &amp;&amp; exists($vars-&gt;{'task list order'})) {
 		@order = split(/\s*,\s*/, $vars-&gt;{'task_list_order'});

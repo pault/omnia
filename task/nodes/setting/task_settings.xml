@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node">-1</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>

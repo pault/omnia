@@ -11,6 +11,16 @@ $this-&gt;{due_date} = join("-", reverse @times);
 # default task owner is task author
 $this-&gt;{owner} = $USER-&gt;getId();
 
+my $task_loc = $this-&gt;{DB}-&gt;getNodeCursor('node_id',
+	{ title =&gt; 'tasks' }, 'location', '', '', '', 1);
+
+if (defined $task_loc) {
+	($task_loc) = $task_loc-&gt;fetchrow_array();
+}
+$task_loc ||= 0;
+
+$this-&gt;{loc_location} = $task_loc;
+
 $this-&gt;SUPER($USER);</code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>

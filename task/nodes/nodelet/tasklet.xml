@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
@@ -10,11 +10,11 @@
 	<guestaccess table="node">iiiii</guestaccess>
 	<lastupdate table="nodelet">0</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">&lt;font size=1&gt;
-[{tasklist:small}]
-&lt;/font&gt;</nlcode>
+	<nlcode table="nodelet">Your urgent tasks:&lt;p&gt;
+[{tasklist:small}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
-	<nltext table="nodelet"></nltext>
+	<nltext table="nodelet">Your urgent tasks:&lt;p&gt;
+No tasks found.  Lucky.&lt;p align="right"&gt;&lt;a href="/everything/index.pl?node=Task%20lister%20preferences"&gt;edit view&lt;/a&gt; | &lt;a href="/everything/index.pl?node=Task%20lister"&gt;lister&lt;/a&gt;</nltext>
 	<nodelet_mini table="nodelet" type="literal_value">0</nodelet_mini>
 	<otheraccess table="node">iiiii</otheraccess>
 	<parent_container table="nodelet" type="container">general nodelet container</parent_container>
