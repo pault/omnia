@@ -106,9 +106,10 @@ Quickie function to get a date and time string in a nice format.
 
 =item C<$long>
 
-Pass 1 (true) if you want the time format in a nice text based format (ie 13:45
-Wed Mar 15 2000).  If false or undef, the format will be numeric only (ie 13:45
-03-15-2000)
+Pass 1 (true) if you want the time format in a nice text based format (i.e.,
+Wed Mar 15 13:45:31 2000).  If false or undef, the format will be numeric only
+(in ISO format, i.e., 2000-03-15 13:45:31).  This function respects your
+timezone setting, so make sure it is accurate.
 
 =back
 
@@ -117,24 +118,12 @@ Wed Mar 15 2000).  If false or undef, the format will be numeric only (ie 13:45
 sub getTime
 {
 	my ($long) = @_;
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	my $str = sprintf("%02d:%02d",$hour,$min);
-	
-	if($long)
-	{
-		$str .= " " . ('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday];
-		$str .= " " . ('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
-			'Sep','Oct','Nov','Dec')[$mon];
-		$str .= " $mday";
-		$str .= sprintf(" %d", 1900 + $year);
-	}
-	else
-	{
-		$str .= " " . sprintf("%02d",$mon+1) . "-" . sprintf("%02d",$mday) .
-			"-" . (1900 + $year);
-	}
 
-	return $str;
+	return scalar gmtime() if $long;
+
+	my ($sec, $min, $hour, $mday, $month, $year) = (gmtime())[0 .. 5];
+	return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
+		$year + 1900, $month + 1, $mday, $hour, $min, $sec);
 }
 
 =cut

@@ -5,13 +5,13 @@ use strict;
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', '..', 'lib/';
+	unshift @INC, '..', '../blib/lib', 'lib/';
 }
 
 BEGIN
 {
 	package Everything;
-	use subs qw( localtime caller );
+	use subs qw( gmtime caller );
 	package main;
 	require 'lib/FakeNodeBase.pm';
 	$INC{'Everything/NodeBase.pm'} = 1;
@@ -44,11 +44,12 @@ foreach my $sub ( qw(
 
 # getTime()
 {
-	local *Everything::localtime = sub { return (0..8) };
-	is( Everything::getTime(), '02:01 05-03-1905', 
-		'getTime() should format localtime output nicely' );
-	is( Everything::getTime(1), '02:01 Sat May 3 1905',
-		'... and should respect long parameter' );
+	local *Everything::gmtime;
+	*Everything::gmtime = sub { return wantarray ? (0..6) : 'long time' };
+	is( Everything::getTime(), '1905-05-03 02:01:00', 
+		'getTime() should format gmtime output nicely' );
+	is( Everything::getTime( 1 ), 'long time',
+		'... respecting the long flag, if passed' );
 }
 
 # printLog()
