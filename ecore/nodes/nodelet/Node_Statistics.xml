@@ -12,7 +12,11 @@
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics Mini</field>
   <field name="nlcode" type="literal_value">Node ID:[% getId $NODE %]&lt;br>
 Created on:&lt;br> ["$$NODE{createtime}"]&lt;br>
-Last modified:&lt;br> [% return "&lt;i>never&lt;/i>" unless $$NODE{modified} =~ /[1-9]/; $$NODE{modified} %]&lt;br>
+Last modified:&lt;br> [%
+	return "&lt;i>never&lt;/i>" unless ($$NODE{modified} and
+		$$NODE{modified} =~ /[1-9]/);
+		$$NODE{modified}
+%]&lt;br>
 &lt;Hits: ["$$NODE{hits}"]&lt;br>
 Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br>
 Display page: &lt;br>[% linkNode (getPage($NODE, $query->param("displaytype"))); %]</field>
