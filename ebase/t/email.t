@@ -2,14 +2,15 @@
 
 use strict;
 
-BEGIN {
+BEGIN
+{
 	chdir 't' if -d 't';
 	use lib '../blib/lib', '../lib', '..';
 }
 
-use Test::More 'no_plan';
+use Test::More tests => 1;
 
-use_ok( 'Everything::MAIL' );
+use_ok( 'Everything::MAIL' ) or exit;
 
 # node2mail
 # take address, node
