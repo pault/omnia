@@ -146,7 +146,7 @@ $mock->set_series( do => ( 1, 2 ) )
 	 ->set_true( 'sqlSelect' )
 	 ->set_true( 'sqlInsert' )
 	 ->set_true( 'sqlUpdate' )
-	 ->set_true( 'sqlDelete' )
+	 ->set_series( sqlDelete => ( 1, 2 ) )
 	 ->set_true( 'groupUncache' )
 	 ->clear();
 
@@ -164,13 +164,9 @@ my %group;
 @group{ @$mock{group} } = ();
 ok( ! (exists $group{6} and exists $group{10} ),
 	'... should delete nodes that do not exist in new group' );
-TODO:
-{
-	local $TODO = "This warning has disappeared, perhaps it should return?";
+like( $errors, qr/Wrong number of group members deleted!/,
+	'... and should warn if deleting the wrong number of nodes' );
 
-	like( $errors, qr/Wrong number of group members deleted!/,
-		'... and should warn if deleting the wrong number of nodes' );
-}
 ($method, $args) = $mock->next_call();
 
 is( $method, 'sqlSelect', '... selecting max rank if inserting' );
