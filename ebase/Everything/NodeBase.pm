@@ -925,15 +925,19 @@ sub constructNode
 #			This is really only useful when specifying a limit.
 #
 #	Returns
-#		A reference to an array that contains nodes matching the criteria
+#		A reference to an array that contains nodes matching the criteria or
+#		undef, if the operation fails
 #
-sub getNodeWhere
-{
-	my $this = shift;
+sub getNodeWhere { my $this = shift;
 
+	my $selectNodeWhere = $this->selectNodeWhere( @_ );
+
+	return unless defined $selectNodeWhere
+		and UNIVERSAL::isa( $selectNodeWhere, 'ARRAY' );
+	
 	my @nodelist;
 
-	foreach my $node (@{ $this->selectNodeWhere( @_ ) })
+	foreach my $node (@{ $selectNodeWhere })
 	{
 		my $NODE = $this->getNode($node);
 		push @nodelist, $NODE if $NODE;
