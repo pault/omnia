@@ -1,5 +1,3 @@
-Unrenderable sub-phrasal element u: ignoring
-Unrenderable sub-phrasal element u: ignoring
 =head1 Login as root and change root password
 
 The root account in a fresh installation of Everything has no password.
