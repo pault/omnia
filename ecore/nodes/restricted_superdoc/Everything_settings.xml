@@ -14,7 +14,7 @@
   $str.=linkNode(getNode('hintlaunch settings', 'restricted_superdoc'));
  }
 $str;
-%]
+%][typeversion controls]
 &lt;p>
 &lt;hr width=90% align=center>
 &lt;h3>Theme Nodes:&lt;/h3>
