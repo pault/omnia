@@ -4,7 +4,7 @@ package Everything::Node::node;
 #   Everything::Node::node
 #	   Package the implements the base node functionality
 #
-#   Copyright 2000 Everything Development Inc.
+#   Copyright 2000 - 2002 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
@@ -52,7 +52,7 @@ sub insert
 {
 	my ($this, $USER) = @_;
 	my $node_id = $$this{node_id};
-	my $user_id = $USER->getId() if(ref $USER);
+	my $user_id = $USER->getId() if ref $USER;
 	my %tableData;
 	my @fields;
 
@@ -504,7 +504,9 @@ sub xmlTag
 
 	unless($tagname =~ /field/i)
 	{
-		print "Error! node.pm does not know how to handle XML tag '$tagname' for type $$this{type}{title}\n";
+		Everything::logErrors( '', 
+			"node.pm does not know how to handle XML tag '$tagname' " .
+			"for type '$$this{type}{title}'" );
 		return;
 	}
 
@@ -523,8 +525,8 @@ sub xmlTag
 		$$this{$$PARSE{name}} = $$PARSE{$$PARSE{name}};
 	}
 
-	return \@fixes if(@fixes > 0);
-	return undef;
+	return \@fixes if @fixes;
+	return;
 }
 
 
@@ -569,35 +571,38 @@ sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
 
-	unless(exists $$FIX{fixBy} and $$FIX{fixBy} eq "node")
+	unless (exists $$FIX{fixBy} and $$FIX{fixBy} eq "node")
 	{
-		if($printError)
+		if ($printError)
 		{
-			print "Error! node.pm does not know how to handle fix by '$$FIX{fixby}'.\n";
-			print "$$FIX{where}{title}, $$FIX{where}{type_nodetype}\n";
+			Everything::logErrors( '', 
+				"node.pm does not know how to handle fix by '$$FIX{fixby}'.\n"
+				. "'$$FIX{where}{title}', '$$FIX{where}{type_nodetype}\n" );
 		}
 		return $FIX;
 	}
 
 	my $where = $$FIX{where};
-	my $type = $$where{type_nodetype};
+	my $type  = $$where{type_nodetype};
 
 	$where = Everything::XML::patchXMLwhere($where);
 	
 	my $TYPE = $$where{type_nodetype};
 	my $NODE = $$this{DB}->getNode($where, $TYPE);
 
-	unless($NODE)
+	unless ($NODE)
 	{
-		print "Error! Unable to find '$$where{title}' of type " .
-			"'$$where{type_nodetype}' for field $$where{field}\n" .
-			"of node $$this{title}, $$this{type}{title}\n" if($printError);
+		Everything::logErrors( '', 
+			"Unable to find '$$where{title}' of type '$$where{type_nodetype}'\n"
+			 . "for field '$$where{field}'"
+			 . " of node '$$this{title}', '$$this{type}{title}'\n"
+		 ) if $printError;
 
 		return $FIX;
 	}
 
 	$$this{$$FIX{field}} = $$NODE{node_id};
-	return undef;
+	return;
 }
 
 #############################################################################
@@ -641,7 +646,7 @@ sub commitXMLFixes
 #
 sub getIdentifyingFields
 {
-	return undef;
+	return;
 }
 
 
