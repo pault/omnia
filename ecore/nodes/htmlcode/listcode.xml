@@ -2,7 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($field) = @_;
-my $str = listCode($$NODE{$field}, 1);
+my $str = listCode($$NODE{$field}, 1) || '';
 my $table = "&lt;table width=500 border=1>&lt;tr>&lt;td>\n";
 $table .= $str . "\n";
 $table .= " &lt;/td>&lt;/tr>&lt;/table>\n";
