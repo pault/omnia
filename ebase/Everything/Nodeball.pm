@@ -197,7 +197,7 @@ sub addTablesToDB{
 				next unless (defined($filter{$tbname}));
 			}
 	 		print "adding $tbname to $dbname\n" if $OPTIONS{verbose};
-			system "mysql -u root $dbname<$tabledir/$file"; 
+			system "mysql ".buildSqlCmdline()."$dbname<$tabledir/$file"; 
 			push @tablefiles, $file; 
 		}
 	}
@@ -720,7 +720,7 @@ sub installNodeball {
 			push @check_tables, $no_path;
 			next;
 		} else {
-			`mysql -u root $DB->{dbname} < $table`;
+			system "mysql ".buildSqlCmdline().$DB->{dbname}." < $table";
 		}
 	}
 
