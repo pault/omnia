@@ -49,7 +49,7 @@ sub exportTables {
 	my $args = "--lock-tables --no-data";
 
 	my $tbstr;
-	foreach (@$tables) { $tbstr.=$_." "; }
+	foreach (@$tables) { $tbstr .= $_ . " "; }
 
 	# We need to make the directory writable, because mysql may be
 	# running as the mysql user rather than root, and it will need
@@ -289,12 +289,14 @@ sub createDir {
 #		nodes - ref to an array of nodes	
 #		basedir - the dir to export them to
 #		loud - print a message for each node	
-
-sub exportNodes {
+#
+sub exportNodes
+{
 	my ($nodes, $basedir, $loud) = @_;
 	my %nodetypes=();
 	my %nodeindex=();
 	my @nodefiles=();
+
 	for(my $i =0; $i < @$nodes;$i++) {
 		$_ = $$nodes[$i];
 		push @{ $nodetypes{$$_{type}{title}} }, getId($_); 
@@ -357,19 +359,18 @@ sub printSettings {
 sub createNodeball {
 	my ($dir, $NODEBALL) = @_;
 
-	my $VARS = getVars ($NODEBALL);
-	my $version=$$VARS{version};
+	my $VARS = $NODEBALL->getVars();
+	my $version = $$VARS{version};
 	
 	my $filename = $$NODEBALL{title};
 	$filename =~ s/ /_/g;
 	$filename .= "-$version" if $version;
-	$filename .=".nbz";
+	$filename .= ".nbz";
 	use Cwd;
 	my $cwd = getcwd;
-	$cwd .= '/'.$filename;
+	$cwd .= '/' . $filename;
 
 	chdir $dir;
-	
 	
 	`tar -cvzf $cwd *`;
 	chdir getcwd;
@@ -404,11 +405,10 @@ sub expandNodeball {
 		foreach (@files) {print $_;}
 	}
 
-	
-
 	chdir $cwd;
 	$dir;
 }
+
 
 ###########################################################################
 #	sub
@@ -431,10 +431,10 @@ sub buildNodeballMembers {
 	}
 	#we build a hash to make lookups easier.
 
-	my @NODEBALLS = getNodeWhere({type_nodetype => getType('nodeball')});
+	my $NODEBALLS = getNodeWhere({type_nodetype => getType('nodeball')});
 	
 	my %nbmembers;
-	foreach (@NODEBALLS) {
+	foreach (@$NODEBALLS) {
 		next if $excl{getId($_)};
 		my $group = $$_{group};
 		foreach my $member (@$group) {
@@ -493,23 +493,23 @@ sub checkDeps {
 	
 	my %nodes;
 	local *buildDeplist = sub {
-		my ($NB)=@_;
+		my ($NB) = @_;
 		getRef($NB);
 		return if $nodes{getId($NB)};
 		$nodes{getId($NB)}=1;
 		foreach (@{ $$NB{group} }) {
-			getRef $_;
-			next unless ref $_;
-			$nodes{getId($_)} = 1;
-			if ($$_{type}{title} eq 'nodeball') {
-				buildDeplist($_);
+			my $NODE = getNode($_);
+			next unless ref $NODE;
+			$nodes{$NODE->getId()} = 1;
+			if ($$NODE{type}{title} eq 'nodeball') {
+				buildDeplist($NODE);
 			}
 		}
 	};
 	buildDeplist($NODEBALL);
 
 	#we don't care if a dep is in the core
-	my $CORE = getNode 'core system', 'nodeball';
+	my $CORE = getNode('core system', 'nodeball');
 	my $coregroup = $$CORE{group};
 	
 	my %inCore;
@@ -517,23 +517,32 @@ sub checkDeps {
 		$inCore{$_} = 1;
 	}
 
-	foreach my $NODE (@{ $$NODEBALL{group} }) {	
-		next unless ref $NODE;
-		foreach my $key (keys %$NODE) {
+	foreach (@{ $$NODEBALL{group} })
+	{
+		my $NODE = getNode($_);
+		next unless(ref $NODE);
+
+		my $exportFields = $NODE->getNodeKeys(1);
+		
+		foreach my $key (keys %$exportFields)
+		{
 			next unless ($key =~ /_(\w+)$/ and $1 ne "id"); 
 			next unless ($$NODE{$key});
-			next if ($nodes{$$NODE{$key}});	#eliminate if it's in our dependancies
-			#warning: this doesn't take into account different core versions
-			#eliminate it if it's in the core node
+
+			# eliminate if it's in our dependancies
+			next if ($nodes{$$NODE{$key}});
+
+			# warning: this doesn't take into account different core versions
+			# eliminate it if it's in the core node
 			next if exists($inCore{$$NODE{$key}});
 
 			# Also skip it if it is a -1.  -1 is a flag that it "inherits"
 			# (mostly used by nodetypes).
 			next if($$NODE{$key} eq "-1");
-
 			
-			my $N = getNodeById ($$NODE{$key});	
-			print "$$N{title} ($$N{type}{title}) is referenced by $$NODE{title}, but is not included as a dependancy\n";
+			my $N = getNode($$NODE{$key});	
+			print "$$N{title} ($$N{type}{title}) is referenced by " .
+				"$$NODE{title}, but is not included as a dependancy\n";
 		}
 	}
 }
@@ -577,7 +586,14 @@ sub installNodeball {
 		print "   - Done.\n";
 	}
 
-	# Now that the nodetypes are installed, we can install the nodes
+	# Now that the nodetypes are installed, we can install the nodes.
+	# But first, we need to flush the entire cache because some nodetypes
+	# may have been loaded before their parent nodetypes.  This would
+	# result in nodetypes being cached that are not complete.  By flushing
+	# the cache, we will reload all the types as they are needed and they
+	# will be properly derived.
+	$DB->{cache}->flushCache();
+	
 	print "Installing nodes...\n";
 	find sub  {
 		my ($file) = $File::Find::name;
@@ -745,10 +761,10 @@ sub updateNodeball {
 	#check to make sure all dependancies are installed
 
 	
-	#create a hash of the old nodegroup -- better lookup times
+	# create a hash of the old nodegroup -- better lookup times
 	my (%oldgroup);
 	foreach my $id (@{ $$OLDBALL{group} }) {
-		($oldgroup{$id}) = getNodeById $id;
+		$oldgroup{$id} = getNode($id);
 	}
 	
 	my $nbmembers = buildNodeballMembers($OLDBALL);
@@ -791,10 +807,12 @@ sub updateNodeball {
 	#insert the new nodeball
 	my $NB  = xmlfile2node $new_nbfile;
 	getRef($NB);
+	
 	#find the unused nodes and remove them
 	foreach (values %oldgroup) {
+		my $NODE = getNode($_);
 		#we should probably confirm this
-		$DB->nukeNode($_, -1); 
+		$NODE->nuke(-1);
 	}
 	fixNodes(1);
 
@@ -818,9 +836,9 @@ sub removeNodeball {
 	my (@NODEBALLS) = $DB->getNodeWhere( { 1 => 1 }, $DB->getType("nodeball"));
 	foreach my $NB (@NODEBALLS) {
 		foreach (@{ $$NB{group} }) {
-			if (getId($_) == getId($DOOMEDBALL)) {
-				my $DEPENDANT = getNodeById ($_);
-				my $VARS=getVars $DEPENDANT;
+			if ($DB->getId($_) == $DB->getId($DOOMEDBALL)) {
+				my $DEPENDANT = getNode($_);
+				my $VARS = $DEPENDANT->getVars(-1);
 				die "Nodeball \"$$DEPENDANT{title}\" ($$VARS{version}) " .
 				  "depends on $$DOOMEDBALL{title}\n" .
 				  "Remove \"$$DEPENDANT{title}\" first, or use --force\n"
@@ -837,14 +855,14 @@ sub removeNodeball {
 	}
 	
 	foreach (@{ $$DOOMEDBALL{group} }) {
-		my $N = getNodeById($_);
+		my $N = getNode($_);
 		next if ($$N{type}{title} eq "nodeball"); #don't remove dependancies
 		print "removing \"$$N{title}\" ($$N{type}{title})...\n"
 			if $OPTIONS{verbose};
-		nukeNode($N, -1) or die "huh?  I can't nuke $$N{title}!!!" ;
+		$N->nuke(-1) or print "Remove Error!  I can't nuke $$N{title}!!!\n" ;
 	}
 
-	$DB->nukeNode($DOOMEDBALL, -1);
+	$DOOMEDBALL->nuke(-1);
 	print "$$DOOMEDBALL{title} removed\n";
 }
 
@@ -884,12 +902,11 @@ sub main {
 
 		}
 
-		my ($OLDBALL) = $DB->getNodeWhere({title=>$title},
-			$DB->getType("nodeball"));
+		my $OLDBALL = getNode($title, "nodeball");
 
 		if ($OLDBALL) {
 			#we have the same nodeball already installed
-			my $VARS = getVars $OLDBALL;
+			my $VARS = $OLDBALL->getVars();
 			my @oldversion = split /\./, $$VARS{version};
 			my @newversion = split /\./, $version;
 
@@ -913,11 +930,10 @@ sub main {
 		cleanUpDir($dir) if $cleanme;
 	
 	} elsif ($function eq "export") {
-		my ($NB) = $DB->getNodeWhere({title=>$nodeball},
-			$DB->getType("nodeball"));
+		my $NB = getNode($nodeball, "nodeball");
 		$NB or die "no nodeball $nodeball exists for export!\n";
 	
-		printSettings (getVars $NB);
+		printSettings ($NB->getVars());
 		checkDeps ($NB);
 
 		my $dir = "/tmp/everything".int(rand(1000));
@@ -945,7 +961,9 @@ sub main {
 		my $melink = $dir."/ME";
 		my $mefile = $FILES[0];
 		$mefile =~ s/^$dir/\./;	
-		use Cwd; my $cwd = getcwd;
+
+		use Cwd; 
+		my $cwd = getcwd;
 		chdir $dir;
 		`ln $mefile $melink`;
 		chdir $cwd;

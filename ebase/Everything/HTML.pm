@@ -63,6 +63,43 @@ use vars qw($NODELET);
 
 
 
+####### Depricated functions #############
+sub getVars
+{ 
+	my ($NODE) = @_;
+	getRef($NODE);
+	return $NODE->getVars();
+}
+
+sub setVars
+{ 
+	my ($NODE, $VARS) = @_;
+	getRef($NODE);
+	return $NODE->setVars($VARS, -1);
+}
+
+sub insertIntoNodegroup
+{
+	my ($GROUP, $USER, $insert, $orderby) = @_;
+	getRef($GROUP);
+	return $GROUP->insertIntoGroup($USER, $insert, $orderby);
+}
+
+sub replaceNodegroup
+{
+	my ($GROUP, $REPLACE, $USER) = @_;
+	getRef($GROUP);
+	return $GROUP->replaceGroup($REPLACE, $USER);
+}
+
+sub removeFromNodegroup
+{
+	my ($GROUP, $NODE, $USER) = @_;
+	getRef($GROUP);
+	return $GROUP->removeFromGroup($NODE, $USER);
+}
+
+
 ######################################################################
 #	sub
 #		tagApprove
@@ -220,25 +257,27 @@ sub decodeHTML
 #		do the appropriate action based on who the user is.
 #
 #	Parameters
-#		$code - the code snipit that is causing the error
 #		$err - the error message returned from the system
-#		$warn - the warning message returned from the system
+#		$CONTEXT - the node in which this code is coming from.
+#			This is optional, however you should try to pass this in all
+#			cases since it will help a lot when trying to find which node
+#			contains the offending code.
 #
 #	Returns
 #		An html/text string that will be displayed to the browser.
 #
 sub htmlFormatErr
 {
-	my ($code, $err, $warn) = @_;
+	my ($err, $CONTEXT) = @_;
 	my $str;
 
-	if(isGod($USER))
+	if($USER->isGod())
 	{
-		$str = htmlErrorGods($code, $err, $warn);
+		$str = htmlErrorGods($err, $CONTEXT);
 	}
 	else
 	{
-		$str = htmlErrorUsers($code, $err, $warn);
+		$str = htmlErrorUsers($err, $CONTEXT);
 	}
 
 	$str;
@@ -264,16 +303,14 @@ sub htmlFormatErr
 #		to handle the error.
 #
 #	Parameters
-#		$code - the code snipit that is causing the error
 #		$err - the error message returned from the system
-#		$warn - the warning message returned from the system
 #
 #	Returns
 #		An html/text string that will be displayed to the browser.
 #
 sub htmlErrorUsers
 {
-	my ($code, $err, $warn) = @_;
+	my ($errors, $CONTEXT) = @_;
 	my $errorId = int(rand(9999999));  # just generate a random error id.
 	my $str = htmlcode("htmlError", $errorId);
 
@@ -289,14 +326,30 @@ sub htmlErrorUsers
 	}
 
 	# Print the error to the log instead of the browser.  That way users
-	# do see all the messy perl code.
+	# don't see all the messy perl code.
 	my $error = "Server Error (#" . $errorId . ")\n";
 	$error .= "User: ";
-	$error .= "$$USER{title}\n" if(ref $USER eq "HASH");
+	$error .= "$$USER{title}\n" if(ref $USER);
 	$error .= "User agent: " . $query->user_agent() . "\n" if defined $query;
-	$error .= "Code:\n$code\n";
-	$error .= "Error:\n$err\n";
-	$error .= "Warning:\n$warn";
+
+	$error .= "Node: $$CONTEXT{title} ($$CONTEXT{node_id})\n"
+		if(defined $CONTEXT);
+
+	foreach my $err (@$errors)
+	{
+		$error .= "--- Start Error --------\n";
+		$error .= "Code:\n$$err{code}\n";
+		$error .= "Error:\n$$err{error}\n";
+		$error .= "Warning:\n$$err{warning}\n";
+
+		if(defined $$err{context})
+		{
+			my $N = $$err{context};
+			$error .= "From node: $$N{title} ($$N{node_id})\n";
+		}
+	}
+
+	$error .= "-=-=- End Error -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
 	Everything::printLog($error);
 
 	$str;
@@ -322,48 +375,54 @@ sub htmlErrorUsers
 #
 sub htmlErrorGods
 {
-	my ($code, $err, $warn) = @_;
-	my $error = $err . $warn;
-	my $linenum;
+	my ($errors, $CONTEXT) = @_;
+	my $str;
 
-	$code = encodeHTML($code);
-
-	my @mycode = split /\n/, $code;
-	while($error =~ /line (\d+)/sg)
+	foreach my $err (@$errors)
 	{
-		# If the error line is within the range of the offending code
-		# snipit, make it red.  The line number may actually be from
-		# a perl module that the evaled code is calling.  If thats the
-		# case, we don't want some bogus number to add lines.
-		if($1 < (scalar @mycode))
+		my $error = $$err{error} . $$err{warning};
+		my $linenum;
+		my $code = $$err{code};
+
+		$code = encodeHTML($code);
+
+		my @mycode = split /\n/, $code;
+		while($error =~ /line (\d+)/sg)
 		{
-			# This highlights the offendling line in red.
-			$mycode[$1-1] = "<FONT color=cc0000><b>" . $mycode[$1-1] .
-				"</b></font>";
+			# If the error line is within the range of the offending code
+			# snipit, make it red.  The line number may actually be from
+			# a perl module that the evaled code is calling.  If thats the
+			# case, we don't want some bogus number to add lines.
+			if($1 < (scalar @mycode))
+			{
+				# This highlights the offendling line in red.
+				$mycode[$1-1] = "<FONT color=cc0000><b>" . $mycode[$1-1] .
+					"</b></font>";
+			}
 		}
-	}
 
-	my $str = "<B>$@ $warn</B><BR>";
+		$str .= "<b>$error</b><br>\n";
 
-	my $count = 1;
-	$str.= "<PRE>";
-	foreach my $line (@mycode)
-	{
-		$str .= sprintf("%4d: $line\n", $count++, $str);
-	}
+		my $count = 1;
+		$str .= "<PRE>";
+		foreach my $line (@mycode)
+		{
+			$str .= sprintf("%4d: $line\n", $count++, $str);
+		}
 
-	# Print the callstack to the browser too, so we can see where this
-	# is coming from.
-	$str .= "\n\n<b>Call Stack</b>:\n";
-	my @callStack = getCallStack();
-	while(my $func = pop @callStack)
-	{
-		$str .= "$func\n";
+		# Print the callstack to the browser too, so we can see where this
+		# is coming from.
+		$str .= "\n\n<b>Call Stack</b>:\n";
+		my @callStack = getCallStack();
+		while(my $func = pop @callStack)
+		{
+			$str .= "$func\n";
+		}
+		$str .= "<b>End Call Stack</b>\n";
+		$str.= "</PRE>";
 	}
-	$str .= "<b>End Call Stack</b>\n";
 	
-	$str.= "</PRE>";
-	$str;
+	return $str;
 }
 
 
@@ -419,7 +478,7 @@ sub getCode
 	
 	# If the user is not allowed to execute this code, we don't want to
 	# show anything.
-	return '"";' unless ((defined $CODE) && (hasAccess($CODE, $user, "x")));
+	return '"";' unless ((defined $CODE) && ($CODE->hasAccess($user, "x")));
 
 	my $str;
 	$str = "\@\_ = split (/\\s\*,\\s\*/, '$args');\n" if defined $args;
@@ -449,6 +508,11 @@ sub getCode
 #		and 'document edit page', while getPage would return 'nodetype
 #		dipslay page' and 'nodetype edit page'.
 #
+#		Basically, the purpose for this function is for nodetype display
+#		page to show what display pages there are for a type, but that
+#		should be reworked to do a different query (htmlpages by type)
+#		and this function should be removed.  DPB 18-Apr-00.
+#
 #	Parameters
 #		$NODE - the nodetype in which to get the display/edit pages for.
 #
@@ -462,7 +526,7 @@ sub getPages
 	my $TYPE;
 	my @pages;
 
-	$TYPE = $NODE if (isNodetype($NODE) && $$NODE{extends_nodetype});
+	$TYPE = $NODE if ($NODE->isNodetype() && $$NODE{extends_nodetype});
 	$TYPE ||= getType($$NODE{type_nodetype});
 
 	push @pages, getPageForType($TYPE, "display");
@@ -509,15 +573,7 @@ sub getPageForType
 		%WHEREHASH = (pagetype_nodetype => $$TYPE{node_id}, 
 				displaytype => $displaytype);
 
-		if ($THEME) {
-			$WHEREHASH{ownedby_theme} = $$THEME{theme_id};
-			($PAGE) = getNodeWhere(\%WHEREHASH, $PAGETYPE);
-			
-			delete $WHEREHASH{ownedby_theme} unless $PAGE;
-			#if we didn't get a page for the current theme, do a default
-		}
-
-		($PAGE) = getNodeWhere(\%WHEREHASH, $PAGETYPE) unless $PAGE;
+		$PAGE = getNode(\%WHEREHASH, $PAGETYPE);
 
 		if(not defined $PAGE)
 		{
@@ -529,9 +585,9 @@ sub getPageForType
 			{
 				# No pages for the specified nodetype were found.
 				# Use the default node display.
-				($PAGE) = getNodeWhere (
-						{pagetype_nodetype => getId(getType("node")),
-						displaytype => $displaytype}, 
+				$PAGE = getNode(
+						{ pagetype_nodetype => getId(getType("node")),
+						displaytype => $displaytype }, 
 						$PAGETYPE);
 
 				$PAGE or die "No default pages loaded.  " .  
@@ -582,7 +638,7 @@ sub getPage
 
 	die "can't load a page $displaytype for $$TYPE{title} type" unless $PAGE;
 
-	$PAGE;
+	return $PAGE;
 }
 
 
@@ -610,7 +666,7 @@ sub linkNode
 
 	# We do this instead of calling getRef, because we only need the node
 	# table data to create the link.
-	$NODE = getNodeById($NODE, 'light') unless (ref $NODE);
+	$NODE = getNode($NODE, 'light') unless (ref $NODE);
 
 	return "" unless ref $NODE;	
 	
@@ -704,7 +760,7 @@ sub searchForNodeByName
 	my $search_group;
 	my $NODE;
 
-    my $type = $types[0];
+	my $type = $types[0];
 	$type ||= "";
 
 	if (not $select_group or @$select_group == 0)
@@ -715,12 +771,12 @@ sub searchForNodeByName
 		
 		if($search_group && @$search_group > 0)
 		{
-			$NODE = getNodeById($HTMLVARS{search_group});
+			$NODE = getNode($HTMLVARS{searchResults_node});
 			$$NODE{group} = $search_group;
 		}
 		else
 		{
-			$NODE = getNodeById($HTMLVARS{not_found});	
+			$NODE = getNode($HTMLVARS{notFound_node});	
 		}
 
 		gotoNode ($NODE, $user_id);
@@ -735,7 +791,7 @@ sub searchForNodeByName
 	else
 	{
 		#we found multiple nodes with that name.  ick
-		my $NODE = getNodeById($HTMLVARS{duplicate_group});
+		my $NODE = getNode($HTMLVARS{duplicatesFound_node});
 		
 		$$NODE{group} = $select_group;
 		gotoNode($NODE, $user_id);
@@ -781,11 +837,6 @@ sub evalCode
 
 	$CURRENTNODE ||= $NODE;
 
-	local $SIG{__WARN__} = sub { 
-		$warnbuf .= $_[0] 
-		 unless $_[0] =~ /^Use of uninitialized value/;
-	};
-
 	# Remove those pesky 015 octals... (?)
 	$code =~ s/\015//gs;
 
@@ -793,12 +844,81 @@ sub evalCode
 	# us from getting the "subrouting * redefined" warning.
 	local $^W = 0;
 	
-	my $str = eval $code;
+	# if there are any logged errors when we get here.  They have nothing
+	# to do with this.  So, push them to the backside error log for them to
+	# get displayed later.
+	flushErrorsToBackside();
 
- 	local $SIG{__WARN__} = sub {};
-	$str .= htmlFormatErr ($code, $@, $warnbuf) if ($@ or $warnbuf); 
+	my $str = evalX($code, { '$NODE' => $NODE,
+		'$CURRENTNODE' => $CURRENTNODE }, $CURRENTNODE);
+
+	my $errors = getFrontsideErrors();
+
+	if (int(@$errors) > 0)
+	{
+		$str .= htmlFormatErr($errors, $CURRENTNODE);
+	}
+
+	clearFrontside();
+		
 	$str;
 }
+
+
+#########################################################################
+#	Sub
+#		evalX
+#
+#	Purpose
+#		This function is a wrapper for the normal eval so that we can
+#		trap errors and log them.  This is intended to be called only
+#		from within this package (HTML.pm) as all the globals to this
+#		package will be accessable to any code that gets evaled.
+#
+#		However, this does not mean that it can't be called from other
+#		packages.  Just be aware that HTML.pm globals will be in scope.
+#
+#	Parameters
+#		$code - the string of code that is to be evaled.
+#		$scope - a hashref that contains variables that should be
+#			in scope when the code is evaled.  ie { '$NODE' => $NODE, etc }.
+#			The keys are the names of the variable (and must include the
+#			$, @, % at the beginning) and the values are what they need to
+#			be assigned to.
+#		$NODE - optional, however useful.  This way we know where the
+#			code is coming from.
+#
+sub evalX
+{
+	my ($code, $scope, $NODE) = @_;
+	my $str = "";
+	my $warn;
+
+	if(defined $scope)
+	{
+		foreach my $var (keys %$scope)
+		{
+			$str .= "my $var = \$\$scope{'$var'};\n";
+		}
+	}
+
+	$str .= $code;
+	
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0]
+		 unless $_[0] =~ /^Use of uninitialized value/;
+	};
+
+	my $result = eval($str);
+
+	local $SIG{__WARN__} = sub { };
+
+	# Log any errors that we get so that we may display them later.
+	logErrors($warn, $@, $code, $NODE);
+
+	return $result;
+}
+
 
 #########################################################################
 #	Sub
@@ -819,8 +939,9 @@ sub evalCode
 sub htmlcode
 {
 	my ($func, $args) = @_;
+	my $CODE = getNode($func, 'htmlcode');
 	my $code = getCode($func, $args);
-	evalCode($code) if($code);
+	evalCode($code, $CODE) if($code);
 }
 
 
@@ -882,7 +1003,7 @@ sub embedCode
 		my $snippet = getNode($1, "htmlsnippet");
 
 		# User must have execute permissions for this to be embedded.
-		if((defined $snippet) && hasAccess($snippet, $USER, "x"))
+		if((defined $snippet) && $snippet->hasAccess($USER, "x"))
 		{
 			$block = parseCode($$snippet{code});
 		}
@@ -964,7 +1085,51 @@ sub listCode
 		}
 	}
 
-	"<PRE>" . join ("\n", @lines) . "</PRE>";
+	my $text = "<PRE>" . join ("\n", @lines) . "</PRE>";
+	my $TYPE = getType("htmlsnippet");
+	$text =~ s/(&#91;\&lt;)(.*?)(\&gt;&#93;)/$1 . linkCode($2, $TYPE) . $3/egs;
+
+	$TYPE = getType("htmlcode");
+	$text =~ s/(&#91;\{)(.*?)(\}&#93;)/$1 . linkCode($2, $TYPE) . $3/egs;
+
+	return $text;
+}
+
+
+#############################################################################
+#	Sub
+#		linkCode
+#
+#	Purpose
+#		Used in listCode() to create links to the embedded htmlcode and
+#		htmlsnippets.  Just a usability thing.  This function should not
+#		be used by anybody else.  This is considered a "private" function.
+#
+#	Parameters
+#		$func - the name of the htmlcode/htmlsnippet.  Basically, this is
+#			the string between the delimiting brackets.
+#
+sub linkCode
+{
+	my ($func, $TYPE) = @_;
+	my $name;
+	
+	# First we need to figger out the name of the htmlsnippet or htmlcode.
+	# If this is an htmlcode, it may have parameters.  We need to extract
+	# the name.
+	if($func =~ /(.*):(.*)/)
+	{
+		$name = $1;
+	}
+	elsif($func =~ /([^:]*)/)
+	{
+		$name = $func;
+	}
+	
+	my $NODE = getNode($name, $TYPE);
+
+	return linkNode($NODE, $func) if($NODE);
+	return $func;
 }
 
 
@@ -994,7 +1159,7 @@ sub insertNodelet
 	getRef $NODELET;
 
 	# If the user can't read this nodelet, we don't let them see it!
-	return undef unless(hasAccess($NODELET, $USER, "r"));
+	return undef unless($NODELET->hasAccess($USER, "r"));
 	
 	my $html = genContainer($$NODELET{parent_container}) 
 		if $$NODELET{parent_container};
@@ -1050,7 +1215,7 @@ sub updateNodelet
 		$$NODELET{nltext} = parseCode($$NODELET{nlcode}, $NODELET);
 		$$NODELET{lastupdate} = $currTime; 
 
-		updateNode($NODELET, -1) unless $interval == 0;
+		$NODELET->update(-1) unless $interval == 0;
 		#if interval is zero then it should only be updated in cache
 	}
 	
@@ -1069,7 +1234,7 @@ sub genContainer
 
 	# SECURITY!  Right now, only gods can see the containers.  When we get
 	# a full featured security model in place, this will change...
-	if(isGod($USER) && ($query->param('containers') eq "show"))
+	if($USER->isGod() && ($query->param('containers') eq "show"))
 	{
 		my $start = "";
 		my $middle = $replacetext;
@@ -1147,26 +1312,24 @@ sub containHtml
 sub displayPage
 {
 	my ($NODE, $user_id) = @_;
-	getRef $NODE, $USER;
 	die "NO NODE!" unless $NODE;
 	$GNODE = $NODE;
 
 	my $PAGE = getPage($NODE, $query->param('displaytype')); 
-	my $page = $$PAGE{page};
+	my $page = $$PAGE{page} if($PAGE);
 
 	die "NO PAGE!" unless $page;
 
 	# If the user does not have the needed permission to view this
 	# node through the desired htmlpage, we send them to the permission
 	# denied node.
-	unless(hasAccess($NODE, $USER, $$PAGE{permissionneeded}))
+	unless($NODE->hasAccess($USER, $$PAGE{permissionneeded}))
 	{
-		Everything::printLog("denied");
 		# Make sure the display type is set to display.  Otherwise we
 		# may get stuck in an infinite loop of permission denied.
 		$query->param("displaytype", "display");
 
-		gotoNode($HTMLVARS{permission_denied});
+		gotoNode($HTMLVARS{permissionDenied_node});
 		return;
 	}
 
@@ -1174,12 +1337,12 @@ sub displayPage
 	{
 		# If this is an "edit" page.  We need to lock the node while
 		# this user is editing.
-		if (not lockNode($NODE, $USER))
+		if (not $NODE->lock($USER))
 		{
 			# Someone else already has a lock on this node, go to the
 			# "node locked" node.
 			$query->param('displaytype', 'display');
-			gotoNode($HTMLVARS{node_locked});
+			gotoNode($HTMLVARS{nodeLocked_node});
 		}
 	}
 
@@ -1190,8 +1353,20 @@ sub displayPage
 		$container =~ s/CONTAINED_STUFF/$page/s;
 		$page = $container;
 	}	
+
+	# Lastly, we need to insert backside errors into the page once everything
+	# has had its chance to run.  The <BacksideError> tag is inserted by
+	# the backsideErrors htmlsnippet.  That node should have permissions set
+	# such that it is only executable by gods (or whoever should see the
+	# errors).
+	if($USER->isGod())
+	{
+		my $errors = formatGodsBacksideErrors();
+		Everything::printLog("bsErrors: $errors");
+		$page =~ s/<BacksideErrors>/$errors/;
+	}
 	
-	setVars $USER, $VARS;
+	$USER->setVars($VARS);
 	
 	# Print the appropriate MIME type header so that browser knows what
 	# kind of data is coming down the pipe.
@@ -1199,6 +1374,44 @@ sub displayPage
 	
 	# We are done.  Print the page (or data) to the browser.
 	$query->print($page);
+}
+
+
+#############################################################################
+#	Sub
+#		formatGodsBacksideErrors
+#
+#	Purpose
+#		This formats any errors that we may have in our "cache" so that
+#
+sub formatGodsBacksideErrors
+{
+	Everything::flushErrorsToBackside();
+
+	my $errors = Everything::getBacksideErrors();
+
+	return "" unless(@$errors > 0);
+
+	my $str = "<table border=1>\n";
+	$str .= "<tr><td bgcolor='black'><font color='red'>Backside Errors!" .
+		"</font></td></tr>\n";
+
+	foreach my $error (@$errors)
+	{
+		$str .= "<tr><td bgcolor='yellow'>";
+		$str .= "<font color='black'>Warning: $$error{warning}</font>";
+		$str .= "</td></tr>\n";
+		
+		$str .= "<tr><td bgcolor='#ff3333'>";
+		$str .= "<font color='black'>Error: $$error{error}</font></td></tr>\n";
+		$str .= "<tr><td>From: " . linkNode($$error{context}) . "</td></tr>\n"
+				if($$error{context});
+		$str .= "<tr><td><pre>$$error{code}</pre></td></tr>\n";
+	}
+
+	$str .= "</table>\n";
+
+	return $str;
 }
 
 
@@ -1215,51 +1428,13 @@ sub displayPage
 #
 sub gotoNode
 {
-	my ($node_id) = @_;
-	my $NODE = getNodeById($node_id);
+	my ($NODE) = @_;
+	getRef($NODE);
 
-	unless ($NODE) { $NODE = getNodeById($HTMLVARS{not_found}); }	
+	$NODE = getNode($HTMLVARS{notFound_node}) unless ($NODE);
 	
-	# Once we know the exact node, we may have some incoming updates we
-	# need to take care of.  THIS WILL BE MOVING TO THE "update" OPCODE!
-	if (canUpdateNode($USER, $NODE)) {
-		if (my $groupadd = $query->param('add')) {
-			insertIntoNodegroup($NODE, getId($USER), $groupadd,
-				$query->param('orderby'));
-		}
-		
-		if ($query->param('group')) {
-			my @newgroup;
-
-			my $counter = 0;
-			while (my $item = $query->param($counter++)) {
-				push @newgroup, $item;
-			}
-
-			replaceNodegroup ($NODE, \@newgroup, getId($USER));
-		}
-
-		my @updatefields = $query->param;
-		my $updateflag;
-
-		my $RESTRICTED = getVars(getNode('restricted fields', 'setting'));
-		$RESTRICTED ||= {};
-		foreach my $field (@updatefields) {
-			if ($field =~ /^$$NODE{type}{title}\_(\w*)$/) {
-				next if exists $$RESTRICTED{$1};	
-				$$NODE{$1} = $query->param($field);
-				$updateflag = 1;
-			}	
-		}
-		
-		if ($updateflag) {
-			updateNode($NODE, $USER); 
-			if (getId($USER) == getId($NODE)) { $USER = $NODE; }
-		}
-	}
-	
-	updateHits ($NODE);
-	updateLinks ($NODE, $query->param('lastnode_id')) if $query->param('lastnode_id');
+	$NODE->updateHits();
+	$NODE->updateLinks($query->param('lastnode_id'));
 
 	displayPage($NODE);
 }
@@ -1285,7 +1460,11 @@ sub confirmUser
 {
 	my ($nick, $crpasswd) = @_;
 	my $USER = getNode($nick, getType('user'));
-	my $genCrypt = crypt($$USER{passwd}, $$USER{title});
+	my $genCrypt;
+
+	return undef unless($USER);
+
+	$genCrypt = crypt($$USER{passwd}, $$USER{title});
 
 	if ($genCrypt eq $crpasswd)
 	{
@@ -1294,10 +1473,12 @@ sub confirmUser
 			user_id=$$USER{node_id}
 			");
 
-		# 'Force' it to make sure we don't get a cached version
-		# DPB 03-01-00 - not sure why we force.  If it has been updated,
-		# the cache will know and reload it.
-		return getNodeById($USER, 'force');
+		# We force a reload of the node to make sure that the 'lasttime'
+		# field (updated by the database), is current.  If there was a
+		# way to just get the now() string from the database, we would
+		# not need to do this, which would save at least 1 node load
+		# per page load.
+		return getNode($$USER{node_id}, 'force');
 	} 
 
 	return undef;
@@ -1355,19 +1536,20 @@ sub loginUser
 	
 	if(my $oldcookie = $query->cookie("userpass"))
 	{
-		$user_id = confirmUser (split (/\|/, unescape($oldcookie)));
+		$USER_HASH = confirmUser (split (/\|/,
+			Everything::Util::unescape($oldcookie)));
 	}
 
 	# If all else fails, use the guest_user
 	$user_id ||= $HTMLVARS{guest_user};
 
 	# Get the user node
-	$USER_HASH = getNodeById($user_id);	
+	$USER_HASH ||= getNode($user_id);	
 
-	die "Unable to get user!" unless ($USER_HASH);
+	die "Unable to get user! ($user_id)" unless ($USER_HASH);
 
 	# Assign the user vars to the global.
-	$VARS = getVars($USER_HASH);
+	$VARS = $USER_HASH->getVars();
 	
 	# Store this user's cookie!
 	$$USER_HASH{cookie} = $cookie if $cookie; 
@@ -1417,37 +1599,47 @@ sub getCGI
 #		used to override specific values.  Finally, if there are user-specific
 #		settings, they are kept in the user's settings
 #
+#	Parameters
+#
 #		this function references global variables, so no params are needed
 #
-
-sub getTheme {
+sub getTheme
+{
 	my $theme_id;
-	$theme_id = $$VARS{preferred_theme} if $$VARS{preferred_theme};
+	$theme_id = $$VARS{preferred_theme} if(exists $$VARS{preferred_theme});
 	$theme_id ||= $HTMLVARS{default_theme};
-	my $TS = getNodeById $theme_id;
+	my $TS = getNode($theme_id);
 
-	if ($$TS{type}{title} eq 'themesetting') {
-		#we are referencing a theme setting.
-		my $BASETHEME = getNodeById $$TS{parent_theme};
-		$THEME = getVars $BASETHEME;
-		my $REPLACEMENTVARS = getVars $TS;
+	if ($TS->isOfType('themesetting'))
+	{
+		# We are referencing a theme setting.
+		my $BASETHEME = getNode($$TS{parent_theme});
+		my $REPLACEMENTVARS;
+		my $TEMPTHEME;
+
+		return undef unless($BASETHEME);
+
+		$TEMPTHEME = $BASETHEME->getVars();
+		$REPLACEMENTVARS = $TS->getVars();
+
+		# Make a copy of the base theme vars.  We don't want to modify
+		# the actual node.
+		@$THEME{keys %$TEMPTHEME} = values %$TEMPTHEME;
 		@$THEME{keys %$REPLACEMENTVARS} = values %$REPLACEMENTVARS;
-	} else {
-		#this whatchamacallit is a theme
-		$THEME = getVars $TS;
-		$$THEME{theme_id} = getId($TS);
+	} 
+	elsif($TS->isOfType('theme'))
+	{
+		# This whatchamacallit is a theme
+		$THEME = $TS->getVars();
 	}
-
-
-	#we must also check the user's settings for any replacements over the theme
-	foreach (keys %$THEME) {
-		if (exists $$VARS{"theme".$_}) {
-			$$THEME{$_} = $$VARS{"theme".$_};
-		}
+	else
+	{
+		die "Node $theme_id is not a theme or themesetting!";
 	}
 	
-	1;
+	"";
 }
+
 
 #############################################################################
 #	Sub
@@ -1558,28 +1750,51 @@ sub cleanNodeName
 	return $nodename;
 }
 
+
 #############################################################################
-sub clearGlobals
+#	Sub
+#		initForPageLoad
+#
+#	Purpose
+#		Each page load requires us to have a fresh start.  Each page load
+#		stores info in module variables and caches some stuff.  Since each
+#		page load could come from a completely different person, we need to
+#		clear this stuff out so they don't get stale/undesirable info.
+#
+sub initForPageLoad
 {
+	my ($db) = @_;
+
 	undef %GLOBAL;
 
-	$GNODE = "";
-	$USER = "";
-	$VARS = "";
-	$NODELET = "";
-	$THEME = "";
+	$GNODE = {};
+	$USER = {};
+	$VARS = {};
+	$NODELET = {};
+	$THEME = {};
 
 	$query = "";
+
+	# Initialize our connection to the database
+	Everything::initEverything($db, 1);
+
+	# Clear the method cache for searching.  Something may have changed.
+	# This is similar to the resetCache() below.
+	Everything::Node::initMethodCache();
+	
+	# The cache has a performance enhancement where it will only check
+	# versions once.  This clears the version check cache so that we
+	# will do fresh version checks each page load.
+	$DB->resetNodeCache();
 }
 
 
 #############################################################################
 sub opNuke
 {
-	my $user_id = $$USER{node_id};
-	my $node_id = $query->param("node_id");
+	my $NODE = getNode($query->param("node_id"));
 	
-	nukeNode($node_id, $user_id);
+	$NODE->nuke($USER) if($NODE);
 }
 
 
@@ -1588,21 +1803,18 @@ sub opLogin
 {
 	my $user = $query->param("user");
 	my $passwd = $query->param("passwd");
-	my $user_id;
 	my $cookie;
 
-	$user_id = confirmUser ($user, crypt ($passwd, $user));
+	$USER = confirmUser ($user, crypt ($passwd, $user));
 	
 	# If the user/passwd was correct, set a cookie on the users
 	# browser.
 	$cookie = $query->cookie(-name => "userpass", 
 		-value => $query->escape($user . '|' . crypt ($passwd, $user)), 
-		-expires => $query->param("expires")) if $user_id;
+		-expires => $query->param("expires")) if $USER;
 
-	$user_id ||= $HTMLVARS{guest_user};
-
-	$USER = getNodeById($user_id);
-	$VARS = getVars($USER);
+	$USER ||= getNode($HTMLVARS{guest_user});
+	$VARS = $USER->getVars() if($USER);
 
 	$$USER{cookie} = $cookie if($cookie);
 }
@@ -1613,10 +1825,9 @@ sub opLogout
 {
 	# The user is logging out.  Nuke their cookie.
 	my $cookie = $query->cookie(-name => 'userpass', -value => "");
-	my $user_id = $HTMLVARS{guest_user};	
 
-	$USER = getNodeById($user_id);
-	$VARS = getVars($USER);
+	$USER = getNode($HTMLVARS{guest_user});
+	$VARS = $USER->getVars() if($USER);
 
 	$$USER{cookie} = $cookie if($cookie);
 }
@@ -1631,24 +1842,15 @@ sub opNew
 	my $TYPE = getType($type);
 	my $nodename = cleanNodeName($query->param('node'));
 	
-	if (canCreateNode($user_id, $DB->getType($type)))
-	{
-		$node_id = insertNode($nodename,$TYPE, $user_id);
+	my $NEWNODE = getNode($nodename, $TYPE, "create");
+	$NEWNODE->insert($USER);
 
-		if($node_id == 0)
-		{
-			# It appears that the node already exists.  Get its id.
-			$node_id = sqlSelect("node_id", "node", "title=" .
-				$DB->quote($nodename) . " && type_nodetype=" .
-				$$TYPE{node_id});
-		}
-
-		$query->param("node_id", $node_id);
-		$query->param("node", "");
-	} 
-	else
+	$query->param("node_id", $$NEWNODE{node_id});
+	$query->param("node", "");
+	
+	if($NEWNODE->getId() == 0)
 	{
-		$query->param("node_id", $HTMLVARS{permission_denied});
+		$query->param("node_id", $HTMLVARS{permissionDenied_node});
 	}
 }
 
@@ -1656,7 +1858,8 @@ sub opNew
 #############################################################################
 sub opUnlock
 {
-	unlockNode ($USER, $query->param('node_id'));
+	my $LOCKEDNODE = getNode($query->param('node_id'));
+	$LOCKEDNODE->unlock($USER);
 }
 
 
@@ -1709,7 +1912,11 @@ sub execOpCode
 	return 0 unless(defined $op && $op ne "");
 	
 	$code = getOpCode($op);
-	$handled = eval($code) if(defined $code);
+
+	if(defined $code)
+	{
+		$handled = evalX($code);
+	}
 
 	unless($handled)
 	{
@@ -1742,6 +1949,104 @@ sub execOpCode
 
 #############################################################################
 #	Sub
+#		setHTMLVARS
+#
+#	Purpose
+#		This gets the 'system settings' node and assigns the settings
+#		hash to the global HTMLVARS for our use during this page load.
+#
+sub setHTMLVARS
+{
+	# Get the HTML variables for the system.  These include what
+	# pages to show when a node is not found (404-ish), when the
+	# user is not allowed to view/edit a node, etc.  These are stored
+	# in the dbase to make changing these values easy.	
+	my $SYSSETTINGS = getNode('system settings', getType('setting'));
+	my $SETTINGS;
+	if($SYSSETTINGS && ($SETTINGS = $SYSSETTINGS->getVars()))
+	{
+		%HTMLVARS = %{ $SETTINGS } if(ref $SETTINGS);
+	}
+	else
+	{
+		die "Error!  No system settings!";
+	}
+}
+
+
+#############################################################################
+#	Sub
+#		updateNodeData
+#
+#	Purpose
+#		If we have a node_id, we may be getting some params that indicate
+#		that we should be updating the node.  This checks for those
+#		parameters and updates the node if necessary.
+#
+#		THIS WILL BE MOVING TO THE "update" OPCODE!
+#
+sub updateNodeData
+{
+	my $node_id = $query->param('node_id');
+
+	return undef unless($node_id);
+	
+	my $NODE = getNode($node_id);
+
+	return 0 unless($NODE);
+	
+	if ($NODE->hasAccess($USER, 'w'))
+	{
+		if (my $groupadd = $query->param('add'))
+		{
+			$NODE->insertIntoGroup($USER, $groupadd,
+				$query->param('orderby'));
+		}
+		
+		if ($query->param('group'))
+		{
+			my @newgroup;
+			my $counter = 0;
+
+			while (my $item = $query->param($counter++))
+			{
+				push @newgroup, $item;
+			}
+
+			$NODE->replaceGroup(\@newgroup, $USER);
+		}
+
+		my @updatefields = $query->param;
+		my $updateflag;
+		my $RESTRICT = getNode('restricted fields', 'setting');
+		my $RESTRICTED = $RESTRICT->getVars() if($RESTRICT);
+
+		$RESTRICTED ||= {};
+		foreach my $field (@updatefields)
+		{
+			if ($field =~ /^$$NODE{type}{title}\_(\w*)$/)
+			{
+				next if exists $$RESTRICTED{$1};	
+				$$NODE{$1} = $query->param($field);
+				$updateflag = 1;
+			}	
+		}
+		
+		if ($updateflag)
+		{
+			$NODE->update($USER); 
+
+			# This is the case where the user is modifying their own user
+			# node.  If we want the user node to take effect in one page
+			# load, we need to set it here.
+			if ($$USER{node_id} == $$NODE{node_id}) { $USER = $NODE; }
+		}
+	}
+}
+
+
+#############################################################################
+#	Sub
 #		mod_perlInit
 #
 #	Purpose
@@ -1758,21 +2063,9 @@ sub mod_perlInit
 {
 	my ($db, $staticNodetypes) = @_;
 
-	#blow away the globals
-	clearGlobals();
+	initForPageLoad($db);
 
-	# Initialize our connection to the database
-	Everything::initEverything($db, 1);
-
-	# Get the HTML variables for the system.  These include what
-	# pages to show when a node is not found (404-ish), when the
-	# user is not allowed to view/edit a node, etc.  These are stored
-	# in the dbase to make changing these values easy.	
-	my $vars = eval(getCode('set_htmlvars'));
-	if($vars ne "")
-	{
-		%HTMLVARS = %{ eval (getCode('set_htmlvars')) };
-	}
+	setHTMLVARS();
 
 	$query = getCGI();
 
@@ -1780,6 +2073,8 @@ sub mod_perlInit
 
 	# Execute any operations that we may have
 	execOpCode();
+
+	updateNodeData();
 	
 	# Fill out the THEME hash
 	getTheme();

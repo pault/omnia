@@ -24,66 +24,48 @@ sub BEGIN
 	@ISA=qw(Exporter);
 	@EXPORT=qw(
 		$DB
-		$dbh
 		getRef 
 		getId 
 		getTables
-
-		unescape
-		escape
 
 		getNode
 		getNodeById
 		getType
 		getNodeWhere
 		selectNodeWhere
-		selectNode
-
-		nukeNode
-		insertNode
-		updateNode
-		replaceNode
 
 		initEverything
-		removeFromNodegroup 
-		replaceNodegroup
-		insertIntoNodegroup 
-		hasAccess
-		isApproved
-		canCreateNode 
-		canDeleteNode 
-		canUpdateNode 
-		canReadNode 
-		updateLinks 
-		updateHits 
-		getVars 
-		setVars 
-		selectLinks 
 		searchNodeName 
-		isGroup
-		isNodetype
-		isGod
-		lockNode
-		unlockNode
+
+		clearFrontside
+		clearBackside
+		logErrors
+		flushErrorsToBackside
+		getFrontsideErrors
+		getBacksideErrors
 
 		dumpCallStack
 		getCallStack
 		printErr
 		printLog
 		logHash
+
+		@fsErrors
+		@bsErrors
         );
  }
 
 use vars qw($DB);
-
-# $dbh is deprecated.  Use $DB->getDatabaseHandle() to get the DBI interface
-use vars qw($dbh);
 
 # If you want to log to a different file, change this.
 my $everythingLog = "/tmp/everything.errlog";
 
 # Used by Makefile.PL to determine the version of the install.
 my $VERSION = 0.8;
+
+# Arrays for error caching
+use vars qw(@fsErrors);
+use vars qw(@bsErrors);
 
 
 
@@ -97,25 +79,8 @@ sub getNodeById		{ $DB->getNodeById(@_); }
 sub getType 		{ $DB->getType(@_); }
 sub getNodeWhere 	{ $DB->getNodeWhere(@_); }
 sub selectNodeWhere	{ $DB->selectNodeWhere(@_); }
-sub selectNode		{ $DB->getNodeById(@_); }
-
-sub nukeNode		{ $DB->nukeNode(@_);}
-sub insertNode		{ $DB->insertNode(@_); }
-sub updateNode		{ $DB->updateNode(@_); }
-sub replaceNode		{ $DB->replaceNode(@_); }
-
-sub isNodetype		{ $DB->isNodetype(@_); }
-sub isGroup			{ $DB->isGroup(@_); }
-sub inGroup			{ $DB->inGroup(@_); }
-sub isApproved 		{ $DB->isApproved(@_); }
-sub inGroupFast		{ $DB->inGroupFast(@_); }
-sub isGod			{ $DB->isGod(@_); }
-
-sub hasAccess		{ $DB->hasAccess(@_); }
-sub canCreateNode 	{ $DB->canCreateNode(@_); }
-sub canDeleteNode	{ $DB->canDeleteNode(@_); }
-sub canUpdateNode	{ $DB->canUpdateNode(@_); }
-sub canReadNode		{ $DB->canReadNode(@_); }
+sub getRef			{ $DB->getRef(@_); }
+sub getId 			{ $DB->getId(@_); }
 
 
 #############################################################################
@@ -208,360 +173,6 @@ sub clearLog
 
 #############################################################################
 #	Sub
-#		getRef
-#
-#	Purpose
-#		This makes sure that we have an array of node hashes, not node id's.
-#
-#	Parameters
-#		Any number of node id's or node hashes (ie getRef( $n[0], $n[1], ...))
-#
-#	Returns
-#		The node hash of the first element passed in.
-#
-sub getRef
-{
-	return $DB->getRef(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		getId
-#
-#	Purpose
-#		Opposite of getRef.  This makes sure we have node id's not hashes.
-#
-#	Parameters
-#		Array of node hashes to convert to id's
-#
-#	Returns
-#		An array (if there are more than one to be converted) of node id's.
-#
-sub getId
-{
-	return $DB->getId(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		escape
-#
-#	Purpose
-#		This encodes characters that may interfere with HTML/perl/sql
-#		into a hex number preceeded by a '%'.  This is the standard HTML
-#		thing to do when uncoding URLs.
-#
-#	Parameters
-#		$esc - the string to encode.
-#
-#	Returns
-#		Then escaped string
-#
-sub escape
-{
-	my ($esc) = @_;
-
-	$esc =~ s/(\W)/sprintf("%%%02x",ord($1))/ge;
-	
-	return $esc;
-}
-
-
-#############################################################################
-#	Sub
-#		unescape
-#
-#	Purpose
-#		Convert the escaped characters back to normal ascii.  See escape().
-#
-#	Parameters
-#		An array of strings to convert
-#
-#	Returns
-#		The first item in the array.  Basically good for doing:
-#			$url = unescape($url);
-#
-sub unescape
-{
-	foreach my $arg (@_)
-	{
-		tr/+/ /;
-		$arg =~ s/\%(..)/chr(hex($1))/ge;
-	}
-	
-	return $_[0];
-}
-
-
-#############################################################################
-sub getVars 
-{
-	my ($NODE) = @_;
-	getRef $NODE;
-
-	return if ($NODE == -1);
-	
-	unless (exists $$NODE{vars}) {
-		warn ("getVars:\t'vars' field does not exist for node ".getId($NODE)."
-		perhaps it doesn't join on the settings table?\n");
-	}
-	my %vars;
-	return \%vars unless ($$NODE{vars});
-
-	%vars = map { split /=/ } split (/&/, $$NODE{vars});
-	foreach (keys %vars) {
-		unescape $vars{$_};
-		if ($vars{$_} eq ' ') { $vars{$_} = ""; }
-	}
-
-	\%vars;
-}
-
-
-#############################################################################
-#	Sub
-#		setVars
-#
-#	Purpose
-#		This takes a hash of variables and assigns it to the 'vars' of the
-#		given node.  If the new vars are different, we will update the
-#		node.
-#
-#	Parameters
-#		$NODE - a node id or hash of a node that joins on the
-#		"settings" table which has a "vars" field to assign the vars to.
-#		$varsref - the hashref to get the vars from
-#
-#	Returns
-#		Nothing
-#
-sub setVars
-{
-	my ($NODE, $varsref) = @_;
-	my $str;
-
-	getRef($NODE);
-
-	unless (exists $$NODE{vars}) {
-		warn ("setVars:\t'vars' field does not exist for node ".getId($NODE)."
-		perhaps it doesn't join on the settings table?\n");
-	}
-
-	# Clean out the keys that have do not have a value.
-	foreach (keys %$varsref) {
-		$$varsref{$_} = " " unless $$varsref{$_};
-	}
-	
-	$str = join("&", map( $_."=".escape($$varsref{$_}), keys %$varsref) );
-
-	return unless ($str ne $$NODE{vars}); #we don't need to update...
-
-	# The new vars are different from what this user node contains, force
-	# an update on the user info.
-	$$NODE{vars} = $str;
-	my $superuser = -1;
-	$DB->updateNode($NODE, $superuser);
-}
-
-
-
-#############################################################################
-#	Sub
-#		insertIntoNodegroup
-#
-#	Purpose
-#		This will insert a node(s) into a nodegroup.
-#
-#	Parameters
-#		NODE - the group node to insert the nodes.
-#		USER - the user trying to add to the group (used for authorization)
-#		insert - the node or array of nodes to insert into the group
-#		orderby - the criteria of which to order the nodes in the group
-#
-#	Returns
-#		The group NODE hash that has been refreshed after the insert
-#
-sub insertIntoNodegroup
-{
-	return ($DB->insertIntoNodegroup(@_));
-}
-
-
-#############################################################################
-#	Sub
-#		selectNodegroupFlat
-#
-#	Purpose
-#		This recurses through the nodes and node groups that this group
-#		contains getting the node hash for each one on the way.
-#
-#	Parameters
-#		$NODE - the group node to get node hashes for.
-#
-#	Returns
-#		An array of node hashes that belong to this group.
-#
-sub selectNodegroupFlat
-{
-	return $DB->selectNodegroupFlat(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		removeFromNodegroup
-#
-#	Purpose
-#		Remove a node from a group.
-#
-#	Parameters
-#		$GROUP - the group in which to remove the node from
-#		$NODE - the node to remove
-#		$USER - the user who is trying to do this (used for authorization)
-#
-#	Returns
-#		The newly refreshed nodegroup hash.  If you had called
-#		selectNodegroupFlat on this before, you will need to do it again
-#		as all data will have been blown away by the forced refresh.
-#
-sub removeFromNodegroup 
-{
-	return $DB->removeFromNodegroup(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		replaceNodegroup
-#
-#	Purpose
-#		This removes all nodes from the group and inserts new nodes.
-#
-#	Parameters
-#		$GROUP - the group to clean out and insert new nodes
-#		$REPLACE - A node or array of nodes to be inserted
-#		$USER - the user trying to do this (used for authorization).
-#
-#	Returns
-#		The group NODE hash that has been refreshed after the insert
-#
-sub replaceNodegroup
-{
-	return $DB->replaceNodegroup(@_);
-}
-
-
-#############################################################################
-#	Sub
-#		updateLinks
-#
-#	Purpose
-#		A link has been traversed.  If it exists, increment its hit and
-#		food count.  If it does not exist, add it.
-#
-#		DPB 24-Sep-99: We need to better define how food gets allocated to
-#		to links.  I think t should be in the system vars somehow.
-#
-#	Parameters
-#		$TONODE - the node the link goes to
-#		$FROMNODE - the node the link comes from
-#		$type - the type of the link (not sure what this is, as of 24-Sep-99
-#			no one uses this parameter)
-#
-#	Returns
-#		nothing of use
-#
-sub updateLinks
-{
-	my ($TONODE, $FROMNODE, $type) = @_;
-
-	$type ||= 0;
-	$type = getId $type;
-	my ($to_id, $from_id) = getId $TONODE, $FROMNODE;
-
-	my $rows = $DB->sqlUpdate('links',
-			{ -hits => 'hits+1' ,  -food => 'food+1'}, 
-			"from_node=$from_id && to_node=$to_id && linktype=" .
-			$DB->getDatabaseHandle()->quote($type));
-
-	if ($rows eq "0E0") { 
-		$DB->sqlInsert("links", {'from_node' => $from_id, 'to_node' => $to_id, 
-				'linktype' => $type, 'hits' => 1, 'food' => '500' }); 
-		$DB->sqlInsert("links", {'from_node' => $to_id, 'to_node' => $from_id, 
-				'linktype' => $type, 'hits' => 1, 'food' => '500' }); 
-	}
-}
-
-
-#############################################################################
-#   Sub
-#       updateHits
-#
-#   Purpose
-#       Increment the number of hits on a node.
-#
-#   Parameters
-#       $NODE - the node in which to update the hits on
-#
-#   Returns
-#       The new number of hits
-#
-sub updateHits
-{
-	my ($NODE) = @_;
-	my $id = $$NODE{node_id};
-
-	$DB->sqlUpdate('node', { -hits => 'hits+1' }, "node_id=$id");
-
-	# We will just do this, instead of doing a complete refresh of the node.
-	++$$NODE{hits};
-}
-
-
-#############################################################################
-#	Sub
-#		selectLinks - should be named getLinks since it returns a hash
-#
-#	Purpose
-#		Gets an array of hashes for the links that originate from this
-#		node (basically, the list of links that are on this page).
-#
-#	Parameters
-#		$FROMNODE - the node we want to get links for
-#		$orderby - the field in which the sql should order the list
-#
-#	Returns
-#		A reference to an array that contains the links
-#
-sub selectLinks
-{
-	my ($FROMNODE, $orderby) = @_;
-
-	my $obstr = "";
-	my @links;
-	my $cursor;
-	
-	$obstr = " ORDER BY $orderby" if $orderby;
-
-	$cursor = $DB->sqlSelectMany ("*", 'links',
-		"from_node=". $DB->getDatabaseHandle()->quote(getId($FROMNODE)) .
-		$obstr); 
-	
-	while (my $linkref = $cursor->fetchrow_hashref())
-	{
-		push @links, $linkref;
-	}
-	
-	$cursor->finish;
-	
-	return \@links;
-}
-
-
-#############################################################################
-#	Sub
 #		cleanLinks
 #
 #	Purpose
@@ -635,23 +246,6 @@ sub cleanLinks
 
 
 #############################################################################
-sub lockNode {
-	my ($NODE, $USER)=@_;
-
-	1;
-}
-
-
-#############################################################################
-sub unlockNode {
-	my ($NODE, $USER)=@_;
-
-
-	1;
-}
-
-
-#############################################################################
 #	Sub
 #		initEverything
 #
@@ -670,11 +264,84 @@ sub initEverything
 {
 	my ($db, $staticNodetypes) = @_;
 
-	$DB = new Everything::NodeBase($db, $staticNodetypes);
+	# Make sure that we clear the warnings/errors for this go around.
+	clearFrontside();
+	clearBackside();
 
-	# This is for legacy code.  You should not use $dbh!  Use
-	# $DB->getDatabaseHandle() going forward.
-	$dbh = $DB->getDatabaseHandle();
+	$DB = new Everything::NodeBase($db, $staticNodetypes);
+}
+
+
+#############################################################################
+sub clearFrontside
+{
+	undef @fsErrors;
+}
+
+
+#############################################################################
+sub clearBackside
+{
+	undef @bsErrors;
+}
+
+
+#############################################################################
+sub logErrors
+{
+	my ($warning, $error, $code, $CONTEXT) = @_;
+	my $errors;
+
+	$warning ||= "";
+	$error ||= "";
+	return if($warning eq "" && $error eq "");
+	
+	$errors = { 'warning' => $warning, 'error' => $error,
+		'code' => $code, 'context' => $CONTEXT };
+
+	push @fsErrors, $errors; 
+}
+
+
+#############################################################################
+#	Sub
+#		flushErrorsToBackside
+#
+#	Purpose
+#		Ok, what is frontside and backside?  When errors are logged, they
+#		are considered to be frontside.  Frontside errors are errors that
+#		can be associated with specific nodes on the page (ie an error with
+#		a piece of htmlcode, etc).  If a piece of code needs to start a
+#		new group of frontside errors, this function should be called.  Any
+#		errors that are currently in the frontside cache will be moved to
+#		the backside error cache.  This way a new group of frontside errors
+#		can be created.
+#
+#		Backside errors are generally errors that cannot me associated with
+#		a specific piece of the page.  These are errors caused by opcodes,
+#		evals in Node.pm, or other such cases.  Backside errors get displayed
+#		on the page in a location given by the placement of the
+#		[<BacksideErrors>] htmlsnippet.
+#
+sub flushErrorsToBackside
+{
+	push @bsErrors, @fsErrors;
+
+	clearFrontside();
+}
+
+
+#############################################################################
+sub getFrontsideErrors
+{
+	return \@fsErrors;
+}
+
+
+#############################################################################
+sub getBacksideErrors
+{
+	return \@bsErrors;
 }
 
 
@@ -703,72 +370,62 @@ sub initEverything
 #		A sorted list of node hashes (just the node table info), in
 #		order of best matches to worst matches.
 #
-sub searchNodeName {
+sub searchNodeName
+{
 	my ($searchWords, $TYPE) = @_;
 	my $typestr = '';
 
-	$TYPE=[$TYPE] if (ref($TYPE) eq 'HASH');
+	$TYPE=[$TYPE] if (ref($TYPE) ne "ARRAY");
 
-	if(ref($TYPE) eq 'ARRAY' and @$TYPE) {
+	if(ref($TYPE) eq 'ARRAY' and @$TYPE)
+	{
 		my $t = shift @$TYPE;
 		$typestr .= "AND (type_nodetype = " . getId($t);
-		foreach(@$TYPE) { $typestr .= " OR type_nodetype = ". getId($_); }
+		foreach(@$TYPE)
+		{
+			$typestr .= " OR type_nodetype = ". getId($_);
+		}
+		
 		$typestr.=')';
 	}
+
 	my @prewords = split ' ', $searchWords;
 	my @words;
 
-	my $NOSEARCH = $DB->getNode('nosearchwords', 'setting');
-	my $NOWORDS = getVars $NOSEARCH if $NOSEARCH;
+	my $NOSEARCH = getNode('nosearchwords', 'setting');
+	my $NOWORDS = $NOSEARCH->getVars() if $NOSEARCH;
 
-	foreach (@prewords) {
+	foreach (@prewords)
+	{
 		push(@words, $_) unless (exists $$NOWORDS{lc($_)} or length($_) < 2);
 	}
 
 	return unless @words;
 
 	my $match = "";
-	foreach my $word (@words) {
+	foreach my $word (@words)
+	{
 		$word = lc($word);
 		$word =~ s/(\W)/\\$1/gs;
-		$word = '[[:<:]]'.$word.'[[:>:]]';
-		$word = "(lower(title) rlike ".$dbh->quote($word).")";
+		$word = '[[:<:]]' . $word . '[[:>:]]';
+		$word = "(lower(title) rlike " .
+			$DB->getDatabaseHandle()->quote($word) . ")";
 	}
 
 
 	$match = '('. join(' + ',@words).')';
 	my $cursor = $DB->sqlSelectMany("*, $match AS matchval",
-		"node",
-		"$match >= 1 $typestr", "ORDER BY matchval DESC");
+		"node", "$match >= 1 $typestr", "ORDER BY matchval DESC");
 	
 	my @ret;
-	while(my $m = $cursor->fetchrow_hashref) { push @ret, $m; }
+	while(my $m = $cursor->fetchrow_hashref)
+	{ 
+		push @ret, $m;
+	}
+	
 	return \@ret;
 }
 
-
-
-#############################################################################
-#	Sub
-#		getTables
-#
-#	Purpose
-#		Get the tables that a particular node(type) needs to join on
-#
-#	Parameters
-#		$NODE - the node we are wanting tables for.
-#
-#	Returns
-#		An array of the table names that this node joins on.
-#
-sub getTables
-{
-	my ($NODE) = @_;
-	getRef $NODE;
-	my @tmpArray = @{ $$NODE{type}{tableArray}};  # Make a copy
-
-	return @tmpArray;
-}
 
 
 #############################################################################

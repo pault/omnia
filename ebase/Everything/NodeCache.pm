@@ -93,7 +93,7 @@ sub new
 	$this->{typeCache} = {};
 	$this->{idCache} = {};
 	$this->{version} = {};
-	$this->{sessionCache} = {};
+	$this->{verified} = {};
 	
 	if(not $this->{nodeBase}->tableExists("version"))
 	{
@@ -469,8 +469,8 @@ sub isSameVersion
 {
 	my ($this, $NODE) = @_;
 
-	return 1 if exists $this->{sessionCache}->{$$NODE{node_id}};
-	$this->{sessionCache}->{$$NODE{node_id}} = 1;
+	return 1 if(exists $$this{verified}{$$NODE{node_id}});
+	$$this{verified}{$$NODE{node_id}} = 1;
 	
 	my $ver = $this->getGlobalVersion($NODE);
 	
@@ -506,6 +506,24 @@ sub incrementGlobalVersion
 		$this->{nodeBase}->sqlInsert('version',
 			{ version_id => $$NODE{node_id}, version => 1 } );
 	}
+}
+
+
+#############################################################################
+#	Sub
+#		resetCache
+#
+#	Purpose
+#		We only want to check the version a maximum of once per page load.
+#		The "verified" hash keeps track of what nodes we have checked the
+#		version of so far.  This should be called for each page load to
+#		clear this hash out.
+#
+sub resetCache
+{
+	my ($this) = @_;
+
+	$this->{verified} = {};
 }
 
 

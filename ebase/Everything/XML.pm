@@ -67,7 +67,8 @@ sub readTag {
 #		This is a callback for the XML parser.  This gets called when we
 #		hit a start XML tag.
 #
-sub start_handler {
+sub start_handler
+{
 	my $parser = shift @_;
 	my $tag = shift @_;
 	
@@ -79,21 +80,24 @@ sub start_handler {
 		# Clear the field for this tag.  We will set it later.
 		$$NODE{$tag} = "";
 
-		while (@_) {
+		while (@_) 
+		{
 			my $attr = shift @_;
 			my $val = shift @_;
 			
-			if ($attr eq "table") {
-				if ($tag eq "vars") {
-					$isVars = 1;
-				}
+			if ($attr eq "table")
+			{
+				$isVars = 1 if ($tag eq "vars");
+
 				# Add this tag to the list of fields for the given table.
 				push @{ $TABLES{$val} }, $tag;	
-			} elsif (($attr eq "type") && ($val ne "literal_value")) {
+			}
+			elsif (($attr eq "type") && ($val ne "literal_value"))
+			{
 				# This tag represents a reference to another node.  Add
 				# this to the list of fixes that we will need to apply later.
 				$isReference=1;
-				push @FIXES, {type => $val, field => $tag, title => $tag,
+				push @FIXES, { type => $val, field => $tag, title => $tag,
 					isVars => $isVars, node_id => 0 };
 			}
 		}
@@ -101,6 +105,7 @@ sub start_handler {
 
 	push @activetag, { isReference => $isReference, title => $tag};
 }
+
 
 #############################################################################
 #	Sub
@@ -110,7 +115,8 @@ sub start_handler {
 #		Callback for the XML parser, this gets called on data between the
 #		start and end tag.
 #
-sub char_handler {
+sub char_handler
+{
 	my ($parser, $data) = @_;
 	my $tag = pop @activetag;
 
@@ -134,17 +140,21 @@ sub char_handler {
 #		Callback for the XML parser.  This gets called when it encounters
 #		the end tag.
 #
-sub end_handler {
+sub end_handler
+{
 	my $tag = pop @activetag;
 
 	return if(exists $skips{$$tag{title}});
 	
-	if ($isVars and $$tag{isReference}) {
+	if ($isVars and $$tag{isReference})
+	{
 		my $fix = pop @FIXES;
 		$$fix{title} = $$VARS{$$tag{title}};
 		push @FIXES, $fix;
 		$$VARS{$$tag{title}} = -1;
-	} elsif ($$tag{isReference}) {
+	}
+	elsif ($$tag{isReference})
+	{
 		# If this tag is a field value that is reference to another node,
 		# we need to mark the value as needing fixing.
 
@@ -156,25 +166,34 @@ sub end_handler {
 		if ($$tag{title} eq "type_nodetype")
 		{
 			# This is referencing a nodetype, check to see if we already have
-			# it loaded.  If not, we need to mark the nodetype field as
-			# unknown for now.
-			my $TYPE = $DB->getType($$NODE{type_nodetype}); 
-			if ($TYPE) {
+			# it loaded.
+			my $TYPE = getType($$NODE{type_nodetype}); 
+			if ($TYPE)
+			{
+				# When installing nodes, the type_nodetype may be a string
+				# name, but we really want the Id.
 				$$NODE{type_nodetype} = getId $TYPE; 	
-			} else {
+			}
+			else
+			{
 				# Note that this is a fatal error.  Nodetypes are always
 				# installed first, so if a nodetype is not found, this
 				# will cause the installation to stop later on.
 				$$NODE{type_nodetype} = -1;
 			}
-		} else {
+		}
+		else
+		{
 			$$NODE{$$tag{title}} = -1;
 		}
-	} elsif ($$tag{title} eq "vars") {
+	}
+	elsif ($$tag{title} eq "vars")
+	{
 		$isVars = 0;
 		delete $$VARS{vars};
 	}
 }
+
 
 ##############################################################################
 #	sub
@@ -185,12 +204,12 @@ sub end_handler {
 #		it isn't found and the printError flag is set.  
 #		Returns the referenced node's id
 #
-sub findRef {
+sub findRef
+{
 	my ($FIX, $printError) = @_;
 	my $id;
 
-
-	my ($REFNODE) = $DB->getNode($$FIX{title}, $DB->getType($$FIX{type}));
+	my $REFNODE = getNode($$FIX{title}, getType($$FIX{type}));
 
 	$id = getId $REFNODE;
 	if (not $id)
@@ -261,8 +280,8 @@ sub fixNodes
 			# all at once to save time (well, technically we could, but oh
 			# well).  We will just add the node to the group here since we
 			# have all the needed data anyway.
-			my $GROUP = $$fix{node_id};
-			insertIntoNodegroup($GROUP, -1, $id);
+			my $GROUP = getNode($$fix{node_id});
+			$GROUP->insertIntoGroup(-1, $id);
 		}
 		else
 		{
@@ -271,7 +290,7 @@ sub fixNodes
 			# keyed by the node id.
 			$FIXHASH = $FIELDS{$$fix{node_id}};
 			$FIXHASH ||= {};
-		
+
 			$$FIXHASH{$$fix{field}} = $id;
 
 			# Put the fix hash back in the parent hash
@@ -287,14 +306,11 @@ sub fixNodes
 	foreach $N (keys %FIELDS)
 	{
 		my $field;
-		my $update;
 		my $FIXHASH;
 
-		$update = 0;
-		$NODE = getNodeById($N);
-		
+		$NODE = getNode($N);
 		$FIXHASH = $FIELDS{$N};
-		
+
 		next unless($FIXHASH);
 
 		foreach $field (keys %$FIXHASH)
@@ -302,7 +318,7 @@ sub fixNodes
 			$$NODE{$field} = $$FIXHASH{$field};
 		}
 
-		updateNode($NODE, -1);
+		$NODE->update(-1);
 	}
 
 	# Update all the nodes that have a vars field that contains
@@ -313,9 +329,9 @@ sub fixNodes
 		my $setvars;
 		my $FIXVARS;
 
-		$NODE = getNodeById($N);
+		$NODE = getNode($N);
 		$setvars = 0;
-		$TEMPVARS = getVars($NODE);
+		$TEMPVARS = $NODE->getVars();
 		$FIXVARS = $VARS{$N};
 		
 		next unless($FIXVARS);
@@ -332,7 +348,7 @@ sub fixNodes
 			}
 		}
 
-		setVars($NODE, $TEMPVARS) if($setvars);
+		$NODE->setVars($TEMPVARS) if($setvars);
 	}
 }
 
@@ -353,6 +369,7 @@ sub dumpFixes {
 	}
 }
 
+
 ###########################################################################
 #	Sub
 #		initXmlParse
@@ -362,11 +379,11 @@ sub dumpFixes {
 #		if you care.
 #
 #
-sub initXmlParse {
+sub initXmlParse
+{
 	$XMLPARSE ||= new XML::Parser (ErrorContext => 2);
 	$XMLPARSE->setHandlers(Char => \&char_handler, End => \&end_handler,
 		Start => \&start_handler);
-
 
 	@FIXES = ();
 
@@ -387,7 +404,8 @@ sub initXmlParse {
 #	parameters
 #		xml -- the string of xml to parse
 #
-sub xml2node{
+sub xml2node
+{
 	my ($xml) = @_;
 	my $TYPE;
 	
@@ -403,53 +421,69 @@ sub xml2node{
 	$XMLPARSE = initXmlParse unless $XMLPARSE;
 	$XMLPARSE->parse($xml);
 	
-	$TYPE = $DB->getType($$NODE{type_nodetype});
-	if (defined $TYPE) {
+	# At this point the $NODE hash has been constructed from the XML
+	# data by the parser.
+	
+	$TYPE = getType($$NODE{type_nodetype});
+	if (defined $TYPE)
+	{
 		#we already have the nodetype for this loaded...
 		my $title = $$NODE{title};
 		my %data = ();
-		my @ta = @{ $$TYPE{tableArray} };
-		my $tableArray = \@ta;
+		my $tableArray = $TYPE->getTableArray(1);
 		
 		my @fields;
 		my $table;
 		
-		push @$tableArray, "node";
-		foreach $table (@$tableArray) {
+		foreach $table (@$tableArray)
+		{
 			push @fields, @{ $TABLES{$table} };
 		}
-		pop @$tableArray;
-		
+
 		#perhaps we already have this node, in which case we should update it
-		my $OLDNODE = $DB->getNode($title, $TYPE);
+		my $OLDNODE = getNode($title, $TYPE);
 		my $OLDVARS;
 	
-		if ($OLDNODE) {
-			$OLDVARS = getVars $OLDNODE if exists $$OLDNODE{vars};
+		if ($OLDNODE)
+		{
+			# We already have a node of this title/type.  Update it.
+
+			$OLDVARS = $OLDNODE->getVars() if($OLDNODE->hasVars());
+
 			@$OLDNODE{@fields} = @$NODE{@fields};
-			if (isGroup($OLDNODE)) {
-				replaceNodegroup ($OLDNODE, [], -1);
-			}
-			$DB->updateNode ($OLDNODE, -1);
-			$node_id = getId($OLDNODE);
-		} else {
-			#otherwise, we insert the node into the database
-			@data{@fields} = @$NODE{@fields};
-			if (isGroup($TYPE)) {
-				foreach (keys %data) {
-					delete $data{$_} if /^groupnode/;
+			$OLDNODE->replaceGroup([], -1) if ($OLDNODE->isGroup());
+			$node_id = $OLDNODE->update(-1);
+		}
+		else
+		{
+			# This node does not exist.  We need to insert it into the
+			# database.
+
+			# We insert the group nodes ids during the parsing of the XML,
+			# so, we don't want to do anything with them here.
+			if ($TYPE->isGroup())
+			{
+				foreach (keys %$NODE)
+				{
+					delete $$NODE{$_} if /^groupnode/;
 				}
-				$node_id = $DB->replaceNode ($title, getId($TYPE), -1);
-			} else {
-				$node_id = $DB->replaceNode ($title,
-					getId($TYPE), -1, \%data);
 			}
+
+			my $NEWNODE = getNode($title, $TYPE, "create");
+			@$NEWNODE{@fields} = @$NODE{@fields};
+			if($title eq 'default theme')
+			{
+				my $a = 0;
+			}
+			$node_id = $NEWNODE->insert(-1);
 		}
 
-		if (keys %$VARS) {
+		if (keys %$VARS)
+		{
 			# we never replace old settings in a setting node 
 			@$VARS{keys %$OLDVARS} = values %$OLDVARS if($OLDVARS);
-			setVars $node_id, $VARS;
+			my $VARNODE = getNode($node_id);
+			$VARNODE->setVars($VARS);
 		}
 
 		# When we were parsing this node from XML, we didn't know what id
@@ -457,13 +491,13 @@ sub xml2node{
 		# fixes and find the ones that do not have an id.  If we find any,
 		# we know that the "fix" belongs to this node.  So, assign those
 		# fixes to this node!
-		foreach (@FIXES) {
+		foreach (@FIXES)
+		{
 			$$_{node_id} = $node_id if($$_{node_id} == 0);
 		}
 
 		return $node_id;
 	}
-
 
 	print "Error: No nodetype!  (id or name: '$$NODE{type_nodetype}')\n";
 	print "Looks like the nodeball is missing a dependency or is\n";
@@ -571,24 +605,34 @@ sub unMakeXmlSafe {
 #			(procured from getVars)
 #		PARAMS - optional additional parameters
 #
-sub vars2xml {
+sub vars2xml
+{
 	my ($tag, $VARS, $PARAMS) = @_;
 	$PARAMS ||= {};
 	my $varstr = "";
 	
-	foreach my $key (keys %$VARS) {
+	foreach my $key (keys %$VARS)
+	{
 		$varstr.="\t\t";
-		if ($key =~ /_(\w+)$/ and $$VARS{$key} =~ /^\d+$/) {
-		#this is a node reference
-			$varstr.= noderef2xml($key, $$VARS{$key});
-		} else {
-			$varstr.= genTag $key, $$VARS{$key}; 
+
+		# Kind of a hack... but it works (reuse dat code!)
+		my $type = Everything::Node::node::getFieldDatatype($VARS, $key);
+		if ($type eq "noderef")
+		{
+			# this is a node reference
+			$varstr .= noderef2xml($key, $$VARS{$key});
+		}
+		elsif($type eq "literal_value")
+		{
+			$varstr .= genTag $key, $$VARS{$key}; 
 		}
 	}
+
 	genTag ($tag, "\n".$varstr."\t", $PARAMS, 'parseth not the xml tags');
 }
 
-#################################################################
+
+#############################################################################
 #	Sub
 # 		group2xml
 #
@@ -599,19 +643,23 @@ sub vars2xml {
 #		tag -- the group's parent tag
 #		group- a reference to a list of nodes
 #		PARAMS -- hash reference with optional additional parameters
-
-sub group2xml {
+#
+sub group2xml
+{
 	my ($tag, $group, $PARAMS) = @_;
 	$PARAMS ||= {};
 	my $ingroup = "";
 	my $count = 1;
-	foreach (@$group) {
+	foreach (@$group)
+	{
 		my $tag = "groupnode" . $count++;
-		$ingroup.="\t\t" 
-			.noderef2xml($tag, $_, {table=>'nodegroup'}) ;
+		$ingroup .= "\t\t" .
+			noderef2xml($tag, $_, { table=>'nodegroup' }) ;
 	}
+
 	genTag($tag, "\n".$ingroup."\t", $PARAMS, "don't parse me please");
 }
+
 
 ##################################################################
 #	Sub
@@ -625,26 +673,32 @@ sub group2xml {
 #		node_id -- the node's numeric id (or the node itself)
 #		PARAMS -- additional attributes for the tag
 #
-sub noderef2xml {
+sub noderef2xml
+{
 	my ($tag, $node_id, $PARAMS) = @_;
 	$PARAMS ||= {};
 
-	my $POINTED_TO = $DB->getNodeById($node_id);
+	my $POINTED_TO = getNode($node_id);
 	my ($title, $typetitle, $TYPE);
 
-	if (keys %$POINTED_TO) {
+	if ($POINTED_TO)
+	{
 		$title = $$POINTED_TO{title};
 		$typetitle = $$POINTED_TO{type}{title};
-	} else {
+	}
+	else
+	{
 		# This can happen with the '-1' field values when nodetypes
 		# are inherited.
 		$title = $node_id;
 		$typetitle = "literal_value";
 	}
+
 	$$PARAMS{type}  = $typetitle;
 
 	genTag ($tag, $title, $PARAMS);
 }
+
 
 ###################################################################
 #	Sub
@@ -655,76 +709,86 @@ sub noderef2xml {
 #
 #	parameters
 #		NODE - the node to generate XML for
-
+#
 sub node2xml
 {
 	my ($NODE) = @_;
-	getRef ($NODE); 
 
-	my %newhash = %$NODE;
-	my $N = \%newhash;
-	#create a copy of the node so that we can mess around with it
+	getRef($NODE);
+	return unless(ref $NODE);
 
-	my @NOFIELDS = ('hits', 
-		'createtime', 
-		'table', 
-		'type', 
-		'lasttime',
-		'lockedby_user',
-		'locktime',
-		'tableArray',
-		'resolvedInheritance', 'passwd', 'nltext', 'sqltablelist');
-
-	foreach (@NOFIELDS) {
-		delete $$N{$_} if exists $$N{$_};
-	}
-
-	foreach (keys %$N) {
-		delete $$N{$_} if /_id$/;
-	}
-
-
+	my $goodfields = $NODE->getNodeKeys(1);
+	my $N = {};
 	my $str;
+
+	# Put the exportable fields in the copied node
+	foreach (keys %$goodfields)
+	{
+		$$N{$_} = $$NODE{$_};
+	}
+
 	$XMLGEN = new XML::Generator unless $XMLGEN;
-	$str.= $XMLGEN->INFO('rendered by Everything::XML.pm') ."\n";
-	#note: should also include server, date/time info
 
-	my @tables = getTables($NODE);
-	push @tables, 'node';
+	# note: should also include server, date/time info
+	$str .= $XMLGEN->INFO('rendered by Everything::XML.pm') ."\n";
 
-	my (%fieldtable); 
+	my $tables = $NODE->getTables(1);
+	my %fieldtable; 
 
-	foreach my $table (@tables) {
+	# Construct the fieldtable hash. fieldname -> table it belongs to
+	foreach my $table (@$tables)
+	{
 		my @fields = $DB->getFields($table);
-		foreach (@fields) { 
+		foreach (@fields)
+		{ 
 			$fieldtable{$_} = $table if (exists $$N{$_}); 
 		}	
 	}
 
 	#now we catch the node table
 	my @keys = sort {$a cmp $b} (keys %$N);	
-	foreach my $field (@keys) {
-		my %attr = (table => $fieldtable{$field});
+	foreach my $field (@keys)
+	{
+		my $datatype = $NODE->getFieldDatatype($field);
+
+		# This field needs two identifiers, what table the field belongs to
+		# and what kind of datatype it is.
+		my $attr = { table => $fieldtable{$field} };
+
 		$str .= "\t";	
-		if (ref $$N{$field} eq "ARRAY") {
+		if ($datatype eq "group")
+		{
 			#we have to deal with a group
-			delete $attr{table};	
-			$str.= group2xml($field, $$N{$field}, \%attr);
-		
-		} elsif ($field eq 'vars') {
-			#we have a setting hash
-			$str.= vars2xml($field, getVars($N), \%attr);
-		
-		} elsif ($field =~ /_\w+$/ and $$N{$field} =~ /^\d+$/) {
+			delete $$attr{table};
+			$str .= group2xml($field, $$N{$field}, $attr);
+		}
+		elsif ($datatype eq "vars")
+		{
+			# we have a setting hash
+			my $VARS = $NODE->getVars();
+			$str .= vars2xml($field, $VARS, $attr);
+		}
+		elsif ($datatype eq "noderef")
+		{
 			# This field is a node reference.  We need to resolve this
 			# reference to a node name and type.
-			$str.= noderef2xml($field, $$N{$field}, \%attr);
-		
-		} else { 
-			$str.= genTag($field, $$N{$field}, \%attr);
+			$str .= noderef2xml($field, $$N{$field}, $attr);
+		} 
+		elsif ($datatype eq "literal_value")
+		{ 
+			$str .= genTag($field, $$N{$field}, $attr);
+		}
+		else
+		{
+			print "Warning: Unknown export type '$datatype' for field '$field'\n";
 		}
 	}
 
 	$XMLGEN->NODE($str);
 }
+
+###########################################################################
+# End of Package
+###########################################################################
+
 1;
