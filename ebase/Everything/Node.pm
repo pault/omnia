@@ -333,7 +333,8 @@ sub getNodeMethod
 	my $cacheName = $$TYPE{title} . ":" . $func;
 
 	# If we have it cached, return what we found
-	$METHOD = $this->{DB}->{cache}->{methodCache}{$cacheName} if exists $this->{DB}->{cache}->{methodCache}{$cacheName};
+	$METHOD = $this->{DB}->{cache}->{methodCache}{$cacheName}
+		if exists $this->{DB}->{cache}->{methodCache}{$cacheName};
 	return $METHOD if $METHOD;
 	
 	$METHODTYPE = $$this{DB}->getType('nodemethod');

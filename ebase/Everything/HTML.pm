@@ -28,14 +28,13 @@ sub BEGIN {
 		%HTMLVARS
 		%GLOBAL
 		$query
-		jsWindow
+		newFormObject
 		parseLinks
 		htmlScreen
 		htmlFormatErr
 		quote
 		urlGen
 		getPage
-		getPages
 		getPageForType
 		linkNode
 		linkNodeTitle
@@ -100,7 +99,38 @@ sub removeFromNodegroup
 }
 
 
-######################################################################
+#############################################################################
+#	Sub
+#		newFormObject
+#
+#	Purpose
+#		A little wrapper to make getting form object references easier.
+#
+#	Parameters
+#		$objName - the name of a form object (ie 'TextField').  Note!!!
+#			This name must be of the same capitalization as the actual
+#			.pm implementation of the desired form object.
+#
+#	Returns
+#		The form object ref if successful, undef otherwise.
+#
+sub newFormObject
+{
+	my ($objName) = @_;
+	my $obj;
+
+	$objName = "Everything::HTML::FormObject::$objName";
+
+	# We eval so that if the requested nodetype doesn't exist, we don't
+	# crap a brick.	
+	eval("require $objName; \$obj = new $objName()");
+	Everything::logErrors($@);
+
+	return $obj;
+}
+
+
+#############################################################################
 #	sub
 #		tagApprove
 #
@@ -427,29 +457,6 @@ sub htmlErrorGods
 
 
 #############################################################################
-#	Sub
-#		jsWindow
-#
-#	Purpose
-#		Opens a new popup window with JavaScript
-#
-#	Parameters
-#		$name - the name of the new window
-#		$url - the URL for the new window
-#		$width - the width of the window
-#		$height - the height of the window
-#
-#	Returns
-#		Nothing of value.
-#
-sub jsWindow
-{
-	my($name,$url,$width,$height)=@_;
-	"window.open('$url','$name','width=$width,height=$height,scrollbars=yes')";
-}
-
-
-#############################################################################
 #   Sub
 #       urlGen
 #
@@ -464,7 +471,8 @@ sub jsWindow
 #	Returns
 #		A string containing the generated URL.
 #
-sub urlGen {
+sub urlGen
+{
 	my ($REF, $noquotes) = @_;
 
 	my $str;
@@ -475,54 +483,6 @@ sub urlGen {
 				 keys %$REF);
 	$str .= '"' unless $noquotes;
 	return $str;
-}
-
-
-#############################################################################
-#	Sub
-#		getPages
-#
-#	Purpose
-#		This gets the edit and display pages for the given node.  Since
-#		nodetypes can be inherited, we need to find the display/edit pages.
-#
-#		If the given node is a nodetype, it will get the display pages for
-#		that particular nodetype rather than the main 'nodetype'.
-#		Difference is subtle between this function and getPage().  If you
-#		pass a nodetype to getPage() it will return the htmlpages to display
-#		it, while this will return the htmlpages needed to display nodes
-#		of the type passed in.
-#
-#		For example, lets say you pass the nodetype 'document' to both
-#		this and getPage().  This would return 'document display page'
-#		and 'document edit page', while getPage would return 'nodetype
-#		dipslay page' and 'nodetype edit page'.
-#
-#		Basically, the purpose for this function is for nodetype display
-#		page to show what display pages there are for a type, but that
-#		should be reworked to do a different query (htmlpages by type)
-#		and this function should be removed.  DPB 18-Apr-00.
-#
-#	Parameters
-#		$NODE - the nodetype in which to get the display/edit pages for.
-#
-#	Returns
-#		An array containing the display/edit pages for this nodetype.
-#
-sub getPages
-{
-	my ($NODE) = @_;
-	getRef $NODE;
-	my $TYPE;
-	my @pages;
-
-	$TYPE = $NODE if ($NODE->isNodetype() && $$NODE{extends_nodetype});
-	$TYPE ||= getType($$NODE{type_nodetype});
-
-	push @pages, getPageForType($TYPE, "display");
-	push @pages, getPageForType($TYPE, "edit");
-
-	return @pages;
 }
 
 
@@ -563,19 +523,19 @@ sub getPageForType
 		%WHEREHASH = (pagetype_nodetype => $$TYPE{node_id}, 
 				displaytype => $displaytype);
 
-		$PAGE = getNode(\%WHEREHASH, $PAGETYPE);
+		$PAGE = $DB->getNode(\%WHEREHASH, $PAGETYPE);
 
 		if(not defined $PAGE)
 		{
 			if($$TYPE{extends_nodetype})
 			{
-				$TYPE = getType($$TYPE{extends_nodetype});
+				$TYPE = $DB->getType($$TYPE{extends_nodetype});
 			}
 			else
 			{
 				# No pages for the specified nodetype were found.
 				# Use the default node display.
-				$PAGE = getNode(
+				$PAGE = $DB->getNode(
 						{ pagetype_nodetype => getId(getType("node")),
 						displaytype => $displaytype }, 
 						$PAGETYPE);
@@ -622,8 +582,19 @@ sub getPage
 	  if exists $$THEME{'displaypref_'.$$TYPE{title}};
 	$displaytype ||= 'display';
 
-
-	my $PAGE = getPageForType $TYPE, $displaytype;
+	my $PAGE;
+	
+	# If the displaytype is 'display' and this node has a preferred
+	# htmlpage that it specifically wants, we will use that.
+	if($displaytype eq 'display' && $$NODE{preferred_htmlpage} != -1)
+	{
+		my $PREFER = $DB->getNode($$NODE{preferred_html});
+		$PAGE = $PREFER if($PREFER && $PREFER->isOfType('htmlpage'));
+	}
+	
+	# First, we try to find the htmlpage for the desired display type,
+	# if one does not exist, we default to using the display page.
+	$PAGE ||= getPageForType $TYPE, $displaytype;
 	$PAGE ||= getPageForType $TYPE, 'display';
 
 	die "can't load a page $displaytype for $$TYPE{title} type" unless $PAGE;
@@ -955,11 +926,17 @@ sub AUTOLOAD
 
 	$subname =~ s/.*:://;
 
-	my $CODE = getNode($subname, 'htmlcode');
+	my $CODE = $DB->getNode($subname, 'htmlcode');
 	my $user = $USER;
 
 	$user ||= -1;
 
+	# The reason we "die" here rather than just logging an error and
+	# returning is to simulate the fact that the function does not exist.
+	# In normal perl, if you try to call a function that does not exist,
+	# you get a fatal runtime error.  If this is being called inside
+	# another eval, this will cause the eval to get an error which it
+	# can then handle.
 	die ("No function or htmlcode named '$subname' exists.") unless($CODE);
 	
 	# We can only execute this if the logged in user has execute permissions.
@@ -974,7 +951,7 @@ sub AUTOLOAD
  		$result = executeCachedCode('code', $CODE, \@_);
 		return $result if (defined($result));
 
-	# otherwise, run it through Compil-O-Cache
+		# otherwise, run it through Compil-O-Cache
 		if ($$CODE{code}) {
 			my $code = "sub {\nmy \$NODE = \$GNODE;\n$$CODE{code}\n}";
 			$result = compileCache($code, $CODE, 'code', \@_);
@@ -2444,7 +2421,12 @@ sub opUpdate
 	# objects that need to do some kind of setup can go first
 	@sort = sort { $query->param($a) cmp $query->param($b) } @formbind;
 
-	htmlcode($preprocess) if($preprocess);
+	if($preprocess)
+	{
+		# turn the htmlcode name into a function call
+		$preprocess .= "();";
+		evalX($preprocess);
+	}
 	
 	# First, we need to verify that all fields in this update are
 	# what we expect.
@@ -2453,11 +2435,11 @@ sub opUpdate
 		$param =~ /formbind_(.+?)_(.+)$/;
 		my $objectType = $1;
 		my $objectName = $2;
-		my $formObject = $DB->newNode($objectType);
-		next unless($formObject);
-		
-		my $verify = $formObject->cgiVerify($query, $objectName, $USER);
+		my $formObject = newFormObject($objectType);
 
+		next unless($formObject);
+
+		my $verify = $formObject->cgiVerify($query, $objectName, $USER);
 		if($$verify{failed})
 		{
 			$GLOBAL{VERIFYFAILED} ||= {};
@@ -2486,7 +2468,8 @@ sub opUpdate
 		$param =~ /formbind_(.*?)_(.*)$/;
 		my $objectType = $1;
 		my $objectName = $2;
-		my $formObject = $DB->newNode($objectType);
+		my $formObject = newFormObject($objectType);
+
 		next unless($formObject);
 
 		if(exists $UPDATEOBJECT{$param})
@@ -2519,7 +2502,13 @@ sub opUpdate
 	$query->param('node_id', $goto_node) if($goto_node);
 	$query->param('displaytype', $goto_displaytype) if($goto_displaytype);
 	
-	htmlcode($postprocess) if($postprocess);
+	if($postprocess)
+	{
+		# turn the htmlcode name into a function call.  This will end
+		# up calling HTML::AUTOLOAD()
+		$postprocess .= "();";
+		evalX($postprocess);
+	}
 
 	return 1;
 }
@@ -2576,48 +2565,55 @@ sub getOpCode
 #
 sub execOpCode
 {
-	my $op = $query->param('op');
-	my $code;
+	my $ops = $query->param('op');
 	my $handled = 0;
 	my $OPCODE;
 	
-	return 0 unless(defined $op && $op ne "");
+	return 0 unless(defined $ops);
+
+	$ops = [$ops] unless(ref $ops eq 'ARRAY');
 	
-	$OPCODE = getOpCode($op, $USER);
-
-	if(defined $OPCODE)
+	# The CGI parameter for 'op' can be an array of several operations
+	# we want to do, so we need to execute each of them.
+	foreach my $op (@$ops)
 	{
-		$handled = evalX($$OPCODE{code}, $OPCODE);
-	}
+		$handled = 0;
 
-	unless($handled)
-	{
-		# These are built in defaults.  If no 'opcode' nodes exist for
-		# the specified op, we have some default handlers.
+		$OPCODE = getOpCode($op, $USER);
+		if(defined $OPCODE)
+		{
+			$handled = evalX($$OPCODE{code}, $OPCODE);
+		}
 
-		if($op eq 'login')
+		unless($handled)
 		{
-			opLogin()
-		}
-		elsif($op eq 'logout')
-		{
-			opLogout();
-		}
-		elsif($op eq 'nuke')
-		{
-			opNuke();
-		}
-		elsif($op eq 'new')
-		{
-			opNew();
-		}
-		elsif($op eq 'update')
-		{
-			opUpdate();
-		}
-		elsif($op eq 'unlock')
-		{
-			opUnlock();
+			# These are built in defaults.  If no 'opcode' nodes exist for
+			# the specified op, we have some default handlers.
+
+			if($op eq 'login')
+			{
+				opLogin()
+			}
+			elsif($op eq 'logout')
+			{
+				opLogout();
+			}
+			elsif($op eq 'nuke')
+			{
+				opNuke();
+			}
+			elsif($op eq 'new')
+			{
+				opNew();
+			}
+			elsif($op eq 'update')
+			{
+				opUpdate();
+			}
+			elsif($op eq 'unlock')
+			{
+				opUnlock();
+			}
 		}
 	}
 }
@@ -2652,14 +2648,12 @@ sub setHTMLVARS
 
 #############################################################################
 #	Sub
-#		updateNodeData
+#		updateNodeData  DEPRECATED!!!  DO NOT USE!
 #
 #	Purpose
 #		If we have a node_id, we may be getting some params that indicate
 #		that we should be updating the node.  This checks for those
 #		parameters and updates the node if necessary.
-#
-#		THIS WILL BE MOVING TO THE "update" OPCODE!
 #
 sub updateNodeData
 {
