@@ -55,8 +55,38 @@ use vars qw(%HTMLVARS);
 use vars qw($GNODE);
 use vars qw($USER);
 use vars qw($VARS);
+use vars qw($THEME);
 use vars qw($NODELET);
 
+
+
+######################################################################
+#	sub
+#		tagApprove
+#
+#	purpose
+#		determines whether or not a tag (and it's specified attributes)
+#		are approved or not.  Returns the cleaned tag.  Used by htmlScreen
+#
+sub tagApprove {
+	my ($close, $tag, $attr, $APPROVED) = @_;
+
+	$tag = uc($tag) if (exists $$APPROVED{uc($tag)});
+	$tag = lc($tag) if (exists $$APPROVED{lc($tag)});
+
+	if (exists $$APPROVED{$tag}) {
+		my @aprattr = split ",", $$APPROVED{$tag};
+		my $cleanattr;
+		foreach (@aprattr) {
+			if (($attr =~ /\b$_\b(\='.*?')/) or
+				($attr =~ /\b$_\b(\=".*?")/) or
+				($attr =~ /\b$_\b(\=\S*)?/)) {
+				$cleanattr.=" ".$_.$1;
+			}
+		}
+		"<".$close.$tag.$cleanattr.">";
+	} else { ""; }
+}
 
 #############################################################################
 #	sub
@@ -75,13 +105,10 @@ sub htmlScreen {
 	my ($text, $APPROVED) = @_;
 	$APPROVED ||= {};
 
-	$text =~ s/\<\s*(\/?)(\w+)(.*?)\>/
-		if (exists $$APPROVED{uc($2)} or exists $$APPROVED{lc($2)}) {
-			"<$1$2$3>"; 
-		} else { ""; }
-		/gse;
+	$text =~ s/\<\s*(\/?)(\w+)(.*?)\>/tagApprove($1,$2,$3, $APPROVED)/gse;
 	$text;
 }
+
 
 
 #############################################################################
@@ -357,9 +384,8 @@ sub getCode
 	return '"";' unless ($CODELIST);
 	my $CODE = $DB->getNodeById($$CODELIST[0]);
 	
-	my $str = ""; 
-	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if defined $args;
-	
+	my $str ='';
+	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if $args;
 	$str .= $$CODE{code};
 
 	return $str;
@@ -395,6 +421,7 @@ sub getCode
 sub getPages
 {
 	my ($NODE) = @_;
+	getRef $NODE;
 	my $TYPE;
 	my @pages;
 
@@ -500,10 +527,13 @@ sub getPage
 	my $TYPE;
 	
 	getRef $NODE;
-	$displaytype ||= $$VARS{'displaypref_'.$$TYPE{title}};
+	$TYPE = $DB->getType($$NODE{type_nodetype});
+	$displaytype ||= $$VARS{'displaypref_'.$$TYPE{title}}
+	  if exists $$VARS{'displaypref_'.$$TYPE{title}};
+	$displaytype ||= $$THEME{'displaypref_'.$$TYPE{title}}
+	  if exists $$THEME{'displaypref_'.$$TYPE{title}};
 	$displaytype ||= 'display';
 
-	$TYPE = $DB->getType($$NODE{type_nodetype});
 
 	my $PAGE = getPageForType $TYPE, $displaytype;
 	$PAGE ||= getPageForType $TYPE, 'display';
@@ -530,8 +560,7 @@ sub linkNode {
 	$$PARAMS{node_id} = getId $NODE;
 	my $tags = "";
 
-	$$PARAMS{lastnode_id} = getId ($GNODE); 
-
+	$$PARAMS{lastnode_id} = getId ($GNODE) unless exists $$PARAMS{lastnode_id};
 	#any params that have a "-" preceding 
 	#get added to the anchor tag rather than the URL
 	foreach my $key (keys %$PARAMS) {
@@ -601,7 +630,7 @@ sub nodeName
 	{ 
 		# We did not find an exact match, so do a search thats a little
 		# more fuzzy.
-		$search_group = searchNodeName($node, $DB->getType($type)); 
+		$search_group = searchNodeName($node, \@types); 
 		
 		if($search_group && @$search_group > 0)
 		{
@@ -909,13 +938,13 @@ sub displayPage
 
 	die "NO PAGE!" unless $page;
 
+	$page = parseCode($page, $NODE);
 	if ($$PAGE{parent_container}) {
 		my $container = genContainer($$PAGE{parent_container}); 
 		$container =~ s/CONTAINED_STUFF/$page/s;
 		$page = $container;
 	}	
 	
-	$page = parseCode($page, $NODE);
 	setVars $USER, $VARS;
 	
 	printHeader($$NODE{datatype});
@@ -1144,6 +1173,46 @@ sub getCGI
 	return $cgi;
 }
 
+############################################################################
+#	Sub
+#		getTheme
+#
+#	Purpose
+#		this creates the $THEME variable that various components can
+#		reference for detailed settings.  The user's theme is a system-wide
+#		default theme if not specified, then a "themesetting" can be 
+#		used to override specific values.  Finally, if there are user-specific
+#		settings, they are kept in the user's settings
+#
+#		this function references global variables, so no params are needed
+#
+
+sub getTheme {
+	my $theme_id;
+	$theme_id = $$VARS{preferred_theme} if $$VARS{preferred_theme};
+	$theme_id ||= $HTMLVARS{default_theme};
+	my $TS = getNodeById $theme_id;
+
+	if ($$TS{type}{title} eq 'themesetting') {
+		#we are referencing a theme setting.
+		my $BASETHEME = getNodeById $$TS{parent_theme};
+		$THEME = getVars $BASETHEME;
+		my $REPLACEMENTVARS = getVars $TS;
+		@$THEME{keys %$REPLACEMENTVARS} = values %$REPLACEMENTVARS;
+	} else {
+		#this whatchamacallit is a theme
+		$THEME = getVars $TS;
+	}
+
+	#we must also check the user's settings for any replacements over the theme
+	foreach (keys %$THEME) {
+		if (exists $$VARS{"theme".$_}) {
+			$$THEME{$_} = $$VARS{"theme".$_};
+		}
+	}
+	#$THEME= {};
+	1;
+}
 
 #############################################################################
 #	Sub
@@ -1206,14 +1275,17 @@ sub handleUserRequest
 
 		return;
 	}
-	elsif ($nodename = $query->param('node'))
+	elsif ($query->param('node'))
 	{
 		# Searching for a node my string title
 		my $type  = $query->param('type');
-	
+		
+		$nodename = $query->param('node');
+		$nodename =~ tr/[]|<>//d;
 		$nodename =~ s/^\s*|\s*$//g;
 		$nodename =~ s/\s+/ /g;
-		$nodename = htmlScreen $nodename; #(don't allow HTML in nodenames)
+		$nodename ="" if $nodename=~/^\W$/;
+		$query->param("node", $nodename);
 		
 		if ($query->param('op') ne 'new')
 		{
@@ -1278,6 +1350,8 @@ sub mod_perlInit
 	$query = getCGI();
 
 	$USER = loginUser();
+	getTheme();
+
 
 	# Do the work.
 	handleUserRequest();

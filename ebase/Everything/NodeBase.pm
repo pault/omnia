@@ -448,7 +448,7 @@ sub getNodeById
 	my $cachedNode;
 
 	$selectop ||= '';
-
+    return -1 if $N == -1;
 	$N = $this->getId($N);
 	return undef unless $N;
 	
@@ -714,6 +714,26 @@ sub updateNode
 	return 1;
 }
 
+############################################################################
+#	sub
+#		replaceNode
+#
+#	purpose
+#		given insertNode information, test whether or not the node is there
+#		if it is, update it, otherwise insert the node as new
+#
+sub replaceNode {
+	my ($this, $title, $TYPE, $USER, $DATA) = @_;
+
+	if (my $N = $this->getNode($title, $TYPE)) {
+		if ($this->canUpdateNode($USER,$N)) {
+			@$N{keys %$DATA} = values %$DATA if $DATA;
+			$this->updateNode($N, $USER);
+		}
+	} else { 
+		$this->insertNode($title, $TYPE, $USER, $DATA);
+	}
+}
 
 #############################################################################
 #	Sub
@@ -1175,7 +1195,7 @@ sub dropNodeTable
 	
 	return 0 unless($this->tableExists($table));
 
-	printLog("Dropping table $table");
+	Everything::printLog("Dropping table $table");
 	return $this->{dbh}->do("drop table $table");
 }
 
@@ -1489,7 +1509,7 @@ sub deriveType
 sub getNodetypeTables
 {
 	my ($this, $TYPE) = @_;
-	$TYPE = $this->getNodeById($TYPE) unless ref $TYPE;
+	$TYPE = $this->getType($TYPE) unless ref $TYPE;
 	my $tables;
 	my @tablelist;
 	my @nodupes;
@@ -1661,7 +1681,7 @@ sub nodeMaintenance
 
 	if($code)
 	{
-		$node_id = $this->getRef($node_id);
+		$node_id = $this->getId($node_id);
 		my $args = "\@\_ = \"$node_id\";\n";
 		Everything::HTML::embedCode("%" . $args . $code . "%", @_);
 	}
@@ -1718,7 +1738,7 @@ sub getRef
 		}
 	}
 	
-	ref $_[1];
+	ref $_[0];
 }
 
 

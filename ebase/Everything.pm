@@ -39,6 +39,7 @@ sub BEGIN
 		nukeNode
 		insertNode
 		updateNode
+		replaceNode
 
 		removeFromNodegroup 
 		replaceNodegroup
@@ -94,6 +95,7 @@ sub selectNode		{ $DB->getNodeById(@_); }
 sub nukeNode		{ $DB->nukeNode(@_);}
 sub insertNode		{ $DB->insertNode(@_); }
 sub updateNode		{ $DB->updateNode(@_); }
+sub replaceNode		{ $DB->replaceNode(@_); }
 
 sub isNodetype		{ $DB->isNodetype(@_); }
 sub isGroup			{ $DB->isGroup(@_); }
@@ -224,7 +226,7 @@ sub escape
 {
 	my ($esc) = @_;
 
-	$esc =~ s/(\W)/sprintf("%%%x",ord($1))/ge;
+	$esc =~ s/(\W)/sprintf("%%%02x",ord($1))/ge;
 	
 	return $esc;
 }

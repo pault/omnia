@@ -328,9 +328,9 @@ sub xml2node{
 				foreach (keys %data) {
 					delete $data{$_} if /^groupnode/;
 				}
-				$node_id = $DB->insertNode ($title, getId($TYPE), -1);
+				$node_id = $DB->replaceNode ($title, getId($TYPE), -1);
 			} else {
-				$node_id = $DB->insertNode ($title,
+				$node_id = $DB->replaceNode ($title,
 					getId($TYPE), -1, \%data);
 			}
 		}
@@ -423,6 +423,7 @@ sub xmlfile2node {
 
 sub genTag {
 	my ($tag, $content, $PARAMS, $embedXML) = @_;
+	return unless $tag;
 	$PARAMS ||= {};
 	
 	$XMLGEN = new XML::Generator if not $XMLGEN; 
