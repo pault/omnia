@@ -32,11 +32,11 @@ sub new
 
 	# Strip off the name of the object and store it
 	$class =~ /^.*::(.+)$/;
-	$$this{objectName} = $1;
+	$this->{objectName} = $1;
 
 	# default to an order of 50.  Other form objects can change this in their
 	# genObject() method.
-	$$this{updateExecuteOrder} = 50;
+	$this->{updateExecuteOrder} = 50;
 
 	return $this;
 }
@@ -198,7 +198,7 @@ sub cgiUpdate
 
 	# If the stored field name is separated by a ':', this form object is bound
 	# to a hash value.
-	($field, $var) = split(':', $field);
+	($field, $var) = split(/:(?!:)/, $field, 2);
 
 	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
@@ -210,7 +210,7 @@ sub cgiUpdate
 
 		if($vars)
 		{
-			$$vars{$var} = $value;
+			$vars->{$var} = $value;
 			$NODE->setHash($vars, $field);
 		}
 	}
@@ -262,21 +262,20 @@ sub genBindField
 
 	return "" unless($bindNode);
 
-	my $order = $$this{updateExecuteOrder};
-	$order ||= 50;
+	# Make sure any single digit "order" numbers are preceeded by a zero
+	my $order = sprintf( "%02d", $this->{updateExecuteOrder} || 50 );
 	my $bindid;
 
-	# Make sure any single digit "order" numbers are preceeded by a zero
-	$order = "0" . $order if(length($order) == 1);
-
-	if(ref $bindNode)
+	if (ref $bindNode)
 	{
-		$bindid = $$bindNode{node_id};
+		$bindid = $bindNode->{node_id};
 	}
-	elsif($bindNode eq 'new')
+	elsif ($bindNode eq 'new')
 	{
 		$bindid = 'new';
 	}
+
+	s/:/::/g for ($bindid, $field);
 
 	return $query->hidden(
 		-name => 'formbind_' . $$this{objectName} . '_' . $name,
@@ -310,15 +309,17 @@ sub getBindNode
 {
 	my ($this, $query, $name) = @_;
 
-	my $value = $query->param('formbind_' . $$this{objectName} . '_' . $name);
+	my $value = $query->param('formbind_' . $this->{objectName} . '_' . $name);
 	return undef unless($value);
 
-	$value =~ /^\d\d\:(.*?)\:/;
+	if ($value =~ /^\d\d:(.*?):(?!:)/)
+	{
 
-	my $nodeid = $1;
-	$nodeid = $query->param('node_id') if($nodeid eq 'new');
+		my $nodeid = $1;
+		$nodeid    = $query->param('node_id') if $nodeid eq 'new';
 
-	return $DB->getNode($nodeid);
+		return $DB->getNode($nodeid);
+	}
 }
 
 =cut
@@ -348,13 +349,15 @@ sub getBindField
 {
 	my ($this, $query, $name) = @_;
 
-	my $param = 'formbind_' . $$this{objectName} . '_' . $name;
+	my $param = 'formbind_' . $this->{objectName} . '_' . $name;
 	my $value = $query->param($param);
-	return undef unless($value);
+	return undef unless $value;
 
 	my $field;
-	$value =~ /^\d\d\:.*?\:(.*)/;
-	$field = $1;
+	if ( $value =~ /^\d\d:.*?:((?!:).*)/ )
+	{
+		$field = $1;
+	}
 
 	return $field;
 }

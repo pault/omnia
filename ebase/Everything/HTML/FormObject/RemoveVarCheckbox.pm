@@ -49,14 +49,15 @@ Returns the generated HTML for this RemoveVarCheckbox object.
 
 sub genObject
 {
-	my $this = shift @_;
+	my $this = shift;
 	my ($query, $bindNode, $field, $var) =
 		getParamArray("query, bindNode, field, var", @_);
 
 	# Form objects for updating the key/value pairs are < 55.  This way this
 	# will get executed after them, guaranteeing that they will be deleted.
-	$$this{updateExecuteOrder} = 55;
+	$this->{updateExecuteOrder} = 55;
 
+	$var     =~ s/:/::/g;
 	my $name = "remove_" . $field . "_" . $var;
 	my $html = $this->SUPER::genObject($query, $bindNode,
 		$field . ":$var", $name, "remove", "UNCHECKED") . "\n";
@@ -75,13 +76,13 @@ sub cgiUpdate
 	my $field = $this->getBindField($query, $name);
 	my $var;
 
-	($field, $var) = split(':', $field);
+	($field, $var) = split(/:(?!:)/, $field, 2);
 
 	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
 	my $vars = $NODE->getHash($field);
-	delete $$vars{$var} if(exists $$vars{$var});
+	delete $vars->{$var};
 	$NODE->setHash($vars, $field);
 
 	return 1;
