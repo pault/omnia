@@ -63,7 +63,7 @@ use vars qw($NODELET);
 
 
 
-####### Depricated functions #############
+####### Deprecated functions #############
 sub getVars
 { 
 	my ($NODE) = @_;
@@ -104,8 +104,8 @@ sub removeFromNodegroup
 #	sub
 #		tagApprove
 #
-#	purpose
-#		determines whether or not a tag (and it's specified attributes)
+#	Purpose
+#		determines whether or not a tag (and its specified attributes)
 #		are approved or not.  Returns the cleaned tag.  Used by htmlScreen
 #
 #	Parameters
@@ -138,8 +138,8 @@ sub tagApprove {
 				$cleanattr.=" ".$_.'="'.$1.'"';
 			}
 		}
-		"<".$close.$tag.$cleanattr.">";
-	} else { ""; }
+		return "<".$close.$tag.$cleanattr.">";
+	} else { return ""; }
 }
 
 
@@ -259,7 +259,7 @@ sub decodeHTML
 #		do the appropriate action based on who the user is.
 #
 #	Parameters
-#		$err - the error message returned from the system
+#		$err - a list ref of error messages returned from the system
 #		$CONTEXT - the node in which this code is coming from.
 #			This is optional, however you should try to pass this in all
 #			cases since it will help a lot when trying to find which node
@@ -282,7 +282,7 @@ sub htmlFormatErr
 		$str = htmlErrorUsers($err, $CONTEXT);
 	}
 
-	$str;
+	return $str;
 }
 
 
@@ -305,7 +305,11 @@ sub htmlFormatErr
 #		to handle the error.
 #
 #	Parameters
-#		$err - the error message returned from the system
+#		$errors - a list ref of error messages returned from the system
+#		$CONTEXT - the node in which this code is coming from.
+#			This is optional, however you should try to pass this in all
+#			cases since it will help a lot when trying to find which node
+#			contains the offending code.
 #
 #	Returns
 #		An html/text string that will be displayed to the browser.
@@ -368,9 +372,8 @@ sub htmlErrorUsers
 #		the average user of a site to see this stuff.
 #
 #	Parameters
-#		$code - the code snipit that is causing the error
-#		$err - the error message returned from the system
-#		$warn - the warning message returned from the system
+#		$errors - a list ref of error messages returned from the system
+#		$CONTEXT - the node from which the error came (optional)
 #
 #	Returns
 #		An html/text string that will be displayed to the browser.
@@ -409,17 +412,13 @@ sub htmlErrorGods
 		$str .= "<PRE>";
 		foreach my $line (@mycode)
 		{
-			$str .= sprintf("%4d: $line\n", $count++);
+			$str .= sprintf("%4d: %s\n", $count++, $line);
 		}
 
 		# Print the callstack to the browser too, so we can see where this
 		# is coming from.
 		$str .= "\n\n<b>Call Stack</b>:\n";
-		my @callStack = getCallStack();
-		while(my $func = pop @callStack)
-		{
-			$str .= "$func\n";
-		}
+		$str .= join("\n", reverse(getCallStack()));
 		$str .= "<b>End Call Stack</b>\n";
 		$str.= "</PRE>";
 	}
@@ -428,6 +427,21 @@ sub htmlErrorGods
 
 
 #############################################################################
+#	Sub
+#		jsWindow
+#
+#	Purpose
+#		Opens a new popup window with JavaScript
+#
+#	Parameters
+#		$name - the name of the new window
+#		$url - the URL for the new window
+#		$width - the width of the window
+#		$height - the height of the window
+#
+#	Returns
+#		Nothing of value.
+#
 sub jsWindow
 {
 	my($name,$url,$width,$height)=@_;
@@ -436,6 +450,20 @@ sub jsWindow
 
 
 #############################################################################
+#   Sub
+#       urlGen
+#
+#   Purpose
+#       This creates a URL to the current installation
+#
+#   Parameters
+#       $REF - a hashref of parameters and values used to create a query string
+#       $noquotes - an optional flag.  If true, it suppreses quotes around the
+#       	URL.
+#
+#	Returns
+#		A string containing the generated URL.
+#
 sub urlGen {
 	my ($REF, $noquotes) = @_;
 
@@ -465,6 +493,7 @@ sub urlGen {
 #
 #	Returns
 #		A string containing the code to execute or a blank string.
+#
 sub getCode
 {
 	my ($funcname, $args) = @_;
@@ -1278,6 +1307,19 @@ sub updateNodelet
 
 
 #############################################################################
+#	Sub
+#		genContainer
+#
+#	Purpose
+#		Creates the HTML for a container, recursively generating its parents if
+#		necessary.
+#
+#	Parameters
+#		$CONTAINER - a container node or the node_id of a container
+#
+#	Returns
+#		The generated HTML
+#
 sub genContainer
 {
 	my ($CONTAINER) = @_;
@@ -1439,15 +1481,16 @@ sub displayPage
 	# the backsideErrors htmlsnippet.  That node should have permissions set
 	# such that it is only executable by gods (or whoever should see the
 	# errors).
+	my $errors = '';
 	if($USER->isGod())
 	{
-		my $errors = formatGodsBacksideErrors();
-		$page =~ s/<BacksideErrors>/$errors/;
+		$errors = formatGodsBacksideErrors();
 	}
 	else
 	{
 		printBacksideToLogFile();
 	}
+	$page =~ s/<BacksideErrors>/$errors/;
 	
 	# Print the appropriate MIME type header so that browser knows what
 	# kind of data is coming down the pipe.
@@ -1795,6 +1838,7 @@ sub getTheme
 #
 #	Returns
 #		Nothing of value.
+#
 sub printHeader
 {
 	my ($datatype) = @_;
