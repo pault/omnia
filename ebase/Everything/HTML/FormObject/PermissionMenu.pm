@@ -17,6 +17,22 @@ use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
+my %masks = (
+	r => 0,
+	w => 1,
+	x => 2,
+	d => 3,
+	c => 4,
+);
+
+my %labels = (
+	r => 'Read',
+	w => 'Write',
+	x => 'Execute',
+	d => 'Delete',
+	c => 'Create',
+);
+
 #############################################################################
 #	Sub
 #		genObject
@@ -44,39 +60,24 @@ use vars qw(@ISA);
 #
 sub genObject
 {
-	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $perm, $default) =  getParamArray(
-		"query, bindNode, field, name, perm, default", @_);
+	my $this = shift;
+	my ($query, $bindNode, $field, $name, $perm, $default) = 
+		getParamArray( 'query, bindNode, field, name, perm, default', @_ );
 
-	$name ||= $field;
-	$default ||= "AUTO";
-
-	my %masks;
-	$masks{r} = 0;
-	$masks{w} = 1;
-	$masks{x} = 2;
-	$masks{d} = 3;
-	$masks{c} = 4;
-
-	my %labels;
-	$labels{r} = 'Read';
-	$labels{w} = 'Write';
-	$labels{x} = 'Execute';
-	$labels{d} = 'Delete';
-	$labels{c} = 'Create';
-
+	$name    ||= $field;
+	$default ||= 'AUTO';
 	unless($perm && defined $masks{$perm})
 	{
-		warn("Incorrect Permission! (need r,w,x,d, or c)");
-		return "";
+		Everything::logErrors( 'Incorrect Permission (need r, w, x, d, or c)' );
+		return '';
 	}
 
 	my $html = $this->SUPER::genObject($query, $bindNode,
-		$field.":$perm", $name) . "\n";
+		"${field}:$perm", $name) . "\n";
 	
-	if($default eq "AUTO" && (ref $bindNode))
+	if ($default eq 'AUTO' && UNIVERSAL::isa( $bindNode, 'Everything::Node' ))
 	{
-		my $perms = $$bindNode{$field};
+		my $perms = $bindNode->{$field};
 		$default = substr($perms, $masks{$perm}, 1);
 	}
 	else
@@ -99,26 +100,17 @@ sub cgiUpdate
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
 	my $value = $query->param($name);
 	my $field = $this->getBindField($query, $name);
-	my $perm;
 
-	($field, $perm) = split(':', $field);
+	($field, my $perm) = split(':', $field);
 
-	# Make sure this is not a restricted field that we cannot update
-	# directly.
+	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
-	my %masks;
-	$masks{r} = 0;
-	$masks{w} = 1;
-	$masks{x} = 2;
-	$masks{d} = 3;
-	$masks{c} = 4;
+	$value ||= 'i';
 
-	$value ||= "i";
-
-	# Perl at it's best.  Assigning a value to a substring to overwrite
+	# Perl at its best.  Assigning a value to a substring to overwrite
 	# the old permission setting.
-	substr($$NODE{$field}, $masks{$perm}, 1) = $value;
+	substr($NODE->{$field}, $masks{$perm}, 1) = $value;
 
 	return 1;
 }
