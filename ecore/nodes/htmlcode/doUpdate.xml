@@ -21,7 +21,7 @@ my $html;
 $html = $query->hidden(-name => 'op', -value => 'update', -override => 1);
 $html .= "\n";
 $html .= $query->hidden('node_id', $$NODE{node_id}) . "\n";
-$html .= $query->hidden('displaytype', 'edit') . "\n";
+$html .= $query->hidden('displaytype') . "\n";
 
 return $html;
 
