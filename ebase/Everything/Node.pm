@@ -892,7 +892,7 @@ sub updateLinks
 				'hits' => 1, 'food' => '500' }); 
 		$$this{DB}->sqlInsert("links", {'from_node' => $to_id,
 				'to_node' => $from_id, 'linktype' => $type,
-				'hits' => 1, 'food' => '500' }); 
+				'hits' => 1, 'food' => '500' }) unless $type; 
 	}
 	"";
 }
