@@ -38,6 +38,8 @@ XML::Parser	-- the most likely to cause errors, because of the expat dependancy
 
 XML::DOM 
 
+File::Spec
+
 =head1 DESCRIPTION
 
 Please make sure you have the latest CPAN.pm module when executing this code

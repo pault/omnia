@@ -119,7 +119,9 @@ WriteMakefile(
 									'DBI'				=> 1.13,
 									'XML::DOM'			=> 1.27,
 									'XML::Parser'		=> 2.26,
-									'Mysql'				=> 1.2202
+									'Mysql'				=> 1.2202,
+									'File::Spec'		=> 0.82,
+									'CGI'				=> 2.46
 								},
 	'clean'					=> 	{ FILES => 'web/index.pl tables/basenodes.txt' }
 );
