@@ -338,25 +338,27 @@ sub clearBackside
 sub logErrors
 {
 	my ($warning, $error, $code, $CONTEXT) = @_;
-	my $errors;
+	$warning ||= '';
+	$error   ||= '';
 
-	$warning ||= "";
-	$error ||= "";
-	return if($warning eq "" && $error eq "");
+	return unless $warning or $error;
 	
-	if($commandLine)
+	if ($commandLine)
 	{
-		print "############################################################\n";
-		print "Warning: $warning\n";
-		print "Error: $error\n";
-		print "Code:\n$code\n";
+		print "############################################################\n" .
+			"Warning: $warning\n" .
+			"Error: $error\n" .
+			"Code:\n$code\n" .
+			'(', join(')(', caller()), ")\n";
 	}
 	else
 	{
-		$errors = { 'warning' => $warning, 'error' => $error,
-			'code' => $code, 'context' => $CONTEXT };
-
-		push @fsErrors, $errors; 
+		push @fsErrors, {
+			code    => $code,
+			context => $CONTEXT,
+			error   => $error,
+			warning => $warning,
+		};
 	}
 
 	return 1;
