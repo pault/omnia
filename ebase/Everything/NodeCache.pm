@@ -111,6 +111,9 @@ sub new
 #		Check to see if the version table exists, and if it does not,
 #		create it!
 #
+#	Returns
+#		Nothing of value.
+#
 sub createVersionTable
 {
 	my ($this) = @_;
@@ -185,7 +188,7 @@ sub getCacheSize
 #	Purpose
 #		Query the cache to see if it has the node of the given title and
 #		type.  The type is required, otherwise we would need to return lists,
-#		and lists from a cache are most likely not going to complete.
+#		and lists from a cache are most likely not going to be complete.
 #
 #	Parameters
 #		$title - the string title of the node we are looking for
@@ -438,6 +441,18 @@ sub purgeCache
 
 
 #############################################################################
+#	Sub
+#		removeNodeFromHash
+#
+#	Purpose
+#		Remove a node from the cache hash.
+#
+#	Parameters
+#		$NODE - the node to remove.
+#
+#	Returns
+#		The node data, if it was removed.  Undef otherwise.
+#
 sub removeNodeFromHash
 {
 	my ($this, $NODE) = @_;
@@ -460,6 +475,19 @@ sub removeNodeFromHash
 
 
 #############################################################################
+#	Sub
+#		genHashKey
+#
+#	Purpose
+#		This creates a hopefully unique hash key for the cache.
+#
+#	Parameters
+#		$name - the name of the node to cache
+#		$type - the name of the nodetype of the node to cache
+#
+#	Returns
+#		The new hash key.
+#
 sub genHashKey
 {
 	my ($name, $type) = @_;
@@ -470,6 +498,18 @@ sub genHashKey
 
 
 #############################################################################
+#	Sub
+#		getGlobalVersion
+#
+#	Purpose
+#		Get the version number of this node from the global version db table.
+#
+#	Parameters
+#		$NODE - the node for which we want the version number.
+#
+#	Returns
+#		The version number -- will be 1 if this added it to the table.
+#
 sub getGlobalVersion
 {
 	my ($this, $NODE) = @_;
@@ -493,6 +533,19 @@ sub getGlobalVersion
 
 
 #############################################################################
+#	Sub
+#		isSameVersion
+#
+#	Purpose
+#		Check to see that this node has the same version number as the other
+#		httpd processes (that is, check the version db table).
+#
+#	Parameters
+#		$NODE - the node in question.
+#
+#	Returns
+#		1 if the version is the same, 0 if not.
+#
 sub isSameVersion
 {
 	my ($this, $NODE) = @_;
@@ -523,12 +576,12 @@ sub incrementGlobalVersion
 {
 	my ($this, $NODE) = @_;
 	my %version;
-	my $rowsEffected;
+	my $rowsAffected;
 	
-	$rowsEffected = $this->{nodeBase}->sqlUpdate('version',
+	$rowsAffected = $this->{nodeBase}->sqlUpdate('version',
 		{ -version => 'version+1' },  "version_id=$$NODE{node_id}");
 
-	if($rowsEffected == 0)
+	if($rowsAffected == 0)
 	{
 		# The version for this node does not exist.  We need to start it off.
 		$this->{nodeBase}->sqlInsert('version',
