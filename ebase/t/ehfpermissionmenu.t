@@ -3,13 +3,29 @@
 use strict;
 use vars qw( $AUTOLOAD );
 
-BEGIN {
+BEGIN
+{
 	chdir 't' if -d 't';
 	unshift @INC, '../blib/lib', 'lib/', '..';
 }
 
 use FakeNode;
 use Test::More tests => 26;
+
+sub AUTOLOAD
+{
+    return if $AUTOLOAD =~ /DESTROY$/;
+
+	no strict 'refs';
+	$AUTOLOAD =~ s/^main:://;
+
+	my $sub = "Everything::HTML::FormObject::PermissionMenu::$AUTOLOAD";
+
+	if (defined &{ $sub }) {
+		*{ $AUTOLOAD } = \&{ $sub };
+		goto &{ $sub };
+	}
+}
 
 $INC{ 'Everything.pm' } = $INC{ 'Everything/HTML/FormObject/FormMenu.pm' } = 1;
 
@@ -72,7 +88,8 @@ $INC{ 'Everything.pm' } = $INC{ 'Everything/HTML/FormObject/FormMenu.pm' } = 1;
 	is( $result, "html\na", 	
 		'... returning concatenation of SUPER() and genPopupMenu() calls' );
 
-	genObject( $node, 'q', { f => '12345' }, 'f', '', 'x' );
+	my $bound = bless { f => '12345' }, 'Everything::Node';
+	genObject( $node, 'q', $bound, 'f', '', 'x' );
 	is( $node->{_calls}[-1][2], 'f',
 		'... $name should default to $field' );
 	is( $node->{_calls}[-1][3], '3',
@@ -83,13 +100,15 @@ $INC{ 'Everything.pm' } = $INC{ 'Everything/HTML/FormObject/FormMenu.pm' } = 1;
 		'... default value should be undef if "AUTO" and lacking bound node' );
 
 	my $warning;
-	local $SIG{__WARN__} = sub { 
-		$warning = shift 
+	local *Everything::logErrors;
+	*Everything::logErrors = sub
+	{
+		$warning = shift;
 	};
 
 	$result = genObject( $node, '', '', '', '', 'wrong' );
 	like( $warning, qr/incorrect permission/i,
-		'... should warn on invalid $perm' );
+		'... should log warning on invalid $perm' );
 	is( $result, '',
 		'... and should return ""' ); 
 }
@@ -125,18 +144,4 @@ $INC{ 'Everything.pm' } = $INC{ 'Everything/HTML/FormObject/FormMenu.pm' } = 1;
 	$result = cgiUpdate( $node, $node, 'n', $node, 0 );
 	is( $result, 0,
 		'... should return 0 if !($overrideVerify or verifyFieldUpdate())' );
-}
-
-sub AUTOLOAD {
-    return if $AUTOLOAD =~ /DESTROY$/;
-
-	no strict 'refs';
-	$AUTOLOAD =~ s/^main:://;
-
-	my $sub = "Everything::HTML::FormObject::PermissionMenu::$AUTOLOAD";
-
-	if (defined &{ $sub }) {
-		*{ $AUTOLOAD } = \&{ $sub };
-		goto &{ $sub };
-	}
 }
