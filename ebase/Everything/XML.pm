@@ -284,9 +284,9 @@ sub genBasicTag
 	{
 		$type = $1;
 
-		# if the numeric value is not greater than zero, it is a liter value.
+		# if the numeric value is not greater than zero, it is a literal value.
 		# Nodes cannot have an id of less than 1.
-		$isRef = 1 if $content =~ /^\d+$/ && $content > 0;
+		$isRef = 1 if $content !~ /\D/ && $content > 0 && getRef( $content );
 	}
 
 	if ($isRef)
