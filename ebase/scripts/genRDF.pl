@@ -66,6 +66,6 @@ while (my $N = $csr->fetchrow_hashref) {
 		"\t".genTag("link", $url."?node_id=".$$N{node_id})
 	)."\n";
 }
-
+$csr->finish;
 print $XMLGEN->RDF("\n".$doc);
 
