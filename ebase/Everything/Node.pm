@@ -219,6 +219,7 @@ sub AUTOLOAD
 			# This a method that is in a node.  Eval it.
 			$code = $$METHOD{node}{code};
 			$N = $$METHOD{node};
+			$code =~ s/\015//gs;
 			$result = eval($code);
 			$error = $@;
 		}
