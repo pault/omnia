@@ -86,22 +86,21 @@ sub new
 #	params 
 #		WORKSPACE -- workspace_id, node, or 0 for none
 #
-sub joinWorkspace {
+sub joinWorkspace
+{
 	my ($this, $WORKSPACE) = @_;
-	
+
 	delete $this->{workspace} if exists $this->{workspace};
-    if ($WORKSPACE == 0) {
-		return 1;
-	}
+
+    return 1 unless $WORKSPACE;
 
 	$this->getRef($WORKSPACE);
 	return -1 unless $WORKSPACE;
-	$this->{workspace} = $WORKSPACE;
-	$this->{workspace}{nodes} = $WORKSPACE->getVars;
-	$this->{workspace}{nodes} ||= {};
-	$this->{workspace}{cached_nodes} = {};
+	$this->{workspace}                 = $WORKSPACE;
+	$this->{workspace}{nodes}          = $WORKSPACE->getVars;
+	$this->{workspace}{nodes}        ||= {};
+	$this->{workspace}{cached_nodes}   = {};
 
-	
 	1;
 }
 
@@ -889,7 +888,7 @@ sub constructNode
 	my $table;
 	my $firstTable;
 	my $tablehash;
-	
+
 	return unless($tables && @$tables > 0);
 
 	$firstTable = pop @$tables;
@@ -900,20 +899,21 @@ sub constructNode
 	}
 
 	$cursor = $this->sqlSelectJoined("*", $firstTable, $tablehash, $firstTable . "_id=" . $$NODE{node_id});
-	
+
 	return 0 unless(defined $cursor);
 
 	$DATA = $cursor->fetchrow_hashref();
 	$cursor->finish();
 
 	@$NODE{keys %$DATA} = values %$DATA;
-	
+
 	# Make sure each field is at least defined to be nothing.
 	foreach (keys %$NODE)
 	{
 		$$NODE{$_} = "" unless defined ($$NODE{$_});
 	}
 
+	$this->fix_node_keys( $NODE );
 	return 1;
 }
 
