@@ -15,7 +15,7 @@ package Everything::HTML;
 use strict;
 use Everything;
 use Everything::MAIL;
-require CGI;
+use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
 
@@ -442,12 +442,10 @@ sub urlGen {
 	$str .= '"' unless $noquotes;
 	$str .= "$ENV{SCRIPT_NAME}?";
 
-	foreach my $key (keys %$REF) {
-		$str .= $query->escape($key) .'='. $query->escape($$REF{$key}) .'&';
-	}
-	chop $str;
+	$str .= join('&', map { $query->escape($_) .'='. $query->escape($$REF{$_}) }
+				 keys %$REF);
 	$str .= '"' unless $noquotes;
-	$str;
+	return $str;
 }
 
 
@@ -464,6 +462,8 @@ sub urlGen {
 #           arguments must be in a comma delimited list, as with
 #           embedded htmlcode calls
 #
+#	Returns
+#		A string containing the code to execute or a blank string.
 sub getCode
 {
 	my ($funcname, $args) = @_;
@@ -742,7 +742,7 @@ sub linkNodeTitle
 	if ($lastnode) { $str .= "&lastnode_id=" . getId($lastnode);}
 	$str .= "\">$title</a>";
 
-	$str;
+	return $str;
 }
 
 
@@ -827,7 +827,7 @@ sub searchForNodeByName
 #
 #		The scope of variables are:
 #			$NODE is the node we are trying to display (the main node)
-#			$CURRENTNODE is the node in which this code is embeded.  Like
+#			$CURRENTNODE is the node in which this code is embedded.  Like
 #				a nodelet for example.
 #
 #		This differentiates the main node from where this code is coming
@@ -859,10 +859,10 @@ sub evalCode
 	$code =~ s/\015//gs;
 
 	# If we define any subroutines in our code, this will prevent
-	# us from getting the "subrouting * redefined" warning.
+	# us from getting the "subroutine * redefined" warning.
 	local $^W = 0;
 	
-	# if there are any logged errors when we get here.  They have nothing
+	# if there are any logged errors when we get here, they have nothing
 	# to do with this.  So, push them to the backside error log for them to
 	# get displayed later.
 	flushErrorsToBackside();
@@ -879,7 +879,7 @@ sub evalCode
 
 	clearFrontside();
 		
-	$str;
+	return $str;
 }
 
 
@@ -928,7 +928,7 @@ sub evalX
 	};
 
 	# If we define any subroutines in our code, this will prevent
-    # us from getting the "subrouting * redefined" warning.
+    # us from getting the "subroutine * redefined" warning.
 	local $^W = 0;
 		
 	my $result = eval($str);
@@ -976,7 +976,7 @@ sub htmlcode
 #		["..."] and evals the internal code.
 #
 #	Parameters
-#		block - The block of code to eval.  It must be of one of the forms
+#		$block - The block of code to eval.  It must be of one of the forms
 #			described above.
 #		$CURRENTNODE - the node in which this code is coming from.  Some
 #			code may need to know this (nodelets that modify themselves).
@@ -1091,8 +1091,8 @@ sub parseCode
 #		To list code so that it will not be parsed by Everything or the browser
 #
 #	Parameters
-#		code -- the block of code to display
-#		numbering -- set to true if linenumbers are desired
+#		$code -- the block of code to display
+#		$numbering -- set to true if linenumbers are desired
 #
 sub listCode
 {
@@ -1134,6 +1134,10 @@ sub listCode
 #	Parameters
 #		$func - the name of the htmlcode/htmlsnippet.  Basically, this is
 #			the string between the delimiting brackets.
+#		$NODE - the nodetype of the destination link (optional ?)
+#
+#	Returns
+#		A HTML link to the appropriate node, or the function name.
 #
 sub linkCode
 {
@@ -1143,14 +1147,7 @@ sub linkCode
 	# First we need to figger out the name of the htmlsnippet or htmlcode.
 	# If this is an htmlcode, it may have parameters.  We need to extract
 	# the name.
-	if($func =~ /(.*):(.*)/)
-	{
-		$name = $1;
-	}
-	elsif($func =~ /([^:]*)/)
-	{
-		$name = $func;
-	}
+	($name, undef) = split(/:/, $func, 2);
 	
 	my $NODE = getNode($name, $TYPE);
 
@@ -1209,7 +1206,7 @@ sub insertNodelet
 	# now that we are guaranteed that nltext is up to date, sub it in.
 	if ($html) { $html =~ s/CONTAINED_STUFF/$$NODELET{nltext}/s; }
 	else { $html = $$NODELET{nltext}; }
-	$html;
+	return $html;
 }
 
 
@@ -1243,7 +1240,7 @@ sub updateNodelet
 	# Return if we have generated it, and never want to update again (-1) 
 	return if($interval == -1 && $lastupdate != 0);
 	
-	# If we are beyond the update interal, or this thing has never
+	# If we are beyond the update interval, or this thing has never
 	# been generated before, generate it.
 	if((not $currTime or not $interval) or
 		($currTime > $lastupdate + $interval) || ($lastupdate == 0))
@@ -1265,12 +1262,14 @@ sub genContainer
 	my ($CONTAINER) = @_;
 	getRef $CONTAINER;
 	my $replacetext;
+	my $containers;
 
 	$replacetext = parseCode ($$CONTAINER{context}, $CONTAINER);
+	$containers = $query->param('containers') || '';
 
 	# SECURITY!  Right now, only gods can see the containers.  When we get
 	# a full featured security model in place, this will change...
-	if($USER->isGod() && ($query->param('containers') eq "show"))
+	if($USER->isGod() && ($containers eq "show"))
 	{
 		my $start = "";
 		my $middle = $replacetext;
@@ -1285,9 +1284,9 @@ sub genContainer
 		if($replacetext =~ /<body/i)
 		{
 			$replacetext =~ /(.*<body.*>)(.*)(<\/body>.*)/i;
-			my $start = $1;
-			my $middle = $2;
-			my $end = $3;
+			$start = $1;
+			$middle = $2;
+			$end = $3;
 		}
 
 		if($debugcontainer)
@@ -1304,20 +1303,23 @@ sub genContainer
 		$replacetext = $parenttext;
 	} 
 	
-	$replacetext;	
+	return $replacetext;	
 }
 
 
 ############################################################################
 #	Sub	containHtml
 #
-#	purpose
+#	Purpose
 #		Wrap a given block of HTML in a container specified by title
 #		hopefully this makes containers easier to use
 #
-#	params
-#		container - title of container
-#		html - html to insert
+#	Parameters
+#		$container - title of container
+#		$html - html to insert
+#
+#	Returns
+#		The HTML of the container with $html inside.
 #
 sub containHtml
 {
@@ -1326,7 +1328,7 @@ sub containHtml
 	my $str = genContainer($TAINER);
 
 	$str =~ s/CONTAINED_STUFF/$html/g;
-	$str;
+	return $str;
 }
 
 
@@ -1344,6 +1346,9 @@ sub containHtml
 #		$NODE - the node to display
 #		$user_id - the user that is trying to 
 #
+#	Returns
+#		Nothing of use.
+#
 sub displayPage
 {
 	my ($NODE, $user_id) = @_;
@@ -1353,7 +1358,7 @@ sub displayPage
 	$displaytype ||= 'display';
 	
 	# If this node we are trying to display is a symlink, we may need
-	# to got to a different node.
+	# to go to a different node.
 	if($NODE->isOfType("symlink") && $displaytype ne "edit")
 	{
 		$$VARS{followSymlinks} ||= "";
@@ -1439,6 +1444,14 @@ sub displayPage
 #
 #	Purpose
 #		This formats any errors that we may have in our "cache" so that
+#		gods can see them and correct them if necessary.
+#
+#	Parameters
+#		None.
+#
+#	Returns
+#		A nicely formatted HTML table suitable for display somewhere, or a
+#		blank string if there aren't any errors.
 #
 sub formatGodsBacksideErrors
 {
@@ -1472,6 +1485,19 @@ sub formatGodsBacksideErrors
 
 
 #############################################################################
+#	Sub
+#		printBacksideToLogFile
+#
+#	Purpose
+#		This formats any errors that we may have in our "cache" so that
+#		they'll appear nicely in the log.  Normal users can't see them.
+#
+#	Parameters
+#		None.
+#
+#	Returns
+#		Nothing of value.
+#
 sub printBacksideToLogFile
 {
 	Everything::flushErrorsToBackside();
@@ -1508,7 +1534,10 @@ sub printBacksideToLogFile
 #		function.  
 #
 #	Parameters
-#		node_id - the node we want to go to.
+#		$NODE - the node we want to go to.
+#
+#	Returns
+#		Nothing of value.
 #
 sub gotoNode
 {
@@ -1562,6 +1591,7 @@ sub confirmUser
 		# way to just get the now() string from the database, we would
 		# not need to do this, which would save at least 1 node load
 		# per page load.
+		# 'SELECT now()' will work... where's it go?
 		return getNode($$USER{node_id}, 'force');
 	} 
 
@@ -1593,7 +1623,7 @@ sub parseLinks
 	my ($text, $NODE) = @_;
 
 	$text =~ s/\[(.*?)\]/linkNodeTitle ($1, $NODE)/egs;
-	$text;
+	return $text;
 }
 
 
@@ -1684,8 +1714,10 @@ sub getCGI
 #		settings, they are kept in the user's settings
 #
 #	Parameters
-#
 #		this function references global variables, so no params are needed
+#
+#	Returns
+#		Blank string if it succeeds, undef if it fails.
 #
 sub getTheme
 {
@@ -1741,6 +1773,8 @@ sub getTheme
 #			to display	('image/gif', 'text/html', etc).  If not
 #			provided, the header will default to 'text/html'.
 #
+#	Returns
+#		Nothing of value.
 sub printHeader
 {
 	my ($datatype) = @_;
@@ -1768,11 +1802,14 @@ sub printHeader
 #		handleUserRequest
 #
 #	Purpose
-#		This check the CGI information to find out what the user is trying
+#		This checks the CGI information to find out what the user is trying
 #		to do and execute their request.
 #
 #	Parameters
 #		None.  Uses the global package variables.
+#
+#	Returns
+#		Nothing of value.
 #
 sub handleUserRequest
 {
@@ -1968,6 +2005,12 @@ sub opUnlock
 #	Purpose
 #		Get the 'op' code for the specified operation.
 #
+#	Parameters
+#		$opname - the title of the operation
+#
+#	Returns
+#		A string containing the operation's code, or undef.
+#
 sub getOpCode
 {
 	my ($opname) = @_;
@@ -1994,7 +2037,7 @@ sub getOpCode
 #		providing functionality that can be shared from any node.
 #
 #		By creating an opcode node you can create new ops or override the
-#		defaults.  Just becareful if you override any default operations.
+#		defaults.  Just be careful if you override any default operations.
 #		For example, if you override the 'login' op with a broken
 #		implementation you may not be able to log in.
 #
