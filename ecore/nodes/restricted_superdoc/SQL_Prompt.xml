@@ -18,12 +18,17 @@ $str;
 
 &lt;p&gt;
 [%
+#Cleaner output of SQL Errors
+local $SIG{__WARN__} = sub { return };
+
 my $execstr = $query-&gt;param(&quot;sqlquery&quot;);
-my $str = &quot;&quot;;
+my $str     = &quot;&quot;;
 
 if($execstr)
 {
-  my $cursor = $DB-&gt;getDatabaseHandle()-&gt;prepare($execstr);
+  my $dbh    = $DB-&gt;getDatabaseHandle();
+  my $cursor = eval { $dbh-&gt;prepare($execstr) };
+  return 'Bad SQL: ' . $dbh-&gt;errstr . &quot;($@)\n&quot; if $@;
 
   if($cursor-&gt;execute())
   {
@@ -60,6 +65,10 @@ if($execstr)
         $str ||= &quot;&lt;tr&gt;&lt;td&gt;&lt;em&gt;No results found&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;&quot;;
         $str = $hdr.$str.&quot;&lt;/table&gt;\n&quot;;
   }
+  else
+  {
+    return $dbh-&gt;errstr;
+  }
 }
 
 $str;
@@ -76,4 +85,3 @@ $str;
   <field name="title" type="literal_value">SQL Prompt</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>
 </NODE>
-
