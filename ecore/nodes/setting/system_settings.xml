@@ -15,7 +15,7 @@
   <vars>
     <var name="GUshownodelets" type="literal_value">1</var>
     <var name="GUshowsearchform" type="literal_value">1</var>
-    <var name="default_node" type="noderef" type_nodetype="superdoc,nodetype">Welcome to Everything!</var>
+   <var name="default_node" type="noderef" type_nodetype="superdoc,nodetype">Welcome to Everything!</var>
     <var name="default_nodeletgroup" type="noderef" type_nodetype="nodeletgroup,nodetype">default nodelets</var>
     <var name="default_theme" type="noderef" type_nodetype="theme,nodetype">default theme</var>
     <var name="duplicatesFound_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</var>
@@ -32,5 +32,7 @@
     <var name="preferred_theme" type="noderef" type_nodetype="themesetting,nodetype">root's default themesettings</var>
     <var name="searchResults_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</var>
     <var name="showlocations" type="literal_value">1</var>
+    <var name="site_name" type="literal_value">Random Everything Site</var>
+    <var name="site_url" type="literal_value">http://localhost</var>
   </vars>
 </NODE>

@@ -105,15 +105,15 @@ telling you your generated password.";
 #send some email;
 my ($n) = getNode('New User Mail', 'mail');
 getRef $n;
-$$n{doctext} =~ s/\&lt;name\>/$$NEWUSER{realname}/;
-$$n{doctext} =~ s/\&lt;user\>/$$NEWUSER{title}/;
-$$n{doctext} =~ s/\&lt;passwd\>/$$NEWUSER{passwd}/;
-$$n{doctext} =~ s/\&lt;site_name\>/$HTMLVARS{site_name}/;
+$$n{doctext} =~ s/\&lt;name\>/$$NEWUSER{realname}/g;
+$$n{doctext} =~ s/\&lt;user\>/$$NEWUSER{title}/g;
+$$n{doctext} =~ s/\&lt;passwd\>/$$NEWUSER{passwd}/g;
+$$n{doctext} =~ s/\&lt;site_name\>/$HTMLVARS{site_name}/g;
 $$n{doctext} =~
-s/\&lt;homenode\>/$HTMLVARS{site_url}index\.pl\?node=$$NEWUSER{title}\&amp;type=user/;
-$$n{doctext} =~ s/\&lt;site_url\>/$HTMLVARS{site_url}/;
+s/\&lt;homenode\>/$HTMLVARS{site_url}index\.pl\?node=$$NEWUSER{title}\&amp;type=user/g;
+$$n{doctext} =~ s/\&lt;site_url\>/$HTMLVARS{site_url}/g;
 $$n{doctext} =~
-s/\&lt;login\>/$HTMLVARS{site_url}index\.pl\?node_id=$HTMLVARS{login_node}/;
+s/\&lt;login\>/$HTMLVARS{site_url}index\.pl\?node_id=$HTMLVARS{login_node}/g;
 
 
 
@@ -124,7 +124,6 @@ $str;
 
 
 %]
-[&lt;backsideErrors>]
 
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
