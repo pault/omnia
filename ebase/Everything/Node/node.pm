@@ -644,6 +644,67 @@ sub updateFromImport
 	$this->update($USER);
 }
 
+
+#############################################################################
+#	Sub
+#		verifyFieldUpdate
+#
+#	Purpose
+#		This should be called during the cgiUpdate() of all FormObjects
+#		that modify a critical node{field} directly to prevent hacked
+#		CGI parameters from breaching security.
+#
+#		This is called by the FormObject stuff to verify that a particular
+#		field on a node of this nodetype can be updated directly through the
+#		web interface.  There are some fields that should never be able
+#		to update directly through the web interface.  If it were possible
+#		to edit these fields, external pages with the correct form fields
+#		and CGI parameters could be constructed to hack the site and
+#		circumvent normal security procedures.
+#
+#		Any nodetypes that have data in fields that should not be allowd
+#		to be updated directly though the web interface should override
+#		this method and provide their own list *in addition* to this.
+#		Derived implementations should do something like:
+#
+#		my $verify = do_their_own_verification();
+#		return ($verify && $this->SUPER());
+#
+#	Parameters
+#		$field - The field to check to see if it is ok to update directly.
+#
+#	Returns
+#		True if it is ok to update the field directly, false otherwise.
+#
+sub verifyFieldUpdate
+{
+	my ($this, $field) = @_;
+	my $restrictedFields = {
+		'createtime' => 1,
+		'node_id' => 1,
+		'type_nodetype' => 1,
+		'hits' => 1,
+		'loc_location' => 1,
+		'reputation' => 1,
+		'lockedby_user' => 1,
+		'locktime' => 1,
+		'authoraccess' => 1,
+		'groupaccess' => 1,
+		'otheraccess' => 1,
+		'guestaccess' => 1,
+		'dynamicauthor_permission' => 1,
+		'dynamicgroup_permission' => 1,
+		'dynamicother_permission' => 1,
+		'dynamicguest_permission' => 1
+	};
+
+	# We don't want to be able to directly modify the primary keys of
+	# the various tables we join on.
+	my $isID = ($field =~ /_id$/);
+	return (not (exists $$restrictedFields{$field} or $isID) );
+}
+
+
 #############################################################################
 #
 #	Sub

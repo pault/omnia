@@ -19,9 +19,9 @@
 [{textarea:doctext}]
 
 &lt;p>[{submit}]</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="pagetype_nodetype">superdoc</field>
-  <field type="noderef" type_nodetype="container,nodetype" name="parent_container">formcontainer</field>
-  <field type="literal_value" name="permissionneeded">w</field>
-  <field type="literal_value" name="title">superdoc edit page</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">htmlpage</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">superdoc edit page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>

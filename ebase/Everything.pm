@@ -42,6 +42,7 @@ sub BEGIN
 	@ISA=qw(Exporter);
 	@EXPORT=qw(
 		$DB
+		getParamArray
 		getRef 
 		getId 
 		getTables
@@ -178,6 +179,61 @@ sub clearLog
 
 	if (open(ELOG, "> $everythingLog")) {	
 		print ELOG "$time: Everything log cleared";
+	}
+}
+
+
+#############################################################################
+#	Sub
+#		getParamArray
+#
+#	Purpose
+#		This function allows your other functions to accept either an
+#		array of values, or a hash of "-name => value" pairs.  Just call
+#		this function with the order of parameters (in case @_ is an
+#		array), and @_.  This will parse everything apart and return
+#		a hashref that contains paramName => value no matter if the
+#		@_ is an array or hash.
+#
+#	Parameters
+#		$names - a string of parameter names that also defines the order
+#			of the parameters if a hash is passed.
+#		@_ - the parameters passed to your function
+#
+#	Returns
+#		An array of the parameters.  For example, if your function is:
+#			myfunc(name, age, weight, height);
+#		You would use this function like:
+#			my $params = getParamArray("name, age, weight, height", @_);
+#		This would then return to you an array of the values in the order
+#		specified, no matter if they were originally passed as an array,
+#		or a "-name => value" pair list.
+#
+sub getParamArray
+{
+	my $names = shift @_;
+	my ($first) = @_;
+
+	if($first =~ /^-/)
+	{
+		# The first parameter starts with a '-'.  This indicates that
+		# @_ is a hash/value pair.  We need to convert this into an
+		# array based on the order specified.
+		my %hash = @_;
+		my @names = split('\s*,\s*', $names);
+		my @params;
+
+		foreach (@names)
+		{
+			push @params, $hash{'-'.$_};
+		}
+
+		return @params;
+	}
+	else
+	{
+		# @_ contains an array of values, just return it
+		return @_;
 	}
 }
 

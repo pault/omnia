@@ -1,16 +1,16 @@
 <NODE export_version="0.5" nodetype="nodelet" title="admin nodelet">
-  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
-  <field type="literal_value" name="authoraccess">-i-i</field>
-  <field type="literal_value" name="dynamicauthor_permission">0</field>
-  <field type="literal_value" name="dynamicgroup_permission">0</field>
-  <field type="literal_value" name="dynamicguest_permission">0</field>
-  <field type="literal_value" name="dynamicother_permission">-1</field>
-  <field type="literal_value" name="group_usergroup">-1</field>
-  <field type="literal_value" name="groupaccess">-i-i-</field>
-  <field type="literal_value" name="guestaccess">-i-i-</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodelet</field>
-  <field type="noderef" type_nodetype="nodelet,nodetype" name="mini_nodelet">admin Nodelet Mini</field>
-  <field type="literal_value" name="nlcode">&lt;table border=0>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">-i-i</field>
+  <field name="dynamicauthor_permission" type="literal_value">0</field>
+  <field name="dynamicgroup_permission" type="literal_value">0</field>
+  <field name="dynamicguest_permission" type="literal_value">0</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">-i-i-</field>
+  <field name="guestaccess" type="literal_value">-i-i-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
+  <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</field>
+  <field name="nlcode" type="literal_value">&lt;table border=0>
  &lt;tr>
   &lt;td nowrap>
     &lt;font size=2>
@@ -61,8 +61,8 @@ linkNode(getNode('create node', 'restricted_superdoc'),
 &lt;/table>
 
 [{adminbox}]</field>
-  <field type="literal_value" name="nlgoto">0</field>
-  <field type="literal_value" name="nltext">&lt;table border=0>
+  <field name="nlgoto" type="literal_value">0</field>
+  <field name="nltext" type="literal_value">&lt;table border=0>
  &lt;tr>
   &lt;td nowrap>
     &lt;font size=2>
@@ -120,9 +120,9 @@ function cloneNode()
         }
 &lt;/SCRIPT>
 &lt;td bgcolor='#FF9999' align=center>&lt;a href='javascript: confirmDelete();'>&lt;img src='images/icon_delete.gif' border=0>&lt;/a>&lt;/td>&lt;/tr>&lt;/table></field>
-  <field type="literal_value" name="otheraccess">-i-i-</field>
-  <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>
-  <field type="literal_value" name="title">admin nodelet</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodelet</field>
-  <field type="literal_value" name="updateinterval">0</field>
+  <field name="otheraccess" type="literal_value">-i-i-</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
+  <field name="title" type="literal_value">admin nodelet</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

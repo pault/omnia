@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="clone to type">
-  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
-  <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="doctext">[%
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[%
 my $str;
 my $src_id = $query->param("srcnode_id");
 my $newtype = $query->param("newtype");
@@ -84,15 +84,15 @@ else
      $str.=htmlcode('closeform');
 } 
 %]</field>
-  <field type="literal_value" name="dynamicauthor_permission">-1</field>
-  <field type="literal_value" name="dynamicgroup_permission">-1</field>
-  <field type="literal_value" name="dynamicguest_permission">-1</field>
-  <field type="literal_value" name="dynamicother_permission">-1</field>
-  <field type="literal_value" name="group_usergroup">-1</field>
-  <field type="literal_value" name="groupaccess">iiiii</field>
-  <field type="literal_value" name="guestaccess">iiiii</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">restricted_superdoc</field>
-  <field type="literal_value" name="otheraccess">iiiii</field>
-  <field type="literal_value" name="title">clone to type</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">restricted_superdoc</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">clone to type</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>
 </NODE>

@@ -1,16 +1,16 @@
 <NODE export_version="0.5" nodetype="nodelet" title="Node Bucket">
-  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
-  <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="dynamicauthor_permission">-1</field>
-  <field type="literal_value" name="dynamicgroup_permission">-1</field>
-  <field type="literal_value" name="dynamicguest_permission">-1</field>
-  <field type="literal_value" name="dynamicother_permission">-1</field>
-  <field type="literal_value" name="group_usergroup">-1</field>
-  <field type="literal_value" name="groupaccess">iiii-</field>
-  <field type="literal_value" name="guestaccess">iiii-</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodelet</field>
-  <field type="literal_value" name="mini_nodelet">0</field>
-  <field type="literal_value" name="nlcode">[%
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
+  <field name="mini_nodelet" type="literal_value">0</field>
+  <field name="nlcode" type="literal_value">[%
 return "" unless($NODE->hasAccess($USER, "w"));
 
 my $PARAMS = { op => 'addBucket', "bnode_" . $$NODE{node_id} => 1 };
@@ -74,9 +74,9 @@ $str;
 
 Empty&lt;br>
 </field>
-  <field type="literal_value" name="otheraccess">iiii-</field>
-  <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>
-  <field type="literal_value" name="title">Node Bucket</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodelet</field>
-  <field type="literal_value" name="updateinterval">0</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
+  <field name="title" type="literal_value">Node Bucket</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
+  <field name="updateinterval" type="literal_value">0</field>
 </NODE>

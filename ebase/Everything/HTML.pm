@@ -2057,9 +2057,125 @@ sub opUnlock
 }
 
 
+#############################################################################
+#	Sub
+#		opUpdate
+#
+#	Purpose
+#		This is the operation that handles the automated upates to the
+#		node data in the Everything system.  This looks for CGI parameters
+#		of the form 'formbind_FormObjectName_FormItemName', where
+#		'FormObjectName', is the name of the FormObject (nodetype) that
+#		generated the HTML for this, and 'FormItemName' is the name of
+#		the HTML form item (ie <input name='FormItemName'...>).
+#
+#		If it finds any parameters that matches that pattern, it constructs
+#		a node of that form object type (ie textfield, checkbox, etc) and
+#		passes the name of the form object to it.  This allows the object
+#		to reconstruct itself based on the fact that it knows what it
+#		generated.  The object can then determine what node and field it
+#		is bound to, and the form object handles the update of the node.
+#
+#		If any of the fields fail the verification, the system will go
+#		to the node specified by the node_id paramter (in most cases,
+#		this should be back to the page that contained the form that
+#		was doing the update).
+#
+#		If all of the fields that need to be updated verify that the
+#		user has access to update and that the data entered by the user
+#		is valid, then we proceed to update the fields of the node(s).
+#		None of the nodes are actually updated until all fields have
+#		been updated.  This is to allow us to make 1 update() call per
+#		node rather than calling update per field update.
+#
+#		Once all of the nodes have been updated, this will look for
+#		two more optional parameters: 'opupdate_redirect', and
+#		'opupdate_displaytype'.  If 'opupdate_redirect' is specified,
+#		it should contain the numeric node id of the node to go to.
+#		opupdate_display type should contain the type of display for
+#		that node.  For example, this way you could update a node,
+#		can automatically redirect to another node's edit page.
+#
 sub opUpdate
 {
+	my @params = $query->param();
+	my %UPDATENODES;
+	my %UPDATEOBJECT;
+	my $CGIVERIFY = 1;  # Assume that we succeed until we fail
 	
+	my $preprocess = $query->param('opupdate_preprocess');
+	my $postprocess = $query->param('opupdate_postprocess');
+
+	htmlcode($preprocess) if($preprocess);
+	
+	# First, we need to verify that all fields in this update are
+	# what we expect.
+	foreach my $param (@params)
+	{
+		next unless($param =~ /^formbind_(.*?)_(.*)$/);
+		my $objectType = $1;
+		my $objectName = $2;
+		my $formObject = $DB->newNode($objectType);
+		next unless($formObject);
+		
+		my $verify = $formObject->cgiVerify($query, $objectName, $USER);
+
+		if($$verify{failed})
+		{
+			$GLOBAL{VERIFYFAILED} ||= {};
+			$GLOBAL{VERIFYFAILED}{$objectName} = $$verify{failed};
+
+			$CGIVERIFY = 0;
+		}
+		elsif($$verify{node})
+		{
+			$UPDATEOBJECT{$param} = $$verify{node};
+			$UPDATENODES{$$verify{node}} ||= getNode($$verify{node})
+		}
+	}
+
+	# If anything failed a verify, abort the update
+	return unless($CGIVERIFY);
+
+	# Ok, all form objects that were bound to something verified that they
+	# can be updated.  So, lets do it!  This just modifies the hash objects
+	# as needed.  We wait until all updates are finished before actually
+	# committing the changes to the database via update().  This way we
+	# avoid doing an update() for each change.
+	my $god = $USER->isGod();
+	foreach my $param (@params)
+	{
+		next unless($param =~ /^formbind_(.*?)_(.*)$/);
+		my $objectType = $1;
+		my $objectName = $2;
+		my $formObject = $DB->newNode($objectType);
+		next unless($formObject);
+
+		if(exists $UPDATEOBJECT{$param})
+		{
+			$formObject->cgiUpdate($query, $objectName,
+				$UPDATENODES{$UPDATEOBJECT{$param}}, $god)
+		}
+	}
+
+	# Now that we have all of the nodes updated as needed, we can commit
+	# them to the database.
+	foreach my $node (keys %UPDATENODES)
+	{
+		$UPDATENODES{$node}->update($USER);
+	}
+
+	# Lastly, we need to determine if we have any kind of redirection
+	# upon succeeding with the update.
+	my $goto_node = $query->param('opupdate_redirect');
+	my $goto_displaytype = $query->param('opupdate_displaytype');
+
+	$query->param('node_id', $goto_node) if($goto_node);
+	$query->param('displaytype', $goto_displaytype) if($goto_displaytype);
+	
+	htmlcode($postprocess) if($postprocess);
+
+	return 1;
 }
 
 

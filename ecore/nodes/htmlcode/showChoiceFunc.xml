@@ -1,0 +1,153 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="showChoiceFunc">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">no strict;
+use Everything::XML;
+my @modules = ('Everything', 'Everything::HTML', 'Everything::XML', 'Everything::NodeBase', 'Everything::NodeCache', 'Everything::Node::node', 'Everything::Node::nodeball','Everything::Node::nodegroup', 'Everything::Node::nodetype', 'Everything::Node::setting', 'Everything::Node::theme', 'Everything::Node::user', 'Everything::Node::nodetype');
+my $str;
+my $i;
+if (not $query->param('choicefunc')) 
+{
+  my %funcs;
+  my $rows = 0;
+  $str .= "&lt;table border=0 cellpadding=1 cellspacing=2>";
+
+  my $colwidth = "100%";
+  foreach my $modname (@modules) 
+  {
+    local *stash;
+    *stash = *{ "${modname}::" };
+    my @modfuncs;
+    foreach(keys %stash) 
+    {
+       push (@modfuncs, $_) 
+       if (defined &amp;{ $stash{$_} } 
+        and ($modname eq 'Everything' or not exists $Everything::{$_})); 
+    }
+   @modfuncs = sort {$a cmp $b} @modfuncs;
+   $funcs{$modname} = \@modfuncs;
+   $rows = int(@modfuncs);
+   $str.="&lt;TH width=$colwidth colspan = 5 bgcolor=black>&lt;font color=white>$modname&lt;/white>&lt;/TH>";
+ 
+   my $count=0;
+   while ($count &lt; $rows) 
+   {
+     $str.="&lt;TR>";
+     for ($i=1; $i&lt;=5; $i++)
+     {
+       $str.= "&lt;TD bgcolor=#cbcbcb>"; 
+       if (int (@{ $funcs{$modname} }) > $count)
+         { $str.=linkNode($NODE, $funcs{$modname}[$count], 
+             { choicefunc => $funcs{$modname}[$count] });
+         }
+       else
+         { $str.="&amp;nbsp;"; }
+               
+        
+         $str.="&lt;/TD>";
+         $count++;
+      }
+     $str.="&lt;/TR>\n"
+   }
+   $str.="&lt;tr>&lt;td colspan=5>&lt;/td>&lt;/tr>";
+  }
+	
+  $str.="&lt;TH width=$colwidth colspan=5 bgcolor=black>&lt;font color=white>HTMLCODE&lt;/font>&lt;/TH>\n";
+  my $HTMLCODE = getNodeWhere({}, getType('htmlcode'));
+  $funcs{htmlcode}= $HTMLCODE;
+  $rows=int(@$HTMLCODE);
+ my $count=0;
+   while ($count &lt; $rows) 
+   {
+     $str.="&lt;TR>";
+     for ($i=1; $i&lt;=5; $i++)
+     {       
+        $str.="&lt;TD bgcolor=#cbcbcb>";
+        $str.= linkNode($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
+        $str.="&lt;/TD>\n";
+        $count++;
+     }
+    $str.="&lt;/tr>\n";
+    }  
+  return $str.="&lt;/table>";
+}
+
+#else...
+$str.= "or go back to the code ".linkNode($NODE, 'index');
+my $choicefunc = $query->param('choicefunc');
+my $parentmod = "";
+ if ($choicefunc =~ /^(.+?)\:\:(\w+)$/) {
+  $choicefunc = $2;
+  $parentmod = $1;
+
+ }
+foreach my $modname (@modules) {
+    next if $parentmod;
+    local *stash;
+    *stash = *{ "${modname}::" };
+    if (exists $stash{$choicefunc}) {
+        $parentmod=$modname;
+    }
+}
+
+unless ($parentmod) {
+   return "&lt;i>sorry, man.  No dice on $choicefunc&lt;/i>&lt;br>\n"; 
+}
+
+my $parentfile = "/usr/lib/perl5/site_perl/5.005/" . $parentmod.".pm";
+$parentfile =~ s/\:\:/\//g;
+
+open MODULE, $parentfile or die;
+my @mod = &lt;MODULE>;
+close MODULE;
+
+if (@mod) {
+  #$str.= "module $parentmod loaded: ".int(@mod)." lines\n";
+} else {
+  $str.= "hmm. couldn't load modules $parentfile\n";
+}
+
+my $count = 0;
+my @lines;
+while (@mod > $count and not @lines) {
+    if ($mod[$count] =~ /^sub $choicefunc\s*/) {
+        my $i = $count;
+        my $flag = "";
+        do {
+            $i--;
+            $mod[$i]=~/\s*(\S)/;
+            if (not defined $1 or $1 eq "#") {
+                $flag = "yes!";
+            } else {
+                $flag="";
+            }
+        } while ($i > 0 and $flag);
+
+        do {
+            $i++;
+            push @lines, $mod[$i];
+        } while (not ($mod[$i] =~ /^\}\s*$/ ));
+
+    }
+    $count++;
+}
+
+if (@lines) {
+  $str.= listCode(join ("", @lines));
+} else {
+  $str.= "\n&lt;br>no comment found\n";
+}
+$str;
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">showChoiceFunc</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>

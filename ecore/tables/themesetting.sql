@@ -1,13 +1,12 @@
-# MySQL dump 8.11
+# MySQL dump 6.0
 #
 # Host: localhost    Database: everything
 #--------------------------------------------------------
-# Server version	3.23.28-gamma-log
+# Server version	3.22.25
 
 #
 # Table structure for table 'themesetting'
 #
-
 CREATE TABLE themesetting (
   themesetting_id int(11) DEFAULT '0' NOT NULL,
   parent_theme int(11) DEFAULT '0' NOT NULL,

@@ -112,6 +112,28 @@ sub getNodeKeys
 
 
 #############################################################################
+#	Sub
+#		verifyFieldUpdate
+#
+#	Purpose
+#		See Everything::Node::node::verifyFieldUpdate() for info.
+#
+sub verifyFieldUpdate
+{
+	my ($this, $field) = @_;
+
+	my $restrictedFields = {
+		'title' => 1,
+		'karma' => 1,
+		'lasttime' => 1
+	};
+
+	my $verify = (not exists $$restrictedFields{$field});
+	return ($verify && $this->SUPER());
+}
+
+
+#############################################################################
 # End of package
 #############################################################################
 

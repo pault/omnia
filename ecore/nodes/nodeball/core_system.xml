@@ -1,280 +1,293 @@
 <NODE export_version="0.5" nodetype="nodeball" title="core system">
-  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
-  <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="dynamicauthor_permission">-1</field>
-  <field type="literal_value" name="dynamicgroup_permission">-1</field>
-  <field type="literal_value" name="dynamicguest_permission">-1</field>
-  <field type="literal_value" name="dynamicother_permission">-1</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodetype</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">container</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">dbtable</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">document</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">file</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">htmlcode</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">htmlpage</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">image</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">maintenance</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">meta-user</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">node</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodeball</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodegroup</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodelet</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodeletgroup</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">restricted_superdoc</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">setting</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">superdoc</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">user</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">usergroup</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">main container</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">formcontainer</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">general container</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">general nodelet container</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">nodeletshadow container</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">stdcontainer</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">document</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">container</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">htmlcode</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">htmlpage</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">image</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">links</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">mail</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">maintenance</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">node</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">nodegroup</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">nodelet</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">nodetype</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">setting</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">user</member>
-    <member type="noderef" type_nodetype="document,nodetype" name="group_node">Everything 2 Idea List</member>
-    <member type="noderef" type_nodetype="document,nodetype" name="group_node">Everything 2 Todo list</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">adminbar</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">basichead</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">checkvar</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">closeform</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">coreStatus</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">create_nodes</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">displayInherited</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">displayNODE</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">displaySetting</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">displaytable</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">displayvars</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">editvars</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">encodehtml</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">groupList</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">groupMenu</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">listFields</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">listcode</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">listgroup</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">node_menu</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">nodeletMetaContainer</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">onepix</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">openform</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">parsecode</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">parselinks</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">parsetime</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">password_field</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">searchform</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">serverstats</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">settingList</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">settingMenu</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">setvar</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">textarea</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">textfield</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">updatetable</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">userbody</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">uploadimage</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">varmenu</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">windowview</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">yesno_field</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">container display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">container edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">dbtable display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">dbtable edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">document display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">document edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">htmlcode display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">htmlcode edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">htmlpage display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">htmlpage edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">image display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">image edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">image upload page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">maintenance display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">maintenance edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">node display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">node edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodeball display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodeball edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodegroup display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodegroup edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodegroup editor page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodelet display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodelet edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodetype display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodetype edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">setting display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">setting edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">superdoc display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">superdoc edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">user display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">user edit page</member>
-    <member type="noderef" type_nodetype="image,nodetype" name="group_node">noisy sunset</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">%$NODE</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">CGI::param</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Links</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">New Nodes</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Node Statistics</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Other Users</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Server Statistics</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Tick tock</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">admin nodelet</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">nodecache</member>
-    <member type="noderef" type_nodetype="nodeletgroup,nodetype" name="group_node">all nodelets</member>
-    <member type="noderef" type_nodetype="nodeletgroup,nodetype" name="group_node">default nodelets</member>
-    <member type="noderef" type_nodetype="nodeletgroup,nodetype" name="group_node">system nodelets</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Gigantic Node Lister</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">create node</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">node locked</member>
-    <member type="noderef" type_nodetype="setting,nodetype" name="group_node">system settings</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Duplicates Found</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Not found</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Permission Denied</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Search Results</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">The Default Node</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">The Everything Tour</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">User settings</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">login</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">user variables</member>
-    <member type="noderef" type_nodetype="user,nodetype" name="group_node">Guest User</member>
-    <member type="noderef" type_nodetype="user,nodetype" name="group_node">root</member>
-    <member type="noderef" type_nodetype="usergroup,nodetype" name="group_node">gods</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">mail</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">mail display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">node xml page</member>
-    <member type="noderef" type_nodetype="setting,nodetype" name="group_node">restricted fields</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">createnewnode</member>
-    <member type="noderef" type_nodetype="theme,nodetype" name="group_node">default theme</member>
-    <member type="noderef" type_nodetype="themesetting,nodetype" name="group_node">root's default themesettings</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">theme</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">themesetting</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">themesetting display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">themesetting edit page</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">themesetting</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">nodelet container</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">personal nodelet</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">titlebar</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">opcode</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Node Cloner</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">show container</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">permission</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">htmlsnippet</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">editPermissions</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">updatePermissions</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">displayInheritedPermissions</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">editDynamicPermissions</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">node permissions page</member>
-    <member type="noderef" type_nodetype="htmlsnippet,nodetype" name="group_node">editNodePermissions</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">nodetype hierarchy</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">node basicedit page</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">SQL Prompt</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Everything settings</member>
-    <member type="noderef" type_nodetype="htmlsnippet,nodetype" name="group_node">editDefaultPermissions</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">nodemethod</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">nodemethod</member>
-    <member type="noderef" type_nodetype="htmlsnippet,nodetype" name="group_node">backsideErrors</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodemethod display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">nodemethod edit page</member>
-    <member type="noderef" type_nodetype="container,nodetype" name="group_node">nodelet outline container</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">themeselector</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Login Nodelet</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Epicenter</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">location</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">symlink</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">symlink</member>
-    <member type="noderef" type_nodetype="document,nodetype" name="group_node">nsh Help</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">submit</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">showPath</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">groupeditor</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">location display page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">location edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">symlink edit page</member>
-    <member type="noderef" type_nodetype="htmlpage,nodetype" name="group_node">symlink display page</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">nsh</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Node Bucket</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">addBucket</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">bucketOp</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">opNSH</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">htmlcode</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">nodetype</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">node</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">setting</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">container</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">dbtable</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">document</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">file</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">htmlpage</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">htmlsnippet</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">image</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">mail</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">maintenance</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">meta-user</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">nodeball</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">nodegroup</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">nodelet</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">nodeletgroup</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">nodemethod</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">opcode</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">permission</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">restricted_superdoc</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">superdoc</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">theme</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">themesetting</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">user</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">usergroup</member>
-    <member type="noderef" type_nodetype="location,nodetype" name="group_node">location</member>
-    <member type="noderef" type_nodetype="setting,nodetype" name="group_node">mail settings</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">adminbox</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">settingradio</member>
-    <member type="noderef" type_nodetype="mail,nodetype" name="group_node">Password Mail</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">massacre</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Node Armageddon</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">the killing floor</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">What is my password</member>
-    <member supports_nodetype="nodelet,nodetype" type="noderef" type_nodetype="nodemethod,nodetype" name="group_node">insert</member>
-    <member supports_nodetype="htmlpage,nodetype" type="noderef" type_nodetype="nodemethod,nodetype" name="group_node">insert</member>
-    <member type="noderef" type_nodetype="mail,nodetype" name="group_node">New User Mail</member>
-    <member type="noderef" type_nodetype="document,nodetype" name="group_node">Help with Mini Nodelets</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">admin Nodelet Mini</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Node Statistics Mini</member>
-    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Other Users Mini</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">insertMini</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">clone to type</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">clonetotype</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Create a new user</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">Flush</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">Zap</member>
-    <member type="noderef" type_nodetype="dbtable,nodetype" name="group_node">typeversion</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">typeversion controls</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">javascript</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">utility</member>
-    <member type="noderef" type_nodetype="nodetype,nodetype" name="group_node">FormObject</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">nodeFormObject</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">formObject</member>
-    <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Super Search</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">undo</member>
-    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">redo</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodetype</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">container</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">dbtable</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">document</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">file</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">image</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">maintenance</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">meta-user</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">node</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodeball</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodegroup</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodeletgroup</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">setting</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">superdoc</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">user</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">usergroup</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">main container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">formcontainer</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">general container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">general nodelet container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">nodeletshadow container</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">stdcontainer</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">document</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">container</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">htmlcode</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">htmlpage</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">image</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">links</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">mail</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">maintenance</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">node</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">nodegroup</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">nodetype</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">setting</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">user</member>
+    <member name="group_node" type="noderef" type_nodetype="document,nodetype">Everything 2 Idea List</member>
+    <member name="group_node" type="noderef" type_nodetype="document,nodetype">Everything 2 Todo list</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">adminbar</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">basichead</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">checkvar</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">closeform</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">coreStatus</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">create_nodes</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">displayInherited</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">displayNODE</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">displaySetting</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">displaytable</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">displayvars</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">editvars</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">encodehtml</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">groupList</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">groupMenu</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">listFields</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">listcode</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">listgroup</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">node_menu</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">nodeletMetaContainer</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">onepix</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">openform</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">parsecode</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">parselinks</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">parsetime</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">password_field</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">searchform</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">serverstats</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingList</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingMenu</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">setvar</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">showChoiceFunc</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textarea</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textfield</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">updatetable</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">userbody</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">uploadimage</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">varmenu</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">windowview</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">yesno_field</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">container display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">container edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">dbtable display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">dbtable edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">document display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">document edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">htmlcode display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">htmlcode edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">htmlpage display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">htmlpage edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">image display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">image edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">image upload page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">maintenance display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">maintenance edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodeball display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodeball edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodegroup display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodegroup edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodegroup editor page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodelet display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodelet edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodetype display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodetype edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">setting display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">setting edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">superdoc display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">superdoc edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="image,nodetype">noisy sunset</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">%$NODE</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">CGI::param</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Links</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">New Nodes</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Other Users</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Server Statistics</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Tick tock</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">nodecache</member>
+    <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">all nodelets</member>
+    <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">default nodelets</member>
+    <member name="group_node" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Gigantic Code Lister</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Gigantic Node Lister</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">create node</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">system settings</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Not found</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Permission Denied</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Search Results</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">The Default Node</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">The Everything Tour</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">User settings</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">login</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">user variables</member>
+    <member name="group_node" type="noderef" type_nodetype="user,nodetype">Guest User</member>
+    <member name="group_node" type="noderef" type_nodetype="user,nodetype">root</member>
+    <member name="group_node" type="noderef" type_nodetype="usergroup,nodetype">gods</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">mail</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">mail display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node xml page</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">restricted fields</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">createnewnode</member>
+    <member name="group_node" type="noderef" type_nodetype="theme,nodetype">default theme</member>
+    <member name="group_node" type="noderef" type_nodetype="themesetting,nodetype">root's default themesettings</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">theme</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">themesetting</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">themesetting display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">themesetting edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">themesetting</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">nodelet container</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">personal nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">titlebar</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">opcode</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Node Cloner</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">show container</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">permission</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">editPermissions</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">updatePermissions</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">displayInheritedPermissions</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">editDynamicPermissions</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node permissions page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">editNodePermissions</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">nodetype hierarchy</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">node basicedit page</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">SQL Prompt</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Everything settings</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">editDefaultPermissions</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">nodemethod</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">backsideErrors</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodemethod display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">nodemethod edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">nodelet outline container</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">themeselector</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Login Nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Epicenter</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">location</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">symlink</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">symlink</member>
+    <member name="group_node" type="noderef" type_nodetype="document,nodetype">nsh Help</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">submit</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">showPath</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">groupeditor</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">location display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">location edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">symlink edit page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">symlink display page</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">nsh</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Node Bucket</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">addBucket</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">bucketOp</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">opNSH</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">htmlcode</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodetype</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">node</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">setting</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">container</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">dbtable</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">document</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">file</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">htmlpage</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">htmlsnippet</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">image</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">mail</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">maintenance</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">meta-user</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodeball</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodegroup</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodeletgroup</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">nodemethod</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">opcode</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">permission</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">superdoc</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">theme</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">themesetting</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">user</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">usergroup</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">location</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">mail settings</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">adminbox</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingradio</member>
+    <member name="group_node" type="noderef" type_nodetype="mail,nodetype">Password Mail</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">massacre</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Node Armageddon</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">the killing floor</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">What is my password</member>
+    <member name="group_node" supports_nodetype="nodelet,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
+    <member name="group_node" supports_nodetype="htmlpage,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
+    <member name="group_node" type="noderef" type_nodetype="mail,nodetype">New User Mail</member>
+    <member name="group_node" type="noderef" type_nodetype="document,nodetype">Help with Mini Nodelets</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics Mini</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Other Users Mini</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">insertMini</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">clone to type</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">clonetotype</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Create a new user</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">Flush</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">Zap</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">typeversion</member>
+    <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">typeversion controls</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">javascript</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">utility</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">FormObject</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">nodeFormObject</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">formObject</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Super Search</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">reportFormError</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">popupmenu</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">textfield</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">textarea</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">radiogroup</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">checkbox</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">passwdfield</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">doUpdate</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">listmenu</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">bindFormObject</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">formmenu</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">undo</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">redo</member>
   </group>
-  <field type="literal_value" name="group_usergroup">-1</field>
-  <field type="literal_value" name="groupaccess">iiii-</field>
-  <field type="literal_value" name="guestaccess">iiii-</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodeball</field>
-  <field type="literal_value" name="otheraccess">iiii-</field>
-  <field type="literal_value" name="title">core system</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">nodeball</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodeball</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="title" type="literal_value">core system</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>
   <vars>
-    <var type="literal_value" name="author">Nate Oostendorp and Darrick Brown</var>
-    <var type="literal_value" name="description">The core system of Everything.   (One-Point-Oh Or Bust!)</var>
-    <var type="literal_value" name="version">0.9.1.1</var>
+    <var name="author" type="literal_value">Nate Oostendorp and Darrick Brown</var>
+    <var name="description" type="literal_value">The core system of Everything.   (One-Point-Oh Or Bust!)</var>
+    <var name="version" type="literal_value">0.9.1.1</var>
   </vars>
 </NODE>

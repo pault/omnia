@@ -1,0 +1,66 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="doUpdate">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value"># This is a simple way to mark a page as an "update page".  Just include
+# this htmlcode on your edit pages and you are set.
+#
+# $redirectNode - (optional) node id, or NODE object that the update
+#    should redirect to if success.
+# $redirectDisplay - (optional) the displaytype that the redirection
+#    should us (ie 'display', 'edit', etc)
+# $preprocess - (optional) name of an htmlcode that should be run before
+#    the normal opUpdate() code is run so it can do any custom setup
+#    or modification
+# $postprocess - (optional) name of an htmlcode that should be run after
+#    the normal opUpdate() code is run so it can do any custom setup
+#    or modification
+
+my ($redirectNode, $redirectDisplay, $preprocess, $postprocess) = @_;
+my $html;
+
+$html = $query->hidden(-name => 'op', -value => 'update', -override => 1);
+$html .= "\n";
+$html .= $query->hidden('node_id', $$NODE{node_id}) . "\n";
+$html .= $query->hidden('displaytype', 'edit') . "\n";
+
+return $html;
+
+if($redirectNode)
+{
+  $redirectNode = $DB->getNode($redirectNode);
+
+  $html .= $query->hidden(-name => 'opupdate_redirect', -override => 1,
+                 -value => $$redirectNode{node_id}). "\n" if($redirectNode);
+}
+
+if($redirectDisplay)
+{
+  $html .= $query->hidden(-name => 'opupdate_displaytype', -override => 1,
+                 -value => $redirectDisplay) . "\n";
+}
+
+if($preprocess)
+{
+  $html .= $query->hidden(-name => 'opupdate_preprocess', -override => 1,
+                 -value => $preprocess) . "\n";
+}
+
+if($postprocess)
+{
+  $html .= $query->hidden(-name => 'opupdate_postprocess', -override => 1,
+                 -value => $postprocess) . "\n";
+}
+
+return $html;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">doUpdate</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>

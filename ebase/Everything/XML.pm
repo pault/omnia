@@ -301,8 +301,12 @@ sub genBasicTag
 	my $tag = new XML::DOM::Element($doc, $tagname);
 	my $contents = new XML::DOM::Text($doc, $data);
 
-	# Set the attributes on the tag.
-	foreach my $param (keys %$PARAMS)
+	# Set the attributes on the tag.  We sort the keys so that the
+	# attributes come out in an ordered fashion.  That way we won't
+	# get merge conflicts in CVS due to seemingly random order of
+	# the attributes
+	my @sortAttrs = sort { $a cmp $b } keys %$PARAMS;
+	foreach my $param (@sortAttrs)
 	{
 		$tag->setAttribute($param, $$PARAMS{$param});
 	}

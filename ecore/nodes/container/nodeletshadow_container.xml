@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="container" title="nodeletshadow container">
-  <field type="noderef" type_nodetype="user,nodetype" name="author_user">root</field>
-  <field type="literal_value" name="authoraccess">iiii</field>
-  <field type="literal_value" name="context">&lt;table width=100% cellspacing=0 cellpadding=0 border=0>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="context" type="literal_value">&lt;table width=100% cellspacing=0 cellpadding=0 border=0>
 &lt;tr>
  &lt;td width=100%>
    CONTAINED_STUFF
@@ -13,16 +13,16 @@
   &lt;td bgcolor=#333333 width=2>[{onepix}]&lt;/td>
  &lt;/tr>
 &lt;/table></field>
-  <field type="literal_value" name="dynamicauthor_permission">-1</field>
-  <field type="literal_value" name="dynamicgroup_permission">-1</field>
-  <field type="literal_value" name="dynamicguest_permission">-1</field>
-  <field type="literal_value" name="dynamicother_permission">-1</field>
-  <field type="literal_value" name="group_usergroup">-1</field>
-  <field type="literal_value" name="groupaccess">iiii-</field>
-  <field type="literal_value" name="guestaccess">iiii-</field>
-  <field type="noderef" type_nodetype="location,nodetype" name="loc_location">container</field>
-  <field type="literal_value" name="otheraccess">iiii-</field>
-  <field type="literal_value" name="parent_container">0</field>
-  <field type="literal_value" name="title">nodeletshadow container</field>
-  <field type="noderef" type_nodetype="nodetype,nodetype" name="type_nodetype">container</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>
+  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="parent_container" type="literal_value">0</field>
+  <field name="title" type="literal_value">nodeletshadow container</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
 </NODE>
