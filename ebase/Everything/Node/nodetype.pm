@@ -200,6 +200,27 @@ sub update
 	return $result;
 }
 
+#############################################################################
+#	Sub
+#		nuke
+#
+#	Purpose
+#		This keeps the user from accidentally deleting a nodetype for
+#		which there are still nodes that exist.  
+#
+
+sub nuke
+{
+	my ($this, $USER) = @_;
+
+	if($this->{DB}->getNode({type_nodetype => $$this{node_id}}))
+	{
+  		warn "Can't delete. Nodes of this type still exist";
+  		return 0;
+	}
+
+	return $this->SUPER($USER);
+}
 
 #############################################################################
 #	Sub
