@@ -150,7 +150,7 @@ sub cgiUpdate
 			$value = $$N{node_id} if($N);
 		}
 
-		$$vars{$var} = $value if($value);
+		$$vars{$var} = $value if(defined $value);
 	}
 	elsif($name =~ /_key$/ && $var ne $param)
 	{

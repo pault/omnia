@@ -1517,7 +1517,7 @@ sub insertNodelet
 	getRef $NODELET;
 
 	# If the user can't "execute" this nodelet, we don't let them see it!
-	return undef unless($NODELET->hasAccess($USER, "x"));
+	return undef unless(defined $NODELET && $NODELET->hasAccess($USER, "x"));
 	
 	my $html;
 	$html = genContainer($$NODELET{parent_container}) 
@@ -1590,16 +1590,27 @@ sub updateNodelet
 #
 #	Parameters
 #		$CONTAINER - a container node or the node_id of a container
+#		$noClear - for internal use only.  Pass undef when calling this
 #
 #	Returns
 #		The generated HTML
 #
 sub genContainer
 {
-	my ($CONTAINER) = @_;
+	my ($CONTAINER, $noClear) = @_;
 	getRef $CONTAINER;
 	my $replacetext;
 	my $containers;
+
+	$GLOBAL{containerTrap} = { } unless($noClear);
+	if(exists $GLOBAL{containerTrap}{$$CONTAINER{node_id}})
+	{
+		logErrors("Error! Infinite loop in container hierarchy!");
+		return "Container Error!";
+	}
+	
+	# Mark this container as being "visted";
+	$GLOBAL{containerTrap}{$$CONTAINER{node_id}} = 1;
 
 	$replacetext = parseCode ('context', $CONTAINER);
 	$containers = $query->param('containers') || '';
@@ -1611,7 +1622,7 @@ sub genContainer
 		my $start = "";
 		my $middle = $replacetext;
 		my $end = "";
-		my $debugcontainer = getNode('show container', 'container');
+		my $debugcontainer = $DB->getNode('show container', 'container');
 		
 		# If this container contains the body tag, we do not want to wrap
 		# the entire thing in the debugcontainer.  Rather, we want to wrap
@@ -1620,7 +1631,7 @@ sub genContainer
 		# not display right.
 		if($replacetext =~ /<body/i)
 		{
-			$replacetext =~ /(.*<body.*>)(.*)(<\/body>.*)/i;
+			$replacetext =~ /(.*<body.*>)(.*)(<\/body>.*)/is;
 			$start = $1;
 			$middle = $2;
 			$end = $3;
@@ -1628,6 +1639,7 @@ sub genContainer
 
 		if($debugcontainer)
 		{
+			$GLOBAL{debugContainer} = $CONTAINER;
 			my $debugtext = parseCode('context', $debugcontainer);
 			$debugtext =~ s/CONTAINED_STUFF/$middle/s;
 			$replacetext = $start . $debugtext . $end;
@@ -1635,7 +1647,7 @@ sub genContainer
 	}
 	
 	if ($$CONTAINER{parent_container}) {
-		my $parenttext = genContainer($$CONTAINER{parent_container});	
+		my $parenttext = genContainer($$CONTAINER{parent_container}, 1);	
 		$parenttext =~ s/CONTAINED_STUFF/$replacetext/s;
 		$replacetext = $parenttext;
 	} 
@@ -2347,6 +2359,14 @@ sub opUnlock
 
 
 #############################################################################
+sub opLock
+{
+	my $LOCKEDNODE = getNode($query->param('node_id'));
+	$LOCKEDNODE->lock($USER);
+}
+
+
+#############################################################################
 #	Sub
 #		opUpdate
 #
@@ -2554,7 +2574,7 @@ sub getOpCode
 #
 sub execOpCode
 {
-	my $handled = 0;
+	my $handled;
 	my $OPCODE;
 	
 	# The CGI parameter for 'op' can be an array of several operations
@@ -2564,10 +2584,7 @@ sub execOpCode
 		$handled = 0;
 
 		$OPCODE = getOpCode($op, $USER);
-		if(defined $OPCODE)
-		{
-			$handled = evalX($$OPCODE{code}, $OPCODE);
-		}
+		$handled = evalX($$OPCODE{code}, $OPCODE) if(defined $OPCODE);
 
 		unless($handled)
 		{
@@ -2597,6 +2614,10 @@ sub execOpCode
 			elsif($op eq 'unlock')
 			{
 				opUnlock();
+			}
+			elsif($op eq 'lock')
+			{
+				opLock();
 			}
 		}
 	}
