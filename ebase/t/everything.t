@@ -18,6 +18,8 @@ BEGIN {
 use TieOut;
 use FakeDBI;
 use Test::More tests => 63;
+use Test::MockObject;
+
 use_ok( 'Everything' );
 
 foreach my $sub ( qw( 
@@ -66,46 +68,34 @@ is( join('', @results), 'redblue121', '... the values in hash mode' );
 is( join('', getParamArray('red,blue', @args)), 'redblue', 
 	'... and only the requested values');
 
-# cleanLinks
-# make $select
-#	get database handle
-#	prepare statement
-#	execute cursor
-#		fetchrow_hashref()
-#			without a node_id, save to_node as bad
-#	prepare statement
-#		fetchrow_hashref()
-#			without a node_id, save from_node as bad
-#	loop through to_nodes and from_nodes, calling sqlDelete on them
+# cleanLinks()
 {
-	local $Everything::DB;
-	$Everything::DB = Everything::NodeBase->new();
+	my $mock = Test::MockObject->new();
+	$mock->set_always( 'sqlSelectJoined', $mock )
+		 ->set_series( 'fetchrow_hashref', { node_id => 1 }, { to_node => 8 },
+			0, { node_id => 2, to_node => 9 }, { to_node => 10 } )
+		 ->set_true( 'sqlDelete' );
 
-	my $results = FakeDBI->new([
-		{ node_id => 1 },
-		{ to_node => 0 },
-		undef,
-		{ node_id => 1 },
-		{ to_node => 0 },
-	]);
+	local *Everything::DB;
+	*Everything::DB = \$mock;
 
-	Everything::NodeBase::setResults($results);
 	Everything::cleanLinks();
-	my @calls = Everything::NodeBase::calls();
-	like( join(' ', @{ $calls[1] }), qr/prepare SELECT to_node/,
-		'cleanLinks() should select all to_node values in links table' );
-	like( join(' ', @{ $calls[3] }), qr/prepare SELECT from_node/,
-		'... and all from_node values in links table' );
-	
-	FakeDBI::set_execute(1);
-	Everything::cleanLinks();
-	@calls = (Everything::NodeBase::calls())[-1, -2];
 
-	is( join(' ', @{ $calls[0] }[0,1], $calls[0]->[2]->{from_node}), 
-		'sqlDelete links 0', '... should delete appropriate to links' );
-	is( join(' ', @{ $calls[1] }[0,1], $calls[1]->[2]->{to_node}), 
-		'sqlDelete links 0', '... should delete appropriate from links' );
+	my @expect = ( to_node => 8, from_node => 10 );
+	my $count;
+
+	while (my ($method, $args) = $mock->next_call())
+	{
+		next unless $method eq 'sqlDelete';
+		my $args = join('-', $args->[1], $args->[2]->{ shift @expect });
+		is( $args, 'links-' . shift @expect,
+			'cleanLink() should delete bad links' );
+		$count++;
+	}
+
+	is( $count, 2, '... and only bad links' );
 }
+
 
 # initEverything
 {
