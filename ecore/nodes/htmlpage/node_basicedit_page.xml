@@ -9,24 +9,24 @@
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
+  <field name="otheraccess" type="literal_value">ii-i-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[%
 # This code generates the form fields and the stuff that
 # the user sees.
-return "" unless($NODE->hasAccess($USER, 'w'));
-my $tables = $$NODE{type}->getTableArray(1);
+return &quot;&quot; unless($NODE-&gt;hasAccess($USER, 'w'));
+my $tables = $$NODE{type}-&gt;getTableArray(1);
 my @fields;
 my $table;
 my $field;
 my %titletype;
-my $str = "&lt;table border=0>\n";
+my $str = &quot;&lt;table border=0&gt;\n&quot;;
 
 foreach $table (@$tables)
 {
-  @fields = $DB->getFieldsHash($table);
+  @fields = $DB-&gt;getFieldsHash($table);
 
   foreach $field (@fields)
   {
@@ -37,42 +37,42 @@ foreach $table (@$tables)
 my $obj;
 foreach $field (keys %titletype)
 {
-  $str .= "&lt;tr>&lt;td>$field ($titletype{$field}): &lt;/td>&lt;td>";
+  $str .= &quot;&lt;tr&gt;&lt;td&gt;$field ($titletype{$field}): &lt;/td&gt;&lt;td&gt;&quot;;
 
   if($titletype{$field} =~ /int/)
   {
     $obj = newFormObject('TextField');
-    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 15, 15);
+    $str .= $obj-&gt;genObject($query, $NODE, $field, &quot;update_$field&quot;, &quot;AUTO&quot;, 15, 15);
   }
   elsif($titletype{$field} =~ /char\((.*)\)/)
   {
     my $size = 80;
-    $size = $1 if($size > $1);
+    $size = $1 if($size &gt; $1);
 
     $obj = newFormObject('TextField');
-    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", $size, $size);
+    $str .= $obj-&gt;genObject($query, $NODE, $field, &quot;update_$field&quot;, &quot;AUTO&quot;, $size, $size);
   }
   elsif($titletype{$field} =~ /text/)
   {
     $obj = newFormObject('TextArea');
-    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 80, 20, "off");
+    $str .= $obj-&gt;genObject($query, $NODE, $field, &quot;update_$field&quot;, &quot;AUTO&quot;, 80, 20, &quot;off&quot;);
   }
   elsif($titletype{$field} =~ /datetime/)
   {
     $obj = newFormObject('TextField');
-    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 19, 19);
+    $str .= $obj-&gt;genObject($query, $NODE, $field, &quot;update_$field&quot;, &quot;AUTO&quot;, 19, 19);
   }
   else
   {
     # This is for the unknown field types.
     $obj = newFormObject('TextField');
-    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 80, 255);
+    $str .= $obj-&gt;genObject($query, $NODE, $field, &quot;update_$field&quot;, &quot;AUTO&quot;, 80, 255);
   }
 
-  $str .= "&lt;/td>&lt;/tr>\n";
+  $str .= &quot;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
 }
 
-$str .= "&lt;/table>\n";
+$str .= &quot;&lt;/table&gt;\n&quot;;
 $str .= submit();
 $str;
 %]</field>
