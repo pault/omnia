@@ -24,24 +24,6 @@ use Everything::Util;
 use XML::DOM;
 
 
-use vars qw(%methodCache);
-
-
-#############################################################################
-#	Sub
-#		initMethodCache
-#
-#	Purpose
-#		For performance reasons, we cache methods that we find.  However,
-#		you will probably only want to cache on a per page load basis.  So,
-#		call this function to clear the cache.
-#
-sub initMethodCache
-{
-	undef %methodCache;
-}
-
-
 #############################################################################
 #	Sub
 #		new
@@ -352,7 +334,8 @@ sub getNodeMethod
 	my $cacheName = $$TYPE{title} . ":" . $func;
 
 	# If we have it cached, return what we found
-	return $methodCache{$cacheName} if(exists $methodCache{$cacheName});
+	$METHOD = $this->{DB}->{cache}->{methodCache}{$cacheName} if exists $this->{DB}->{cache}->{methodCache}{$cacheName};
+	return $METHOD if $METHOD;
 	
 	$METHODTYPE = $$this{DB}->getType('nodemethod');
 
@@ -399,7 +382,7 @@ sub getNodeMethod
 			
 	# Cache what we found for future reference.  However, only cache it
 	# if we actually found something.
-	$methodCache{$cacheName} = $RETURN if($RETURN);
+	$this->{DB}->{cache}->{methodCache}{$cacheName} = $RETURN if($RETURN);
 
 	return $RETURN;
 }

@@ -99,6 +99,8 @@ sub new
 	$this->{version} = {};
 	$this->{verified} = {};
 	
+	$this->{methodCache}= {};
+	
 	return $this;
 }
 
@@ -557,6 +559,12 @@ sub isSameVersion
 	my $ver = $this->getGlobalVersion($NODE);
 	
 	return 1 if($ver == $this->{version}{$$NODE{node_id}});
+	if ($$NODE{title} eq 'nodemethod' and 
+		$$NODE{type}{node_id} == 1 and
+		exists $this->{version}{$$NODE{node_id}}) {
+		#the nodemethod type has been incremented.  Wipe the methodCache
+		$this->{methodCache} = {};
+	}
 	return 0;
 }
 
