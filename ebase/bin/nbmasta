@@ -311,7 +311,7 @@ sub createDir {
 #		example, the node "root" will be exported to nodes/user/root.xml.
 #
 #	params
-#		nodes - ref to an array of nodes	
+#		nodes - ref to an array of node ID's (do not pass node refs!)
 #		basedir - the dir to export them to
 #		loud - print a message for each node	
 #
@@ -324,7 +324,7 @@ sub exportNodes
 
 	for(my $i =0; $i < @$nodes;$i++) {
 		my $ID = $$nodes[$i];
-		my $N = getNode($$nodes[$i]);
+		my $N = getNode($ID);
 		push @{ $nodetypes{$$N{type}{title}} }, $ID; 
 		$nodeindex{$ID}=$i;
 	}
@@ -357,7 +357,8 @@ sub exportNodes
 
 			close(FILE);
 
-			$nodefiles[$nodeindex{getId($NODE)}]= $file;
+			my $index = $nodeindex{getId($NODE)};
+			$nodefiles[$index]= $file;
 		}	
 	}
 	@nodefiles;
@@ -1032,7 +1033,8 @@ sub main {
 
 		my $basedir .= $dir ."/nodes"; 
 		createDir($basedir);
-		my @FILES = exportNodes ([$NB, @{ $$NB{group} }], $basedir, 1);
+		my @FILES = exportNodes ([$$NB{node_id}, @{ $$NB{group} }],
+			$basedir, 1);
 		
 		my $melink = $dir."/ME";
 		my $mefile = $FILES[0];

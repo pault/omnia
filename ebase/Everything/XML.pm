@@ -127,7 +127,8 @@ sub xml2node
 	# XML::Parser doen't like it when there is more than one top level
 	# document tag.  If we have an XML file that contains more than one
 	# node, XML::Parser will error on it.  So, to make everything happy,
-	# we just wrap the entire doc in a single tag.
+	# we just wrap the entire doc in a single tag.  Ya, its a hack, but
+	# does exactly what we need with minimal pain.  So, shuddup.
 	$xml = "<everything>\n" . $xml . "\n</everything>";
 	
 	my $XMLPARSER = new XML::DOM::Parser (ErrorContext => 2,
@@ -328,12 +329,19 @@ sub parseBasicTag
 	my %WHERE;
 	
 	# Our contents is always the first TEXT_NODE object... just convert
-	# it to a string, which is what we want anyway. 
-	my $contents = $TAG->getFirstChild()->toString();
+	# it to a string, which is what we want anyway.  XML::Parser parses
+	# empty tags (ie <tag></tag>) as an XML empty (ie <tag/>) which causes
+	# it to have no child.  So, we need to do a few checks here.
+	my $first = $TAG->getFirstChild();
+	my $contents;
+	
+	$contents = $first->toString() if($first);
+	$contents ||= "";
 
 	$contents = unMakeXmlSafe($contents);
 
 	my $ATTRS = $TAG->getAttributes();
+	print $TAG->toString() . "\n" unless(defined $$ATTRS{name});
 	my $type = $$ATTRS{type}->getValue();
 	my $name = $$ATTRS{name}->getValue();
 

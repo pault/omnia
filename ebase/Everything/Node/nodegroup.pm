@@ -634,7 +634,6 @@ sub fieldToXML
 		foreach my $member (@$group)
 		{
 			$GROUP->appendChild(new XML::DOM::Text($DOC, $indentchild));
-			print "member = $member\n";
 			
 			$tag = genBasicTag($DOC, "member", "group_node", $member);
 			$GROUP->appendChild($tag);

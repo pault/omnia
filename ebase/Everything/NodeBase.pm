@@ -864,8 +864,23 @@ sub getNodeCursor
 	$select .= " $wherestr" if($wherestr);
 	$cursor = $this->{dbh}->prepare($select);
 
-	return $cursor if($cursor->execute());
-	return undef;
+	# Trap for SQL errors!
+	my $warn;
+	my $error;
+	local $SIG{__WARN__} = sub {
+		$warn .= $_[0];
+	};
+	eval { $cursor->execute(); };
+	$error = $@;
+	local $SIG{__WARN__} = sub { };
+	
+	if($error ne "" or $warn ne "")
+	{
+		Everything::logErrors($warn, $error, "$select\n($TYPE)");
+		return undef;
+	}
+
+	return $cursor;
 }
 
 

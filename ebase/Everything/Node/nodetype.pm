@@ -56,7 +56,7 @@ sub construct
 			$cursor->finish();
 		}
 	}
-	else
+	elsif($$this{extends_nodetype} > 0) # Zero is a dummy location thing 
 	{
 		$PARENT = $$this{DB}->getNode($$this{extends_nodetype});
 	}

@@ -23,7 +23,7 @@ sub construct
 
 	# Just do what our parent does...
 	$this->SUPER();
-	
+
 	return 1;
 }
 
@@ -151,13 +151,19 @@ sub xmlTag
 		my @fixes;
 		my @childFields = $TAG->getChildNodes();
 
+		# On import, this could start out as nothing and we want it to be
+		# at least defined to empty string.  Otherwise, we will get warnings
+		# when we call getVars() below.
+		$$this{vars} ||= "";
+	
+		my $vars = $this->getVars();
+
 		foreach my $child (@childFields)
 		{
 			next if($child->getNodeType() == XML::DOM::TEXT_NODE());
 
 			my $PARSE = parseBasicTag($child, 'setting');
 
-			my $vars = $this->getVars();
 			if(exists $$PARSE{where})
 			{
 				$$vars{$$PARSE{name}} = -1;
@@ -169,10 +175,9 @@ sub xmlTag
 			{
 				$$vars{$$PARSE{name}} = $$PARSE{$$PARSE{name}};
 			}
-
-			$this->setVars($vars);
 		}
 	
+		$this->setVars($vars);
 		return \@fixes;
 	}
 	else

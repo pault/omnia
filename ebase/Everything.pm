@@ -17,6 +17,22 @@ use strict;
 use DBI;
 use Everything::NodeBase;
 
+
+use vars qw($DB);
+
+# If you want to log to a different file, change this.
+my $everythingLog = "/tmp/everything.errlog";
+
+# Used by Makefile.PL to determine the version of the install.
+my $VERSION = 0.8;
+
+# Arrays for error caching
+use vars qw(@fsErrors);
+use vars qw(@bsErrors);
+
+# Are we being run from the command line?
+use vars qw($commandLine);
+
 sub BEGIN
 {
 	use Exporter ();
@@ -53,20 +69,11 @@ sub BEGIN
 		@fsErrors
 		@bsErrors
         );
- }
-
-use vars qw($DB);
-
-# If you want to log to a different file, change this.
-my $everythingLog = "/tmp/everything.errlog";
-
-# Used by Makefile.PL to determine the version of the install.
-my $VERSION = 0.8;
-
-# Arrays for error caching
-use vars qw(@fsErrors);
-use vars qw(@bsErrors);
-
+	
+	# This will be true if we are being run from a command line, in which
+	# case all errors should be printed to STDOUT
+	$commandLine = (-t STDIN && -t STDOUT);
+}
 
 
 #############################################################################
@@ -298,10 +305,22 @@ sub logErrors
 	$error ||= "";
 	return if($warning eq "" && $error eq "");
 	
-	$errors = { 'warning' => $warning, 'error' => $error,
-		'code' => $code, 'context' => $CONTEXT };
+	if($commandLine)
+	{
+		print "############################################################\n";
+		print "Warning: $warning\n";
+		print "Error: $error\n";
+		print "Code:\n$code\n";
+	}
+	else
+	{
+		$errors = { 'warning' => $warning, 'error' => $error,
+			'code' => $code, 'context' => $CONTEXT };
 
-	push @fsErrors, $errors; 
+		push @fsErrors, $errors; 
+	}
+
+	return 1;
 }
 
 

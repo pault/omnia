@@ -1078,13 +1078,13 @@ sub parseCode
 	# this is important to know when you are writing pages -- you 
 	# always want to print user data through [" "] so that they
 	# cannot embed arbitrary code...
-	#
 	$text=~s/
 	 \[
 	 (
 	 \{.*?\}
 	 |".*?"
 	 |%.*?%
+	 |<.*?>
 	 )
 	 \]
 	  /embedCode($1,$CURRENTNODE)/egsx;

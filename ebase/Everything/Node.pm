@@ -238,7 +238,7 @@ sub AUTOLOAD
 	else
 	{
 		# A function of the given name was not found for us!  Throw an error!
-		die "Error!  No function '$func' for nodetype $$this{type}{title}.\n";
+		die "Error!  No function '$func' for nodetype $$this{type}{title}.\n($$TYPE{node_id},$$this{title},$$this{node_id})";
 	}
 
 	# Set these back to what they were.  
@@ -1072,7 +1072,7 @@ sub getHash
 	unless (exists $$this{$field})
 	{
 		warn ("Node::getHash:\t'$field' field does not exist for node " .
-			$$this{node_id});
+			"$$this{node_id}, '$$this{title}'");
 		return undef;
 	}
 	
@@ -1294,7 +1294,7 @@ sub existingNodeMatches
 	my %WHERE;
 
 	@WHERE{@ID} = @$this{@ID};
-	my $NODE = $$this{DB}->getNode(\%WHERE);
+	my $NODE = $$this{DB}->getNode(\%WHERE, $$this{type});
 
 	return $NODE;
 }
