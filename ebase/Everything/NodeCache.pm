@@ -311,6 +311,11 @@ sub removeNode
 	my ($this, $NODE) = @_;
 	my $data = $this->removeNodeFromHash($NODE);
 
+	# Removing a node for any reason from the cache warrants a version
+	# increment.  Usually when a node is removed from the cache, it is
+	# being deleted.
+	$this->incrementGlobalVersion($NODE);
+	
 	return $this->{nodeQueue}->removeItem($data);
 }
 

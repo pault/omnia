@@ -986,7 +986,7 @@ sub getTables
 
 #############################################################################
 #	Sub
-#		setHash
+#		getHash
 #
 #	Purpose
 #		General purpose function to get a hash structure from a field in
@@ -1050,7 +1050,7 @@ sub setHash
 	# Clean out the keys that have do not have a value.
 	foreach (keys %$varsref)
 	{
-		$$varsref{$_} = " " unless $$varsref{$_};
+		delete $$varsref{$_} unless $$varsref{$_};
 	}
 
 	# Store the changed hash for calls to getVars
@@ -1124,6 +1124,22 @@ sub isNodetype
 	
 	return $this->isOfType(1);
 }
+
+
+#############################################################################
+#	Sub
+#		getParentLocation
+#
+#	Purpose
+#		Get the parent location of this node.
+#
+sub getParentLocation
+{
+	my ($this) = @_;
+
+	return $$this{DB}->getNode($$this{loc_location});
+}
+
 
 #############################################################################
 # End of package

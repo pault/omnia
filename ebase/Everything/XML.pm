@@ -682,7 +682,7 @@ sub noderef2xml
 	my $POINTED_TO = getNode($node_id);
 	my ($title, $typetitle, $TYPE);
 
-	if ($POINTED_TO)
+	if ($POINTED_TO and $$POINTED_TO{node_id} > 0)
 	{
 		$title = $$POINTED_TO{title};
 		$typetitle = $$POINTED_TO{type}{title};
@@ -690,7 +690,8 @@ sub noderef2xml
 	else
 	{
 		# This can happen with the '-1' field values when nodetypes
-		# are inherited.
+		# are inherited, or with node zero (the root location, which does
+		# not really exist).
 		$title = $node_id;
 		$typetitle = "literal_value";
 	}

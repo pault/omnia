@@ -55,7 +55,7 @@ sub insert
 	
 	return 0 unless($this->hasAccess($USER, "c"));
 
-	# If the node_id is not zero, this has already been inserted and
+	# If the node_id greater than zero, this has already been inserted and
 	# we are not forcing it.
 	return $node_id if($node_id > 0);
 

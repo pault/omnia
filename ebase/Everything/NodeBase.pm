@@ -437,7 +437,7 @@ sub getNodeById
 #			modify its fields and then do a $NODE->insert($USER) to insert it
 #			into the database.  If you wish to create a node even if a node
 #			of the same "title/type" exists, pass "create force".  A dummy
-#			node has a node_id of '0' (zero).
+#			node has a node_id of '-1'.
 #			If $node is a "where hash ref", this is the "order by" string
 #			that you can pass to order the result by (you will still only
 #			get one node).
@@ -485,7 +485,7 @@ sub getNode
 			# We need to create a dummy node for possible insertion!
 			$NODE = {};
 
-			$$NODE{node_id} = 0;
+			$$NODE{node_id} = -1;
 			$$NODE{title} = $node;
 			$$NODE{type_nodetype} = $this->getId($ext);
 		}
@@ -534,6 +534,41 @@ sub getNodeByName
 
 
 #############################################################################
+#	Sub
+#		getNodeZero
+#
+#	Purpose
+#		The node with zero as its ID is a "dummy" node that represents the
+#		root location of the system.  Think of this as the "/" (root
+#		directory) on unix.  Only gods have access to this node.
+#
+#	Note
+#		This is just a "dummy" node.  It does not exist in the database.
+#
+#	Returns
+#		The "Zero Node"
+#
+sub getNodeZero
+{
+	my ($this) = @_;
+	
+	unless(exists $$this{nodezero})
+	{
+		$$this{nodezero} = $this->getNode("/", "location", "create force");
+
+		$$this{nodezero}{node_id} = 0;
+
+		$$this{nodezero}{guestaccess} = "-----";
+		$$this{nodezero}{otheraccess} = "-----";
+		$$this{nodezero}{groupaccess} = "-----";
+		$$this{nodezero}{author_user} = $this->getNode("root", "user");
+	}
+
+	return $$this{nodezero};
+}
+
+
+#############################################################################
 sub getNodeByIdNew
 {
 	my ($this, $node_id, $selectop) = @_;
@@ -542,6 +577,7 @@ sub getNodeByIdNew
 
 	$selectop ||= "";
 
+	return $this->getNodeZero() if($node_id == 0);
 	return undef unless($node_id);
 
 	if($selectop ne "force")
@@ -1446,7 +1482,7 @@ sub getRef
 	{ 
 		unless (ref ($_[$i]))
 		{
-			$_[$i] = $this->getNode($_[$i]) if($_[$i]);
+			$_[$i] = $this->getNode($_[$i]) if(defined $_[$i]);
 		}
 	}
 	

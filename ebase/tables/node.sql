@@ -14,6 +14,7 @@ CREATE TABLE node (
   author_user int(11) DEFAULT '0' NOT NULL,
   createtime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
   hits int(11) DEFAULT '0',
+  loc_location int(11) DEFAULT '0',
   reputation int(11) DEFAULT '0' NOT NULL,
   lockedby_user int(11) DEFAULT '0' NOT NULL,
   locktime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,

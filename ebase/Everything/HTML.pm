@@ -654,14 +654,19 @@ sub getPage
 #		$title - the title of the link (<a href="...">title</a>)
 #		$PARAMS - a hashref that contains any CGI parameters to add
 #			to the URL.  (ie { 'op' => 'logout' })
+#		$SCRIPTS - a hashref of stuff that goes on the <a> tag itself.
+#			This can be other parameters for the <a> tag or javascript
+#			like stuff.
+#			ie { 'onMouseOver' => 'showStatus("hey!")' }
 #
 #	Returns
 #		An '<a href="...">title</a>' HTML link to the given node.
 #
 sub linkNode
 {
-	my ($NODE, $title, $PARAMS) = @_;
-
+	my ($NODE, $title, $PARAMS, $SCRIPTS) = @_;
+    my $link;
+	
 	return "" unless $NODE;
 
 	# We do this instead of calling getRef, because we only need the node
@@ -685,8 +690,21 @@ sub linkNode
 		$tags .= " $pr=\"$$PARAMS{$key}\""; 
 		delete $$PARAMS{$key};
 	}
+
+	my @scripts;
+	foreach my $key (keys %$SCRIPTS)
+	{
+		push @scripts, $key . "=" . $$SCRIPTS{$key}
+	}
+
+	my $scripts = "";
+	$scripts = join ' ', @scripts if(@scripts);
 	
-	"<A HREF=" . urlGen ($PARAMS) . $tags . ">$title</a>";
+	$link = "<A HREF=" . urlGen ($PARAMS) . $tags;
+	$link .= " " . $scripts if($scripts ne "");
+	$link .= ">$title</a>";
+
+	return $link;
 }
 
 
@@ -909,6 +927,10 @@ sub evalX
 		 unless $_[0] =~ /^Use of uninitialized value/;
 	};
 
+	# If we define any subroutines in our code, this will prevent
+    # us from getting the "subrouting * redefined" warning.
+	local $^W = 0;
+		
 	my $result = eval($str);
 
 	local $SIG{__WARN__} = sub { };
@@ -1007,6 +1029,10 @@ sub embedCode
 		{
 			$block = parseCode($$snippet{code});
 		}
+		else
+		{
+			$block = "";
+		}	
 	}
 	
 	# Block needs to be defined, otherwise the search/replace regex
@@ -1162,6 +1188,8 @@ sub quote
 #		to generate the nodelet.
 #
 #	Parameters
+#		$NODELET - the nodelet to insert
+#
 sub insertNodelet
 {
 	# Don't "my" NODELET!  It is a global!
@@ -1320,8 +1348,28 @@ sub displayPage
 {
 	my ($NODE, $user_id) = @_;
 	die "NO NODE!" unless $NODE;
-	$GNODE = $NODE;
+	
+	my $displaytype = $query->param('displaytype');
+	$displaytype ||= 'display';
+	
+	# If this node we are trying to display is a symlink, we may need
+	# to got to a different node.
+	if($NODE->isOfType("symlink") && $displaytype ne "edit")
+	{
+		$$VARS{followSymlinks} ||= "";
+		if($$VARS{followSymlinks} ne "no")
+		{
+			$NODE = getNode($$NODE{symlink_node});
 
+			# Then go to the node to make sure all relevant code for
+			# hitting a node gets executed.
+			gotoNode($NODE);
+			return;
+		}
+	}
+	
+	$GNODE = $NODE;
+	
 	my $PAGE = getPage($NODE, $query->param('displaytype')); 
 	my $page = $$PAGE{page} if($PAGE);
 
@@ -1745,15 +1793,20 @@ sub handleUserRequest
 		
 		searchForNodeByName($nodename, $user_id, $type); 
 	}
-	elsif ($node_id = $query->param('node_id'))
-	{
-		# searching by ID
-		gotoNode($node_id, $user_id);
-	}
 	else
 	{
-		# no node was specified -> default
-		gotoNode($HTMLVARS{default_node}, $user_id);
+		$node_id = $query->param('node_id');
+		
+		if(defined $node_id)
+		{
+			# searching by ID
+			gotoNode($node_id, $user_id);
+		}
+		else
+		{
+			# no node was specified -> default
+			gotoNode($HTMLVARS{default_node}, $user_id);
+		}
 	}
 }
 
@@ -1917,8 +1970,11 @@ sub getOpCode
 {
 	my ($opname) = @_;
 	my $OPNODE = getNode($opname, "opcode");
-	my $code = '"";';
+	my $code;
 	
+	# If a user cannot execute this, don't do it.
+	return undef unless($OPNODE->hasAccess($USER, "x"));
+
 	$code = $$OPNODE{code} if(defined $OPNODE);
 
 	return $code;
@@ -1954,7 +2010,7 @@ sub execOpCode
 	
 	return 0 unless(defined $op && $op ne "");
 	
-	$code = getOpCode($op);
+	$code = getOpCode($op, $USER);
 
 	if(defined $code)
 	{
