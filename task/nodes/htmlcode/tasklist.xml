@@ -1,0 +1,103 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">  my ($small) = @_;
+  $small ||= 0;
+	my %fields = ( task_id =&gt; 'title',
+		status 	 =&gt; 'status',
+		owner 	 =&gt; 'owner',
+		category =&gt; 'category',
+		rating	 =&gt; 'rating',
+		due_date =&gt; 'due');
+	my $orderby = $query-&gt;param('sortby');
+        $$VARS{task_orderby} = $orderby if $orderby;
+        $orderby ||= $$VARS{task_orderby};
+	unless ((defined $orderby) || !(defined $fields{$orderby})) {
+		$orderby ||= 'due';
+	}
+	my ($where, $checked) = ('', '');
+	if ($query-&gt;param('no_closed') or $VARS-&gt;{task_no_closed}) {
+		$checked = " CHECKED";
+		$where = "status &lt;&gt; 'closed'";
+                $$VARS{task_no_closed}=1;
+	}
+        $orderby .= " limit 8" if $small;
+	my $cursor = $DB-&gt;getNodeCursor(join(", ", keys %fields), $where,
+		 'task', $orderby);
+	return 'None found in database!' unless $cursor;
+	my $str = &lt;&lt;SORT;
+&lt;form method="POST"&gt;
+&lt;input type="hidden" name="node_id" value="$$NODE{node_id}"&gt;
+&lt;input type="checkbox" name="no_closed"$checked&gt;Ignore closed tasks&lt;/input&gt;
+&lt;select name="sortby"&gt;
+SORT
+
+
+
+
+	foreach my $field (keys %fields) {
+		$str .= "&lt;option";
+		$str .= " selected" if ($field eq $orderby);
+		$str .= qq| value="$field"&gt;$fields{$field}&lt;/option&gt;\n|;
+	}
+	$str .= qq|&lt;/select&gt;&lt;input type="submit" value="sort"&gt;&lt;/form&gt;|;
+
+	return unless $cursor-&gt;execute();
+
+        
+        if ($small) { $str = "&lt;table cellpadding=0 width=145&gt;"; } 
+	else { $str .= "&lt;table cellpadding='5'&gt;"; }
+	$str .= "&lt;tr&gt;&lt;th&gt;title&lt;/th&gt;&lt;th&gt;owner&lt;/th&gt;&lt;th&gt;category&lt;/th&gt;
+		&lt;th&gt;status&lt;/th&gt;&lt;th&gt;rating&lt;/th&gt;&lt;th&gt;due&lt;/th&gt;&lt;/tr&gt;";
+        
+        $str =~ s/\&lt;th\&gt;/\&lt;th\&gt;\&lt;font size=1\&gt;/igs if $small; #ohh, lordy
+        
+
+
+	my ($settings, $vars) = $DB-&gt;getNode('task settings', 'setting');
+	$vars = $settings-&gt;getVars() if $settings;
+	
+	my @colors;
+	if ($vars and defined $vars-&gt;{row_colors}) {
+		@colors = map { "bgcolor=\"$_\"" } split(/\s*,\s*/, $vars-&gt;{row_colors});
+	} else {
+		@colors = ( 'bgcolor="#dddddd"', 'bgcolor="#eeeeee"' );
+	}
+
+	my $c = shift @colors;
+        my $font = "";
+        $font = "&lt;font size=1&gt;" if $small;
+        my $count;
+	while (my $task = $cursor-&gt;fetchrow_hashref()) {
+		push @colors, $c;
+		$c = shift @colors;
+               
+		$task-&gt;{title} = linkNode(getNodeById($task-&gt;{task_id}));
+		$task-&gt;{owner} = linkNode(getNodeById($task-&gt;{owner}));
+
+                my @order = ('title','owner','category','status','rating','due_date');
+	        $str.= "&lt;tr&gt;";
+                foreach (@order) {
+		  my $item= $task-&gt;{$_};
+                  $item = "&lt;font size=1&gt;$item&lt;/font&gt;" if $small;
+                  $str.="&lt;td&gt;$item&lt;/td&gt;";
+                }
+                $str.="&lt;/tr&gt;\n";
+                $count++;
+	}
+        return "" if $small and not $count;
+	$str .= "&lt;/table&gt;";
+        $str .= "&lt;p align=right&gt;".linkNodeTitle("Task lister|lister") if $small;
+	return $str;</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permission table="node">-1</dynamicother_permission>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiiii</groupaccess>
+	<guestaccess table="node">iiiii</guestaccess>
+	<loc_location table="node" type="location">htmlcode</loc_location>
+	<otheraccess table="node">iiiii</otheraccess>
+	<title table="node">tasklist</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

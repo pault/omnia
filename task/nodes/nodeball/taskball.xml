@@ -1,5 +1,5 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
-	<author_user table="node" type="user">root</author_user>
+	<author_user table="node" type="usergroup">gods</author_user>
 	<authoraccess table="node">iiii</authoraccess>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
 	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
@@ -21,6 +21,8 @@
 		<groupnode13 table="nodegroup" type="htmlpage">task_update edit page</groupnode13>
 		<groupnode14 table="nodegroup" type="htmlpage">task_update display page</groupnode14>
 		<groupnode15 table="nodegroup" type="nodemethod">update</groupnode15>
+		<groupnode16 table="nodegroup" type="nodelet">tasklet</groupnode16>
+		<groupnode17 table="nodegroup" type="htmlcode">tasklist</groupnode17>
 	</group>
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">iiiii</groupaccess>
@@ -30,5 +32,8 @@
 	<title table="node">taskball</title>
 	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
 	<vars table="setting">
+		<author >Chromatic</author>
+		<description >A task manager allowing for creation of tasks, task_updates, and listing of open tasks sorted by criteria.  See documentation on everydevel.com</description>
+		<version >0.1.1</version>
 	</vars>
 </NODE>
