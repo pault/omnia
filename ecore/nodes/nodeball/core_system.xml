@@ -133,7 +133,6 @@
     <member type="noderef" type_nodetype="nodeletgroup,nodetype" name="group_node">all nodelets</member>
     <member type="noderef" type_nodetype="nodeletgroup,nodetype" name="group_node">default nodelets</member>
     <member type="noderef" type_nodetype="nodeletgroup,nodetype" name="group_node">system nodelets</member>
-    <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Gigantic Code Lister</member>
     <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">Gigantic Node Lister</member>
     <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">create node</member>
     <member type="noderef" type_nodetype="restricted_superdoc,nodetype" name="group_node">node locked</member>
@@ -263,9 +262,6 @@
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">nodeFormObject</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">formObject</member>
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Super Search</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">linkFunctions</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">showfunc</member>
-    <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">showModuleFunctions</member>
   </group>
   <field type="literal_value" name="group_usergroup">-1</field>
   <field type="literal_value" name="groupaccess">iiii-</field>

@@ -3,7 +3,6 @@
   <field type="literal_value" name="authoraccess">iiii</field>
   <field type="literal_value" name="code">my ($field) = @_;
 my $str = listCode($$NODE{$field}, 1);
-$str = linkFunctions($str);
 my $table = "&lt;table width=500 border=1>&lt;tr>&lt;td>\n";
 $table .= $str . "\n";
 $table .= " &lt;/td>&lt;/tr>&lt;/table>\n";

@@ -30,21 +30,21 @@ $str;
 
 %]</field>
   <field type="literal_value" name="nlgoto">0</field>
-  <field type="literal_value" name="nltext">&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=245">general container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=246">general nodelet container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=247">main container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=248">nodelet container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=249">nodelet outline container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=250">nodeletshadow container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=251">show container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=252">stdcontainer&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=232">links&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=233">mail&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=234">maintenance&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=235">node&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=236">nodegroup&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=237">nodelet&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=42&amp;node_id=238">nodemethod&lt;/a>&lt;BR>
+  <field type="literal_value" name="nltext">&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=259">nodelet outline container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=260">nodeletshadow container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=261">show container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=262">stdcontainer&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=249">setting&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=250">symlink&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=251">themesetting&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=252">typeversion&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=253">user&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=254">formcontainer&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=255">general container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=256">general nodelet container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=257">main container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=258">nodelet container&lt;/a>&lt;BR>
+&lt;A HREF="/index.pl?lastnode_id=45&amp;node_id=242">mail&lt;/a>&lt;BR>
 </field>
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>

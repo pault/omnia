@@ -25,8 +25,8 @@ push @links, linkNodeTitle ("user settings");
 my $GNL = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
 push @links, linkNode ($GNL) if($GNL->hasAccess($USER, 'r'));
 
-my $GCL = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GCL) if($GCL->hasAccess($USER, 'r'));
+my $GCL = getNode('Code Browser', getType('restricted_superdoc'));
+push @links, linkNode ($GCL) if($GCL and $GCL->hasAccess($USER, 'r'));
 
 my $ss = getNode('Everything settings', getType('restricted_superdoc'));
 push @links, linkNode ($ss) if ($ss->hasAccess($USER, "r"));
@@ -39,14 +39,14 @@ $str = join "&lt;br>\n", @links;
 &lt;/font></field>
   <field type="literal_value" name="nlgoto">0</field>
   <field type="literal_value" name="nltext">&lt;font size=2>
-&lt;A HREF="/index.pl?lastnode_id=91&amp;op=logout&amp;node_id=42">log root out&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=224&amp;op=logout&amp;node_id=45">log root out&lt;/a>&lt;br>
 
-&lt;A HREF="/index.pl?lastnode_id=91&amp;node_id=33">root&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=36">root&lt;/a>&lt;br>
 &lt;a href="/index.pl?node=user%20settings">user settings&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=91&amp;node_id=53">Gigantic Node Lister&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=91&amp;node_id=52">Gigantic Code Lister&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=91&amp;node_id=38">Everything settings&lt;/a>&lt;br>
-&lt;A HREF="/index.pl?lastnode_id=91&amp;node_id=54">Node Armageddon&lt;/a>
+&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=57">Gigantic Node Lister&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=56">Gigantic Code Lister&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=55">Everything settings&lt;/a>&lt;br>
+&lt;A HREF="/index.pl?lastnode_id=224&amp;node_id=58">Node Armageddon&lt;/a>
 &lt;/font></field>
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general nodelet container</field>

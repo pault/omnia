@@ -111,10 +111,10 @@ foreach (@$pages)
 }
 $str;
 %]
-&lt;p>
-&lt;b>Relevant Nodemethods&lt;/b>:
-&lt;p>
+
 [%
+my $GCL = getNode('code browser', 'restricted_superdoc');
+return unless $GCL;
 
 local *getModuleFunctions = sub {
     my ($modname) = @_;
@@ -141,7 +141,7 @@ local *getModuleFunctions = sub {
     return @modfuncs;
 };
 
-my $GCL = getNode('gigantic code lister', 'restricted_superdoc');
+
 my %nodemethods = ();
 local *listNodetypeSubs = sub {
   my ($NT) = @_;
@@ -164,7 +164,9 @@ local *listNodetypeSubs = sub {
   
   return $ret;
 };
-my $str;
+my $str = "&lt;p>
+&lt;b>Relevant Nodemethods&lt;/b>:
+&lt;p>";
 my $NT = $NODE;
 
 while ($NT) {

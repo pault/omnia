@@ -7,9 +7,6 @@ my @links;
 my $GNL = getNode('Gigantic Node Lister', getType('restricted_superdoc'));
 push @links, linkNode ($GNL) if($GNL->hasAccess($USER, 'r'));
 
-my $GCL = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
-push @links, linkNode ($GCL) if($GCL->hasAccess($USER, 'r'));
-
 my $ROOT = getNode('root', getType('user'));
 my $ss = getNode('system settings', getType('setting'));
 
