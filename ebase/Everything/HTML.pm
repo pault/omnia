@@ -348,7 +348,7 @@ sub htmlErrorUsers
 {
 	my ($errors, $CONTEXT) = @_;
 	my $errorId = int(rand(9999999));  # just generate a random error id.
-	my $str = htmlError($errorId);
+	my $str; #= htmlError($errorId);
 
 	# If the site does not have a piece of htmlcode to format this error
 	# for the users, we will provide a default.
@@ -751,7 +751,7 @@ sub searchForNodeByName
 		if($search_group && @$search_group > 0)
 		{
 			$NODE = getNode($HTMLVARS{searchResults_node});
-			$$NODE{group} = $search_group;
+			$GLOBAL{searchgroup} = $search_group;
 		}
 		else
 		{
@@ -1091,7 +1091,8 @@ sub executeCachedCode {
 sub compileCache
 {
 	my ($code, $NODE, $field, $args) = @_;
-	
+
+	$code =~ s/\015//gs;
 	my $code_ref = eval $code;
 
 	if ($@ or !($code_ref)) {
