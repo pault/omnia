@@ -809,10 +809,20 @@ sub searchForNodeByName
 	}
 	else
 	{
+		my @canread;
+		foreach (@$select_group) {
+			my $N = getNode $_;
+			next unless $N->hasAccess($USER, 'r');
+			push @canread, $_;
+		}
+		
+		return gotoNode($HTMLVARS{not_found}, $user_id) unless @canread;
+		return gotoNode($canread[0], $user_id) if @canread == 1;
+		
 		#we found multiple nodes with that name.  ick
 		my $NODE = getNode($HTMLVARS{duplicatesFound_node});
 		
-		$$NODE{group} = $select_group;
+		$$NODE{group} = \@canread;
 		gotoNode($NODE, $user_id);
 	}
 }
