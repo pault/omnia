@@ -813,8 +813,7 @@ sub restrict_type {
 
 	# anything is allowed without a valid restriction
 	my $nodetype = getNode($$this{type_nodetype});
-    return $groupref unless (defined($restricted_type = 
-		$$nodetype{restrict_nodetype}));
+    return $groupref unless ($restricted_type = $$nodetype{restrict_nodetype});
 
     my @cleaned;
 
