@@ -110,7 +110,10 @@ sub new
 		{
 			my $vars;
 
-			$vars = getVars($CACHE);
+			$Everything::DB = $this; 
+				#we have to set this, or it crashes when it calls a getRef
+									
+			$vars = Everything::getVars($CACHE);
 			$cacheSize = $$vars{maxSize} if(defined $vars);
 		}
 
@@ -677,7 +680,6 @@ sub selectNodeWhere
 sub getNodeCursor
 {
 	my ($this, $WHERE, $TYPE, $orderby, $nodeTableOnly) = @_;
-	my $wherestr;
 	my $cursor;
 	my $select;
 
