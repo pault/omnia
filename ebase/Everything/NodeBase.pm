@@ -71,6 +71,7 @@ sub new
 	$this->{cache} = $dbases->{$dbname}->{cache};
 	$this->{dbname} = $dbname;
 	$this->{staticNodetypes} = $staticNodetypes;
+	$this->{nodetypeModules} = $this->buildNodetypeModules;
 
 	if($setCacheSize && $this->getType("setting"))
 	{
@@ -96,6 +97,39 @@ sub new
 	return $this;
 }
 
+############################################################################
+#	Sub
+#		buildNodetypeModules
+#
+#	Purpose
+#		Perl 5.6 throws errors if we test "can" on a non-existing
+#		module.  This function builds a hashref with keys to all of
+#		the modules that exist in the Everything::Node:: dir
+#		This also casts "use" on the modules, loading them into memory
+#
+sub buildNodetypeModules {
+	my ($this) = @_;
+	my %modules;	
+	my $csr = $this->sqlSelectMany('title', "node", "type_nodetype=1");
+	while ($_ = $csr->fetchrow_hashref) {
+		my $found = 0;
+		my $name = $$_{title};
+		$name =~ s/\W//g;
+		my $inc_name = "Everything/Node/$name.pm";
+		my $modname = "Everything::Node::$name";
+		foreach my $lib (@INC) {
+			if (-e "$lib/$inc_name") {
+				$found = 1;
+				last;
+			}
+		}
+		if ($found) {
+			eval "use $modname"; 
+			$modules{$modname} = 1 unless $@;
+		}
+	}
+	\%modules;
+}
 
 #############################################################################
 #	Sub

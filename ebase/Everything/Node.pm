@@ -368,8 +368,10 @@ sub getNodeMethod
 	{
 		# Ok, we don't have a nodemethod.  Check to see if we have
 		# the function implemented in a .pm
-		my $package = "Everything::Node::$$TYPE{title}";
-		$found = functionExists($package, $func);
+		my $name = $$TYPE{title};
+		$name =~ s/\W//g;
+		my $package = "Everything::Node::$name";
+		$found = $package->can($func) if exists $this->{DB}->{nodetypeModules}->{$package};
 
 		if($found)
 		{
@@ -398,52 +400,6 @@ sub getNodeMethod
 	return $RETURN;
 }
 
-
-#############################################################################
-#	Sub
-#		functionExists
-#
-#	Purpose
-#		Takes a module name and function name, returns true if the
-#       function exists in the module.  This also does a require on it,
-#		so if it does exist, you can immediately use it without the need
-#		to 'use' or 'require' it.
-#
-#	Parameters
-#		$modname - the name of the .pm module in which to check for the
-#			functions (example: "Everything::Node::Setting")
-#		$funcname - the name of the function to check for in the module
-#
-#	Returns
-#		1 (true) if the module and function exist.  0 (false) if either
-#		of them do not exist.
-#
-sub functionExists
-{
-	my ($modname, $funcname) = @_;
-	my $found = 0;
-	my $inc_name = $modname . '.pm';
-	$inc_name =~ s!::!/!g;
-	if (exists($INC{$inc_name})) {
-		$found = $modname->can($funcname);
-	} else {
-		foreach my $lib (@INC) {
-			if (-e "$lib/$inc_name") {
-				$found = 1;
-				last;
-			}
-		}
-		if ($found) {
-			eval "use $modname;";
-			if ($@) {
-				$found = 0;
-			} else {
-				$found = $modname->can($funcname);
-			}
-		}
-	}
-	return $found;
-}
 
 #############################################################################
 #	Sub
