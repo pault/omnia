@@ -4,11 +4,10 @@ package Everything::HTML::FormObject::Checkbox;
 #   Everything::HTML::FormObject::Checkbox
 #		Package the implements the base checkbox functionality.
 #
-#   Copyright 2001 Everything Development Inc.
+#   Copyright 2001-2003 Everything Development Inc.
 #   Format: tabs = 4 spaces
 #
 #############################################################################
-
 
 use strict;
 use Everything;
@@ -51,26 +50,24 @@ sub genObject
 		$default, $label) = getParamArray(
 		"query, bindNode, field, name, checked, unchecked, default, label", @_);
 		
-	my $CHECK = "";
-	$checked ||= 1;
+	my $CHECK    = '';
+	$checked   ||= 1;
 	$unchecked ||= 0;
-	$default ||= "AUTO";
-	$label ||= "";
+	$default   ||= "AUTO";
+	$label     ||= '';
 
-	my $html = $this->SUPER::genObject($query, $bindNode,
-		$field . ":$unchecked", $name) . "\n";
-	
-	if($default eq "AUTO")
+	my $html = $this->SUPER::genObject(
+		$query, $bindNode, $field . ":$unchecked", $name) . "\n";
+
+	if ($default eq 'AUTO')
 	{
-		$CHECK = 0;
-		$CHECK = 1 if(ref $bindNode && ($checked eq $$bindNode{$field}));
+		$CHECK = (ref $bindNode && ($checked eq $bindNode->{ $field })) ? 1 : 0;
 	}
 	else
 	{
 		$CHECK = $default;
 	}
 
-	$label ||= "";
 	$html .= $query->checkbox(-name => $name, -checked => $CHECK,
 		-value => $checked, -label => $label);
 	
@@ -84,20 +81,17 @@ sub cgiUpdate
 	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
 	my $value = $query->param($name);
 	my $field = $this->getBindField($query, $name);
-	my $unchecked;
-	
-	($field, $unchecked) = split(':', $field);
-	
-	# Make sure this is not a restricted field that we cannot update
-	# directly.
-	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+
+	($field, my $unchecked) = split(':', $field);
+
+	# Make sure this is not a restricted field that we cannot update directly.
+	return 0 unless $overrideVerify or $NODE->verifyFieldUpdate($field);
 
 	$value ||= $unchecked;
-	$$NODE{$field} = $value;
+	$NODE->{$field} = $value;
 
 	return 1;
 }
-
 
 
 #############################################################################
@@ -105,4 +99,3 @@ sub cgiUpdate
 #############################################################################
 
 1;
-
