@@ -496,10 +496,10 @@ sub getGlobalVersion
 	if( (not defined $ver) || (not $ver) )
 	{
 		# The version for this node does not exist.  We need to start it off.
-		$this->{nodeBase}->sqlInsert('version',
-			{ version_id => $$NODE{node_id}, version => 1 } );
+		#$this->{nodeBase}->sqlInsert('version',
+		#	{ version_id => $$NODE{node_id}, version => 1 } );
 
-		$ver = 1;
+		$ver = 0;
 	}
 
 	return $ver;

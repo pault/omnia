@@ -233,9 +233,6 @@ sub nuke
 
 	return 0 unless($this->hasAccess($USER, "d"));
 
-	# Delete this node from the cache that we keep.
-	$this->removeFromCache();
-
 	my $tableArray = $$this{type}->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
@@ -247,13 +244,14 @@ sub nuke
 	$$this{DB}->{dbh}->do("DELETE FROM links WHERE to_node=" . 
 		   $this->getId() . " OR from_node=" . $this->getId());
 
+	# Lastly, remove the nuked node from the cache so we don't get
+	# stale data.
+	$$this{DB}->{cache}->incrementGlobalVersion($this);
+	$$this{DB}->{cache}->removeNode($this);
+
 	# Clear out the node id so that we can tell this is a "non-existant"
 	# node.
 	$$this{node_id} = 0;
-
-	# Lastly, remove the nuked node from the cache so we don't get
-	# stale data.
-	$$this{DB}->{cache}->removeNode($this);
 
 	return $result;
 }
