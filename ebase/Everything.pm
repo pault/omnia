@@ -2,7 +2,7 @@ package Everything;
 
 #############################################################################
 #	Everything perl module.  
-#	Copyright 1999 Everything Development
+#	Copyright 1999 - 2002 Everything Development
 #	http://www.everydevel.com
 #
 #	Format: tabs = 4 spaces
@@ -250,52 +250,31 @@ sub getParamArray
 #
 sub cleanLinks
 {
-	my $select;
-	my $cursor;
-	my $row;
-	my @to_array;
-	my @from_array;
-	my $badlink;
+	my @delete;
 
-	$cursor = $DB->sqlSelectJoined("to_node, node_id", "links", { node => "to_node=node_id" });
-
-	if($cursor)
+	foreach my $link ('to_node', 'from_node')
 	{
-		while($row = $cursor->fetchrow_hashref())
+		my $cursor = $DB->sqlSelectJoined("$link, node_id", "links",
+		{ node => "$link=node_id" });
+
+		if($cursor)
 		{
-			if(not $$row{node_id})
+			while(my $row = $cursor->fetchrow_hashref())
 			{
-				# No match.  This is a bad link.
-				push @to_array, $$row{to_node};
+				unless ($$row{node_id})
+				{
+					# No match.  This is a bad link.
+					push @delete, { $link => $row->{to_node} };
+				}
 			}
 		}
 	}
 
-	$cursor = $DB->sqlSelectJoined("from_node, node_id", "links", { node => "from_node=node_id" });
-
-	if($cursor)
+	foreach my $badlink (@delete)
 	{
-		while($row = $cursor->fetchrow_hashref())
-		{
-			if(not $$row{node_id})
-			{
-				# No match.  This is a bad link.
-				push @from_array, $$row{to_node};
-			}
-		}
-	}
-
-	foreach $badlink (@to_array)
-	{
-		$DB->sqlDelete("links", { to_node => $badlink });
-	}
-
-	foreach $badlink (@from_array)
-	{
-		$DB->sqlDelete("links", { from_node => $badlink });
+		$DB->sqlDelete("links", $badlink);
 	}
 }
-
 
 #############################################################################
 #	Sub
