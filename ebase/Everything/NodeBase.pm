@@ -4,7 +4,7 @@ package Everything::NodeBase;
 #	Everything::NodeBase
 #		Wrapper for the Everything database and cache.  
 #
-#	Copyright 1999 - 2002 Everything Development Inc.
+#	Copyright 1999 - 2003 Everything Development Inc.
 #	Format: tabs = 4 spaces
 #
 #############################################################################
@@ -554,7 +554,7 @@ sub sqlExecute
 
 	unless ($sth = $this->{dbh}->prepare( $sql ))
 	{
-		Everything::printLog( "SQL failed: $sql [@$bound]\n" );
+		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
 		return;
 	}
 
