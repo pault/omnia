@@ -6,12 +6,12 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
-    <member orderby="1" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
-    <member orderby="2" type="noderef" type_nodetype="nodelet,nodetype">CGI::param</member>
-    <member orderby="3" type="noderef" type_nodetype="nodelet,nodetype">Server Statistics</member>
-    <member orderby="4" type="noderef" type_nodetype="nodelet,nodetype">Other Users</member>
-    <member orderby="5" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics</member>
-    <member orderby="6" type="noderef" type_nodetype="nodelet,nodetype">Links</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">admin nodelet</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">CGI::param</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Server Statistics</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Other Users</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Node Statistics</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Links</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

@@ -6,14 +6,14 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
-    <member orderby="1" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
-    <member orderby="2" type="noderef" type_nodetype="nodelet,nodetype">nsh</member>
-    <member orderby="3" type="noderef" type_nodetype="nodelet,nodetype">Node Bucket</member>
-    <member orderby="4" type="noderef" type_nodetype="nodelet,nodetype">Epicenter</member>
-    <member orderby="5" type="noderef" type_nodetype="nodelet,nodetype">Other Users</member>
-    <member orderby="6" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics</member>
-    <member orderby="7" type="noderef" type_nodetype="nodelet,nodetype">CGI::param</member>
-    <member orderby="8" type="noderef" type_nodetype="nodelet,nodetype">Server Statistics</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">admin nodelet</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">nsh</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Node Bucket</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Epicenter</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Other Users</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Node Statistics</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">CGI::param</member>
+    <member type="noderef" type_nodetype="nodelet,nodetype" name="group_node">Server Statistics</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
