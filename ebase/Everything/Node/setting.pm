@@ -11,7 +11,6 @@ package Everything::Node::setting;
 
 
 use strict;
-use Everything::Node::node;
 use Everything::Security;
 use Everything::Util;
 use Everything::XML;
@@ -164,7 +163,7 @@ sub xmlTag
 				$$vars{$$PARSE{name}} = -1;
 
 				# The where contains our fix
-				push @fixes, $$PARSE{where};
+				push @fixes, $PARSE;
 			}
 			else
 			{
@@ -196,7 +195,9 @@ sub applyXMLFix
 
 	my $vars = $this->getVars();
 	
-	my $NODE = $$this{DB}->getNode($$FIX{title}, $$FIX{type_nodetype});
+	my $where = Everything::XML::patchXMLwhere($$FIX{where});
+	my $TYPE = $$where{type_nodetype};
+	my $NODE = $$this{DB}->getNode($where, $TYPE);
 
 	unless($NODE)
 	{

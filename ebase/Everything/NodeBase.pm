@@ -1530,8 +1530,9 @@ sub getId
 	{
 		return $$node{node_id};
 	}
-	elsif($node =~ /^\d+$/)
+	elsif($node =~ /^-?\d+$/)
 	{
+		# If it is a number, just return it.
 		return $node;
 	}
 

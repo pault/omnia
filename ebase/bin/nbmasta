@@ -323,9 +323,10 @@ sub exportNodes
 	my @nodefiles=();
 
 	for(my $i =0; $i < @$nodes;$i++) {
-		$_ = $$nodes[$i];
-		push @{ $nodetypes{$$_{type}{title}} }, getId($_); 
-		$nodeindex{getId($_)}=$i;
+		my $ID = $$nodes[$i];
+		my $N = getNode($$nodes[$i]);
+		push @{ $nodetypes{$$N{type}{title}} }, $ID; 
+		$nodeindex{$ID}=$i;
 	}
 	
 	foreach my $NODETYPE (keys %nodetypes) {
@@ -335,8 +336,8 @@ sub exportNodes
 		$dir =~ tr/ /_/;
 		$dir = $basedir.'/'.$dir; 
 		createDir $dir unless (-e $dir);	
-		foreach my $NODE (@{ $nodetypes{$NODETYPE} }) {
-			getRef ($NODE);
+		foreach my $N (@{ $nodetypes{$NODETYPE} }) {
+			my $NODE = getNode($N);
 			my $file = $$NODE{title};
 			$file =~ tr/ /_/;
 			
@@ -1015,8 +1016,8 @@ sub main {
 		createDir ($dir);
 		
 		my @tables;
-		foreach my $NODE (@{ $$NB{group} }) {
-			getRef ($NODE);
+		foreach my $N (@{ $$NB{group} }) {
+			my $NODE = getNode($N);
 			if ($$NODE{type}{title} eq "dbtable") {
 				push @tables, $$NODE{title};
 			}

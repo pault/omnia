@@ -24,6 +24,7 @@ sub BEGIN
 		readTag	
 		genBasicTag
 		parseBasicTag
+		patchXMLwhere
 	);
 }
 
@@ -80,8 +81,10 @@ sub fixNodes
 		{
 			if($NODE->applyXMLFix($FIX, $printError))
 			{
-				# The node attempted to apply the fix, but none was found 
-				push @$UNFIXED, $FIX;
+				# The node attempted to apply the fix, but none was found.
+				# Put them back at the start, so we don't run through them
+				# again.
+				unshift @$UNFIXED, $FIX;
 			}
 		}
 
@@ -325,7 +328,7 @@ sub parseBasicTag
 	my %WHERE;
 	
 	# Our contents is always the first TEXT_NODE object... just convert
-	# it to a string, which is what wwe want anyway. 
+	# it to a string, which is what we want anyway. 
 	my $contents = $TAG->getFirstChild()->toString();
 
 	$contents = unMakeXmlSafe($contents);
@@ -349,22 +352,15 @@ sub parseBasicTag
 			next if($attr eq "type");
 			next if($attr eq "name");
 
-			if($attr =~ /_(\w*)/)
-			{
-				my ($title, $nodetype) = split ',', $value;
-				my $N = getNode($title, $nodetype);
-				$WHERE{$attr} = $$N{node_id} if($N);
-				$WHERE{$attr} ||= $value;
-			}
-			else
-			{
-				$WHERE{$attr} = $value;
-			}
+			$WHERE{$attr} = $value;
 		}
 
 		$WHERE{title} = $contents;
+		
+		patchXMLwhere(\%WHERE);
 
-		my $NODEREF = getNode(\%WHERE);
+		my $TYPE = getType($WHERE{type_nodetype});
+		my $NODEREF = getNode(\%WHERE, $TYPE);
 		if($NODEREF)
 		{
 			$PARSEDTAG{$name} = $$NODEREF{node_id};
@@ -375,8 +371,8 @@ sub parseBasicTag
 
 			# Return our "fix".  We need to mark what field this fix is for
 			# and who created it
-			$WHERE{fixBy} = $fixBy;
-			$WHERE{field} = $name;
+			$PARSEDTAG{fixBy} = $fixBy;
+			$PARSEDTAG{field} = $name;
 
 			$PARSEDTAG{where} = \%WHERE;
 		}
@@ -391,6 +387,47 @@ sub parseBasicTag
 	}
 
 	return \%PARSEDTAG;
+}
+
+
+#############################################################################
+#	Sub
+#		patchXMLwhere
+#
+#	Purpose
+#		A utility method.
+#		When parseBasicTag is called, we take an XML tag and if it is
+#		determined that the tag is a noderef, we construct a where hash
+#		to try to find that node in our system.  However, sometimes fields
+#		that identify a particular node point to a node that has not been
+#		inserted yet.  This causes a problem where our 'where' hash contains
+#		text information about nodes that do not yet existing the database
+#		(they get installed later) rather than a node id.
+#
+#		This in itself is not a problem, but we need to make sure that
+#		when the fixes come around that we update our where hash so that
+#		any references that didn't exist before are now patched.
+#
+#	Parameters
+#		$WHERE - a hash ref to a where hash that we need to patch up.
+#
+#	Returns
+#		The where hash
+#
+sub patchXMLwhere
+{
+	my ($WHERE) = @_;
+
+	foreach my $attr (keys %$WHERE)
+	{
+		if(($attr =~ /_(\w*)/) && ($$WHERE{$attr} =~ /^(.+?),(.+)$/))
+		{
+			my $N = getNode($1, $2);
+			$$WHERE{$attr} = $$N{node_id} if($N);
+		}
+	}
+
+	return $WHERE;
 }
 
 

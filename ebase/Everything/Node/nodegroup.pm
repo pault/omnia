@@ -48,6 +48,9 @@ sub selectGroupArray
 	my $nid;
 	my @group;
 	
+	# Make sure the table exists first
+	$$this{DB}->createGroupTable($groupTable);
+
 	# construct our array of node id's of the nodes in our group
 	my $cursor = $$this{DB}->sqlSelectMany('node_id', $groupTable,
 		$groupTable . "_id=$$this{node_id}", 'ORDER BY orderby');
@@ -122,6 +125,28 @@ sub update
 #		orderby.  This way we minimize sql deletes and inserts and do a
 #		simple sql update.
 #
+#	Notes
+#		A little discussion on groups here.  This function is a good chunk
+#		of code with some interesting stuff going on.  With groups we need
+#		to handle the case that the same node (same ID) may be in the group
+#		twice in different places in the order.  In general, we don't keep
+#		duplicate nodes in a group, but it is implemented to handle the
+#		the case of duplicates for completeness.
+#
+#		Group tables contain 4 columns, tablename_id, rank, node_id, and
+#		orderby.  tablename_id is set to the id of the group node that has
+#		this node (row) in its group.  Since tablename_id can be the same
+#		for multiple rows, we need a secondary key.  rank is the secondary
+#		key.  Each time a new row for a group is inserted, we increment the
+#		max rank.  This way, each row has a unique key of tablename_id,rank.
+#		node_id is the id of the node that belongs to the group.  There can
+#		be duplicates of node_id in the same group.  Orderby exists only
+#		because we do not want to change rank.  rank is indexed as part of
+#		the primary key.  If we were to change rank, we would need to take
+#		the hit of the database re-indexing on each update.  So, the orderby
+#		field is just there to allow us to specify the order of the nodes
+#		in the group without mucking with the primary index.
+#
 #	Parameters
 #		$USER - used for authentication
 #
@@ -136,71 +161,108 @@ sub updateGroup
 	return 0 unless($this->hasAccess($USER, 'w'));
 
 	my $group = $$this{group};
-	my @inserted;
-	my @removed;
-	my %inOrg;
+	my %DIFF;
 	my $table = $this->isGroup();
 	my $updated = 0;
 
-	# Make sure the table exists first
-	$$this{DB}->createGroupTable($table);
-
 	my $orgGroup = $this->selectGroupArray();
 
-	# Find the new nodes that have been added to this group.  If a node
-	# is in the original group (seen), then its not new. 
-	foreach (@$orgGroup) { $inOrg{$_} = 1; }
-	foreach (@$group)
-	{
-		push @inserted, $_ unless(exists $inOrg{$_});
-	}
-
-	# Find the nodes that have been removed from this group.  
-	my %inGroup;
-	foreach (@$group) { $inGroup{$_} = 1; }
+	# We need to determine how many nodes have been inserted or removed
+	# from the group.  We create a hash for each node_id.  For each one
+	# that exists in the orginal group, we subract one.  For each one
+	# that exists in our current group, we add one.  This way, if any
+	# nodes have been removed, they will be negative (exist in the orginal
+	# group, but not in the current) and any new nodes will be positive.
+	# If there is no change for a particular node, it will be zero
+	# (subtracted once for being in the original group, added once for
+	# being in the current group).
 	foreach (@$orgGroup)
 	{
-		push @removed, $_ unless(exists $inGroup{$_});
+		$DIFF{$_} = 0 unless(exists $DIFF{$_});
+		$DIFF{$_}--;
+	}
+	foreach (@$group)
+	{
+		$DIFF{$_} = 0 unless(exists $DIFF{$_});
+		$DIFF{$_}++;
 	}
 
 	my $sql;
 
 	# Actually remove the nodes from the group 
-	foreach my $remove (@removed)
+	foreach my $node (keys %DIFF)
 	{
-		$sql = "delete from " . $table . " where " . $table .
-			"_id=$$this{node_id} && node_id=$remove LIMIT 1";
-		$$this{DB}->{dbh}->do($sql);
-		$updated = 1;
-	}
+		my $diff = $DIFF{$node};
 
-	my $rank = $$this{DB}->sqlSelect('MAX(rank)', $table, 
-		$table . "_id=$$this{node_id}");
+		if($diff < 0)
+		{
+			my $abs = abs($diff);
 
-	$rank ||= 0;
+			# diff is negative, so we need to remove abs($diff) number
+			# of entries.
+			$sql = "delete from " . $table . " where " . $table .
+				"_id=$$this{node_id} && node_id=$node LIMIT $abs";
 
-	# Actually insert the new nodes into the group 
-	foreach my $insert (@inserted)
-	{
-		$rank++;
+			my $rowsAffected = $$this{DB}->{dbh}->do($sql);
 
-		$$this{DB}->sqlInsert($table,
-			{ $table . "_id" => $$this{node_id}, 
-			rank => $rank, node_id => $insert,
-			orderby => '0' });
+			print "Warning! Wrong number of group members deleted!\n"
+				if($abs != $rowsAffected);
 
-		$updated = 1;
+			$updated = 1;
+		}
+		elsif($diff > 0)
+		{
+			# diff is positive, so we need to insert $diff number
+			# of new members for this particular node_id.
+
+			# Find what the current max rank of the group is.
+			my $rank = $$this{DB}->sqlSelect('MAX(rank)', $table, 
+				$table . "_id=$$this{node_id}");
+
+			$rank ||= 0;
+
+			for(my $i = 0; $i < $diff; $i++)
+			{
+				$rank++;
+
+				$$this{DB}->sqlInsert($table,
+					{ $table . "_id" => $$this{node_id}, 
+					rank => $rank, node_id => $node,
+					orderby => '0' });
+
+				$updated = 1;
+			}
+		}
 	}
 
 	if($updated)
 	{
 		# Ok, we have removed and inserted what we needed.  Now we need to
 		# reassign the orderby;
-		my $orderby = 1;
+
+		# Clear everything to zero orderby for this group.  We need to do
+		# this so that we know which ones we have updated.  If a node was
+		# inserted into the middle, all of the orderby's for nodes after
+		# that one would need to be incremented anyway.  This way, we reset
+		# everything and update each member one at a time, and we are
+		# guaranteed not to miss anything.
+		$$this{DB}->sqlUpdate($table, { orderby => 0 }, $table .
+			"_id=$$this{node_id}");
+		
+		my $orderby = 0;
 		foreach my $id (@$group)
 		{
-			$$this{DB}->sqlUpdate($table, { orderby => $orderby },
-				$table . "_id=$$this{node_id} && node_id=$id");
+			# This select statement here is only needed to get a specific row
+			# and single out a node in the group.  If the database supported
+			# "LIMIT #" on the update, we could just say update 'where
+			# orderby=0 LIMIT 1'.  So, until the database supports that we
+			# need to find the specific one we want using select
+			my $rank = $$this{DB}->sqlSelect("rank", $table, $table .
+				"_id=$$this{node_id} && node_id=$id && orderby=0", "LIMIT 1");
+			
+			my $sql = $table . "_id=$$this{node_id} && node_id=$id && " .
+				"rank=$rank";
+			$$this{DB}->sqlUpdate($table, { orderby => $orderby }, $sql);
 
 			$orderby++;
 		}
@@ -394,7 +456,9 @@ sub selectNodegroupFlat
 #	Parameters
 #		USER - the user trying to add to the group (used for authorization)
 #		insert - the node or array of nodes to insert into the group
-#		orderby - the criteria of which to order the nodes in the group
+#		orderby - the criteria of which to order the nodes in the group.
+#			This is zero-based.  Meaning that 0 (zero) will insert at
+#			the very beginning of the group.
 #
 #	Returns
 #		True (1) if the insert was successful.  If you had previously
@@ -561,7 +625,6 @@ sub fieldToXML
 	{
 		my $GROUP = new XML::DOM::Element($DOC, "group");
 		my $group = $$this{group};
-		my $order = 1;
 		my $tag;
 		my $text;
 		my $title;
@@ -570,23 +633,11 @@ sub fieldToXML
 
 		foreach my $member (@$group)
 		{
-			my $node = $$this{DB}->getNode($member);
-			next unless($node);
-			
 			$GROUP->appendChild(new XML::DOM::Text($DOC, $indentchild));
+			print "member = $member\n";
 			
-			$tag = new XML::DOM::Element($DOC, "member");
-			$tag->setAttribute("orderby", $order);
-			$tag->setAttribute("type", "noderef");
-			$tag->setAttribute("type_nodetype", "$$node{type}{title},nodetype");
-
-			$title = Everything::XML::makeXmlSafe($$node{title});
-			$text = new XML::DOM::Text($DOC, $title);
-
-			$tag->appendChild($text);
+			$tag = genBasicTag($DOC, "member", "group_node", $member);
 			$GROUP->appendChild($tag);
-
-			$order++;
 		}
 
 		$GROUP->appendChild(new XML::DOM::Text($DOC, $indentself));
@@ -608,60 +659,65 @@ sub xmlTag
 
 	if($tagname eq "group")
 	{
-		my $fixes = [];
+		my @fixes;
 		my @childFields = $TAG->getChildNodes();
+		my $orderby = 0;
 
 		foreach my $child (@childFields)
 		{
 			next if($child->getNodeType() == XML::DOM::TEXT_NODE());
 
-			my $ATTRS = $child->getAttributes();
-			my $type = $$ATTRS{type}->getValue();
-			my $orderby = $$ATTRS{orderby}->getValue();
-			my $name = $child->getFirstChild()->toString();
+			my $PARSE = Everything::XML::parseBasicTag($child, "nodegroup");
 
-			if($type ne 'noderef')
+			if(exists $$PARSE{where})
 			{
-				print "Error!  Non noderef item in group '$$this{title}'!\n";
-				next;
-			}
-
-			$name = Everything::XML::unMakeXmlSafe($name);
-
-			my $ntype = $$ATTRS{type_nodetype}->getValue(); 
-			my ($title, $nodetype) = split ',', $ntype;
-			my $TYPE = $$this{DB}->getNode($title, $nodetype);
-			my $WHERE = { type_nodetype => $$TYPE{node_id}, title => $name };
-			my $N = $$this{DB}->getNode($WHERE);
-			
-			if($N)
-			{
-				$this->insertIntoGroup(-1, $$N{node_id}, $orderby);
-			}
-			else
-			{
-				$$WHERE{fixBy} = "nodegroup";
-				$$WHERE{orderby} = $orderby;
+				$$PARSE{orderby} = $orderby;
+				$$PARSE{fixBy} = "nodegroup";
 
 				# The where contains our fix
-				push @$fixes, $WHERE;
+				push @fixes, $PARSE;
 
 				# Insert a dummy node into the group which we can then later
 				# fix.
 				$this->insertIntoGroup(-1, -1, $orderby);
 			}
+			else
+			{
+				$this->insertIntoGroup(-1, $$PARSE{$$PARSE{name}}, $orderby);
+			}
+
+			$orderby++;
 		}
 
-		return $fixes;
+		return \@fixes if(@fixes > 0);
 	}
 	else
 	{
 		return $this->SUPER();
 	}
+
+	return undef;
 }
 
 
 #############################################################################
+#	Sub
+#		applyXMLFix
+#
+#	Purpose
+#		In xmlTag, we returned a hash indicating that we were unable to
+#		find a node that one of our group members referenced.  All nodes
+#		should be installed now, so we need to go find it and fix the
+#		reference.
+#
+#	Parameters
+#		$FIX - the fix that we returned from xmlTag()
+#		$printError - set to true if errors should be printed to stdout
+#
+#	Returns
+#		undef if the patch was successful.  $FIX if we were still unable
+#		to find the node.
+#
 sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
@@ -671,19 +727,23 @@ sub applyXMLFix
 		return $this->SUPER();
 	}
 
-	my $NODE = $$this{DB}->getNode($$FIX{title}, $$FIX{type_nodetype});
+	my $where = Everything::XML::patchXMLwhere($$FIX{where});
+	my $TYPE = $$where{type_nodetype};
+	my $NODE = $$this{DB}->getNode($where, $TYPE);
 
 	unless($NODE)
 	{
-		print "Error! Unable to find '$$FIX{title}' of type '$$FIX{type_nodetype}'".
-			"\nfor field $$FIX{field}\n"; # if($printError);
+		print "Error! Unable to find '$$where{title}' of type \n" .
+			"'$$where{type_nodetype}' for field $$where{field}\n"
+		  	if($printError);
+
 		return $FIX;
 	}
 
 	my $group = $$this{group};
-	my $orderby = $$FIX{orderby} - 1;
 
-	$$group[$orderby] = $$NODE{node_id};
+	# Patch our group array with the now found node id!
+	$$group[$$FIX{orderby}] = $$NODE{node_id};
 
 	return undef;
 }
@@ -707,7 +767,8 @@ sub applyXMLFix
 #   Returns
 #       The newly cloned node, if successful.  undef otherwise.
 #
-sub clone {
+sub clone
+{
 	my $this = shift;
 
 	# we need $USER for Everything::Node::node::clone() _and_ insertIntoGroup
@@ -717,6 +778,10 @@ sub clone {
 	if (defined(my $group = $this->{group})) {
 		$NODE->insertIntoGroup($USER, $group);
 	}
+
+	# Update the node since the new group info has not been saved yet.
+	$NODE->update($USER);
+
 	return $NODE;
 }
 
