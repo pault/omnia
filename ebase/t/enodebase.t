@@ -31,6 +31,12 @@ sub AUTOLOAD
 	}
 }
 
+my @le;
+local *Everything::logErrors;
+*Everything::logErrors = sub {
+	push @le, [ @_ ];
+};
+
 use_ok( $package ) or die;
 
 my ($result, $method, $args);
@@ -220,12 +226,7 @@ is( $result, 'gfh', '... returning results' );
 
 can_ok( $package, 'dropNodeTable' );
 {
-	local (*Everything::logErrors, *Everything::printLog);
-	my @errors;
-	*Everything::logErrors = sub {
-		push @errors, [ @_ ];
-	};
-
+	local *Everything::printLog;
 	my @log;
 	*Everything::printLog = sub {
 		push @log, [ @_ ];
@@ -234,8 +235,7 @@ can_ok( $package, 'dropNodeTable' );
 	# lots of nodroppables, but testing them all is tedious
 	ok( ! dropNodeTable( $mock, 'container' ),
 		'dropNodeTable() should fail if attempting to drop core table' );
-	like( $errors[0][1], qr/core table 'container'!/,
-		'... logging an error' );
+	like( $le[0][1], qr/core table 'container'!/, '... logging an error' );
 
 	$mock->set_series( tableExists => 0, 1 )
 		 ->set_always( genTableName => 'tname' )
@@ -323,10 +323,8 @@ can_ok( $package, 'joinWorkspace' );
 can_ok( $package, 'joinWorkspace' );
 can_ok( $package, 'buildNodetypeModules' );
 
-my @le;
 $mock->set_series( sqlSelectMany => 0, $mock )
-	 ->set_series( fetchrow_array => qw( user nodetype blah ) )
-	 ->fake_module( Everything, logErrors => sub { push @le, [ @_ ] } );
+	 ->set_series( fetchrow_array => qw( user nodetype blah ) );
 
 is( buildNodetypeModules( $mock ), undef,
 	'buildNodetypeModules() should return with no database cursor' );
@@ -340,6 +338,7 @@ is( buildNodetypeModules( $mock ), undef,
 		*{ $caller . '::DB' } = \$mock;
 	};
 
+	@le = ();
 	$result = buildNodetypeModules( $mock );
 }
 
@@ -647,6 +646,8 @@ can_ok( $package, 'sqlExecute' );
 	is( join('-', @$args), "$mock-1-2-3", '... with bound variables' );
 	is( $result, 'success', '... returning the results' );
 
+	@le = ();
 	ok( ! sqlExecute( $mock, 'bad', [ 6, 5, 4 ] ), '... or false on failure' );
-	is( $log, "SQL failed: bad [6 5 4]\n", '... logging SQL and bound values' );
+	is( $le[0][1], "SQL failed: bad [6 5 4]\n",
+		'... logging SQL and bound values as error' );
 }
