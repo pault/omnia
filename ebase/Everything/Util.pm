@@ -67,7 +67,7 @@ sub unescape
 {
 	foreach my $arg (@_)
 	{
-		tr/+/ /;
+		$arg =~ tr/+/ /;
 		$arg =~ s/\%(..)/chr(hex($1))/ge;
 	}
 	
