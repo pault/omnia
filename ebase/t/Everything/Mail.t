@@ -3,13 +3,13 @@
 use Test::More tests => 51;
 use Test::MockObject;
 
-my $package = "Everything::MAIL";
+my $package = "Everything::Mail";
 
 ################################################################
 #
 #	t/email.t 
 #
-#		Test Everything::MAIL
+#		Test Everything::Mail
 #
 #
 
@@ -17,22 +17,22 @@ my $package = "Everything::MAIL";
 #Load in the blib paths
 BEGIN
 {
-        chdir 't' if -d 't';
-        use lib '../blib/lib', 'lib', '..';
-	
+	chdir 't' if -d 't';
+	use lib '../blib/lib', 'lib', '..';
 }
 
 # We'll need a few MockObjects here
 
-my $mock = Test::MockObject->new();
-my $MS = Test::MockObject->new();
+my $mock     = Test::MockObject->new();
+my $MS       = Test::MockObject->new();
 my $SETTINGS = Test::MockObject->new();
 
 # A few different variables to hold parameters being passed in and out
 
-my ($le_wrn,$le_err,$ms_isclosed, $ms_params, $ms_gotsettings, $ms_addr, $ms_subject, $ms_body);
-my (@WARNINGS, @ERRORS, @RECIPIENTS);
+my ($le_wrn,$le_err,$ms_isclosed, $ms_params, $ms_gotsettings, $ms_addr,
+$ms_subject, $ms_body);
 
+my (@WARNINGS, @ERRORS, @RECIPIENTS);
 
 # For now, we are going to start off so that a call
 # to getNode("mail settings", "setting") will fail
@@ -48,7 +48,7 @@ getNode =>
     sub { 
 		my ($nparam, $tparam) = @_;
 
-		return undef unless $nparam;
+		return unless $nparam;
 		
 		if($nparam eq "mail settings" and $tparam eq "setting")
 		{
@@ -111,8 +111,8 @@ $MS->mock("MailMsg",
      sub { 
 
 		my($this, $par_in) = @_;
-		$ms_addr = $par_in->{to};
-		$ms_body = $par_in->{msg};
+		$ms_addr    = $par_in->{to};
+		$ms_body    = $par_in->{msg};
 		$ms_subject = $par_in->{subject};
 		push @RECIPIENTS, $ms_addr;
 		$MS->MailMsg_return();
@@ -129,17 +129,17 @@ $MS->mock("Close", sub { $ms_isclosed = 1});
 $SETTINGS->set_always("getVars", undef);
 
 # Everything::getNode needs to be jumpstarted into the space
-# for Everything::MAIL. My thanks goes to chromatic for this
+# for Everything::Mail. My thanks goes to chromatic for this
 # smart little hack.
 
-local *Everything::MAIL::getNode;
-*Everything::MAIL::getNode = sub { Everything::getNode( @_ ) };
+local *Everything::Mail::getNode;
+*Everything::Mail::getNode = sub { Everything::getNode( @_ ) };
 
-local *Everything::MAIL::getType;
-*Everything::MAIL::getType = sub { return uc($_[0]); };
+local *Everything::Mail::getType;
+*Everything::Mail::getType = sub { return uc($_[0]); };
 
-local *Everything::MAIL::FILE;
-tie *Everything::MAIL::FILE, 'MockHandle', "This will never be read", 1;
+local *Everything::Mail::FILE;
+tie *Everything::Mail::FILE, 'MockHandle', "This will never be read", 1;
 use MockHandle;
 
 my $MockHandle_closed;
@@ -147,7 +147,7 @@ my $MockHandle_closed;
 local *MockHandle::CLOSE;
 *MockHandle::CLOSE = sub { $MockHandle_closed = 1 };
 
-# Does use Everything::MAIL still return 1? This will tell us:
+# Does use Everything::Mail still return 1? This will tell us:
 
 use_ok($package) or exit;
 {
@@ -257,8 +257,8 @@ use_ok($package) or exit;
   # MailMsg fails 100% from here
 
   @RECIPIENTS = ();
-  @WARNINGS = ();
-  @ERRORS = ();
+  @WARNINGS   = ();
+  @ERRORS     = ();
   $MS->remove("MailMsg_return");
   $MS->mock("MailMsg_return", sub { -250 });
 
@@ -295,8 +295,8 @@ use_ok($package) or exit;
 #               set author, from_address, and body
 #               insert node
 
-local *Everything::MAIL::getId;
-*Everything::MAIL::getId = sub { Everything::getId( @_ ) };
+local *Everything::Mail::getId;
+*Everything::Mail::getId = sub { Everything::getId( @_ ) };
 
 can_ok($package, 'mail2node');
 
@@ -308,11 +308,12 @@ ok((join "", @WARNINGS) =~ /No input files for mail2node/, '...and should throw 
 @WARNINGS = ();
 
 ok(mail2node('/dummy/file'), 'mail2node should return gracefully if it can\'t open up a file');
-ok((join "",@WARNINGS) =~ /mail2node could not open file/, '...and throw a warning saying so');
+ok((join "",@WARNINGS) =~ /mail2node could not open/,
+	'...throwing a warning saying so');
 
 #Set up tests for invalid reading
-untie *Everything::MAIL::FILE;
-tie *Everything::MAIL::FILE, 'MockHandle', "THIS IS INVALID TEXT";
+untie *Everything::Mail::FILE;
+tie *Everything::Mail::FILE, 'MockHandle', "THIS IS INVALID TEXT";
 
 @WARNINGS = ();
 $MockHandle_closed = 0;
@@ -322,8 +323,8 @@ ok($MockHandle_closed, '...and should close the file handle');
 
 
 #No "To:" parameter
-untie *Everything::MAIL::FILE;
-tie *Everything::MAIL::FILE, 'MockHandle', 
+untie *Everything::Mail::FILE;
+tie *Everything::Mail::FILE, 'MockHandle', 
 "From: testing\@test.com\nSubject: this is a test email!\n\nTesting!\n";
 
 @WARNINGS = ();
@@ -370,8 +371,8 @@ mail2node('/dummy/file');
 ok(join("", @WARNINGS) =~ /mail2node\: No \'To\:\' parameter specified\. Defaulting to user \'root\'/, 'mail2node should default to root and warn if it doesn\'t find a To: ');
 ok($got_root, '...and actually gets the root user');
 
-untie *Everything::MAIL::FILE;
-tie *Everything::MAIL::FILE, 'MockHandle', 
+untie *Everything::Mail::FILE;
+tie *Everything::Mail::FILE, 'MockHandle', 
 "From: testing\@test.com\nSubject: this is a test email!\n\nTesting!\n";
 
 @ERRORS = (); @WARNINGS = ();
@@ -383,8 +384,8 @@ $m2n_node->set_always("getMe", $m2n_node);
 
 $m2n_node->{type_nodetype} = 5; #fake mail nodetype
 
-untie *Everything::MAIL::FILE;
-tie *Everything::MAIL::FILE, 'MockHandle', "To: foo\@bar.com\nFrom: testing\@test.com\nSubject: this is a test email!\n\nTesting!\nHello\n";
+untie *Everything::Mail::FILE;
+tie *Everything::Mail::FILE, 'MockHandle', "To: foo\@bar.com\nFrom: testing\@test.com\nSubject: this is a test email!\n\nTesting!\nHello\n";
 @ERRORS = (); @WARNINGS = ();
 $m2n_node->clear();
 mail2node('/dummy/file');
@@ -401,8 +402,8 @@ $m2n_user->set_always("getMe", $m2n_user);
 $m2n_user->{node_id} = 24;
 $m2n_user->{title} = "not root";
 
-untie *Everything::MAIL::FILE;
-tie *Everything::MAIL::FILE, 'MockHandle', "To: foo\@bar.com\nFrom: testing\@test.com\nSubject: this is a test email!\n\nTesting!\nHello\n";
+untie *Everything::Mail::FILE;
+tie *Everything::Mail::FILE, 'MockHandle', "To: foo\@bar.com\nFrom: testing\@test.com\nSubject: this is a test email!\n\nTesting!\nHello\n";
 @ERRORS = (); @WARNINGS = ();
 $m2n_node->clear();
 

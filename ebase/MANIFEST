@@ -28,7 +28,7 @@ Everything/HTML/FormObject/TextArea.pm
 Everything/HTML/FormObject/TextField.pm
 Everything/HTML/FormObject/TypeMenu.pm
 Everything/HTML/FormObject/VarsTextField.pm
-Everything/MAIL.pm
+Everything/Mail.pm
 Everything/Node.pm
 Everything/Node/dbtable.pm
 Everything/Node/htmlcode.pm
@@ -85,7 +85,6 @@ images/icon_undo.gif
 images/minime.gif
 images/trans.gif
 scripts/removePod
-t/Everything/XML.t
 t/base
 t/ecachequeue.t
 t/ehfauthormenu.t
@@ -102,7 +101,6 @@ t/ehftextarea.t
 t/ehftextfield.t
 t/ehftypemenu.t
 t/ehtml.t
-t/email.t
 t/enbmysql.t
 t/endbtable.t
 t/enhtmlcode.t
@@ -124,6 +122,8 @@ t/enworkspace.t
 t/esecurity.t
 t/eutil.t
 t/everything.t
+t/Everything/Mail.t
+t/Everything/XML.t
 t/lib/FakeDBI.pm
 t/lib/FakeNode.pm
 t/lib/FakeNodeBase.pm

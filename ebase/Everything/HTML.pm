@@ -11,7 +11,7 @@ package Everything::HTML;
 
 use strict;
 use Everything;
-use Everything::MAIL;
+use Everything::Mail;
 use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
@@ -1317,7 +1317,7 @@ Allow compil-o-caching and calling of nodemethods.  Internal use only.
 
 the nodemethod node in question
 
-=item *	@_
+=item * @_
 
 further arguments for the nodemethod code
 

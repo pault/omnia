@@ -21,7 +21,7 @@ These are needed for the Everything::XML module
 	XML-Parser (2.27)
 	XML-DOM (1.27) 
 
-Everything::MAIL
+Everything::Mail
 	Mail-Sender (0.6.7)
 	Mail-Tools
 
