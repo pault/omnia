@@ -1,21 +1,19 @@
-package Everything::CacheQueue;
+=head1 Everything::CacheQueue
 
-#############################################################################
-#
-#	Everything::CacheQueue
-#		A module for maintaining a queue in which you can easily pull items
-#		from the middle of the queue and put them at the end again.  This
-#		is useful for caching purposes.  Every time you use an item, pull
-#		it out from the queue and put it at the end again.  The result is
-#		the least used items end up at the head of the queue.
-#
-#		The queue is implemented as a double-linked list and a data field.
-#
-#############################################################################
+A module for maintaining a queue in which you can easily pull items from the
+middle of the queue and put them at the end again.  This is useful for caching
+purposes.  Every time you use an item, pull it out from the queue and put it at
+the end again.  The result is the least used items end up at the head of the
+queue.
+
+The queue is implemented as a double-linked list and a data field.
+
+=cut
+
+package Everything::CacheQueue;
 
 use strict;
 use Everything;
-
 
 sub BEGIN
 {
@@ -31,20 +29,16 @@ sub BEGIN
 		listItems); 
 }
 
-#############################################################################
-#	Sub
-#		new
-#
-#	Purpose
-#		Constructs a new CacheQueue
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		The newly constructed module object
-# constructor improved to allow inheritance -- chromatic, 30 December 1999
-#
+=cut
+
+=head2 C<new>
+
+Constructs a new CacheQueue
+
+Returns the newly constructed module object constructor
+
+=cut
+
 sub new
 {
 	my $class = shift;
@@ -67,25 +61,31 @@ sub new
 	return $this;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		queueItem
-#
-#	Purpose
-#		Put the given data item at the end of the queue
-#
-#	Parameters
-#		$item - The data to put in the queue
-#		$permanent - True if this item should never be returned from
-#			getNextItem.  An item marked permanent can still be removed
-#			manually using the removeItem function.
-#
-#	Returns
-#		A reference to the queue data that represents the item.  Hold on
-#		to this, you will need it for calls to getItem.  You should not
-#		modify any data within this "object".
-#
+=head2 C<queueItem>
+
+Put the given data item at the end of the queue
+
+=over 4
+
+=item * $item
+
+The data to put in the queue
+
+=item * $permanent
+
+True if this item should never be returned from getNextItem.  An item marked
+permanent can still be removed manually using the removeItem function.
+
+=back
+
+Returns a reference to the queue data that represents the item.  Hold on to
+this, you will need it for calls to getItem.  You should not modify any data
+within this "object".
+
+=cut
+
 sub queueItem
 {
 	my ($this, $item, $permanent) = @_;
@@ -96,24 +96,26 @@ sub queueItem
 	return $data;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getItem
-#
-#	Purpose
-#		Given the reference to the queue data (returned from queueItem()),
-#		return the user's item.  This also pulls this item out of the queue
-#		and reinserts it at the end.  This way the least used items are at
-#		the head of the queue.
-#
-#	Parameters
-#		$data - the queue data representing a user's item.  This is returned
-#			from queueItem().
-#
-#	Returns
-#		The user's item
-#
+=head2 C<getItem>
+
+Given the reference to the queue data (returned from queueItem()), return the
+user's item.  This also pulls this item out of the queue and reinserts it at
+the end.  This way the least used items are at the head of the queue.
+
+=over 4
+
+=item * $data
+
+the queue data representing a user's item.  This is returned from queueItem().
+
+=back
+
+Returns the user's item
+
+=cut
+
 sub getItem
 {
 	my ($this, $data) = @_;
@@ -126,24 +128,19 @@ sub getItem
 	return $$data{item};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNextItem
-#
-#	Purpose
-#		This pulls the "oldest" item off the head of the queue.  This removes
-#		the item from the queue.  Any queue data references (returned from
-#		queueItem()) that you are holding for this item should be deleted.
-#		If the "oldest" item is permanent, we will re-queue that item and
-#		find one that is not permanent.
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		The user's item
-#
+=head2 C<getNextItem>
+
+This pulls the "oldest" item off the head of the queue.  This removes the item
+from the queue.  Any queue data references (returned from queueItem()) that you
+are holding for this item should be deleted.  If the "oldest" item is
+permanent, we will re-queue that item and find one that is not permanent.
+
+Returns the user's item
+
+=cut
+
 sub getNextItem
 {
 	my ($this) = @_;
@@ -163,20 +160,16 @@ sub getNextItem
 	return $$firstData{item};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getSize
-#
-#	Purpose
-#		Get the size of the queue
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		The number of items in the queue
-#
+=head2 C<getSize>
+
+Get the size of the queue
+
+Returns the number of items in the queue
+
+=cut
+
 sub getSize
 {
 	my ($this) = @_;
@@ -184,21 +177,25 @@ sub getSize
 	return $this->{queueSize};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		removeItem
-#
-#	Purpose
-#		Remove an item from the queue.  This should only be used when the
-#		associated item is deleted and should no longer be in the queue.
-#
-#	Parameters
-#		$data - the queue data ref (as returned from queueItem()) to remove
-#
-#	Returns
-#		The removed data item.
-#
+=head2 C<removeItem>
+
+Remove an item from the queue.  This should only be used when the associated
+item is deleted and should no longer be in the queue.
+
+=over 4
+
+=item * $data
+
+the queue data ref (as returned from queueItem()) to remove
+
+=back
+
+Returns the removed data item.
+
+=cut
+
 sub removeItem
 {
 	my ($this, $data) = @_;
@@ -209,18 +206,17 @@ sub removeItem
 	return $$data{item};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		listItems
-#
-#	Purpose
-#		Return an array of each item in the queue.  Useful for checking
-#		whats whats in there (mostly for debugging purposes).
-#
-#	Returns
-#		A reference to an array that contains all of the items in the queue
-#
+=head2 C<listItems>
+
+Return an array of each item in the queue.  Useful for checking what's in there
+(mostly for debugging purposes).
+
+Returns a reference to an array that contains all of the items in the queue
+
+=cut
+
 sub listItems
 {
 	my ($this) = @_;
@@ -235,8 +231,6 @@ sub listItems
 
 	return \@list;
 }
-
-
 
 
 #############################################################################
@@ -292,14 +286,18 @@ sub removeData
 	$this->{queueSize}--;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		createQueueData
-#
-#	Purpose
-#		This creates a link, in our linked list.
-#
+=begin private
+
+=head2 C<createQueueData>
+
+This creates a link, in our linked list.
+
+=end private
+
+=cut
+
 sub createQueueData
 {
 	my ($this, $item, $permanent) = @_;
