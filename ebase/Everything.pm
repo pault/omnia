@@ -41,6 +41,7 @@ sub BEGIN
 		updateNode
 		replaceNode
 
+		initEverything
 		removeFromNodegroup 
 		replaceNodegroup
 		insertIntoNodegroup 

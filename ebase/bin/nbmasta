@@ -32,7 +32,7 @@ if (@ARGV < 3) {
 
 my ($function, $nodeball, $database) = @ARGV[0..2];
 
-Everything::initEverything($database, 1)
+initEverything($database, 1)
 	or die "couldn't connect to $database";
 
 #############################################################################
@@ -233,8 +233,8 @@ sub checkTables {
 	initEverything($database, 1);
 	createDB $dummydb;
 	addTablesToDB $dummydb, $tabledir;
-	my $ret = compareAllTables($DB->getTablesHashref($database),
-		$DB->getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
+	my $ret = compareAllTables(getTablesHashref($database),
+		getTablesHashref($dummydb),  $dummydb, $database, $tabledir);
 	dropDB $dummydb;
 	
 	initEverything($database, 1);
@@ -825,7 +825,7 @@ sub main {
 				."according to the version number, at least.\n"
 				."Do --force if you want to force it anyway.\n" 
 				if ($version eq $$VARS{version} and not $OPTIONS{force});
-			print "updating nodelball $$OLDBALL{title}\n";	
+			print "updating nodeball $$OLDBALL{title}\n";	
 			updateNodeball ($OLDBALL, $dir);
 			cleanUpDir($dir) if $cleanme;
 			exit;
