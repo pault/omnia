@@ -148,7 +148,7 @@ sub exportTables {
 #
 sub confirmYN {
 	my ($q) = @_;
-	print "$q";
+	print "$q (N/y)";
 	my $ans = <STDIN>;
 	return 1 if $ans =~ /^y/i;
 	return 0;
