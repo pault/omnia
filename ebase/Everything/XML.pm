@@ -165,20 +165,23 @@ sub end_handler
 		my $type = $$fix{type};
 		my $found = 0;
 
-		my $REF = getNode($$NODE{$$tag{title}}, $type); 
-		if ($REF)
+		unless($$fix{isVars} or $$fix{field} =~ /^groupnode/)
 		{
-			# When installing nodes, the type_nodetype may be a string
-			# name, but we really want the Id.
-			$$NODE{$$tag{title}} = getId $REF; 	
-			$found = 1;
-		}
-		else
-		{
-			# Note: if this happens for a reference to a nodetype
-			# (specifically the type_nodetype field) this will be a fatal
-			# error as all nodetypes are expected to be installed first.
-			$$NODE{$$tag{title}} = -1;
+			my $REF = getNode($$NODE{$$tag{title}}, $type); 
+			if ($REF)
+			{
+				# When installing nodes, the type_nodetype may be a string
+				# name, but we really want the Id.
+				$$NODE{$$tag{title}} = getId $REF; 	
+				$found = 1;
+			}
+			else
+			{
+				# Note: if this happens for a reference to a nodetype
+				# (specifically the type_nodetype field) this will be a fatal
+				# error as all nodetypes are expected to be installed first.
+				$$NODE{$$tag{title}} = -1;
+			}
 		}
 		
 		# If we did not find the node that this field references, we need
@@ -346,7 +349,7 @@ sub fixNodes
 			}
 		}
 
-		$NODE->setVars($TEMPVARS) if($setvars);
+		$NODE->setVars($TEMPVARS, -1) if($setvars);
 	}
 }
 

@@ -613,7 +613,7 @@ sub installNodeball {
 
 	# install any .pm's that we might have
 	installModules($dir);
-	
+
 	#memo to myself -- we should give warnings if dependant 
 	#nodeballs are not installed
 }

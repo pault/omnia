@@ -143,7 +143,7 @@ sub destruct
 	delete $$this{tableArray};
 
 	# Delete the base stuff
-	$this->SUPER();
+	#$this->SUPER();
 }
 
 

@@ -110,7 +110,7 @@ sub DESTROY
 	# Problem here is that the nodetype that is pointed to by $$this{type}
 	# could get destructed first on shutdown which would make this
 	# malfunction.  Disabling for now since this may not really be needed.
-	$this->destruct();
+	#$this->destruct();
 
 	# Remove any references that we may have.  Probably not necessary,
 	# but will prevent the possibility any circular references.
