@@ -9,7 +9,6 @@
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodetype</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">node</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">setting</member>
-    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">installdir</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">container</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">dbtable</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">document</member>
@@ -166,7 +165,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">workspace display page</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">adminbar</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">basichead</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">bindFormObject</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">checkvar</member>

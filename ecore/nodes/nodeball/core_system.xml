@@ -9,11 +9,9 @@
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodetype</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">node</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">setting</member>
-    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">installdir</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">container</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">dbtable</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">document</member>
-    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">file</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</member>
@@ -71,7 +69,6 @@
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">commitworkspace</member>
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">insertMini</member>
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">massacre</member>
-    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">opNSH</member>
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">redo</member>
     <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">undo</member>
     <member name="group_node" supports_nodetype="nodelet,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">insert</member>
@@ -94,7 +91,6 @@
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Tick tock</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">nsh</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">personal nodelet</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">workspace info</member>
     <member name="group_node" type="noderef" type_nodetype="mail,nodetype">New User Mail</member>
@@ -102,7 +98,6 @@
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">container</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">dbtable</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">document</member>
-    <member name="group_node" type="noderef" type_nodetype="location,nodetype">file</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">htmlcode</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">htmlpage</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">htmlsnippet</member>
@@ -171,7 +166,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user display page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">user edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">workspace display page</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">adminbar</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">basichead</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">bindFormObject</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">checkvar</member>
@@ -227,8 +221,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">varmenu</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">windowview</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">yesno_field</member>
-    <member name="group_node" type="noderef" type_nodetype="document,nodetype">Help with Mini Nodelets</member>
-    <member name="group_node" type="noderef" type_nodetype="document,nodetype">nsh Help</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">container</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">document</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">htmlcode</member>
@@ -247,7 +239,6 @@
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">themesetting</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">typeversion</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">user</member>
-    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">workspace</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">formcontainer</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general nodelet container</member>
