@@ -9,7 +9,7 @@ my $str = "";
 foreach (@links) {
   next if ($$_{linktype});
 
-  my $N = selectNode $$_{to_node}, 'light';
+  my $N = $DB-&gt;getNodeById($$_{to_node}, 'light');
   $str .="  &lt;li&gt;".linkNode($N)."($$N{type}{title})&lt;/li&gt;\n";  
 }
 $str;

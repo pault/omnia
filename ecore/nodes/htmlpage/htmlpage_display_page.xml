@@ -6,7 +6,7 @@
 	<page table="htmlpage">
 pagetype: 
 [%
-	my $N = selectNode ($$NODE{pagetype_nodetype}, 'light');
+	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
 	linkNode $N;
 %]&lt;br&gt;
 parent container:

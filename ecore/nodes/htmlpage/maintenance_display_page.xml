@@ -5,7 +5,7 @@
 	<package table="node">0</package>
 	<page table="htmlpage">Maintains: 
 [%
-my $N = selectNode ($$NODE{maintain_nodetype}, 'light');
+my $N = $DB-&gt;getNodeById($$NODE{maintain_nodetype}, 'light');
 linkNode $N;
 %]
 &lt;br&gt;

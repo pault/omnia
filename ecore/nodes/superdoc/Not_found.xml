@@ -9,7 +9,8 @@ return if $$USER{title} eq "Guest User";
 
 
 my %approvedtypes;
-foreach my $NODETYPE (values %NODETYPES) {
+my @allTypes = $DB-&gt;getAllTypes();
+foreach my $NODETYPE (@allTypes) {
 	if (canCreateNode ($USER, $NODETYPE)) {
 		$approvedtypes{$$NODETYPE{title}} = $NODETYPE; 
 		#I have to do it in this kinda strange way to remove dupes...

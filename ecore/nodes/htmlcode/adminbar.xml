@@ -28,7 +28,7 @@ foreach my $N (@nodes)
 # the group.  We will need to check if the nodegroup has
 # a restriction on what nodetypes can be in the group.
 if ($$VARS{group}) {
-	my $GR = selectNode $$VARS{group}, 'light';
+	my $GR = $DB-&gt;getNodeById($$VARS{group}, 'light');
 
 	if(canUpdateNode($USER, $GR))
 	{

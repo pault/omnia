@@ -24,7 +24,7 @@
 
 
 
-	my $ref = selectNodeWhere ({ -1 =&gt; 1 }, "", "type_nodetype");
+	my $ref = $DB-&gt;selectNodeWhere({ -1 =&gt; 1 }, "", "type_nodetype");
 	
 
 	my $count = $query-&gt;param("next");
@@ -63,7 +63,7 @@
 
   my $NODEGROUP;
   if ($$VARS{group}) {
-    my $GR = selectNode $$VARS{group}, 'light';
+    my $GR = $DB-&gt;getNodeById($$VARS{group}, 'light');
 
     if(canUpdateNode($USER, $GR))
     {
@@ -85,7 +85,7 @@
 	$str .= $nav;
 	$str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;/tr&gt;";
 	for (my $i=$count;$i&lt;$max and $i &lt; @$ref;$i++){
-		my $N = selectNode $$ref[$i], 'light';
+		my $N = $DB-&gt;getNodeById($$ref[$i], 'light');
 		$str .= "&lt;tr&gt;&lt;td align=left&gt;"
                   . getId($N);
 		if ($NODEGROUP) {

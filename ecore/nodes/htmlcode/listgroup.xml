@@ -16,7 +16,7 @@ return $str unless ($$G{group});
 $str .= "\n&lt;ol&gt;\n";
 my $groupref = $$G{group};
 foreach my $item (@$groupref) {
-	my $N = selectNode ($item, 'light');
+	my $N = $DB-&gt;getNodeById($item, 'light');
 	$str .= "&lt;li&gt;" . linkNode ($N) . "($$N{type}{title})\n";
 }
 $str .= "&lt;/ol&gt;\n";

@@ -5,7 +5,7 @@
  {
   $$CURRENTNODE{parent_container} = $$VARS{themecontainer};
  } else {
-  my $SETTINGS_NODE = getNode 'system settings', 'setting';
+  my $SETTINGS_NODE = $DB-&gt;getNode('system settings', 'setting');
   my $SYSSETTINGS = getVars $SETTINGS_NODE;
   if (my $parent = $$SYSSETTINGS{generalParent_container}) {
     $$CURRENTNODE{parent_container} = $parent;

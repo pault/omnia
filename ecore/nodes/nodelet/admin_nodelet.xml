@@ -13,7 +13,7 @@
        &lt;/SCRIPT&gt;
 
 	&lt;br&gt;&lt;font size=1&gt;
-	&lt;a href='javascript: confirmDelete();'&gt;delete&lt;/a&gt;
+	&lt;a href='javascript:confirmDelete();'&gt;delete&lt;/a&gt;
 	&lt;/font&gt;</nltext>
 	<package table="node">0</package>
 	<parent_container table="nodelet" type="container">nodelet container</parent_container>

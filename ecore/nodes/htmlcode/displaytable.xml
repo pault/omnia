@@ -4,7 +4,7 @@
 # of a database table.  The output is similar to what
 # you get when 'show columns from $table' is executed.
 my ($table, $edit) = @_;
-my @fields = getFieldsHash($table);
+my @fields = $DB-&gt;getFieldsHash($table);
 my $field;
 my $fieldname;
 my $value;

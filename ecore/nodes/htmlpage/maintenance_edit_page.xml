@@ -13,12 +13,12 @@ maintaintype:[{textfield:maintaintype}](create, update, or delete)&lt;br&gt;
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{textarea:code}]&lt;/td&gt;
 &lt;td width=10%&gt;&lt;font size=2&gt;[%
-my $N = selectNode $$NODE{maintain_nodetype};
+my $N = $DB-&gt;getNodeById($$NODE{maintain_nodetype});
 my $str;
 $str .= "&lt;li&gt;";
 $str .= join "\n&lt;li&gt;", getFields;
 
-my @tables = @{ Everything::getNodetypeTables($$NODE{maintain_nodetype}) };
+my @tables = @{ $DB-&gt;getNodetypeTables($$NODE{maintain_nodetype}) };
 foreach (@tables) {
   $str .="\n&lt;li&gt;";
   $str .= join "\n&lt;li&gt;", getFields($_);

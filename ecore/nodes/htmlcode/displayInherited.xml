@@ -5,22 +5,27 @@
 # values.
 my ($field) = @_;
 my $str = "";
+my $TYPE;
 
-return "" unless ((isNodetype($NODE)) &amp;&amp; (defined $field));
+return "" unless ((isNodetype($NODE)) &amp;&amp; (defined $field) &amp;&amp;
+  ($$NODE{extends_nodetype} > 0));
 
 if($field eq "sqltable")
 {
-  $str .= "$NODETYPES{$$NODE{extends_nodetype}}{sqltablelist}"
-  if($NODETYPES{$$NODE{extends_nodetype}});
+  $TYPE = $DB-&gt;getType($$NODE{extends_nodetype});
+  $str .= "$$TYPE{sqltablelist}" if(defined $TYPE);
 }
 elsif(($field eq "grouptable") &amp;&amp; ($$NODE{$field} eq ""))
 {
-  my $gt = "$NODETYPES{$$NODE{node_id}}{$field}";
+  $TYPE = $DB-&gt;getType($$NODE{node_id});
+  my $gt = "";
+  $gt = "$$TYPE{$field}" if(defined $TYPE);
   $str .= $gt if ($gt ne "");
 }
 elsif($$NODE{$field} eq "-1")
 {
-  my $node = getNodeById($NODETYPES{$$NODE{node_id}}{$field});
+  $TYPE = $DB-&gt;getType($$NODE{extends_nodetype});
+  my $node = $DB-&gt;getNodeById($$TYPE{$field});
   my $title = $$node{title} if (defined $node);
   $title ||= "none";
   $str .= $title;

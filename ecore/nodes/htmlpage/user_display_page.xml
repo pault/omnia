@@ -10,7 +10,8 @@
  
 
 [%
-my @nodes = getNodeWhere({author_user =&gt; getId($NODE)},"","",'light');
+my @nodes = $DB-&gt;getNodeWhere({author_user =&gt; getId($NODE)},
+  "","",'light');
 my $str;
 foreach (@nodes) {
   next if getId($_) == getId($NODE);

@@ -6,7 +6,7 @@
 $limit = int($$VARS{newnodes_limit}) if (exists $$VARS{newnodes_limit});
 
 my $str;
-my $csr = $Everything::dbh-&gt;prepare("
+my $csr = $DB-&gt;getDatabaseHandle()-&gt;prepare("
 	SELECT * FROM node
 	ORDER BY createtime DESC
 	LIMIT $limit");

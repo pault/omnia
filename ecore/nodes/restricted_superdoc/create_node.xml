@@ -23,8 +23,8 @@ Nodetype:
 my @idlist;
 my %items;
 my $id;
-
-foreach my $N (values %NODETYPES)
+my @allTypes = $DB-&gt;getAllTypes();
+foreach my $N (@allTypes)
 {
   $id = getId $N;
   $items{$id} = $$N{title};

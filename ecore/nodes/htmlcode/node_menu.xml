@@ -30,14 +30,15 @@ foreach (@VALUES)
 	}
 	else
 	{
-		push @TYPES, $NODETYPES{$_};  #replace w/ node refs
+		my $TYPE = $DB-&gt;getType($_); 
+		push @TYPES, $TYPE if(defined $TYPE); #replace w/ node refs
 	}
 }
 
-my $NODELIST = selectNodeWhere ({ type_nodetype =&gt; \@TYPES }, "", "title");
+my $NODELIST = $DB-&gt;selectNodeWhere({ type_nodetype =&gt; \@TYPES }, "", "title");
 
 foreach my $N (@$NODELIST) {
-	$N = selectNode $N, 'light';
+	$N = $DB-&gt;getNodeById($N, 'light');
 	my $id = getId $N;
 	push @idlist, $id;
 	$items{$id} = $$N{title};

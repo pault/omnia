@@ -27,7 +27,8 @@ if (not $query-&gt;param('choicefunc')) {
   }
 	
   $str.="&lt;TH width=$colwidth&gt;HTMLCODE&lt;/TH&gt;\n";
-  my (@HTMLCODE) = getNodeWhere({1=&gt;1}, $NODETYPES{htmlcode}, "", "light");
+  my (@HTMLCODE) = $DB-&gt;getNodeWhere({1=&gt;1},
+    $DB-&gt;getType('htmlcode'), "", "light");
   $funcs{htmlcode}=\@HTMLCODE;
   $rows=int(@HTMLCODE) if $rows &lt; @HTMLCODE;
   my $count=0;

@@ -27,10 +27,11 @@ if ($query-&gt;param($name)) {
 
   `mv $tmpfile $imagedir/$imgname`;
   $$NODE{$field} = $imageurl.$imgname;
-  updateNode ($NODE, $USER);
+  $DB-&gt;updateNode ($NODE, $USER);
  # $str.="$size bytes recieved!";
 } else {
   $str.=$query-&gt;filefield($name);
+  $str .= "&lt;br&gt;NOTE: Image directory is hard-coded in htmlcode:uploadimage&lt;br&gt;";
 }
 $str;</code>
 	<core table="node">R</core>

@@ -4,7 +4,7 @@
 	<doctext table="document">this node is locked 
 [%
 return unless $query-&gt;param("node_id");
-my $N = selectNode $query-&gt;param('node_id');
+my $N = $DB-&gt;getNodeById($query-&gt;param('node_id'));
 "by ". linkNode($$N{lockedby_user}) if $$N{lockedby_user};
 %]
 &lt;p&gt;Better stay away.</doctext>

@@ -3,10 +3,10 @@
 	<core table="node">0</core>
 	<lastupdate table="nodelet">942114159</lastupdate>
 	<nlcode table="nodelet">Total nodes in cache: 
-[%  sprintf "%d", $nodeCache-&gt;getCacheSize(); %] &lt;br&gt;
+[%  sprintf "%d", $DB-&gt;getCache()-&gt;getCacheSize(); %] &lt;br&gt;
 
 [%
-my $nodes = $nodeCache-&gt;dumpCache();
+my $nodes = $DB-&gt;getCache()-&gt;dumpCache();
 my $N;
 my $str = "";
 

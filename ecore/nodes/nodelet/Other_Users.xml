@@ -8,10 +8,10 @@
 my $time = 3 * 60;
 my $limit = 30;
 
-my $csr=$Everything::dbh-&gt;prepare("	
+my $csr=$DB-&gt;getDatabaseHandle()-&gt;prepare("	
 	SELECT node_id, title FROM node, user
 	WHERE node_id=user_id and
-	type_nodetype=". getId ($NODETYPES{user}) ." and
+	type_nodetype=". getId ($DB-&gt;getType('user')) ." and
 	(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)
 	LIMIT $limit");
 

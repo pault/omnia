@@ -13,7 +13,7 @@ foreach $param ($query-&gt;param)
   {
     my $fieldname = $param;
     $fieldname =~ s/REMOVE$//;
-    dropFieldFromTable($table, $fieldname); 
+    $DB-&gt;dropFieldFromTable($table, $fieldname); 
 
     # Null out this field
     $query-&gt;param($param, "");
@@ -29,7 +29,7 @@ if((defined $query-&gt;param("fieldname_new")) &amp;&amp;
   my $primary = $query-&gt;param("fieldprimary_new");
   my $default = $query-&gt;param("fielddefault_new");
 
-  addFieldToTable($table, $fieldname, $fieldtype, $primary, $default); 
+  $DB-&gt;addFieldToTable($table, $fieldname, $fieldtype, $primary, $default); 
 
   $query-&gt;param("fieldname_new", "");
   $query-&gt;param("fieldtype_new", "");

@@ -14,12 +14,12 @@ parent container:[{node_menu:parent_container}]&lt;br&gt;
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the page:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{textarea:page}]&lt;/td&gt;
 &lt;td width=10%&gt;&lt;font size=2&gt;[%
-my $N = selectNode $$NODE{pagetype_nodetype};
+my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype});
 my $str;
 $str .= "&lt;li&gt;";
 $str .= join "\n&lt;li&gt;", getFields;
 
-my @tables = @{ Everything::getNodetypeTables($$NODE{pagetype_nodetype}) };
+my @tables = @{ $DB-&gt;getNodetypeTables($$NODE{pagetype_nodetype}) };
 foreach (@tables) {
   $str .="\n&lt;li&gt;";
   $str .= join "\n&lt;li&gt;", getFields($_);

@@ -7,7 +7,7 @@
 	my $str;
 
 	foreach my $NODE (@{ $$NODE{group} }) {
-		$NODE = selectNode $NODE, 'light';
+		$NODE = $DB-&gt;getNodeById($NODE, 'light');
 		$str .= "&lt;LI&gt;" . linkNode($NODE);
 		$str .= "(type: $$NODE{type}{title})\n";
 	}

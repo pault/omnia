@@ -4,8 +4,8 @@
 # $setting - the name of the setting node
 # $key - the key to display
 my ($setting, $key) = @_;
-my $SETTING = selectNodeWhere({title =&gt; $setting},
- $NODETYPES{setting});
+my $SETTING = $DB-&gt;selectNodeWhere({title =&gt; $setting},
+ $DB-&gt;getType('setting'));
 my $vars;
 my $str = "";
 

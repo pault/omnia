@@ -8,8 +8,9 @@ my ($name) = "set$var";
 
 @TYPES or return;  #if no explicit types, quit
 
-foreach (@TYPES) { $_ = $NODETYPES{$_}; }  #replace w/ node refs
-my $NODELIST = selectNodeWhere ({ type_nodetype =&gt; \@TYPES }, "", "title");
+foreach (@TYPES) { $_ = $DB-&gt;getType($_); }  #replace w/ node refs
+my $NODELIST = $DB-&gt;selectNodeWhere ({ type_nodetype =&gt; \@TYPES },
+  "", "title");
 
 my $str;
 
@@ -18,7 +19,7 @@ $items{"0"} = "(default)";
 	
 push (@titlelist, "0");
        foreach my $N (@$NODELIST) {
-                $N = selectNode $N, 'light';
+                $N = $DB-&gt;getNodeById($N, 'light');
                 my $id = getId $N;
 		push @titlelist, $id;
 		$items{$id} = $$N{title};

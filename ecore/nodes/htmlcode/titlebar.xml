@@ -15,14 +15,18 @@ if (getId($USER) == $HTMLVARS{guest_user}) {
 }
 
 
-my ($GNL) = getNodeWhere({title=&gt;'Gigantic Node Lister'}, $NODETYPES{restricted_superdoc}, "", 'light');
+my ($GNL) = $DB-&gt;getNodeWhere({title=&gt;'Gigantic Node Lister'},
+  $DB-&gt;getType('restricted_superdoc'), "", 'light');
 $str .= " | " . linkNode ($GNL) if canReadNode ($USER, $GNL);
 
-my ($GCL) = getNodeWhere({title=&gt;'Gigantic Code Lister'}, $NODETYPES{restricted_superdoc}, "", 'light');
+my ($GCL) = $DB-&gt;getNodeWhere({title=&gt;'Gigantic Code Lister'},
+  $DB-&gt;getType('restricted_superdoc'), "", 'light');
 $str .= " | " . linkNode ($GCL) if canReadNode ($USER, $GCL);
 
-my ($ROOT) = getNodeWhere({title =&gt; 'root'}, $NODETYPES{user});
-my ($ss) = getNodeWhere ({title =&gt; 'system settings'}, $NODETYPES{setting});
+my ($ROOT) = $DB-&gt;getNodeWhere({title =&gt; 'root'},
+  $DB-&gt;getType('user'));
+my ($ss) = $DB-&gt;getNodeWhere ({title =&gt; 'system settings'},
+  $DB-&gt;getType('setting'));
 $str .= " | " . linkNode ($ss) if ($USER eq $ROOT);
 
 

@@ -77,7 +77,7 @@ my $GROUP = $$NODE{group};
         #generate the select box
         $str .= " &lt;SELECT NAME=\"group\" size=7&gt;\n";
         foreach my $item (@$GROUP) {
-                my $ITEM = selectNode ($item, 'light');
+                my $ITEM = $DB-&gt;getNodeById($item, 'light');
 
                 $str .= " &lt;OPTION VALUE=\"" . getId ($ITEM) . "\"&gt;$$ITEM{title}\n";
         }
