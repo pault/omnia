@@ -13,7 +13,7 @@
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="literal_value" name="ownedby_theme">0</field>
   <field type="literal_value" name="page">&lt;p>Database table [% $$NODE{title}; %]&lt;/p>
-[{displaytable:$$NODE{title}}]</field>
+[% displaytable($$NODE{title}); %]</field>
   <field type="noderef" type_nodetype="nodetype,nodetype" name="pagetype_nodetype">dbtable</field>
   <field type="noderef" type_nodetype="container,nodetype" name="parent_container">general container</field>
   <field type="literal_value" name="permissionneeded">r</field>
