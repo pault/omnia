@@ -1362,6 +1362,21 @@ sub parseCode
 	$result = compileCache($sub_text, $CURRENTNODE, $field, $args);
 	return $result if defined $result;
 
+	my $sub_ref = eval $sub_text;
+	if (!$sub_ref || $@) {
+		Everything::printLog("Eval error $$CURRENTNODE{title} $field: ($@)\n");
+#		print STDERR listCode($sub_text, 1), "\n";
+	} else {
+		$CURRENTNODE->{DB}->{cache}->cacheMethod($CURRENTNODE,
+			 $field, $sub_ref);
+		$result = $sub_ref->() || '';
+		if ($warn) {
+			print STDERR "Warning for $CURRENTNODE->{title}:\n\t$warn\n";
+#			print STDERR listCode($sub_text, 1), "\n";
+		}
+		return $result;
+	}
+
 	# on failure, use old behavior
 	return oldparseCode($field, $CURRENTNODE);
 }
@@ -1508,8 +1523,11 @@ sub quote
 sub insertNodelet
 {
 	# Don't "my" NODELET!  It is a global!
-	($NODELET) = @_;
-	getRef $NODELET;
+	$NODELET = shift @_;
+	my $type = shift @_;
+	
+	$type ||= 'nodelet';
+	$NODELET = $DB->getNode($NODELET, $type);
 
 	# If the user can't "execute" this nodelet, we don't let them see it!
 	return undef unless(defined $NODELET && $NODELET->hasAccess($USER, "x"));

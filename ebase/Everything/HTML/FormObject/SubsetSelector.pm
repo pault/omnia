@@ -60,7 +60,6 @@ sub genObject
 	my ($key, $var) = split(':', $field);
 	my $srcname = $name . "_src";
 	
-	$color ||= '#cc99ff';
 	$default ||= 'AUTO';
 	$size ||= 20;
 
@@ -82,7 +81,8 @@ sub genObject
 	$select->addArray(\@selected);
 	$select->addLabels($removed, 0);
 
-	my $html = "<table border='0' bgcolor='$color' cellspacing='0'>\n";
+	$color = "bgcolor='$color'" if($color);
+	my $html = "<table border='0' $color cellspacing='0'>\n";
 	$html .= "<tr><td>\n";
 	
 	$html .= "<b><font size=2>$srclabel</font></b><br>\n" if($srclabel);
