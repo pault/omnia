@@ -552,12 +552,14 @@ sub installModules
 	my $includeDir;
 	my $result = 0;
 
-	use File:Find;
-	use File:Copy;
+	use File::Find;
+	use File::Copy;
 
 	# If there is an Everything directory, we need to install the modules
 	# in the system include directory. 
-	my $e_dir = $dir . "Everything";
+	my $e_dir = $dir;
+	$e_dir .= "/" unless($e_dir =~ /\/$/);
+	$e_dir .= "Everything";
 	return $result unless(-e $e_dir && -d $e_dir);
 
 	$includeDir = getPMDir() . "/Everything";
@@ -565,14 +567,15 @@ sub installModules
 	# Copy all of the pm's to the system directory.
 	find sub {
 		my ($file) = $File::Find::name;
-			if ($file =~ /pm$/) {
-				print "Copying $file to " . $includeDir . "/" . $file;
-				#copy($file, $includeDir . "/" . $file);
+			if ($file =~ /pm$/)
+			{
+				print "Copying $file\n   to " . $includeDir . "/" . $_ . "\n";
+				copy($file, $includeDir . "/" . $_);
 				$result = 1;
 			}
 		}, $e_dir;
 
- 	return
+ 	return $result;
 }
 
 
