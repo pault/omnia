@@ -330,7 +330,6 @@ sub exportNodes
 	
 	foreach my $NODETYPE (keys %nodetypes) {
 		my $dir = $NODETYPE;
-		my %uniq = ();
 		
 		# convert spaces to '_'. We don't want spaces in the file name.
 		$dir =~ tr/ /_/;
@@ -341,20 +340,22 @@ sub exportNodes
 			my $file = $$NODE{title};
 			$file =~ tr/ /_/;
 			
-			# we don't want to clobber nodes with duplicate names
-			# %uniq holds filename => unique number, uses autovivification
-			if (-e "$dir/$file.xml") {
-				$file .= $uniq{$file}++;
-			}
 			$file.=".xml";
 			
 			print "$$NODE{title} ($$NODE{type}{title}) --> $file\n"
 				if $OPTIONS{verbose};
+
 			$file = $dir."/".$file; 
-			open(FILE, ">".$file) 
+
+			# We want to concat any new stuff onto the end of the file.
+			# This way, if the file already exists, we are just adding
+			# a new node to the file.
+			open(FILE, ">>".$file) 
 				or die "couldn't create $file in $dir - do we have permission?";
 			print FILE $NODE->toXML();
+
 			close(FILE);
+
 			$nodefiles[$nodeindex{getId($NODE)}]= $file;
 		}	
 	}
