@@ -1492,7 +1492,7 @@ sub displayPage
 	
 	# Print the appropriate MIME type header so that browser knows what
 	# kind of data is coming down the pipe.
-	printHeader($$NODE{datatype});
+	printHeader($$PAGE{MIMEtype});
 	
 	# We are done.  Print the page (or data) to the browser.
 	$query->print($page);
