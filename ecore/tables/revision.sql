@@ -9,10 +9,10 @@
 #
 
 CREATE TABLE revision (
-  node_id int(11) DEFAULT '0' NOT NULL,
   revision_id int(11) NOT NULL auto_increment,
+  node_id int(11) DEFAULT '0' NOT NULL,
   inside_workspace int(11) DEFAULT '0' NOT NULL,
   data text DEFAULT '' NOT NULL,
   tstamp timestamp(14),
-  PRIMARY KEY (node_id,revision_id,inside_workspace)
+  PRIMARY KEY (revision_id,node_id,inside_workspace)
 );
