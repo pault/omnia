@@ -1,30 +1,33 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="nodeletMetaContainer">
-  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</
+field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return "you have this off" if $$VARS{nodelets_off};
-return if (($$USER{title} eq "Guest User") and not($HTMLVARS{GUshownodelets}) );
+  <field name="code" type="literal_value">return &quot;you have this off&quot; 
+if $$VARS{nodelets_off};
+return if (($$USER{title} eq &quot;Guest User&quot;) and not($HTMLVARS{GUshowno
+delets}) );
 my $str;
-my $align = $$VARS{nodelet_align};
 
-$align ||= "right";
-my @nodelets = @{ $USER->getNodelets($HTMLVARS{default_nodeletgroup}) };
+my @nodelets = @{ $USER-&gt;getNodelets($HTMLVARS{default_nodeletgroup}) };
 
-return "no nodelets!" unless @nodelets;
+return &quot;no nodelets!&quot; unless @nodelets;
 
 if ($$THEME{nodeletMCTableAttr}){
-  $str .= "&lt;TABLE ".$$THEME{nodeletMCTableAttr}.">\n";
+  $str .= &quot;&lt;TABLE &quot;.$$THEME{nodeletMCTableAttr}.&quot;&gt;\n&quot;
+;
 } else {
-  $str .= "&lt;TABLE width=150 cellpadding=1 cellspacing=1>\n";
+  $str .= &quot;&lt;TABLE width=150 cellpadding=1 cellspacing=1&gt;\n&quot;;
 }
 
 foreach (@nodelets)
 {
-  my $NODELET = $DB->getNodeById($_);
+  my $NODELET = $DB-&gt;getNodeById($_);
   my $nl = insertNodelet($NODELET);
-  $str .= "&lt;tr>&lt;td>" . $nl . "&lt;/td>&lt;/tr>\n" if($nl);
+  $str .= &quot;&lt;tr&gt;&lt;td&gt;&quot; . $nl . &quot;&lt;/td&gt;&lt;/tr&gt;
+\n&quot; if($nl);
 }
 
-$str .="&lt;/TABLE>";
+$str .=&quot;&lt;/TABLE&gt;&quot;;
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
@@ -33,8 +36,11 @@ $str;</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">h
+tmlcode</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="title" type="literal_value">nodeletMetaContainer</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">
+htmlcode</field>
 </NODE>
+
