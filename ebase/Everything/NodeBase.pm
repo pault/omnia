@@ -4,7 +4,7 @@ package Everything::NodeBase;
 #	Everything::NodeBase
 #		Wrapper for the Everything database and cache.  
 #
-#	Copyright 1999 Everything Development Inc.
+#	Copyright 1999 - 2002 Everything Development Inc.
 #	Format: tabs = 4 spaces
 #
 #############################################################################
@@ -181,7 +181,7 @@ sub rebuildNodetypeModules
 	
 	$this->{nodetypeModules} = $this->buildNodetypeModules();
 
-	return undef;
+	return;
 }
 
 
@@ -681,7 +681,7 @@ sub getNode
 				push @results, $_ unless exists $this->{workspace}{nodes}{$$_{node_id}} 
 			}
 			push @results, @$wspaceArray;
-			return undef unless @results;
+			return unless @results;
 			my $orderby = $ext2;
 
 			$orderby ||= "node_id";
@@ -693,8 +693,8 @@ sub getNode
 			@results = reverse @results if $desc;
 			return shift @results;
 		} else { 
-			return (shift @$nodeArray) if(@$nodeArray > 0);
-			return undef;
+			return shift @$nodeArray if @$nodeArray;
+			return;
 		}
 	}
 	elsif($node =~ /^\d+$/)
@@ -738,7 +738,7 @@ sub getNode
 		}
 	}
 
-	return undef unless($NODE);
+	return unless($NODE);
 	
 	$NODE = new Everything::Node($NODE, $this, $cache);
 
@@ -758,7 +758,7 @@ sub getNodeByName
 	my $NODE;
 	my $cursor;
 
-	return undef unless($TYPE);
+	return unless($TYPE);
 
 	$this->getRef($TYPE);
 	
@@ -767,12 +767,12 @@ sub getNodeByName
 
 	$cursor = $this->sqlSelectMany("*", "node", "title='".$node."' AND type_nodetype=".$$TYPE{node_id});
 
-	return undef unless($cursor);
+	return unless $cursor;
 
 	$NODE = $cursor->fetchrow_hashref();
 	$cursor->finish();
 
-	return undef unless($NODE);
+	return unless $NODE;
 
 	# OK, we have the hash from the 'node' table.  Now we need to construct
 	# the rest of the node.
@@ -826,7 +826,7 @@ sub getNodeByIdNew
 	$selectop ||= "";
 
 	return $this->getNodeZero() if($node_id == 0);
-	return undef unless($node_id);
+	return unless $node_id;
 
 	if($selectop ne "force")
 	{
@@ -837,7 +837,7 @@ sub getNodeByIdNew
 	{
 		$cursor = $this->sqlSelectMany("*", "node", "node_id=$node_id");
 
-		return undef unless($cursor);
+		return unless $cursor;
 
 		$NODE = $cursor->fetchrow_hashref();
 		$cursor->finish();
@@ -1022,7 +1022,7 @@ sub selectNodeWhere
 		$cursor->finish();
 	}
 
-	return undef unless(@nodelist);
+	return unless @nodelist;
 	
 	return \@nodelist;
 }
@@ -1113,7 +1113,7 @@ sub getNodeCursor
 	if($error ne "" or $warn ne "")
 	{
 		Everything::logErrors($warn, $error, "$select\n($TYPE)");
-		return undef;
+		return;
 	}
 
 	return $cursor;
@@ -1176,7 +1176,7 @@ sub getType
 		return $idOrName;
 	}
 	
-	return undef if((not defined $idOrName) || ($idOrName eq ""));
+	return if((not defined $idOrName) || ($idOrName eq ""));
 
 	my $NODE;
 
@@ -1454,7 +1454,7 @@ sub getNodetypeTables
 	my ($this, $TYPE, $addNode) = @_;
 	my @tablelist;
 
-	return undef unless($TYPE);
+	return unless $TYPE;
 
 	# We need to short circuit on nodetype and nodemethod, otherwise we
 	# get inf recursion.
@@ -1526,7 +1526,7 @@ sub getId
 {
 	my ($this, $node) = @_;
 
-	return undef unless $node;
+	return unless $node;
 	if(ref $node)
 	{
 		return $$node{node_id};
@@ -1537,7 +1537,7 @@ sub getId
 		return $node;
 	}
 
-	return undef;
+	return;
 }
 
 
