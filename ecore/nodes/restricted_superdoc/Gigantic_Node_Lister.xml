@@ -54,15 +54,13 @@ my %CLR = (
   nodemethod => 'CC9999'
 );
 
-my $type = $query->param('whichtype');
-my $ref;
+my $type   = $query->param('whichtype');
+my $group  = $query->param('whichgroup');
 my $offset = $query->param("next");
-my $totalRows;
-my $limit = 100;
-my $next;
-my $prev;
+my $limit  = 100;
+my ($ref, $totalRows, $next, $prev);
 
-$type ||= "alltypes";
+$type   ||= "alltypes";
 $offset ||= 0;
 
 if($type eq "alltypes")
@@ -82,20 +80,26 @@ return "&lt;p>&lt;b>No Nodes of the selected type&lt;/b>\n"
 #generate the prev...count...next row
 my $nav;
 $nav .= "&lt;tr>&lt;td align=left>";
-	
+
 $next = ($totalRows > $offset + $limit ? $offset + $limit : $totalRows);	
 $prev = ($offset &lt; $limit ? 0 : $offset - $limit);
-	
-$nav .= "&lt;a href=" .
-  urlGen ({node_id => getId ($NODE), next => ($prev) }) . 
+
+my $link = {
+  node_id => getId( $NODE ),
+  whichtype => $type,
+  whichgroup => $group,
+  next => $prev,
+};
+
+$nav .= "&lt;a href=" . urlGen ($link) . 
   ">Previous " . ($offset-$prev) . " entries...&lt;/a>"
   if ($offset > 0);
 
 $nav .= "&lt;/td>&lt;td align=center>($offset-" . ($offset+int(@$ref)) .
   ") of $totalRows&lt;/td>&lt;td align=right>";
-	
-$nav .= "&lt;a href=" .
-  urlGen ({node_id => getId ($NODE), next => $next}) . 
+
+$link->{next} = $next;
+$nav .= "&lt;a href=" . urlGen ($link) . 
   ">Next " . ($totalRows - $next > $limit ?  $limit : $totalRows - $next ) .
   " entries...&lt;/a>" if ($next &lt; $totalRows);
 
