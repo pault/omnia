@@ -100,7 +100,7 @@ sub insert
 	$$this{DB}->sqlInsert('node', \%tableData);
 
 	# Get the id of the node that we just inserted!
-	$node_id = $$this{DB}->sqlSelect("LAST_INSERT_ID()");
+	$node_id = $$this{DB}->lastValue("node", "node_id");
 
 	# Now go and insert the appropriate rows in the other tables that
 	# make up this nodetype;

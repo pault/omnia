@@ -15,7 +15,7 @@ package Everything;
 
 use strict;
 use DBI;
-use Everything::NodeBase;
+use Everything::NodeBase::mysql;
 
 use vars qw($DB $VERSION);
 
@@ -307,11 +307,12 @@ sub cleanLinks
 #	Parameters
 #		$db - the string name of the database to connect to.
 #		$options - an optional hash containing one or more of the following:
-#		 staticNodetypes - (optional) 1 if the system should derive the
-#			nodetypes once and cache them.  This will speed performance,
-#			but changes to nodetypes will not take effect until the httpd
-#			is restarted.  A really good performance enhancement IF the
-#			nodetypes do not change.
+#		 staticNodetypes - 1 if the system should derive the nodetypes once
+#			and cache them.  This will speed performance, but changes
+#			to nodetypes will not take effect until the httpd is
+#			restarted.  A really good performance enhancement IF the
+#			nodetypes do not change. (defaults to 0)
+#		 dbtype - the name of the database type to use (defaults to mysql)
 #
 sub initEverything
 {
@@ -323,11 +324,18 @@ sub initEverything
 
 	unless($DB = $NODEBASES{$db})
 	{
-		$DB = new Everything::NodeBase($db, $$options{staticNodetypes});
+		$$options{dbtype} ||= "mysql";
+		if ($$options{dbtype} eq "mysql") {
+			$DB = new Everything::NodeBase::mysql($db, $$options{staticNodetypes});
+		} elsif ($$options{dbtype} eq "Pg") {
+			$DB = new Everything::NodeBase::Pg($db, $$options{staticNodetypes});
+		} else {
+			die "unknown database type $$options{dbtype}";
+		}
 
 		# We keep a NodeBase for each database that we connect to. 
 		# That way one machine can handle multiple installations in
-		# multiple databases.
+		# multiple databases, even with different db servers.
 		$NODEBASES{$db} = $DB;
 	}
 }
