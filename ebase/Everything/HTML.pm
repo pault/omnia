@@ -1973,7 +1973,7 @@ sub getOpCode
 	my $code;
 	
 	# If a user cannot execute this, don't do it.
-	return undef unless($OPNODE->hasAccess($USER, "x"));
+	return undef unless($OPNODE && $OPNODE->hasAccess($USER, "x"));
 
 	$code = $$OPNODE{code} if(defined $OPNODE);
 
