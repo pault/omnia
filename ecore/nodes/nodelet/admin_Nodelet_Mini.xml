@@ -1,54 +1,49 @@
 <NODE export_version="0.5" nodetype="nodelet" title="admin Nodelet Mini">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="authoraccess" type="literal_value">ii-i</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="group_usergroup" type="literal_value">-1</field>
-  <field name="groupaccess" type="literal_value">iiii-</field>
-  <field name="guestaccess" type="literal_value">iiii-</field>
+  <field name="groupaccess" type="literal_value">ii-i-</field>
+  <field name="guestaccess" type="literal_value">ii-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</field>
-  <field name="nlcode" type="literal_value">[&lt;adminbox>]</field>
+  <field name="nlcode" type="literal_value">[&lt;adminbox&gt;]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;b>[Mon Feb 19 17:06:16 2001] (eval 4721): No function or htmlcode named 'adminbox' exists. at /usr/local/lib/site_perl/Everything/HTML.pm line 940.
-&lt;/b>&lt;br>
-&lt;PRE>   1: adminbox();
+  <field name="nltext" type="literal_value">
 
+&lt;table width=100% border=0 cellpadding=3 bgcolor=#ffffff cellspacing=1&gt;
+  &lt;tr bgcolor=#ffffff&gt; 
+    &lt;td bgcolor='#999999' align='center'&gt;
+      &lt;img src=images/icon_display_current.gif alt=display border=0&gt;
+    &lt;/td&gt;
+    &lt;td bgcolor='#666666' align='center'&gt;
+      &lt;A HREF=&quot;/index.pl?lastnode_id=92&amp;node_id=92&amp;displaytype=edit&quot;&gt;&lt;img src=images/icon_edit.gif  alt=edit border=0&gt;&lt;/a&gt; 
+    &lt;/td&gt;
+    &lt;td bgcolor='#999999' align='center'&gt;
+      &lt;A HREF=&quot;/index.pl?lastnode_id=92&amp;node_id=92&amp;displaytype=permissions&quot;&gt;&lt;img src=images/icon_permissions.gif  alt=permissions border=0&gt;&lt;/a&gt; 
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td bgcolor='#666666' align='center'&gt;
+      &lt;a href='javascript: cloneNode();'&gt;
+       &lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;
+    &lt;/td&gt;
+    &lt;td bgcolor='#999999' align=center&gt;
+      &lt;a href=&quot;/index.pl?node_id=70&amp;srcnode_id=92&quot;&gt;&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle&gt;&lt;/A&gt;
+    &lt;/td&gt;
+   &lt;td bgcolor='#666666' align=center&gt;
+&lt;a href='javascript: confirmDelete();'&gt;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
 
-&lt;b>Call Stack&lt;/b>:
-/usr/local/lib/site_perl/Everything/HTML.pm:306:Everything::HTML::htmlErrorGods
-/usr/local/lib/site_perl/Everything/HTML.pm:831:Everything::HTML::htmlFormatErr
-/usr/local/lib/site_perl/Everything/HTML.pm:1233:Everything::HTML::evalXTrapErrors
-/usr/local/lib/site_perl/Everything/HTML.pm:1394:Everything::HTML::embedCode
-/usr/local/lib/site_perl/Everything/HTML.pm:1292:Everything::HTML::oldparseCode
-/usr/local/lib/site_perl/Everything/HTML.pm:1575:Everything::HTML::parseCode
-/usr/local/lib/site_perl/Everything/HTML.pm:1530:Everything::HTML::updateNodelet
-(eval 4682):20:Everything::HTML::insertNodelet
-/usr/local/lib/site_perl/Everything/HTML.pm:895:(eval)
-/usr/local/lib/site_perl/Everything/HTML.pm:966:Everything::HTML::evalX
-(eval 4679):1:Everything::HTML::AUTOLOAD
-/usr/local/lib/site_perl/Everything/HTML.pm:895:(eval)
-/usr/local/lib/site_perl/Everything/HTML.pm:827:Everything::HTML::evalX
-/usr/local/lib/site_perl/Everything/HTML.pm:1233:Everything::HTML::evalXTrapErrors
-/usr/local/lib/site_perl/Everything/HTML.pm:1394:Everything::HTML::embedCode
-/usr/local/lib/site_perl/Everything/HTML.pm:1292:Everything::HTML::oldparseCode
-/usr/local/lib/site_perl/Everything/HTML.pm:1618:Everything::HTML::parseCode
-/usr/local/lib/site_perl/Everything/HTML.pm:1653:Everything::HTML::genContainer
-/usr/local/lib/site_perl/Everything/HTML.pm:1766:Everything::HTML::genContainer
-/usr/local/lib/site_perl/Everything/HTML.pm:1907:Everything::HTML::displayPage
-/usr/local/lib/site_perl/Everything/HTML.pm:2194:Everything::HTML::gotoNode
-/usr/local/lib/site_perl/Everything/HTML.pm:2770:Everything::HTML::handleUserRequest
-/usr/local/apache/htdocs/index.pl:9:Everything::HTML::mod_perlInit
-/usr/local/lib/site_perl/i386-linux/Apache/Registry.pm:143:Apache::ROOT::index_2epl::handler
-/usr/local/lib/site_perl/i386-linux/Apache/Registry.pm:143:(eval)
-(eval 4682):0:Apache::Registry::handler
-(eval 4682):0:(eval)&lt;b>End Call Stack&lt;/b>
-&lt;/PRE></field>
-  <field name="otheraccess" type="literal_value">iiii-</field>
+&lt;/table&gt;</field>
+  <field name="otheraccess" type="literal_value">ii-i-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">admin Nodelet Mini</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="updateinterval" type="literal_value">0</field>
 </NODE>
+
