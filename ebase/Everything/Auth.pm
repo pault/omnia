@@ -1,27 +1,21 @@
 package Everything::Auth;
 
 #############################################################################
-#       Everything authentication routines
-#       Copyright 2002 Everything Development Company
-#       http://www.everydevel.com/
+#  Everything authentication routines
+#  Copyright 2002 - 2003 Everything Development Company
+#  http://www.everydevel.com/
 #
-#       Format: tabs = 4 spaces
+#  Format: tabs = 4 spaces
 #
 #############################################################################
 
 use strict;
 use Everything;
 
-sub BEGIN {
-        use Exporter ();
-        use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-        @ISA=qw(Exporter);
-        @EXPORT=qw(
-                loginUser
-                logoutUser
-                authUser
-                );
-        }
+use Exporter ();
+use vars  qw( @ISA @EXPORT );
+@ISA    = qw( Exporter );
+@EXPORT = qw( loginUser logoutUser authUser );
 
 #############################################################################
 #
@@ -34,31 +28,37 @@ sub BEGIN {
 #		supposedly seemless; IE, Everything::HTML doesn't really
 #		need to know that another plugin is there.  We should be able
 #		to swap them out without changing anything.
-
-
+#
 sub new
 {
-        my ($class, $options) = @_;
+	my ($class, $options) = @_;
 	$options ||= {};
 
-	#We may not always get the guest user pref (if ever). We can default to plain Guest User
-	$options->{guest_user} ||= $DB->getNode("Guest User", "user")->{node_id};
+	# We may not always get the guest user pref (if ever). We can default to
+	# plain Guest User
 
-	my $plugin = $options->{Auth};
+	$options->{guest_user} ||= $DB->getNode('Guest User', 'user')->{node_id};
 
-	$plugin ||= "EveryAuth";  #default module
+	# default module
+	my $plugin   = $options->{Auth} || 'EveryAuth';
 	my $authtype = "Everything::Auth::$plugin";
-	my $this;
-	my $obj; 
-	eval("use $authtype; \$obj = new $authtype");
 
-	die "No authentication plugin!" unless $obj;
+	my $obj = eval
+	{
+		(my $path = $authtype . '.pm') =~ s!::!/!g;
+		require $path or print "NOPE\n";
+		$authtype->new();
+	};
 
-	$this->{type} = $plugin;
-	$this->{plugin} = $obj;
-	$this->{plugin}->{options} = $options;
-	$this->{options} = $options;
-	return bless $this, $class;
+	die "No authentication plugin!" if $@ or ! $obj;
+
+	$obj->{options} = $options;
+
+	bless {
+		type    => $plugin,
+		plugin  => $obj,
+		options => $options,
+	}, $class;
 }
 
 
@@ -68,16 +68,15 @@ sub new
 #		loginUser
 #
 #	Purpose
-#		This simply aggrigates to the plugin's loginUser().
+#		This simply delegates to the plugin's loginUser().
 #		It is called by opLogin
-
+#
 sub loginUser
 {
 	my $this = shift;
 	my $user = $this->{plugin}->loginUser(@_);
 
 	return $this->generateSession($user);
-	
 }
 
 #############################################################################
@@ -86,17 +85,15 @@ sub loginUser
 #		authUser
 #
 #	Purpose
-#		This simply aggrigates to the plugin's authUser().
+#		This simply delegates to the plugin's authUser().
 #		It should be called every pageload
-
-
+#
 sub authUser
 {
 	my $this = shift;
 	my $user = $this->{plugin}->authUser(@_);
 
 	return $this->generateSession($user);
-
 }
 
 #############################################################################
@@ -105,10 +102,9 @@ sub authUser
 #		logoutUser
 #
 #	Purpose
-#		This simply aggrigates to the plugin's logoutUser().
+#		This simply delegates to the plugin's logoutUser().
 #		It should be called by opLogout();
-
-
+#
 sub logoutUser
 {
 	my $this = shift;
@@ -125,23 +121,20 @@ sub logoutUser
 #
 #	Purpose
 #		While a plugin could generate the guestUser information on
-#		it's own on failure, generateSession can handle this. Also
+#		its own on failure, generateSession can handle this. Also
 #		this populates what is to become the VARS hash for the user
 #		saving each auth module the trouble of having to do so. 
-
-
+#
 sub generateSession
 {
-	my $this = shift;
-	my $user = shift;
+	my ($this, $user) = @_;
 
 	$user ||= $DB->getNode($this->{options}->{guest_user});
 
-	#No user yet? Now would be a good time to cry...
-	die "Unable to get user!" unless ($user);
+	# No user yet? Now would be a good time to cry...
+	die "Unable to get user!" unless $user;
 
 	return ($user, $user->getVars());
-
 }
 
 1;
