@@ -1,6 +1,6 @@
 # MySQL dump 7.1
 #
-# Host: localhost    Database: everything
+# Host: localhost    Database: test
 #--------------------------------------------------------
 # Server version	3.22.32-log
 

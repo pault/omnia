@@ -1,15 +1,14 @@
-# MySQL dump 8.11
+# MySQL dump 7.1
 #
-# Host: localhost    Database: everything
+# Host: localhost    Database: test
 #--------------------------------------------------------
-# Server version	3.23.28-gamma-log
+# Server version	3.22.32-log
 
 #
 # Table structure for table 'htmlcode'
 #
-
 CREATE TABLE htmlcode (
-  htmlcode_id int(11) NOT NULL auto_increment,
+  htmlcode_id int(11) DEFAULT '0' NOT NULL auto_increment,
   code text,
   PRIMARY KEY (htmlcode_id)
 );

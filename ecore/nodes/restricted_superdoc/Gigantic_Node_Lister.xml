@@ -6,9 +6,7 @@
 [{openform}]
 
 [%
-use Everything::FormMenu;
-
-my $menu = new Everything::FormMenu();
+my $menu = $DB->newNode('formmenu');
 my $type = $query->param('whichtype');
 my $group = $query->param('whichgroup');
 my $str;
@@ -16,20 +14,17 @@ my $str;
 $type ||= "alltypes";
 $group ||= "nogroup";
 
-$menu->addHash({ "alltypes" => "All Types"});
-$menu->addType('nodetype', 1);
+$menu->addHash({ "alltypes" => "All Types"}, 0);
+$menu->addType('nodetype', $USER, 'r', 'labels');
+$str .= $menu->genPopupMenu($query, "whichtype", $type);
 
-$str .= $menu->writePopupHTML($query, "whichtype", $type);
+$menu->clearMenu();
+$menu->addHash({ "nogroup" => "No group" }, 0);
+$menu->addType('nodegroup', $USER, 'r', 'labels');
+$menu->addType('nodeball', $USER, 'r', 'labels');
 
-$menu = new Everything::FormMenu();
-$menu->addHash({ "nogroup" => "No group" });
-$menu->addType('nodegroup', 1);
-$menu->addType('nodeball', 1);
-
-$str .= $menu->writePopupHTML($query, "whichgroup", $group);
-
+$str .= $menu->genPopupMenu($query, "whichgroup", $group);
 $str .= $query->hidden(-name => 'next', -default => 0);
-
 $str;
 %]
 [{submit}]

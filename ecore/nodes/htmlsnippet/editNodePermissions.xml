@@ -90,7 +90,6 @@ nodeFormObject('typemenu', 'dynamicgroup_permission', 'groupperm',
     [{nodeFormObject: permissionmenu, otheraccess, otherx, x}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
     [{nodeFormObject: permissionmenu, otheraccess, otherd, d}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:other}]&lt;/td>
   &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
 [%

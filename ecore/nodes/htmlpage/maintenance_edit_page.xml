@@ -15,33 +15,6 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;h3>Maintenance code has been deprecated!  Do not use!&lt;/h3>
 
-title:[{textfield:title}] maintained by:[{node_menu:author_user,user}]&lt;br>
-Maintains: [{node_menu:maintain_nodetype}]&lt;br>
-maintaintype:[{textfield:maintaintype}](create, update, or delete)&lt;br>
-
-&lt;table width=100%>
-&lt;tr>
-&lt;td width=90%>
-&lt;p>&lt;FONT SIZE=2>&lt;b>Edit the code:&lt;/b>&lt;/FONT>&lt;br>
-[{textarea:code}]&lt;/td>
-&lt;td width=10%>&lt;font size=2>[%
-my $N = $DB->getNodeById($$NODE{maintain_nodetype});
-my $str;
-$str .= "&lt;li>";
-$str .= join "\n&lt;li>", getFields;
-
-my @tables = @{ $DB->getNodetypeTables($$NODE{maintain_nodetype}) };
-foreach (@tables) {
-  $str .="\n&lt;li>";
-  $str .= join "\n&lt;li>", getFields($_);
-}
-$str;
-
-
-
-%]&lt;/font>&lt;/td>
-
-&lt;/tr>&lt;/table>
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">maintenance</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
