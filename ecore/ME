@@ -264,7 +264,6 @@
     <member name="group_node" type="noderef" type_nodetype="theme,nodetype">suit theme</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="image,nodetype">esuitlogo</member>
-    <member name="group_node" supports_nodetype="user,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">getNodelets</member>
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">cloneNode</member>
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">confirmDelete</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">formatCols</member>
