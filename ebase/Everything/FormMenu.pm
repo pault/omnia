@@ -77,7 +77,7 @@ sub addSettings
 	my $key;
 
 	return if(not defined $NODE);
-	$vars = getVars($NODE);
+	$vars = $NODE->getVars();
 
 	$this->addHash($vars, $sort);
 }
