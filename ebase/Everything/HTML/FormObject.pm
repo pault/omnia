@@ -172,7 +172,7 @@ sub cgiUpdate
 	# directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
-	$value ||= "";
+	$value = "" unless defined $value;
 	if($var)
 	{
 		my $vars = $NODE->getHash($field);
