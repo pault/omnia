@@ -30,12 +30,12 @@ use vars qw($VERSION @ISA @EXPORT);
 #		user - the username to use to connect
 #		pass - the password to use to connect
 #
-sub databaseConnect {
+sub databaseConnect
+{
 	my ($this, $dbname, $host, $user, $pass) = @_;
 
-        $this->{dbh} = DBI->connect("DBI:mysql:$dbname:$host", $user, $pass);
-
-	die "Unable to get database connection!" unless($this->{dbh});
+	$this->{dbh} = DBI->connect("DBI:mysql:$dbname:$host", $user, $pass)
+		or die "Unable to get database connection!";
 }
 
 #############################################################################
@@ -56,7 +56,7 @@ sub databaseConnect {
 #
 sub lastValue
 {
-        my ($this, $table, $field) = @_;
+	my ($this, $table, $field) = @_;
 
 	return $this->sqlSelect("LAST_INSERT_ID()");
 }
@@ -79,33 +79,25 @@ sub lastValue
 #
 sub getFieldsHash
 {
-        my ($this, $table, $getHash) = @_;
-        my $field;
-        my @fields;
-        my $value; 
-        
-        $getHash = 1 if(not defined $getHash);
-        $table ||= "node";
+	my ($this, $table, $getHash) = @_;
 
-        my $DBTABLE = $this->getNode($table, 'dbtable');
-        $DBTABLE ||= {};
-        unless  (exists $$DBTABLE{Fields}) {
-                my $cursor = $this->{dbh}->prepare_cached("show columns from $table");
+	$getHash = 1 unless defined $getHash;
+	$table ||= "node";
 
-                $cursor->execute;
-                while ($field = $cursor->fetchrow_hashref)
-                {
-                        push @fields, $field;
-                }
-                $cursor->finish();
-                $$DBTABLE{Fields} = \@fields;
-        }
+	my $DBTABLE = $this->getNode($table, 'dbtable') || {};
 
-	if (not $getHash) {
-                return map { $$_{Field} } @{ $$DBTABLE{Fields} };
-        } else {
-		return @{ $$DBTABLE{Fields} };
-        }
+	unless (exists $$DBTABLE{Fields}) {
+		my $cursor = $this->{dbh}->prepare_cached("show columns from $table");
+		$cursor->execute();
+
+		while (my $field = $cursor->fetchrow_hashref)
+		{
+			push @{ $DBTABLE->{Fields} }, $field;
+		}
+	}
+
+	return @{ $$DBTABLE{Fields} } if $getHash;
+	return map { $$_{Field} } @{ $$DBTABLE{Fields} };
 }
 
 #############################################################################
@@ -123,23 +115,20 @@ sub getFieldsHash
 #
 sub tableExists
 {
-        my ($this, $tableName) = @_;
-        my $cursor = $this->{dbh}->prepare("show tables");
-        my $table;
+	my ($this, $tableName) = @_;
+	my $cursor = $this->{dbh}->prepare("show tables");
 
-        $cursor->execute();
-        while(($table) = $cursor->fetchrow())
-        {
-                if($table eq $tableName)
-                {
-                        $cursor->finish();
-                        return 1;
-                }
-        }
+	$cursor->execute();
+	while(my ($table) = $cursor->fetchrow())
+	{
+		if($table eq $tableName)
+		{
+			$cursor->finish();
+			return 1;
+		}
+	}
 
-        $cursor->finish();
-
-        return 0;
+	return 0;
 }
 
 #############################################################################
@@ -159,15 +148,14 @@ sub tableExists
 #
 sub createNodeTable
 {
-        my ($this, $table) = @_;
-        my $tableid = $table . "_id";
-        my $result;
+	my ($this, $table) = @_;
+	my $tableid = $table . "_id";
         
-        return -1 if($this->tableExists($table));
+	return -1 if $this->tableExists($table);
 
-        $result = $this->{dbh}->do("create table $table ($tableid int4" . " DEFAULT '0' NOT NULL, PRIMARY KEY($tableid))");
-
-        return $result;
+	return $this->{dbh}->do(
+		"create table $table ($tableid int4 DEFAULT '0' NOT NULL," .
+		"PRIMARY KEY($tableid))");
 }
 
 #############################################################################
@@ -182,25 +170,24 @@ sub createNodeTable
 #               
 sub createGroupTable
 {
-        my ($this, $table) = @_;
+	my ($this, $table) = @_;
 
-        return -1 if($this->tableExists($table));
+	return -1 if $this->tableExists($table);
                 
-        my $dbh = $this->getDatabaseHandle();
-        my $tableid = $table . "_id";
+	my $dbh     = $this->getDatabaseHandle();
+	my $tableid = $table . "_id";
 
-        my $sql;
-        $sql = <<SQLEND;
-                create table $table (
-                        $tableid int4 DEFAULT '0' NOT NULL auto_increment,
-                        rank int4 DEFAULT '0' NOT NULL,
-                        node_id int4 DEFAULT '0' NOT NULL,
-                        orderby int4 DEFAULT '0' NOT NULL,
-                        PRIMARY KEY($tableid,rank)
-                )
-SQLEND
+	my $sql = <<"	SQLEND";
+	create table $table (
+		$tableid int4 DEFAULT '0' NOT NULL auto_increment,
+		rank int4 DEFAULT '0' NOT NULL,
+		node_id int4 DEFAULT '0' NOT NULL,
+		orderby int4 DEFAULT '0' NOT NULL,
+		PRIMARY KEY($tableid,rank)
+	)
+	SQLEND
 
-        return $dbh->do($sql);
+	return $dbh->do($sql);
 }
 
 #############################################################################
@@ -219,12 +206,9 @@ SQLEND
 #
 sub dropFieldFromTable
 {
-        my ($this, $table, $field) = @_;
-        my $sql;
+	my ($this, $table, $field) = @_;
 
-        $sql = "alter table $table drop $field";
-
-        return $this->{dbh}->do($sql);
+	return $this->{dbh}->do( "alter table $table drop $field" );
 }
 
 #############################################################################
@@ -246,56 +230,46 @@ sub dropFieldFromTable
 #
 sub addFieldToTable
 {
-        my ($this, $table, $fieldname, $type, $primary, $default) = @_;
-        my $sql;
+	my ($this, $table, $fieldname, $type, $primary, $default) = @_;
 
-        return 0 if(($table eq "") || ($fieldname eq "") || ($type eq ""));
+	return 0 if (($table eq '') || ($fieldname eq '') || ($type eq ''));
 
-	if(not defined $default)
-        {
-                if($type =~ /^int/i)
-                {
-                        $default = 0;
-                }
-                else
-                {   
-                        $default = "";
-                }
-        }
-        elsif($type =~ /^text/i)
-        {
-                # Text blobs cannot have default strings.  They need to be empty.
-                $default = "";
-        }
-         
-        $sql = "alter table $table add $fieldname $type";
-        $sql .= " default \"$default\" not null";
+	# Text blobs cannot have default strings.  They need to be empty.
+	$default = '' if($type =~ /^text/i);
 
-        $this->{dbh}->do($sql);
+	unless (defined $default)
+	{
+		$default = $type =~ /^int/i ? 0 : '';
+	}
+  
+	my $sql = qq|alter table $table add $fieldname $type default "$default" | .
+	 	"not null";
 
-        if($primary)
-        {
-                # This requires a little bit of work.  We need to figure out what
-                # primary keys already exist, drop them, and then add them all   
-                # back in with the new key.
-                my @fields = $this->getFieldsHash($table);
-                my @prikeys;
-                my $primaries;
-                my $field;
+	$this->{dbh}->do($sql);
 
-                foreach $field (@fields)
-                {
-                        push @prikeys, $$field{Field} if($$field{Key} eq "PRI");
-                }
+	if ($primary)
+	{
+		# This requires a little bit of work.  We need to figure out what
+		# primary keys already exist, drop them, and then add them all back in
+		# with the new key.
 
-                $this->{dbh}->do("alter table $table drop primary key") if(@prikeys > 0);
+		my @fields = $this->getFieldsHash($table);
+		my @prikeys;
 
-                push @prikeys, $fieldname; # add the new field to the primaries
-                $primaries = join ',', @prikeys;
-                $this->{dbh}->do("alter table $table add primary key($primaries)");
-        }
+		foreach my $field (@fields)
+		{
+			push @prikeys, $$field{Field} if $$field{Key} eq 'PRI';
+		}
 
-        return 1;
+		$this->{dbh}->do("alter table $table drop primary key") if @prikeys;
+
+ 		# add the new field to the primaries
+		push @prikeys, $fieldname;
+		my $primaries = join ',', @prikeys;
+		$this->{dbh}->do("alter table $table add primary key($primaries)");
+	}
+
+	return 1;
 }
 
 #############################################################################
