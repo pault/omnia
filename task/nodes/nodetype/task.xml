@@ -18,7 +18,7 @@
   <field name="extends_nodetype" type="noderef" type_nodetype="nodetype,nodetype">document</field>
   <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
-  <field name="grouptable" type="literal_value">grouptable</field>
+  <field name="grouptable" type="literal_value">nodegroup</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodetype</field>
   <field name="maxrevisions" type="literal_value">-1</field>
