@@ -52,6 +52,7 @@ sub selectGroupArray
 	# construct our array of node id's of the nodes in our group
 	my $cursor = $$this{DB}->sqlSelectMany('node_id', $groupTable,
 		$groupTable . "_id=$$this{node_id}", 'ORDER BY orderby');
+	return unless $cursor;
 
 	my @group;
 	while (my $nid = $cursor->fetchrow())
