@@ -210,8 +210,13 @@ sub updateGroup
 
 			# diff is negative, so we need to remove abs($diff) number
 			# of entries.
-			$this->{DB}->sqlDelete($table, $table . "_id=" . $this->{node_id} .
-				 " AND node_id=$node LIMIT $abs");
+			my $deleted = $this->{DB}->sqlDelete(
+				$table, $table . "_id=" . $this->{node_id} .
+				" AND node_id=$node LIMIT $abs");
+	
+			Everything::logErrors(
+				"Wrong number of group members deleted! $deleted"
+			) unless $deleted == $abs;
 
 			$updated = 1;
 		}
