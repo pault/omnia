@@ -3,7 +3,9 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $vars = $USER->getVars();
 delete $$vars{nodebucket};  # flush the nodebucket
-$USER->setVars($vars, $USER);</field>
+$USER->setVars($vars);
+# Don't need to update as $USER automatically gets updated on pageload end
+</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

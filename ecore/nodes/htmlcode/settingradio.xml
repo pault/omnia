@@ -14,15 +14,16 @@ my $S;
 $S = getNode($setting) if $setting =~ /^\d+$/;
 $S = getNode($setting, 'setting');
 
-return unless $S->hasAccess($USER);
 $S or return;
+return unless $S->hasAccess($USER);
 
-my $V = getVars($S);
+my $V = $S->getVars();
 my $param = "setfield".getId($S).$field;
 
 if (defined $query->param($param)) {
   $$V{$field} = $query->param($param);
-  setVars($S,$V);
+  $S->setVars($V);
+  $S->update($USER);
 }
 
 

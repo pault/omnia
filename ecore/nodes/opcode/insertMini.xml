@@ -51,7 +51,8 @@ foreach (@params)
   }
 $$SETTINGS{nodelets}=join",",@nodelets ;
 
-setVars($user,$SETTINGS);</field>
+$user->setVars($SETTINGS);
+$user->update($USER);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

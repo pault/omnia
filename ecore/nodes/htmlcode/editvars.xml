@@ -13,7 +13,7 @@
 
 
 return "&lt;i>you can't update this node&lt;/i>" unless $NODE->hasAccess($USER, 'w');
-my $SETTINGS = getVars($NODE);
+my $SETTINGS = $NODE->getVars();
 my @params = $query->param;
 my $str=""; 
 
@@ -63,8 +63,9 @@ elsif (($query->param("node namenew") ne "") and ($query->param("newsetting") ne
      $id = $$N{title};
      push @idlist, $id;
    }
-
-setVars ($NODE, $SETTINGS);
+   
+$NODE->setVars($SETTINGS);
+$NODE->update($USER);
 my @skeys = keys %$SETTINGS;
 @skeys = sort {$a cmp $b} @skeys;
 
