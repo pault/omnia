@@ -1,16 +1,13 @@
-package Everything::HTML;
+=head1 Everything::HTML.pm
 
-#############################################################################
-#
-#	Everything::HTML.pm
-#
-#	Copyright 1999 - 2003 Everything Development Company
-#
-#		A module for the HTML stuff in Everything.  This
-#		takes care of CGI, cookies, and the basic HTML
-#		front end.
-#
-#############################################################################
+Copyright 1999 - 2003 Everything Development Company
+
+A module for the HTML stuff in Everything.  This takes care of CGI, cookies,
+and the basic HTML front end.
+
+=cut
+
+package Everything::HTML;
 
 use strict;
 use Everything;
@@ -18,7 +15,6 @@ use Everything::MAIL;
 use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-
 
 sub BEGIN {
 	use Exporter ();
@@ -122,22 +118,26 @@ sub deprecate
 	Everything::logErrors( $warning );
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		newFormObject
-#
-#	Purpose
-#		A little wrapper to make getting form object references easier.
-#
-#	Parameters
-#		$objName - the name of a form object (ie 'TextField').  Note!!!
-#			This name must be of the same capitalization as the actual
-#			.pm implementation of the desired form object.
-#
-#	Returns
-#		The form object ref if successful, undef otherwise.
-#
+=head2 C<newFormObject>
+
+A little wrapper to make getting form object references easier.
+
+=over 4
+
+=item * $objName
+
+The name of a form object (ie 'TextField').  Note!!!  This name must be of the
+same capitalization as the actual .pm implementation of the desired form
+object.
+
+=back
+
+Returns the form object ref if successful, undef otherwise.
+
+=cut
+
 sub newFormObject
 {
 	my ($objName) = @_;
@@ -158,29 +158,42 @@ sub newFormObject
 	return $object;
 }
 
+=cut
 
-#############################################################################
-#	sub
-#		tagApprove
-#
-#	Purpose
-#		determines whether or not a tag (and its specified attributes)
-#		are approved or not.  Returns the cleaned tag.  Used by htmlScreen
-#
-#	Parameters
-#		$close - either '/' or '' (nothing).  Determines if the tag is the
-#			opening or closing tag.
-#		$tag - the name of the tag (ie "font")
-#		$attr - the attributes of the tag (ie "size=1 color=red")
-#		$APPROVED - a hash of approved tags, where the keys are the names
-#			of the tags and the values are a comma delimited string of
-#			allowed attributes.  ie:
-#			{ "font" => "size,color" }
-#
-#	Returns
-#		The tag with any unapproved attributes removed.  If the tag itself
-#		is not approved, "" (nothing) will be returned.
-#
+=head2 C<tagApprove>
+
+Determines whether or not a tag (and its specified attributes) are approved or
+not.  Returns the cleaned tag.  Used by htmlScreen
+
+=over 4
+
+=item * $close
+
+either '/' or '' (nothing).  Determines if the tag is the opening or closing
+tag.
+
+=item * $tag
+
+the name of the tag (ie "font")
+
+=item * $attr
+
+the attributes of the tag (ie "size=1 color=red")
+
+=item * $APPROVED
+
+a hash of approved tags, where the keys are the names of the tags and the
+values are a comma delimited string of allowed attributes.  ie:
+
+  { "font" =E<gt> "size,color" }
+
+=back
+
+Returns the tag with any unapproved attributes removed.  If the tag itself is
+not approved, "" (nothing) will be returned.
+
+=cut
+
 sub tagApprove {
 	my ($close, $tag, $attr, $APPROVED) = @_;
 
@@ -201,25 +214,30 @@ sub tagApprove {
 	} else { return ""; }
 }
 
+=cut
 
+=head2 C<htmlScreen>
 
+screen out html tags from a chunk of text
+returns the text, sans any tags that aren't "APPROVED"		
 
-#############################################################################
-#	Sub
-#		htmlScreen
-#
-#	Purpose
-#		screen out html tags from a chunk of text
-#		returns the text, sans any tags that aren't "APPROVED"		
-#
-#	Params
-#		text -- the text/html to filter
-#		APPROVED -- ref to hash where approved tags are keys.  Null means
-#			all HTML will be taken out.
-#
-#	Returns
-#		The text stripped of any HTML tags that are not approved.
-#
+=over 4
+
+=item * text
+
+the text/html to filter
+
+=item * APPROVED 
+
+ref to hash where approved tags are keys.  Null means all HTML will be taken
+out.
+
+=back
+
+Returns the text stripped of any HTML tags that are not approved.
+
+=cut
+
 sub htmlScreen
 {
 	my ($text, $APPROVED) = @_;
@@ -231,26 +249,32 @@ sub htmlScreen
 	$text;
 }
 
+=cut
 
+=head2 C<encodeHTML>
 
-#############################################################################
-#	Sub
-#		encodeHTML
-#
-#	Purpose
-#		Convert the HTML markup characters (>, <, ", etc...) into encoded
-#		characters (&gt;, &lt;, &quot;, etc...).  This causes the HTML to be
-#		displayed as raw text in the browser.  This is useful for debugging
-#		and displaying the HTML.
-#
-#	Parameters
-#		$html - the HTML text that needs to be encoded.
-#		$adv - Advanced encoding.  Pass 1 if some non-HTML, but Everything
-#			specific characters should be encoded.
-#
-#	Returns
-#		The encoded string
-#
+Convert the HTML markup characters (E<gt>, E<lt>, ", etc...) into encoded
+characters (&gt;, &lt;, &quot;, etc...).  This causes the HTML to be displayed
+as raw text in the browser.  This is useful for debugging and displaying the
+HTML.
+
+=over 4
+
+=item * $html
+
+the HTML text that needs to be encoded.
+
+=item * $adv
+
+Advanced encoding.  Pass 1 if some non-HTML, but Everything-specific characters
+should be encoded.
+
+=back
+
+Returns the encoded string
+
+=cut
+
 sub encodeHTML
 {
 	my ($html, $adv) = @_;
@@ -271,25 +295,32 @@ sub encodeHTML
 	return $html;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		decodeHTML
-#
-#	Purpose
-#		This takes a string that contains encoded HTML (&gt;, &lt;, etc..)
-#		and decodes them into their respective ascii characters (>, <, etc).
-#
-#		Also see encodeHTML().
-#
-#	Parameters
-#		$html - the string that contains the encoded HTML
-#		$adv - Advanced decoding.  Pass 1 if you would also like to decode
-#			non-HTML, Everything-specific characters.
-#
-#	Returns
-#		The decoded HTML
-#
+=head2 C<decodeHTML>
+
+This takes a string that contains encoded HTML (&gt;, &lt;, etc..) and decodes
+them into their respective ascii characters (E<gt>, E<lt>, etc).
+
+Also see encodeHTML().
+
+=over 4
+
+=item * $html
+
+the string that contains the encoded HTML
+
+=item * $adv
+
+Advanced decoding.  Pass 1 if you would also like to decode non-HTML,
+Everything-specific characters.
+
+=back
+
+Returns the decoded HTML
+
+=cut
+
 sub decodeHTML
 {
 	my ($html, $adv) = @_;
@@ -308,25 +339,31 @@ sub decodeHTML
 	return $html;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		htmlFormatErr
-#
-#	Purpose
-#		An error has occured and we need to print or log it.  This will
-#		do the appropriate action based on who the user is.
-#
-#	Parameters
-#		$err - a list ref of error messages returned from the system
-#		$CONTEXT - the node in which this code is coming from.
-#			This is optional, however you should try to pass this in all
-#			cases since it will help a lot when trying to find which node
-#			contains the offending code.
-#
-#	Returns
-#		An html/text string that will be displayed to the browser.
-#
+=head2 C<htmlFormatErr>
+
+An error has occured and we need to print or log it.  This will do the
+appropriate action based on who the user is.
+
+=over 4
+
+=item * $err
+
+a list ref of error messages returned from the system
+
+=item * $CONTEXT
+
+the node in which this code is coming from.  This is optional, however you
+should try to pass this in all cases since it will help a lot when trying to
+find which node contains the offending code.
+
+=back
+
+Returns an html/text string that will be displayed to the browser.
+
+=cut
+
 sub htmlFormatErr
 {
 	my ($err, $CONTEXT) = @_;
@@ -344,35 +381,39 @@ sub htmlFormatErr
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		htmlErrorUsers
-#
-#	Purpose
-#		Format an error for the general user.  In this case we do not
-#		want them to see the error or the perl code.  So we will log
-#		the error and give them a simple one.
-#
-#		You can define a custom error text by creating an htmlcode
-#		node that formats a string error.  The code is passed a single
-#		numeric value that can be used to reference the error that is
-#		written to the log file.  However, be very careful that your
-#		htmlcode for your custom message doesn't have an error, or
-#		you may cause a user to get stuck in an infinite loop.  Since,
-#		an error in that code would cause the system to call itself
-#		to handle the error.
-#
-#	Parameters
-#		$errors - a list ref of error messages returned from the system
-#		$CONTEXT - the node in which this code is coming from.
-#			This is optional, however you should try to pass this in all
-#			cases since it will help a lot when trying to find which node
-#			contains the offending code.
-#
-#	Returns
-#		An html/text string that will be displayed to the browser.
-#
+=head2 C<htmlErrorUsers>
+
+Format an error for the general user.  In this case we do not want them to see
+the error or the perl code.  So we will log the error and give them a simple
+one.
+
+You can define a custom error text by creating an htmlcode node that formats a
+string error.  The code is passed a single numeric value that can be used to
+reference the error that is written to the log file.  However, be very careful
+that your htmlcode for your custom message doesn't have an error, or you may
+cause a user to get stuck in an infinite loop.  Since, an error in that code
+would cause the system to call itself to handle the error.
+
+=over 4
+
+=item * $errors
+
+a list ref of error messages returned from the system
+
+=item * $CONTEXT
+
+the node in which this code is coming from.  This is optional, however you
+should try to pass this in all cases since it will help a lot when trying to
+find which node contains the offending code.
+
+=back
+
+Returns an html/text string that will be displayed to the browser.
+
+=cut
+
 sub htmlErrorUsers
 {
 	my ($errors, $CONTEXT) = @_;
@@ -420,23 +461,30 @@ sub htmlErrorUsers
 	$str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		htmlErrorGods
-#
-#	Purpose
-#		Print an error for a god user.  This will dump the code, the call
-#		stack and any other error information.  You probably don't want
-#		the average user of a site to see this stuff.
-#
-#	Parameters
-#		$errors - a list ref of error messages returned from the system
-#		$CONTEXT - the node from which the error came (optional)
-#
-#	Returns
-#		An html/text string that will be displayed to the browser.
-#
+=head2 C<htmlErrorGods>
+
+Print an error for a god user.  This will dump the code, the call stack and any
+other error information.  You probably don't want the average user of a site to
+see this stuff.
+
+=over 4
+
+=item * $errors
+
+a list ref of error messages returned from the system
+
+=item * $CONTEXT
+
+the node from which the error came (optional)
+
+=back
+
+Returns an html/text string that will be displayed to the browser.
+
+=cut
+
 sub htmlErrorGods
 {
 	my ($errors, $CONTEXT) = @_;
@@ -486,22 +534,28 @@ sub htmlErrorGods
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#   Sub
-#       urlGen
-#
-#   Purpose
-#       This creates a URL to the current installation
-#
-#   Parameters
-#       $REF - a hashref of parameters and values used to create a query string
-#       $noquotes - an optional flag.  If true, it suppreses quotes around the
-#       	URL.
-#
-#	Returns
-#		A string containing the generated URL.
-#
+=head2 C<urlGen>
+
+This creates a URL to the current installation
+
+=over 4
+
+=item * $REF
+
+a hashref of parameters and values used to create a query string
+
+=item * $noquotes
+
+an optional flag.  If true, it suppreses quotes around the URL.
+
+=back
+
+Returns a string containing the generated URL.
+
+=cut
+
 sub urlGen
 {
 	my ($REF, $noquotes) = @_;
@@ -515,23 +569,29 @@ sub urlGen
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getPageForType
-#
-#	Purpose
-#		Given a nodetype, get the htmlpages needed to display nodes of this
-#		type.  This runs up the nodetype inheritance hierarchy until it
-#		finds something.
-#
-#	Parameters
-#		$TYPE - the nodetype hash to get display pages for.
-#		$displaytype - the type of display (usually 'display' or 'edit')
-#
-#	Returns
-#		A node hashref to the page that can display nodes of this nodetype.
-#
+=head2 C<getPageForType>
+
+Given a nodetype, get the htmlpages needed to display nodes of this type.  This
+runs up the nodetype inheritance hierarchy until it finds something.
+
+=over 4
+
+=item * $TYPE
+
+the nodetype hash to get display pages for.
+
+=item * $displaytype
+
+the type of display (usually 'display' or 'edit')
+
+=back
+
+Returns a node hashref to the page that can display nodes of this nodetype.
+
+=cut
+
 sub getPageForType
 {
 	my ($TYPE, $displaytype) = @_; 
@@ -580,25 +640,31 @@ sub getPageForType
 	return $PAGE;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getPage
-#
-#	Purpose
-#		This gets the htmlpage of the specified display type for this
-#		node.  An htmlpage is basically a database form that knows
-#		how to display the information for a particular nodetype.
-#
-#	Parameters
-#		$NODE - a node hash of the node that we want to get the htmlpage for
-#		$displaytype - the type of display of the htmlpage (usually
-#			'display' or 'edit')
-#
-#	Returns
-#		The node hash of the htmlpage for this node.  If none can be
-#		found it uses the basic node display page.
-#
+=head2 C<getPage>
+
+This gets the htmlpage of the specified display type for this node.  An
+htmlpage is basically a database form that knows how to display the information
+for a particular nodetype.
+
+=over 4
+
+=item * $NODE
+
+a node hash of the node that we want to get the htmlpage for
+
+=item * $displaytype
+
+the type of display of the htmlpage (usually 'display' or 'edit')
+
+=back
+
+Returns the node hash of the htmlpage for this node.  If none can be found it
+uses the basic node display page.
+
+=cut
+
 sub getPage
 {
 	my ($NODE, $displaytype) = @_; 
@@ -632,27 +698,41 @@ sub getPage
 	return $PAGE;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		linkNode
-#
-#	Purpose
-#		This creates a <a href> link to the specified node.
-#
-#	Parameters
-#		$NODE - the node to create a link to
-#		$title - the title of the link (<a href="...">title</a>)
-#		$PARAMS - a hashref that contains any CGI parameters to add
-#			to the URL.  (ie { 'op' => 'logout' })
-#		$SCRIPTS - a hashref of stuff that goes on the <a> tag itself.
-#			This can be other parameters for the <a> tag or javascript
-#			like stuff.
-#			ie { 'onMouseOver' => 'showStatus("hey!")' }
-#
-#	Returns
-#		An '<a href="...">title</a>' HTML link to the given node.
-#
+=head2 C<linkNode>
+
+This creates a E<lt>a hrefE<gt> link to the specified node.
+
+=over 4
+
+=item * $NODE
+
+the node to create a link to
+
+=item * $title
+
+the title of the link (E<lt>a href="..."E<gt>titleE<lt>/aE<gt>)
+
+=item * $PARAMS
+
+a hashref that contains any CGI parameters to add to the URL.  (ie { 'op'
+=E<gt> 'logout' })
+
+=item * $SCRIPTS
+
+a hashref of stuff that goes on the E<lt>aE<gt> tag itself.  This can be other
+parameters for the E<lt>aE<gt> tag or javascript like stuff.  ie
+
+  { 'onMouseOver' =E<gt> 'showStatus("hey!")' }
+
+=back
+
+Returns an 'E<lt>a href="..."E<gt>titleE<lt>/aE<gt>' HTML link to the given
+node.
+
+=cut
+
 sub linkNode
 {
 	my ($NODE, $title, $PARAMS, $SCRIPTS) = @_;
@@ -698,27 +778,35 @@ sub linkNode
 	return $link;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		linkNodeTitle
-#
-#	Purpose
-#		Given a node title, create an HTML link to that node.
-#
-#	Notes
-#		This creates a link pointing a node with a specific title.  If
-#		there exists more than one node in the system, the result of
-#		following the link will result in a "duplicates found".  If you
-#		know the exact node you want to go to, you should use linkNode()
-#		instead.
-#
-#	Parameters
-#		$nodename - the name of the node to go to.
-#		$lastnode - id of the node that you are currently on (used for
-#			building links)
-#		$title - the title of the link as seen from the browser.
-#
+=head2 C<linkNodeTitle>
+
+Given a node title, create an HTML link to that node.
+
+This creates a link pointing a node with a specific title.  If there exists
+more than one node in the system, the result of following the link will result
+in a "duplicates found".  If you know the exact node you want to go to, you
+should use linkNode() instead.
+
+=over 4
+
+=item * $nodename
+
+the name of the node to go to.
+
+=item * $lastnode
+
+id of the node that you are currently on (used for building links)
+
+=item * $title
+
+the title of the link as seen from the browser.
+
+=back
+
+=cut
+
 sub linkNodeTitle
 {
 	my ($nodename, $lastnode, $title) = @_;
@@ -731,7 +819,7 @@ sub linkNodeTitle
 
 	$title ||= $linktitle || $name;
 	$name =~ s/\s+/ /gs;
-	
+
 	my $urlnode = $query->escape($name);
 	my $str = qq|<a href="$ENV{SCRIPT_NAME}?node=$urlnode|;
 	$str .= "&lastnode_id=" . getId($lastnode) if ($lastnode);
@@ -740,22 +828,29 @@ sub linkNodeTitle
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		searchForNodeByName
-#
-#	Purpose
-#		This looks for a node by the given name.  If it finds something,
-#		it displays the node.
-#
-#	Parameters
-#		$node - the string name of the node we are looking for.
-#		$user_id - the user trying to view this node (for authorization)
-#
-#	Returns
-#		nothing
-#
+=head2 C<searchForNodeByName>
+
+This looks for a node by the given name.  If it finds something, it displays
+the node.
+
+=over 4
+
+=item * $node
+
+the string name of the node we are looking for.
+
+=item * $user_id
+
+the user trying to view this node (for authorization)
+
+=back
+
+Returns nothing
+
+=cut
+
 sub searchForNodeByName
 {
 	my ($node, $user_id) = @_;
@@ -821,34 +916,40 @@ sub searchForNodeByName
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		evalXTrapErrors
-#
-#	Purpose
-#		This is a wrapper for the standard eval.  This way we can trap eval
-#		errors and warnings and do something appropriate with them.  The
-#		difference between this and evalX is that this function assumes that
-#		you want to report all eval errors right now.  If you wish to do
-#		multiple evals, then report all the errors, call evalX for each
-#		code and grab the errors yourself.
-#
-#	Parameters
-#		$code - the code to be evaled
-#		$CURRENTNODE - the context in which this code is being evaled.  For
-#			example, if this code is coming from a nodelet, CURRENTNODE
-#			would be the nodelet.  This helps if we encounter an error.
-#			That way we know which node the code is coming from. If you
-#			do not pass $CURRENTNODE, you *must* pass an undef in its place
-#		@_ - the remaining items in @_ will be in context for the evaled
-#			code.
-#
-#	Returns
-#		The result of the evaled code.  If there were any errors, the
-#		return string will be the error nicely HTML formatted for easy
-#		display.
-#
+=head2 C<evalXTrapErrors>
+
+This is a wrapper for the standard eval.  This way we can trap eval errors and
+warnings and do something appropriate with them.  The difference between this
+and evalX is that this function assumes that you want to report all eval errors
+right now.  If you wish to do multiple evals, then report all the errors, call
+evalX for each code and grab the errors yourself.
+
+=over 4
+
+=item * $code
+
+the code to be evaled
+
+=item * $CURRENTNODE
+
+the context in which this code is being evaled.  For example, if this code is
+coming from a nodelet, CURRENTNODE would be the nodelet.  This helps if we
+encounter an error.  That way we know which node the code is coming from. If
+you do not pass $CURRENTNODE, you *must* pass an undef in its place
+
+=item * @_
+
+the remaining items in @_ will be in context for the evaled code.
+
+=back
+
+Returns the result of the evaled code.  If there were any errors, the return
+string will be the error nicely HTML formatted for easy display.
+
+=cut
+
 sub evalXTrapErrors
 {
 	my ($code, $CURRENTNODE) = @_;
@@ -872,35 +973,41 @@ sub evalXTrapErrors
 	return $str;
 }
 
+=cut
 
-#########################################################################
-#	Sub
-#		evalX
-#
-#	Purpose
-#		This function is a wrapper for the normal eval so that we can
-#		trap errors and log them.  This is intended to be called only
-#		from within this package (HTML.pm) as all the globals to this
-#		package will be accessable to any code that gets evaled.
-#
-#		However, this does not mean that it can't be called from other
-#		packages.  Just be aware that HTML.pm globals will be in scope.
-#
-#		Note all variables in scope when the eval() is called should be
-#		namespaced with $EVALX_ -- avoiding  "accidents" involving
-#		the same variable names in the evalled code.
-#
-#	Parameters
-#		$EVALX_CODE - the string of code that is to be evaled.
-#		$CURRENTNODE - the node in which the code is coming from.  If you
-#			are unable to pass this (you don't know it or are evaling code
-#			that is not associated with a node), you must pass undef in its
-#			place as the rest of @_ are the parameters that will be in scope
-#			when the actual eval is done.
-#
-#	Returns
-#		Whatever the code returns.
-#
+=head2 C<evalX>
+
+This function is a wrapper for the normal eval so that we can trap errors and
+log them.  This is intended to be called only from within this package
+(HTML.pm) as all the globals to this package will be accessable to any code
+that gets evaled.
+
+However, this does not mean that it can't be called from other packages.  Just
+be aware that HTML.pm globals will be in scope.
+
+Note all variables in scope when the eval() is called should be namespaced with
+$EVALX_ -- avoiding  "accidents" involving the same variable names in the
+evalled code.
+
+=over 4
+
+=item * $EVALX_CODE
+
+the string of code that is to be evaled.
+
+=item * $CURRENTNODE
+
+the node in which the code is coming from.  If you are unable to pass this (you
+don't know it or are evaling code that is not associated with a node), you must
+pass undef in its place as the rest of @_ are the parameters that will be in
+scope when the actual eval is done.
+
+=back
+
+Returns whatever the code returns.
+
+=cut
+
 sub evalX
 {
 	my $EVALX_CODE  = shift @_;
@@ -934,22 +1041,17 @@ sub evalX
 	return $result;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		AUTOLOAD
-#
-#	Purpose
-#		This is to allow htmlcode to be called just like normal functions
-#		If an htmlcode of the given name does not exist, this will throw
-#		an error.
-#
-#	Parameters
-#		Whatever the htmlcode expects
-#
-#	Returns
-#		Whatever the htmlcode returns
-#
+=head2 C<AUTOLOAD>
+
+This is to allow htmlcode to be called just like normal functions If an
+htmlcode of the given name does not exist, this will throw an error.
+
+Returns whatever the htmlcode returns
+
+=cut
+
 sub AUTOLOAD
 {
 	# @_ contains the parameters for the htmlcode so we don't need to
@@ -998,17 +1100,17 @@ sub AUTOLOAD
     return evalX($$CODE{code}, $CODE, @_);
 }
 
+=cut
 
-###############################################################################
-#	Sub
-#		htmlcode
-#
-#	Purpose
-#		THIS IS A DEPRECATED FUNCTION!  DO NOT USE!  This is here to
-#		maintain some compatibility with some older code.  The AUTOLOAD
-#		method has replaced this for a more direct implementation.
-#		This basically allows the calling of htmlcode with dynamic parameters
-#
+C<htmlcode>
+
+THIS IS A DEPRECATED FUNCTION!  DO NOT USE!  This is here to maintain some
+compatibility with some older code.  The AUTOLOAD method has replaced this for
+a more direct implementation.  This basically allows the calling of htmlcode
+with dynamic parameters
+
+=cut
+
 sub htmlcode
 {
 	my ($function, $args) = @_;
@@ -1025,23 +1127,27 @@ sub htmlcode
 	return evalX($code, undef, @args);
 }
 
+=cut
 
-###############################################################################
-#	Sub
-#		do_args
-#
-#	Purpose
-#		This is a supporting function for compileCache().  It turns a
-#		comma-delimited list of arguments into an array, performing variable
-#		interpolation on them.  It's probably not necessary once things move
-#		over to the new AUTOLOAD htmlcode scheme.
-#
-#	Takes
-#		$args, a comma-delimited list of arguments
-#
-#	Returns
-#		an array of manipulated arguments
-#
+=head2 C<do_args>
+
+This is a supporting function for compileCache().  It turns a comma-delimited
+list of arguments into an array, performing variable interpolation on them.
+It's probably not necessary once things move over to the new AUTOLOAD htmlcode
+scheme.
+
+=over 4
+
+=item * $args
+
+a comma-delimited list of arguments
+
+=back
+
+Returns an array of manipulated arguments.
+
+=cut
+
 sub do_args {
 	my $args = shift;
 
@@ -1056,31 +1162,41 @@ sub do_args {
 	return @args;
 }
 
+=cut
 
-###############################################################################
-#	Sub
-#		executeCachedCode
-#
-#	Purpose
-#		This is a supporting function for Compile-O-Cache.  It attempts to
-#		execute a compiled subroutine.  It does support arguments, via the
-#		third parameter.  This exists to make it easier for nodes with embedded
-#		code that don't go through the new parseCode.
-#
-#		Note that it doesn't check if $HTMLVARS{noCompile} is set, or if the
-#		user is in a workspace.  If this is important to you, check them!
-#
-#	Takes
-#		$field, the name of the field of the node that contains embedded code
-#		$CURRENTNODE, the node object to check for compiled code
-#		$args, an optional array reference of arguments for the	subroutine
-#
-#	Returns
-#		The return value of the compiled code on success, undef on failure.
-#		Note that if the compiled code returns undef, this function returns an
-#		empty string instead.  This is the expected behavior of htmlcode and
-#		other page components.
-#
+=head2 C<executeCachedCode>
+
+This is a supporting function for Compile-O-Cache.  It attempts to execute a
+compiled subroutine.  It does support arguments, via the third parameter.  This
+exists to make it easier for nodes with embedded code that don't go through the
+new parseCode.
+
+Note that it doesn't check if $HTMLVARS{noCompile} is set, or if the user is in
+a workspace.  If this is important to you, check them!
+
+=over 4
+
+=item * $field
+
+the name of the field of the node that contains embedded code
+
+=item * $CURRENTNODE
+
+the node object to check for compiled code
+
+=item * $args
+
+an optional array reference of arguments for the subroutine
+
+=back
+
+Returns the return value of the compiled code on success, undef on failure.
+Note that if the compiled code returns undef, this function returns an empty
+string instead.  This is the expected behavior of htmlcode and other page
+components.
+
+=cut
+
 sub executeCachedCode {
 	my ($field, $CURRENTNODE, $args) = @_;
 	$args ||= [];
@@ -1116,19 +1232,24 @@ sub executeCachedCode {
 	}
 }
 
+=cut
 
-##############################################################################
-#Sub
-#	createAnonSub
-#
-#	Purpose
-#		for creating compiled code references, we need to create a sub
-#		ref and establish a consistent context (exactly the same as evalX
-#		however, symbols must be rendered at runtime
-#
-#	Arguments
-#		code to be compiled
-#
+=head2 C<createAnonSub>
+
+For creating compiled code references, we need to create a sub ref and
+establish a consistent context (exactly the same as evalX however, symbols must
+be rendered at runtime.
+
+=over 4
+
+=item * $code
+
+The code to be compiled.
+
+=back
+
+=cut
+
 sub createAnonSub {
 	my ($code) = @_;
 
@@ -1139,25 +1260,39 @@ sub createAnonSub {
 	}\n";
 }
 
-###############################################################################
-# Sub
-#	compileCache
-#
-#	Purpose
-#		Common compilation and caching and initial calling of htmlcode and
-#		nodemethod functions.  Hopefully it keeps common code in one spot.  For
-#		internal use only!
-#
-#	Arguments
-#		$code, the text to eval() into an anonymous subroutine
-#		$NODE, the node object from which the code came
-#		$field, the field of the node that holds the code for that nodetype
-#		$args, a reference to a list of arguments to pass
-#
-#	Returns
-#		A string containing results of the code or a blank string.  Undef if
-#		the compilation fails -- in case we need to default to old behavior.
-#
+=cut
+
+=head2 C<compileCache>
+
+Common compilation and caching and initial calling of htmlcode and
+nodemethod functions.  Hopefully it keeps common code in one spot.  For
+internal use only!
+
+=over 4
+
+=item * $code
+
+the text to eval() into an anonymous subroutine
+
+=item * $NODE
+
+the node object from which the code came
+
+=item * $field
+
+the field of the node that holds the code for that nodetype
+
+=item * $args
+
+a reference to a list of arguments to pass
+
+=back
+
+Returns a string containing results of the code or a blank string.  Undef if
+the compilation fails -- in case we need to default to old behavior.
+
+=cut
+
 sub compileCache
 {
 	my ($code, $NODE, $field, $args) = @_;
@@ -1170,23 +1305,29 @@ sub compileCache
 	return executeCachedCode($field, $NODE, $args);
 }
 
+=cut
 
-###############################################################################
-# Sub
-#	nodemethod
-#
-#	Purpose
-#		Allow compil-o-caching and calling of nodemethods.  Internal use only.
-#
-#	Arguments
-#		$CURRENTNODE, the nodemethod node in question
-#		@_, further arguments for the nodemethod code
-#
-#	Returns
-#		The text results of the nodemethod code, if it succeeded.  Undef
-#		otherwise.  See Everything::Node::AUTOLOAD for the emergency backup
-#		plan.
-#
+=head2 C<nodemethod>
+
+Allow compil-o-caching and calling of nodemethods.  Internal use only.
+
+=over 4
+
+=item * $CURRENTNODE
+
+the nodemethod node in question
+
+=item *	@_
+
+further arguments for the nodemethod code
+
+=back
+
+Returns the text results of the nodemethod code, if it succeeded.  Undef
+otherwise.  See Everything::Node::AUTOLOAD for the emergency backup plan.
+
+=cut
+
 sub nodemethod
 {
 	# args for the nodemethod may be passed here
@@ -1202,21 +1343,17 @@ sub nodemethod
 	}
 }
 
+=cut
 
-################################################################################
-#	Sub
-#		htmlsnippet
-#
-#	Purpose
-#		allow for easy use of htmlsnippet functions in embedded perl
-#		[<BacksideErrors>] would become: htmlsnippet('BacksideErrors');
-#
-#	Parameters
-#		$snippet -- the htmlsnippet name
-#
-#	Returns
-#		The HTML from the snippet
-#
+=head2 C<htmlsnippet>
+
+allow for easy use of htmlsnippet functions in embedded Perl
+[E<lt>BacksideErrorsE<gt>] would become: htmlsnippet('BacksideErrors');
+
+Returns the HTML from the snippet
+
+=cut
+
 sub htmlsnippet
 {
 	my ($snippet) = @_;
@@ -1229,26 +1366,31 @@ sub htmlsnippet
 	return $html;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		embedCode
-#
-#	Purpose
-#		This takes code in the form of [%...%], [{...}], [<...>], or
-#		["..."] and evals the internal code.
-#
-#	Parameters
-#		$block - The block of code to eval.  It must be of one of the forms
-#			described above.
-#		$CURRENTNODE - the node in which this code is coming from.  Some
-#			code may need to know this (nodelets that modify themselves).
-#			If not defined, this will default to the main node we are
-#			trying to display
-#
-#	Returns
-#		The eval-ed result of the code.
-#
+=head2 C<embedCode>
+
+This takes code in the form of [%...%], [{...}], [E<lt>...E<gt>], or ["..."]
+and evals the internal code.
+
+=over 4
+
+=item * $block
+
+The block of code to eval.  It must be of one of the forms described above.
+
+=item * $CURRENTNODE
+
+the node in which this code is coming from.  Some code may need to know this
+(nodelets that modify themselves).  If not defined, this will default to the
+main node we are trying to display
+
+=back
+
+Returns the eval-ed result of the code.
+
+=cut
+
 sub embedCode
 {
 	my ($block, $CURRENTNODE) = @_;
@@ -1314,33 +1456,42 @@ sub embedCode
 	return $block;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		parseCode (new)
-#
-#	Purpose
-#		Given the text from a node that is to be displayed, parse out the
-#		code blocks, compile the whole thing into an anonymous subroutine,
-#		cache it, and call it.  Or call it if it's already compiled.  WHOOSH!
-#
-#		NOTE!!! This is a full parse and eval.  You do NOT NOT NOT want to
-#		call this on text that an untrusted user can modify.  You don't
-#		want users creating nodes with [% `rm -rf /*` %] in their code.
-#		Calling this on untrusted user text is a security breach.
-#
-#	Parameters
-#		$field - the field to be parsed for the code blocks
-#		$CURRENTNODE - the node which this text is coming from.  
-#
-#	Returns
-#		The parsed HTML with the embedded code parsed and replaced with its
-#		generated result.  Given:
-#			<p>Hello ["$$USER{title}"]
-#
-#		Will return:
-#			<p>Hello Bob
-#
+=head2 C<parseCode (new)>
+
+Given the text from a node that is to be displayed, parse out the code blocks,
+compile the whole thing into an anonymous subroutine, cache it, and call it.
+Or call it if it's already compiled.  WHOOSH!
+
+NOTE!!! This is a full parse and eval.  You do NOT NOT NOT want to call this on
+text that an untrusted user can modify.  You don't want users creating nodes
+with [% `rm -rf /*` %] in their code.  Calling this on untrusted user text is a
+security breach.
+
+=over 4
+
+=item * $field
+
+the field to be parsed for the code blocks
+
+=item * $CURRENTNODE
+
+the node which this text is coming from.  
+
+=back
+
+Returns the parsed HTML with the embedded code parsed and replaced with its
+generated result.  Given:
+
+  E<lt>pE<gt>Hello ["$$USER{title}"]
+
+Will return:
+
+  E<lt>pE<gt>Hello Bob
+
+=cut
+
 sub parseCode
 {
 	my ($field, $CURRENTNODE) = @_;
@@ -1422,19 +1573,27 @@ sub parseCode
 	return oldparseCode($field, $CURRENTNODE);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		oldparseCode
-#
-#	Purpose
-#		Given the text from a node that is to be displayed, parse out the
-#		code blocks and eval them.  No caching here, plod plod.
-#
-#	Parameters
-#		$field - the field to be parsed for the code blocks
-#		$CURRENTNODE - the node which this text is coming from.  
-#
+=head2 C<oldparseCode>
+
+Given the text from a node that is to be displayed, parse out the code blocks
+and eval them.  No caching here, plod plod.
+
+=over 4
+
+=item * $field
+
+the field to be parsed for the code blocks
+
+=item * $CURRENTNODE
+
+the node which this text is coming from.  
+
+=back
+
+=cut
+
 sub oldparseCode
 {
 	my ($field, $CURRENTNODE) = @_;
@@ -1456,18 +1615,26 @@ sub oldparseCode
 	$text;
 }
 
+=cut
 
-###################################################################
-#	Sub
-#		listCode
-#
-#	Purpose
-#		To list code so that it will not be parsed by Everything or the browser
-#
-#	Parameters
-#		$code -- the block of code to display
-#		$numbering -- set to true if linenumbers are desired
-#
+=head2 C<listCode>
+
+To list code so that it will not be parsed by Everything or the browser
+
+=over 4
+
+=item * $code
+
+the block of code to display
+
+=item * $numbering
+
+set to true if linenumbers are desired
+
+=back
+
+=cut
+
 sub listCode
 {
 	my ($code, $numbering) = @_;
@@ -1495,24 +1662,31 @@ sub listCode
 	return $text;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		linkCode
-#
-#	Purpose
-#		Used in listCode() to create links to the embedded htmlcode and
-#		htmlsnippets.  Just a usability thing.  This function should not
-#		be used by anybody else.  This is considered a "private" function.
-#
-#	Parameters
-#		$func - the name of the htmlcode/htmlsnippet.  Basically, this is
-#			the string between the delimiting brackets.
-#		$NODE - the nodetype of the destination link (optional ?)
-#
-#	Returns
-#		A HTML link to the appropriate node, or the function name.
-#
+=head2 C<linkCode>
+
+Used in listCode() to create links to the embedded htmlcode and htmlsnippets.
+Just a usability thing.  This function should not be used by anybody else.
+This is considered a "private" function.
+
+=over 4
+
+=item * $func
+
+the name of the htmlcode/htmlsnippet.  Basically, this is the string between
+the delimiting brackets.
+
+=item * $NODE
+
+the nodetype of the destination link (optional ?)
+
+=back
+
+Returns a HTML link to the appropriate node, or the function name.
+
+=cut
+
 sub linkCode
 {
 	my ($func, $TYPE) = @_;
@@ -1530,16 +1704,22 @@ sub linkCode
 }
 
 
-#############################################################################
-#	Sub
-#		quote
-#
-#	Purpose
-#		Not sure.  It seems that nothing uses this.  Nate?
-#
-#	Parameters
-#		$text - the text to encode
-#
+=cut
+
+=head2 C<quote>
+
+Not sure.  It seems that nothing uses this.  Nate?
+
+=over 4
+
+=item * $text
+
+the text to encode
+
+=back
+
+=cut
+
 sub quote
 {
 	my ($text) = @_;
@@ -1548,19 +1728,24 @@ sub quote
 	$text; 
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		insertNodelet
-#
-#	Purpose
-#		This generates the nodelet by grabbing the nodelet, executing its
-#		code, and then wrapping it in all the specified nodelet containers
-#		to generate the nodelet.
-#
-#	Parameters
-#		$NODELET - the nodelet to insert
-#
+=head2 C<insertNodelet>
+
+This generates the nodelet by grabbing the nodelet, executing its code, and
+then wrapping it in all the specified nodelet containers to generate the
+nodelet.
+
+=over 4
+
+=item * $NODELET
+
+the nodelet to insert
+
+=back
+
+=cut
+
 sub insertNodelet
 {
 	# Don't "my" NODELET!  It is a global!
@@ -1588,23 +1773,28 @@ sub insertNodelet
 }
 
 
-#############################################################################
-#	Sub
-#		updateNodelet
-#
-#	Purpose
-#		Nodelets store their code in the nlcode (nodelet code) field.
-#		This code is not eval-ed every time the nodelet is displayed.
-#		Call this function every time you display a nodelet.  This
-#		will eval the code if the specified interval has passed.
-#
-#		The updateinterval field dictates how often we eval the nlcode.
-#		If it is -1, we eval the code the first time and never do it
-#		again.
-#
-#	Parameters
-#		$NODELET - the nodelet to update
-#
+=cut
+
+=head2 C<updateNodelet>
+
+Nodelets store their code in the nlcode (nodelet code) field.  This code is not
+eval-ed every time the nodelet is displayed.  Call this function every time you
+display a nodelet.  This will eval the code if the specified interval has
+passed.
+
+The updateinterval field dictates how often we eval the nlcode.  If it is -1,
+we eval the code the first time and never do it again.
+
+=over 4
+
+=item * $NODELET
+
+the nodelet to update
+
+=back
+
+=cut
+
 sub updateNodelet
 {
 	my ($NODELET) = @_;
@@ -1633,22 +1823,29 @@ sub updateNodelet
 	""; # don't return anything
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		genContainer
-#
-#	Purpose
-#		Creates the HTML for a container, recursively generating its parents if
-#		necessary.
-#
-#	Parameters
-#		$CONTAINER - a container node or the node_id of a container
-#		$noClear - for internal use only.  Pass undef when calling this
-#
-#	Returns
-#		The generated HTML
-#
+=head2 C<genContainer>
+
+Creates the HTML for a container, recursively generating its parents if
+necessary.
+
+=over 4
+
+=item * $CONTAINER
+
+a container node or the node_id of a container
+
+=item * $noClear
+
+for internal use only.  Pass undef when calling this
+
+=back
+
+Returns the generated HTML
+
+=cut
+
 sub genContainer
 {
 	my ($CONTAINER, $noClear) = @_;
@@ -1709,21 +1906,29 @@ sub genContainer
 	return $replacetext;	
 }
 
+=cut
 
-############################################################################
-#	Sub	containHtml
-#
-#	Purpose
-#		Wrap a given block of HTML in a container specified by title
-#		hopefully this makes containers easier to use
-#
-#	Parameters
-#		$container - title of container
-#		$html - html to insert
-#
-#	Returns
-#		The HTML of the container with $html inside.
-#
+=head1 C<containHtml>
+
+Wrap a given block of HTML in a container specified by title
+hopefully this makes containers easier to use
+
+=over 4
+
+=item * $container
+
+title of container
+
+=item * $html
+
+html to insert
+
+=back
+
+Returns the HTML of the container with $html inside.
+
+=cut
+
 sub containHtml
 {
 	my ($container, $html) =@_;
@@ -1734,24 +1939,30 @@ sub containHtml
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		displayPage
-#
-#	Purpose
-#		This is the meat of displaying a node to the user.  This gets
-#		the display page for the node, inserts it into the appropriate
-#		container, prints the HTML header and then prints the page to
-#		the users browser.
-#
-#	Parameters
-#		$NODE - the node to display
-#		$user_id - the user that is trying to 
-#
-#	Returns
-#		Nothing of use.
-#
+=head2 C<displayPage>
+
+This is the meat of displaying a node to the user.  This gets the display page
+for the node, inserts it into the appropriate container, prints the HTML header
+and then prints the page to the users browser.
+
+=over 4
+
+=item * $NODE
+
+the node to display
+
+=item * $user_id
+
+the user that is trying to 
+
+=back
+
+Returns nothing of use.
+
+=cut
+
 sub displayPage
 {
 	my ($NODE, $user_id) = @_;
@@ -1846,22 +2057,18 @@ sub displayPage
 	$query->print($page);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		formatGodsBacksideErrors
-#
-#	Purpose
-#		This formats any errors that we may have in our "cache" so that
-#		gods can see them and correct them if necessary.
-#
-#	Parameters
-#		None.
-#
-#	Returns
-#		A nicely formatted HTML table suitable for display somewhere, or a
-#		blank string if there aren't any errors.
-#
+=head2 C<formatGodsBacksideErrors>
+
+This formats any errors that we may have in our "cache" so that gods can see
+them and correct them if necessary.
+
+Returns a nicely formatted HTML table suitable for display somewhere, or a
+blank string if there aren't any errors.
+
+=cut
+
 sub formatGodsBacksideErrors
 {
 	Everything::flushErrorsToBackside();
@@ -1892,21 +2099,17 @@ sub formatGodsBacksideErrors
 	return $str;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		printBacksideToLogFile
-#
-#	Purpose
-#		This formats any errors that we may have in our "cache" so that
-#		they'll appear nicely in the log.  Normal users can't see them.
-#
-#	Parameters
-#		None.
-#
-#	Returns
-#		Nothing of value.
-#
+=head2 C<printBacksideToLogFile>
+
+This formats any errors that we may have in our "cache" so that they'll appear
+nicely in the log.  Normal users can't see them.
+
+Returns nothing of value.
+
+=cut
+
 sub printBacksideToLogFile
 {
 	Everything::flushErrorsToBackside();
@@ -1933,21 +2136,24 @@ sub printBacksideToLogFile
 	Everything::printLog($str);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		gotoNode
-#
-#	Purpose
-#		Once we know the exact node that we want to go to, we call this
-#		function.  
-#
-#	Parameters
-#		$NODE - the node we want to go to.
-#
-#	Returns
-#		Nothing of value.
-#
+=head2 C<gotoNode>
+
+Once we know the exact node that we want to go to, we call this function.  
+
+=over 4
+
+=item * $NODE
+
+the node we want to go to.
+
+=back
+
+Returns nothing of value.
+
+=cut
+
 sub gotoNode
 {
 	my ($NODE) = @_;
@@ -1962,25 +2168,33 @@ sub gotoNode
 }
 
 
-#############################################################################
-#	Sub
-#		parseLinks
-#
-#	Purpose
-#		This finds any [...] blocks in the text and creates a link to
-#		the node named in the brackets.
-#
-#		NOTE - we should add some setting to only allow links to
-#		certain types of nodes.  Obviously, if a user puts [node] in
-#		their text, you don't want it to link to the "node" nodetype.
-#
-#	Parameters
-#		$text - the text in which to search for [...] links
-#		$NODE - The node that contains this link.  Used for "lastnode".
-#
-#	Returns
-#		The text with the [...] replaced with the appropriate links.
-#
+=cut
+
+=head2 C<parseLinks>
+
+This finds any [...] blocks in the text and creates a link to the node named in
+the brackets.
+
+NOTE - we should add some setting to only allow links to certain types of
+nodes.  Obviously, if a user puts [node] in their text, you don't want it to
+link to the "node" nodetype.
+
+=over 4
+
+=item * $text
+
+the text in which to search for [...] links
+
+=item * $NODE
+
+the node that contains this link.  Used for "lastnode".
+
+=back
+
+Returns the text with the [...] replaced with the appropriate links.
+
+=cut
+
 sub parseLinks
 {
 	my ($text, $NODE) = @_;
@@ -1989,20 +2203,16 @@ sub parseLinks
 	return $text;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getCGI
-#
-#	Purpose
-#		This gets and sets up the CGI interface for an individual request.
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		The CGI object.
-#
+=head2 C<getCGI>
+
+This gets and sets up the CGI interface for an individual request.
+
+Returns the CGI object.
+
+=cut
+
 sub getCGI
 {
 	my $cgi;
@@ -2020,23 +2230,20 @@ sub getCGI
 	return $cgi;
 }
 
-############################################################################
-#	Sub
-#		getTheme
-#
-#	Purpose
-#		this creates the $THEME variable that various components can
-#		reference for detailed settings.  The user's theme is a system-wide
-#		default theme if not specified, then a "themesetting" can be 
-#		used to override specific values.  Finally, if there are user-specific
-#		settings, they are kept in the user's settings
-#
-#	Parameters
-#		this function references global variables, so no params are needed
-#
-#	Returns
-#		Blank string if it succeeds, undef if it fails.
-#
+=cut
+
+=head2 C<getTheme>
+
+This creates the $THEME variable that various components can reference for
+detailed settings.  The user's theme is a system-wide default theme if not
+specified, then a "themesetting" can be used to override specific values.
+Finally, if there are user-specific settings, they are kept in the user's
+settings.
+
+Returns blank string if it succeeds, undef if it fails.
+
+=cut
+
 sub getTheme
 {
 	my $theme_id;
@@ -2075,25 +2282,27 @@ sub getTheme
 	"";
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		printHeader
-#
-#	Purpose
-#		For each page we serve, we need to pass standard HTML header
-#		information.  If we are script, we are responsible for doing
-#		this (the web server has no idea what kind of information we
-#		are passing).
-#
-#	Parameters
-#		$datatype - (optional) the MIME type of the data that we are
-#			to display	('image/gif', 'text/html', etc).  If not
-#			provided, the header will default to 'text/html'.
-#
-#	Returns
-#		Nothing of value.
-#
+=head2 C<printHeader>
+
+For each page we serve, we need to pass standard HTML header information.  If
+we are script, we are responsible for doing this (the web server has no idea
+what kind of information we are passing).
+
+=over 4
+
+=item * $datatype
+
+(optional) the MIME type of the data that we are to display	('image/gif',
+'text/html', etc).  If not provided, the header will default to 'text/html'.
+
+=back
+
+Returns nothing of value.
+
+=cut
+
 sub printHeader
 {
 	my ($datatype) = @_;
@@ -2115,21 +2324,17 @@ sub printHeader
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		handleUserRequest
-#
-#	Purpose
-#		This checks the CGI information to find out what the user is trying
-#		to do and execute their request.
-#
-#	Parameters
-#		None.  Uses the global package variables.
-#
-#	Returns
-#		Nothing of value.
-#
+=head2 C<handleUserRequest>
+
+This checks the CGI information to find out what the user is trying to do and
+execute their request.
+
+Returns nothing of value.
+
+=cut
+
 sub handleUserRequest
 {
 	my $user_id = $$USER{node_id};
@@ -2159,23 +2364,26 @@ sub handleUserRequest
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		cleanNodeName
-#
-#	Purpose
-#		We limit names of nodes so that they cannot contain certain
-#		characters.  This is so users can't play games with the names
-#		of their nodes.  For example, we don't want "hello there" and
-#		"hello      there" to be different nodes.
-#
-#	Parameters
-#		$nodename - the raw name that the user has given
-#
-#	Returns
-#		The name after we have cleaned it up a bit
-#
+=head2 C<cleanNodeName>
+
+We limit names of nodes so that they cannot contain certain characters.  This
+is so users can't play games with the names of their nodes.  For example, we
+don't want "hello there" and "hello      there" to be different nodes.
+
+=over 4
+
+=item * $nodename
+
+the raw name that the user has given
+
+=back
+
+Returns the name after we have cleaned it up a bit.
+
+=cut
+
 sub cleanNodeName
 {
 	my ($nodename) = @_;
@@ -2189,17 +2397,17 @@ sub cleanNodeName
 	return $nodename;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		initForPageLoad
-#
-#	Purpose
-#		Each page load requires us to have a fresh start.  Each page load
-#		stores info in module variables and caches some stuff.  Since each
-#		page load could come from a completely different person, we need to
-#		clear this stuff out so they don't get stale/undesirable info.
-#
+=head2 C<initForPageLoad>
+
+Each page load requires us to have a fresh start.  Each page load stores info
+in module variables and caches some stuff.  Since each page load could come
+from a completely different person, we need to clear this stuff out so they
+don't get stale/undesirable info.
+
+=cut
+
 sub initForPageLoad
 {
 	my ($db, $options) = @_;
@@ -2301,45 +2509,41 @@ sub opLock
 }
 
 
-#############################################################################
-#	Sub
-#		opUpdate
-#
-#	Purpose
-#		This is the operation that handles the automated upates to the
-#		node data in the Everything system.  This looks for CGI parameters
-#		of the form 'formbind_FormObjectName_FormItemName', where
-#		'FormObjectName', is the name of the FormObject (nodetype) that
-#		generated the HTML for this, and 'FormItemName' is the name of
-#		the HTML form item (ie <input name='FormItemName'...>).
-#
-#		If it finds any parameters that matches that pattern, it constructs
-#		a node of that form object type (ie textfield, checkbox, etc) and
-#		passes the name of the form object to it.  This allows the object
-#		to reconstruct itself based on the fact that it knows what it
-#		generated.  The object can then determine what node and field it
-#		is bound to, and the form object handles the update of the node.
-#
-#		If any of the fields fail the verification, the system will go
-#		to the node specified by the node_id parameter (in most cases,
-#		this should be back to the page that contained the form that
-#		was doing the update).
-#
-#		If all of the fields that need to be updated verify that the
-#		user has access to update and that the data entered by the user
-#		is valid, then we proceed to update the fields of the node(s).
-#		None of the nodes are actually updated until all fields have
-#		been updated.  This is to allow us to make 1 update() call per
-#		node rather than calling update once per field update.
-#
-#		Once all of the nodes have been updated, this will look for
-#		two more optional parameters: 'opupdate_redirect', and
-#		'opupdate_displaytype'.  If 'opupdate_redirect' is specified,
-#		it should contain the numeric node id of the node to go to.
-#		opupdate_display type should contain the type of display for
-#		that node.  For example, this way you could update a node,
-#		can automatically redirect to another node's edit page.
-#
+=cut
+
+=head2 C<opUpdate>
+
+This is the operation that handles the automated upates to the node data in the
+Everything system.  This looks for CGI parameters of the form
+'formbind_FormObjectName_FormItemName', where 'FormObjectName', is the name of
+the FormObject (nodetype) that generated the HTML for this, and 'FormItemName'
+is the name of the HTML form item (ie E<lt>input name='FormItemName'...E<gt>).
+
+If it finds any parameters that matches that pattern, it constructs a node of
+that form object type (ie textfield, checkbox, etc) and passes the name of the
+form object to it.  This allows the object to reconstruct itself based on the
+fact that it knows what it generated.  The object can then determine what node
+and field it is bound to, and the form object handles the update of the node.
+
+If any of the fields fail the verification, the system will go to the node
+specified by the node_id parameter (in most cases, this should be back to the
+page that contained the form that was doing the update).
+
+If all of the fields that need to be updated verify that the user has access to
+update and that the data entered by the user is valid, then we proceed to
+update the fields of the node(s).  None of the nodes are actually updated until
+all fields have been updated.  This is to allow us to make 1 update() call per
+node rather than calling update once per field update.
+
+Once all of the nodes have been updated, this will look for two more optional
+parameters: 'opupdate_redirect', and 'opupdate_displaytype'.  If
+'opupdate_redirect' is specified, it should contain the numeric node id of the
+node to go to.  opupdate_display type should contain the type of display for
+that node.  For example, this way you could update a node, can automatically
+redirect to another node's edit page.
+
+=cut
+
 sub opUpdate
 {
 	my @params = $query->param();
@@ -2455,23 +2659,29 @@ sub opUpdate
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getOpCode
-#
-#	Purpose
-#		Get the 'op' code for the specified operation.
-#
-#	Parameters
-#		$opname - the title of the operation
-#		$user - the user that is going to execute this operation.  For
-#			authentication
-#
-#	Returns
-#		the opcode Node if found and the user has the ability to execute it.
-#		undef otherwise.
-#
+=head2 C<getOpCode>
+
+Get the 'op' code for the specified operation.
+
+=over 4
+
+=item * $opname
+
+the title of the operation
+
+=item * $user
+
+the user that is going to execute this operation.  For authentication.
+
+=back
+
+Returns the opcode Node if found and the user has the ability to execute it,
+undef otherwise.
+
+=cut
+
 sub getOpCode
 {
 	my ($opname, $user) = @_;
@@ -2483,28 +2693,24 @@ sub getOpCode
 	return $OPNODE;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		execOpCode
-#
-#	Purpose
-#		One of the CGI parameters that can be passed to Everything is the
-#		'op' parameter.  "Operations" are discrete pieces of work that are
-#		to be executed before the page is displayed.  They are useful for
-#		providing functionality that can be shared from any node.
-#
-#		By creating an opcode node you can create new ops or override the
-#		defaults.  Just be careful if you override any default operations.
-#		For example, if you override the 'login' op with a broken
-#		implementation you may not be able to log in.
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		Nothing
-#
+=head2 C<execOpCode>
+
+One of the CGI parameters that can be passed to Everything is the 'op'
+parameter.  "Operations" are discrete pieces of work that are to be executed
+before the page is displayed.  They are useful for providing functionality that
+can be shared from any node.
+
+By creating an opcode node you can create new ops or override the defaults.
+Just be careful if you override any default operations.  For example, if you
+override the 'login' op with a broken implementation you may not be able to log
+in.
+
+Returns nothing.
+
+=cut
+
 sub execOpCode
 {
 	my $handled;
@@ -2556,15 +2762,15 @@ sub execOpCode
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		setHTMLVARS
-#
-#	Purpose
-#		This gets the 'system settings' node and assigns the settings
-#		hash to the global HTMLVARS for our use during this page load.
-#
+=head2 C<setHTMLVARS>
+
+This gets the 'system settings' node and assigns the settings hash to the
+global HTMLVARS for our use during this page load.
+
+=cut
+
 sub setHTMLVARS
 {
 	# Get the HTML variables for the system.  These include what
@@ -2583,16 +2789,18 @@ sub setHTMLVARS
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		updateNodeData  DEPRECATED!!!  DO NOT USE!
-#
-#	Purpose
-#		If we have a node_id, we may be getting some params that indicate
-#		that we should be updating the node.  This checks for those
-#		parameters and updates the node if necessary.
-#
+C<updateNodeData>
+
+DEPRECATED!!!  DO NOT USE!
+
+If we have a node_id, we may be getting some params that indicate that we
+should be updating the node.  This checks for those parameters and updates the
+node if necessary.
+
+=cut
+
 sub updateNodeData
 {
 	#warn("Using updateNodeData() (deprecated!).  Stop that!");
@@ -2656,22 +2864,29 @@ sub updateNodeData
 	}
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		mod_perlInit
-#
-#	Purpose
-#		This is the "main" function of Everything.  This gets called for
-#		each page load in an Everything system.
-#
-#	Parameters
-#		$db - the string name of the database to get our information from.
-#		$options - optional options, see Everything::initEverything
-#
-#	Returns
-#		nothing useful
-#
+=head2 C<mod_perlInit>
+
+This is the "main" function of Everything.  This gets called for each page load
+in an Everything system.
+
+=over 4
+
+=item * $db
+
+the string name of the database to get our information from.
+
+=item * $options
+
+optional options, see Everything::initEverything
+
+=back
+
+Returns nothing useful
+
+=cut
+
 sub mod_perlInit
 {
 	my ($db, $options, $initializer) = @_;
