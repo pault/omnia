@@ -1603,11 +1603,12 @@ sub getMaintenanceCode
 	my %WHEREHASH;
 	my $TYPE;
 	my $done = 0;
-
+	my $MAINTENANCE = $this->getType("maintenance");
+	
 	# If the maintenance nodetype has not been loaded, don't try to do
-	# any thing (the only time this should happen is when we are
+	# anything (the only time this should happen is when we are
 	# importing everything from scratch).
-	return 0 if(not defined $this->getType("maintenance")); 
+	return 0 unless((defined $MAINTENANCE) && ($$MAINTENANCE{sqltable} ne "")); 
 
 	$this->getRef($NODE);
 	$TYPE = $this->getType($$NODE{type_nodetype});
@@ -1622,7 +1623,7 @@ sub getMaintenanceCode
 			maintain_nodetype => $$TYPE{node_id}, maintaintype => $op);
 		
 		$maintain = $this->selectNodeWhere(\%WHEREHASH, 
-			$this->getType("maintenance"));
+			$MAINTENANCE);
 
 		if(not defined $maintain)
 		{
