@@ -1,0 +1,49 @@
+<NODE export_version="0.5" nodetype="htmlpage" title="event display page">
+  <field name="MIMEtype" type="literal_value">text/html</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">display</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[%
+  my $DV = getNode('dayview', 'superdoc');
+  my $d;
+  #return $$NODE{starttime};
+  ($d) = split ' ', $$NODE{starttime};
+  ($d) = split(' ', $DB->sqlSelect("now()")) unless $d =~ /[1-9]/; 
+  return linkNode($DV, "back to $d", { fordate => $d, foruser => $$NODE{author_user}});
+%]
+&lt;p>
+Private
+[{nodeFormObject:Checkbox, private, private}]
+&lt;p>
+[%
+
+my $starttime;
+my $rnd = int(rand(1000));
+
+"Start time:" .
+nodeFormObject('Datetime', 'starttime', "starttime$rnd") .
+"End time:" .
+nodeFormObject('Datetime', 'endtime', "endtime$rnd");
+
+%]
+&lt;p>
+Brief description: [{nodeFormObject:TextField,title,title,,80,255}]
+&lt;p>
+Extended description &lt;br>[{textarea:doctext}]
+[{submit}]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">event</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
+  <field name="permissionneeded" type="literal_value">w</field>
+  <field name="title" type="literal_value">event display page</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
+</NODE>

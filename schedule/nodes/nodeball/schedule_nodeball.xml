@@ -1,0 +1,34 @@
+<NODE export_version="0.5" nodetype="nodeball" title="schedule nodeball">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <group>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">doUpdate</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">event</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">event</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">event display page</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">showevents</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Dayview</member>
+    <member name="group_node" supports_nodetype="event,nodetype" type="noderef" type_nodetype="nodemethod,nodetype">update</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">monthview</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">weekview</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">toEpoch</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">toDate</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">calendar settings</member>
+  </group>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">schedule nodeball</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>
+  <vars>
+    <var name="author" type="literal_value">Nathan Oostendorp</var>
+    <var name="description" type="literal_value">Basic multi-user Palm Functionality -- a good starting point</var>
+    <var name="version" type="literal_value">0.1.2</var>
+  </vars>
+</NODE>

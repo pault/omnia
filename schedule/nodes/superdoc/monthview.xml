@@ -1,0 +1,64 @@
+<NODE export_version="0.5" nodetype="superdoc" title="monthview">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[%
+my $date;
+$date = $query->param('fordate');
+($date) = split ' ', $DB->sqlSelect("now()");
+my $month = $date;
+$month =~ s/\-\d{2}$//;
+my $foruser;
+$foruser = int $query->param('foruser');
+$foruser ||= getId($USER);
+my $restrict;
+$restrict .= "author_user=$foruser ";
+$restrict .= " and private=0" unless $foruser == getId($USER);
+my $events = getNodeWhere("$restrict and starttime like \"$month\%\"", 'event', 'starttime');
+
+my $DV = getNode('dayview','superdoc');
+
+my $str;
+my %dates;
+foreach (@$events) {
+  my $d;
+  ($d) = split " ", $$_{starttime};
+  $dates{$d} ||= [];
+  push @{ $dates{$d} }, $_;
+}
+
+my @ds = sort {$a cmp $b} keys %dates;
+
+foreach my $date (@ds) {
+  $str.= linkNode($DV, $date, {fordate => $date, foruser => $foruser})."&lt;ul>";
+  foreach my $E (@{ $dates{$date} }) {
+    $str.= "&lt;li>";
+    my ($sdate, $stime) = split ' ', $$E{starttime};
+    my ($edate, $etime) = split ' ', $$E{endtime};
+
+    my $special = "";
+    $special .= " (private) " if $$E{private};
+
+      
+    $stime =~ s/\:\d{2}$//;
+    $etime =~ s/\:\d{2}$//;
+    $str.=$special;
+    $str.= linkNode($E, "$stime\-$etime"); 
+    $str.= " ".$$E{title};
+  }
+  $str.="&lt;/ul>";
+}
+
+$str;
+%]</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">monthview</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
+</NODE>

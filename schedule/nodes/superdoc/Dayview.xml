@@ -1,0 +1,48 @@
+<NODE export_version="0.5" nodetype="superdoc" title="Dayview">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="doctext" type="literal_value">[%
+  my $date;
+  my $str;
+  my $header;
+  $date = $query->param('fordate');
+  ($date) = split(" ", $DB->sqlSelect('now()')) unless $date;
+  my $foruser;
+  $foruser = int $query->param("foruser");
+  $foruser ||= getId($USER);
+  
+  my $WV = getNode('weekview', 'superdoc');
+  my $MV = getNode('monthview', 'superdoc');
+
+  my @dow = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+  my ($seconds, $minutes, $hours, $day_of_month, $month, $year,
+    $wday, $yday, $isdst) = localtime(toEpoch($date));
+
+
+  $header.=linkNode($NODE, "&lt;-- Yesterday", { fordate => toDate(toEpoch($date)-60*60*24), foruser=> $foruser }) . " | ";
+  $header.="$dow[$wday] $date | ";
+  $header.=linkNode($WV, "week", { fordate => $date, foruser=>$foruser }) . " | ";
+  $header.=linkNode($MV, "month", { fordate => $date, foruser => $foruser }). " | ";
+  $header.=linkNode($NODE, "Tomorrow -->", { fordate =>            toDate(toEpoch($date)+60*60*24), foruser=>$foruser });
+    
+  
+  my $ep = toEpoch($date);
+  my $str;
+
+  $str.=$header;
+  $str.= showEvents($date, 15, $foruser);
+  $str.$header;
+%]
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="literal_value">0</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">Dayview</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
+</NODE>
