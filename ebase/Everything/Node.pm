@@ -826,28 +826,19 @@ sub getDynamicPermissions
 {
 	my ($this, $USER) = @_;
 	my $class = $this->getUserRelation($USER);
-	my $perms;
 
-	my $permission = $$this{"dynamic".$class."_permission"};
+	my $permission = $this->{ "dynamic${class}_permission" };
 
-	if($permission == -1)
-	{
-		$permission = $$this{type}{"derived_default".$class."_permission"};
-	}
+	$permission = $this->{type}{"derived_default${class}_permission"}
+		if $permission and $permission == -1;
 
-	if($permission > 0)
-	{
-		my $PERM = $$this{DB}->getNode($permission);
+	return unless $permission and $permission > 0;
 
-		if($PERM)
-		{
-			$perms = eval($$PERM{code});
-			if ($@) {
-				Everything::logErrors('undef', $@, $$PERM{code}, $PERM);
-			}
-		}
-	}
-	
+	my $PERM = $this->{DB}->getNode($permission);
+	return unless $PERM;
+
+	my $perms = eval $PERM->{code};
+	Everything::logErrors( '', $@, $PERM->{code}, $PERM ) if $@;
 	return $perms;
 }
 
