@@ -47,7 +47,6 @@ Everything/Node/usergroup.pm
 Everything/Node/workspace.pm
 Everything/NodeBase.pm
 Everything/NodeBase/mysql.pm
-Everything/NodeBase/postgres.pm
 Everything/NodeCache.pm
 Everything/Nodeball.pm
 Everything/Security.pm
