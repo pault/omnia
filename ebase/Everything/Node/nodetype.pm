@@ -1,28 +1,29 @@
-package Everything::Node::nodetype;
+=head1 Everything::Node::nodetype
 
-#############################################################################
-#   Everything::Node::nodetype
-#       Package the implements the base nodetype functionality
-#
-#   Copyright 2000 - 2003 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
+Package that implements the base nodetype functionality
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
+package Everything::Node::nodetype;
 
 use strict;
 use Everything::Node::node;
 use Everything::Security;
 
-#############################################################################
-#	Sub
-#		construct
-#
-#	Purpose
-#		The constructor for a nodetype is rather involved.  We derive
-#		the nodetype when it is constructed.  If a nodetype up the
-#		chain changes, the cache needs to be flushed so that the nodetype
-#		gets re-constructed with the new data.  If you change
-#
+=cut
+
+=head2 C<construct>
+
+The constructor for a nodetype is rather involved.  We derive the nodetype when
+it is constructed.  If a nodetype up the chain changes, the cache needs to be
+flushed so that the nodetype gets re-constructed with the new data.
+
+=cut
+
 sub construct
 {
 	my ($this) = @_;
@@ -137,18 +138,17 @@ sub destruct
 	#$this->SUPER();
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		insert
-#
-#	Purpose
-#		Make new nodetypes derive from 'node' automatically if they do
-#		not have a parent specified.
-#
-#	Returns
-#		The inserted node id
-#
+=head2 C<insert>
+
+Make new nodetypes derive from 'node' automatically if they do not have a
+parent specified.
+
+Returns the inserted node id
+
+=cut
+
 sub insert
 {
 	my ($this) = @_;
@@ -163,18 +163,17 @@ sub insert
 	return $this->SUPER();
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		update
-#
-#	Purpose
-#		This allows the default "node" to actually update our node, but
-#		we need to flush the cache in the case of an update to a nodetype
-#		due to the fact that some other nodetypes may derive from this
-#		nodetype.  Those derived nodetypes would need to be reloaded and
-#		reinitialized, otherwise we may get weird data.
-#
+=head2 C<update>
+
+This allows the default "node" to actually update our node, but we need to
+flush the cache in the case of an update to a nodetype due to the fact that
+some other nodetypes may derive from this nodetype.  Those derived nodetypes
+would need to be reloaded and reinitialized, otherwise we may get weird data.
+
+=cut
+
 sub update
 {
 	my ($this) = @_;
@@ -188,14 +187,14 @@ sub update
 	return $result;
 }
 
-#############################################################################
-#	Sub
-#		nuke
-#
-#	Purpose
-#		This keeps the user from accidentally deleting a nodetype for
-#		which there are still nodes that exist.  
-#
+=cut
+
+=head2 C<nuke>
+
+This keeps the user from accidentally deleting a nodetype for which nodes still
+exist.
+
+=cut
 
 sub nuke
 {
@@ -210,24 +209,27 @@ sub nuke
 	return $this->SUPER($USER);
 }
 
-#############################################################################
-#	Sub
-#		getTableArray
-#
-#	Purpose
-#		Every nodetype keeps an array of the tables that nodes of its
-#		type need to join on.  This will return an array of those table
-#		names.
-#
-#	Parameters
-#		$nodeTable - the node table is usually assumed, but if you want
-#			it included, pass true (ie 1).  undef otherwise.
-#
-#	Returns
-#		An array ref of the table names that nodes of this type need
-#		to join on.  Note that this array is a copy so feel free to
-#		modify it in any way.
-#
+=cut
+
+=head2 C<getTableArray>
+
+Every nodetype keeps an array of the tables that nodes of its type need to join
+on.  This will return an array of those table names.
+
+=over 4
+
+=item * $nodeTable
+
+the node table is usually assumed, but if you want it included, pass true (ie
+1).  undef otherwise.
+
+=back
+
+Returns an array ref of the table names that nodes of this type need to join
+on.  Note that this array is a copy so feel free to modify it in any way.
+
+=cut
+
 sub getTableArray
 {
 	my ($this, $nodeTable) = @_;
@@ -239,26 +241,27 @@ sub getTableArray
 	return \@tables;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getDefaultTypePermissions
-#
-#	Purpose
-#		This gets the default permissions for the given nodetype.  This
-#		is NOT the permissions for the nodetype itself.  Rather, these
-#		are the permissions that nodes of this type inherit from.  Hence,
-#		the default TYPE permissions.
-#
-#	Parameters
-#		$class - the class of user.  Either "author", "group", "guest",
-#			or "other".  This can be obtained by calling
-#			getUserNodeRelation().
-#
-#	Returns
-#		A string that contains the default permissions of the given
-#		nodetype.
-#
+=head2 C<getDefaultTypePermissions>
+
+This gets the default permissions for the given nodetype.  This is NOT the
+permissions for the nodetype itself.  Rather, these are the permissions that
+nodes of this type inherit from.  Hence, the default TYPE permissions.
+
+=over 4
+
+=item * $class
+
+the class of user.  Either "author", "group", "guest", or "other".  This can be
+obtained by calling getUserNodeRelation().
+
+=back
+
+Returns a string that contains the default permissions of the given nodetype.
+
+=cut
+
 sub getDefaultTypePermissions
 {
 	my ($this, $class) = @_;
@@ -267,18 +270,17 @@ sub getDefaultTypePermissions
 	return $this->{$field} if exists $this->{$field};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getParentType
-#
-#	Purpose
-#		Get the parent nodetype that this nodetype derives from.
-#
-#	Returns
-#		A nodetype that this nodetype derives from.  undef if this nodetype
-#		does not derive from anything.
-#
+=head2 C<getParentType>
+
+Get the parent nodetype that this nodetype derives from.
+
+Returns a nodetype that this nodetype derives from, undef if this nodetype does
+not derive from anything.
+
+=cut
+
 sub getParentType
 {
 	my ($this) = @_;
@@ -287,33 +289,38 @@ sub getParentType
 	return $this->{DB}->getType($this->{extends_nodetype});
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		hasTypeAccess
-#
-#	Purpose
-#		The hasAccess() function in Node.pm checks permissions on a specific
-#		node.  If you call that on a nodetype, you are checking the
-#		permissions for that node, NOT the permissions for all nodes of
-#		that type.
-#
-#		This checks permissions for the default permissions for all nodes
-#		of this type.  This is useful for checking permissions for create
-#		operation since the node you are trying to create does not yet
-#		exist so you can't test the access on it.
-#
-#	Parameters
-#		$USER - the user to check access for
-#		$modes - same as hasAccess()
-#
-#	Returns
-#		1 (true) if the user has access to all modes given.  0 (false)
-#		otherwise.  The user must have access for all modes given for this to
-#		return true.  For example, if the user has read, write and delete
-#		permissions, and the modes passed were "wrx", the return would be
-#		0 since the user does not have the "execute" permission.
-#
+=head2 C<hasTypeAccess>
+
+The hasAccess() function in Node.pm checks permissions on a specific node.  If
+you call that on a nodetype, you are checking the permissions for that node,
+NOT the permissions for all nodes of that type.
+
+This checks permissions for the default permissions for all nodes of this type.
+This is useful for checking permissions for create operation since the node you
+are trying to create does not yet exist so you can't test the access on it.
+
+=over 4
+
+=item * $USER
+
+the user to check access for
+
+=item * $modes
+
+same as hasAccess()
+
+=back
+
+Returns 1 (true) if the user has access to all modes given, 0 (false)
+otherwise.  The user must have access for all modes given for this to return
+true.  For example, if the user has read, write and delete permissions, and the
+modes passed were "wrx", the return would be 0 since the user does not have the
+"execute" permission.
+
+=cut
+
 sub hasTypeAccess
 {
 	my ($this, $USER, $modes) = @_;
@@ -324,19 +331,17 @@ sub hasTypeAccess
 	return $dummy->hasAccess($USER, $modes);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		isGroupType
-#
-#	Purpose
-#		Check to see if this type is a group (ie nodes of this type
-#		are nodegroup nodes).
-#
-#	Returns
-#		The name of the group table if this is a group type.
-#		False otherwise.
-#
+=head2 C<isGroupType>
+
+Check to see if this type is a group (ie nodes of this type are nodegroup
+nodes).
+
+Returns the name of the group table if this is a group type, false otherwise.
+
+=cut
+
 sub isGroupType
 {
 	my ($this) = @_;
@@ -344,24 +349,27 @@ sub isGroupType
 	return $this->{derived_grouptable};
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		derivesFrom
-#
-#	Purpose
-#		Given a nodetype, check to see if this nodetype descends from it
-#		in some way.  For example, restricted_superdoc -> superdoc -> document.
-#		Calling $restrictedSuperdoc->derivesFrom("document") would return
-#		true.
-#
-#	Parameters
-#		$type - the nodetype to check to see if we derive from.  Either
-#			a string name, or a nodetype object.
-#
-#	Returns
-#		True if the this derives from the given nodetype, false otherwise.
-#
+=head2 C<derivesFrom>
+
+Given a nodetype, check to see if this nodetype descends from it in some way.
+For example, restricted_superdoc -E<gt> superdoc -E<gt> document.  Calling
+$restrictedSuperdoc-E<gt>derivesFrom("document") would return true.
+
+=over 4
+
+=item * $type
+
+the nodetype to check to see if we derive from.  Either a string name, or a
+nodetype object.
+
+=back
+
+Returns true if the this derives from the given nodetype, false otherwise.
+
+=cut
+
 sub derivesFrom
 {
 	my ($this, $type) = @_;

@@ -1,14 +1,14 @@
+=head1 Everything::Node::nodegroup
+
+Package that implements the base nodegroup functionality
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
 package Everything::Node::nodegroup;
-
-#############################################################################
-#   Everything::Node::nodegroup
-#       Package the implements the base nodegroup functionality
-#
-#   Copyright 2000 - 2002 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 use Everything;
@@ -30,17 +30,16 @@ sub construct
 	# to have the entire group, call selectNodegroupFlat() at that time.
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		selectGroupArray
-#
-#	Purpose
-#		Gets an array of node id's of the nodes the belong to this group.
-#
-#	Returns
-#		An array ref of the node id's
-#
+=head2 C<selectGroupArray>
+
+Gets an array of node ids of the nodes the belong to this group.
+
+Returns an array ref of the node ids
+
+=cut
+
 sub selectGroupArray
 {
 	my ($this) = @_;
@@ -123,47 +122,47 @@ sub updateFromImport
 }
 
 
+=cut
 
-#############################################################################
-#	Sub
-#		updateGroup
-#
-#	Purpose
-#		This takes the group data that we have and compares it to what
-#		is in the database for this group.  We determine what nodes have
-#		been inserted and what nodes have been removed, then insert and
-#		remove them as appropriate.  Lastly we update each group member's
-#		orderby.  This way we minimize sql deletes and inserts and do a
-#		simple sql update.
-#
-#	Notes
-#		A little discussion on groups here.  This function is a good chunk
-#		of code with some interesting stuff going on.  With groups we need
-#		to handle the case that the same node (same ID) may be in the group
-#		twice in different places in the order.  In general, we don't keep
-#		duplicate nodes in a group, but it is implemented to handle the
-#		the case of duplicates for completeness.
-#
-#		Group tables contain 4 columns, tablename_id, rank, node_id, and
-#		orderby.  tablename_id is set to the id of the group node that has
-#		this node (row) in its group.  Since tablename_id can be the same
-#		for multiple rows, we need a secondary key.  rank is the secondary
-#		key.  Each time a new row for a group is inserted, we increment the
-#		max rank.  This way, each row has a unique key of tablename_id,rank.
-#		node_id is the id of the node that belongs to the group.  There can
-#		be duplicates of node_id in the same group.  Orderby exists only
-#		because we do not want to change rank.  rank is indexed as part of
-#		the primary key.  If we were to change rank, we would need to take
-#		the hit of the database re-indexing on each update.  So, the orderby
-#		field is just there to allow us to specify the order of the nodes
-#		in the group without mucking with the primary index.
-#
-#	Parameters
-#		$USER - used for authentication
-#
-#	Returns
-#		True if successful, false otherwise.
-#
+=head2 C<updateGroup>
+
+This takes the group data that we have and compares it to what is in the
+database for this group.  We determine what nodes have been inserted and what
+nodes have been removed, then insert and remove them as appropriate.  Lastly we
+update each group member's orderby.  This way we minimize sql deletes and
+inserts and do a simple sql update.
+
+A little discussion on groups here.  This function is a good chunk of code with
+some interesting stuff going on.  With groups we need to handle the case that
+the same node (same ID) may be in the group twice in different places in the
+order.  In general, we don't keep duplicate nodes in a group, but it is
+implemented to handle the the case of duplicates for completeness.
+
+Group tables contain 4 columns, tablename_id, rank, node_id, and orderby.
+tablename_id is set to the id of the group node that has this node (row) in its
+group.  Since tablename_id can be the same for multiple rows, we need a
+secondary key.  rank is the secondary key.  Each time a new row for a group is
+inserted, we increment the max rank.  This way, each row has a unique key of
+tablename_id,rank.  node_id is the id of the node that belongs to the group.
+There can be duplicates of node_id in the same group.  Orderby exists only
+because we do not want to change rank.  rank is indexed as part of the primary
+key.  If we were to change rank, we would need to take the hit of the database
+re-indexing on each update.  So, the orderby field is just there to allow us to
+specify the order of the nodes in the group without mucking with the primary
+index.
+
+=over 4
+
+=item * $USER
+
+used for authentication
+
+=back
+
+Returns true if successful, false otherwise.
+
+=cut
+
 sub updateGroup
 {
 	my ($this, $USER) = @_;
@@ -305,17 +304,16 @@ sub updateGroup
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		nuke
-#
-#	Purpose
-#		Nodegroups have entries in their group table that we need to
-#		clean up before this node goes away.  This will delete all
-#		nodegroup entries from that table, then call SUPER to delete
-#		the node
-#
+=head2 C<nuke>
+
+Nodegroups have entries in their group table that we need to clean up before
+this node goes away.  This will delete all nodegroup entries from that table,
+then call SUPER to delete the node
+
+=cut
+
 sub nuke
 {
 	my ($this, $USER) = @_;	
@@ -340,33 +338,35 @@ sub isGroup
 }
 
 
-#############################################################################
-#	Sub
-#		inGroupFast
-#
-#	Purpose
-#		This just does a brute force check (which happens to be the fastest)
-#		to see if a particular node is in a group.
-#
-#	NOTE!!!
-#		This only works for groups that do NOT contain sub groups.  If the
-#		group contains sub groups, you will need to use inGroup().
-#
-#		Also note that this does not hit the database, it just does a simple
-#		check of our group array.  This avoids an unnecessary DBI query, but
-#		if you have done any inserts or removals without executing an update()
-#		you will be checking against data that is not the same as what the
-#		database has.  For most general cases, this is probably what you
-#		want (considering page loads, etc), but something that you should
-#		be aware of.
-#
-#	Parameters
-#		NODE - the node id or node hash of the node that we wish to check for
-#			group membership
-#
-#	Returns
-#		1 (true) if the given node is in the group.  0 (false) otherwise.
-#
+=cut
+
+=head2 C<inGroupFast>
+
+This just does a brute force check (which happens to be the fastest) to see if
+a particular node is in a group.
+
+NOTE: this only works for groups that do NOT contain sub groups.  If the group
+contains sub groups, you will need to use inGroup().
+
+Also note that this does not hit the database, it just does a simple check of
+our group array.  This avoids an unnecessary DBI query, but if you have done
+any inserts or removals without executing an update() you will be checking
+against data that is not the same as what the database has.  For most general
+cases, this is probably what you want (considering page loads, etc), but
+something that you should be aware of.
+
+=over 4
+
+=item * $NODE
+
+the node id or node hash of the node that we wish to check for group membership
+
+=back
+
+Returns 1 (true) if the given node is in the group, 0 (false) otherwise.
+
+=cut
+
 sub inGroupFast
 {
 	my ($this, $NODE) = @_;
@@ -376,25 +376,27 @@ sub inGroupFast
 	return $this->existsInGroupCache($nodeId);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		inGroup
-#
-#	Purpose
-#		This checks to see if the given node belongs to the given group.
-#		This will check all sub groups.  If you know for a fact that your
-#		group does not contain sub groups, you will probably want to call
-#		inGroupFast() instead as it will be significantly faster in most
-#		cases.
-#
-#	Parameters
-#		NODE - the node id or node hash of the node that we wish to check for
-#			group membership
-#
-#	Returns
-#		1 (true) if the given node is in the group.  0 (false) otherwise.
-#
+=head2 C<inGroup>
+
+This checks to see if the given node belongs to the given group.  This will
+check all sub groups.  If you know for a fact that your group does not contain
+sub groups, you will probably want to call inGroupFast() instead as it will be
+significantly faster in most cases.
+
+=over 4
+
+=item * NODE
+
+the node id or node hash of the node that we wish to check for group membership
+
+=back
+
+Returns 1 (true) if the given node is in the group, 0 (false) otherwise.
+
+=cut
+
 sub inGroup
 {
 	my ($this, $NODE) = @_;
@@ -408,21 +410,25 @@ sub inGroup
 	return $this->existsInGroupCache($nodeId);
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		selectNodegroupFlat
-#
-#	Purpose
-#		This recurses through the nodes and node groups that this group
-#		contains getting the node hash for each one on the way.
-#
-#	Parameters
-#		$NODE - the group node to get node hashes for.
-#
-#	Returns
-#		A reference to an array of node hashes that belong to this group.
-#
+=head2 C<selectNodegroupFlat>
+
+This recurses through the nodes and node groups that this group contains
+getting the node hash for each one on the way.
+
+=over 4
+
+=item * $NODE
+
+the group node to get node hashes for.
+
+=back
+
+Returns a reference to an array of node hashes that belong to this group.
+
+=cut
+
 sub selectNodegroupFlat
 {
 	my ($this, $groupsTraversed) = @_;
@@ -458,29 +464,37 @@ sub selectNodegroupFlat
 	return $this->{flatgroup} = \@nodes;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		insertIntoGroup
-#
-#	Purpose
-#		This will insert a node(s) into a nodegroup.  THIS DOES NOT UPDATE
-#		THE NODE IN THE DATABASE!  After inserting a node into a group,
-#		you must call update() to update the changes.
-#
-#	Parameters
-#		USER - the user trying to add to the group (used for authorization)
-#		insert - the node or array of nodes to insert into the group
-#		orderby - the criteria of which to order the nodes in the group.
-#			This is zero-based.  Meaning that 0 (zero) will insert at
-#			the very beginning of the group.
-#
-#	Returns
-#		True (1) if the insert was successful.  If you had previously
-#		called selectNodegroupFlat(), you will need to do so again to
-#		refresh the list.  False (0), if the user does not have
-#		permissions, or failure.
-#
+=head2 C<insertIntoGroup>
+
+This will insert a node(s) into a nodegroup.  THIS DOES NOT UPDATE THE NODE IN
+THE DATABASE!  After inserting a node into a group, you must call update() to
+update the changes.
+
+=over 4
+
+=item * $USER
+
+the user trying to add to the group (used for authorization)
+
+=item * $insert
+
+the node or array of nodes to insert into the group
+
+=item * $orderby
+
+the criteria of which to order the nodes in the group.  This is zero-based.
+Meaning that 0 (zero) will insert at the very beginning of the group.
+
+=back
+
+Returns true (1) if the insert was successful.  If you had previously called
+selectNodegroupFlat(), you will need to do so again to refresh the list.  False
+(0), if the user does not have permissions, or failure.
+
+=cut
+
 sub insertIntoGroup
 {
 	my ($this, $USER, $insert, $orderby) = @_;
@@ -517,26 +531,31 @@ sub insertIntoGroup
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		removeFromGroup
-#
-#	Purpose
-#		Remove a node from a group.  THIS DOES NOT UPDATE THE NODE IN THE
-#		DATABASE! You need to call update() to commit the changes to the
-#		database.
-#
-#	Parameters
-#		$NODE - the node to remove
-#		$USER - the user who is trying to do this (used for authorization)
-#
-#	Returns
-#		True (1) if the node was successfully removed from the group.
-#		False (0) otherwise.  If you had previously called
-#		selectNodegroupFlat(), you will need to call it again since
-#		things may have significantly changed.
-#
+=head2 C<removeFromGroup>
+
+Remove a node from a group.  THIS DOES NOT UPDATE THE NODE IN THE DATABASE! You
+need to call update() to commit the changes to the database.
+
+=over 4
+
+=item * $NODE
+
+the node to remove
+
+=item * $USER
+
+the user who is trying to do this (used for authorization)
+
+=back
+
+Returns true (1) if the node was successfully removed from the group, false (0)
+otherwise.  If you had previously called selectNodegroupFlat(), you will need
+to call it again since things may have significantly changed.
+
+=cut
+
 sub removeFromGroup 
 {
 	my ($this, $NODE, $USER) = @_;
@@ -564,21 +583,28 @@ sub removeFromGroup
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		replaceGroup
-#
-#	Purpose
-#		This removes all nodes from the group and inserts new nodes.
-#
-#	Parameters
-#		$REPLACE - A node id or array of node id's to be inserted
-#		$USER - the user trying to do this (used for authorization).
-#
-#	Returns
-#		True if successful, false otherwise
-#
+=head2 C<replaceGroup>
+
+This removes all nodes from the group and inserts new nodes.
+
+=over 4
+
+=item * $REPLACE
+
+A node id or array of node id's to be inserted
+
+=item * $USER
+
+the user trying to do this (used for authorization).
+
+=back
+
+Returns true if successful, false otherwise
+
+=cut
+
 sub replaceGroup
 {
 	my ($this, $REPLACE, $USER) = @_;
@@ -602,11 +628,12 @@ sub replaceGroup
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getNodeKeys
-#
+=head2 C<getNodeKeys>
+
+=cut
+
 sub getNodeKeys
 {
 	my ($this, $forExport) = @_;
@@ -623,22 +650,31 @@ sub getNodeKeys
 	return $keys;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		fieldToXML
-#
-#	Purpose
-#		Convert the field that contains the group structure to an XML
-#		format.
-#
-#	Parameters
-#		$DOC - the base XML::DOM::Document object that contains this
-#			structure
-#		$field - the field of the node to convert (if it is not the group
-#			field, we just call SUPER())
-#		$indent - string that contains the spaces that this will be indented
-#
+=head2 C<fieldToXML>
+
+Convert the field that contains the group structure to an XML format.
+
+=over 4
+
+=item * $DOC
+
+the base XML::DOM::Document object that contains this structure
+
+=item * $field
+
+the field of the node to convert (if it is not the group field, we just call
+SUPER())
+
+=item * $indent
+
+string that contains the spaces that this will be indented
+
+=back
+
+=cut
+
 sub fieldToXML
 {
 	my ($this, $DOC, $field, $indent) = @_;
@@ -715,25 +751,31 @@ sub xmlTag
 	return;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		applyXMLFix
-#
-#	Purpose
-#		In xmlTag, we returned a hash indicating that we were unable to
-#		find a node that one of our group members referenced.  All nodes
-#		should be installed now, so we need to go find it and fix the
-#		reference.
-#
-#	Parameters
-#		$FIX - the fix that we returned from xmlTag()
-#		$printError - set to true if errors should be printed to stdout
-#
-#	Returns
-#		undef if the patch was successful.  $FIX if we were still unable
-#		to find the node.
-#
+=head2 C<applyXMLFix>
+
+In xmlTag, we returned a hash indicating that we were unable to find a node
+that one of our group members referenced.  All nodes should be installed now,
+so we need to go find it and fix the reference.
+
+=over 4
+
+=item * $FIX
+
+the fix that we returned from xmlTag()
+
+=item * $printError
+
+set to true if errors should be printed to stdout
+
+=back
+
+Returns undef if the patch was successful, $FIX if we were still unable to find
+the node.
+
+=cut
+
 sub applyXMLFix
 {
 	my ($this, $FIX, $printError) = @_;
@@ -763,25 +805,35 @@ sub applyXMLFix
 	return;
 }
 
+=cut
 
-################################################################################
-#	Sub
-#		clone
-#
-#	Purpose
-#		Clone the node!  The normal clone doesn't duplicate members of a
-#		nodegroup, so we have to do it here specifically.
-#
-#	Parameters
-#		$USER - the user trying to clone this node (for permissions)
-#		$newtitle - the new title of the cloned node
-#		$workspace - the id or workspace hash into which this node
-#			should be cloned.  This is primarily for internal purposes
-#			and should not be used normally.  (NOT IMPLEMENTED YET!)
-#
-#   Returns
-#       The newly cloned node, if successful.  undef otherwise.
-#
+=head2 C<clone>
+
+Clone the node!  The normal clone doesn't duplicate members of a nodegroup, so
+we have to do it here specifically.
+
+=over 4
+
+=item * $USER
+
+the user trying to clone this node (for permissions)
+
+=item * $newtitle
+
+the new title of the cloned node
+
+=item * $workspace
+
+the id or workspace hash into which this node should be cloned.  This is
+primarily for internal purposes and should not be used normally.  (NOT
+IMPLEMENTED YET!)
+
+=back
+
+Returns the newly cloned node, if successful.  undef otherwise.
+
+=cut
+
 sub clone
 {
 	my $this = shift;
@@ -799,22 +851,27 @@ sub clone
 	return $NODE;
 }
 
-################################################################################
-#	Sub
-#		restrict_type
-#
-#	Purpose
-#		Some nodegroups can only hold nodes of a certain type.  This takes a
-#		reference to a list of nodes to insert and removes any that don't fit.
-#		It also allows nodegroups that have the same restriction -- a usergroup
-#		can hold user nodes and other usergroups.
-#
-#	Parameters
-#		$groupref - a reference to a list of nodes to insert into the group
-#
-#   Returns
-#       A reference to a list of nodes allowable in this group.
-#
+=cut
+
+=head2 C<restrict_type>
+
+Some nodegroups can only hold nodes of a certain type.  This takes a reference
+to a list of nodes to insert and removes any that don't fit.  It also allows
+nodegroups that have the same restriction -- a usergroup can hold user nodes
+and other usergroups.
+
+=over 4
+
+=item * $groupref
+
+a reference to a list of nodes to insert into the group
+
+=back
+
+Returns a reference to a list of nodes allowable in this group.
+
+=cut
+
 sub restrict_type
 {
     my ($this, $groupref) = @_;

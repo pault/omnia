@@ -1,26 +1,25 @@
+=head1 Everything::Node::nodelet
+
+Package that implements the base nodelet functionality
+
+Copyright 2000 - 2003 Everything Development Inc.
+
+=cut
+
+# Format: tabs = 4 spaces
+
 package Everything::Node::nodelet;
-
-#############################################################################
-#   Everything::Node::nodelet
-#       Package the implements the base nodelet functionality
-#
-#   Copyright 2000 Everything Development Inc.
-#   Format: tabs = 4 spaces
-#
-#############################################################################
-
 
 use strict;
 
+=cut
 
-#############################################################################
-#	Sub
-#		insert
-#
-#	Purpose
-#		We need to set up some default settings when a nodelet is
-#		inserted.
-#
+=head2 C<insert>
+
+We need to set up some default settings when a nodelet is inserted.
+
+=cut
+
 sub insert
 {
 	my ($this, $USER) = @_;
@@ -41,14 +40,14 @@ sub insert
 	$this->SUPER();
 }
 
-#############################################################################
-#	Sub
-#		getNodeKeys
-#
-#	Purpose
-#		This removes the nltext parameter, as it is used in caching
-#		and will be invalid when moving to another system or nodeball
-#
+=cut
+
+=head2 C<getNodeKeys>
+
+This removes the nltext parameter, as it is used in caching and will be invalid
+when moving to another system or nodeball
+
+=cut
 
 sub getNodeKeys
 {
