@@ -4,7 +4,7 @@ package Everything::HTML;
 #
 #	Everything::HTML.pm
 #
-#	Copyright 1999,2000 Everything Development Company
+#	Copyright 1999 - 2003 Everything Development Company
 #
 #		A module for the HTML stuff in Everything.  This
 #		takes care of CGI, cookies, and the basic HTML
@@ -506,13 +506,12 @@ sub urlGen
 {
 	my ($REF, $noquotes) = @_;
 
-	my $str;
-	$str .= '"' unless $noquotes;
-	$str .= "$ENV{SCRIPT_NAME}?";
+	my $new_query = CGI->new( $REF );
+	$new_query->url( $query->url( -base => 1 ) );
 
-	$str .= join('&', map { $query->escape($_) .'='. $query->escape($$REF{$_}) }
-				 keys %$REF);
-	$str .= '"' unless $noquotes;
+	my $str       = $new_query->url( -relative => 1, -query => 1 );
+	$str = '"' . $str . '"' unless $noquotes;
+
 	return $str;
 }
 
@@ -904,7 +903,7 @@ sub evalXTrapErrors
 #
 sub evalX
 {
-	my $EVALX_CODE = shift @_;
+	my $EVALX_CODE  = shift @_;
 	my $CURRENTNODE = shift @_;
 	my $EVALX_WARN;
 	my $NODE = $GNODE;
@@ -928,7 +927,6 @@ sub evalX
 	local $^W = 0;
 		
 	my $result = eval($EVALX_CODE);
-
 
 	# Log any errors that we get so that we may display them later.
 	logErrors($EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE);
@@ -2153,18 +2151,11 @@ sub handleUserRequest
 	}
 	else
 	{
+		# search by ID, if specified, otherwise default
 		$node_id = $query->param('node_id');
-		
-		if(defined $node_id)
-		{
-			# searching by ID
-			gotoNode($node_id, $user_id);
-		}
-		else
-		{
-			# no node was specified -> default
-			gotoNode($HTMLVARS{default_node}, $user_id);
-		}
+		$node_id = $HTMLVARS{default_node} unless defined $node_id;
+
+		gotoNode($node_id, $user_id);
 	}
 }
 
@@ -2227,7 +2218,6 @@ sub initForPageLoad
 	# Initialize our connection to the database
 	$$options{staticNodeTypes} ||= 1;
 	Everything::initEverything($db, $options);
-
 
 	# The cache has a performance enhancement where it will only check
 	# versions once.  This clears the version check cache so that we
@@ -2696,7 +2686,7 @@ sub mod_perlInit
 
 	($USER,$VARS) = $AUTH->authUser();
 
-	#join a workspace (if applicable)
+	# join a workspace (if applicable)
 	$DB->joinWorkspace($$USER{inside_workspace});
 
 	# Execute any operations that we may have
