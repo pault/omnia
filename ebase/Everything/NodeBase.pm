@@ -187,27 +187,28 @@ sub rebuildNodetypeModules
 sub buildNodetypeModules
 {
 	my ($this) = @_;
-	my %modules;	
-	my $csr = $this->sqlSelectMany('title', "node", "type_nodetype=1");
-	while ($_ = $csr->fetchrow_hashref) {
-		my $found = 0;
-		my $name = $$_{title};
-		$name =~ s/\W//g;
-		my $inc_name = "Everything/Node/$name.pm";
-		my $modname = "Everything::Node::$name";
-		foreach my $lib (@INC) {
-			if (-e "$lib/$inc_name") {
-				$found = 1;
-				last;
-			}
+
+	my $csr = $this->sqlSelectMany('title', 'node', 'type_nodetype=1');
+	return unless $csr;
+
+	my %modules;
+
+	while (my ($title) = $csr->fetchrow_array())
+	{
+		$title =~ s/\W//g;
+		my $modname = "Everything::Node::$title";
+		(my $modpath = $modname . '.pm') =~ s!::!/!g;
+
+		eval { require $modpath };
+		if ($@)
+		{
+			Everything::logErrors( '', "Using '$modname' gave errors: '$@'" );
+			next;
 		}
-		if ($found) {
-			eval "use $modname"; 
-			$modules{$modname} = 1 unless $@;
-			warn "using $modname gave errors: $@" if $@;
-		}
+		$modules{ $modname } = 1;
 	}
-	\%modules;
+
+	return \%modules;
 }
 
 #############################################################################
