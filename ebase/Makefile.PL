@@ -130,6 +130,7 @@ WriteMakefile(
 		'Mail::Sender'     => 0,
 		'Test::MockObject' => 0.11,
 		'Test::Exception'  => 0.13,
+		'Test::Simple'     => 0.47,
 	},
 	clean         => {
 		FILES => 'web/index.pl tables/basenodes.txt'

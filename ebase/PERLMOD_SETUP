@@ -33,6 +33,11 @@ Everything::Nodeball
 		(this IS a file in std distribution, but early versions (.6) don't have
 			rel2abs())
 
+To run the test suite:
+	Test::Exception
+	Test::Simple
+	Test::MockObject
+
 each of these is simple to install from a tar.gz file:
 
 tar -xvzf MODULE.tar.gz

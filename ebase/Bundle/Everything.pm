@@ -1,5 +1,5 @@
 package Bundle::Everything;
-$Bundle::Everything::VERSION = '0.1.1';
+$Bundle::Everything::VERSION = '0.1.2';
 
 1;
 
@@ -18,27 +18,35 @@ make install
 
 =head1 CONTENTS
 
+Apache::DBI
+
 Bundle::CPAN		
 
 Bundle::DBI		
 
 Bundle::DBD::mysql	
 
+CGI
+
 Date::Parse		
-
-Mail::Sender
-
-Apache::DBI
 
 Devel::Peek
 
-CGI
+File::Spec
+
+Mail::Address
+
+Mail::Sender
+
+Test::Exception
+
+Test::MockObject
+
+Test::Simple
 
 XML::Parser	-- the most likely to cause errors, because of the expat dependancy 
 
 XML::DOM 
-
-File::Spec
 
 =head1 DESCRIPTION
 
