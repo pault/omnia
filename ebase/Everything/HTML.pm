@@ -1358,12 +1358,9 @@ sub parseCode
 			} elsif ($start eq '"' or $start eq '%') {
 				$sub_text .= "\$result .= ( eval {\n$code\n} || '' );\n";
 			}
-                        my $evaltitle = $$CURRENTNODE{title};
-                        $evaltitle =~ s/'/\\'/g;  
-                        $sub_text .= qq|\nlogErrors('', \$\@, '', { title =>
-                                #'$$CURRENTNODE{title}', node_id => '$$CURRENTNODE{node_id}' })
-                                '$evaltitle', node_id => '$$CURRENTNODE{node_id}' })
-                                if (\$\@);\n|;
+			$sub_text .= qq|\nlogErrors('', \$\@, '', { title => 
+				'\Q$$CURRENTNODE{title}\E', node_id => '$$CURRENTNODE{node_id}' }) 
+				if (\$\@);\n|;
 
 		# raw text, needs to be quoted -- the quoting should work correctly
 		# as there's no need to escape quotes in raw HTML sections anyway
