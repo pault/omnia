@@ -9,6 +9,7 @@ my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name) .
 		-default =&gt; &quot;&quot;,
 		-size =&gt; 50,
 		-maxlength =&gt; 80) . &quot; &quot; .
+	$query-&gt;hidden(&quot;lastnode_id&quot;, getId( $NODE ) ) .
 	$query-&gt;submit(&quot;go_button&quot;, &quot;go&quot;);
  
 $str.= $query-&gt;end_form unless $PARAM eq 'noendform';
