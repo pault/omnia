@@ -7,6 +7,9 @@ my $loc = $$NODE{loc_location};
 my $parentLoc;
 my $top = 0;
 
+# handle root_location
+return '' unless ($loc);
+
 # Define 'root_location' to be a sublocation and showPath will not show
 # any directories above that "root" location.
 $top = $HTMLVARS{root_location} if(exists $HTMLVARS{root_location});
