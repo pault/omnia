@@ -1,14 +1,12 @@
-package Everything::XML;
+=head1 Everything::XML
 
-############################################################
-#
-#	Everything::XML.pm
-#	Copyright 2000 - 2003 Everything Development
-#	http://www.everydevel.com/
-#
-#	A module for the XML stuff in Everything
-#
-############################################################
+A module for the XML stuff in Everything
+
+Copyright 2000 - 2003 Everything Development
+
+=cut
+
+package Everything::XML;
 
 use strict;
 use Everything;
@@ -35,14 +33,15 @@ BEGIN
 my $XML_PARSER_VERSION = 0.5;
 my %UNFIXED_NODES;
 
-###########################################################################
-#	Sub
-#		readTag
-#
-#	purpose - to quickly read an xml tag, without parsing the whole document
-#		right now, it doesn't read attributes, only contents.
-#
-#
+=cut
+
+=head2 C<readTag>
+
+To quickly read an XML tag, without parsing the whole document.  Right now, it
+doesn't read attributes, only contents.
+
+=cut
+
 sub readTag
 {
 	my ($tag, $xml, $type) = @_;
@@ -112,24 +111,27 @@ sub fixNodes
 	}
 }
 
+=cut
 
-#########################################################################
-#	Function
-#		xml2node
-#
-#	Purpose
-#		takes a chunk of XML -- returns a $NODE hash
-#		any broken dependancies are pushed on @FIXES, and the node is 
-#		inserted into the database (with -1 on any broken fields)
-#		returns the node_id of the new node
-#
-#	Parameters
-#		xml -- the string of xml to parse
-#
-#	Returns
-#		An array ref of node id's that were parsed from the xml and
-#		inserted or updated.
-#
+=head2 C<xml2node>
+
+Takes a chunk of XML -- returns a $NODE hash any broken dependancies are pushed
+on @FIXES, and the node is inserted into the database (with -1 on any broken
+fields) returns the node_id of the new node
+
+=over 4
+
+=item * xml
+
+the string of xml to parse
+
+=back
+
+Returns an array ref of node ids that were parsed from the XML and inserted or
+updated.
+
+=cut
+
 sub xml2node
 {
 	my ($xml, $nofinal) = @_;
@@ -209,17 +211,15 @@ sub xml2node
 	return \@ids;
 }
 
+=cut
 
-#############################################################################
-#
-#	Sub
-#		xmlfile2node
-#
-#	purpose
-#		Wrapper for xml2node that takes a filename as a parameter
-#		rather than a string of XML
-#
-#
+=head2 C<xmlfile2node>
+
+Wrapper for xml2node that takes a filename as a parameter rather than a string
+of XML
+
+=cut
+
 sub xmlfile2node
 {
     my ($filename, $nofinal) = @_;
@@ -235,28 +235,40 @@ sub xmlfile2node
 	return $result;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		genBasicTag
-#
-#	Purpose
-#		For most fields in a node, there are 2 types that the field could
-#		be.  Either a literal value, or a reference to a node.  This
-#		function will generate the tag based on the fieldname and the
-#		content.
-#
-#	Parameters
-#		$doc - the root document node for which this new tag belongs
-#		$tagname - the name of the xml tag
-#		$fieldname - the name of the field
-#		$content - the content of the tag
-#
-#	<tagname name="fieldname" *generated params*>content</tagname>
-#
-#	Returns
-#		The generated XML tag
-#
+=head2 C<genBasicTag>
+
+For most fields in a node, there are 2 types that the field could be.  Either a
+literal value, or a reference to a node.  This function will generate the tag
+based on the fieldname and the content.
+
+=over 4
+
+=item * $doc
+
+the root document node for which this new tag belongs
+
+=item * $tagname
+
+the name of the xml tag
+
+=item * $fieldname
+
+the name of the field
+
+=item * $content
+
+the content of the tag
+
+=back
+
+  E<lt>tagname name="fieldname" *generated params*E<gt>contentE<lt>/tagnameE<gt>
+
+Returns the generated XML tag.
+
+=cut
+
 sub genBasicTag
 {
 	my ($doc, $tagname, $fieldname, $content) = @_;
@@ -338,13 +350,12 @@ sub genBasicTag
 	return $tag;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		parseBasicTag
-#
-#	Purpose
-#		
+=head2 C<parseBasicTag>
+
+=cut
+
 sub parseBasicTag
 {
 	my ($TAG, $fixBy) = @_;
@@ -419,31 +430,35 @@ sub parseBasicTag
 	return \%PARSEDTAG;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		patchXMLwhere
-#
-#	Purpose
-#		A utility method.
-#		When parseBasicTag is called, we take an XML tag and if it is
-#		determined that the tag is a noderef, we construct a where hash
-#		to try to find that node in our system.  However, sometimes fields
-#		that identify a particular node point to a node that has not been
-#		inserted yet.  This causes a problem where our 'where' hash contains
-#		text information about nodes that do not yet existing the database
-#		(they get installed later) rather than a node id.
-#
-#		This in itself is not a problem, but we need to make sure that
-#		when the fixes come around that we update our where hash so that
-#		any references that didn't exist before are now patched.
-#
-#	Parameters
-#		$WHERE - a hash ref to a where hash that we need to patch up.
-#
-#	Returns
-#		The where hash
-#
+=head2 C<patchXMLwhere>
+
+A utility method.
+
+When parseBasicTag is called, we take an XML tag and if it is determined that
+the tag is a noderef, we construct a where hash to try to find that node in our
+system.  However, sometimes fields that identify a particular node point to a
+node that has not been inserted yet.  This causes a problem where our 'where'
+hash contains text information about nodes that do not yet existing the
+database (they get installed later) rather than a node id.
+
+This in itself is not a problem, but we need to make sure that when the fixes
+come around that we update our where hash so that any references that didn't
+exist before are now patched.
+
+=over 4
+
+=item * $WHERE
+
+a hash ref to a where hash that we need to patch up
+
+=back
+
+Returns the where hash.
+
+=cut
+
 sub patchXMLwhere
 {
 	my ($WHERE) = @_;
@@ -460,20 +475,24 @@ sub patchXMLwhere
 	return $WHERE;
 }
 
+=cut
 
-#####################################################################
-#	Sub
-#		makeXmlSafe
-#
-#	Purpose
-#		Make a string not interfere with the xml
-#
-#	Parameters
-#		$str - the literal string 
-#
-#	Returns
-#		The encoded string.
-#
+=head2 C<makeXmlSafe>
+
+Make a string not interfere with the xml
+
+=over 4
+
+=item * $str
+
+the literal string 
+
+=back
+
+Returns the encoded string.
+
+=cut
+
 sub makeXmlSafe
 {
 	my ($str) = @_;
@@ -486,19 +505,24 @@ sub makeXmlSafe
 	return $str;
 }
 
-#####################################################################
-#	Sub
-#		unMakeXmlSafe
-#
-#	Purpose 
-#		Decode something encoded by makeXmlSafe
-#	
-#	Parameters
-#		$str - da string!
-#	
-#	Returns
-#		The decoded string.
-#
+=cut
+
+=head2 C<unMakeXmlSafe>
+
+Decode something encoded by makeXmlSafe
+
+=over 4
+
+=item * $str
+
+da string!
+
+=back
+
+Returns the decoded string.
+
+=cut
+
 sub unMakeXmlSafe
 {
 	my ($str) = @_;
@@ -510,7 +534,6 @@ sub unMakeXmlSafe
 	        
 	return $str;
 }
-
 
 
 ###########################################################################
