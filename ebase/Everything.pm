@@ -1029,89 +1029,46 @@ sub isCore {
 #		A sorted list of node hashes (just the node table info), in
 #		order of best matches to worst matches.
 #
-sub searchNodeName
-{
+sub searchNodeName {
 	my ($searchWords, $TYPE) = @_;
-	my $typestr;
+	my $typestr = '';
+
+	$TYPE=[$TYPE] if (ref($TYPE) eq 'HASH');
+
+	if(ref($TYPE) eq 'ARRAY' and @$TYPE) {
+		my $t = shift @$TYPE;
+		$typestr .= "AND (type_nodetype = " . getId($t);
+		foreach(@$TYPE) { $typestr .= " OR type_nodetype = ". getId($_); }
+		$typestr.=')';
+	}
+	my @prewords = split ' ', $searchWords;
 	my @words;
-	my %matches;
-	my @hashlist;
-	my @sortedHashList;
 
-	if (ref ($TYPE) ne "ARRAY") { $TYPE = [$TYPE]; }
+	my $NOSEARCH = $DB->getNode('nosearchwords', 'setting');
+	my $NOWORDS = getVars $NOSEARCH if $NOSEARCH;
 
-	while ($_ = shift @$TYPE)
-	{
-		$typestr .= "type_nodetype=" . getId ($_);
-		$typestr .= " or " if (@$TYPE);
+	foreach (@prewords) {
+		push(@words, $_) unless (exists $$NOWORDS{lc($_)} or length($_) < 2);
 	}
 
-	$typestr = " and (" . $typestr . ')' if ($typestr); 
-
-	# To keep our searches sane, we disallow certain words (ie words
-	# less than 3 characters long, common words, etc).
+	my $match = "";
+	foreach my $word (@words) {
+		$word = lc($word);
+		$word =~ s/(\W)/\\$1/gs;
+		$word = '[[:<:]]'.$word.'[[:>:]]';
+		$word = "(lower(title) rlike ".$dbh->quote($word).")";
+	}
 	
-	# Remove the easy ones first: words that are less than 3 characters long
-	$searchWords =~ s/\s\S{1,2}\s//gm;
+	$match = '('. join(' + ',@words).')';
+	my $cursor = $DB->sqlSelectMany("*, $match AS matchval",
+		"node",
+		"$match >= 1 $typestr", "ORDER BY matchval DESC");
 	
-	foreach my $noword (@nosearchwords)
-	{
-		# For each word that we do not allow searching for, do a search
-		# and replace on them to change them to nothing.  They must be
-		# stand alone words (whitespace on both sides).  This is a case
-		# insensitive search.
-		$searchWords =~ s/\s$noword\s//gmi;
-	}
-
-	@words = split (' ', $searchWords);
-
-	foreach my $word (@words)
-	{	
-		my $cursor;
-		my $hashref;
-		
-		$cursor = $DB->sqlSelectMany('*', 'node',
-			"title like " . $DB->getDatabaseHandle()->quote("\%$word\%") .
-				$typestr);
-
-		while ($hashref = $cursor->fetchrow_hashref())
-		{ 
-			# Buffer out the title so we don't have to worry about start
-			# and end of string special cases.
-			my $title = " " . $$hashref{title} . " ";
-			
-			# This makes sure that it matches whole words, not just
-			# parts of words (for example, %age% in the sql query will
-			# match 'page', 'carnage', etc).  This will filter out the
-			# "fake" matches that the sql found.
-			if ($title =~ /\s$word\s/im) 
-			{
-				if($matches{$$hashref{node_id}})
-				{
-					# This node has already matched, don't put it in the
-					# list again, just update its "hits".
-					$matches{$$hashref{node_id}}++;
-				}
-				else
-				{
-					$matches{$$hashref{node_id}} = 1;
-					push @hashlist, $hashref;
-				}
-			} 
-		}
-
-		$cursor->finish;
-	}
-
-	# Define our comparison routine for sorting the hashlist.  We
-	# want the nodes that matched best first.
-
-	# Sort the list in order of most matches to least matches.
-	@sortedHashList = sort
-		{ $matches{$$a{node_id}} < $matches{$$b{node_id}} } @hashlist;
-
-	return \@sortedHashList;
+	my @ret;
+	while(my $m = $cursor->fetchrow_hashref) { push @ret, $m; }
+	return \@ret;
 }
+
 
 
 #############################################################################

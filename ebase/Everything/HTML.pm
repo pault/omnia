@@ -183,7 +183,8 @@ sub getCode
 	return '"";' unless ($CODELIST);
 	my $CODE = $DB->getNodeById($$CODELIST[0]);
 	
-	my $str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if defined $args;
+	my $str = ""; 
+	$str = "\@\_ = split (/\s\*,\s\*/, '$args');\n" if defined $args;
 	
 	$str . $$CODE{code};
 }
@@ -323,11 +324,17 @@ sub getPage
 	my $TYPE;
 	
 	getRef $NODE;
+	$displaytype ||= $$VARS{'displaypref_'.$$TYPE{title}};
 	$displaytype ||= 'display';
 
 	$TYPE = $DB->getType($$NODE{type_nodetype});
 
-	return getPageForType($TYPE, $displaytype);
+	my $PAGE = getPageForType $TYPE, $displaytype;
+	$PAGE ||= getPageForType $TYPE, 'display';
+
+	die "can't load a page $displaytype for $$TYPE{title} type" unless $PAGE;
+
+	$PAGE;
 }
 
 
@@ -368,7 +375,8 @@ sub linkNodeTitle {
 
 	($nodename, $title) = split /\|/, $nodename;
 	$title ||= $nodename;
-
+	$nodename =~ s/\s+/ /gs;
+	
 	my $urlnode = $query->escape($nodename);
 	my $str = "";
 	$str .= "<a href=\"$ENV{SCRIPT_NAME}?node=$urlnode";
@@ -404,7 +412,8 @@ sub nodeName
 	}
 	
 	my %selecthash = (title => $node);
-	$selecthash{type_nodetype} = \@types if @types;
+	my @selecttypes = @types;
+	$selecthash{type_nodetype} = \@selecttypes if @selecttypes;
 	my $select_group = $DB->selectNodeWhere(\%selecthash);
 	my $search_group;
 	my $NODE;
@@ -780,12 +789,15 @@ sub gotoNode
 		my $updateflag;
 
 		foreach my $field (@updatefields) {
-			if ($field =~ /$$NODE{type}{title}\_(\w*)$/) {
+			if ($field =~ /^$$NODE{type}{title}\_(\w*)$/) {
 				$$NODE{$1} = $query->param($field);
 				$updateflag = 1;
 			}	
 		}
-		$DB->updateNode($NODE, $user_id) if $updateflag; 
+		if ($updateflag) {
+			$DB->updateNode($NODE, $USER) if $updateflag; 
+			if (getId($USER) == getId($NODE)) { $USER = $NODE; }
+		}
 	}
 	
 	updateHits ($NODE);
@@ -844,9 +856,8 @@ sub parseLinks {
 
 #############################################################################
 sub urlDecode {
-	foreach my $arg (@_)
-	{
-		tr/+/ /;
+	foreach my $arg (@_) {
+		tr/+/ / if $_;
 		$arg =~ s/\%(..)/chr(hex($1))/ge;
 	}
 
@@ -895,9 +906,9 @@ sub loginUser
 		$user_id = $HTMLVARS{guest_user};	
 
 	}
-	elsif ($cookie = $query->cookie("userpass"))
+	elsif (my $oldcookie = $query->cookie("userpass"))
 	{
-		$user_id = confirmUser (split (/\|/, urlDecode ($cookie)));
+		$user_id = confirmUser (split (/\|/, urlDecode ($oldcookie)));
 	}
 	
 	# If all else fails, use the guest_user
@@ -912,7 +923,7 @@ sub loginUser
 	$VARS = getVars($USER_HASH);
 	
 	# Store this user's cookie!
-	$$USER_HASH{cookie} = $cookie;
+	$$USER_HASH{cookie} = $cookie if $cookie; 
 
 	return $USER_HASH;
 }
@@ -959,12 +970,16 @@ sub getCGI
 #		this (the web server has no idea what kind of information we
 #		are passing).
 #
-sub printHeader
-{
-	if($ENV{SCRIPT_NAME})
-	{
-		print "HTTP/1.1 200 OK\n Server: Apache/1.3b3 mod_perl/1.08\n ";
-		print $query->header(-type=>"text/html", -cookie=>$$USER{cookie});	
+sub printHeader {
+	my $header = "";
+	
+	if($ENV{SCRIPT_NAME}) {
+		if ($$USER{cookie}) {
+			$query->header(-type=>"text/html", 
+		 		-cookie=>$$USER{cookie});
+		} else {
+			$query->header(-type=>"text/html");
+		}
 	}
 }
 
@@ -1004,6 +1019,7 @@ sub handleUserRequest
 	
 		$nodename =~ s/^\s*|\s*$//g;
 		$nodename =~ s/\s+/ /g;
+		$nodename = htmlScreen $nodename; #(don't allow HTML in nodenames)
 		
 		if ($query->param('op') ne 'new')
 		{
