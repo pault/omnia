@@ -2783,7 +2783,7 @@ sub mod_perlInit
 	$DB->joinWorkspace($$USER{inside_workspace});
 
 	# DEPRECATED!  DO NOT USE!
-	# updateNodeData();
+	updateNodeData();
 	
 
 	# Do the work.
