@@ -1084,7 +1084,7 @@ sub setHash
 	# we use defined() because 0 is a valid value -- but not a true one
 	foreach (keys %$varsref)
 	{
-		my $value = $varsref{$_};
+		my $value = $$varsref{$_};
 		delete $$varsref{$_} unless($value && $value ne "");
 	}
 
