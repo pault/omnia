@@ -1,141 +1,53 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="editvars">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value"># This allows users to edit or add values to a setting node.
-# It grabs all the variables, displays the values in text
-# fields that can be edited, and provides a blank field
-# for a new value.  Also present with each value is an
-# Auto Set value box, that allows users to specify a node
-# by title and nodetype, rather than node Id.  The node Id
-# is automatically set as the value when the page is 
-# submitted.
+  <field name="code" type="literal_value"># This generates the html to edit the vars hash of a node.
+#
+# Parameters
+#   $varfield - (optional) The field of the node that contains the vars
+#       hash this is to edit.  Defaults to 'vars'.
+#   $N - (optional) the node object that we are editing.  Defaults to $NODE
+#
 
-return "&lt;i>you can't update this node&lt;/i>" unless $NODE->hasAccess($USER, 'w');
+my ($varsfield, $N) = @_;
+$varsfield ||= 'vars';
+$N ||= $NODE;
+my $html = "&lt;table border=0>\n";
+my $vars = $N->getHash($varsfield);
+my @keys;
 
-# get the settings of the current node and the current parameters
-my $SETTINGS = $NODE->getVars();
-my @params = $query->param;
-my $str = ''; 
+@keys = sort keys %$vars if($vars);
 
-foreach (@params) {
-  # update any settings in the node passed through CGI
-  if (/setsetting_(\w+)$/) {
-    my $setvalue = $query->param("setsetting_$1");
+my $keyColor = $$THEME{keyColor};
+my $valueColor = $$THEME{valueColor};
+my $removeColor = $$THEME{removeColor};
 
-    # avoid uninitialized values but don't clobber a valid setting of 0
-    $setvalue = '' unless (defined($setvalue));
+$keyColor ||= "#cc99cc";
+$valueColor ||= "#cc99ff";
+$removeColor ||= "#999999";
 
-    unless ($setvalue ne '') {
-      my $nodename = $query->param("node name$1") || '';
-      my $nodetype = $query->param("node type$1") || '';
+$html .= "&lt;tr>&lt;td bgcolor='$removeColor'>Remove&lt;/td>\n";
+$html .= "&lt;td bgcolor='$keyColor'>&lt;b>Keys&lt;/b>&lt;/td>\n";
+$html .= "&lt;td bgcolor='$valueColor'>&lt;b>Values&lt;/b>&lt;/td>&lt;/tr>\n";
 
-      if (defined(my $N = getNode($nodename, $nodetype))) {
-        $setvalue = $$N{node_id};
-      }
-    }
-    $$SETTINGS{$1} = $setvalue;
-  }
-}
+push @keys, "NEWFIELD";
 
-# Now go through and delete the ones that were marked.  We need to do
-# this last because we do not know the order of the parameters being
-# passed to us.  If we did this in the loop above, we could detele the
-# setting, then re-insert it since the fields would be filled out.
-foreach (@params)
+foreach my $key (@keys)
 {
-  next unless(/delsetting_(\w*)$/);
-  delete $$SETTINGS{$1};
+  $html .= "&lt;tr>&lt;td colspan=3>New Key/Value:&lt;/td>&lt;/tr>\n" if($key eq "NEWFIELD");
+  $html .= "&lt;tr>&lt;td bgcolor='$removeColor'>";
+  $html .= bindFormObject('removeVarCheckbox', $N, $varsfield, $key)
+    if($key ne "NEWFIELD");
+  $html .= "&lt;/td>&lt;td bgcolor='$keyColor' nowrap>";
+  $html .= bindFormObject('varstextfield', $N, $varsfield, $key, 1);
+  $html .= "&lt;/td>&lt;td bgcolor='$valueColor' nowrap>\n";
+  $html .= bindFormObject('varstextfield', $N, $varsfield, $key, 0);
+  $html .= " " . linkVar($key, $$vars{$key});
+  $html .= " &lt;/td>&lt;/tr>\n";
 }
 
-my $newsetting = $query->param('newsetting') || '';
-if ($newsetting) {
-  # 0 is valid here, so don't clobber it with a truth test
-  my $newval = $query->param('newval');
-  $newval = '' unless(defined($newval));
-
-  my $nodenamenew = $query->param('node namenew') || '';
-  my $nodetypenew = $query->param('node typenew') || '';
-
-  (my $title = $newsetting) =~ s/\W//g;
-  if ($newval) {
-    $$SETTINGS{$title} = $newval;
-  } elsif ($nodenamenew and $nodetypenew) {
-    my $N = getNode($nodenamenew, $nodetypenew);
-    $$SETTINGS{$title} = $$N{node_id} if (defined($N));
-  }
-}
-
-# get all nodetypes
-my @idlist = map { $_->{title} } $DB->getAllTypes();
-  
-# update node with new settings and save it in the DB
-$NODE->setVars($SETTINGS);
-$NODE->update($USER);
-
-my @skeys = sort {$a cmp $b} keys %$SETTINGS;
-
-# hardcoded defaults, may not be appropriate
-# could update them in system settings
-my ($keysize, $valsize) = (15, 30);
-my ($keyclr, $valclr, $setclr) = @$THEME{qw( setting_key setting_value
-  setting_autoset )};
-$keyclr ||= "#CCCCFF";
-$valclr ||= "#DEDEFF";  
-$setclr ||= "#ABABFF";
-
-$str .= &lt;&lt;HEAD;
-&lt;TABLE width="100%" cellpadding="1" cellspacing="0">
-&lt;TR>&lt;TH>Remove&lt;/TH>&lt;TH>Setting&lt;/TH>&lt;TH>Value&lt;/TH>&lt;TH>Auto Set Value&lt;/TH>&lt;/TR>
-HEAD
-
-foreach (@skeys) {
-  my $val = encodeHTML($$SETTINGS{$_});
-  $str .= &lt;&lt;SETTING;
-&lt;TR>&lt;TD>&lt;input type="checkbox" name="delsetting_$_">&lt;/td>
-&lt;TD bgcolor="$keyclr">&lt;b>$_&lt;/b>&lt;/TD>
-&lt;TD bgcolor="$valclr">&lt;INPUT TYPE="text" NAME="setsetting_$_"
-VALUE="$val" size="$valsize">&lt;/TD>
-SETTING
-
-  my ($nodetitle, $nodetype) = ('', '');
-
-  unless ($$SETTINGS{$_} =~ /\D/) {
-    my $tempnode = getNodeById($$SETTINGS{$_});
-    if ($tempnode) {
-      $nodetitle = $$tempnode{title}; 
-      $nodetype = $$tempnode{type}{title};
-    }
-  }
-
-  $query->param("node name$_", $nodetitle);
-  $str .= qq|&lt;TD bgcolor="$setclr">&lt;font size="0">|;
-
-  if (/(.+?)\_(.+?)/) {
-    $str .= "Node Title:" . $query->textfield("node name$_", $nodetitle) .
-      "&lt;br>Nodetype: " . $query->popup_menu("node type$_", \@idlist, $nodetype);
-  }
-  $str .= "&lt;/TD>&lt;/TR>";
-}
-
-$str .= &lt;&lt;NEWSETTING;
-&lt;TR>&lt;td>&lt;/td>
-&lt;TD bgcolor="$keyclr">&lt;INPUT TYPE="text" NAME="newsetting"
-size="$keysize">&lt;/TD>
-&lt;TD bgcolor="$valclr">&lt;INPUT TYPE="text" NAME="newval"
-size="$valsize">&lt;/TD>
-&lt;TD bgcolor="$setclr">&lt;font size="0">Node Title: 
-&lt;input type="text" name="node namenew">&lt;br>Nodetype: 
-NEWSETTING
-
-$str .= $query->popup_menu("node typenew", \@idlist, "") . 
-  '&lt;FONT>&lt;/TD>&lt;/TR>&lt;/TABLE>&lt;div align="right">';
-
-if ($$VARS{hintson}) {
-  $str .= htmlcode('hintlaunch', 'Using the setting edit page, short,
-#000000');
-}
-
-$str;</field>
+$html .= "&lt;/table>";
+$html;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

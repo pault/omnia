@@ -13,35 +13,7 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[{openform}]
-
-[%
-# This edit page displays each field of a node with a
-# (usually) appropriate form item in which to edit the
-# contents of each field.  This is useful to edit a node's
-# data that is usually not accessable through a standard
-# edit page (like createtime, or hits)
-
-return "" unless($NODE->hasAccess($USER, 'w'));
-
-# This code does the update, if we have one.
-my $param;
-my @params = $query->param;
-
-foreach $param (@params)
-{
-  if ($param =~ /^update_(\w*)$/)
-  {
-    $$NODE{$1} = $query->param($param);
-  }
-}
-
-$NODE->update($USER);
-
-return "";
-%]
-
-[%
+  <field name="page" type="literal_value">[%
 # This code generates the form fields and the stuff that
 # the user sees.
 return "" unless($NODE->hasAccess($USER, 'w'));
@@ -50,7 +22,7 @@ my @fields;
 my $table;
 my $field;
 my %titletype;
-my $str = "";
+my $str = "&lt;table border=0>\n";
 
 foreach $table (@$tables)
 {
@@ -62,51 +34,50 @@ foreach $table (@$tables)
   }
 }
 
+my $obj;
 foreach $field (keys %titletype)
 {
-  $str .= "$field ($titletype{$field}): ";
+  $str .= "&lt;tr>&lt;td>$field ($titletype{$field}): &lt;/td>&lt;td>";
 
   if($titletype{$field} =~ /int/)
   {
-    $str .= $query->textfield( -name => "update_$field",
-      -default => $$NODE{$field}, -size => 15,
-      -maxlength => 15) . "&lt;br>\n";
+    $obj = $DB->newNode("textfield");
+    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 15, 15);
   }
   elsif($titletype{$field} =~ /char\((.*)\)/)
   {
     my $size = 80;
-
     $size = $1 if($size > $1);
-    $str .= $query->textfield( -name => "update_$field",
-      -default => $$NODE{$field}, -size => $size,
-      -maxlength => $1 ) . "&lt;br>\n";
+
+    $obj = $DB->newNode("textfield");
+    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", $size, $size);
   }
   elsif($titletype{$field} =~ /text/)
   {
-    $str .= $query->textarea( "update_$field",
-      $$NODE{$field}, 20, 80) . "&lt;br>\n";
+    $obj = $DB->newNode("textarea");
+    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 80, 20, "off");
   }
   elsif($titletype{$field} =~ /datetime/)
   {
-    $str .= $query->textfield( -name => "update_$field",
-      -default => $$NODE{$field}, -size => 19,
-      -maxlength => 19 ) . "&lt;br>\n";
+    $obj = $DB->newNode("textfield");
+    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 19, 19);
   }
   else
   {
     # This is for the unknown field types.
-    $str .= $query->textfield( -name => "update_$field",
-      -default => $$NODE{$field}, -size => 80,
-      -maxlength => 256) . "&lt;br>\n";
+    $obj = $DB->newNode("textfield");
+    $str .= $obj->genObject($query, $NODE, $field, "update_$field", "AUTO", 80, 255);
   }
+
+  $str .= "&lt;/td>&lt;/tr>\n";
 }
 
+$str .= "&lt;/table>\n";
+$str .= submit();
 $str;
-%]
-
-[{closeform}]</field>
+%]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">node</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">main container</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">node basicedit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

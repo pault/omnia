@@ -26,22 +26,7 @@ foreach my $N (@$ref) {
 $str;
 %]</field>
   <field name="nlgoto" type="literal_value">0</field>
-  <field name="nltext" type="literal_value">&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=281">vs&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=280">vttest&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=279">Epicenter Nodes&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=270">formcontainer&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=271">general container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=272">general nodelet container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=273">main container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=274">nodelet container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=275">nodelet outline container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=276">nodeletshadow container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=277">show container&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=278">stdcontainer&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=256">mail&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=257">maintenance&lt;/a>&lt;BR>
-&lt;A HREF="/index.pl?lastnode_id=95&amp;node_id=258">node&lt;/a>&lt;BR>
-</field>
+  <field name="nltext" type="literal_value">nothing</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">New Nodes</field>

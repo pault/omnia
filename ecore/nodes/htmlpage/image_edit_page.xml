@@ -12,16 +12,31 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;b>[%linkNode($NODE, "Upload the image", {displaytype=>'upload'});%]&lt;br>
-&lt;b>&lt;font size=2>source:&lt;/font>&lt;/b>[{textfield:src}]&lt;br>
-&lt;b>&lt;font size=2>alt:&lt;/font>&lt;/b>[{textfield:alt}]&lt;br>
-&lt;b>&lt;font size=2>thumbnail source:&lt;/b>&lt;/font>[{textfield:thumbsrc}]&lt;br>
-&lt;b>&lt;font size=2>description:&lt;/font>&lt;br>&lt;/b>[{textarea:description}]&lt;br>
+  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
+  <field name="page" type="literal_value">&lt;b>[%linkNode($NODE, "Upload the image", {displaytype=>'upload'});%]
+&lt;table border=0>
+&lt;tr>
+  &lt;td>&lt;b>&lt;font size=2>source:&lt;/font>&lt;/b>&lt;/td>
+  &lt;td>[{nodeFormObject: textfield, src}]&lt;/td>
+&lt;/tr>
+&lt;tr>
+  &lt;td>&lt;b>&lt;font size=2>alt:&lt;/font>&lt;/b>&lt;/td>
+  &lt;td>[{nodeFormObject: textfield, alt}]&lt;/td>
+&lt;/tr>
+&lt;tr>
+  &lt;td>&lt;b>&lt;font size=2>thumbnail source:&lt;/font>&lt;/b>&lt;/td>
+  &lt;td>[{nodeFormObject: textfield, thumbsrc}]&lt;/td>
+&lt;/tr>
+&lt;tr>
+  &lt;td>&lt;b>&lt;font size=2>description:&lt;/font>&lt;/b>&lt;/td>
+  &lt;td>[{nodeFormObject: textarea, description}]&lt;/td>
+&lt;/tr>
+&lt;/table>
+&lt;p>
 [{submit}]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">image edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

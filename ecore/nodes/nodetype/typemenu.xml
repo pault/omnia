@@ -1,7 +1,6 @@
-<NODE export_version="0.5" nodetype="nodetype" title="javascript">
+<NODE export_version="0.5" nodetype="nodetype" title="typemenu">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="canworkspace" type="literal_value">-1</field>
   <field name="defaultauthor_permission" type="literal_value">-1</field>
   <field name="defaultauthoraccess" type="literal_value">iiii</field>
   <field name="defaultgroup_permission" type="literal_value">-1</field>
@@ -15,7 +14,7 @@
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="extends_nodetype" type="noderef" type_nodetype="nodetype,nodetype">node</field>
+  <field name="extends_nodetype" type="noderef" type_nodetype="nodetype,nodetype">formmenu</field>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="grouptable" type="literal_value"></field>
@@ -25,7 +24,7 @@
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="restrict_nodetype" type="literal_value">0</field>
   <field name="restrictdupes" type="literal_value">0</field>
-  <field name="sqltable" type="literal_value">javascript</field>
-  <field name="title" type="literal_value">javascript</field>
+  <field name="sqltable" type="literal_value"></field>
+  <field name="title" type="literal_value">typemenu</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
 </NODE>

@@ -1,0 +1,22 @@
+<NODE export_version="0.5" nodetype="htmlsnippet" title="editTitleOwner">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">&lt;table border=0>
+&lt;tr>
+  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: textfield, title}]&lt;/td>
+&lt;/tr>&lt;tr>
+  &lt;td>&lt;b>Owner:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: authormenu, author_user}]&lt;/td>
+&lt;/tr>
+&lt;/table></field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlsnippet</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">editTitleOwner</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</field>
+</NODE>

@@ -224,6 +224,24 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">parsetime</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">password_field</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">reportFormError</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">varstextfield</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">removeVarCheckbox</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">includeJS</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">javascript</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">groupEditor</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">insertJavascript</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">linkVar</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">javascript</member>
+    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">findFormObject</member>
+    <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">moveGroupItem</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">editTitleOwner</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">listNodetypeFields</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">permissionmenu</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">updateFormContainer</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">authormenu</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodetypemenu</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">typemenu</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">searchform</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">serverstats</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">settingList</member>

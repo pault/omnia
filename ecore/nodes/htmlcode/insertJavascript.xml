@@ -1,22 +1,25 @@
-<NODE export_version="0.5" nodetype="htmlcode" title="formObject">
+<NODE export_version="0.5" nodetype="htmlcode" title="insertJavascript">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value"># The difference between this and nodeFormObject is that this creates a form
-# object that is not associated with any node.  Hence, the 'undef' in the
-# unshift line below.  All FormObjects know how to deal with not being bound
-# to a node and will just create a simple form object.
+  <field name="code" type="literal_value">return "" unless(int(keys %INCJS));
 
-my $objectType = shift @_;
-my $formObject = $DB->newNode($objectType);
+my $str = "&lt;script language='javascript'>\n";
 
-die "Unknown FormObject '$objectType' in htmlcode 'formObject"
-  unless($formObject);
+foreach my $key (keys %INCJS)
+{
+  my $js = $DB->getNode($key, 'javascript');
 
-# The undef's are the "bindNode" and the field it binds on.  Since
-# we are not binding on anything, just undef there.
-unshift @_, ($query, undef, undef);
+  # We need to check to see if the javascript is "dynamic".  Dynamic
+  # javascript has embedded perl code in it that we need to parse.
+  # This way we can have perl dynamically generate javascript based
+  # on the current node, user, etc. WOO HOO!
+  $str .= ($$js{dynamic} ? parseCode('code', $js) : $$js{code});
+  $str .= "\n";   
+}
 
-return $formObject->genObject(@_); </field>
+$str .= "&lt;/script>";
+
+$str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -26,6 +29,6 @@ return $formObject->genObject(@_); </field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">formObject</field>
+  <field name="title" type="literal_value">insertJavascript</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>

@@ -17,7 +17,7 @@
 
 &lt;p>[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">setting</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">setting edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

@@ -1,102 +1,11 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="groupeditor">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $id = getId $NODE;
+  <field name="code" type="literal_value"># Include the javascript needed to make this object work
+includeJS('findFormObject', 'moveGroupItem');
 
-my $str = "
-
-&lt;SCRIPT LANGUAGE=\"JavaScript1.1\">
-
-function saveForm()
-{
-    with (document.forms[$id].elements[0]) {
-        for(i=0;i&lt;length;i++) {
-            document.forms[$id].elements[1+i].value=options[i].value;
-        }
-    }
-    return true;
-}
-
-function swapUp()
-{
-    with (document.forms[$id].elements[0]) {
-        x=selectedIndex;
-        if(x == -1 || x == 0) { return; }
-        if(options.length > 1) {  // We need at least 2 to do a swap
-                tmp = new Option(options[x].text, options[x].value);
-                options[x] = options[x-1];
-                options[x-1] = tmp;
-                options[x-1].selected = true;
-        }
-    }
-}
-
-function swapDn()
-{
-    with (document.forms[$id].elements[0]) {
-        x=selectedIndex;
-        if(x == -1) { return; }
-        if(x+1 &lt; options.length) {
-                tmp = new Option(options[x].text, options[x].value);
-                options[x] = options[x+1];
-                options[x+1] = tmp;
-                options[x+1].selected = true;
-        }
-    }
-}
-
-function deleteOp()
-{
-    with (document.forms[$id].elements[0]) {
-        x=selectedIndex;
-        if(x == -1) { return; }
-        for(i=x;i&lt;options.length;i++) {
-            options[i]=options[i+1];
-        }
-        options[options.length] = null;
-        if(x==0) { x=1; }
-        options[x-1].selected = true;
-    }
-}
-
-&lt;/SCRIPT>";
-
-$str .= "&lt;FORM METHOD=\"GET\" NAME=\"$id\" onSubmit=\"saveForm()\">";
-
-my $GROUP = $$NODE{group};
-
-$GROUP ||= [];
-
-my $size = (@$GROUP)/10;
-
-$size = 10 if($size &lt; 10);
-
-#generate the select box
-$str .= " &lt;SELECT NAME=\"group\" size=$size>\n";
-foreach my $item (@$GROUP) {
-  my $ITEM = getNode($item, 'light');
-  $str .= " &lt;OPTION VALUE=\"" . getId ($ITEM) . "\">$$ITEM{title}\n";
-}
-$str .= "&lt;/SELECT>&lt;BR>";
-
-#generate the hidden elements
-for (my $i = 0; $i &lt; (5 + @$GROUP); $i++) {
-  $str .= "&lt;INPUT type=hidden name=$i value=\"\">\n";
-}
-
-$str .= $query->hidden('node_id', getId $NODE) .
-  $query->hidden('displaytype');
-
-$str .= $query->button(-name => "Delete", -onClick => "deleteOp();") . "\n";
-$str .= $query->button(-name => "Up", -onClick => "swapUp();") . "\n";
-$str .= $query->button(-name => "Down", -onClick => "swapDn();") . "\n";
-$str .= '
-&lt;INPUT TYPE=submit BORDER=0 
-        VALUE="Save" onClick="javascript:saveForm()">';
-
-$str .= "&lt;/FORM>";
-
-$str;</field>
+# Make the object!
+return nodeFormObject('groupEditor', 'daGroup');</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

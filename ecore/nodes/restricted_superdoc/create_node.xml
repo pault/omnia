@@ -18,25 +18,8 @@ $str .= "&lt;br>\n";
 $str;
 %]
 
-Nodetype:
-[%
-my @idlist;
-my %items;
-my $id;
-my @allTypes = $DB->getAllTypes();
-foreach my $N (@allTypes)
-{
-  $id = getId $N;
-  $items{$id} = $$N{title};
-}
-
-foreach $id (keys %items)
-{
-  push @idlist, $id;
-}
-
-$query->popup_menu("type", \@idlist, "", \%items);
-%]
+Nodetype:&lt;code>
+[{formObject: nodetypemenu, type, 1, $USER}]&lt;/code>
 
 [%
 my $str = "&lt;input TYPE=\"hidden\" NAME=\"op\" VALUE=\"new\">\n";

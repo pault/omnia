@@ -12,43 +12,49 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="ownedby_theme" type="noderef" type_nodetype="theme,nodetype">default theme</field>
   <field name="page" type="literal_value">[&lt;editDefaultPermissions>]
 &lt;table border=0>
  &lt;tr>
-  &lt;td>sqltable&lt;/td>&lt;td>[{textfield:sqltable}]
+  &lt;td>sqltable&lt;/td>&lt;td>
+   [{nodeFormObject: textfield, sqltable, sqltable, AUTO, 30, 255}]
    [{displayInherited:sqltable}]&lt;/td>
  &lt;/tr>
  &lt;tr>
-  &lt;td>grouptable&lt;/td>&lt;td>[{textfield:grouptable}]
+  &lt;td>grouptable&lt;/td>&lt;td>
+   [{nodeFormObject: textfield, grouptable, grouptable, AUTO, 30, 255}]
    [{displayInherited:grouptable}]&lt;/td>
  &lt;/tr>
  &lt;tr>
-  &lt;td>extends&lt;/td>&lt;td>[{node_menu:extends_nodetype}]&lt;/td>
+  &lt;td>extends&lt;/td>
+  &lt;td>
+  [{nodeFormObject: nodetypemenu, extends_nodetype, extends, 0, $USER, 0,0,0,0}]
+  &lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>restrict nodetype(groups)&lt;/td>
-  &lt;td>[{node_menu:restrict_nodetype,nodetype,nodetypegroup}]
+  &lt;td>
+  [{nodeFormObject: nodetypemenu, restrict_nodetype, restrict, 0 ,$USER, 0}]
     [{displayInherited:restrict_nodetype}] &lt;/td>
  &lt;/tr>
  &lt;tr>
   &lt;td>restrict duplicate titles&lt;/td>
-  &lt;td>[{node_menu:restrictdupes,-yes_1,-no_0,-parent_-1}]
+  &lt;td>
+[%
+my $menu = $DB->newNode("popupmenu");
+$menu->addHash({ 'yes' => 1, 'no' => 0, inherit => -1}, 1);
+$menu->genObject($query, $NODE, 'restrictdupes', 'restrictdupes', $$NODE{restrictdupes});
+%]
     [{displayInherited:restrictdupes}] &lt;/td>
  &lt;/tr>
  &lt;tr>
    &lt;td>Maximum Revisions (for Undo)&lt;/td>
-   &lt;td>[{textfield:maxrevisions}]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>Can be changed in a workspace?&lt;/td>
-  &lt;td>[{node_menu:canworkspace,-yes_1,-no_0,-parent_-1}]
-    [{displayInherited:workspace}] &lt;/td>
+   &lt;td>[{nodeFormObject: textfield, maxrevisions}]&lt;/td>
  &lt;/tr>
 &lt;/table>
 &lt;p>[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">nodetype edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

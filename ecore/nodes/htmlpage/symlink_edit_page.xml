@@ -13,15 +13,15 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;b>symlink name:&lt;/b> [{textfield:title}]&lt;br>
-&lt;b>target id:&lt;/b> [{textfield:symlink_node}]
+  <field name="page" type="literal_value">&lt;b>symlink name:&lt;/b> [{nodeFormObject: textfield, title}]&lt;br>
+&lt;b>target id:&lt;/b> [{nodeFormObject: textfield, symlink_node}]
 
 &lt;p>
 [{submit:submit,submit}]
 
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">symlink</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">symlink edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

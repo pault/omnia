@@ -13,17 +13,17 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">title:[{textfield:title}]
-maintained by:[{node_menu:author_user,user}]&lt;br>
+  <field name="page" type="literal_value">[&lt;editTitleOwner>]
 
-Parent container:[{node_menu:parent_container}]&lt;br>
-
+&lt;b>Parent container:&lt;/b>
+[{nodeFormObject: typemenu, parent_container, parentContainer, container}]&lt;br>
 
 container html:&lt;br>
-[{textarea:context}]&lt;br>
+[{nodeFormObject: textarea, context}]
+&lt;p>
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
   <field name="title" type="literal_value">container edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

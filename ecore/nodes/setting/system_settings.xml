@@ -22,6 +22,7 @@
     <var name="generalParent_container" type="noderef" type_nodetype="container,nodetype">main container</var>
     <var name="guest_user" type="noderef" type_nodetype="user,nodetype">Guest User</var>
     <var name="nodeLocked_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">node locked</var>
+    <var name="nodedeleted_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</var>
     <var name="nodelet_group" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</var>
     <var name="notFound_node" type="noderef" type_nodetype="superdoc,nodetype">Not found</var>
     <var name="otherusersTimeLimit" type="literal_value">600</var>

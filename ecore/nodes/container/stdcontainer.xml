@@ -2,7 +2,11 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">&lt;HTML>
-[{basichead}]
+&lt;head>
+&lt;title>["$$NODE{title}"]&lt;/title>
+[{insertJavascript}]
+&lt;/head>
+
 [{userbody}]
 [&lt;BacksideErrors>]
 CONTAINED_STUFF

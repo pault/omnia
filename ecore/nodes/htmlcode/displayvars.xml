@@ -1,38 +1,46 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="displayvars">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value"># This displays the variables contained in a setting, and
-# the values assigned to each one.  The values are displayed
-# as links to nodes if the node is present (with the node_Id
-# in parentheses) otherwise it is simply listed as text.
+  <field name="code" type="literal_value"># This generates the html to display the vars hash of a node.
+#
+# Parameters
+#   $varfield - (optional) The field of the node that contains the vars
+#       hash this is to edit.  Defaults to 'vars'.
+#   $N - (optional) the node object that we are editing.  Defaults to $NODE
+#
 
+my ($varsfield, $N) = @_;
+$varsfield ||= 'vars';
+$N ||= $NODE;
+my $html = "&lt;table border=0 width='80%'>\n";
+my $vars = $N->getHash($varsfield);
 
-my $SETTINGS = getVars $NODE;
-my $str;
-my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
+return "&lt;i>No settings&lt;/i>\n" unless($vars);
 
+my @keys;
+@keys = sort keys %$vars;
 
-my @skeys = keys %$SETTINGS;
-if (not @skeys) { 
-  return "&lt;i>the node's settings are empty&lt;/i>&lt;br>\n";
+my $keyColor = $$THEME{keyColor};
+my $valueColor = $$THEME{valueColor};
+
+$keyColor ||= "#cc99cc";
+$valueColor ||= "#cc99ff";
+
+$html .= "&lt;tr>&lt;td bgcolor='$keyColor'>&lt;b>Keys&lt;/b>&lt;/td>\n";
+$html .= "&lt;td bgcolor='$valueColor'>&lt;b>Values&lt;/b>&lt;/td>&lt;/tr>\n";
+
+foreach my $key (@keys)
+{
+  $html .= "&lt;tr>&lt;td colspan=3>New Key/Value:&lt;/td>&lt;/tr>\n" if($key eq "NEWFIELD");
+  $html .= "&lt;tr>&lt;td bgcolor='$keyColor' nowrap>$key&lt;/td>\n";
+  $html .= "&lt;td bgcolor='$valueColor' nowrap>$$vars{$key}";
+  my $link = linkVar($key, $$vars{$key});
+  $link = "&amp;nbsp;&amp;nbsp;($link)" if($link &amp;&amp; $link ne "");
+  $html .= " $link &lt;/td>&lt;/tr>\n";
 }
 
-@skeys = sort {$a cmp $b} @skeys;
-my $zulu;
-$str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0>\n";
-$str.="&lt;TR>&lt;TH>Setting&lt;/TH>&lt;TH>Value&lt;/TH>&lt;/TR>\n";
-foreach (@skeys) 
- {    
-      $str.= "&lt;TR>&lt;TD bgcolor=$keyclr>$_&lt;/TD>";
-      $zulu=$_;
-      #checks if the value is a node id (a number that exists as a nodeId)
-      if (($_=~/(.+?)\_(.+?)/)and ($$SETTINGS{$_}!~/\D/ ) and (getNodeById($$SETTINGS{$_}) ))
-         { $str.="&lt;TD bgcolor=$valclr>" . linkNode($$SETTINGS{$_}) . " ($$SETTINGS{$_})&lt;/TD>&lt;/TR>\n";  }
-      else
-       {   $str.="&lt;TD bgcolor=$valclr>$$SETTINGS{$_}&lt;/TR>\n";}
- }
-$str .="&lt;/TABLE>\n";
-</field>
+$html .= "&lt;/table>";
+return $html;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
