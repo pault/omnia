@@ -576,7 +576,7 @@ sub applyXMLFix
 	{
 		Everything::logErrors( '', 
 			"Unable to find '$where->{title}' of type " .
-			"'$where->{type_nodetype}'\nfor field '$where->{field}'" .
+			"'$where->{type_nodetype}'\nfor field '$FIX->{field}'" .
 			" of node '$this->{title}', '$this->{type}{title}'\n"
 		 ) if $printError;
 
