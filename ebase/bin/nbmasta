@@ -33,7 +33,7 @@ my ($function, $nodeball, $database) = @ARGV[0..2];
 $database .= ":$OPTIONS{user}";
 $database .= ":$OPTIONS{password}";
 $database .= ":$OPTIONS{host}";
-initEverything($database, 1)
+initEverything($database, {staticNodeTypes => 1})
 	or die "couldn't connect to $database";
 
 

@@ -343,7 +343,7 @@ sub flushCacheGlobal
 	my ($this) = @_;
 
 	$this->flushCache();
-	$this->{nodeBase}->sqlUpdate("version", "version=version+1");
+	$this->{nodeBase}->sqlUpdate("version", { -version=>"version+1" });
 }
 
 
