@@ -1,14 +1,14 @@
-package Everything::Nodeball;
+=head1 Everything::Nodeball
 
-#############################################################################
-#	Everything::Nodeball
-#		Functions used by nbmasta and everything_install	
-#
+Functions used by nbmasta and everything_install	
+
+=cut
+
+package Everything::Nodeball;
 
 use strict;
 use Everything;
 use Everything::XML;
-
 
 use vars qw(%OPTIONS);
 
@@ -49,21 +49,29 @@ sub BEGIN
 		);
 }
 
+=cut
 
-#############################################################################
-#
-#	setupOptions
-#
-#	purpose
-#		set up our command line options hash %OPTIONS
-#	
-#	params
-#		a hashref of defaults, and an arrayref of (presumably) ARGV
-#
-#	returns 
-#		nothing, but the exported symbol %OPTIONS is initialized
-#		also, any options are removed from the @ARGV
-#
+=head2 C<setupOptions>
+
+set up our command line options hash %OPTIONS
+
+=over 4
+
+=item * $defaults
+
+a hashref of defaults
+
+=item * $args 
+
+an arrayref of (presumably) ARGV
+
+=back
+
+Returns nothing, but the exported symbol %OPTIONS is initialized.  Any options
+are removed from the @ARGV.
+
+=cut
+
 sub setupOptions {
 	my ($defaults, $args) = @_;
 
@@ -90,14 +98,15 @@ sub setupOptions {
 	"";
 }
 
-#############################################################################
-#	Function
-#		buildSqlCmdline
-#
-#	Purpose
-#		This script has to call mysqldump and mysql a few different
-#		times, this function builds the command line options
-#
+=cut
+
+=head2 C<buildSqlCmdline>
+
+This script has to call mysqldump and mysql a few different times, this
+function builds the command line options
+
+=cut
+
 sub buildSqlCmdline {
 	my $sql;
 	$sql .= " -u $OPTIONS{user} ";
@@ -107,15 +116,16 @@ sub buildSqlCmdline {
 	$sql;
 }
 
-#############################################################################
-#	Function
-#		exportTables
-#
-#	Purpose
-#		This dumps the table structures in the given database using the
-#		mysqldump utility.  We do not dump the table row data, since we
-#		are using XML to store the database info.
-#
+=cut
+
+=head2 C<exportTables>
+
+This dumps the table structures in the given database using the mysqldump
+utility.  We do not dump the table row data, since we are using XML to store
+the database info.
+
+=cut
+
 sub exportTables {
 	my ($tables, $dir) = @_;
 	my $args = "--lock-tables --no-data";
@@ -140,13 +150,15 @@ sub exportTables {
 	}
 }
 
-#############################################################################
-#	sub 
-#		confirmYN
-#
-#	ask a yes no question (the sole parameter) return 0 if user answers false
-#	(default) otherwise return 1
-#
+=cut
+
+=head2 C<confirmYN>
+
+ask a yes no question (the sole parameter) return 0 if user answers false
+(default) otherwise return 1
+
+=cut
+
 sub confirmYN {
 	my ($q) = @_;
 	print "$q (N/y)";
@@ -155,35 +167,42 @@ sub confirmYN {
 	return 0;
 }
 
+=cut
 
-##############################################################################
-#	sub
-#		createDB
-#
-#	create a database of the given name
+=head2 C<createDB>
+
+Create a database of the given name
+
+=cut
+
 sub createDB{
 	my ($dbname) = @_;
 	$DB->getDatabaseHandle()->do("create database $dbname"); 
 }
 
-#############################################################################
-#	sub
-#		dropDB
-#
-#	drop a database (does not give warnings)
-#
+=cut
+
+=head2 C<dropDB>
+
+Drop a database (does not give warnings)
+
+=cut
+
 sub dropDB{
 	my ($dbname) = @_;
    $DB->getDatabaseHandle()->do("drop database $dbname"); 
 }
 
-##########################################################################
-#	sub
-#		addTablesToDB	
-#
-#	adds specific tables to a database from a directory of create definitions
-#	if no tables are specified, all are imported
-#	Only tables listed in $TABLES array ref are used, if it's passed.	
+=cut
+
+=head2 C<addTablesToDB>
+
+Adds specific tables to a database from a directory of create definitions.  If
+no tables are specified, all are imported.  Only tables listed in $TABLES array
+ref are used, if it's passed.	
+
+=cut
+
 sub addTablesToDB{
    my ($dbname, $tabledir, $TABLES) = @_;
    
@@ -206,12 +225,14 @@ sub addTablesToDB{
 	return @tablefiles;
 }
 
-###########################################################################
-#	sub
-#		getTablesHashref
-#
-#	get the list of tables (actually a hash reference) for the given database
-#
+=cut
+
+=head2 C<getTablesHashref>
+
+Get the list of tables (actually a hash reference) for the given database.
+
+=cut
+
 sub getTablesHashref{
    my ($db)=@_; 
    
@@ -229,13 +250,14 @@ sub getTablesHashref{
    return \%tables;
 }
 
-#######################################################################
-#	sub
-#		getColumns
-#	
-#	get the column information for a given table as a HOH 
-#	with fieldname as key
-#
+=cut
+
+=head2 C<getColumns>
+	
+get the column information for a given table as a HOH with fieldname as key
+
+=cut
+
 sub getColumns {
 	my ($table, $dbname) = @_;
 
@@ -255,21 +277,39 @@ sub getColumns {
 	\%colhash;
 }
 
+=cut
 
-########################################################################
-#	sub
-#		compareAllTables
-#
-#	compare the tables of the two database, making db1 the same as db2
-#	or spitting out errors as to what the difference is.
-#
-#	params
-#		checktab -- hashref of tables to be checked
-#		dummytab -- hashref of tables to be checked against (assumed correct)
-#		checkdb	-- name of db to be checked
-#		dummydb -- name of db to check against
-#		tabledir -- where all the tables are hiding
-#
+=head2 C<compareAllTables>
+
+Compare the tables of the two database, making db1 the same as db2 or spitting
+out errors as to what the difference is.
+
+=over 4
+
+=item * checktab
+
+hashref of tables to be checked
+
+=item * dummytab
+
+hashref of tables to be checked against (assumed correct)
+
+=item * checkdb
+
+name of db to be checked
+
+=item * dummydb
+
+name of db to check against
+
+=item * tabledir
+
+where all the tables are hiding
+
+=back
+
+=cut
+
 sub compareAllTables{
    my $ok=1;  
    my($checktab,$dummytab, $dummydb, $checkdb, $tabledir)=@_;
@@ -314,15 +354,16 @@ sub compareAllTables{
    return $ok;
 }
 
-##########################################################################
-#	sub
-#		checkTables
-#
-#	checks to see if the tables in the target database are equivalent
-#	to the tables in the sql files.  Does this by creating a dummy database
-#	dumping the tables into it, and comparing them with show table and show
-#	field statements.
-#
+=cut
+
+=head2 C<checkTables>
+
+Checks to see if the tables in the target database are equivalent to the tables
+in the sql files.  Does this by creating a dummy database dumping the tables
+into it, and comparing them with show table and show field statements.
+
+=cut
+
 sub checkTables {
 	my ($tabledir) = @_;
 	my $dummydb="dummy" . int(rand(1000));
@@ -340,14 +381,16 @@ sub checkTables {
 	$ret;
 }
 
-##########################################################################
-#	sub
-#		checkNamedTables
-#
-#	checks to see if the tables in the target database are equivalent
-#	to the tables in the sql files.  Works just like checkTables, except
-#	that it only checks files listed in the first argument, an array ref.
-#
+=cut
+
+=head2 C<checkNamedTables>
+
+Checks to see if the tables in the target database are equivalent to the tables
+in the sql files.  Works just like checkTables, except that it only checks
+files listed in the first argument, an array ref.
+
+=cut
+
 sub checkNamedTables {
 	my ($tables_ref, $dir) = @_;
 	my $dummydb="dummy" . int(rand(1000));
@@ -364,13 +407,14 @@ sub checkNamedTables {
 	return $ret;
 }
 
-###########################################################################
-#	sub
-#		createDir
-#
-#	purpose
-#		create a new directory.  If you can, else barf
-#
+=cut
+
+=head2 C<createDir>
+
+Create a new directory, if you can, else barf.
+
+=cut
+
 sub createDir {
 	my ($dir) = @_;
 	unless (-e $dir) {
@@ -384,25 +428,38 @@ sub createDir {
 	return 1;
 }
 
+=cut
 
-#############################################################################
-#	Function
-#		exportNodes
-#
-#	Purpose
-#		This function constructs our everything nodes (table joins, etc)
-#		and exports each node in XML format into its own file.  The node
-#		XML files are put in directories based on their nodetypes.  For
-#		example, the node "root" will be exported to nodes/user/root.xml.
-#
-#	params
-#		nodes - ref to an array of node ID's (do not pass node refs!)
-#		basedir - the dir to export them to
-#		loud - print a message for each node	
-#		dev - true if this is a dev export.  If so, this will only export
-#			nodes that have a modified time greater than zero (only the
-#			nodes that you have touched)
-#
+=head2 C<exportNodes>
+
+This function constructs our everything nodes (table joins, etc) and exports
+each node in XML format into its own file.  The node XML files are put in
+directories based on their nodetypes.  For example, the node "root" will be
+exported to nodes/user/root.xml.
+
+=over 4
+
+=item * nodes
+
+ref to an array of node ID's (do not pass node refs!)
+
+=item * basedir
+
+the dir to export them to
+
+=item * loud
+
+print a message for each node	
+
+=item * dev
+
+true if this is a dev export.  If so, this will only export nodes that have a
+modified time greater than zero (only the nodes that you have touched)
+
+=back
+
+=cut
+
 sub exportNodes
 {
 	my ($nodes, $basedir, $loud, $dev) = @_;
@@ -460,13 +517,14 @@ sub exportNodes
 	@nodefiles;
 }
 
-########################################################################
-#	sub
-#		printSettings
-#
-#	purpose
-#		print the settings of the current nodeball
-#
+=cut
+
+=head2 C<printSettings>
+
+Print the settings of the current nodeball
+
+=cut
+
 sub printSettings {
 	my ($VARS) = @_;
 
@@ -476,17 +534,26 @@ sub printSettings {
 	print "\n";
 }
 
-#######################################################################
-#	sub
-#		createNodeball
-#
-#	purpose
-#		take a given directory, and tar-gzip it -- as a nodeball
-#
-#	params
-#		dir - directory of stuff
-#		NODEBALL - filename to create file for
-#
+=cut
+
+=head2 C<createNodeball>
+
+Take a given directory, and tar-gzip it -- as a nodeball
+
+=over 4
+
+=item * dir
+
+directory of stuff
+
+=item * NODEBALL
+
+filename to create file for
+
+=back
+
+=cut
+
 sub createNodeball {
 	my ($dir, $NODEBALL) = @_;
 
@@ -509,13 +576,13 @@ sub createNodeball {
 	print "\n$filename created\n";
 }
 
-###########################################################################
-#	sub
-#		expandNodeball
-#
-#	purpose
-#		take a tar-gziped nodeball and expand it to a dir in /tmp
-#		return the directory
+=cut
+
+=head2 C<expandNodeball>
+
+Take a tar-gziped nodeball and expand it to a dir in /tmp return the directory
+
+=cut
 
 sub expandNodeball {
 	my ($nbfile) = @_;
@@ -541,19 +608,19 @@ sub expandNodeball {
 	return $dir;
 }
 
+=cut
 
-###########################################################################
-#	sub
-#	 	buildNodeballMembers	
-#
-#	builds a hash of node_id->nodeball that it belongs to.  The nodeball(s)
-#	that are sent as parameters are to be discluded.  This way we can
-#	see if a node is in more than one nodeball -- where potential conflicts
-#	might emerge.  Returns a hash reference
-#
-#	params:  any nodeball(s) that should be excluded from the hash
-#
-#
+=head2 C<buildNodeballMembers>
+
+Builds a hash of node_id-E<gt>nodeball that it belongs to.  The nodeball(s)
+that are sent as parameters are to be discluded.  This way we can see if a node
+is in more than one nodeball -- where potential conflicts might emerge.
+Returns a hash reference
+
+Takes any nodeball(s) that should be excluded from the hash.
+
+=cut
+
 sub buildNodeballMembers {
 	my (@EXCLUDES) = @_;
 	
@@ -577,13 +644,14 @@ sub buildNodeballMembers {
 	return \%nbmembers;
 }
 
+=cut
 
-############################################################################
-#	sub
-#		absPath
-#
-#	get the absolute path of the file or directory
-#
+=head2 C<absPath>
+
+Get the absolute path of the file or directory.
+
+=cut
+
 sub absPath {
 	my ($file) = @_;
 
@@ -601,13 +669,14 @@ sub absPath {
 	return File::Spec::Unix->rel2abs($file);
 }
 
-############################################################################
-#	sub 
-#		cleanUpDir
-#
-#	purpose
-#		removes a specified directory
-#
+=cut
+
+=head2 C<cleanUpDir>
+
+Removes a specified directory.
+
+=cut
+
 sub cleanUpDir {
 	my ($dir) = @_;
 	#don't let this bite you in the ass
@@ -617,17 +686,24 @@ sub cleanUpDir {
 	rmtree($dir);
 }
 
-#############################################################################
-#	sub
-#		checkDeps
-#
-#	purpose	
-#		checks dependencies of a node for the given nodeball
-#		if there is a dependent node, not in core or in a referenced
-#		nodeball dependency, we can throw a warning during export
-#
-#	params
-#		NODEBALL -- the nodeball 
+=cut
+
+=head2 C<checkDeps>
+
+Checks dependencies of a node for the given nodeball.  If there is a dependent
+node, not in core or in a referenced nodeball dependency, we can throw a
+warning during export
+
+=over 4
+
+=item * NODEBALL
+
+the nodeball 
+
+=back
+
+=cut
+
 sub checkDeps {
 	my ($NODEBALL) = @_;
 	
@@ -687,10 +763,12 @@ sub checkDeps {
 	}
 }
 
-############################################################################
-#	sub
-#		installNodeball
-#
+=cut
+
+=head2 C<installNodeball>
+
+=cut
+
 sub installNodeball {
 	my ($dir) = @_;
 
@@ -789,21 +867,25 @@ sub installNodeball {
 	#nodeballs are not installed...  but we don't
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		installModules
-#
-#	Purpose
-#		Copy any perl modules that exist in this nodeball to the appropriate
-#		install directory on the system.
-#
-#	Parameters
-#		$dir - the base directory of this nodeball
-#
-#	Returns
-#		1 if something was copied.  0 if no work was done.
-#
+=head2 C<installModules>
+
+Copy any perl modules that exist in this nodeball to the appropriate
+install directory on the system.
+
+=over 4
+
+=item * $dir
+
+the base directory of this nodeball
+
+=back
+
+Returns 1 if something was copied.  0 if no work was done.
+
+=cut
+
 sub installModules
 {
 	my ($dir) = @_;
@@ -837,25 +919,20 @@ sub installModules
  	return $result;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		getPMDir
-#
-#	Purpose
-#		When Everything is installed, the base perl modules are installed
-#		somewhere on the system.  Where they are installed varies from
-#		system to system, but they are always installed somewhere in the
-#		standard perl include directories.  This searches through the
-#		install directories until we find it.
-#
-#	Parameters
-#		None
-#
-#	Returns
-#		The include directory where Everything.pm and Everthing/ can be
-#		found.  undef if we couldn't find it.
-#
+=head2 C<getPMDir>
+
+When Everything is installed, the base perl modules are installed somewhere on
+the system.  Where they are installed varies from system to system, but they
+are always installed somewhere in the standard perl include directories.  This
+searches through the install directories until we find it.
+
+Returns the include directory where Everything.pm and Everthing/ can be found.
+undef if we couldn't find it.
+
+=cut
+
 sub getPMDir
 {
 	my $includeDir;
@@ -870,20 +947,16 @@ sub getPMDir
 	return undef;
 }
 
+=cut
 
+=head2 C<handleConflicts>
 
+We have a list of nodes that have potentially been edited since our last
+update.  We need to "safely" handle them nodes that can be workspaced, will --
+nodes that cannot are confirmed by user.
 
-###########################################################################
-#
-#	sub
-#		handleConflicts
-#
-#	purpose 
-#		we have a list of nodes that have potentially been edited since
-#		our last update.  We need to "safely" handle them
-#		nodes that can be workspaced, will -- nodes that cannot
-#		are confirmed by user
-#
+=cut
+
 sub handleConflicts {
 	my ($CONFLICTS, $NEWBALL) = @_;
 
@@ -917,14 +990,15 @@ sub handleConflicts {
 	"";
 }
 
-############################################################################
-#	sub 
-#		updateNodeball
-#
-#	purpose
-#		we already have this nodeball in the system, and we need to figure
-#		out which files to add, remove, and update
-#
+=cut
+
+=head2 C<updateNodeball>
+
+We already have this nodeball in the system, and we need to figure out which
+files to add, remove, and update.
+
+=cut
+
 sub updateNodeball {
 	my ($OLDBALL, $NEWBALL, $dir) = @_;
 
@@ -1016,14 +1090,14 @@ sub updateNodeball {
 	print "$$NEWBALL{title} updated.\n";
 }
 
+=cut
 
-############################################################################
-#	sub 
-#		removeNodeball
-#
-#	purpose
-#		kill the sucka!
-#
+=head2 C<removeNodeball>
+
+Kill the sucka!
+
+=cut
+
 sub removeNodeball
 {
 	my ($DOOMEDBALL) = @_;

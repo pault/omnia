@@ -1,13 +1,14 @@
+=head1 Everything::Util
+
+Utility functions
+
+Copyright 2000 - 2002 Everything Development Company
+
+=cut
+
 package Everything::Util;
 
-#############################################################################
-#	Everything perl module.  
-#	Copyright 2000 - 2002 Everything Development Company
-#	http://www.everydevel.com/
-#
 #	Format: tabs = 4 spaces
-#
-#############################################################################
 
 use strict;
 
@@ -24,39 +25,40 @@ sub BEGIN
 
 use URI::Escape ();
 
-#############################################################################
-#	Sub
-#		escape
-#
-#	Purpose
-#		This encodes characters that may interfere with HTML/perl/sql
-#		into a hex number preceeded by a '%'.  This is the standard HTML
-#		thing to do when uncoding URLs.
-#
-#	Parameters
-#		$esc - the string to encode.
-#
-#	Returns
-#		Then escaped string
-#
-*escape		= *URI::Escape::uri_escape;
+=cut
 
+=head2 C<escape>
 
-#############################################################################
-#	Sub
-#		unescape
-#
-#	Purpose
-#		Convert the escaped characters back to normal ascii.  See escape().
-#
-#	Parameters
-#		An array of strings to convert
-#
-#	Returns
-#		The first item in the array.  Basically good for doing:
-#			$url = unescape($url);
-#
-*unescape	= *URI::Escape::uri_unescape;
+This encodes characters that may interfere with HTML/perl/sql into a hex number
+preceeded by a '%'.  This is the standard HTML thing to do when uncoding URLs.
+
+=over 4
+
+=item * $esc
+
+the string to encode.
+
+=back
+
+Returns the escaped string
+
+=cut
+
+*escape	= *URI::Escape::uri_escape;
+
+=cut
+
+=head2 C<unescape>
+
+Convert the escaped characters back to normal ascii.  See escape().
+
+Returns the first item in the array.  Basically good for doing:
+
+  $url = unescape($url);
+
+=cut
+
+*unescape = *URI::Escape::uri_unescape;
 
 
 #############################################################################

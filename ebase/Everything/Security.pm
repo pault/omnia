@@ -1,33 +1,41 @@
+=head1 Everything::Security
+
+Support functions for Security and permissions
+
+Copyright 2000 - 2003 Everything Development Corp.
+
+=cut
+
 package Everything::Security;
 
-#############################################################################
-#	Everything::NodeBase
-#		Support functions for Security and permissions
-#
-#	Copyright 2000 - 2003 Everything Development Corp.
 #	Format: tabs = 4 spaces
-#
-#############################################################################
 
 use strict;
 
+=cut
 
-#############################################################################
-#	Sub
-#		inheritPermissions
-#
-#	Purpose
-#		This is just a utility function that takes two strings and combines
-#		them in a way such that any 'i' (inherit) flags in the child
-#		permissions get over written by the corresponding parent permission.
-#
-#	Parameters
-#		$child - the child permissions
-#		$parent - the parent permissions
-#
-#	Returns
-#		A string that contains the merged
-#
+=head2 C<inheritPermissions>
+
+This is just a utility function that takes two strings and combines them in a
+way such that any 'i' (inherit) flags in the child permissions get over written
+by the corresponding parent permission.
+
+=over 4
+
+=item * $child
+
+the child permissions
+
+=item * $parent
+
+the parent permissions
+
+=back
+
+Returns a string that contains the merged
+
+=cut
+
 sub inheritPermissions
 {
 	my ($child, $parent) = @_;
@@ -44,24 +52,31 @@ sub inheritPermissions
 	return $child;
 }
 
+=cut
 
-#############################################################################
-#	Sub
-#		checkPermissions
-#
-#	Purpose
-#		Given the permissions that a user has, and the permissions that
-#		they need, return true or false indicating that they have or
-#		do not have the needed permissions
-#
-#	Parameters
-#		$perms - the permissions that the user has
-#		$modes - the permissions that they need
-#
-#	Returns
-#		1 (true) if the user has all the needed permissions.  0 (false)
-#		otherwise
-#
+=head2 C<checkPermissions>
+
+Given the permissions that a user has, and the permissions that they need,
+return true or false indicating that they have or do not have the needed
+permissions.
+
+=over 4
+
+=item * $perms
+
+the permissions that the user has
+
+=item * $modes
+
+the permissions that they need
+
+=back
+
+Returns 1 (true) if the user has all the needed permissions.  0 (false)
+otherwise
+
+=cut
+
 sub checkPermissions
 {
 	my ($perms, $modes) = @_;
