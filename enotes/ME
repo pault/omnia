@@ -1,0 +1,22 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="user">root</author_user>
+	<core table="node">0</core>
+	<group >
+		<groupnode1 table="nodegroup" type="htmlpage">note display page</groupnode1>
+		<groupnode2 table="nodegroup" type="htmlpage">note edit page</groupnode2>
+		<groupnode3 table="nodegroup" type="nodetype">note</groupnode3>
+		<groupnode4 table="nodegroup" type="dbtable">note</groupnode4>
+		<groupnode5 table="nodegroup" type="htmlcode">addnote</groupnode5>
+		<groupnode6 table="nodegroup" type="htmlcode">shownote</groupnode6>
+	</group>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">ENotes</title>
+	<type_nodetype table="node" type="nodetype">nodeball</type_nodetype>
+	<vars table="setting">
+		<author >Nate Oostendorp and Tim Vroom</author>
+		<description >allows users to annotate nodes (through the shownote and addnote functions).  Notes can also have notes attached to them which allows for threaded discussions   </description>
+		<version >0.3.0</version>
+		<homepage >http://everydevel.com</homepage>
+	</vars>
+</NODE>

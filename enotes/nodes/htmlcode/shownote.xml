@@ -1,0 +1,17 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node" type="usergroup">gods</author_user>
+	<code table="htmlcode">my @notes = getNodeWhere ({'parent_node' =&gt; getId ($NODE)}, $NODETYPES{note});
+
+my $str = "&lt;font size=2&gt;";
+foreach my $NOTE (@notes) {
+	$str .= "&lt;li&gt; " . linkNode ($NOTE) . " by " .linkNode ($$NOTE{author_user});
+}
+$str .= "&lt;/font&gt;";
+return $str if @notes;
+"";</code>
+	<core table="node">R</core>
+	<package table="node">0</package>
+	<reputation table="node">0</reputation>
+	<title table="node">shownote</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>
