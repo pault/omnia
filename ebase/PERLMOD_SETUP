@@ -2,7 +2,9 @@ Here's the list of perl modules that I installed to make everything work.
 Your system may have some of these already installed.  Otherwise, you 
 can always get the latest version from CPAN <http://cpan.org>.
 
-I highly recommend using 'perl -MCPAN -e shell'
+The easy way to install from CPAN is to use the included Bundle::Everything
+module.  Check out the README in the everything/Bundle directory on how
+to install using it.
 
 The version numbers are the one that I have...  not necessarily the only
 ones which would work.
