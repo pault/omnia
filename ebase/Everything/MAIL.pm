@@ -25,7 +25,7 @@ sub node2mail {
 	my ($addr, $node) = @_;
 	my @addresses = (ref $addr eq "ARRAY") ? @$addr:($addr);
 	my ($user) = $DB->getNodeWhere({node_id => $$node{author_user}},
-		$DB->getType("user");
+		$DB->getType("user"));
 	my $from = $$user{email};
 	my $subject = $$node{title};
 	my $body = $$node{doctext};
