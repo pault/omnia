@@ -96,6 +96,22 @@ $str;
 &lt;p> &lt;b>Extends Nodetype:&lt;/b> 
 [% linkNode ($$NODE{extends_nodetype}) 
 	if ($$NODE{extends_nodetype});%]
+
+
+&lt;p> &lt;b>Maximum Revisions for undo:&lt;/b> 
+[%
+  if ($$NODE{maxrevisions}) {
+    if ($$NODE{maxrevisions} == -1) {
+      return "$$NODE{derived_maxrevisions} (inheirited)";
+    } else {
+      return $$NODE{maxrevisions};
+    }
+
+  } else {
+   return "&lt;i>undo disabled&lt;/i>";
+  }
+
+%]
 &lt;p> &lt;b>Relevant pages:&lt;/b>&lt;br>
 
 [%

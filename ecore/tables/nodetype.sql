@@ -24,5 +24,6 @@ CREATE TABLE nodetype (
   defaultgroup_permission int(11) DEFAULT '-1' NOT NULL,
   defaultother_permission int(11) DEFAULT '-1' NOT NULL,
   defaultguest_permission int(11) DEFAULT '-1' NOT NULL,
+  maxrevisions int(11) DEFAULT '-1' NOT NULL,
   PRIMARY KEY (nodetype_id)
 );

@@ -84,6 +84,36 @@ else
   $str.="&lt;td bgcolor='#FF9999' align=center>&amp;nbsp;&lt;/td>&lt;/tr>";
  }
 
+#another row for undo/delete
+
+my $workspace = 0; #$DB->{workspace}
+if ($$NODE{type}{maxrevisions}) {
+  my $undo = $NODE->undo($USER, 0, 'test');
+  my $redo = $NODE->undo($USER, 1, 'test'); 
+
+  if ($undo or $redo) {
+    $str.="&lt;tr>&lt;td bgcolor='#FFCCCC' align=center>";
+    if ($undo) {
+      $str.=linkNode($NODE, "&lt;IMG src=images/icon_undo.gif alt=\"undo\" border=0>", { op => 'undo', displaytype => $disp });
+    } else {
+     $str.="&amp;nbsp;";
+    }
+   $str.="&lt;/td>&lt;td bgcolor='#FF9999' align=center>";
+    if ($redo) {
+       $str.=linkNode($NODE, "&lt;IMG src=images/icon_redo.gif alt=\"undo\" border=0>", { op => 'redo', displaytype => $disp });
+    } else {
+      $str.="&amp;nbsp;";
+    }
+  
+   $str.="&lt;/td>&lt;td bgcolor='#FFCCCC' align=center>&amp;nbsp;&lt;/td>&lt;/tr>";
+
+  }
+
+}
+
+
+
+
 # If a group editor is open, add a link to add this node to
 # the group.  We will need to check if the nodegroup has
 # a restriction on what nodetypes can be in the group.

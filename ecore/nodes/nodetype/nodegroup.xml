@@ -20,6 +20,7 @@
   <field type="literal_value" name="grouptable">nodegroup</field>
   <field type="literal_value" name="guestaccess">iiii-</field>
   <field type="noderef" type_nodetype="location,nodetype" name="loc_location">nodetype</field>
+  <field type="literal_value" name="maxrevisions">-1</field>
   <field type="literal_value" name="otheraccess">iiii-</field>
   <field type="literal_value" name="restrict_nodetype">0</field>
   <field type="literal_value" name="restrictdupes">1</field>

@@ -35,6 +35,10 @@
   &lt;td>[{node_menu:restrictdupes,-yes_1,-no_0,-parent_-1}]
     [{displayInherited:restrictdupes}] &lt;/td>
  &lt;/tr>
+ &lt;tr>
+   &lt;td>Maximum Revisions (for Undo)&lt;/td>
+   &lt;td>[{textfield:maxrevisions}]&lt;/td>
+ &lt;/tr>
 &lt;/table>
 &lt;p>[{submit}]</field>
   <field type="noderef" type_nodetype="nodetype,nodetype" name="pagetype_nodetype">nodetype</field>

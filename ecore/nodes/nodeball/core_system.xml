@@ -262,6 +262,8 @@
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">nodeFormObject</member>
     <member type="noderef" type_nodetype="htmlcode,nodetype" name="group_node">formObject</member>
     <member type="noderef" type_nodetype="superdoc,nodetype" name="group_node">Super Search</member>
+    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">undo</member>
+    <member type="noderef" type_nodetype="opcode,nodetype" name="group_node">redo</member>
   </group>
   <field type="literal_value" name="group_usergroup">-1</field>
   <field type="literal_value" name="groupaccess">iiii-</field>
