@@ -860,7 +860,7 @@ sub selectNodeWhere
 #			just the data from the "node" table.
 #
 #	Returns
-#		The sql cursor from the "select".  undef if their was an error
+#		The sql cursor from the "select".  undef if there was an error
 #		in the search or no matches.  The caller is responsible for calling
 #		finish() on the cursor.
 #		
