@@ -3,52 +3,72 @@
 	<authoraccess table="node">iiii</authoraccess>
 	<code table="htmlcode">no strict;
 use Everything::XML;
-my @modules = ('Everything', 'Everything::HTML', 'Everything::XML');
+my @modules = ('Everything', 'Everything::HTML', 'Everything::XML', 'Everything::NodeBase', 'Everything::NodeCache', 'Everything::Node::node', 'Everything::Node::nodeball','Everything::Node::nodegroup', 'Everything::Node::nodetype', 'Everything::Node::setting', 'Everything::Node::theme', 'Everything::Node::user', 'Everything::Node::nodetype');
 my $str;
-
-if (not $query-&gt;param('choicefunc')) {
+my $i;
+if (not $query-&gt;param('choicefunc')) 
+{
   my %funcs;
   my $rows = 0;
-  $str .= "&lt;table&gt;";
+  $str .= "&lt;table border=0 cellpadding=1 cellspacing=2&gt;";
 
-  my $colwidth = int (100/(int(@modules)+1)) ."%";
-  foreach my $modname (@modules) {
+  my $colwidth = "100%";
+  foreach my $modname (@modules) 
+  {
     local *stash;
     *stash = *{ "${modname}::" };
     my @modfuncs;
-    foreach(keys %stash) {
-      push (@modfuncs, $_) 
-        if (defined &amp;{ $stash{$_} } 
-        and ($modname eq 'Everything' or not exists $Everything::{$_})) ; 
+    foreach(keys %stash) 
+    {
+       push (@modfuncs, $_) 
+       if (defined &amp;{ $stash{$_} } 
+        and ($modname eq 'Everything' or not exists $Everything::{$_})); 
     }
-    @modfuncs = sort {$a cmp $b} @modfuncs;
-    $funcs{$modname} = \@modfuncs;
-    $rows = int(@modfuncs) if $rows &lt; int(@modfuncs);
-    $str.="&lt;TH width=$colwidth&gt;$modname&lt;/TH&gt;";
+   @modfuncs = sort {$a cmp $b} @modfuncs;
+   $funcs{$modname} = \@modfuncs;
+   $rows = int(@modfuncs);
+   $str.="&lt;TH width=$colwidth colspan = 5 bgcolor=black&gt;&lt;font color=white&gt;$modname&lt;/white&gt;&lt;/TH&gt;";
+ 
+   my $count=0;
+   while ($count &lt; $rows) 
+   {
+     $str.="&lt;TR&gt;";
+     for ($i=1; $i&lt;=5; $i++)
+     {
+       $str.= "&lt;TD bgcolor=#cbcbcb&gt;"; 
+       if (int (@{ $funcs{$modname} }) &gt; $count)
+         { $str.=linkNode($NODE, $funcs{$modname}[$count], 
+             { choicefunc =&gt; $funcs{$modname}[$count] });
+         }
+       else
+         { $str.="&amp;nbsp;"; }
+               
+        
+         $str.="&lt;/TD&gt;";
+         $count++;
+      }
+     $str.="&lt;/TR&gt;\n"
+   }
+   $str.="&lt;tr&gt;&lt;td colspan=5&gt;&lt;/td&gt;&lt;/tr&gt;";
   }
 	
-  $str.="&lt;TH width=$colwidth&gt;HTMLCODE&lt;/TH&gt;\n";
-  my $HTMLCODE = $DB-&gt;getNodeWhere({1=&gt;1},
-    $DB-&gt;getType('htmlcode'));
-  $funcs{htmlcode}=\@$HTMLCODE;
-  $rows=int(@$HTMLCODE) if $rows &lt; @$HTMLCODE;
-  my $count=0;
-  while ($count &lt; $rows) {
+  $str.="&lt;TH width=$colwidth colspan=5 bgcolor=black&gt;&lt;font color=white&gt;HTMLCODE&lt;/font&gt;&lt;/TH&gt;\n";
+  my $HTMLCODE = getNodeWhere({}, getType('htmlcode'));
+  $funcs{htmlcode}= $HTMLCODE;
+  $rows=int(@$HTMLCODE);
+ my $count=0;
+   while ($count &lt; $rows) 
+   {
      $str.="&lt;TR&gt;";
-     foreach (@modules) {
-       
-       $str.= "&lt;TD&gt;"; 
-       $str.=linkNode($NODE, $funcs{$_}[$count], 
-         { choicefunc =&gt; $funcs{$_}[$count] }) 
-         if (int (@{ $funcs{$_} }) &gt; $count);         
-	$str.="&lt;/TD&gt;";
-    }
-    $str.="&lt;TD&gt;";
-    $str.= linkNode($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
-    $str.="&lt;/TD&gt;&lt;/TR&gt;\n";
-    $count++;
-  }  
-
+     for ($i=1; $i&lt;=5; $i++)
+     {       
+        $str.="&lt;TD bgcolor=#cbcbcb&gt;";
+        $str.= linkNode($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
+        $str.="&lt;/TD&gt;\n";
+        $count++;
+     }
+    $str.="&lt;/tr&gt;\n";
+    }  
   return $str.="&lt;/table&gt;";
 }
 
@@ -56,7 +76,11 @@ if (not $query-&gt;param('choicefunc')) {
 $str.= "or go back to the code ".linkNode($NODE, 'index');
 my $choicefunc = $query-&gt;param('choicefunc');
 my $parentmod = "";
+ if ($choicefunc =~ /^(.+?)\:\:(\w+)$/) {
+  $choicefunc = $2;
+  $parentmod = $1;
 
+ }
 foreach my $modname (@modules) {
     next if $parentmod;
     local *stash;
@@ -111,7 +135,7 @@ while (@mod &gt; $count and not @lines) {
 if (@lines) {
   $str.= listCode(join ("", @lines));
 } else {
-  $str.= "no comment found\n";
+  $str.= "\n&lt;br&gt;no comment found\n";
 }
 $str;
 </code>

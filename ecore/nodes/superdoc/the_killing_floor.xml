@@ -1,0 +1,41 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node">-1</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<doctext table="document">Are ya shure you wanna kill all these perty nodes?
+&lt;p&gt;
+&lt;ol&gt;
+[{openform}]
+[%
+my (@param) = $query-&gt;param;
+my $str;
+
+
+my $parent;
+foreach (@param) {
+  next unless /killnode(\d+)/;
+  my $N = getNodeById($1);
+  $parent ||= getNode('Node Armageddon', 'restricted_superdoc');
+
+  $str.="&lt;input type=hidden name=$_ value=1&gt;";
+  $str.="&lt;li&gt;".linkNode($N)." by ".linkNode($$N{author_user});
+ 
+}
+return unless $parent;
+$str.="&lt;p align=right&gt;".$query-&gt;submit("op","massacre");
+$str.="&lt;p&gt;".linkNode($parent, "Changed my mind.");
+$str.=$query-&gt;end_form;
+%]
+
+&lt;/ol&gt;</doctext>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="literal_value">0</loc_location>
+	<otheraccess table="node">iiii-</otheraccess>
+	<title table="node">the killing floor</title>
+	<type_nodetype table="node" type="nodetype">superdoc</type_nodetype>
+</NODE>

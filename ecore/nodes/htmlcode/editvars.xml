@@ -1,18 +1,35 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">return "&lt;i&gt;you can't update this node&lt;/i&gt;"
-  unless($NODE-&gt;hasAccess($USER, 'w'));
+	<code table="htmlcode"># This allows users to edit or add values to a setting node.
+# It grabs all the variables, displays the values in text
+# fields that can be editted, and provides a blank field
+# for a new value.  Also present with each value is an
+# Auto Set value box, that allows users to specify a node
+# by title and nodetype, rather than node Id.  The node Id
+# is automatically set as the value when the page is 
+# submitted.
 
-my $SETTINGS = $NODE-&gt;getVars();
+
+
+return "&lt;i&gt;you can't update this node&lt;/i&gt;" unless $NODE-&gt;hasAccess($USER, 'w');
+my $SETTINGS = getVars($NODE);
 my @params = $query-&gt;param;
 my $str=""; 
 
 foreach (@params) {
   if (/setsetting_(\w*)$/) {
     $$SETTINGS{$1}=$query-&gt;param("setsetting_$1");    
-  }
+  
+   }
 
+  if (($query-&gt;param("node name$1")) and ($query-&gt;param("node type$1")) and ($query-&gt;param("setsetting_$1") eq ""))
+   { 
+     my $NO = getNode($query-&gt;param("node name$1"), $query-&gt;param("node type$1"));
+     my $nodeID = getId($NO);
+     if ($query-&gt;param("setsettings_$1") eq "")
+      {    $$SETTINGS{$1}=$nodeID; }
+   }
 }
 
 foreach (@params) {
@@ -22,31 +39,84 @@ foreach (@params) {
 }
 
 
-if ($query-&gt;param("newsetting") ne "" and $query-&gt;param("newval") ne ""){
+if (($query-&gt;param("newsetting") ne "") and ($query-&gt;param("newval") ne "")){
   my $title = $query-&gt;param("newsetting");
   $title =~ s/\W//g;
   $$SETTINGS{$title} = $query-&gt;param("newval");
 }
+elsif (($query-&gt;param("node namenew") ne "") and ($query-&gt;param("newsetting") ne ""))
+   { 
+     my $title = $query-&gt;param("newsetting");
+     $title =~ s/\W//g;
+     $$SETTINGS{$title} = $query-&gt;param("newval");
+     
+     my $NOD = getNode($query-&gt;param("node namenew"), $query-&gt;param("node typenew"));
+     my $nodenewID = getId($NOD);
+     if ($query-&gt;param("newsetting") eq "")
+      {    $$SETTINGS{$1}=$nodenewID; }
+   }  
+  my @idlist;
+  my $id;
+  my @allTypes = $DB-&gt;getAllTypes();
+  foreach my $N (@allTypes)
+   {
+     $id = $$N{title};
+     push @idlist, $id;
+   }
 
 setVars ($NODE, $SETTINGS);
 my @skeys = keys %$SETTINGS;
 @skeys = sort {$a cmp $b} @skeys;
 
 my ($keysize, $valsize) = (15, 30);
-my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
-
-
+my ($keyclr, $valclr, $setclr) = ("#CCCCFF", "#DEDEFF", "#ABABFF");
 $str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0&gt;\n";
-$str.="&lt;TR&gt;&lt;TH&gt;Remove&lt;/TH&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;/TR&gt;\n";
-foreach(@skeys) {
-$str.="&lt;TR&gt;&lt;TD&gt;&lt;input type=checkbox name=delsetting_$_&gt;&lt;/td&gt;
+$str.="&lt;TR&gt;&lt;TH&gt;Remove&lt;/TH&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;TH&gt;Auto Set Value&lt;/TH&gt;&lt;/TR&gt;\n";
+my $tempvar;
+my $titevar;
+my $tipevar;
+foreach(@skeys) 
+{
+   $str.="&lt;TR&gt;&lt;TD&gt;&lt;input type=checkbox name=delsetting_$_&gt;&lt;/td&gt;
    &lt;TD bgcolor=$keyclr&gt;&lt;b&gt;$_&lt;/b&gt;&lt;/TD&gt;
-   &lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=setsetting_$_ VALUE='$$SETTINGS{$_}' size=$valsize&gt;&lt;/TD&gt;&lt;/TR&gt;\n";
+   &lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=setsetting_$_ VALUE='$$SETTINGS{$_}' size=$valsize&gt;&lt;/TD&gt;\n";
+
+   if ($$SETTINGS{$_}!~/\D/ )   
+    {$tempvar = getNodeById($$SETTINGS{$_});
+         if ($tempvar)
+          { $titevar = $$tempvar{title}; 
+            $tipevar = $$tempvar{type}{title};
+          }
+    }  
+   else
+    {  $titevar = ""; 
+       $tipevar ="";
+    }
+    $query-&gt;param("node name$_", $titevar);
+   $str.="&lt;TD bgcolor=$setclr&gt;&lt;font size=0&gt;";
+if ($_=~/(.+?)\_(.+?)/)
+{
+  $str.="Node Title:".$query-&gt;textfield("node name$_", $titevar) . "&lt;br&gt;Nodetype: ";
+   $query-&gt;popup_menu("node type$_", \@idlist, $tipevar);
+   $str.= $query-&gt;popup_menu("node type$_", \@idlist,   $tipevar);
+  }
+   $str.="&lt;/TD&gt;&lt;/TR&gt;";
 }
-$str.="&lt;TR&gt;&lt;td&gt;&lt;/td&gt;
+  $str.="&lt;TR&gt;&lt;td&gt;&lt;/td&gt;
   &lt;TD bgcolor=$keyclr&gt;&lt;INPUT TYPE=text NAME=newsetting size=$keysize&gt;&lt;/TD&gt;
-  &lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=newval size=$valsize&gt;&lt;/TD&gt;&lt;/TR&gt;\n";
-$str.="&lt;/TABLE&gt;\n";
+  &lt;TD bgcolor=$valclr&gt;&lt;INPUT TYPE=text NAME=newval size=$valsize&gt;&lt;/TD&gt;
+  &lt;TD bgcolor=$setclr&gt;&lt;font size=0&gt;Node Title:".$query-&gt;textfield("node namenew") . "&lt;br&gt;Nodetype: ";
+  
+
+   $query-&gt;popup_menu("node typenew", \@idlist, "");
+   $str.= $query-&gt;popup_menu("node typenew", \@idlist, "");
+
+
+   $str.="&lt;/TD&gt;&lt;/TR&gt;&lt;/TABLE&gt;&lt;div align=right&gt;";
+ if ($$VARS{hintson})
+ {
+  $str.=(htmlcode('hintlaunch', 'Using the setting edit page, short, #000000'));
+ }
 
 
 $str;</code>

@@ -1,8 +1,8 @@
-# MySQL dump 6.0
+# MySQL dump 7.1
 #
-# Host: localhost    Database: everything
+# Host: localhost    Database: pogo
 #--------------------------------------------------------
-# Server version	3.22.25
+# Server version	3.22.32
 
 #
 # Table structure for table 'links'

@@ -1,8 +1,8 @@
-# MySQL dump 6.0
+# MySQL dump 7.1
 #
-# Host: localhost    Database: everything
+# Host: localhost    Database: pogo
 #--------------------------------------------------------
-# Server version	3.22.25
+# Server version	3.22.32
 
 #
 # Table structure for table 'node'
@@ -19,9 +19,9 @@ CREATE TABLE node (
   lockedby_user int(11) DEFAULT '0' NOT NULL,
   locktime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
   authoraccess char(4) DEFAULT 'iiii' NOT NULL,
-  groupaccess char(5) DEFAULT 'iiii-' NOT NULL,
-  otheraccess char(5) DEFAULT 'iiii-' NOT NULL,
-  guestaccess char(5) DEFAULT 'iiii-' NOT NULL,
+  groupaccess char(5) DEFAULT 'iiiii' NOT NULL,
+  otheraccess char(5) DEFAULT 'iiiii' NOT NULL,
+  guestaccess char(5) DEFAULT 'iiiii' NOT NULL,
   dynamicauthor_permission int(11) DEFAULT '-1' NOT NULL,
   dynamicgroup_permission int(11) DEFAULT '-1' NOT NULL,
   dynamicother_permssion int(11) DEFAULT '-1' NOT NULL,

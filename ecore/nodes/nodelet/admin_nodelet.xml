@@ -8,11 +8,9 @@
 	<group_usergroup table="node">-1</group_usergroup>
 	<groupaccess table="node">-i-i</groupaccess>
 	<guestaccess table="node">-i-i</guestaccess>
-	<lastupdate table="nodelet">964142546</lastupdate>
+	<lastupdate table="nodelet">966397534</lastupdate>
 	<loc_location table="node" type="location">nodelet</loc_location>
-	<nlcode table="nodelet">[{adminbar}]
-
-&lt;table border=0&gt;
+	<nlcode table="nodelet">&lt;table border=0&gt;
  &lt;tr&gt;
   &lt;td nowrap&gt;
     &lt;font size=2&gt;
@@ -57,18 +55,19 @@ linkNode(getNode('create node', 'restricted_superdoc'),
    &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;
-&lt;/table&gt;</nlcode>
+&lt;/table&gt;
+[{adminbox}]</nlcode>
 	<nlgoto table="nodelet">0</nlgoto>
 	<nltext table="nodelet">
 &lt;script language="javascript"&gt;
 
 function cloneNode()
 {
-  var newname = prompt("Cloning node \"admin nodelet\"\nEnter a new name:", "");
+  var newname = prompt("Cloning node \"The Default Node\"\nEnter a new name:", "");
 
   if(newname)
   {
-    var url = "/index.pl?node_id=166&amp;srcnode_id=158&amp;newname=NEWNAME";
+    var url = "/~paco/temp2/index.pl?node_id=210&amp;srcnode_id=222&amp;newname=NEWNAME";
     
     url = url.replace(/NEWNAME/, newname);
     url = url.replace(/ /g, "%20");
@@ -76,11 +75,13 @@ function cloneNode()
   }
 }
 
-&lt;/script&gt;display | &lt;A HREF="/index.pl?displaytype=edit&amp;node_id=158&amp;lastnode_id=158"&gt;edit&lt;/a&gt;  | &lt;A HREF="/index.pl?displaytype=permissions&amp;node_id=158&amp;lastnode_id=158"&gt;permissions&lt;/a&gt; &lt;br&gt;&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;
+&lt;/script&gt;display |
+&lt;A HREF="/~paco/temp2/index.pl?displaytype=edit&amp;node_id=222&amp;lastnode_id=222"&gt;edit&lt;/a&gt;  |
+&lt;A HREF="/~paco/temp2/index.pl?displaytype=permissions&amp;node_id=222&amp;lastnode_id=222"&gt;permissions&lt;/a&gt; &lt;br&gt;&lt;a href='javascript: cloneNode();'&gt;clone&lt;/a&gt;
 &lt;SCRIPT language="javascript"&gt;
   function confirmDelete(){
-    if(confirm("Delete 'admin nodelet'?")){
-      parent.location="/index.pl?node_id=158&amp;op=nuke"; }
+    if(confirm("Delete 'The Default Node'?")){
+      parent.location="/~paco/temp2/index.pl?node_id=222&amp;op=nuke"; }
         }
 &lt;/SCRIPT&gt;
 &lt;br&gt;&lt;font size=1&gt;
@@ -109,10 +110,10 @@ node&lt;INPUT TYPE="text" NAME="node"  SIZE=10 MAXLENGTH=240&gt;
  &lt;tr&gt;
   &lt;td&gt;
    &lt;font size=2&gt;
-   &lt;a href="/index.pl?displaytype=display&amp;node_id=158&amp;containers=show"&gt;Show containers&lt;/a&gt;&lt;br&gt;
+   &lt;a href="/~paco/temp2/index.pl?displaytype=display&amp;node_id=222&amp;containers=show"&gt;Show containers&lt;/a&gt;&lt;br&gt;
 
-   &lt;A HREF="/index.pl?node_id=168&amp;lastnode_id=158"&gt;Create new node&lt;/a&gt;&lt;br&gt;
-   Current node id: 158
+   &lt;A HREF="/~paco/temp2/index.pl?node_id=212&amp;lastnode_id=222"&gt;Create new node&lt;/a&gt;&lt;br&gt;
+   Current node id: 222
    &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;

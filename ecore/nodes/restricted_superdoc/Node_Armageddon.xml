@@ -1,0 +1,145 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node">-1</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<doctext table="document">&lt;center&gt;&lt;h3&gt;Node Armageddon&lt;/h3&gt;&lt;/center&gt;
+
+[{openform}]
+
+[%
+use Everything::FormMenu;
+
+my $menu = new Everything::FormMenu();
+my $type = $query-&gt;param('whichtype');
+$type ||= "alltypes";
+
+$menu-&gt;addHash({ "alltypes" =&gt; "All Types"});
+$menu-&gt;addType('nodetype', 1);
+
+$menu-&gt;writePopupHTML($query, "whichtype", $type);
+%]
+
+
+
+[%
+my %CLR = (
+  document =&gt; "#AAAAcc",
+  user =&gt; "#66dd66",
+  usergroup =&gt; "#99CC99",
+  nodetype =&gt; "#CC6666",
+  htmlpage =&gt; "#CC66CC",
+  htmlcode =&gt; "#FF99FF",
+  hint =&gt; "#GAAAAA",
+  node =&gt; "#FFFFFF",
+  superdoc =&gt; "#6666CC",
+  nodegroup =&gt; "#CCCCCC",
+  image =&gt; "#33CCFF",
+  default =&gt; '#ffffff',
+  container =&gt; '#FFCC99',
+  nodelet =&gt; '#CCFFCC',
+  nodeletgroup =&gt; '#99FF99'
+);
+
+my $type = $query-&gt;param('whichtype');
+my $ref;
+my $offset = $query-&gt;param("next");
+my $totalRows;
+my $limit = 100;
+my $next;
+my $prev;
+
+$type ||= "alltypes";
+$offset ||= 0;
+
+if($type eq "alltypes")
+{
+  $ref = selectNodeWhere({}, undef,
+    "type_nodetype", $limit, $offset, \$totalRows);
+}
+else
+{
+  $ref = selectNodeWhere({type_nodetype =&gt; $type}, undef, undef, $limit,
+    $offset, \$totalRows);
+}
+
+return "&lt;p&gt;&lt;b&gt;No Nodes of the selected type&lt;/b&gt;\n"
+  unless(defined $ref);
+
+#generate the prev...count...next row
+my $nav;
+$nav .= "&lt;tr&gt;&lt;td align=left&gt;";
+	
+$next = ($totalRows &gt; $offset + $limit ? $offset + $limit : $totalRows);	
+$prev = ($offset &lt; $limit ? 0 : $offset - $limit);
+	
+$nav .= "&lt;a href=" .
+  urlGen ({node_id =&gt; getId ($NODE), next =&gt; ($prev) }) . 
+  "&gt;Previous " . ($offset-$prev) . " entries...&lt;/a&gt;"
+  if ($offset &gt; 0);
+
+$nav .= "&lt;/td&gt;&lt;td align=center&gt;($offset-" . ($offset+int(@$ref)) .
+  ") of $totalRows&lt;/td&gt;&lt;td align=right&gt;";
+	
+$nav .= "&lt;a href=" .
+  urlGen ({node_id =&gt; getId ($NODE), next =&gt; $next}) . 
+  "&gt;Next " . ($totalRows - $next &gt; $limit ? $totalRows - $next : $limit) .
+  " entries...&lt;/a&gt;" if ($next &lt; $totalRows);
+
+$nav .= "&lt;/td&gt;&lt;/tr&gt;";
+
+#construct the table
+my $str = "&lt;TABLE width=100% border=0&gt;";
+my $NODEGROUP;
+
+if ($$VARS{group}) {
+  my $GR = getNode($$VARS{group}, 'light');
+
+  if($GR-&gt;hasAccess($USER, 'w'))
+  {
+    $NODEGROUP = $GR;
+    $str .=
+      "&lt;SCRIPT language=\"javascript\"&gt;
+      function updateMyGroup(nodeid) {
+        window.open('" .
+        urlGen({node_id =&gt; $$VARS{group},
+        displaytype =&gt; 'editor'}, "noquotes") .
+        "&amp;add='+nodeid+'" .  "','". $$VARS{group} ."', '');	
+      }
+      &lt;/SCRIPT&gt;";
+  }
+}
+
+$str .= $nav;
+$str .= "&lt;tr&gt;&lt;th&gt;Node ID&lt;/td&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Type&lt;/th&gt;&lt;/tr&gt;";
+
+for (my $i=0; $i &lt; @$ref; $i++)
+{
+  my $N = getNode($$ref[$i], 'light');
+  $str .= "&lt;tr&gt;&lt;td align=left&gt;&lt;font color=white&gt;".$query-&gt;checkbox("killnode".getId($N), 0, 1, "")."&lt;/font&gt;". getId($N);
+  if ($NODEGROUP &amp;&amp; (not $NODEGROUP-&gt;inGroupFast($N)))
+  {
+    $str .= "&lt;font size=1&gt;&lt;A href=\"javascript:updateMyGroup(".getId($N).")\"&gt;add to &amp;quot;$$NODEGROUP{title}&amp;quot;&lt;/a&gt;&lt;/font&gt;";
+  }
+  $str .= "&lt;/td&gt;&lt;td bgcolor=#DDCCCC&gt;" . linkNode ($N) .
+     "&lt;/td&gt;&lt;td bgcolor=" . 
+     ($CLR{$$N{type}{title}} || $CLR{default}) . 
+     "&gt;$$N{type}{title}&lt;/td&gt;&lt;/tr&gt;\n" if (ref $$N{type});	
+}
+$str .= $nav;
+	
+$str .= "&lt;/TABLE&gt;";
+$str.="&lt;br&gt;".$query-&gt;submit("node", "the killing floor");
+$str.=$query-&gt;end_form;
+$str;
+%]</doctext>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="literal_value">0</loc_location>
+	<otheraccess table="node">iiii-</otheraccess>
+	<title table="node">Node Armageddon</title>
+	<type_nodetype table="node" type="nodetype">restricted_superdoc</type_nodetype>
+</NODE>

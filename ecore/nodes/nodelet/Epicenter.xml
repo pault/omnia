@@ -28,11 +28,11 @@ push @links, linkNode ($GNL) if($GNL-&gt;hasAccess($USER, 'r'));
 my $GCL = getNode('Gigantic Code Lister', getType('restricted_superdoc'));
 push @links, linkNode ($GCL) if($GCL-&gt;hasAccess($USER, 'r'));
 
-my $ss = getNode('system settings', getType('setting'));
+my $ss = getNode('Everything settings', getType('superdoc'));
 push @links, linkNode ($ss) if ($ss-&gt;hasAccess($USER, "r"));
 
-my $rootloc = getNode(0);
-push @links, linkNode($rootloc, "Root Location") if($rootloc-&gt;hasAccess($USER, "r"));
+my $ss = getNode('Node Armageddon', getType('restricted_superdoc'));
+push @links, linkNode ($ss) if ($ss-&gt;hasAccess($USER, "r"));
 
 $str = join "&lt;br&gt;\n", @links;
 %]

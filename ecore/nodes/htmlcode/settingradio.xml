@@ -1,0 +1,44 @@
+<NODE><INFO>rendered by Everything::XML.pm</INFO>
+	<author_user table="node">-1</author_user>
+	<authoraccess table="node">iiii</authoraccess>
+	<code table="htmlcode">#given a setting name or id, create a checkbox tied to
+#that settings value.  You can optionally send a label
+#
+my ($setting, $field, $labelon, $labeloff) = @_;
+
+$labelon ||= "on";
+$labeloff ||= "off";
+
+
+my $S;
+$S = getNode($setting) if $setting =~ /^\d+$/;
+$S = getNode($setting, 'setting');
+
+return unless $S-&gt;hasAccess($USER);
+$S or return;
+
+my $V = getVars($S);
+my $param = "setfield".getId($S).$field;
+
+if (defined $query-&gt;param($param)) {
+  $$V{$field} = $query-&gt;param($param);
+  setVars($S,$V);
+}
+
+
+
+
+$query-&gt;radio_group($param, [0,1], $$V{$field}, '', {0 =&gt; $labeloff, 1 =&gt; $labelon});
+</code>
+	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
+	<dynamicgroup_permission table="node">-1</dynamicgroup_permission>
+	<dynamicguest_permission table="node">-1</dynamicguest_permission>
+	<dynamicother_permssion table="node">-1</dynamicother_permssion>
+	<group_usergroup table="node">-1</group_usergroup>
+	<groupaccess table="node">iiii-</groupaccess>
+	<guestaccess table="node">iiii-</guestaccess>
+	<loc_location table="node" type="literal_value">0</loc_location>
+	<otheraccess table="node">iiii-</otheraccess>
+	<title table="node">settingradio</title>
+	<type_nodetype table="node" type="nodetype">htmlcode</type_nodetype>
+</NODE>

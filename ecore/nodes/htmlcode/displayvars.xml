@@ -1,7 +1,13 @@
 <NODE><INFO>rendered by Everything::XML.pm</INFO>
 	<author_user table="node" type="user">root</author_user>
 	<authoraccess table="node">iiii</authoraccess>
-	<code table="htmlcode">my $SETTINGS = getVars $NODE;
+	<code table="htmlcode"># This displays the variables contained in a setting, and
+# the values assigned to each one.  The values are displayed
+# as links to nodes if the node is present (with the node_Id
+# in parentheses) otherwise it is simply listed as text.
+
+
+my $SETTINGS = getVars $NODE;
 my $str;
 my ($keyclr, $valclr) = ("#CCCCFF", "#DEDEFF");
 
@@ -12,12 +18,19 @@ if (not @skeys) {
 }
 
 @skeys = sort {$a cmp $b} @skeys;
-
+my $zulu;
 $str.="&lt;TABLE width=100% cellpadding=1 cellspacing=0&gt;\n";
 $str.="&lt;TR&gt;&lt;TH&gt;Setting&lt;/TH&gt;&lt;TH&gt;Value&lt;/TH&gt;&lt;/TR&gt;\n";
-foreach (@skeys) {
-  $str.= "&lt;TR&gt;&lt;TD bgcolor=$keyclr&gt;$_&lt;/TD&gt;&lt;TD bgcolor=$valclr&gt;$$SETTINGS{$_}&lt;/TD&gt;&lt;/TR&gt;\n";  
-}
+foreach (@skeys) 
+ {    
+      $str.= "&lt;TR&gt;&lt;TD bgcolor=$keyclr&gt;$_&lt;/TD&gt;";
+      $zulu=$_;
+      #checks if the value is a node id (a number that exists as a nodeId)
+      if (($_=~/(.+?)\_(.+?)/)and ($$SETTINGS{$_}!~/\D/ ) and (getNodeById($$SETTINGS{$_}) ))
+         { $str.="&lt;TD bgcolor=$valclr&gt;" . linkNode($$SETTINGS{$_}) . " ($$SETTINGS{$_})&lt;/TD&gt;&lt;/TR&gt;\n";  }
+      else
+       {   $str.="&lt;TD bgcolor=$valclr&gt;$$SETTINGS{$_}&lt;/TR&gt;\n";}
+ }
 $str .="&lt;/TABLE&gt;\n";
 </code>
 	<dynamicauthor_permission table="node">-1</dynamicauthor_permission>
