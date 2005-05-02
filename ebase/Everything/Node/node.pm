@@ -146,8 +146,10 @@ sub update
 	return 0 unless $this->hasAccess($USER, 'w'); 
 
 	if (exists $this->{DB}->{workspace} and 
+        $this->canWorkspace() and
+        exists ($this->{DB}->{workspace}{nodes}{$$this{node_id}}) and
 		$this->{DB}->{workspace}{nodes}{$this->{node_id}} ne 'commit') {
-		my $id = $this->updateWorkspaced($USER);	
+		my $id = $this->updateWorkspaced($USER);
 		return $id if $id;
 	}
 
