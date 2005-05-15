@@ -146,8 +146,7 @@ sub update
 	return 0 unless $this->hasAccess($USER, 'w'); 
 
 	if (exists $this->{DB}->{workspace} and 
-        $this->canWorkspace() and
-        exists ($this->{DB}->{workspace}{nodes}{$$this{node_id}}) and
+       	        $this->canWorkspace() and
 		$this->{DB}->{workspace}{nodes}{$this->{node_id}} ne 'commit') {
 		my $id = $this->updateWorkspaced($USER);
 		return $id if $id;
@@ -854,7 +853,7 @@ sub logRevision
 	
 	my $workspace; 
     $workspace = $this->{DB}->{workspace}{node_id}
-		if exists $this->{DB}->{workspace};	
+		if(exists $this->{DB}->{workspace} && $this->canWorkspace());	
     $workspace ||= 0;
 
 	my $maxrevisions  = $this->{type}{maxrevisions};

@@ -1816,7 +1816,10 @@ sub updateNodelet
 		$$NODELET{nltext} = parseCode('nlcode', $NODELET);
 		$$NODELET{lastupdate} = $currTime; 
 
-		$NODELET->update(-1) unless $interval == 0;
+		if(not $NODELET->{DB}->{workspace}) {
+		    # Only update if we are not in a workspace, else we enter nodelet info in the WS
+		    $NODELET->update(-1) unless $interval == 0;
+		}
 		#if interval is zero then it should only be updated in cache
 	}
 	
