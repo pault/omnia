@@ -155,14 +155,14 @@ sub cgiUpdate
 	my $param = $query->param($name);
 	my $field = $this->getBindField($query, $name);
 	my $value;
-
+	
 	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
-
 	my $var;
-	($field, $var) = split(':', $field);
-	my $vars = $NODE->getHash($field);
-
+	($field, $var) = split('::', $field);
+        my $vars = $NODE->getHash($field);
+	
+        $NODE->setHash($vars, $field);
 	if($name =~ /_value$/)
 	{
 		# The value is specified by a textfield/popup menu combo.  We
