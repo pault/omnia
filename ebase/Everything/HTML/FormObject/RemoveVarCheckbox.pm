@@ -76,12 +76,15 @@ sub cgiUpdate
 	my $field = $this->getBindField($query, $name);
 	my $var;
 
-	($field, $var) = split(/:(?!:)/, $field, 2);
+	($field, $var) = split(/::(?!:)/, $field, 2);
 
 	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
 
 	my $vars = $NODE->getHash($field);
+
+        $var =~ s/::UNCHECKED$//;
+
 	delete $vars->{$var};
 	$NODE->setHash($vars, $field);
 

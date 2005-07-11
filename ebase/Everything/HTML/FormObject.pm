@@ -198,7 +198,7 @@ sub cgiUpdate
 
 	# If the stored field name is separated by a ':', this form object is bound
 	# to a hash value.
-	($field, $var) = split(/:(?!:)/, $field, 2);
+	($field, $var) = split(/::(?!:)/, $field, 2);
 
 	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
