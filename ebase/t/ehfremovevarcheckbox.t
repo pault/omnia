@@ -76,7 +76,7 @@ my $node = FakeNode->new();
 # cgiUpdate()
 $node->{_subs} = {
 	param => [ 0, (1) x 3 ],
-	getBindField => [ ('field:var') x 3 ],
+	getBindField => [ ('field::var') x 3 ],
 	getHash => [ ($node) x 3 ],
 	verifyFieldUpdate => [ 0, 1 ],
 };
