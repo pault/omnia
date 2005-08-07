@@ -19,7 +19,7 @@
 );
 
 $MAILCMD = "/usr/sbin/sendmail";
-$MAILADDRS='everydevel-cvs@lists.sourceforge.net';
+$MAILADDRS='zenon@zabinski.net';
 $MAX_DIFF_SIZE = 1024;
 
 @LOG_FILE_MAP = (
