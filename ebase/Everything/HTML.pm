@@ -1802,7 +1802,7 @@ sub updateNodelet
 	my $lastupdate;
 	my $currTime = time; 
 
-	$interval = $$NODELET{updateinterval};
+	$interval = $$NODELET{updateinterval} || 0;
 	$lastupdate = $$NODELET{lastupdate};
 	
 	# Return if we have generated it, and never want to update again (-1) 
