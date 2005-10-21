@@ -327,7 +327,7 @@ sub initEverything
 	clearFrontside();
 	clearBackside();
 
-	return if exists $NODEBASES{$db} and $DB = $NODEBASES{db};
+	return if exists $NODEBASES{$db} and $DB = $NODEBASES{$db};
 
 	my $dbtype  = $options->{dbtype} || 'mysql';
 	my $package = 'Everything::NodeBase::' . $dbtype;
