@@ -568,7 +568,7 @@ sub removeFromGroup
 	my $group   = $this->{group};
 
 	# manipulate group in place for a speed boost
-	my $pos = 0;
+	my $pos = -1;
 	while ($pos < $#{ $group })
 	{
 		$pos++, next unless $group->[ $pos ] == $node_id;
