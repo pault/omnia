@@ -210,8 +210,9 @@ sub updateGroup
 			# diff is negative, so we need to remove abs($diff) number
 			# of entries.
 			my $maxrank = $this->{DB}->sqlSelect( 'max(rank)', $table,
-				"${table}_id=? and node_id=?", "limit $abs" );
-
+				"${table}_id=? and node_id=?", "limit $abs",
+				[$this->{node_id}, $node] );
+				
 			next unless $maxrank;
 
 			my $count = $maxrank - $abs;
