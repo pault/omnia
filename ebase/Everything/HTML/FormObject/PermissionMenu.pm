@@ -108,7 +108,7 @@ sub cgiUpdate
 	my $value = $query->param($name);
 	my $field = $this->getBindField($query, $name);
 
-	($field, my $perm) = split(':', $field);
+	($field, my $perm) = split('::', $field);
 
 	# Make sure this is not a restricted field that we cannot update directly.
 	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
