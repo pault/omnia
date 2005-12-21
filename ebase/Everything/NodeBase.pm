@@ -900,8 +900,7 @@ sub getNodeByName
 	
 	$NODE = $this->{cache}->getCachedNodeByName($node, $$TYPE{title});
 	return $NODE if(defined $NODE);
-
-	$cursor = $this->sqlSelectMany("*", "node", "title='".$node."' AND type_nodetype=".$$TYPE{node_id});
+	$cursor = $this->sqlSelectMany("*", "node", "title=".$this->quote($node)." AND type_nodetype=".$$TYPE{node_id});
 
 	return unless $cursor;
 
