@@ -115,7 +115,7 @@ if(not (getResponse("y") =~ /^y$/i))
 WriteMakefile(
 	NAME          => 'Everything',
 	DISTNAME      => 'Everything-base',
-	VERSION_FROM  => 'Everything.pm',
+	VERSION_FROM  => 'lib/Everything.pm',
 
 	# These are the modules that we require
 	PREREQ_PM     => {
