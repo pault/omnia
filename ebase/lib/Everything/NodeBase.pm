@@ -1,3 +1,4 @@
+
 =head1 Everything::NodeBase
 
 Wrapper for the Everything database and cache.  
@@ -18,6 +19,7 @@ use Everything::NodeCache;
 use Everything::Node;
 
 =cut
+
 
 =head2 C<new>
 
@@ -46,31 +48,31 @@ Returns a new NodeBase object
 
 sub new
 {
-	my ($class, $db, $staticNodetypes) = @_;
+	my ( $class, $db, $staticNodetypes ) = @_;
 
-	my ($dbname, $user, $pass, $host) = split /:/, $db;
+	my ( $dbname, $user, $pass, $host ) = split /:/, $db;
 	$user ||= 'root';
 	$pass ||= '';
 	$host ||= 'localhost';
 
 	my $this = bless {}, $class;
 
-	$this->databaseConnect($dbname, $host, $user, $pass);
+	$this->databaseConnect( $dbname, $host, $user, $pass );
 
-	$this->{cache}           = Everything::NodeCache->new($this, 300);
+	$this->{cache}           = Everything::NodeCache->new( $this, 300 );
 	$this->{dbname}          = $dbname;
 	$this->{nodetypeModules} = $this->buildNodetypeModules();
 	$this->{staticNodetypes} = $staticNodetypes ? 1 : 0;
 
-	if ($this->getType('setting'))
+	if ( $this->getType('setting') )
 	{
-		my $CACHE = $this->getNode('cache settings', 'setting');
+		my $CACHE     = $this->getNode( 'cache settings', 'setting' );
 		my $cacheSize = 300;
 
 		# Get the settings from the system
-		if (defined $CACHE && UNIVERSAL::isa( $CACHE, 'Everything::Node'))
+		if ( defined $CACHE && UNIVERSAL::isa( $CACHE, 'Everything::Node' ) )
 		{
-			my $vars   = $CACHE->getVars();
+			my $vars = $CACHE->getVars();
 			$cacheSize = $vars->{maxSize} if exists $vars->{maxSize};
 		}
 
@@ -81,6 +83,7 @@ sub new
 }
 
 =cut
+
 
 =head2 C<joinWorkspace>
 
@@ -99,23 +102,24 @@ workspace_id, node, or 0 for none
 
 sub joinWorkspace
 {
-	my ($this, $WORKSPACE) = @_;
+	my ( $this, $WORKSPACE ) = @_;
 
 	delete $this->{workspace} if exists $this->{workspace};
 
-    return 1 unless $WORKSPACE;
+	return 1 unless $WORKSPACE;
 
 	$this->getRef($WORKSPACE);
 	return -1 unless $WORKSPACE;
-	$this->{workspace}                 = $WORKSPACE;
-	$this->{workspace}{nodes}          = $WORKSPACE->getVars;
-	$this->{workspace}{nodes}        ||= {};
-	$this->{workspace}{cached_nodes}   = {};
+	$this->{workspace} = $WORKSPACE;
+	$this->{workspace}{nodes} = $WORKSPACE->getVars;
+	$this->{workspace}{nodes} ||= {};
+	$this->{workspace}{cached_nodes} = {};
 
 	1;
 }
 
 =cut
+
 
 =head2 C<getNodeWorkspace>
 
@@ -137,13 +141,14 @@ type discrimination (optional)
 
 =cut
 
-sub getNodeWorkspace {
-	my ($this, $WHERE, $TYPE) = @_;
+sub getNodeWorkspace
+{
+	my ( $this, $WHERE, $TYPE ) = @_;
 	my @results;
 	$TYPE = $this->getType($TYPE) if $TYPE;
 
 	my $cmpval = sub {
-		my ($val1, $val2) = @_;
+		my ( $val1, $val2 ) = @_;
 
 		$val1 = $val1->{node_id} if UNIVERSAL::isa( $val1, 'Everything::Node' );
 		$val2 = $val2->{node_id} if UNIVERSAL::isa( $val2, 'Everything::Node' );
@@ -152,20 +157,26 @@ sub getNodeWorkspace {
 	};
 
 	#we need to iterate through our workspace
-	foreach my $node (keys %{ $this->{workspace}{nodes} }) {
+	foreach my $node ( keys %{ $this->{workspace}{nodes} } )
+	{
 		my $N = $this->getNode($node);
 		next if $TYPE and $$N{type}{node_id} != $$TYPE{node_id};
 
 		my $match = 1;
-		foreach (keys %$WHERE) {
-			if (ref $$WHERE{$_} eq 'ARRAY') {
+		foreach ( keys %$WHERE )
+		{
+			if ( ref $$WHERE{$_} eq 'ARRAY' )
+			{
 				my $matchor = 0;
-				foreach my $orval (@{ $$WHERE{$_} }) {
-					$matchor = 1 if $cmpval->($$N{$_}, $orval);
+				foreach my $orval ( @{ $$WHERE{$_} } )
+				{
+					$matchor = 1 if $cmpval->( $$N{$_}, $orval );
 				}
 				$match = 0 unless $matchor;
-			} else {
-				$match = 0 unless $cmpval->($$N{$_}, $$WHERE{$_});
+			}
+			else
+			{
+				$match = 0 unless $cmpval->( $$N{$_}, $$WHERE{$_} );
 			}
 		}
 		push @results, $N if $match;
@@ -175,6 +186,7 @@ sub getNodeWorkspace {
 }
 
 =cut
+
 
 =head2 C<rebuildNodetypeModules>
 
@@ -186,13 +198,14 @@ Primarily used by nbmasta when installing a new nodeball.
 sub rebuildNodetypeModules
 {
 	my ($this) = @_;
-	
+
 	$this->{nodetypeModules} = $this->buildNodetypeModules();
 
 	return;
 }
 
 =cut
+
 
 =head2 C<buildNodetypeModules>
 
@@ -207,17 +220,17 @@ sub buildNodetypeModules
 {
 	my ($this) = @_;
 
-	my $csr = $this->sqlSelectMany('title', 'node', 'type_nodetype=1');
+	my $csr = $this->sqlSelectMany( 'title', 'node', 'type_nodetype=1' );
 	return unless $csr;
 
 	my %modules;
 
-	while (my ($title) = $csr->fetchrow_array())
+	while ( my ($title) = $csr->fetchrow_array() )
 	{
 		$title =~ s/\W//g;
 		my $modname = "Everything::Node::$title";
 
-		$modules{ $modname } = 1 if $this->loadNodetypeModule( $modname );
+		$modules{$modname} = 1 if $this->loadNodetypeModule($modname);
 	}
 
 	return \%modules;
@@ -225,25 +238,27 @@ sub buildNodetypeModules
 
 sub loadNodetypeModule
 {
-	my ($self, $modname) = @_;
-	(my $modpath = $modname . '.pm') =~ s!::!/!g;
+	my ( $self, $modname ) = @_;
+	( my $modpath = $modname . '.pm' ) =~ s!::!/!g;
 
-	return 1 if exists $INC{ $modpath };
-	
+	return 1 if exists $INC{$modpath};
+
 	foreach my $path (@INC)
 	{
-		next unless -e
-			File::Spec->canonpath( File::Spec->catfile( $path, $modpath ) );
+		next
+			unless -e File::Spec->canonpath(
+			File::Spec->catfile( $path, $modpath ) );
 		last if eval { require $modpath };
 	}
 
 	Everything::logErrors( '', "Using '$modname' gave errors: '$@'" )
 		if $@ and $@ !~ /Can't locate/;
 
-	return exists $INC{ $modpath };
+	return exists $INC{$modpath};
 }
 
 =cut
+
 
 =head2 C<resetNodeCache>
 
@@ -264,6 +279,7 @@ sub resetNodeCache
 
 =cut
 
+
 =head2 C<getDatabaseHandle>
 
 This returns the DBI connection to the database.  This can be used to do raw
@@ -283,6 +299,7 @@ sub getDatabaseHandle
 
 =cut
 
+
 =head2 C<getCache>
 
 This returns the NodeCache object that we are using to cache nodes.  In
@@ -301,6 +318,7 @@ sub getCache
 }
 
 =cut
+
 
 =head2 C<sqlDelete>
 
@@ -328,18 +346,19 @@ Returns 0 (false) if the sql command fails, 1 (true) if successful.
 
 sub sqlDelete
 {
-	my ($this, $table, $where, $bound) = @_;
+	my ( $this, $table, $where, $bound ) = @_;
 	$bound ||= [];
 
 	return unless $where;
 
-	my $sql = "DELETE FROM ". $this->genTableName($table) . " WHERE $where";
-	my $sth = $this->{dbh}->prepare( $sql );
-	return $sth->execute( @$bound )
+	my $sql = "DELETE FROM " . $this->genTableName($table) . " WHERE $where";
+	my $sth = $this->{dbh}->prepare($sql);
+	return $sth->execute(@$bound)
 		or Everything::logErrors( '', "Delete failed: '$sql' [@$bound]" );
 }
 
 =cut
+
 
 =head2 C<sqlSelect>
 
@@ -376,16 +395,17 @@ sub sqlSelect
 {
 	my $this = shift;
 	return unless my $cursor = $this->sqlSelectMany(@_);
-	
+
 	my @result = $cursor->fetchrow();
 	$cursor->finish();
-	
+
 	return unless @result;
 	return $result[0] if @result == 1;
 	return \@result;
 }
 
 =cut
+
 
 =head2 C<sqlSelectJoined>
 
@@ -423,17 +443,18 @@ selected rows.  undef if error.
 
 sub sqlSelectJoined
 {
-	my ($this, $select, $table, $joins, $where, $other, @bound) = @_;
+	my ( $this, $select, $table, $joins, $where, $other, @bound ) = @_;
 
 	my $sql = "SELECT $select ";
 	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
 
-	while (my ($join, $column) = each %$joins) {
+	while ( my ( $join, $column ) = each %$joins )
+	{
 		$sql .= "LEFT JOIN " . $this->genTableName($join) . " ON $column ";
 	}
 
 	$sql .= "WHERE $where " if $where;
-	$sql .= $other if $other;
+	$sql .= $other          if $other;
 
 	my $cursor = $this->{dbh}->prepare($sql) or return;
 
@@ -442,6 +463,7 @@ sub sqlSelectJoined
 }
 
 =cut
+
 
 =head2 C<sqlSelectMany>
 
@@ -479,22 +501,23 @@ selected rows.  undef if error.
 
 sub sqlSelectMany
 {
-	my($this, $select, $table, $where, $other, $bound) = @_;
+	my ( $this, $select, $table, $where, $other, $bound ) = @_;
 
 	$bound ||= [];
 
 	my $sql = "SELECT $select ";
-	$sql   .= "FROM " . $this->genTableName($table) . " " if $table;
-	$sql   .= "WHERE $where " if $where;
-	$sql   .= $other if $other;
+	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
+	$sql .= "WHERE $where "                             if $where;
+	$sql .= $other                                      if $other;
 
 	my $cursor = $this->{dbh}->prepare($sql) or return;
 
-	return $cursor if $cursor->execute( @$bound );
+	return $cursor if $cursor->execute(@$bound);
 	return;
 }
 
 =cut
+
 
 =head2 C<sqlSelectHashref>
 
@@ -539,6 +562,7 @@ sub sqlSelectHashref
 
 =cut
 
+
 =head2 C<sqlUpdate>
 
 Wrapper for sql update command.
@@ -567,13 +591,14 @@ was changed).
 
 sub sqlUpdate
 {
-	my($this, $table, $data, $where, $prebound) = @_;
+	my ( $this, $table, $data, $where, $prebound ) = @_;
 
 	return unless keys %$data;
-	my ($names, $values, $bound) = $this->_quoteData( $data );
+	my ( $names, $values, $bound ) = $this->_quoteData($data);
 
-	my $sql = "UPDATE " . $this->genTableName($table) . " SET " .
-		join(",\n", map { "$_ = " . shift @$values } @$names);
+	my $sql = "UPDATE "
+		. $this->genTableName($table) . " SET "
+		. join( ",\n", map { "$_ = " . shift @$values } @$names );
 
 	$sql .= "\nWHERE $where\n" if $where;
 	push @$bound, @$prebound if $prebound and @$prebound;
@@ -582,6 +607,7 @@ sub sqlUpdate
 }
 
 =cut
+
 
 =head2 C<sqlInsert>
 
@@ -607,16 +633,21 @@ Returns true if successful, false otherwise.
 
 sub sqlInsert
 {
-	my ($this, $table, $data) = @_;
+	my ( $this, $table, $data ) = @_;
 
-	my ($names, $values, $bound) = $this->_quoteData( $data );
-	my $sql = "INSERT INTO " . $this->genTableName($table) . " (" .
-		join(', ', @$names) . ") VALUES(" . join(', ', @$values) . ")";
+	my ( $names, $values, $bound ) = $this->_quoteData($data);
+	my $sql =
+		  "INSERT INTO "
+		. $this->genTableName($table) . " ("
+		. join( ', ', @$names )
+		. ") VALUES("
+		. join( ', ', @$values ) . ")";
 
 	return $this->sqlExecute( $sql, $bound );
 }
 
 =cut
+
 
 C<_quoteData>
 
@@ -636,20 +667,20 @@ Quote database per existing convention:
 
 sub _quoteData
 {
-	my ($this, $data) = @_;
+	my ( $this, $data ) = @_;
 
-	my (@names, @values, @bound);
-	
-	while (my ($name, $value) = each %$data)
+	my ( @names, @values, @bound );
+
+	while ( my ( $name, $value ) = each %$data )
 	{
-		if ($name =~ s/^-//)
+		if ( $name =~ s/^-// )
 		{
 			push @values, $value;
 		}
 		else
 		{
 			push @values, '?';
-			push @bound, $value;
+			push @bound,  $value;
 		}
 		push @names, $name;
 	}
@@ -658,6 +689,7 @@ sub _quoteData
 }
 
 =cut
+
 
 =head2 C<sqlExecute>
 
@@ -682,16 +714,17 @@ Failures are logged.
 
 sub sqlExecute
 {
-	my ($this, $sql, $bound) = @_;
+	my ( $this, $sql, $bound ) = @_;
 	my $sth;
 
-	unless ($sth = $this->{dbh}->prepare( $sql ))
+	unless ( $sth = $this->{dbh}->prepare($sql) )
 	{
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
 		return;
 	}
 
-	$sth->execute( @$bound ) or do {
+	$sth->execute(@$bound) or do
+	{
 		local $" = '][';
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
 	};
@@ -701,12 +734,13 @@ sub sqlExecute
 #	TEMPORARY WRAPPER!
 sub getNodeById
 {
-	my ($this, $node_id, $selectop) = @_;
+	my ( $this, $node_id, $selectop ) = @_;
 
-	return $this->getNode($node_id, $selectop);
+	return $this->getNode( $node_id, $selectop );
 }
 
 =cut
+
 
 =head2 C<newNode>
 
@@ -733,15 +767,16 @@ to save it to the database, you will need to call insert() on it.
 
 sub newNode
 {
-	my ($this, $type, $title) = @_;
+	my ( $this, $type, $title ) = @_;
 
-	$title ||= "dummy" . int(rand(1000000));
+	$title ||= "dummy" . int( rand(1000000) );
 	$type = $this->getType($type);
 
-	return $this->getNode($title, $type, 'create force');
+	return $this->getNode( $title, $type, 'create force' );
 }
 
 =cut
+
 
 =head2 C<getNode>
 
@@ -791,7 +826,7 @@ Returns a node object if successful.  undef otherwise.
 
 sub getNode
 {
-	my ($this, $node, $ext, $ext2) = @_;
+	my ( $this, $node, $ext, $ext2 ) = @_;
 	return unless defined $node and $node ne '';
 
 	# it may already be a node
@@ -800,70 +835,77 @@ sub getNode
 	my $NODE;
 	my $cache = "";
 
-	if (ref $node eq 'HASH')
+	if ( ref $node eq 'HASH' )
 	{
+
 		# This a "where" select
-		my $nodeArray = $this->getNodeWhere($node, $ext, $ext2, 1) || [];
-		if (exists $this->{workspace})
+		my $nodeArray = $this->getNodeWhere( $node, $ext, $ext2, 1 ) || [];
+		if ( exists $this->{workspace} )
 		{
-			my $wspaceArray = $this->getNodeWorkspace($node, $ext);
+			my $wspaceArray = $this->getNodeWorkspace( $node, $ext );
+
 			#the nodes we get back are unordered, must be merged
-			#with the workspace.  Also any nodes which were in the 
+			#with the workspace.  Also any nodes which were in the
 			#nodearray, and the workspace, but not the wspace array
 			#must be removed
 
-			my @results = (( grep {
-				! exists $this->{workspace}{nodes}{ $_->{node_id } }
-			} @$nodeArray ), @$wspaceArray);
+			my @results = (
+				(
+					grep { !exists $this->{workspace}{nodes}{ $_->{node_id} } }
+						@$nodeArray
+				),
+				@$wspaceArray
+			);
 
 			return unless @results;
 			my $orderby = $ext2 || 'node_id';
 
 			my $position = ( $orderby =~ /\s+desc/i ) ? -1 : 0;
 
-			@results = sort {$a->{$orderby} cmp $b->{$orderby}} @results;
-			return $results[ $position ];
+			@results = sort { $a->{$orderby} cmp $b->{$orderby} } @results;
+			return $results[$position];
 			return shift @results;
 		}
 		else
-		{ 
+		{
 			return $nodeArray->[0] if @$nodeArray;
 			return;
 		}
 	}
-	elsif($node =~ /^\d+$/)
+	elsif ( $node =~ /^\d+$/ )
 	{
-		$NODE = $this->getNodeByIdNew($node, $ext);
-		$cache = "nocache" if(defined $ext && $ext eq 'light');
+		$NODE = $this->getNodeByIdNew( $node, $ext );
+		$cache = "nocache" if ( defined $ext && $ext eq 'light' );
 	}
 	else
 	{
 		$ext = $this->getType($ext);
 
 		$ext2 ||= "";
-		if($ext2 ne "create force")
+		if ( $ext2 ne "create force" )
 		{
-			$NODE = $this->getNodeByName($node, $ext);
+			$NODE = $this->getNodeByName( $node, $ext );
 		}
 
-		if(($ext2 eq "create force") or
-			($ext2 eq "create" && (not defined $NODE)))
+		if (   ( $ext2 eq "create force" )
+			or ( $ext2 eq "create" && ( not defined $NODE ) ) )
 		{
+
 			# We need to create a dummy node for possible insertion!
 			# Give the dummy node pemssions to inherit everything
 			$NODE = {
-				node_id => -1,
-				title => $node,
-				type_nodetype => $this->getId($ext),
-				authoraccess => 'iiii',
-				groupaccess => 'iiiii',
-				otheraccess => 'iiiii',
-				guestaccess => 'iiiii',
-				group_usergroup => -1,
+				node_id                  => -1,
+				title                    => $node,
+				type_nodetype            => $this->getId($ext),
+				authoraccess             => 'iiii',
+				groupaccess              => 'iiiii',
+				otheraccess              => 'iiiii',
+				guestaccess              => 'iiiii',
+				group_usergroup          => -1,
 				dynamicauthor_permission => -1,
-				dynamicgroup_permission => -1,
-				dynamicother_permission => -1,
-				dynamicguest_permission => -1,
+				dynamicgroup_permission  => -1,
+				dynamicother_permission  => -1,
+				dynamicguest_permission  => -1,
 			};
 
 			# We do not want to cache dummy nodes
@@ -873,11 +915,11 @@ sub getNode
 
 	return unless $NODE;
 
-	$NODE = Everything::Node->new($NODE, $this, $cache);
+	$NODE = Everything::Node->new( $NODE, $this, $cache );
 
-	if (exists $this->{workspace} and
-		exists $this->{workspace}{nodes}{$NODE->{node_id}} and
-		$this->{workspace}{nodes}{$NODE->{node_id}})
+	if (    exists $this->{workspace}
+		and exists $this->{workspace}{nodes}{ $NODE->{node_id} }
+		and $this->{workspace}{nodes}{ $NODE->{node_id} } )
 	{
 		my $WS = $NODE->getWorkspaced();
 		return $WS if $WS;
@@ -886,21 +928,24 @@ sub getNode
 	return $NODE;
 }
 
-
 #############################################################################
 sub getNodeByName
 {
-	my ($this, $node, $TYPE) = @_;
+	my ( $this, $node, $TYPE ) = @_;
 	my $NODE;
 	my $cursor;
 
-	return unless($TYPE);
+	return unless ($TYPE);
 
 	$this->getRef($TYPE);
-	
-	$NODE = $this->{cache}->getCachedNodeByName($node, $$TYPE{title});
-	return $NODE if(defined $NODE);
-	$cursor = $this->sqlSelectMany("*", "node", "title=".$this->quote($node)." AND type_nodetype=".$$TYPE{node_id});
+
+	$NODE = $this->{cache}->getCachedNodeByName( $node, $$TYPE{title} );
+	return $NODE if ( defined $NODE );
+	$cursor = $this->sqlSelectMany( "*", "node",
+		      "title="
+			. $this->quote($node)
+			. " AND type_nodetype="
+			. $$TYPE{node_id} );
 
 	return unless $cursor;
 
@@ -918,6 +963,7 @@ sub getNodeByName
 
 =cut
 
+
 =head2 C<getNodeZero>
 
 The node with zero as its ID is a "dummy" node that represents the root
@@ -933,60 +979,61 @@ Returns the "Zero Node".
 sub getNodeZero
 {
 	my ($this) = @_;
-	unless(exists $$this{nodezero})
+	unless ( exists $$this{nodezero} )
 	{
-		$$this{nodezero} = $this->getNode("/", "location", "create force");
+		$$this{nodezero} = $this->getNode( "/", "location", "create force" );
 
 		$$this{nodezero}{node_id} = 0;
 
 		$$this{nodezero}{guestaccess} = "-----";
 		$$this{nodezero}{otheraccess} = "-----";
 		$$this{nodezero}{groupaccess} = "-----";
-		$$this{nodezero}{author_user} = $this->getNode("root", "user");
+		$$this{nodezero}{author_user} = $this->getNode( "root", "user" );
 	}
 
 	return $$this{nodezero};
 }
 
-
 #############################################################################
 sub getNodeByIdNew
 {
-	my ($this, $node_id, $selectop) = @_;
+	my ( $this, $node_id, $selectop ) = @_;
 	my $cursor;
 	my $NODE;
 
 	$selectop ||= "";
 
-	return $this->getNodeZero() if($node_id == 0);
+	return $this->getNodeZero() if ( $node_id == 0 );
 	return unless $node_id;
 
-	if($selectop ne "force")
+	if ( $selectop ne "force" )
 	{
 		$NODE = $this->{cache}->getCachedNodeById($node_id);
 	}
 
-	if(not defined $NODE)
+	if ( not defined $NODE )
 	{
-		$cursor = $this->sqlSelectMany("*", "node", "node_id=$node_id");
+		$cursor = $this->sqlSelectMany( "*", "node", "node_id=$node_id" );
 
 		return unless $cursor;
 
 		$NODE = $cursor->fetchrow_hashref();
 		$cursor->finish();
 
-		if($selectop ne "light")
+		if ( $selectop ne "light" )
 		{
+
 			# OK, we have the hash from the 'node' table.  Now we need to
 			# construct the rest of the node.
 			$this->constructNode($NODE);
 		}
 	}
-	
+
 	return $NODE;
 }
 
 =cut
+
 
 =head2 C<constructNode>
 
@@ -1011,15 +1058,15 @@ passed in will now be a complete node.
 
 sub constructNode
 {
-	my ($this, $NODE) = @_;
+	my ( $this, $NODE ) = @_;
 	my $cursor;
 	my $DATA;
-	my $tables = $this->getNodetypeTables($$NODE{type_nodetype});
+	my $tables = $this->getNodetypeTables( $$NODE{type_nodetype} );
 	my $table;
 	my $firstTable;
 	my $tablehash;
 
-	return unless($tables && @$tables > 0);
+	return unless ( $tables && @$tables > 0 );
 
 	$firstTable = pop @$tables;
 
@@ -1028,26 +1075,29 @@ sub constructNode
 		$$tablehash{$table} = $firstTable . "_id=$table" . "_id";
 	}
 
-	$cursor = $this->sqlSelectJoined("*", $firstTable, $tablehash, $firstTable . "_id=" . $$NODE{node_id});
+	$cursor =
+		$this->sqlSelectJoined( "*", $firstTable, $tablehash,
+		$firstTable . "_id=" . $$NODE{node_id} );
 
-	return 0 unless(defined $cursor);
+	return 0 unless ( defined $cursor );
 
 	$DATA = $cursor->fetchrow_hashref();
 	$cursor->finish();
 
-	@$NODE{keys %$DATA} = values %$DATA;
+	@$NODE{ keys %$DATA } = values %$DATA;
 
 	# Make sure each field is at least defined to be nothing.
-	foreach (keys %$NODE)
+	foreach ( keys %$NODE )
 	{
-		$$NODE{$_} = "" unless defined ($$NODE{$_});
+		$$NODE{$_} = "" unless defined( $$NODE{$_} );
 	}
 
-	$this->fix_node_keys( $NODE );
+	$this->fix_node_keys($NODE);
 	return 1;
 }
 
 =cut
+
 
 =head2 C<getNodeWhere>
 
@@ -1092,16 +1142,19 @@ undef, if the operation fails
 
 =cut
 
-sub getNodeWhere { my $this = shift;
+sub getNodeWhere
+{
+	my $this = shift;
 
-	my $selectNodeWhere = $this->selectNodeWhere( @_ );
+	my $selectNodeWhere = $this->selectNodeWhere(@_);
 
-	return unless defined $selectNodeWhere
+	return
+		unless defined $selectNodeWhere
 		and UNIVERSAL::isa( $selectNodeWhere, 'ARRAY' );
-	
+
 	my @nodelist;
 
-	foreach my $node (@{ $selectNodeWhere })
+	foreach my $node ( @{$selectNodeWhere} )
 	{
 		my $NODE = $this->getNode($node);
 		push @nodelist, $NODE if $NODE;
@@ -1111,6 +1164,7 @@ sub getNodeWhere { my $this = shift;
 }
 
 =cut
+
 
 =head2 C<selectNodeWhere>
 
@@ -1163,21 +1217,23 @@ if no matches.
 
 sub selectNodeWhere
 {
-	my ($this, $WHERE, $TYPE, $orderby, $limit, $offset, $refTotalRows,
-		$nodeTableOnly) = @_;
+	my ( $this, $WHERE, $TYPE, $orderby, $limit, $offset, $refTotalRows,
+		$nodeTableOnly )
+		= @_;
 
 	$TYPE = undef if defined $TYPE && $TYPE eq '';
 
 	# The caller wishes to know the total number of matches.
 	$$refTotalRows = $this->countNodeMatches( $WHERE, $TYPE ) if $refTotalRows;
 
-	my $cursor = $this->getNodeCursor( 'node_id', $WHERE, $TYPE, $orderby,
-		$limit, $offset, $nodeTableOnly );
+	my $cursor =
+		$this->getNodeCursor( 'node_id', $WHERE, $TYPE, $orderby, $limit,
+		$offset, $nodeTableOnly );
 
 	return unless $cursor and $cursor->execute();
 
 	my @nodelist;
-	while (my $node_id = $cursor->fetchrow())
+	while ( my $node_id = $cursor->fetchrow() )
 	{
 		push @nodelist, $node_id;
 	}
@@ -1189,6 +1245,7 @@ sub selectNodeWhere
 }
 
 =cut
+
 
 =head2 C<getNodeCursor>
 
@@ -1244,8 +1301,9 @@ cursor.
 
 sub getNodeCursor
 {
-	my ($this, $select, $WHERE, $TYPE, $orderby, $limit, $offset,
-		$nodeTableOnly) = @_;
+	my ( $this, $select, $WHERE, $TYPE, $orderby, $limit, $offset,
+		$nodeTableOnly )
+		= @_;
 	my $cursor;
 	my $tablehash;
 
@@ -1254,19 +1312,19 @@ sub getNodeCursor
 	# Make sure we have a nodetype object
 	$TYPE = $this->getType($TYPE);
 
-	my $wherestr = $this->genWhereString($WHERE, $TYPE);
+	my $wherestr = $this->genWhereString( $WHERE, $TYPE );
 
 	# We need to generate an sql join command that has the potential
 	# to join on multiple tables.  This way the SQL engine does the
 	# search for us.
 
 	# Now we need to join on the appropriate tables.
-	if(not $nodeTableOnly && defined $TYPE)
+	if ( not $nodeTableOnly && defined $TYPE )
 	{
 		my $tableArray = $this->getNodetypeTables($TYPE);
 		my $table;
-		
-		if($tableArray)
+
+		if ($tableArray)
 		{
 			foreach $table (@$tableArray)
 			{
@@ -1277,7 +1335,7 @@ sub getNodeCursor
 
 	my $extra;
 	$extra .= "ORDER BY $orderby" if $orderby;
-	$extra .= " " . $this->genLimitString($offset, $limit) if $limit;
+	$extra .= " " . $this->genLimitString( $offset, $limit ) if $limit;
 
 	# Trap for SQL errors!
 	my $warn;
@@ -1285,13 +1343,18 @@ sub getNodeCursor
 	local $SIG{__WARN__} = sub {
 		$warn .= $_[0];
 	};
-	eval { $cursor = $this->sqlSelectJoined($select, "node", $tablehash, $wherestr, $extra); };
+	eval
+	{
+		$cursor =
+			$this->sqlSelectJoined( $select, "node", $tablehash, $wherestr,
+			$extra );
+	};
 	$error = $@;
 	local $SIG{__WARN__} = sub { };
-	
-	if($error ne "" or $warn ne "")
+
+	if ( $error ne "" or $warn ne "" )
 	{
-		Everything::logErrors($warn, $error, "$select\n($TYPE)");
+		Everything::logErrors( $warn, $error, "$select\n($TYPE)" );
 		return;
 	}
 
@@ -1299,6 +1362,7 @@ sub getNodeCursor
 }
 
 =cut
+
 
 =head2 C<countNodeMatches>
 
@@ -1325,11 +1389,11 @@ Returns the number of matches found.
 
 sub countNodeMatches
 {
-	my ($this, $WHERE, $TYPE) = @_;
+	my ( $this, $WHERE, $TYPE ) = @_;
 	my $cursor  = $this->getNodeCursor( 'count(*)', $WHERE, $TYPE );
 	my $matches = 0;
-	
-	if ($cursor && $cursor->execute())
+
+	if ( $cursor && $cursor->execute() )
 	{
 		($matches) = $cursor->fetchrow();
 		$cursor->finish();
@@ -1339,6 +1403,7 @@ sub countNodeMatches
 }
 
 =cut
+
 
 =head2 C<getType>
 
@@ -1351,19 +1416,20 @@ Returns a hash ref to a nodetype node.  undef if not found
 
 sub getType
 {
-	my ($this, $idOrName) = @_;
+	my ( $this, $idOrName ) = @_;
 
 	return unless defined $idOrName and $idOrName ne '';
 
 	# The thing they passed in is good to go.
 	return $idOrName if UNIVERSAL::isa( $idOrName, 'Everything::Node' );
 
-	return $this->getNode($idOrName, 1) if $idOrName =~ /\D/;
-	return $this->getNode($idOrName)    if $idOrName > 0;
+	return $this->getNode( $idOrName, 1 ) if $idOrName =~ /\D/;
+	return $this->getNode($idOrName) if $idOrName > 0;
 	return;
 }
 
 =cut
+
 
 =head2 C<getAllTypes>
 
@@ -1378,12 +1444,12 @@ sub getAllTypes
 {
 	my ($this) = @_;
 
-	my $cursor = $this->sqlSelectMany('node_id', 'node', 'type_nodetype=1');
+	my $cursor = $this->sqlSelectMany( 'node_id', 'node', 'type_nodetype=1' );
 	return unless $cursor;
 
 	my @allTypes;
 
-	while( my ($node_id) = $cursor->fetchrow() )
+	while ( my ($node_id) = $cursor->fetchrow() )
 	{
 		push @allTypes, $this->getNode($node_id);
 	}
@@ -1394,6 +1460,7 @@ sub getAllTypes
 }
 
 =cut
+
 
 =head2 C<getFields>
 
@@ -1413,12 +1480,13 @@ Returns an array of field names
 
 sub getFields
 {
-	my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 
-	return $this->getFieldsHash($table, 0);
+	return $this->getFieldsHash( $table, 0 );
 }
 
 =cut
+
 
 =head2 C<dropNodeTable>
 
@@ -1439,29 +1507,33 @@ Returns 1 if successful, 0 otherwise.
 
 sub dropNodeTable
 {
-	my ($this, $table) = @_;
-	
+	my ( $this, $table ) = @_;
+
 	# These are the tables that we don't want to drop.  Dropping one
 	# of these could cause the entire system to break.  If you really
 	# want to drop one of these, do it from the command line.
-	my $nodrop = { map { $_ => 1 } qw(
-		container document htmlcode htmlpage image links maintenance node
-		nodegroup nodelet nodetype note rating user
-	)};
+	my $nodrop = {
+		map { $_ => 1 }
+			qw(
+			container document htmlcode htmlpage image links maintenance node
+			nodegroup nodelet nodetype note rating user
+			)
+	};
 
-	if (exists $nodrop->{$table})
+	if ( exists $nodrop->{$table} )
 	{
 		Everything::logErrors( '', "Attempted to drop core table '$table'!" );
 		return 0;
 	}
-	
+
 	return 0 unless $this->tableExists($table);
 
 	Everything::printLog("Dropping table '$table'");
-	return $this->{dbh}->do("drop table " . $this->genTableName($table));
+	return $this->{dbh}->do( "drop table " . $this->genTableName($table) );
 }
 
 =cut
+
 
 =head2 C<quote>
 
@@ -1482,12 +1554,13 @@ Returns the quoted string.
 
 sub quote
 {
-	my ($this, $str) = @_;
+	my ( $this, $str ) = @_;
 
 	return $this->{dbh}->quote($str);
 }
 
 =cut
+
 
 =head2 C<genWhereString>
 
@@ -1521,13 +1594,13 @@ Returns	a string that can be used for the sql query.
 
 sub genWhereString
 {
-	my ($this, $WHERE, $TYPE) = @_;
+	my ( $this, $WHERE, $TYPE ) = @_;
 	my $wherestr = "";
 	my $tempstr;
-	
-	if(ref $WHERE eq "HASH")
+
+	if ( ref $WHERE eq "HASH" )
 	{
-		foreach my $key (keys %$WHERE)
+		foreach my $key ( keys %$WHERE )
 		{
 			$tempstr = "";
 
@@ -1535,54 +1608,59 @@ sub genWhereString
 			# want to compare the ID of the node, not the hash reference.
 			if ( UNIVERSAL::isa( $WHERE->{$key}, 'Everything::Node' ) )
 			{
-				$$WHERE{$key} = $this->getId($WHERE->{$key});
+				$$WHERE{$key} = $this->getId( $WHERE->{$key} );
 			}
-			
+
 			# If $key starts with a '-', it means it's a single value.
-			if ($key =~ /^\-/)
-			{ 
+			if ( $key =~ /^\-/ )
+			{
 				$key =~ s/^\-//;
-				$tempstr .= $key . '=' . $$WHERE{'-' . $key}; 
+				$tempstr .= $key . '=' . $$WHERE{ '-' . $key };
 			}
 			else
 			{
+
 				#if we have a list, we join each item with ORs
-				if (ref ($$WHERE{$key}) eq "ARRAY")
+				if ( ref( $$WHERE{$key} ) eq "ARRAY" )
 				{
-					my $LIST = $$WHERE{$key};
-					my $orstr = "";	
-					
+					my $LIST  = $$WHERE{$key};
+					my $orstr = "";
+
 					foreach my $item (@$LIST)
 					{
-						$orstr .= " or " if($orstr ne "");
+						$orstr .= " or " if ( $orstr ne "" );
 						$item = $this->getId($item);
-						$orstr .= $key . '=' . $this->quote($item); 
+						$orstr .= $key . '=' . $this->quote($item);
 					}
 
 					$tempstr .= "(" . $orstr . ")";
 				}
-				elsif(defined $$WHERE{$key})
+				elsif ( defined $$WHERE{$key} )
 				{
-					$tempstr .= $key . '=' . $this->quote($$WHERE{$key});
+					$tempstr .= $key . '=' . $this->quote( $$WHERE{$key} );
 				}
 			}
-			
-			if($tempstr ne "")
+
+			if ( $tempstr ne "" )
 			{
+
 				#different elements are joined together with ANDS
-				$wherestr .= " AND \n" if($wherestr ne "");
+				$wherestr .= " AND \n" if ( $wherestr ne "" );
 				$wherestr .= $tempstr;
 			}
 		}
-	} else {
-		$wherestr.= $WHERE;
+	}
+	else
+	{
+		$wherestr .= $WHERE;
+
 		#note that there is no protection when you use a string
 		#play it safe and use $dbh->quote, kids.
 	}
 
-	if(defined $TYPE)
+	if ( defined $TYPE )
 	{
-		$wherestr .= " AND" if($wherestr ne "");
+		$wherestr .= " AND" if ( $wherestr ne "" );
 		$wherestr .= " type_nodetype=" . $this->getId($TYPE);
 	}
 
@@ -1593,8 +1671,8 @@ sub genWhereString
 #	"Private" functions to this module
 #############################################################################
 
-
 =cut
+
 
 C<getNodetypeTables>
 
@@ -1620,18 +1698,18 @@ on.  If the nodetype does not join on any tables, the array is empty.
 
 sub getNodetypeTables
 {
-	my ($this, $TYPE, $addNode) = @_;
+	my ( $this, $TYPE, $addNode ) = @_;
 	my @tablelist;
 
 	return unless $TYPE;
 
 	# We need to short circuit on nodetype and nodemethod, otherwise we
 	# get inf recursion.
-	if(($TYPE eq "1") or ((ref $TYPE) && ($$TYPE{node_id} == 1)))
+	if ( ( $TYPE eq "1" ) or ( ( ref $TYPE ) && ( $$TYPE{node_id} == 1 ) ) )
 	{
 		push @tablelist, "nodetype";
 	}
-	elsif(ref $TYPE && $$TYPE{title} eq "nodemethod")
+	elsif ( ref $TYPE && $$TYPE{title} eq "nodemethod" )
 	{
 		push @tablelist, "nodemethod";
 	}
@@ -1639,15 +1717,16 @@ sub getNodetypeTables
 	{
 		$this->getRef($TYPE);
 		my $tables = $TYPE->getTableArray();
-		push @tablelist, @{$tables} if($tables);
+		push @tablelist, @{$tables} if ($tables);
 	}
 
-	push @tablelist, 'node' if($addNode);
+	push @tablelist, 'node' if ($addNode);
 
 	return \@tablelist;
 }
 
 =cut
+
 
 C<getRef>
 
@@ -1665,13 +1744,14 @@ sub getRef
 	for (@_)
 	{
 		next if UNIVERSAL::isa( $_, 'Everything::Node' );
-		$_ = $this->getNode( $_ ) if defined $_;
+		$_ = $this->getNode($_) if defined $_;
 	}
 
 	return $_[0];
 }
 
 =cut
+
 
 C<getId>
 
@@ -1692,7 +1772,7 @@ Returns the node id.  undef if not able to obtain an id.
 
 sub getId
 {
-	my ($this, $node) = @_;
+	my ( $this, $node ) = @_;
 
 	return unless $node;
 	return $node->{node_id} if UNIVERSAL::isa( $node, 'Everything::Node' );
@@ -1701,6 +1781,7 @@ sub getId
 }
 
 =cut
+
 
 =head2 C<hasPermission>
 
@@ -1743,55 +1824,50 @@ Returns 1 (true), if the user has the needed permissions, 0 (false) otherwise
 
 sub hasPermission
 {
-	my ($this, $USER, $permission, $modes) = @_;
-	my $PERM = $this->getNode($permission, 'permission');
+	my ( $this, $USER, $permission, $modes ) = @_;
+	my $PERM = $this->getNode( $permission, 'permission' );
 
 	return 0 unless $PERM;
 
 	my $perms = eval $PERM->{code};
 
-	return Everything::Security::checkPermissions($perms, $modes);
+	return Everything::Security::checkPermissions( $perms, $modes );
 }
 
-
 # if the database returns odd column names, override this to fix them
-sub fix_node_keys {}
+sub fix_node_keys { }
 
 #############################################################################
 #	DEPRECATED - use hasAccess()
 sub canCreateNode
 {
-	my ($this, $USER, $TYPE) = @_;
-	return $this->hasAccess($TYPE, $USER, "c");
+	my ( $this, $USER, $TYPE ) = @_;
+	return $this->hasAccess( $TYPE, $USER, "c" );
 }
-
 
 #############################################################################
 #	DEPRECATED - use hasAccess()
 sub canDeleteNode
 {
-	my ($this, $USER, $NODE) = @_;
-	return $this->hasAccess($NODE, $USER, "d");
+	my ( $this, $USER, $NODE ) = @_;
+	return $this->hasAccess( $NODE, $USER, "d" );
 }
-
 
 #############################################################################
 #	DEPRECATED - use hasAccess()
 sub canUpdateNode
 {
-	my ($this, $USER, $NODE) = @_;
-	return $this->hasAccess($NODE, $USER, "w");
+	my ( $this, $USER, $NODE ) = @_;
+	return $this->hasAccess( $NODE, $USER, "w" );
 }
-
 
 #############################################################################
 #	DEPRECATED - use hasAccess()
 sub canReadNode
-{ 
-	my ($this, $USER, $NODE) = @_;
-	return $this->hasAccess($NODE, $USER, "r");
+{
+	my ( $this, $USER, $NODE ) = @_;
+	return $this->hasAccess( $NODE, $USER, "r" );
 }
-
 
 #############################################################################
 #	End of Package

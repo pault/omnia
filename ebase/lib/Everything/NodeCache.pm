@@ -1,3 +1,4 @@
+
 =head1 C<Everything::NodeCache>
 
 Copyright 2003, Everything Development Company.
@@ -43,7 +44,7 @@ sub BEGIN
 {
 	use Exporter();
 	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA=qw(Exporter);
+	@ISA    = qw(Exporter);
 	@EXPORT = qw(
 		setCacheSize
 		getCacheSize
@@ -51,10 +52,11 @@ sub BEGIN
 		removeNode
 		getCachedNodeById
 		getCachedNodeByName
-		dumpCache); 
+		dumpCache);
 }
 
 =cut
+
 
 =head2 C<new>
 
@@ -79,31 +81,32 @@ Returns the newly constructed module object
 
 sub new
 {
-	my ($packageName, $nodeBase, $maxSize) = @_;
+	my ( $packageName, $nodeBase, $maxSize ) = @_;
 	my $this = {};
-	
-	bless $this;  # oh, my lord
 
-	$this->{maxSize} = $maxSize;
+	bless $this;    # oh, my lord
+
+	$this->{maxSize}  = $maxSize;
 	$this->{nodeBase} = $nodeBase;
-	
+
 	$this->{nodeQueue} = new Everything::CacheQueue();
 
 	# We will keep different hashes for ids and name/type combos
-	$this->{typeCache} = {};
-	$this->{groupCache} = {};
-	$this->{idCache} = {};
-	$this->{version} = {};
-	$this->{verified} = {};
+	$this->{typeCache}    = {};
+	$this->{groupCache}   = {};
+	$this->{idCache}      = {};
+	$this->{version}      = {};
+	$this->{verified}     = {};
 	$this->{typeVerified} = {};
-	$this->{typeVersion} = {};
-	
-	$this->{methodCache}= {};
-	
+	$this->{typeVersion}  = {};
+
+	$this->{methodCache} = {};
+
 	return $this;
 }
 
 =cut
+
 
 =head2 C<setCacheSize>
 
@@ -123,13 +126,14 @@ the new size of the cache.
 
 sub setCacheSize
 {
-	my ($this, $newMaxSize) = @_;
-	
+	my ( $this, $newMaxSize ) = @_;
+
 	$this->{maxSize} = $newMaxSize;
 	$this->purgeCache();
 }
 
 =cut
+
 
 =head2 C<getCacheSize>
 
@@ -148,6 +152,7 @@ sub getCacheSize
 }
 
 =cut
+
 
 =head2 C<getCachedNodeByName>
 
@@ -173,29 +178,31 @@ Returns a $NODE hashref if we have it in the cache, otherwise undef.
 
 sub getCachedNodeByName
 {
-	my ($this, $title, $typename) = @_;
+	my ( $this, $title, $typename ) = @_;
 	my $hashkey;
 	my $data;
 	my $NODE;
-	
-	return undef if(not defined $typename);
-	
-	if(defined $this->{typeCache}{$typename}{$title})
+
+	return undef if ( not defined $typename );
+
+	if ( defined $this->{typeCache}{$typename}{$title} )
 	{
 		$data = $this->{typeCache}{$typename}{$title};
 		$NODE = $this->{nodeQueue}->getItem($data);
-	
-		if ($$NODE{title} ne $title) {
+
+		if ( $$NODE{title} ne $title )
+		{
 			delete $this->{typeCache}{$typename}{$title};
 			return undef;
 		}
-		return $NODE if($this->isSameVersion($NODE));
+		return $NODE if ( $this->isSameVersion($NODE) );
 	}
 
 	return undef;
 }
 
 =cut
+
 
 =head2 C<getCachedNodeById>
 
@@ -215,22 +222,23 @@ Returns a node hashref if we find anything, otherwise undef
 
 sub getCachedNodeById
 {
-	my ($this, $id) = @_;
+	my ( $this, $id ) = @_;
 	my $data;
 	my $NODE;
-	
-	if(defined $this->{idCache}{$id})
+
+	if ( defined $this->{idCache}{$id} )
 	{
 		$data = $this->{idCache}{$id};
 		$NODE = $this->{nodeQueue}->getItem($data);
 
-		return $NODE if($this->isSameVersion($NODE));
+		return $NODE if ( $this->isSameVersion($NODE) );
 	}
 
 	return undef;
 }
 
 =cut
+
 
 =head2 C<cacheNode>
 
@@ -252,16 +260,17 @@ True if this node is to never be removed from the cache when purging.
 
 sub cacheNode
 {
-	my ($this, $NODE, $permanent) = @_;
-	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
+	my ( $this, $NODE, $permanent ) = @_;
+	my ( $type, $title ) = ( $$NODE{type}{title}, $$NODE{title} );
 	my $data;
 
-	if(defined ($this->{idCache}{$$NODE{node_id}}))
+	if ( defined( $this->{idCache}{ $$NODE{node_id} } ) )
 	{
+
 		# This node is already in the cache, lets remove it (this will get
 		# rid of the old stale data) and reinsert it into the cache.
 		$this->removeNode($NODE);
-		
+
 		# If we are removing a node that already existed, it is because it
 		# has been updated.  We need to increment the global version.
 		#$this->incrementGlobalVersion($NODE)
@@ -269,12 +278,12 @@ sub cacheNode
 
 	# Add the NODE to the queue.  This puts the newly cached node at the
 	# end of the queue.
-	$data = $this->{nodeQueue}->queueItem($NODE, $permanent);
+	$data = $this->{nodeQueue}->queueItem( $NODE, $permanent );
 
 	# Store hash keys for its "name" and numeric Id, and set the version.
-	$this->{typeCache}{$type}{$title} = $data;
-	$this->{idCache}{$$NODE{node_id}} = $data;
-	$this->{version}{$$NODE{node_id}} = $this->getGlobalVersion($NODE);
+	$this->{typeCache}{$type}{$title}   = $data;
+	$this->{idCache}{ $$NODE{node_id} } = $data;
+	$this->{version}{ $$NODE{node_id} } = $this->getGlobalVersion($NODE);
 
 	$this->purgeCache();
 
@@ -282,6 +291,7 @@ sub cacheNode
 }
 
 =cut
+
 
 =head2 C<removeNode>
 
@@ -302,12 +312,12 @@ cache.
 
 sub removeNode
 {
-	my ($this, $NODE) = @_;
+	my ( $this, $NODE ) = @_;
 	my $data = $this->removeNodeFromHash($NODE);
 
 	# temporary keys are marked with a leading underscore
 	# this gets rid of cached subs, for example
-	my @tempkeys = grep(/^_/, keys %$NODE);
+	my @tempkeys = grep( /^_/, keys %$NODE );
 	delete @$NODE{@tempkeys};
 
 	# Removing a node for any reason from the cache warrants a version
@@ -315,11 +325,12 @@ sub removeNode
 	# being deleted.
 	# nate sez -- I think the IGV call in cacheNode takes care of this
 	#$this->incrementGlobalVersion($NODE);
-	
+
 	return $this->{nodeQueue}->removeItem($data);
 }
 
 =cut
+
 
 =head2 C<flushCache>
 
@@ -340,14 +351,15 @@ sub flushCache
 	undef $this->{version};
 	undef $this->{groupCache};
 
-	$this->{nodeQueue} = new Everything::CacheQueue();
-	$this->{typeCache} = {};
-	$this->{idCache} = {};
-	$this->{version} = {};
+	$this->{nodeQueue}  = new Everything::CacheQueue();
+	$this->{typeCache}  = {};
+	$this->{idCache}    = {};
+	$this->{version}    = {};
 	$this->{groupCache} = {};
 }
 
 =cut
+
 
 =head2 C<flushCacheGlobal>
 
@@ -365,10 +377,11 @@ sub flushCacheGlobal
 	my ($this) = @_;
 
 	$this->flushCache();
-	$this->{nodeBase}->sqlUpdate("version", { -version=>"version+1" });
+	$this->{nodeBase}->sqlUpdate( "version", { -version => "version+1" } );
 }
 
 =cut
+
 
 =head2 C<dumpCache>
 
@@ -384,7 +397,7 @@ sub dumpCache
 {
 	my ($this) = @_;
 	my $queue = $this->{nodeQueue}->listItems();
-	
+
 	return $queue;
 }
 
@@ -392,8 +405,8 @@ sub dumpCache
 # "Private" module subroutines - users of this module should never call these
 #############################################################################
 
-
 =cut
+
 
 C<purgeCache>
 
@@ -413,14 +426,15 @@ sub purgeCache
 	# size.  In general practice, the number of permanent nodes should
 	# be small.  So, this is only for cases where the cache size is set
 	# unusually small.
-	if($this->{nodeQueue}->{numPermanent} >= $this->{maxSize})
+	if ( $this->{nodeQueue}->{numPermanent} >= $this->{maxSize} )
 	{
-		$this->setCacheSize($this->{maxSize} * 2);
+		$this->setCacheSize( $this->{maxSize} * 2 );
 	}
-	
-	while (($this->{maxSize} > 0) &&
-		($this->{maxSize} < $this->getCacheSize()))
+
+	while (( $this->{maxSize} > 0 )
+		&& ( $this->{maxSize} < $this->getCacheSize() ) )
 	{
+
 		# We need to remove the least used node from our cache to keep
 		# the cache size under the maximum.
 		my $leastUsed = $this->{nodeQueue}->getNextItem();
@@ -432,6 +446,7 @@ sub purgeCache
 }
 
 =cut
+
 
 C<removeNodeFromHash>
 
@@ -451,18 +466,18 @@ Returns the node data, if it was removed.  Undef otherwise.
 
 sub removeNodeFromHash
 {
-	my ($this, $NODE) = @_;
-	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
+	my ( $this, $NODE )  = @_;
+	my ( $type, $title ) = ( $$NODE{type}{title}, $$NODE{title} );
 
-	if (defined $this->{idCache}{$$NODE{node_id}})
+	if ( defined $this->{idCache}{ $$NODE{node_id} } )
 	{
 		my $data = $this->{typeCache}{$type}{$title};
-		
+
 		# Remove this hash entry
-		delete ($this->{typeCache}{$type}{$title});
-		delete ($this->{idCache}{$$NODE{node_id}});
-		delete ($this->{version}{$$NODE{node_id}});
-		delete $this->{groupCache}{$$NODE{node_id}};
+		delete( $this->{typeCache}{$type}{$title} );
+		delete( $this->{idCache}{ $$NODE{node_id} } );
+		delete( $this->{version}{ $$NODE{node_id} } );
+		delete $this->{groupCache}{ $$NODE{node_id} };
 
 		return $data;
 	}
@@ -471,6 +486,7 @@ sub removeNodeFromHash
 }
 
 =cut
+
 
 C<getGlobalVersion>
 
@@ -490,15 +506,17 @@ Returns the version number -- will be 1 if this added it to the table.
 
 sub getGlobalVersion
 {
-	my ($this, $NODE) = @_;
-	
-	my $ver = $this->{nodeBase}->sqlSelect("version", "version",
-		"version_id=$$NODE{node_id}");
+	my ( $this, $NODE ) = @_;
 
-	if( (not defined $ver) || (not $ver) )
+	my $ver =
+		$this->{nodeBase}
+		->sqlSelect( "version", "version", "version_id=$$NODE{node_id}" );
+
+	if ( ( not defined $ver ) || ( not $ver ) )
 	{
+
 		# The version for this node does not exist.  We need to start it off.
-		$this->{nodeBase}->sqlInsert('version',
+		$this->{nodeBase}->sqlInsert( 'version',
 			{ version_id => $$NODE{node_id}, version => 1 } );
 
 		$ver = 1;
@@ -508,6 +526,7 @@ sub getGlobalVersion
 }
 
 =cut
+
 
 C<isSameVersion>
 
@@ -528,7 +547,7 @@ Returns 1 if the version is the same, 0 if not.
 
 sub isSameVersion
 {
-	my ($this, $NODE) = @_;
+	my ( $this, $NODE ) = @_;
 	return unless defined $NODE;
 
 	return 1 if exists $this->{typeVerified}{ $NODE->{type}{node_id} };
@@ -537,15 +556,17 @@ sub isSameVersion
 
 	my $ver = $this->getGlobalVersion($NODE);
 
-	if ( defined $ver && $ver == $this->{version}{ $NODE->{node_id} } ) {
+	if ( defined $ver && $ver == $this->{version}{ $NODE->{node_id} } )
+	{
 		$this->{verified}{ $NODE->{node_id} } = 1;
-	    return 1;	
+		return 1;
 	}
 
 	return 0;
 }
 
 =cut
+
 
 C<incrementGlobalVersion>
 
@@ -565,23 +586,32 @@ the node in which to increment the version for.
 
 sub incrementGlobalVersion
 {
-	my ($this, $NODE) = @_;
+	my ( $this, $NODE ) = @_;
 	my %version;
 	my $rowsAffected;
-	
-	$rowsAffected = $this->{nodeBase}->sqlUpdate('version',
-		{ -version => 'version+1' },  "version_id=$$NODE{node_id}");
 
-	if($rowsAffected == 0)
+	$rowsAffected =
+		$this->{nodeBase}->sqlUpdate( 'version', { -version => 'version+1' },
+		"version_id=$$NODE{node_id}" );
+
+	if ( $rowsAffected == 0 )
 	{
+
 		# The version for this node does not exist.  We need to start it off.
-		$this->{nodeBase}->sqlInsert('version',
+		$this->{nodeBase}->sqlInsert( 'version',
 			{ version_id => $$NODE{node_id}, version => 1 } );
 	}
-	$this->{nodeBase}->sqlUpdate('typeversion', {-version => 'version+1'}, "typeversion_id=".$$NODE{type}{node_id}) if $this->{nodeBase}->sqlSelect("version", "typeversion", "typeversion_id=".$$NODE{type}{node_id});; 
+	$this->{nodeBase}->sqlUpdate(
+		'typeversion',
+		{ -version => 'version+1' },
+		"typeversion_id=" . $$NODE{type}{node_id}
+		)
+		if $this->{nodeBase}->sqlSelect( "version", "typeversion",
+		"typeversion_id=" . $$NODE{type}{node_id} );
 }
 
 =cut
+
 
 C<resetCache>
 
@@ -597,61 +627,87 @@ sub resetCache
 {
 	my ($this) = @_;
 
-	$this->{verified} = {};
+	$this->{verified}     = {};
 	$this->{typeVerified} = {};
-    my %newVersion;
-    my @confirmTypes;
+	my %newVersion;
+	my @confirmTypes;
 
-	if (my $csr = $this->{nodeBase}->sqlSelectMany('*', "typeversion")) {
-      while (my $N = $csr->fetchrow_hashref) { 
-	    if (exists $this->{typeVersion}{$$N{typeversion_id}}) {
-		   if ($this->{typeVersion}{$$N{typeversion_id}} == $$N{version}) {
-				$this->{typeVerified}{$$N{typeversion_id}} = 1;
-			} else {
+	if ( my $csr = $this->{nodeBase}->sqlSelectMany( '*', "typeversion" ) )
+	{
+		while ( my $N = $csr->fetchrow_hashref )
+		{
+			if ( exists $this->{typeVersion}{ $$N{typeversion_id} } )
+			{
+				if ( $this->{typeVersion}{ $$N{typeversion_id} } ==
+					$$N{version} )
+				{
+					$this->{typeVerified}{ $$N{typeversion_id} } = 1;
+				}
+				else
+				{
+					push @confirmTypes, $$N{typeversion_id};
+				}
+			}
+			else
+			{
 				push @confirmTypes, $$N{typeversion_id};
 			}
-		} else {
-			push @confirmTypes, $$N{typeversion_id};
-		}
-		#if the typeversion haven't changed, we can verify the type
-	    $newVersion{$$N{typeversion_id}} = $$N{version};
-	  } 
-       $csr->finish;
-    }
 
-	#nodemethods MUST be typeversioned	
-	my $nodemethod_id = $this->{nodeBase}->sqlSelect('node_id', 'node', "title='nodemethod'");
-	if ($nodemethod_id and not $this->{typeVersion}{$nodemethod_id}) {
-		unless (exists($newVersion{$nodemethod_id})) {
-		$this->{nodeBase}->sqlInsert('typeversion', { typeversion_id => $nodemethod_id, 
-			version => 1 });
+			#if the typeversion haven't changed, we can verify the type
+			$newVersion{ $$N{typeversion_id} } = $$N{version};
+		}
+		$csr->finish;
+	}
+
+	#nodemethods MUST be typeversioned
+	my $nodemethod_id =
+		$this->{nodeBase}->sqlSelect( 'node_id', 'node', "title='nodemethod'" );
+	if ( $nodemethod_id and not $this->{typeVersion}{$nodemethod_id} )
+	{
+		unless ( exists( $newVersion{$nodemethod_id} ) )
+		{
+			$this->{nodeBase}->sqlInsert(
+				'typeversion',
+				{
+					typeversion_id => $nodemethod_id,
+					version        => 1
+				}
+			);
 		}
 		$this->{typeVersion}{$nodemethod_id} = 1;
 	}
 
-	#some types that are typeVersion have changed, or have just been added 
-    #to typeversion.  we need to remove any stale data from that type
-	foreach my $nodetype_id (@confirmTypes) {
-		my $typename = $this->{nodeBase}->sqlSelect("title", 'node', "node_id=$nodetype_id");
-		foreach my $nodename (keys %{ $this->{typeCache}{$typename} }) {
-			my $NODE = $this->{nodeQueue}->getItem($this->{typeCache}{$typename}{$nodename});
-			if (not $this->isSameVersion($NODE)) {
+	#some types that are typeVersion have changed, or have just been added
+	#to typeversion.  we need to remove any stale data from that type
+	foreach my $nodetype_id (@confirmTypes)
+	{
+		my $typename =
+			$this->{nodeBase}
+			->sqlSelect( "title", 'node', "node_id=$nodetype_id" );
+		foreach my $nodename ( keys %{ $this->{typeCache}{$typename} } )
+		{
+			my $NODE =
+				$this->{nodeQueue}
+				->getItem( $this->{typeCache}{$typename}{$nodename} );
+			if ( not $this->isSameVersion($NODE) )
+			{
 				$this->removeNode($NODE);
 			}
-			
+
 		}
 		$this->{typeVerified}{$nodetype_id} = 1;
 		$this->{methodCache} = {} if $typename eq 'nodemethod';
-    }
+	}
 
-	
 	$this->{typeVersion} = \%newVersion;
+
 	#replace the typeVersion with the most recent table
-	
+
 	"";
 }
 
 =cut
+
 
 C<cacheMethod>
 
@@ -681,11 +737,13 @@ Returns 1 on success, 0 on failure ($NODE probably isn't cached)
 
 =cut
 
-sub cacheMethod {
-	my ($this, $NODE, $field, $sub_ref) = @_;
-	my ($type, $title) = ($$NODE{type}{title}, $$NODE{title});
+sub cacheMethod
+{
+	my ( $this, $NODE, $field, $sub_ref ) = @_;
+	my ( $type, $title ) = ( $$NODE{type}{title}, $$NODE{title} );
 	my $data = $this->{typeCache}{$type}{$title};
-	if (defined($data->{item})) {
+	if ( defined( $data->{item} ) )
+	{
 		$data->{item}{"_cached_$field"} = $sub_ref;
 		return 1;
 	}

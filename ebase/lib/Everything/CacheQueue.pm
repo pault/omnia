@@ -1,3 +1,4 @@
+
 =head1 Everything::CacheQueue
 
 A module for maintaining a queue in which you can easily pull items from the
@@ -19,17 +20,18 @@ sub BEGIN
 {
 	use Exporter();
 	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA=qw(Exporter);
+	@ISA    = qw(Exporter);
 	@EXPORT = qw(
 		queueItem
 		getNextItem
 		getItem
 		removeItem
 		getSize
-		listItems); 
+		listItems);
 }
 
 =cut
+
 
 =head2 C<new>
 
@@ -42,17 +44,17 @@ Returns the newly constructed module object constructor
 sub new
 {
 	my $class = shift;
-	my $this = {};
-	
-	bless ($this, $class);
-	
+	my $this  = {};
+
+	bless( $this, $class );
+
 	$this->{queueHead} = $this->createQueueData("HEAD");
 	$this->{queueTail} = $this->createQueueData("TAIL");
 
 	# Hook them up
 	$this->{queueHead}{prev} = $this->{queueTail};
 	$this->{queueTail}{next} = $this->{queueHead};
-	
+
 	$this->{queueSize} = 0;
 
 	# Keep track of how many permanent items we have in the cache.
@@ -62,6 +64,7 @@ sub new
 }
 
 =cut
+
 
 =head2 C<queueItem>
 
@@ -88,15 +91,16 @@ within this "object".
 
 sub queueItem
 {
-	my ($this, $item, $permanent) = @_;
-	my $data = $this->createQueueData($item, $permanent);
+	my ( $this, $item, $permanent ) = @_;
+	my $data = $this->createQueueData( $item, $permanent );
 
-	$this->queueData($data);	
-	
+	$this->queueData($data);
+
 	return $data;
 }
 
 =cut
+
 
 =head2 C<getItem>
 
@@ -118,17 +122,18 @@ Returns the user's item
 
 sub getItem
 {
-	my ($this, $data) = @_;
+	my ( $this, $data ) = @_;
 
 	# Since we used this item, put it back at the end (the least used will
 	# work their way to head of the queue).
 	$this->removeData($data);
 	$this->queueData($data);
-	
+
 	return $$data{item};
 }
 
 =cut
+
 
 =head2 C<getNextItem>
 
@@ -146,8 +151,9 @@ sub getNextItem
 	my ($this) = @_;
 	my $firstData = $this->{queueHead}{prev};
 
-	while($$firstData{permanent})
+	while ( $$firstData{permanent} )
 	{
+
 		# The oldest thing in the queue is permanent.  Put it at the end.
 		$this->removeData($firstData);
 		$this->queueData($firstData);
@@ -161,6 +167,7 @@ sub getNextItem
 }
 
 =cut
+
 
 =head2 C<getSize>
 
@@ -178,6 +185,7 @@ sub getSize
 }
 
 =cut
+
 
 =head2 C<removeItem>
 
@@ -198,15 +206,16 @@ Returns the removed data item.
 
 sub removeItem
 {
-	my ($this, $data) = @_;
+	my ( $this, $data ) = @_;
 
-	return undef if(not defined $data);
+	return undef if ( not defined $data );
 
 	$this->removeData($data);
 	return $$data{item};
 }
 
 =cut
+
 
 =head2 C<listItems>
 
@@ -223,7 +232,7 @@ sub listItems
 	my $data = $this->{queueTail}{next};
 	my @list;
 
-	while($$data{item} ne "HEAD")
+	while ( $$data{item} ne "HEAD" )
 	{
 		push @list, $$data{item};
 		$data = $$data{next};
@@ -232,7 +241,6 @@ sub listItems
 	return \@list;
 }
 
-
 #############################################################################
 # "Private" module subroutines - users of this module should never call these
 #############################################################################
@@ -240,53 +248,52 @@ sub listItems
 #############################################################################
 sub queueData
 {
-	my ($this, $data) = @_;
+	my ( $this, $data ) = @_;
 
-	$this->{numPermanent}++ if($$data{permanent});
-	$this->insertData($data, $this->{queueTail});
+	$this->{numPermanent}++ if ( $$data{permanent} );
+	$this->insertData( $data, $this->{queueTail} );
 }
-
 
 #############################################################################
 sub insertData
 {
-	my ($this, $data, $before) = @_;
+	my ( $this, $data, $before ) = @_;
 	my $after = $$before{next};
 
 	$$data{next} = $after;
 	$$data{prev} = $before;
-	
+
 	$$before{next} = $data;
-	$$after{prev} = $data;
+	$$after{prev}  = $data;
 
 	# Increment the queue size since we just added one
 	$this->{queueSize}++;
 }
 
-
 #############################################################################
 sub removeData
 {
-	my ($this, $data) = @_;
+	my ( $this, $data ) = @_;
 	my $next = $$data{next};
 	my $prev = $$data{prev};
 
-	return if($this->{queueSize} == 0);
-	return if($next == 0 && $prev == 0);  # It has already been removed
+	return if ( $this->{queueSize} == 0 );
+	return if ( $next == 0 && $prev == 0 );    # It has already been removed
 
 	# Remove us from the list
 	$$next{prev} = $prev;
 	$$prev{next} = $next;
-	
+
 	# Null out our next and prev pointers
 	$$data{next} = 0;
 	$$data{prev} = 0;
-	
-	$this->{numPermanent}-- if($$data{permanent});
+
+	$this->{numPermanent}-- if ( $$data{permanent} );
 	$this->{queueSize}--;
 }
 
 =cut
+
 
 =begin private
 
@@ -300,16 +307,19 @@ This creates a link, in our linked list.
 
 sub createQueueData
 {
-	my ($this, $item, $permanent) = @_;
+	my ( $this, $item, $permanent ) = @_;
 	my $data;
-	
+
 	$permanent ||= 0;
-	$data = { "item" => $item, "next" => 0, "prev" => 0,
-		"permanent" => $permanent};
+	$data = {
+		"item"      => $item,
+		"next"      => 0,
+		"prev"      => 0,
+		"permanent" => $permanent
+	};
 
 	return $data;
 }
-
 
 #############################################################################
 #	End of Package Everything::CacheQueue

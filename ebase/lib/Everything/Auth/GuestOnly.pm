@@ -9,29 +9,25 @@ package Everything::Auth::GuestOnly;
 #
 #############################################################################
 
-
 use strict;
 use Everything;
 
-
-
 sub new
 {
-        my $class = shift;
-        my $this;
+	my $class = shift;
+	my $this;
 	$this->{Auth} = "GuestOnly";
-        return bless $this,$class;
+	return bless $this, $class;
 }
 
 #############################################################################
 #
 #	loginUser, logoutUser, authUser
 #
-#	This module is completely implemented despite the emptiness seen 
+#	This module is completely implemented despite the emptiness seen
 #	below.  When returning undef from all of these applications
 #	the code will default to guestUser in all cases, speeding up the
 #	site greatly.
-
 
 sub loginUser
 {

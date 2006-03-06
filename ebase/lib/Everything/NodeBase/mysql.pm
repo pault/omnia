@@ -2,7 +2,7 @@ package Everything::NodeBase::mysql;
 
 #############################################################################
 #	Everything::NodeBase::mysql
-#		MySQL database support.  
+#		MySQL database support.
 #
 #	Copyright 2002 - 2003 Everything Development Inc.
 #	Format: tabs = 4 spaces
@@ -32,9 +32,9 @@ use vars qw($VERSION @ISA @EXPORT);
 #
 sub databaseConnect
 {
-	my ($this, $dbname, $host, $user, $pass) = @_;
+	my ( $this, $dbname, $host, $user, $pass ) = @_;
 
-	$this->{dbh} = DBI->connect("DBI:mysql:$dbname:$host", $user, $pass)
+	$this->{dbh} = DBI->connect( "DBI:mysql:$dbname:$host", $user, $pass )
 		or die "Unable to get database connection!";
 }
 
@@ -56,7 +56,7 @@ sub databaseConnect
 #
 sub lastValue
 {
-	my ($this, $table, $field) = @_;
+	my ( $this, $table, $field ) = @_;
 
 	return $this->sqlSelect("LAST_INSERT_ID()");
 }
@@ -79,18 +79,19 @@ sub lastValue
 #
 sub getFieldsHash
 {
-	my ($this, $table, $getHash) = @_;
+	my ( $this, $table, $getHash ) = @_;
 
 	$getHash = 1 unless defined $getHash;
 	$table ||= "node";
 
-	my $DBTABLE = $this->getNode($table, 'dbtable') || {};
+	my $DBTABLE = $this->getNode( $table, 'dbtable' ) || {};
 
-	unless (exists $$DBTABLE{Fields}) {
+	unless ( exists $$DBTABLE{Fields} )
+	{
 		my $cursor = $this->{dbh}->prepare_cached("show columns from $table");
 		$cursor->execute();
 
-		while (my $field = $cursor->fetchrow_hashref)
+		while ( my $field = $cursor->fetchrow_hashref )
 		{
 			push @{ $DBTABLE->{Fields} }, $field;
 		}
@@ -115,13 +116,13 @@ sub getFieldsHash
 #
 sub tableExists
 {
-	my ($this, $tableName) = @_;
+	my ( $this, $tableName ) = @_;
 	my $cursor = $this->{dbh}->prepare("show tables");
 
 	$cursor->execute();
-	while(my ($table) = $cursor->fetchrow())
+	while ( my ($table) = $cursor->fetchrow() )
 	{
-		if($table eq $tableName)
+		if ( $table eq $tableName )
 		{
 			$cursor->finish();
 			return 1;
@@ -148,14 +149,14 @@ sub tableExists
 #
 sub createNodeTable
 {
-	my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 	my $tableid = $table . "_id";
-        
+
 	return -1 if $this->tableExists($table);
 
-	return $this->{dbh}->do(
-		"create table $table ($tableid int4 DEFAULT '0' NOT NULL," .
-		"PRIMARY KEY($tableid))");
+	return $this->{dbh}
+		->do( "create table $table ($tableid int4 DEFAULT '0' NOT NULL,"
+			. "PRIMARY KEY($tableid))" );
 }
 
 #############################################################################
@@ -167,10 +168,10 @@ sub createNodeTable
 #
 #	Returns
 #		1 if successful, 0 if failure, -1 if it already exists.
-#               
+#
 sub createGroupTable
 {
-	my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 
 	return -1 if $this->tableExists($table);
 
@@ -206,9 +207,9 @@ sub createGroupTable
 #
 sub dropFieldFromTable
 {
-	my ($this, $table, $field) = @_;
+	my ( $this, $table, $field ) = @_;
 
-	return $this->{dbh}->do( "alter table $table drop $field" );
+	return $this->{dbh}->do("alter table $table drop $field");
 }
 
 #############################################################################
@@ -220,7 +221,7 @@ sub dropFieldFromTable
 #
 #       Parameters
 #               $table - the table to add the new field to.
-#               $fieldname - the name of the field to add  
+#               $fieldname - the name of the field to add
 #               $type - the type of the field (ie int(11), char(32), etc)
 #               $primary - (optional) is this field a primary key?  Defaults to no.
 #               $default - (optional) the default value of the field.
@@ -230,25 +231,27 @@ sub dropFieldFromTable
 #
 sub addFieldToTable
 {
-	my ($this, $table, $fieldname, $type, $primary, $default) = @_;
+	my ( $this, $table, $fieldname, $type, $primary, $default ) = @_;
 
-	return 0 if (($table eq '') || ($fieldname eq '') || ($type eq ''));
+	return 0 if ( ( $table eq '' ) || ( $fieldname eq '' ) || ( $type eq '' ) );
 
 	# Text blobs cannot have default strings.  They need to be empty.
-	$default = '' if($type =~ /^text/i);
+	$default = '' if ( $type =~ /^text/i );
 
-	unless (defined $default)
+	unless ( defined $default )
 	{
 		$default = $type =~ /^int/i ? 0 : '';
 	}
-  
-	my $sql = qq|alter table $table add $fieldname $type default "$default" | .
-	 	"not null";
+
+	my $sql =
+		  qq|alter table $table add $fieldname $type default "$default" |
+		. "not null";
 
 	$this->{dbh}->do($sql);
 
 	if ($primary)
 	{
+
 		# This requires a little bit of work.  We need to figure out what
 		# primary keys already exist, drop them, and then add them all back in
 		# with the new key.
@@ -263,7 +266,7 @@ sub addFieldToTable
 
 		$this->{dbh}->do("alter table $table drop primary key") if @prikeys;
 
- 		# add the new field to the primaries
+		# add the new field to the primaries
 		push @prikeys, $fieldname;
 		my $primaries = join ',', @prikeys;
 		$this->{dbh}->do("alter table $table add primary key($primaries)");
@@ -329,7 +332,7 @@ sub rollbackTransaction
 
 sub genLimitString
 {
-	my ($this, $offset, $limit) = @_;
+	my ( $this, $offset, $limit ) = @_;
 
 	$offset ||= 0;
 
@@ -338,7 +341,7 @@ sub genLimitString
 
 sub genTableName
 {
-	my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 
 	return $table;
 }
@@ -358,11 +361,11 @@ Returns:
 
 sub databaseExists
 {
-	my ($this, $database) = @_;
-	my $sth = $this->{dbh}->prepare( 'show databases' );
+	my ( $this, $database ) = @_;
+	my $sth = $this->{dbh}->prepare('show databases');
 	$sth->execute();
 
-	while (my ($dbname) = $sth->fetchrow())
+	while ( my ($dbname) = $sth->fetchrow() )
 	{
 		return 1 if $dbname eq $database;
 	}
@@ -371,12 +374,12 @@ sub databaseExists
 sub list_tables
 {
 	my ($this) = @_;
-	my $sth    = $this->{dbh}->prepare( 'show tables' );
+	my $sth = $this->{dbh}->prepare('show tables');
 
 	$sth->execute();
 
 	my @tables;
-	while (my ($table) = $sth->fetchrow())
+	while ( my ($table) = $sth->fetchrow() )
 	{
 		push @tables, $table;
 	}

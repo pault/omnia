@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::GroupEditor
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -61,10 +63,10 @@ Returns the generated HTML for this groupEditor object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $name, $USER, $perm, $color) = getParamArray(
-		"query, bindNode, name, USER, perm, color", @_);
+	my ( $query, $bindNode, $name, $USER, $perm, $color ) =
+		getParamArray( "query, bindNode, name, USER, perm, color", @_ );
 
-	return "No Node to get group from!" unless(ref $bindNode);
+	return "No Node to get group from!" unless ( ref $bindNode );
 
 	$color ||= '#cc99ff';
 
@@ -72,44 +74,63 @@ sub genObject
 	my $html = "<table border='0' bgcolor='$color' cellspacing='0'>\n";
 	$html .= "<tr><td>\n";
 
-	$html .= $this->SUPER::genObject($query, $bindNode, 'GROUP', $name) . "\n";
-	$this->addGroup($bindNode, 1);
-	$html .= $this->genListMenu($query, $name, undef, 20);
+	$html .=
+		$this->SUPER::genObject( $query, $bindNode, 'GROUP', $name ) . "\n";
+	$this->addGroup( $bindNode, 1 );
+	$html .= $this->genListMenu( $query, $name, undef, 20 );
 
 	# Generate the hidden form field that holds the list of node id's for us.
 	# This is what we actually get our data from when the form is submitted.
 	my $group = $$bindNode{group};
-	my $values = join(',', @$group);
-	$html .= $query->hidden(-name => $name . '_values', -value => $values,
-		-override => 1);
-	
+	my $values = join( ',', @$group );
+	$html .= $query->hidden(
+		-name     => $name . '_values',
+		-value    => $values,
+		-override => 1
+	);
+
 	# This checkbox allows the user to specify if they would like duplicate
 	# nodes (by id) to be removed from the group.  When working with large
 	# nodeballs, you can sometimes add the same node twice by mistake.  This is
 	# a good way to make sure that there are no duplicates in your group if you
 	# don't want any.
 	$html .= "<br>\n";
-	$html .= $query->checkbox(-name => $name . '_dupes',
-		-checked => 0, -value => 'remove',
-		-label => 'Remove Duplicates');
+	$html .= $query->checkbox(
+		-name    => $name . '_dupes',
+		-checked => 0,
+		-value   => 'remove',
+		-label   => 'Remove Duplicates'
+	);
 
 	$html .= "</td><td valign='center' align='center'>\n";
-	$html .= $query->button(-name => $name . "_up", -value => "Up",
-		-onClick => "moveSelectItem('$name', -1)",
-		-onDblClick => "moveSelectItem('$name', -1)");
+	$html .= $query->button(
+		-name       => $name . "_up",
+		-value      => "Up",
+		-onClick    => "moveSelectItem('$name', -1)",
+		-onDblClick => "moveSelectItem('$name', -1)"
+	);
 	$html .= "<br>\n";
-	$html .= $query->button(-name => $name . "_down", -value => "Down",
-		-onClick => "moveSelectItem('$name', 1)", 
-		-onDblClick => "moveSelectItem('$name', 1)") . "\n";
+	$html .= $query->button(
+		-name       => $name . "_down",
+		-value      => "Down",
+		-onClick    => "moveSelectItem('$name', 1)",
+		-onDblClick => "moveSelectItem('$name', 1)"
+		)
+		. "\n";
 	$html .= "<p><br><br><br><br>\n";
-	$html .= $query->button(-name => $name . "_remove", -value => "Remove",
-		-onClick => "moveSelectItem('$name', 0)") . "\n";
+	$html .= $query->button(
+		-name    => $name . "_remove",
+		-value   => "Remove",
+		-onClick => "moveSelectItem('$name', 0)"
+		)
+		. "\n";
 	$html .= "</td></tr></table>\n";
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<cgiUpdate>
 
@@ -152,12 +173,13 @@ Returns 1 (true) if successful, 0 (false) otherwise.
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
-	my $values = $query->param($name . '_values');
-	my @values = split(',', $values);
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
+	my $values = $query->param( $name . '_values' );
+	my @values = split( ',', $values );
 
-	if($query->param($name . '_dupes'))
+	if ( $query->param( $name . '_dupes' ) )
 	{
+
 		# The remove duplicates checkbox was checked.  We need to make
 		# sure there are no duplicates in this group, and remove any
 		# that we find while maintaining the order as best we can.
@@ -166,7 +188,7 @@ sub cgiUpdate
 
 		foreach my $id (@values)
 		{
-			next if($found{$id});
+			next if ( $found{$id} );
 
 			push @nodupes, $id;
 			$found{$id} = 1;
@@ -176,7 +198,7 @@ sub cgiUpdate
 		push @values, @nodupes;
 	}
 
-	$NODE->replaceGroup(\@values, -1);
+	$NODE->replaceGroup( \@values, -1 );
 
 	return 1;
 }

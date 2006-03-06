@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::TypeMenu
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -86,20 +88,27 @@ Returns the generated HTML for this TypeMenu object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $type, $default, $USER,
-		$perm, $none, $inherit, $inherittxt) =  getParamArray(
-		"query, bindNode, field, name, type, default, USER, " .
-		"perm, none, inherit, inherittxt", @_);
+	my (
+		$query, $bindNode, $field, $name,
+		$type,  $default,  $USER,  $perm,
+		$none,  $inherit,  $inherittxt
+		)
+		= getParamArray(
+		"query, bindNode, field, name, type, default, USER, "
+			. "perm, none, inherit, inherittxt",
+		@_
+		);
 
-	$name ||= $field;
-	$type ||= "nodetype";
+	$name    ||= $field;
+	$type    ||= "nodetype";
 	$default ||= "AUTO";
-	$USER ||= -1;
-	$perm ||= 'r';
+	$USER    ||= -1;
+	$perm    ||= 'r';
 
-	my $html = $this->SUPER::genObject($query, $bindNode, $field, $name) . "\n";
+	my $html =
+		$this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
 
-	if($default eq "AUTO" && (ref $bindNode))
+	if ( $default eq "AUTO" && ( ref $bindNode ) )
 	{
 		$default = $$bindNode{$field};
 	}
@@ -108,13 +117,14 @@ sub genObject
 		$default = undef;
 	}
 
-	$this->addTypes($type, $USER, $perm, $none, $inherit, $inherittxt);
-	$html .= $this->genPopupMenu($query, $name, $default);
+	$this->addTypes( $type, $USER, $perm, $none, $inherit, $inherittxt );
+	$html .= $this->genPopupMenu( $query, $name, $default );
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<addTypes>
 
@@ -126,16 +136,16 @@ this and insert nodes differently in perhaps different orders.
 
 sub addTypes
 {
-	my ($this, $type, $USER, $perm, $none, $inherit, $inherittxt) = @_;
+	my ( $this, $type, $USER, $perm, $none, $inherit, $inherittxt ) = @_;
 
 	$USER ||= -1;
 	$perm ||= 'r';
 
 	my $label = "inherit";
-	$label .= " ($inherittxt)" if($inherittxt);
-	$this->addHash({'None' => $none}, 1) if(defined $none);
-	$this->addHash({ $label => $inherit}, 1) if(defined $inherit);
-	$this->addType($type, $USER, $perm, 'labels');
+	$label .= " ($inherittxt)" if ($inherittxt);
+	$this->addHash( { 'None' => $none },    1 ) if ( defined $none );
+	$this->addHash( { $label => $inherit }, 1 ) if ( defined $inherit );
+	$this->addType( $type, $USER, $perm, 'labels' );
 	return 1;
 }
 

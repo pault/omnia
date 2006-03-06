@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::usergroup
 
 Package that implements the base functionality for usergroup 
@@ -13,7 +14,7 @@ package Everything::Node::usergroup;
 use strict;
 
 sub conflictsWith { 0 }
-	
+
 # usergroups are considered part of permissions, and therefore cannot be
 # updated from a nodeball
 sub updateFromImport { 0 }

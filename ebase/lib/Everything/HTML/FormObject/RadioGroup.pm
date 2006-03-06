@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::RadioGroup
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -66,30 +68,33 @@ Returns the generated HTML for this RadioGroup object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $default, $vertical) =
-		getParamArray(
-		"query, bindNode, field, name, default, vertical", @_);
+	my ( $query, $bindNode, $field, $name, $default, $vertical ) =
+		getParamArray( "query, bindNode, field, name, default, vertical", @_ );
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
 
-	if($default eq "AUTO")
+	if ( $default eq "AUTO" )
 	{
 		$default = "";
-		$default = $$bindNode{$field} if(ref $bindNode);
+		$default = $$bindNode{$field} if ( ref $bindNode );
 	}
 
-	my $values = $this->getValuesArray();
-	my $labels = $this->getLabelsHash();
-	my @buttons = $query->radio_group(-name => $name, -default => $default,
-		-values => $values, -labels => $labels);
+	my $values  = $this->getValuesArray();
+	my $labels  = $this->getLabelsHash();
+	my @buttons = $query->radio_group(
+		-name    => $name,
+		-default => $default,
+		-values  => $values,
+		-labels  => $labels
+	);
 
-	if($vertical)
+	if ($vertical)
 	{
-		$html .= join("<br>\n", @buttons);
+		$html .= join( "<br>\n", @buttons );
 	}
 	else
 	{
-		$html .= join("\n", @buttons);
+		$html .= join( "\n", @buttons );
 	}
 
 	return $html;

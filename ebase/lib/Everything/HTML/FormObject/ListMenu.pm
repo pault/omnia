@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::ListMenu
 
 Package that implements the base ListMenu functionality.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -88,31 +90,38 @@ Returns the generated HTML for this listmenu object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $default, $multiple,
-		$values, $size, $labels, $sortby) = getParamArray(
-		"query, bindNode, field, name, default, multiple, values, " .
-		"size, labels, sortby", @_);
+	my (
+		$query,    $bindNode, $field, $name,   $default,
+		$multiple, $values,   $size,  $labels, $sortby
+		)
+		= getParamArray(
+		"query, bindNode, field, name, default, multiple, values, "
+			. "size, labels, sortby",
+		@_
+		);
 
 	$this->clearMenu();
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
 
-	if($default eq "AUTO")
+	if ( $default eq "AUTO" )
 	{
 		$default = "";
-		$default = [ split(/\s*,\s*/, $$bindNode{$field}) ]  if(ref $bindNode);
+		$default = [ split( /\s*,\s*/, $$bindNode{$field} ) ]
+			if ( ref $bindNode );
 	}
 
 	$this->addArray($values);
 	$this->addLabels($labels);
 	$this->sortMenu($sortby);
 
-	$html .= $this->genListMenu($query, $name, $default, $size, $multiple);
+	$html .= $this->genListMenu( $query, $name, $default, $size, $multiple );
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<cgiUpdate>
 
@@ -155,14 +164,14 @@ Returns 1 (true) if successful, 0 (false) otherwise.
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
-	my $field = $this->getBindField($query, $name);
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
+	my $field = $this->getBindField( $query, $name );
 
 	# Make sure this is not a restricted field that we cannot update directly.
-	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+	return 0 unless ( $overrideVerify or $NODE->verifyFieldUpdate($field) );
 
 	my @values = $query->param($name);
-	my $value = join(',', @values);
+	my $value  = join( ',', @values );
 
 	$value ||= "";
 	$$NODE{$field} = $value;

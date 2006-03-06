@@ -1,7 +1,7 @@
 package Everything;
 
 #############################################################################
-#	Everything perl module.  
+#	Everything perl module.
 #	Copyright 1999 - 2003 Everything Development
 #	http://www.everydevel.com
 #
@@ -36,9 +36,9 @@ use vars qw($commandLine);
 sub BEGIN
 {
 	use Exporter ();
-	use vars	   qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA=qw(Exporter);
-	@EXPORT=qw(
+	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+	@ISA    = qw(Exporter);
+	@EXPORT = qw(
 		$DB
 		getParamArray
 		getRef
@@ -69,34 +69,34 @@ sub BEGIN
 
 		@fsErrors
 		@bsErrors
-        );
+	);
 
 	# This will be true if we are being run from a command line, in which
 	# case all errors should be printed to STDOUT
-	$commandLine = (-t STDIN && -t STDOUT) ? 1 : 0;
+	$commandLine = ( -t STDIN && -t STDOUT ) ? 1 : 0;
 }
-
 
 #############################################################################
 #
 #   a few wrapper functions for the NodeBase stuff
 #	this allows the $DB to be optional for the general node functions
 #
-sub getNode			{ $DB->getNode(@_); }
-sub getNodeById		{ $DB->getNode(@_); }
-sub getType 		{ $DB->getType(@_); }
-sub getNodeWhere 	{ $DB->getNodeWhere(@_); }
-sub selectNodeWhere	{ $DB->selectNodeWhere(@_); }
-sub getRef			{ $DB->getRef(@_); }
-sub getId 			{ $DB->getId(@_); }
-
+sub getNode         { $DB->getNode(@_); }
+sub getNodeById     { $DB->getNode(@_); }
+sub getType         { $DB->getType(@_); }
+sub getNodeWhere    { $DB->getNodeWhere(@_); }
+sub selectNodeWhere { $DB->selectNodeWhere(@_); }
+sub getRef          { $DB->getRef(@_); }
+sub getId           { $DB->getId(@_); }
 
 #############################################################################
-sub printErr {
-	print STDERR $_[0]; 
+sub printErr
+{
+	print STDERR $_[0];
 }
 
 =cut
+
 
 =head2 C<getTime>
 
@@ -121,12 +121,16 @@ sub getTime
 
 	return scalar gmtime() if $long;
 
-	my ($sec, $min, $hour, $mday, $month, $year) = (gmtime())[0 .. 5];
-	return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
-		$year + 1900, $month + 1, $mday, $hour, $min, $sec);
+	my ( $sec, $min, $hour, $mday, $month, $year ) = ( gmtime() )[ 0 .. 5 ];
+	return sprintf(
+		"%04d-%02d-%02d %02d:%02d:%02d",
+		$year + 1900,
+		$month + 1, $mday, $hour, $min, $sec
+	);
 }
 
 =cut
+
 
 =head2 C<printLog>
 
@@ -152,7 +156,7 @@ sub printLog
 	my $message = getTime() . ": $entry\n";
 
 	local *ELOG;
-	if (open(ELOG, ">> $everythingLog"))
+	if ( open( ELOG, ">> $everythingLog" ) )
 	{
 		print ELOG $message;
 	}
@@ -165,6 +169,7 @@ sub printLog
 
 =cut
 
+
 =head2 C<clearLog>
 
 Clear the gosh darn log!
@@ -176,7 +181,8 @@ sub clearLog
 	my $time = getTime();
 
 	local *ELOG;
-	if (open(ELOG, "> $everythingLog")) {	
+	if ( open( ELOG, "> $everythingLog" ) )
+	{
 		print ELOG "$time: Everything log cleared";
 	}
 	else
@@ -187,6 +193,7 @@ sub clearLog
 }
 
 =cut
+
 
 =head2 C<getParamArray>
 
@@ -228,22 +235,25 @@ sub getParamArray
 	my $names = shift;
 	my $first = $_[0];
 
-	if($first =~ /^-/)
+	if ( $first =~ /^-/ )
 	{
+
 		# The first parameter starts with a '-'.  This indicates that
 		# @_ is a hash/value pair.  We need to convert this into an
 		# array based on the order specified.
 		my %hash = @_;
-		return @hash{ map { "-$_" } split(/\s*,\s*/, $names) };
+		return @hash{ map { "-$_" } split( /\s*,\s*/, $names ) };
 	}
 	else
 	{
+
 		# @_ contains an array of values, just return it
 		return @_;
 	}
 }
 
 =cut
+
 
 =head2 C<cleanLinks>
 
@@ -263,17 +273,18 @@ sub cleanLinks
 {
 	my @delete;
 
-	foreach my $link ('to_node', 'from_node')
+	foreach my $link ( 'to_node', 'from_node' )
 	{
-		my $cursor = $DB->sqlSelectJoined("$link, node_id", "links",
-		{ node => "$link=node_id" });
+		my $cursor = $DB->sqlSelectJoined( "$link, node_id",
+			"links", { node => "$link=node_id" } );
 
-		if($cursor)
+		if ($cursor)
 		{
-			while(my $row = $cursor->fetchrow_hashref())
+			while ( my $row = $cursor->fetchrow_hashref() )
 			{
-				unless ($$row{node_id})
+				unless ( $$row{node_id} )
 				{
+
 					# No match.  This is a bad link.
 					push @delete, { $link => $row->{to_node} };
 				}
@@ -283,11 +294,12 @@ sub cleanLinks
 
 	foreach my $badlink (@delete)
 	{
-		$DB->sqlDelete("links", $badlink);
+		$DB->sqlDelete( "links", $badlink );
 	}
 }
 
 =cut
+
 
 =head2 C<initEverything>
 
@@ -320,8 +332,10 @@ the name of the database type to use (defaults to mysql)
 
 sub initEverything
 {
-	my ($db, $options) = @_;
-	$options = {} unless defined $options and UNIVERSAL::isa($options, 'HASH');
+	my ( $db, $options ) = @_;
+	$options = {}
+		unless defined $options
+		and UNIVERSAL::isa( $options, 'HASH' );
 
 	# Make sure that we clear the warnings/errors for this go around.
 	clearFrontside();
@@ -332,7 +346,7 @@ sub initEverything
 	my $dbtype  = $options->{dbtype} || 'mysql';
 	my $package = 'Everything::NodeBase::' . $dbtype;
 
-	(my $module = $package . '.pm' ) =~ s!::!/!g;
+	( my $module = $package . '.pm' ) =~ s!::!/!g;
 
 	eval {
 		require $module;
@@ -341,12 +355,11 @@ sub initEverything
 
 	die "Unknown database type '$options->{dbtype}': $@" if $@;
 
-	# We keep a NodeBase for each database that we connect to. 
+	# We keep a NodeBase for each database that we connect to.
 	# That way one machine can handle multiple installations in
 	# multiple databases, even with different db servers.
 	$NODEBASES{$db} = $DB;
 }
-
 
 #############################################################################
 sub clearFrontside
@@ -354,23 +367,21 @@ sub clearFrontside
 	undef @fsErrors;
 }
 
-
 #############################################################################
 sub clearBackside
 {
 	undef @bsErrors;
 }
 
-
 #############################################################################
 sub logErrors
 {
-	my ($warning, $error, $code, $CONTEXT) = @_;
+	my ( $warning, $error, $code, $CONTEXT ) = @_;
 	$warning ||= '';
 	$error   ||= '';
 
 	return unless $warning or $error;
-	
+
 	if ($commandLine)
 	{
 		my $context = join ')(', map { defined $_ ? $_ : 'undef' } CORE::caller;
@@ -383,19 +394,20 @@ sub logErrors
 	}
 	else
 	{
-		push @fsErrors, {
+		push @fsErrors,
+			{
 			code    => $code,
 			context => $CONTEXT,
 			error   => $error,
 			warning => $warning,
-		};
+			};
 	}
 
 	return 1;
 }
 
-
 =cut
+
 
 =head2 C<flushErrorsToBackside>
 
@@ -421,13 +433,11 @@ sub flushErrorsToBackside
 	clearFrontside();
 }
 
-
 #############################################################################
 sub getFrontsideErrors
 {
 	return \@fsErrors;
 }
-
 
 #############################################################################
 sub getBacksideErrors
@@ -436,6 +446,7 @@ sub getBacksideErrors
 }
 
 =cut
+
 
 =head2 C<searchNodeName>
 
@@ -468,27 +479,27 @@ best matches to worst matches.
 
 sub searchNodeName
 {
-	my ($searchWords, $TYPE) = @_;
+	my ( $searchWords, $TYPE ) = @_;
 	my $typestr = '';
 
 	$TYPE = [$TYPE] if defined $TYPE and $TYPE and ref($TYPE) eq "SCALAR";
 
-	if(ref($TYPE) eq 'ARRAY' and @$TYPE)
+	if ( ref($TYPE) eq 'ARRAY' and @$TYPE )
 	{
 		my $t = shift @$TYPE;
 		$typestr .= "AND (type_nodetype = " . getId($t);
-		foreach(@$TYPE)
+		foreach (@$TYPE)
 		{
-			$typestr .= " OR type_nodetype = ". getId($_);
+			$typestr .= " OR type_nodetype = " . getId($_);
 		}
 
 		$typestr .= ')';
 	}
 
-	my $NOSEARCH = getNode('stopwords', 'setting');
-	my $NOWORDS  = $NOSEARCH ? $NOSEARCH->getVars() : {};
+	my $NOSEARCH = getNode( 'stopwords', 'setting' );
+	my $NOWORDS = $NOSEARCH ? $NOSEARCH->getVars() : {};
 
-	my @words = grep { length($_) > 2 and ! exists $NOWORDS->{lc($_)} }
+	my @words = grep { length($_) > 2 and !exists $NOWORDS->{ lc($_) } }
 		split ' ', $searchWords;
 
 	return unless @words;
@@ -499,19 +510,24 @@ sub searchNodeName
 		$word = lc($word);
 		$word =~ s/(\W)/\\$1/gs;
 		$word = '[[:<:]]' . $word . '[[:>:]]';
-		$word = "(lower(title) rlike " .
-			$DB->getDatabaseHandle()->quote($word) . ")";
+		$word =
+			"(lower(title) rlike "
+			. $DB->getDatabaseHandle()->quote($word) . ")";
 	}
 
-	$match = '('. join(' + ',@words).')';
-	my $cursor = $DB->sqlSelectMany("*, $match AS matchval",
-		"node", "$match >= 1 $typestr", "ORDER BY matchval DESC");
+	$match = '(' . join( ' + ', @words ) . ')';
+	my $cursor = $DB->sqlSelectMany(
+		"*, $match AS matchval",
+		"node",
+		"$match >= 1 $typestr",
+		"ORDER BY matchval DESC"
+	);
 
 	return unless $cursor;
 
 	my @ret;
-	while(my $m = $cursor->fetchrow_hashref)
-	{ 
+	while ( my $m = $cursor->fetchrow_hashref )
+	{
 		push @ret, $m;
 	}
 
@@ -519,6 +535,7 @@ sub searchNodeName
 }
 
 =cut
+
 
 =head2 C<dumpCallStack>
 
@@ -533,23 +550,23 @@ sub dumpCallStack
 
 	# remove this call frame, print in order of calling
 	my @callStack = getCallStack();
-	print "$_\n" for @callStack[reverse (0 .. $#callStack - 1)];
+	print "$_\n" for @callStack[ reverse( 0 .. $#callStack - 1 ) ];
 
 	print "*** End Call Stack ***\n";
 }
 
-
-##############################################################################	
+##############################################################################
 sub getCallStack
 {
-	my ($package, $file, $line, $subname, $hashargs);
+	my ( $package, $file, $line, $subname, $hashargs );
 	my @callStack;
 
 	# ignore this frame -- we don't need to see "getCallStack" in the stack.
 	my $i = 1;
-	
-	while(($package, $file, $line, $subname, $hashargs) = caller($i++))
+
+	while ( ( $package, $file, $line, $subname, $hashargs ) = caller( $i++ ) )
 	{
+
 		# We unshift it so that we can use "pop" to get them in the
 		# desired order.
 		unshift @callStack, "$file:$line:$subname";
@@ -558,21 +575,20 @@ sub getCallStack
 	return @callStack;
 }
 
-
 #############################################################################
 sub logCallStack
 {
 	my @callStack = getCallStack();
 	my $func;
 	my $str = "Call Stack:\n";
-	
-	# report stack in reverse order, skipping current frame 
-	$str .= "$_\n" for (@callStack[reverse(1 .. $#callStack)]);
+
+	# report stack in reverse order, skipping current frame
+	$str .= "$_\n" for ( @callStack[ reverse( 1 .. $#callStack ) ] );
 	printLog($str);
 }
 
-
 =cut
+
 
 =head2 C<logHash>
 
@@ -586,14 +602,13 @@ sub logHash
 	my ($hash) = @_;
 	my $str = "$hash\n";
 
-	foreach (keys %$hash)
+	foreach ( keys %$hash )
 	{
 		$str .= "$_ = $$hash{$_}\n";
 	}
 
 	printLog($str);
 }
-
 
 #############################################################################
 # end of package

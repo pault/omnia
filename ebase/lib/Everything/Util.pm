@@ -1,3 +1,4 @@
+
 =head1 Everything::Util
 
 Utility functions
@@ -15,17 +16,18 @@ use strict;
 sub BEGIN
 {
 	use Exporter ();
-	use vars	   qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA=qw(Exporter);
-	@EXPORT=qw(
+	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+	@ISA    = qw(Exporter);
+	@EXPORT = qw(
 		escape
 		unescape
-        );
+	);
 }
 
 use URI::Escape ();
 
 =cut
+
 
 =head2 C<escape>
 
@@ -44,9 +46,10 @@ Returns the escaped string
 
 =cut
 
-*escape	= *URI::Escape::uri_escape;
+*escape = *URI::Escape::uri_escape;
 
 =cut
+
 
 =head2 C<unescape>
 
@@ -59,7 +62,6 @@ Returns the first item in the array.  Basically good for doing:
 =cut
 
 *unescape = *URI::Escape::uri_unescape;
-
 
 #############################################################################
 # end of package

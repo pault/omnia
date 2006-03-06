@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::SubsetSelector
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -61,22 +63,26 @@ Returns the generated HTML for this SubsetSelector object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $default, $size, $color,
-		$srclabel, $destlabel) = 
-		getParamArray(
-		"query, bindNode, field, name, default, size, color, " .
-		"srclabel, destlabel", @_);
+	my (
+		$query, $bindNode, $field,    $name, $default,
+		$size,  $color,    $srclabel, $destlabel
+		)
+		= getParamArray(
+		"query, bindNode, field, name, default, size, color, "
+			. "srclabel, destlabel",
+		@_
+		);
 
 	my $select = new Everything::HTML::FormObject::FormMenu();
-	my ($key, $var) = split(':', $field);
+	my ( $key, $var ) = split( ':', $field );
 	my $srcname = $name . "_src";
 
 	$default ||= 'AUTO';
-	$size ||= 20;
+	$size    ||= 20;
 
-	if($default eq "AUTO" && (ref $bindNode))
+	if ( $default eq "AUTO" && ( ref $bindNode ) )
 	{
-		if($var)
+		if ($var)
 		{
 			my $vars = $bindNode->getHash($key);
 			$default = $$vars{$var};
@@ -87,52 +93,69 @@ sub genObject
 		}
 	}
 
-	my @selected = split(',', $default);
-	my $removed = $this->removeItems(\@selected);
-	$select->addArray(\@selected);
-	$select->addLabels($removed, 0);
+	my @selected = split( ',', $default );
+	my $removed = $this->removeItems( \@selected );
+	$select->addArray( \@selected );
+	$select->addLabels( $removed, 0 );
 
-	$color = "bgcolor='$color'" if($color);
+	$color = "bgcolor='$color'" if ($color);
 	$color ||= "";
 	my $html = "<table border='0' $color cellspacing='0'>\n";
 	$html .= "<tr><td>\n";
 
-	$html .= "<b><font size=2>$srclabel</font></b><br>\n" if($srclabel);
-	$html .= $this->SUPER::genObject($query, $bindNode, $field, $name) . "\n";
-	$html .= $this->genListMenu($query, $srcname, undef, $size);
+	$html .= "<b><font size=2>$srclabel</font></b><br>\n" if ($srclabel);
+	$html .= $this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
+	$html .= $this->genListMenu( $query, $srcname, undef, $size );
 
 	# Generate the hidden form field that holds the list of node id's for us.
 	# This is what we actually get our data from when the form is submitted.
-	$html .= $query->hidden(-name => $name . '_values', -value => $default,
-		-override => 1);
+	$html .= $query->hidden(
+		-name     => $name . '_values',
+		-value    => $default,
+		-override => 1
+	);
 
 	$html .= "</td><td valign='center' align='center'>\n";
-	$html .= $query->button(-name => $name . "_add", -value => ">>>",
-		-onClick => "selectItem('$srcname', '$name')",
-		-onDblClick => "selectItem('$srcname', '$name')");
+	$html .= $query->button(
+		-name       => $name . "_add",
+		-value      => ">>>",
+		-onClick    => "selectItem('$srcname', '$name')",
+		-onDblClick => "selectItem('$srcname', '$name')"
+	);
 	$html .= "<br>\n";
-	$html .= $query->button(-name => $name . "_remove",
-		-value => "<<<",
-		-onClick => "selectItem('$srcname', '$name', 0)", 
-		-onDblClick => "selectItem('$srcname', '$name', 0)") . "\n";
+	$html .= $query->button(
+		-name       => $name . "_remove",
+		-value      => "<<<",
+		-onClick    => "selectItem('$srcname', '$name', 0)",
+		-onDblClick => "selectItem('$srcname', '$name', 0)"
+		)
+		. "\n";
 	$html .= "</td><td>\n";
 
-	$html .= "<b><font size=2>$destlabel</font></b><br>\n" if($destlabel);
-	$html .= $select->genListMenu($query, $name, undef, $size);
+	$html .= "<b><font size=2>$destlabel</font></b><br>\n" if ($destlabel);
+	$html .= $select->genListMenu( $query, $name, undef, $size );
 	$html .= "</td><td valign='center' align='center'>\n";
-	$html .= $query->button(-name => $name . "_up", -value => "Up",
-		-onClick => "moveSelectItem('$name', -1)",
-		-onDblClick => "moveSelectItem('$name', -1)");
+	$html .= $query->button(
+		-name       => $name . "_up",
+		-value      => "Up",
+		-onClick    => "moveSelectItem('$name', -1)",
+		-onDblClick => "moveSelectItem('$name', -1)"
+	);
 	$html .= "<br>\n";
-	$html .= $query->button(-name => $name . "_down", -value => "Down",
-		-onClick => "moveSelectItem('$name', 1)", 
-		-onDblClick => "moveSelectItem('$name', 1)") . "\n";
+	$html .= $query->button(
+		-name       => $name . "_down",
+		-value      => "Down",
+		-onClick    => "moveSelectItem('$name', 1)",
+		-onDblClick => "moveSelectItem('$name', 1)"
+		)
+		. "\n";
 	$html .= "</td></tr></table>\n";
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<cgiUpdate>
 
@@ -175,18 +198,18 @@ Returns 1 (true) if successful, 0 (false) otherwise.
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
-	my $values = $query->param($name . '_values');
-	my $field = $this->getBindField($query, $name);
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
+	my $values = $query->param( $name . '_values' );
+	my $field = $this->getBindField( $query, $name );
 	my $var;
 
-	($field, $var) = split(':', $field);
+	( $field, $var ) = split( ':', $field );
 
-	if($var)
+	if ($var)
 	{
 		my $vars = $NODE->getHash($field);
 		$$vars{$var} = $values;
-		$NODE->setHash($vars, $field);
+		$NODE->setHash( $vars, $field );
 	}
 	else
 	{

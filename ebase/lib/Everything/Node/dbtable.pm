@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::dbtable
 
 Package that implements the base functionality for dbtable
@@ -14,6 +15,7 @@ use strict;
 
 =cut
 
+
 =head2 C<insert>
 
 We need to create the table in the database.  This gets the node inserted into
@@ -26,18 +28,18 @@ conventions.
 
 sub insert
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
 	my $result = $this->SUPER();
 
-	$this->{DB}->createNodeTable($this->{title}) if $result > 0;
+	$this->{DB}->createNodeTable( $this->{title} ) if $result > 0;
 
 	return $result;
 }
 
 # MySQL reserved words as of 4.0.2-alpha
 
-my %reserved = map { $_ => 1 } 
+my %reserved = map { $_ => 1 }
 	qw( master_server_id group regexp fulltext unlock case values delayed
 	between sql_big_result double tinyint current_timestamp database numeric
 	tables limit foreign sql_small_result match insert_id replace optionally
@@ -63,6 +65,7 @@ my %reserved = map { $_ => 1 }
 
 =cut
 
+
 =head2 C<restrictTitle>
 
 Prevent invalid database names from being created as titles 
@@ -82,26 +85,31 @@ Returns true, if the title is allowable, false otherwise.
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title  = $this->{title} or return;
+	my $title = $this->{title} or return;
 
 	# limit is 61 characters, as we append '_id' to title for primary key name
-	if (length $title > 61) {
-		Everything::logErrors('dbtable name must not exceed 61 characters!',
-			'', '', '');
+	if ( length $title > 61 )
+	{
+		Everything::logErrors( 'dbtable name must not exceed 61 characters!',
+			'', '', '' );
 		return;
 	}
 
 	# check for allowed characters
-	if ($title =~ tr/A-Za-z0-9_//c ) {
-		Everything::logErrors('dbtable name contains invalid characters.
+	if ( $title =~ tr/A-Za-z0-9_//c )
+	{
+		Everything::logErrors(
+			'dbtable name contains invalid characters.
 		 	 Only alphanumerics and the underscore are allowed.  No spaces!',
-			 '', '', '');
+			'', '', ''
+		);
 		return;
 	}
 
-	if (exists $reserved{$title}) {
-		Everything::logErrors("dbtable name '$title' is a MySQL reserved word",
-		'', '', '');
+	if ( exists $reserved{$title} )
+	{
+		Everything::logErrors( "dbtable name '$title' is a MySQL reserved word",
+			'', '', '' );
 		return;
 	}
 
@@ -109,6 +117,7 @@ sub restrictTitle
 }
 
 =cut
+
 
 =head2 C<nuke>
 
@@ -118,14 +127,13 @@ Overrides the base node::nuke so we can drop the database table
 
 sub nuke
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 	my $result = $this->SUPER();
 
-	$this->{DB}->dropNodeTable($this->{title}) if $result > 0;
+	$this->{DB}->dropNodeTable( $this->{title} ) if $result > 0;
 
 	return $result;
 }
-
 
 ############################################################################
 # End of package

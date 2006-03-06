@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::VarsTextField
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -65,17 +67,18 @@ Returns the generated HTML for this VarsTextField object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $var, $key, $default, $size, $maxlen) =
+	my ( $query, $bindNode, $field, $var, $key, $default, $size, $maxlen ) =
 		getParamArray(
-		"query, bindNode, field, var, key, default, size, maxlen", @_);
+		"query, bindNode, field, var, key, default, size, maxlen", @_ );
 
-	if($key)
+	if ($key)
 	{
 		$key = "key";
 		$$this{updateExecuteOrder} = 50;
 	}
 	else
 	{
+
 		# We need to have the values updated before the keys.
 		$$this{updateExecuteOrder} = 45;
 		$key = "value";
@@ -83,41 +86,50 @@ sub genObject
 
 	my $name = $field . "_" . $var . "_" . $key;
 	$default ||= 'AUTO';
-	$size ||= 20;
-	$maxlen ||= 255;
+	$size    ||= 20;
+	$maxlen  ||= 255;
 
-	my $html = $this->SUPER::genObject($query, $bindNode,
-		$field . ":$var", $name) . "\n";
+	my $html =
+		$this->SUPER::genObject( $query, $bindNode, $field . ":$var", $name )
+		. "\n";
 
-	if($default eq "AUTO" && (ref $bindNode))
+	if ( $default eq "AUTO" && ( ref $bindNode ) )
 	{
 		my $vars = $bindNode->getHash($field);
 		$default = "";
 
-		if(exists $$vars{$var})
+		if ( exists $$vars{$var} )
 		{
-			$default = $var if($key eq 'key');
-			$default = $$vars{$var} if($key eq 'value');
+			$default = $var         if ( $key eq 'key' );
+			$default = $$vars{$var} if ( $key eq 'value' );
 		}
 	}
 
-	$html .= $query->textfield(-name => $name, -default => $default,
-		-size => $size, -maxlength => $maxlen, -override => 1);
+	$html .= $query->textfield(
+		-name      => $name,
+		-default   => $default,
+		-size      => $size,
+		-maxlength => $maxlen,
+		-override  => 1
+	);
 
-	if($key eq "value")
+	if ( $key eq "value" )
 	{
 		$this->clearMenu();
-		$this->addHash( { 'Literal Value' => '0' }, 1);
-		$this->addType('nodetype', -1, 'r', 'labels');
+		$this->addHash( { 'Literal Value' => '0' }, 1 );
+		$this->addType( 'nodetype', -1, 'r', 'labels' );
 
-		$html .= "<font size='1'>" .
-			$this->genPopupMenu($query, $name . "_type", 0) . "</font>";
+		$html .=
+			  "<font size='1'>"
+			. $this->genPopupMenu( $query, $name . "_type", 0 )
+			. "</font>";
 	}
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<cgiUpdate>
 
@@ -151,46 +163,48 @@ Returns 0 (false) if failure, 1 (true) if successful.
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
 	my $param = $query->param($name);
-	my $field = $this->getBindField($query, $name);
+	my $field = $this->getBindField( $query, $name );
 	my $value;
-	
+
 	# Make sure this is not a restricted field that we cannot update directly.
-	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+	return 0 unless ( $overrideVerify or $NODE->verifyFieldUpdate($field) );
 	my $var;
-	($field, $var) = split('::', $field);
-        my $vars = $NODE->getHash($field);
-	
-        $NODE->setHash($vars, $field);
-	if($name =~ /_value$/)
+	( $field, $var ) = split( '::', $field );
+	my $vars = $NODE->getHash($field);
+
+	$NODE->setHash( $vars, $field );
+	if ( $name =~ /_value$/ )
 	{
+
 		# The value is specified by a textfield/popup menu combo.  We
 		# need to get both to determine what was actually specified.
 
 		my $menuname = $name . "_type";
-		my $type = $query->param($menuname);
-		my $value = $query->param($name);
+		my $type     = $query->param($menuname);
+		my $value    = $query->param($name);
 
-		if($type > 0)
+		if ( $type > 0 )
 		{
-			my $N = $DB->getNode($value, $type);
-			$value = $$N{node_id} if($N);
+			my $N = $DB->getNode( $value, $type );
+			$value = $$N{node_id} if ($N);
 		}
 
-		$$vars{$var} = $value if(defined $value);
+		$$vars{$var} = $value if ( defined $value );
 	}
-	elsif($name =~ /_key$/ && $var ne $param)
+	elsif ( $name =~ /_key$/ && $var ne $param )
 	{
+
 		# They changed the name of the key!  We need to assign
 		# the value of the old key to the new key and delete the
 		# old key.
 
-		$$vars{$param} = $$vars{$var} if($param ne "");
-		delete $$vars{$var} if(exists $$vars{$var});
+		$$vars{$param} = $$vars{$var} if ( $param ne "" );
+		delete $$vars{$var} if ( exists $$vars{$var} );
 	}
 
-	$NODE->setHash($vars, $field);
+	$NODE->setHash( $vars, $field );
 
 	return 1;
 }

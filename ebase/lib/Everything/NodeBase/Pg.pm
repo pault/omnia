@@ -2,7 +2,7 @@ package Everything::NodeBase::Pg;
 
 #############################################################################
 #       Everything::NodeBase::Pg
-#               Postgresql database support.  
+#               Postgresql database support.
 #
 #       Copyright 2002 Everything Development Inc.
 #       Format: tabs = 4 spaces
@@ -30,13 +30,15 @@ use vars qw($VERSION @ISA @EXPORT);
 #		user - the username to use to connect
 #		pass - the password to use to connect
 #
-sub databaseConnect {
-	my ($this, $dbname, $host, $user, $pass) = @_;
+sub databaseConnect
+{
+	my ( $this, $dbname, $host, $user, $pass ) = @_;
 
-        $this->{dbh} = DBI->connect("DBI:Pg:dbname=$dbname;host=$host", $user, $pass);
-        $this->{dbh}->{ChopBlanks} = 1;
+	$this->{dbh} =
+		DBI->connect( "DBI:Pg:dbname=$dbname;host=$host", $user, $pass );
+	$this->{dbh}->{ChopBlanks} = 1;
 
-	die "Unable to get database connection!" unless($this->{dbh});
+	die "Unable to get database connection!" unless ( $this->{dbh} );
 }
 
 #############################################################################
@@ -57,9 +59,11 @@ sub databaseConnect {
 #
 sub lastValue
 {
-        my ($this, $table, $field) = @_;
+	my ( $this, $table, $field ) = @_;
 
-	return $this->{dbh}->do("SELECT currval(\'$table" . "_" . $field . "_seq\')")->fetchrow();
+	return $this->{dbh}
+		->do( "SELECT currval(\'$table" . "_" . $field . "_seq\')" )
+		->fetchrow();
 }
 
 #############################################################################
@@ -80,33 +84,40 @@ sub lastValue
 #
 sub getFieldsHash
 {
-        my ($this, $table, $getHash) = @_;
-        my $field;
-        my @fields;
-        my $value; 
-        
-        $getHash = 1 if(not defined $getHash);
-        $table ||= "node";
+	my ( $this, $table, $getHash ) = @_;
+	my $field;
+	my @fields;
+	my $value;
 
-        my $DBTABLE = $this->getNode($table, 'dbtable');
-        $DBTABLE ||= {};
-        unless  (exists $$DBTABLE{Fields}) {
-                my $cursor = $this->{dbh}->prepare_cached("SELECT a.attname AS \"Field\" FROM pg_class c, pg_attribute a, pg_type t WHERE c.relname = '$table' AND a.attnum > 0 AND a.attrelid = c.oid AND a.atttypid = t.oid ORDER BY a.attnum");
+	$getHash = 1 if ( not defined $getHash );
+	$table ||= "node";
 
-                $cursor->execute;
-                while ($field = $cursor->fetchrow_hashref)
-                {
-                        push @fields, $field;
-                }
-                $cursor->finish();
-                $$DBTABLE{Fields} = \@fields;
-        }
+	my $DBTABLE = $this->getNode( $table, 'dbtable' );
+	$DBTABLE ||= {};
+	unless ( exists $$DBTABLE{Fields} )
+	{
+		my $cursor =
+			$this->{dbh}->prepare_cached(
+"SELECT a.attname AS \"Field\" FROM pg_class c, pg_attribute a, pg_type t WHERE c.relname = '$table' AND a.attnum > 0 AND a.attrelid = c.oid AND a.atttypid = t.oid ORDER BY a.attnum"
+			);
 
-	if (not $getHash) {
-                return map { $$_{Field} } @{ $$DBTABLE{Fields} };
-        } else {
+		$cursor->execute;
+		while ( $field = $cursor->fetchrow_hashref )
+		{
+			push @fields, $field;
+		}
+		$cursor->finish();
+		$$DBTABLE{Fields} = \@fields;
+	}
+
+	if ( not $getHash )
+	{
+		return map { $$_{Field} } @{ $$DBTABLE{Fields} };
+	}
+	else
+	{
 		return @{ $$DBTABLE{Fields} };
-        }
+	}
 }
 
 #############################################################################
@@ -124,23 +135,26 @@ sub getFieldsHash
 #
 sub tableExists
 {
-        my ($this, $tableName) = @_;
-        my $cursor = $this->{dbh}->prepare("SELECT c.relname as \"Name\" FROM pg_class c WHERE c.relkind IN ('r', '') AND c.relname !~ '^pg_' ORDER BY 1");
-        my $table;
+	my ( $this, $tableName ) = @_;
+	my $cursor =
+		$this->{dbh}->prepare(
+"SELECT c.relname as \"Name\" FROM pg_class c WHERE c.relkind IN ('r', '') AND c.relname !~ '^pg_' ORDER BY 1"
+		);
+	my $table;
 
-        $cursor->execute();
-        while(($table) = $cursor->fetchrow())
-        {
-                if($table eq $tableName)
-                {
-                        $cursor->finish();
-                        return 1;
-                }
-        }
+	$cursor->execute();
+	while ( ($table) = $cursor->fetchrow() )
+	{
+		if ( $table eq $tableName )
+		{
+			$cursor->finish();
+			return 1;
+		}
+	}
 
-        $cursor->finish();
+	$cursor->finish();
 
-        return 0;
+	return 0;
 }
 
 #############################################################################
@@ -149,7 +163,7 @@ sub tableExists
 #
 #       Purpose
 #               Create a new database table for a node, if it does not already
-#               exist.  This creates a new table with one field for the id of 
+#               exist.  This creates a new table with one field for the id of
 #               the node in the form of tablename_id.
 #
 #       Parameters
@@ -160,15 +174,17 @@ sub tableExists
 #
 sub createNodeTable
 {
-        my ($this, $table) = @_;
-        my $tableid = $table . "_id";
-        my $result;
-        
-        return -1 if($this->tableExists($table));
+	my ( $this, $table ) = @_;
+	my $tableid = $table . "_id";
+	my $result;
 
-        $result = $this->{dbh}->do("create table \"$table\" ($tableid int4" . " DEFAULT '0' NOT NULL, PRIMARY KEY($tableid))");
+	return -1 if ( $this->tableExists($table) );
 
-        return $result;
+	$result =
+		$this->{dbh}->do( "create table \"$table\" ($tableid int4"
+			. " DEFAULT '0' NOT NULL, PRIMARY KEY($tableid))" );
+
+	return $result;
 }
 
 #############################################################################
@@ -180,20 +196,20 @@ sub createNodeTable
 #
 #       Returns
 #               1 if successful, 0 if failure, -1 if it already exists.
-#               
+#
 sub createGroupTable
 {
-        my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 
-        return -1 if($this->tableExists($table));
-                
-        my $dbh = $this->getDatabaseHandle();
-        my $tableid = $table . "_id";
+	return -1 if ( $this->tableExists($table) );
 
-        # fuzzie fixme: this code needs to be changed for each db, duh
+	my $dbh     = $this->getDatabaseHandle();
+	my $tableid = $table . "_id";
 
-        my $sql;
-        $sql = <<SQLEND;
+	# fuzzie fixme: this code needs to be changed for each db, duh
+
+	my $sql;
+	$sql = <<SQLEND;
                 create table \"$table\" (
                         $tableid int4 DEFAULT '0' NOT NULL auto_increment,
                         rank int4 DEFAULT '0' NOT NULL,
@@ -203,7 +219,7 @@ sub createGroupTable
                 )
 SQLEND
 
-        return $dbh->do($sql);
+	return $dbh->do($sql);
 }
 
 #############################################################################
@@ -222,12 +238,12 @@ SQLEND
 #
 sub dropFieldFromTable
 {
-        my ($this, $table, $field) = @_;
-        my $sql;
+	my ( $this, $table, $field ) = @_;
+	my $sql;
 
-        $sql = "alter table \"$table\" drop $field";
+	$sql = "alter table \"$table\" drop $field";
 
-        return $this->{dbh}->do($sql);
+	return $this->{dbh}->do($sql);
 }
 
 #############################################################################
@@ -239,7 +255,7 @@ sub dropFieldFromTable
 #
 #       Parameters
 #               $table - the table to add the new field to.
-#               $fieldname - the name of the field to add  
+#               $fieldname - the name of the field to add
 #               $type - the type of the field (ie int(11), char(32), etc)
 #               $primary - (optional) is this field a primary key?  Defaults to no.
 #               $default - (optional) the default value of the field.
@@ -249,56 +265,59 @@ sub dropFieldFromTable
 #
 sub addFieldToTable
 {
-        my ($this, $table, $fieldname, $type, $primary, $default) = @_;
-        my $sql;
+	my ( $this, $table, $fieldname, $type, $primary, $default ) = @_;
+	my $sql;
 
-        return 0 if(($table eq "") || ($fieldname eq "") || ($type eq ""));
+	return 0 if ( ( $table eq "" ) || ( $fieldname eq "" ) || ( $type eq "" ) );
 
-    if(not defined $default)
-        {
-                if($type =~ /^int/i)
-                {
-                        $default = 0;
-                }
-                else
-                {   
-                        $default = "";
-                }
-        }
-        elsif($type =~ /^text/i)
-        {
-                # Text blobs cannot have default strings.  They need to be empty.
-                $default = "";
-        }
-         
-        $sql = "alter table \"$table\" add $fieldname $type";
-        $sql .= " default \"$default\" not null";
+	if ( not defined $default )
+	{
+		if ( $type =~ /^int/i )
+		{
+			$default = 0;
+		}
+		else
+		{
+			$default = "";
+		}
+	}
+	elsif ( $type =~ /^text/i )
+	{
 
-        $this->{dbh}->do($sql);
+		# Text blobs cannot have default strings.  They need to be empty.
+		$default = "";
+	}
 
-        if($primary)
-        {
-                # This requires a little bit of work.  We need to figure out what
-                # primary keys already exist, drop them, and then add them all   
-                # back in with the new key.
-                my @fields = $this->getFieldsHash($table);
-                my @prikeys;
-                my $primaries;
-                my $field;
+	$sql = "alter table \"$table\" add $fieldname $type";
+	$sql .= " default \"$default\" not null";
 
-                foreach $field (@fields)
-                {
-                        push @prikeys, $$field{Field} if($$field{Key} eq "PRI");
-                }
+	$this->{dbh}->do($sql);
 
-                $this->{dbh}->do("alter table \"$table\" drop primary key") if(@prikeys > 0);
+	if ($primary)
+	{
 
-                push @prikeys, $fieldname; # add the new field to the primaries
-                $primaries = join ',', @prikeys;
-                $this->{dbh}->do("alter table \"$table\" add primary key($primaries)");
-        }
+		# This requires a little bit of work.  We need to figure out what
+		# primary keys already exist, drop them, and then add them all
+		# back in with the new key.
+		my @fields = $this->getFieldsHash($table);
+		my @prikeys;
+		my $primaries;
+		my $field;
 
-        return 1;
+		foreach $field (@fields)
+		{
+			push @prikeys, $$field{Field} if ( $$field{Key} eq "PRI" );
+		}
+
+		$this->{dbh}->do("alter table \"$table\" drop primary key")
+			if ( @prikeys > 0 );
+
+		push @prikeys, $fieldname;    # add the new field to the primaries
+		$primaries = join ',', @prikeys;
+		$this->{dbh}->do("alter table \"$table\" add primary key($primaries)");
+	}
+
+	return 1;
 }
 
 #############################################################################
@@ -316,9 +335,9 @@ sub addFieldToTable
 #
 sub internalDropTable
 {
-        my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 
-        return $this->{dbh}->do("drop table \"$table\"");
+	return $this->{dbh}->do("drop table \"$table\"");
 }
 
 #############################################################################
@@ -337,7 +356,7 @@ sub internalDropTable
 sub startTransaction
 {
 	my ($this) = @_;
-	return 0 if ($$this{transaction});
+	return 0 if ( $$this{transaction} );
 	$$this{dbh}->{AutoCommit} = 0;
 	$$this{transaction} = 1;
 }
@@ -358,7 +377,7 @@ sub startTransaction
 sub commitTransaction
 {
 	my ($this) = @_;
-	return 1 unless ($$this{transaction});
+	return 1 unless ( $$this{transaction} );
 	$$this{dbh}->commit;
 	$$this{dbh}->{AutoCommit} = 1;
 	$$this{transaction} = 0;
@@ -381,7 +400,7 @@ sub commitTransaction
 sub rollbackTransaction
 {
 	my ($this) = @_;
-	return 1 unless ($$this{transaction});
+	return 1 unless ( $$this{transaction} );
 	$$this{dbh}->rollback;
 	$$this{dbh}->{AutoCommit} = 1;
 	$$this{transaction} = 0;
@@ -389,7 +408,7 @@ sub rollbackTransaction
 
 sub genLimitString
 {
-	my ($this, $offset, $limit) = @_;
+	my ( $this, $offset, $limit ) = @_;
 
 	$offset ||= 0;
 
@@ -398,7 +417,7 @@ sub genLimitString
 
 sub genTableName
 {
-        my ($this, $table) = @_;
+	my ( $this, $table ) = @_;
 
-        return '"'.$table.'"';
+	return '"' . $table . '"';
 }

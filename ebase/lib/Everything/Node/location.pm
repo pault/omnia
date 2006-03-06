@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::location
 
 Package that implements the base functionality for locations
@@ -14,6 +15,7 @@ use strict;
 
 =cut
 
+
 =head2 C<nuke>
 
 Overrides the base node::nuke so we can move all the nodes that exist in this
@@ -23,24 +25,26 @@ location to the parent location.
 
 sub nuke
 {
-	my ($this, $USER) = @_;
-	my $id = $$this{node_id};
+	my ( $this, $USER ) = @_;
+	my $id        = $$this{node_id};
 	my $parentLoc = $$this{loc_location};
-	my $result = $this->SUPER();
-	
-	if($result > 0)
+	my $result    = $this->SUPER();
+
+	if ( $result > 0 )
 	{
+
 		# Set all the nodes that were in this location to be in the
 		# parent location... deleting a location does not delete all
 		# the nodes inside of it.
-		$$this{DB}->sqlUpdate("node", { loc_location => $parentLoc },
-			"loc_location=$id");
+		$$this{DB}->sqlUpdate( "node", { loc_location => $parentLoc },
+			"loc_location=$id" );
 	}
 
 	return $result;
 }
 
 =cut
+
 
 =head2 C<listNodes>
 
@@ -62,12 +66,13 @@ Returns an array ref to an array that contains the nodes.
 
 sub listNodes
 {
-	my ($this, $full) = @_;
+	my ( $this, $full ) = @_;
 
-	return $this->listNodesWhere('', '', $full);
+	return $this->listNodesWhere( '', '', $full );
 }
 
 =cut
+
 
 =head2 C<listNodesWhere>
 
@@ -98,24 +103,25 @@ Returns an array ref to an array that contains the nodes.
 
 sub listNodesWhere
 {
-	my ($this, $where, $order, $full) = @_;
+	my ( $this, $where, $order, $full ) = @_;
 	$where ||= '';
 	$order ||= "order by title";
-	$where  .= " loc_location='$$this{node_id}'";
+	$where .= " loc_location='$$this{node_id}'";
 
 	my @nodes;
 
-	if (my $csr = $$this{DB}->sqlSelectMany("node_id", "node", $where, $order))
+	if ( my $csr =
+		$$this{DB}->sqlSelectMany( "node_id", "node", $where, $order ) )
 	{
-		while(my $id = $csr->fetchrow())
+		while ( my $id = $csr->fetchrow() )
 		{
-			$$this{DB}->getRef($id) if($full);
+			$$this{DB}->getRef($id) if ($full);
 			push @nodes, $id;
 		}
 
-		$csr->finish(); 
+		$csr->finish();
 	}
-	
+
 	return \@nodes;
 }
 

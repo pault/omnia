@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::TextField
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -63,25 +65,31 @@ Returns the generated HTML for this TextField object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $default, $size, $maxlen) =
-		getParamArray(
-		"query, bindNode, field, name, default, size, maxlen", @_);
+	my ( $query, $bindNode, $field, $name, $default, $size, $maxlen ) =
+		getParamArray( "query, bindNode, field, name, default, size, maxlen",
+		@_ );
 
-	$name ||= $field;
+	$name    ||= $field;
 	$default ||= 'AUTO';
-	$size ||= 20;
-	$maxlen ||= 255;
+	$size    ||= 20;
+	$maxlen  ||= 255;
 
-	my $html = $this->SUPER::genObject($query, $bindNode, $field, $name) . "\n";
+	my $html =
+		$this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
 
-	if($default eq "AUTO")
+	if ( $default eq "AUTO" )
 	{
 		$default = "";
-		$default = $$bindNode{$field} if(ref $bindNode);
+		$default = $$bindNode{$field} if ( ref $bindNode );
 	}
 
-	$html .= $query->textfield(-name => $name, -default => $default,
-		-size => $size, -maxlength => $maxlen, -override => 1);
+	$html .= $query->textfield(
+		-name      => $name,
+		-default   => $default,
+		-size      => $size,
+		-maxlength => $maxlen,
+		-override  => 1
+	);
 
 	return $html;
 }

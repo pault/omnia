@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::RemoveVarCheckbox
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::Checkbox");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -50,43 +52,44 @@ Returns the generated HTML for this RemoveVarCheckbox object.
 sub genObject
 {
 	my $this = shift;
-	my ($query, $bindNode, $field, $var) =
-		getParamArray("query, bindNode, field, var", @_);
+	my ( $query, $bindNode, $field, $var ) =
+		getParamArray( "query, bindNode, field, var", @_ );
 
 	# Form objects for updating the key/value pairs are < 55.  This way this
 	# will get executed after them, guaranteeing that they will be deleted.
 	$this->{updateExecuteOrder} = 55;
 
-	$var     =~ s/:/::/g;
+	$var =~ s/:/::/g;
 	my $name = "remove_" . $field . "_" . $var;
-	my $html = $this->SUPER::genObject($query, $bindNode,
-		$field . ":$var", $name, "remove", "UNCHECKED") . "\n";
+	my $html = $this->SUPER::genObject( $query, $bindNode, $field . ":$var",
+		$name, "remove", "UNCHECKED" )
+		. "\n";
 
 	return $html;
 }
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
 	my $param = $query->param($name);
 
 	# We will not be set unless we are checked
-	return 0 unless($param);
+	return 0 unless ($param);
 
-	my $field = $this->getBindField($query, $name);
+	my $field = $this->getBindField( $query, $name );
 	my $var;
 
-	($field, $var) = split(/::(?!:)/, $field, 2);
+	( $field, $var ) = split( /::(?!:)/, $field, 2 );
 
 	# Make sure this is not a restricted field that we cannot update directly.
-	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+	return 0 unless ( $overrideVerify or $NODE->verifyFieldUpdate($field) );
 
 	my $vars = $NODE->getHash($field);
 
-        $var =~ s/::UNCHECKED$//;
+	$var =~ s/::UNCHECKED$//;
 
 	delete $vars->{$var};
-	$NODE->setHash($vars, $field);
+	$NODE->setHash( $vars, $field );
 
 	return 1;
 }

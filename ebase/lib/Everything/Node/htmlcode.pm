@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::htmlcode
 
 Package that implements the base functionality for htmlcode
@@ -31,12 +32,15 @@ Returns true, if the title is allowable, false otherwise.
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title  = $$this{title} or return;
+	my $title = $$this{title} or return;
 
-	if ($title =~ tr/A-Za-z0-9_//c ) {
-		Everything::logErrors('htmlcode name contains invalid characters.
+	if ( $title =~ tr/A-Za-z0-9_//c )
+	{
+		Everything::logErrors(
+			'htmlcode name contains invalid characters.
 		 	 Only alphanumerics and the underscore are allowed.  No spaces!',
-			 '', '', '');
+			'', '', ''
+		);
 		return;
 	}
 

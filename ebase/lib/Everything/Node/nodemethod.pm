@@ -1,3 +1,4 @@
+
 =head 1 Everything::Node::nodemethod
 
 Package that implements the base nodemethod functionality
@@ -14,6 +15,7 @@ use strict;
 use Everything::Node;
 
 =cut
+
 
 =head2 C<getIdentifyingFields>
 
@@ -33,7 +35,7 @@ sub getIdentifyingFields
 
 #these functions exist to support the methodCache (in NodeCache.pm and Node.pm)
 #every time a nodemethod is manipulated in the database, everyone has
-#to rebuild their nodemethod cache to prevent potential corruption. 
+#to rebuild their nodemethod cache to prevent potential corruption.
 #when we increment the version of the nodetype, the methodCache is wiped
 #(on all webservers)
 

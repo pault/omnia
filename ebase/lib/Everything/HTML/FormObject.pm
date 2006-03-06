@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -13,6 +14,7 @@ use Everything;
 
 =cut
 
+
 =head2 C<new>
 
 This creates the base FormObject class object that all FormObject classes use.
@@ -26,7 +28,7 @@ Returns the blessed FormObject class.
 sub new
 {
 	my $class = shift @_;
-	my $this = { };
+	my $this  = {};
 
 	bless $this, $class;
 
@@ -42,6 +44,7 @@ sub new
 }
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -82,13 +85,14 @@ Returns the generated HTML for this object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name) =
-		getParamArray("query, bindNode, field, name", @_); 
+	my ( $query, $bindNode, $field, $name ) =
+		getParamArray( "query, bindNode, field, name", @_ );
 
-	return $this->genBindField($query, $bindNode, $field, $name);
+	return $this->genBindField( $query, $bindNode, $field, $name );
 }
 
 =cut
+
 
 =head2 C<cgiVerify>
 
@@ -133,22 +137,23 @@ permission".
 
 sub cgiVerify
 {
-	my ($this, $query, $name, $USER) = @_;
+	my ( $this, $query, $name, $USER ) = @_;
 
-	my $bindNode = $this->getBindNode($query, $name);
-	my $result = {};
+	my $bindNode = $this->getBindNode( $query, $name );
+	my $result   = {};
 
-	if($bindNode)
+	if ($bindNode)
 	{
-		$$result{node} = $bindNode->getId();
+		$$result{node}   = $bindNode->getId();
 		$$result{failed} = "User does not have permission"
-			unless($bindNode->hasAccess($USER, 'w'));
+			unless ( $bindNode->hasAccess( $USER, 'w' ) );
 	}
 
 	return $result;
 }
 
 =cut
+
 
 =head2 C<cgiUpdate>
 
@@ -191,27 +196,27 @@ Returns 1 (true) if successful, 0 (false) otherwise.
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
 	my $value = $query->param($name);
-	my $field = $this->getBindField($query, $name);
+	my $field = $this->getBindField( $query, $name );
 	my $var;
 
 	# If the stored field name is separated by a ':', this form object is bound
 	# to a hash value.
-	($field, $var) = split(/::(?!:)/, $field, 2);
+	( $field, $var ) = split( /::(?!:)/, $field, 2 );
 
 	# Make sure this is not a restricted field that we cannot update directly.
-	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+	return 0 unless ( $overrideVerify or $NODE->verifyFieldUpdate($field) );
 
 	$value = "" unless defined $value;
-	if($var)
+	if ($var)
 	{
 		my $vars = $NODE->getHash($field);
 
-		if($vars)
+		if ($vars)
 		{
 			$vars->{$var} = $value;
-			$NODE->setHash($vars, $field);
+			$NODE->setHash( $vars, $field );
 		}
 	}
 	else
@@ -223,6 +228,7 @@ sub cgiUpdate
 }
 
 =cut
+
 
 =head2 C<genBindField>
 
@@ -258,31 +264,34 @@ Returns the HTML for this hidden form field.
 
 sub genBindField
 {
-	my ($this, $query, $bindNode, $field, $name) = @_;
+	my ( $this, $query, $bindNode, $field, $name ) = @_;
 
-	return "" unless($bindNode);
+	return "" unless ($bindNode);
 
 	# Make sure any single digit "order" numbers are preceeded by a zero
 	my $order = sprintf( "%02d", $this->{updateExecuteOrder} || 50 );
 	my $bindid;
 
-	if (ref $bindNode)
+	if ( ref $bindNode )
 	{
 		$bindid = $bindNode->{node_id};
 	}
-	elsif ($bindNode eq 'new')
+	elsif ( $bindNode eq 'new' )
 	{
 		$bindid = 'new';
 	}
 
-	s/:/::/g for ($bindid, $field);
+	s/:/::/g for ( $bindid, $field );
 
 	return $query->hidden(
-		-name => 'formbind_' . $$this{objectName} . '_' . $name,
-		-value => "$order:$bindid:$field", -override => 1);
+		-name     => 'formbind_' . $$this{objectName} . '_' . $name,
+		-value    => "$order:$bindid:$field",
+		-override => 1
+	);
 }
 
 =cut
+
 
 =head2 C<getBindNode>
 
@@ -307,22 +316,24 @@ Returns the node object if successful, undef otherwise.
 
 sub getBindNode
 {
-	my ($this, $query, $name) = @_;
+	my ( $this, $query, $name ) = @_;
 
-	my $value = $query->param('formbind_' . $this->{objectName} . '_' . $name);
-	return undef unless($value);
+	my $value =
+		$query->param( 'formbind_' . $this->{objectName} . '_' . $name );
+	return undef unless ($value);
 
-	if ($value =~ /^\d\d:(.*?):(?!:)/)
+	if ( $value =~ /^\d\d:(.*?):(?!:)/ )
 	{
 
 		my $nodeid = $1;
-		$nodeid    = $query->param('node_id') if $nodeid eq 'new';
+		$nodeid = $query->param('node_id') if $nodeid eq 'new';
 
 		return $DB->getNode($nodeid);
 	}
 }
 
 =cut
+
 
 =head2 C<getBindField>
 
@@ -347,7 +358,7 @@ Returns the field data if it exists, undef otherwise.
 
 sub getBindField
 {
-	my ($this, $query, $name) = @_;
+	my ( $this, $query, $name ) = @_;
 
 	my $param = 'formbind_' . $this->{objectName} . '_' . $name;
 	my $value = $query->param($param);

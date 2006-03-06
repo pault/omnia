@@ -1,3 +1,4 @@
+
 =head1 Everything::Node
 
 The basic class that implements the node object.
@@ -23,6 +24,7 @@ use Everything::Util;
 use XML::DOM;
 
 =cut
+
 
 =head2 C<new>
 
@@ -52,16 +54,16 @@ implement these methods, we can access the basic sql functions.
 
 sub new
 {
-	my ($className, $NODE, $DB, $nocache) = @_;
+	my ( $className, $NODE, $DB, $nocache ) = @_;
 
-	return $NODE if(exists $$NODE{CREATED_NODE_OBJECT});
+	return $NODE if ( exists $$NODE{CREATED_NODE_OBJECT} );
 
 	# Mark this object as created so we don't go trying to create it again.
 	$$NODE{CREATED_NODE_OBJECT} = 1;
 
 	# Store the database handle;
 	$$NODE{DB} = $DB;
-	
+
 	# We do not use the bless(obj, class) version of bless.  Why?  Nobody
 	# is allowed to derive from Everything::Node because we implement our
 	# own inheritance model.  Some or all of an object implementation may
@@ -76,8 +78,8 @@ sub new
 
 	# Cache it.  If we don't do this, 'nodetype' will get stuck in an
 	# infinite loop when creating itself.
-	$NODE->cache() unless($nocache && $nocache ne "");
-	
+	$NODE->cache() unless ( $nocache && $nocache ne "" );
+
 	# Let the nodetype do whatever it needs to make this node complete.
 	$NODE->construct();
 
@@ -85,6 +87,7 @@ sub new
 }
 
 =cut
+
 
 =head2 C<DESTROY>
 
@@ -113,6 +116,7 @@ sub DESTROY
 
 =cut
 
+
 =head2 C<getId>
 
 Gets the numeric id of this object.
@@ -128,6 +132,7 @@ sub getId
 }
 
 =cut
+
 
 =head2 C<AUTOLOAD>
 
@@ -148,14 +153,15 @@ sub AUTOLOAD
 	# We just want the function name, not all the package info.
 	my ($func) = $Everything::Node::AUTOLOAD =~ /::(\w+)$/;
 
-	my $TYPE       = $this->{DB}->getType($$this{SUPERtype});
+	my $TYPE       = $this->{DB}->getType( $$this{SUPERtype} );
 	my $origType   = $this->{SUPERtype};
 	my $origFunc   = $this->{SUPERfunc};
 	my $origParams = $this->{SUPERparams};
 	my $result;
 
-	if ((defined($this->{SUPERfunc})) && ($func ne $this->{SUPERfunc}))
+	if ( ( defined( $this->{SUPERfunc} ) ) && ( $func ne $this->{SUPERfunc} ) )
 	{
+
 		# If the function being called is different from what we have
 		# as a SUPERfunc, that means the implementation has called
 		# another function on this same object.  We don't want to have
@@ -166,18 +172,18 @@ sub AUTOLOAD
 	{
 		$TYPE ||= $this->{type};
 	}
-	
+
 	$this->{SUPERtype} = $TYPE->{node_id};
 	$this->{SUPERfunc} = $func;
 
 	# Make a copy of the parameters in case they modify the default array.
-	$this->{SUPERparams} = [ @_ ];
+	$this->{SUPERparams} = [@_];
 
-	my $METHOD = $this->getNodeMethod($func, $TYPE);
+	my $METHOD = $this->getNodeMethod( $func, $TYPE );
 
-	if (defined $METHOD)
+	if ( defined $METHOD )
 	{
-		my ($warn, $code, $N);
+		my ( $warn, $code, $N );
 		my $error = '';
 
 		# When we search for a method, on type X, we may find it on
@@ -190,35 +196,39 @@ sub AUTOLOAD
 			$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
 		};
 
-		if ($METHOD->{type} eq 'nodemethod')
+		if ( $METHOD->{type} eq 'nodemethod' )
 		{
+
 			# This a method that is in a node.  Eval it.
 			unshift @_, $this;
-			$N      = $this->{DB}->getNode($METHOD->{node});
-			$code   = $N->{code};
-			$code   =~ tr/\015//d;
+			$N    = $this->{DB}->getNode( $METHOD->{node} );
+			$code = $N->{code};
+			$code =~ tr/\015//d;
 			$result = eval($code);
 			$error  = $@;
 		}
 
-		if ($error or $METHOD->{type} eq 'pm')
+		if ( $error or $METHOD->{type} eq 'pm' )
 		{
+
 			# We didn't find a method in node form.  Execute the default in
 			# the corresponding .pm.
-			$code    = $METHOD->{name} . "(\@_);";
+			$code = $METHOD->{name} . "(\@_);";
 			my $meth = $METHOD->{name};
-			$result  = eval { $this->$meth( @_ ) };
+			$result = eval { $this->$meth(@_) };
 		}
 
-		Everything::logErrors($warn, $@, $code, $N) if $warn or $@;
+		Everything::logErrors( $warn, $@, $code, $N ) if $warn or $@;
 	}
 	else
 	{
+
 		# A function of the given name was not found for us!  Throw an error!
-		die "Error!  No function '$func' for nodetype $this->{type}{title}.\n($TYPE->{node_id},$this->{title},$this->{node_id})";
+		die
+"Error!  No function '$func' for nodetype $this->{type}{title}.\n($TYPE->{node_id},$this->{title},$this->{node_id})";
 	}
 
-	# Set these back to what they were.  
+	# Set these back to what they were.
 	$this->{SUPERtype}   = $origType;
 	$this->{SUPERfunc}   = $origFunc;
 	$this->{SUPERparams} = $origParams;
@@ -227,6 +237,7 @@ sub AUTOLOAD
 }
 
 =cut
+
 
 =head2 C<SUPER>
 
@@ -241,31 +252,31 @@ Returns the result of calling the parent implementation
 
 sub SUPER
 {
-	my $this = shift @_;
-	my $TYPE = $$this{DB}->getType($$this{SUPERtype});
-	my $PARENT = $$this{DB}->getType($$TYPE{extends_nodetype});
-	
-	if($PARENT)
+	my $this   = shift @_;
+	my $TYPE   = $$this{DB}->getType( $$this{SUPERtype} );
+	my $PARENT = $$this{DB}->getType( $$TYPE{extends_nodetype} );
+
+	if ($PARENT)
 	{
-		my $origType = $$this{SUPERtype};
+		my $origType   = $$this{SUPERtype};
 		my $origParams = $$this{SUPERparams};
-		my $origFunc = $$this{SUPERfunc};
+		my $origFunc   = $$this{SUPERfunc};
 		my $result;
-		
+
 		$$this{SUPERtype} = $PARENT->getId();
 
 		# If no parameters were passed, we will use the parameters passed
 		# to the original call to this function.
-		unless(@_)
+		unless (@_)
 		{
 			my $params = $$this{SUPERparams};
 			push @_, @$params;
 		}
-		
+
 		# We use the object reference here to call the function.
 		my $exec = "\$this->$$this{SUPERfunc}(\@_);";
 		my $warn;
-		
+
 		local $SIG{__WARN__} = sub {
 			$warn .= $_[0];
 		};
@@ -274,11 +285,11 @@ sub SUPER
 
 		local $SIG{__WARN__} = sub { };
 
-		Everything::logErrors($warn, $@, $exec);
+		Everything::logErrors( $warn, $@, $exec );
 
-		$$this{SUPERtype} = $origType;
+		$$this{SUPERtype}   = $origType;
 		$$this{SUPERparams} = $origParams;
-		$$this{SUPERfunc} = $origFunc;
+		$$this{SUPERfunc}   = $origFunc;
 
 		return $result;
 	}
@@ -287,6 +298,7 @@ sub SUPER
 }
 
 =cut
+
 
 =head2 C<getNodeMethod>
 
@@ -318,30 +330,37 @@ nodemethod node, and 'pm' indicates that it found the function implemented in a
 
 sub getNodeMethod
 {
-	my ($this, $func, $TYPE) = @_;
+	my ( $this, $func, $TYPE ) = @_;
 	my $METHODTYPE;
 	my $METHOD;
 	my $RETURN;
-	my $found = 0;
+	my $found     = 0;
 	my $cacheName = $$TYPE{title} . ":" . $func;
 
 	# If we have it cached, return what we found
 	$METHOD = $this->{DB}->{cache}->{methodCache}{$cacheName}
 		if exists $this->{DB}->{cache}->{methodCache}{$cacheName};
 	return $METHOD if $METHOD;
-	
+
 	$METHODTYPE = $$this{DB}->getType('nodemethod');
 
-	if($METHODTYPE)
+	if ($METHODTYPE)
 	{
+
 		# First check to see if a nodemethod exists for this type.
-		$METHOD = $$this{DB}->getNodeWhere( { 'title' => $func,
-			'supports_nodetype' => $$TYPE{node_id} }, $METHODTYPE );
+		$METHOD = $$this{DB}->getNodeWhere(
+			{
+				'title'             => $func,
+				'supports_nodetype' => $$TYPE{node_id}
+			},
+			$METHODTYPE
+		);
 		$METHOD = shift @$METHOD;
 	}
 
-	if(not $METHOD)
+	if ( not $METHOD )
 	{
+
 		# Ok, we don't have a nodemethod.  Check to see if we have
 		# the function implemented in a .pm
 		my $name = $$TYPE{title};
@@ -349,37 +368,47 @@ sub getNodeMethod
 		my $package = "Everything::Node::$name";
 
 		$found = $package->can($func)
-			if(exists $this->{DB}->{nodetypeModules}->{$package});
+			if ( exists $this->{DB}->{nodetypeModules}->{$package} );
 
-		if($found)
+		if ($found)
 		{
+
 			# We need to call a function that exists in a pm.
-			$RETURN = { 'SUPERtype' => $$TYPE{node_id}, 'type' => "pm",
-				'name' => $package . "::" . $func };
+			$RETURN = {
+				'SUPERtype' => $$TYPE{node_id},
+				'type'      => "pm",
+				'name'      => $package . "::" . $func
+			};
 		}
 	}
 	else
 	{
+
 		# The stuff is stored in the node.
-		$RETURN = { 'SUPERtype' => $$TYPE{node_id}, 
-			'type' => 'nodemethod', 'node' => $METHOD->getId() };
+		$RETURN = {
+			'SUPERtype' => $$TYPE{node_id},
+			'type'      => 'nodemethod',
+			'node'      => $METHOD->getId()
+		};
 		$found = 1;
 	}
 
-	if((not $found) && ($TYPE = $TYPE->getParentType()))
+	if ( ( not $found ) && ( $TYPE = $TYPE->getParentType() ) )
 	{
+
 		# Move up the inheritence hierarchy and recursively call this.
-		$RETURN = $this->getNodeMethod($func, $TYPE);
+		$RETURN = $this->getNodeMethod( $func, $TYPE );
 	}
-			
+
 	# Cache what we found for future reference.  However, only cache it
 	# if we actually found something.
-	$this->{DB}->{cache}->{methodCache}{$cacheName} = $RETURN if($RETURN);
+	$this->{DB}->{cache}->{methodCache}{$cacheName} = $RETURN if ($RETURN);
 
 	return $RETURN;
 }
 
 =cut
+
 
 =head2 C<getClone>
 
@@ -414,26 +443,27 @@ Returns the newly cloned node, if successful.  undef otherwise.
 
 sub getClone
 {
-        my ($this, $title, $USER, $workspace) = @_;
-        my $CLONE;
-        my $create;
+	my ( $this, $title, $USER, $workspace ) = @_;
+	my $CLONE;
+	my $create;
 
-        $create = "create" if($$this{type}{restrictdupes});
-        $create ||= "create force";
+	$create = "create" if ( $$this{type}{restrictdupes} );
+	$create ||= "create force";
 
-        $CLONE = $this->{DB}->getNode($title, $$this{type}, $create);
+	$CLONE = $this->{DB}->getNode( $title, $$this{type}, $create );
 
-        # if the id is not zero, the getNode found a node that already exists
-        # and the type does not allow duplicate names.
-        return undef if($$CLONE{node_id} > 0);
+	# if the id is not zero, the getNode found a node that already exists
+	# and the type does not allow duplicate names.
+	return undef if ( $$CLONE{node_id} > 0 );
 
-        return undef unless $CLONE->clone($this, $USER);
+	return undef unless $CLONE->clone( $this, $USER );
 
-        return $CLONE;
+	return $CLONE;
 
 }
 
 =cut
+
 
 =head2 C<assignType>
 
@@ -447,17 +477,18 @@ sub assignType
 {
 	my ($this) = @_;
 
-	if($$this{node_id} == 1)
+	if ( $$this{node_id} == 1 )
 	{
 		$$this{type} = $this;
 	}
 	else
 	{
-		$$this{type} = $$this{DB}->getType($$this{type_nodetype});
+		$$this{type} = $$this{DB}->getType( $$this{type_nodetype} );
 	}
 }
 
 =cut
+
 
 =head2 C<cache>
 
@@ -471,11 +502,12 @@ sub cache
 {
 	my ($this) = @_;
 
-	return unless(defined $$this{DB}->{cache});
+	return unless ( defined $$this{DB}->{cache} );
 	$$this{DB}->{cache}->cacheNode($this);
 }
 
 =cut
+
 
 =head2 C<removeFromCache>
 
@@ -489,11 +521,12 @@ sub removeFromCache
 {
 	my ($this) = @_;
 
-	return unless(defined $$this{DB}->{cache});
+	return unless ( defined $$this{DB}->{cache} );
 	$$this{DB}->{cache}->removeNode($this);
 }
 
 =cut
+
 
 =head2 C<quoteField>
 
@@ -516,11 +549,12 @@ Returns the field in a quoted string form.
 
 sub quoteField
 {
-	my ($this, $field) = @_;
-	return ($$this{DB}->{dbh}->quote($$this{$field}));
+	my ( $this, $field ) = @_;
+	return ( $$this{DB}->{dbh}->quote( $$this{$field} ) );
 }
 
 =cut
+
 
 =head2 C<isOfType>
 
@@ -549,18 +583,19 @@ Returns true if the node is of the specified type.  False otherwise.
 
 sub isOfType
 {
-	my ($this, $type, $recurse) = @_;
+	my ( $this, $type, $recurse ) = @_;
 	my $TYPE = $$this{DB}->getType($type);
 
-	return 0 unless($TYPE);
+	return 0 unless ($TYPE);
 	my $typeid = $TYPE->getId();
-	return 1 if($typeid == $$this{type}{node_id});
+	return 1 if ( $typeid == $$this{type}{node_id} );
 
-	return $$this{type}->derivesFrom($TYPE) if($recurse);
+	return $$this{type}->derivesFrom($TYPE) if ($recurse);
 	return 0;
 }
 
 =cut
+
 
 =head2 C<hasAccess>
 
@@ -598,30 +633,32 @@ modes passed were "wrx", the return would be 0 since the user does not have the
 
 sub hasAccess
 {
-	my ($this, $USER, $modes) = @_;
+	my ( $this, $USER, $modes ) = @_;
 
 	# -1 is a way of specifying "super user".
-	return 1 if($USER eq "-1");
+	return 1 if ( $USER eq "-1" );
 
 	# Gods always have access to everything
-	return 1 if($USER->isGod());
+	return 1 if ( $USER->isGod() );
 
 	my $create = 0;
 	my $result = -1;
 
 	# We need to check for create permissions separately
-	$create = 1 if($modes =~ s/c//i);
+	$create = 1 if ( $modes =~ s/c//i );
 
-	if($modes ne "")
+	if ( $modes ne "" )
 	{
+
 		# Figure out what permissions this user has for this node.
 		my $perms = $this->getUserPermissions($USER);
 
-		$result = Everything::Security::checkPermissions($perms, $modes);
+		$result = Everything::Security::checkPermissions( $perms, $modes );
 	}
 
-	if($create)
+	if ($create)
 	{
+
 		# If one of the flags was the create flag we need to check it
 		# against the permissions that are *not* the author permissions.
 		# This is because author permissions do not have create flags.
@@ -631,26 +668,28 @@ sub hasAccess
 		# So to get around this, we set the author user to be something
 		# non-existant to force it to use one of the other permission
 		# classes.
-		my $author = $$this{author_user};
+		my $author  = $$this{author_user};
 		my $cresult = 0;
 
 		$$this{author_user} = 0;
 
 		my $perms = $this->getUserPermissions($USER);
 
-		$modes = "c";
-		$cresult = Everything::Security::checkPermissions($perms, $modes);
+		$modes   = "c";
+		$cresult = Everything::Security::checkPermissions( $perms, $modes );
 
 		# Set the author back
 		$$this{author_user} = $author;
 
-		if($result != -1)
+		if ( $result != -1 )
 		{
+
 			# We need to combine the 2 results (they both must be true)
-			$result = ($result && $cresult);
+			$result = ( $result && $cresult );
 		}
 		else
 		{
+
 			# This was a check on create only...
 			$result = $cresult;
 		}
@@ -661,6 +700,7 @@ sub hasAccess
 }
 
 =cut
+
 
 =head2 C<getUserPermissions>
 
@@ -688,15 +728,15 @@ will be returned.
 
 sub getUserPermissions
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 	my $perms = $this->getDynamicPermissions($USER);
-	
-	if(not defined $perms)
+
+	if ( not defined $perms )
 	{
 		my $class = $this->getUserRelation($USER);
 		$perms = $this->getDefaultPermissions($class);
 	}
-	
+
 	# Remove any '-' chars and spaces, we only want the permissions of those
 	# that are on.
 	$perms =~ tr/- //d;
@@ -705,6 +745,7 @@ sub getUserPermissions
 }
 
 =cut
+
 
 =head2 C<getUserRelation>
 
@@ -727,36 +768,37 @@ the appropriate permissions for the user.
 
 sub getUserRelation
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 	my $class;
 	my $userId;
-	my $sysSettings = $$this{DB}->getNode('system settings', 'setting');
-	my $sysVars = $sysSettings->getVars();
-	my $guest = $$sysVars{guest_user};
-	
+	my $sysSettings = $$this{DB}->getNode( 'system settings', 'setting' );
+	my $sysVars     = $sysSettings->getVars();
+	my $guest       = $$sysVars{guest_user};
+
 	$userId = $USER->getId();
-	
+
 	# Determine how this user relates to this node.  Is the user
 	# the author, in the group, "others", or guest user?
-	if($userId == $$this{author_user})
+	if ( $userId == $$this{author_user} )
 	{
 		$class = "author";
 	}
-	elsif($userId == $guest)
+	elsif ( $userId == $guest )
 	{
 		$class = "guest";
 	}
 	else
 	{
 		my $usergroup = $this->deriveUsergroup();
-		
+
 		$usergroup = $$this{DB}->getNode($usergroup) if $usergroup;
-		if($usergroup && $usergroup->inGroup($USER))
+		if ( $usergroup && $usergroup->inGroup($USER) )
 		{
 			$class = "group";
 		}
 		else
 		{
+
 			# If the user is not the author, in the group, or the guest user
 			# for the system, they must be "other".
 			$class = "other";
@@ -767,6 +809,7 @@ sub getUserRelation
 }
 
 =cut
+
 
 =head2 C<deriveUsergroup>
 
@@ -790,7 +833,7 @@ sub deriveUsergroup
 {
 	my ($this) = @_;
 
-	if($$this{group_usergroup} != -1)
+	if ( $$this{group_usergroup} != -1 )
 	{
 		return $$this{group_usergroup};
 	}
@@ -801,6 +844,7 @@ sub deriveUsergroup
 }
 
 =cut
+
 
 =head2 C<getDefaultPermissions>
 
@@ -827,20 +871,21 @@ contain any of these characters "rwxdc-".
 
 sub getDefaultPermissions
 {
-	my ($this, $class) = @_;
+	my ( $this, $class ) = @_;
 	my $TYPE = $$this{type};
 	my $perms;
 	my $parentPerms;
 	my $field = $class . "access";
-	
-	$perms = $$this{$field};
+
+	$perms       = $$this{$field};
 	$parentPerms = $TYPE->getDefaultTypePermissions($class);
-	$perms = Everything::Security::inheritPermissions($perms, $parentPerms);
+	$perms = Everything::Security::inheritPermissions( $perms, $parentPerms );
 
 	return $perms;
 }
 
 =cut
+
 
 =head2 C<getDynamicPermissions>
 
@@ -862,13 +907,14 @@ Returns the permissions flags generated by the permission code
 
 sub getDynamicPermissions
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 	my $class = $this->getUserRelation($USER);
 
-	my $permission = $this->{ "dynamic${class}_permission" };
+	my $permission = $this->{"dynamic${class}_permission"};
 
 	$permission = $this->{type}{"derived_default${class}_permission"}
-		if $permission and $permission == -1;
+		if $permission
+		and $permission == -1;
 
 	return unless $permission and $permission > 0;
 
@@ -881,6 +927,7 @@ sub getDynamicPermissions
 }
 
 =cut
+
 
 =head2 C<lock>
 
@@ -895,12 +942,13 @@ Returns true if the lock was granted.  False if otherwise.
 
 sub lock
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
 	return 1;
 }
 
 =cut
+
 
 =head2 C<unlock>
 
@@ -915,12 +963,13 @@ not have the lock in the first place).
 
 sub unlock
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
 	return 1;
 }
 
 =cut
+
 
 =head2 C<updateLinks>
 
@@ -950,27 +999,31 @@ Returns 1 if successful
 
 sub updateLinks
 {
-	my ($this, $FROMNODE, $type) = @_;
+	my ( $this, $FROMNODE, $type ) = @_;
 
-	return unless($FROMNODE);
-	return if ($$this{node_id} == $$this{DB}->getId($FROMNODE));
+	return unless ($FROMNODE);
+	return if ( $$this{node_id} == $$this{DB}->getId($FROMNODE) );
 
 	$type ||= 0;
 
-	my $to_id = $$this{node_id};
+	my $to_id   = $$this{node_id};
 	my $from_id = $$this{DB}->getId($FROMNODE);
 
-	my $rows = $this->{DB}->sqlSelect( 'count(*)', 'links',
-		'to_node = ? AND from_node = ? AND linktype = ?', '',
-		[ $to_id, $from_id, $type ] );
+	my $rows =
+		$this->{DB}->sqlSelect( 'count(*)', 'links',
+		'to_node = ? AND from_node = ? AND linktype = ?',
+		'', [ $to_id, $from_id, $type ] );
 
 	# '0E0' returned from the DBI indicates successful statement execution
 	# with 0 rows affected.  They just didn't like '0 but true'.
-	if ($rows and $rows ne '0E0')
+	if ( $rows and $rows ne '0E0' )
 	{
-		$this->{DB}->sqlUpdate('links', {-hits => 'hits+1' , -food => 'food+1'},
-		'from_node = ? AND to_node = ? AND linktype= ?',
-		[ $from_id, $to_id, $type ] );
+		$this->{DB}->sqlUpdate(
+			'links',
+			{ -hits => 'hits+1', -food => 'food+1' },
+			'from_node = ? AND to_node = ? AND linktype= ?',
+			[ $from_id, $to_id, $type ]
+		);
 	}
 	else
 	{
@@ -984,12 +1037,13 @@ sub updateLinks
 		$this->{DB}->sqlInsert( 'links', $atts );
 
 		@$atts{qw( from_node to_node )} = @$atts{qw( to_node from_node )};
-		$this->{DB}->sqlInsert( 'links', $atts ) unless $type; 
+		$this->{DB}->sqlInsert( 'links', $atts ) unless $type;
 	}
 	'';
 }
 
 =cut
+
 
 =head2 C<updateHits>
 
@@ -1012,13 +1066,14 @@ sub updateHits
 	my ($this) = @_;
 	my $id = $$this{node_id};
 
-	$$this{DB}->sqlUpdate('node', { -hits => 'hits+1' }, "node_id=$id");
+	$$this{DB}->sqlUpdate( 'node', { -hits => 'hits+1' }, "node_id=$id" );
 
 	# We will just do this, instead of doing a complete refresh of the node.
 	++$$this{hits};
 }
 
 =cut
+
 
 =head2 C<getLinks>
 
@@ -1038,17 +1093,18 @@ Returns a reference to an array that contains the links
 
 sub selectLinks
 {
-	my ($this, $orderby) = @_;
+	my ( $this, $orderby ) = @_;
 
 	my $obstr = $orderby ? " ORDER BY $orderby" : '';
 
-	my $cursor = $this->{DB}->sqlSelectMany( '*', 'links',
-		'from_node=?', $obstr, [$this->{node_id}]); 
+	my $cursor =
+		$this->{DB}->sqlSelectMany( '*', 'links', 'from_node=?', $obstr,
+		[ $this->{node_id} ] );
 
 	return unless $cursor;
 
 	my @links;
-	while (my $linkref = $cursor->fetchrow_hashref())
+	while ( my $linkref = $cursor->fetchrow_hashref() )
 	{
 		push @links, $linkref;
 	}
@@ -1059,6 +1115,7 @@ sub selectLinks
 }
 
 =cut
+
 
 =head2 C<getTables>
 
@@ -1082,12 +1139,13 @@ what ever you need to do.
 
 sub getTables
 {
-	my ($this, $nodetable) = @_;
+	my ( $this, $nodetable ) = @_;
 
 	return $$this{type}->getTableArray($nodetable);
 }
 
 =cut
+
 
 =head2 C<getHash>
 
@@ -1107,31 +1165,32 @@ Returns hash reference, if found, undef if not.
 
 sub getHash
 {
-	my ($this, $field) = @_;
+	my ( $this, $field ) = @_;
 	my $store = "hash_" . $field;
 
 	return $this->{$store} if exists $this->{$store};
 
-	unless (exists $this->{$field})
+	unless ( exists $this->{$field} )
 	{
-		Everything::logErrors( "Node::getHash:\t'$field' field does not " .
-			"exist for node $this->{node_id}, '$this->{title}'");
+		Everything::logErrors( "Node::getHash:\t'$field' field does not "
+				. "exist for node $this->{node_id}, '$this->{title}'" );
 		return;
 	}
 
 	# some code depends on having the reference stored in cache, even
 	# if hashified field is empty
-	unless ($this->{$field}) {
+	unless ( $this->{$field} )
+	{
 		my %empty;
 		return $this->{$store} = \%empty;
 	}
-	
-	# We haven't retrieved the hash yet... do it.
-	my %vars = map { split /=/ } split (/&/, $this->{$field});
 
-	foreach (keys %vars)
+	# We haven't retrieved the hash yet... do it.
+	my %vars = map { split /=/ } split( /&/, $this->{$field} );
+
+	foreach ( keys %vars )
 	{
-		$vars{$_} = Everything::Util::unescape($vars{$_});
+		$vars{$_} = Everything::Util::unescape( $vars{$_} );
 		$vars{$_} = '' unless $vars{$_} =~ /\S/;
 	}
 
@@ -1139,6 +1198,7 @@ sub getHash
 }
 
 =cut
+
 
 =head2 C<setHash>
 
@@ -1173,22 +1233,25 @@ Returns nothing.
 
 sub setHash
 {
-	my ($this, $varsref, $field) = @_;
+	my ( $this, $varsref, $field ) = @_;
 	my $store = "hash_" . $field;
 
 	# Clean out the keys that have do not have a value.
 	# we use defined() because 0 is a valid value -- but not a true one
-	foreach (keys %$varsref)
+	foreach ( keys %$varsref )
 	{
 		my $value = $$varsref{$_};
-		delete $$varsref{$_} unless(defined($value) && $value ne "");
+		delete $$varsref{$_} unless ( defined($value) && $value ne "" );
 	}
 
 	# Store the changed hash for calls to getVars
 	$$this{$store} = $varsref;
-	
-	my $str = join("&", map( $_."=".
-		Everything::Util::escape($$varsref{$_}), keys %$varsref) );
+
+	my $str = join(
+		"&",
+		map( $_ . "=" . Everything::Util::escape( $$varsref{$_} ),
+			keys %$varsref )
+	);
 
 	# Put the serialized hash into the field var
 	$$this{$field} = $str;
@@ -1197,6 +1260,7 @@ sub setHash
 }
 
 =cut
+
 
 =head2 C<getNodeDatabaseHash>
 
@@ -1215,21 +1279,23 @@ sub getNodeDatabaseHash
 	my $table;
 	my @fields;
 	my %keys;
-	
+
 	$tableArray = $$this{type}->getTableArray(1);
 	foreach $table (@$tableArray)
 	{
+
 		# Get the fields for the table.
 		@fields = $$this{DB}->getFields($table);
 
 		# And add only those fields to the hash.
-		@keys{@fields} = @$this{@fields};	
+		@keys{@fields} = @$this{@fields};
 	}
 
 	return \%keys;
 }
 
 =cut
+
 
 =head2 C<isNodetype>
 
@@ -1244,11 +1310,12 @@ Returns true if this node is a nodetype, false otherwise.
 sub isNodetype
 {
 	my ($this) = @_;
-	
+
 	return $this->isOfType(1);
 }
 
 =cut
+
 
 =head2 C<getParentLocation>
 
@@ -1260,10 +1327,11 @@ sub getParentLocation
 {
 	my ($this) = @_;
 
-	return $$this{DB}->getNode($$this{loc_location});
+	return $$this{DB}->getNode( $$this{loc_location} );
 }
 
 =cut
+
 
 =head2 C<toXML>
 
@@ -1295,24 +1363,24 @@ sub toXML
 	# problems reading in XML that generated by a newer version.
 	my $XMLVERSION = "0.5";
 
-	$NODE = new XML::DOM::Element($DOC, "NODE");
+	$NODE = new XML::DOM::Element( $DOC, "NODE" );
 
-	$NODE->setAttribute("export_version", $XMLVERSION);
-	$NODE->setAttribute("nodetype", $$this{type}{title});
-	$NODE->setAttribute("title", $$this{title});
+	$NODE->setAttribute( "export_version", $XMLVERSION );
+	$NODE->setAttribute( "nodetype",       $$this{type}{title} );
+	$NODE->setAttribute( "title",          $$this{title} );
 
 	# Sort them so that the exported XML has some order to it.
 	@fields = sort { $a cmp $b } @rawFields;
 
 	foreach my $field (@fields)
 	{
-		$NODE->appendChild(new XML::DOM::Text($DOC, "\n  "));
+		$NODE->appendChild( new XML::DOM::Text( $DOC, "\n  " ) );
 
-		$tag = $this->fieldToXML($DOC, $field, "  ");
+		$tag = $this->fieldToXML( $DOC, $field, "  " );
 		$NODE->appendChild($tag);
 	}
 
-	$NODE->appendChild(new XML::DOM::Text($DOC, "\n"));
+	$NODE->appendChild( new XML::DOM::Text( $DOC, "\n" ) );
 
 	$DOC->appendChild($NODE);
 
@@ -1321,6 +1389,7 @@ sub toXML
 }
 
 =cut
+
 
 =head2 C<existingNodeMatches>
 
@@ -1342,20 +1411,19 @@ sub existingNodeMatches
 	# It should be noted that if you are hitting this case, you are
 	# probably doing something weird as it doesn't make sense to
 	# be calling this on a node that already exists in the database.
-	return $this if($$this{node_id} > 0);
+	return $this if ( $$this{node_id} > 0 );
 
-	my @ID = ("title", "type_nodetype");
+	my @ID = ( "title", "type_nodetype" );
 	my $fields = $this->getIdentifyingFields();
-	push @ID, @$fields if($fields);
+	push @ID, @$fields if ($fields);
 
 	my %WHERE;
 
 	@WHERE{@ID} = @$this{@ID};
-	my $NODE = $$this{DB}->getNode(\%WHERE, $$this{type});
+	my $NODE = $$this{DB}->getNode( \%WHERE, $$this{type} );
 
 	return $NODE;
 }
-
 
 #############################################################################
 # End of package

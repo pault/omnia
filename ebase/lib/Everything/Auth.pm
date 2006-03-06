@@ -1,5 +1,6 @@
 =cut
 
+
 =head1 Everything::Auth
 
 Everything authentication routines
@@ -21,11 +22,12 @@ use strict;
 use Everything;
 
 use Exporter ();
-use vars  qw( @ISA @EXPORT );
+use vars qw( @ISA @EXPORT );
 @ISA    = qw( Exporter );
 @EXPORT = qw( loginUser logoutUser authUser );
 
 =cut
+
 
 =head2 C<new>
 
@@ -38,26 +40,25 @@ should be able to swap them out without changing anything.
 
 sub new
 {
-	my ($class, $options) = @_;
+	my ( $class, $options ) = @_;
 	$options ||= {};
 
 	# We may not always get the guest user pref (if ever). We can default to
 	# plain Guest User
 
-	$options->{guest_user} ||= $DB->getNode('Guest User', 'user')->{node_id};
+	$options->{guest_user} ||= $DB->getNode( 'Guest User', 'user' )->{node_id};
 
 	# default module
 	my $plugin   = $options->{Auth} || 'EveryAuth';
 	my $authtype = "Everything::Auth::$plugin";
 
-	my $obj = eval
-	{
-		(my $path = $authtype . '.pm') =~ s!::!/!g;
+	my $obj = eval {
+		( my $path = $authtype . '.pm' ) =~ s!::!/!g;
 		require $path or print "NOPE\n";
 		$authtype->new();
 	};
 
-	die "No authentication plugin!" if $@ or ! $obj;
+	die "No authentication plugin!" if $@ or !$obj;
 
 	$obj->{options} = $options;
 
@@ -69,6 +70,7 @@ sub new
 }
 
 =cut
+
 
 =head2 C<loginUser>
 
@@ -85,6 +87,7 @@ sub loginUser
 }
 
 =cut
+
 
 =head2 C<authUser>
 
@@ -103,6 +106,7 @@ sub authUser
 
 =cut
 
+
 =head2 C<logoutUser>
 
 This simply delegates to the plugin's logoutUser().  It should be called by
@@ -120,6 +124,7 @@ sub logoutUser
 
 =cut
 
+
 =head2 C<generateSession>
 
 While a plugin could generate the guestUser information on its own on failure,
@@ -130,14 +135,14 @@ hash for the user saving each auth module the trouble of having to do so.
 
 sub generateSession
 {
-	my ($this, $user) = @_;
+	my ( $this, $user ) = @_;
 
-	$user ||= $DB->getNode($this->{options}->{guest_user});
+	$user ||= $DB->getNode( $this->{options}->{guest_user} );
 
 	# No user yet? Now would be a good time to cry...
 	die "Unable to get user!" unless $user;
 
-	return ($user, $user->getVars());
+	return ( $user, $user->getVars() );
 }
 
 1;

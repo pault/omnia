@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::setting
 
 Package that implements the base functionality for setting
@@ -27,7 +28,6 @@ sub construct
 	return 1;
 }
 
-
 #############################################################################
 sub destruct
 {
@@ -36,8 +36,8 @@ sub destruct
 	$this->SUPER();
 }
 
-
 =cut
+
 
 =head2 C<getVars>
 
@@ -47,7 +47,7 @@ string and construct a perl hash out of it.
 
 =cut
 
-sub getVars 
+sub getVars
 {
 	my ($this) = @_;
 
@@ -55,6 +55,7 @@ sub getVars
 }
 
 =cut
+
 
 =head2 C<setVars>
 
@@ -77,13 +78,12 @@ Returns nothing.
 
 sub setVars
 {
-	my ($this, $vars) = @_;
+	my ( $this, $vars ) = @_;
 
-	$this->setHash($vars, "vars");
+	$this->setHash( $vars, "vars" );
 
 	return;
 }
-
 
 #############################################################################
 sub hasVars
@@ -92,6 +92,7 @@ sub hasVars
 }
 
 =cut
+
 
 =head2 C<fieldToXML>
 
@@ -123,27 +124,27 @@ Returns the XML::DOM::Element that represents this field.
 
 sub fieldToXML
 {
-	my ($this, $DOC, $field, $indent) = @_;
+	my ( $this, $DOC, $field, $indent ) = @_;
 	$indent ||= '';
 
-	if($field eq "vars")
+	if ( $field eq "vars" )
 	{
-		my $VARS = new XML::DOM::Element($DOC, "vars");
+		my $VARS = new XML::DOM::Element( $DOC, "vars" );
 		my $vars = $this->getVars();
-		my @raw = keys %$vars;
+		my @raw  = keys %$vars;
 		my @vars = sort { $a cmp $b } @raw;
 		my $tag;
-		my $indentself = "\n" . $indent;
+		my $indentself  = "\n" . $indent;
 		my $indentchild = $indentself . "  ";
 
 		foreach my $var (@vars)
 		{
-			$VARS->appendChild(new XML::DOM::Text($DOC, $indentchild));
-			$tag = genBasicTag($DOC, "var", $var, $$vars{$var});
+			$VARS->appendChild( new XML::DOM::Text( $DOC, $indentchild ) );
+			$tag = genBasicTag( $DOC, "var", $var, $$vars{$var} );
 			$VARS->appendChild($tag);
 		}
 
-		$VARS->appendChild(new XML::DOM::Text($DOC, $indentself));
+		$VARS->appendChild( new XML::DOM::Text( $DOC, $indentself ) );
 
 		return $VARS;
 	}
@@ -153,14 +154,13 @@ sub fieldToXML
 	}
 }
 
-
 #############################################################################
 sub xmlTag
 {
-	my ($this, $TAG) = @_;
+	my ( $this, $TAG ) = @_;
 	my $tagname = $TAG->getTagName();
 
-	if($tagname eq "vars")
+	if ( $tagname eq "vars" )
 	{
 		my @fixes;
 		my @childFields = $TAG->getChildNodes();
@@ -169,28 +169,28 @@ sub xmlTag
 		# at least defined to empty string.  Otherwise, we will get warnings
 		# when we call getVars() below.
 		$$this{vars} ||= "";
-	
+
 		my $vars = $this->getVars();
 
 		foreach my $child (@childFields)
 		{
-			next if($child->getNodeType() == XML::DOM::TEXT_NODE());
+			next if ( $child->getNodeType() == XML::DOM::TEXT_NODE() );
 
-			my $PARSE = parseBasicTag($child, 'setting');
+			my $PARSE = parseBasicTag( $child, 'setting' );
 
-			if(exists $$PARSE{where})
+			if ( exists $$PARSE{where} )
 			{
-				$$vars{$$PARSE{name}} = -1;
+				$$vars{ $$PARSE{name} } = -1;
 
 				# The where contains our fix
 				push @fixes, $PARSE;
 			}
 			else
 			{
-				$$vars{$$PARSE{name}} = $$PARSE{$$PARSE{name}};
+				$$vars{ $$PARSE{name} } = $$PARSE{ $$PARSE{name} };
 			}
 		}
-	
+
 		$this->setVars($vars);
 		return \@fixes;
 	}
@@ -200,11 +200,10 @@ sub xmlTag
 	}
 }
 
-
 #############################################################################
 sub applyXMLFix
 {
-	my ($this, $FIX, $printError) = @_;
+	my ( $this, $FIX, $printError ) = @_;
 
 	return unless $FIX and UNIVERSAL::isa( $FIX, 'HASH' );
 	for my $required (qw( fixBy field where ))
@@ -212,7 +211,7 @@ sub applyXMLFix
 		return unless exists $FIX->{$required};
 	}
 
-	unless ($FIX->{fixBy} eq 'setting')
+	unless ( $FIX->{fixBy} eq 'setting' )
 	{
 		$this->SUPER();
 		return;
@@ -220,17 +219,17 @@ sub applyXMLFix
 
 	my $vars = $this->getVars();
 
-	my $where = Everything::XML::patchXMLwhere($FIX->{where});
+	my $where = Everything::XML::patchXMLwhere( $FIX->{where} );
 	my $TYPE  = $where->{type_nodetype};
-	my $NODE  = $this->{DB}->getNode($where, $TYPE);
+	my $NODE  = $this->{DB}->getNode( $where, $TYPE );
 
 	unless ($NODE)
 	{
-		Everything::logErrors('', 
-			"Unable to find '$FIX->{title}' of type '$FIX->{type_nodetype}'\n" .
-			"for field '$FIX->{field}' in '$this->{title}'" .
-			"of type '$this->{nodetype}{title}'"
-		) if $printError;
+		Everything::logErrors( '',
+			"Unable to find '$FIX->{title}' of type '$FIX->{type_nodetype}'\n"
+				. "for field '$FIX->{field}' in '$this->{title}'"
+				. "of type '$this->{nodetype}{title}'" )
+			if $printError;
 		return $FIX;
 	}
 
@@ -245,8 +244,8 @@ sub getNodeKeepKeys
 {
 	my ($this) = @_;
 
-	my $nodekeys      = $this->SUPER();
-	$nodekeys->{vars} = 1; 
+	my $nodekeys = $this->SUPER();
+	$nodekeys->{vars} = 1;
 
 	return $nodekeys;
 }
@@ -254,17 +253,16 @@ sub getNodeKeepKeys
 # vars are preserved upon import
 sub updateFromImport
 {
-	my ($this, $NEWNODE, $USER) = @_;
+	my ( $this, $NEWNODE, $USER ) = @_;
 
 	my $V    = $this->getVars;
 	my $NEWV = $NEWNODE->getVars;
 
-	@$NEWV{keys %$V} = values %$V;
+	@$NEWV{ keys %$V } = values %$V;
 
 	$this->setVars($NEWV);
 	$this->SUPER();
 }
-
 
 #############################################################################
 # End of package

@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::nodetype
 
 Package that implements the base nodetype functionality
@@ -15,6 +16,7 @@ use Everything::Node::node;
 use Everything::Security;
 
 =cut
+
 
 =head2 C<construct>
 
@@ -36,18 +38,21 @@ sub construct
 	my $PARENT;
 
 	# Special case where this is the 'nodetype' nodetype
-	if ($this->{node_id} == 1)
+	if ( $this->{node_id} == 1 )
 	{
 		$this->{type} = $this;
 
 		# This is the nodetype nodetype.  We don't want to "load" the
-		# node nodetype (would cause infinite loop).  So, we need to 
+		# node nodetype (would cause infinite loop).  So, we need to
 		# kinda fake it.
-		my $nodeid = $this->{DB}->sqlSelect('node_id', 'node',
-			"title='node' AND type_nodetype=1");
+		my $nodeid =
+			$this->{DB}->sqlSelect( 'node_id', 'node',
+			"title='node' AND type_nodetype=1" );
 
-		my $cursor = $this->{DB}->sqlSelectJoined('*', 'nodetype',
-			{ node => 'nodetype_id=node_id' }, "nodetype_id=$nodeid");
+		my $cursor =
+			$this->{DB}->sqlSelectJoined( '*', 'nodetype',
+			{ node => 'nodetype_id=node_id' },
+			"nodetype_id=$nodeid" );
 
 		if ($cursor)
 		{
@@ -55,60 +60,69 @@ sub construct
 			$cursor->finish();
 		}
 	}
-	# Zero is a dummy location thing 
-	elsif ($this->{extends_nodetype} > 0)
+
+	# Zero is a dummy location thing
+	elsif ( $this->{extends_nodetype} > 0 )
 	{
-		$PARENT = $this->{DB}->getNode($this->{extends_nodetype});
+		$PARENT = $this->{DB}->getNode( $this->{extends_nodetype} );
 	}
 
 	# We need to derive the following fields:
-	my $derive = { map { $_ => 1 } qw(
-		sqltable grouptable defaultauthoraccess defaultgroupaccess
-		defaultotheraccess defaultguestaccess defaultgroup_usergroup
-		defaultauthor_permission defaultgroup_permission defaultother_permission
-		defaultguest_permission maxrevisions canworkspace
-	)};
+	my $derive = {
+		map { $_ => 1 }
+			qw(
+			sqltable grouptable defaultauthoraccess defaultgroupaccess
+			defaultotheraccess defaultguestaccess defaultgroup_usergroup
+			defaultauthor_permission defaultgroup_permission defaultother_permission
+			defaultguest_permission maxrevisions canworkspace
+			)
+	};
 
 	# Copy the fields that are to be derived into new hash entries.  This
 	# way we can keep the actual "node" data clean.  That way if/when we
 	# update this node, we don't corrupt the database.
-	foreach my $field (keys %$derive)
+	foreach my $field ( keys %$derive )
 	{
-		$this->{ "derived_$field" } = $this->{$field};
+		$this->{"derived_$field"} = $this->{$field};
 	}
-	
+
 	if ($PARENT)
 	{
-		foreach my $field (keys %$derive)
+		foreach my $field ( keys %$derive )
 		{
+
 			# We are only modifying the derived fields.  We want to
 			# leave the real fields alone
 			$field = "derived_" . $field;
-			
+
 			# If a field in a nodetype is '-1', this field is derived from
 			# its parent.
-			Everything::logErrors( "Missing '$field'" ) 
+			Everything::logErrors("Missing '$field'")
 				unless defined $this->{$field};
 
-			if ($this->{$field} eq '-1')
+			if ( $this->{$field} eq '-1' )
 			{
 				$this->{$field} = $PARENT->{$field};
 			}
-			elsif ($field =~ /default.*access/ and $PARENT->{$field} ne '')
+			elsif ( $field =~ /default.*access/ and $PARENT->{$field} ne '' )
 			{
-				$this->{$field} = Everything::Security::inheritPermissions(
-						$this->{$field}, $PARENT->{$field});
+				$this->{$field} =
+					Everything::Security::inheritPermissions( $this->{$field},
+					$PARENT->{$field} );
 			}
-			elsif ($field =~ /sqltable$/ and $PARENT->{$field} ne '')
+			elsif ( $field =~ /sqltable$/ and $PARENT->{$field} ne '' )
 			{
+
 				# Inherited sqltables are added onto the list.  Derived
 				# nodetypes "extend" parent nodetypes.
 				$this->{$field} .= "," if $this->{$field} ne '';
 				$this->{$field} .= $PARENT->{$field};
 			}
-			elsif ($field =~ /grouptable$/ and $PARENT->{$field} ne ''
-				 and $this->{$field} eq '')
+			elsif ( $field =~ /grouptable$/
+				and $PARENT->{$field} ne ''
+				and $this->{$field} eq '' )
 			{
+
 				# We are inheriting from a group nodetype and we have not
 				# specified a grouptable, so we will use the same table
 				# as our parent nodetype.
@@ -125,7 +139,6 @@ sub construct
 	return 1;
 }
 
-
 #############################################################################
 sub destruct
 {
@@ -140,6 +153,7 @@ sub destruct
 
 =cut
 
+
 =head2 C<insert>
 
 Make new nodetypes derive from 'node' automatically if they do not have a
@@ -153,9 +167,9 @@ sub insert
 {
 	my ($this) = @_;
 
-	if (not defined $this->{extends_nodetype} or
-		$this->{extends_nodetype} == 0 or
-		$this->{extends_nodetype} == $this->{type_nodetype})
+	if (   not defined $this->{extends_nodetype}
+		or $this->{extends_nodetype} == 0
+		or $this->{extends_nodetype} == $this->{type_nodetype} )
 	{
 		$this->{extends_nodetype} = $this->{DB}->getType('node')->{node_id};
 	}
@@ -164,6 +178,7 @@ sub insert
 }
 
 =cut
+
 
 =head2 C<update>
 
@@ -189,6 +204,7 @@ sub update
 
 =cut
 
+
 =head2 C<nuke>
 
 This keeps the user from accidentally deleting a nodetype for which nodes still
@@ -198,18 +214,19 @@ exist.
 
 sub nuke
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
-	if ($this->{DB}->getNode({type_nodetype => $this->{node_id}}))
+	if ( $this->{DB}->getNode( { type_nodetype => $this->{node_id} } ) )
 	{
-		Everything::logErrors( "Can't delete. Nodes of this type still exist" );
-  		return 0;
+		Everything::logErrors("Can't delete. Nodes of this type still exist");
+		return 0;
 	}
 
 	return $this->SUPER($USER);
 }
 
 =cut
+
 
 =head2 C<getTableArray>
 
@@ -232,16 +249,17 @@ on.  Note that this array is a copy so feel free to modify it in any way.
 
 sub getTableArray
 {
-	my ($this, $nodeTable) = @_;
+	my ( $this, $nodeTable ) = @_;
 	my @tables;
 
-	push @tables, @{$this->{tableArray}} if defined $this->{tableArray};
+	push @tables, @{ $this->{tableArray} } if defined $this->{tableArray};
 	push @tables, 'node' if $nodeTable;
 
 	return \@tables;
 }
 
 =cut
+
 
 =head2 C<getDefaultTypePermissions>
 
@@ -264,13 +282,14 @@ Returns a string that contains the default permissions of the given nodetype.
 
 sub getDefaultTypePermissions
 {
-	my ($this, $class) = @_;
+	my ( $this, $class ) = @_;
 
 	my $field = "derived_default" . $class . "access";
 	return $this->{$field} if exists $this->{$field};
 }
 
 =cut
+
 
 =head2 C<getParentType>
 
@@ -286,10 +305,11 @@ sub getParentType
 	my ($this) = @_;
 
 	return unless $this->{extends_nodetype};
-	return $this->{DB}->getType($this->{extends_nodetype});
+	return $this->{DB}->getType( $this->{extends_nodetype} );
 }
 
 =cut
+
 
 =head2 C<hasTypeAccess>
 
@@ -323,15 +343,17 @@ modes passed were "wrx", the return would be 0 since the user does not have the
 
 sub hasTypeAccess
 {
-	my ($this, $USER, $modes) = @_;
+	my ( $this, $USER, $modes ) = @_;
 
 	# Create a dummy node of this type to do a check on.
-	my $dummy = $this->{DB}->getNode('dummy_access_node', $this,'create force');
+	my $dummy =
+		$this->{DB}->getNode( 'dummy_access_node', $this, 'create force' );
 
-	return $dummy->hasAccess($USER, $modes);
+	return $dummy->hasAccess( $USER, $modes );
 }
 
 =cut
+
 
 =head2 C<isGroupType>
 
@@ -350,6 +372,7 @@ sub isGroupType
 }
 
 =cut
+
 
 =head2 C<derivesFrom>
 
@@ -372,12 +395,12 @@ Returns true if the this derives from the given nodetype, false otherwise.
 
 sub derivesFrom
 {
-	my ($this, $type) = @_;
+	my ( $this, $type ) = @_;
 
 	$type = $this->{DB}->getType($type);
 	return 0 unless $type and $type->{type_nodetype} == 1;
 
-    my $check = $this;
+	my $check = $this;
 
 	while ($check)
 	{
@@ -394,15 +417,18 @@ sub getNodeKeepKeys
 
 	my %nodekeys = %{ $this->SUPER() };
 
-	my $ntkeys = { map { $_ => 1 } qw (
-		defaultauthoraccess defaultgroupaccess defaultotheraccess
-		defaultguestaccess defaultgroup_usergroup defaultauthor_permission
-		defaultgroup_permission defaultother_permission defaultguest_permission
-	)};
+	my $ntkeys = {
+		map { $_ => 1 }
+			qw (
+			defaultauthoraccess defaultgroupaccess defaultotheraccess
+			defaultguestaccess defaultgroup_usergroup defaultauthor_permission
+			defaultgroup_permission defaultother_permission defaultguest_permission
+			)
+	};
 
 	# permissions will prevail in the current version
 
-	@nodekeys{keys %$ntkeys} = values %$ntkeys;
+	@nodekeys{ keys %$ntkeys } = values %$ntkeys;
 
 	\%nodekeys;
 }

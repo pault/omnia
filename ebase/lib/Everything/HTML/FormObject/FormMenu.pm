@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::FormMenu
 
 Package that implements the base FormMenu functionality.
@@ -52,6 +53,7 @@ sub clearMenu
 
 =cut
 
+
 =head2 C<sortMenu>
 
 Utility function used to sort the menu listing by certain criteria.
@@ -80,40 +82,41 @@ Returns an array ref of the sorted values for the menu.
 
 sub sortMenu
 {
-	my ($this, $sortby, $values, $labels) = @_;
+	my ( $this, $sortby, $values, $labels ) = @_;
 	my @sorted;
 	my $sortThis = 0;
 
-	unless($values)
+	unless ($values)
 	{
-		$values = $this->getValuesArray();
-		$labels = $this->getLabelsHash();
+		$values   = $this->getValuesArray();
+		$labels   = $this->getLabelsHash();
 		$sortThis = 1;
 	}
 
-	if($sortby eq 'labels')
+	if ( $sortby eq 'labels' )
 	{
 		@sorted = sort { $$labels{$a} cmp $$labels{$b} } @$values;
 	}
-	elsif($sortby eq 'reverse labels')
+	elsif ( $sortby eq 'reverse labels' )
 	{
 		@sorted = sort { $$labels{$b} cmp $$labels{$a} } @$values;
 	}
-	elsif($sortby eq 'values')
+	elsif ( $sortby eq 'values' )
 	{
 		@sorted = sort { $a cmp $b } @$values;
 	}
-	elsif($sortby eq 'reverse values')
+	elsif ( $sortby eq 'reverse values' )
 	{
 		@sorted = sort { $b cmp $a } @$values;
 	}
 
-	$$this{VALUES} = \@sorted if($sortThis);
+	$$this{VALUES} = \@sorted if ($sortThis);
 
 	return \@sorted;
 }
 
 =cut
+
 
 =head2 C<removeItems>
 
@@ -137,7 +140,7 @@ Returns a hashref of "value =E<gt> label" of all the items removed.
 
 sub removeItems
 {
-	my ($this, $items) = @_;
+	my ( $this, $items ) = @_;
 	my $gLabels = $this->getLabelsHash();
 	my $gValues = $this->getValuesArray();
 	my %remove;
@@ -151,9 +154,9 @@ sub removeItems
 
 	foreach (@$gValues)
 	{
-		if($remove{$_})
+		if ( $remove{$_} )
 		{
-			if(exists $$gLabels{$_})
+			if ( exists $$gLabels{$_} )
 			{
 				$return{$_} = $$gLabels{$_};
 				delete $$gLabels{$_};
@@ -175,6 +178,7 @@ sub removeItems
 }
 
 =cut
+
 
 =head2 C<addType>
 
@@ -210,10 +214,10 @@ Returns true if successful, false otherwise.
 
 sub addType
 {
-	my ($this, $type, $USER, $perm, $sortby) = @_;
-	my $TYPE = $DB->getType($type);
-	my $typeid = $$TYPE{node_id} if(defined $TYPE);
-	my $NODES = $DB->getNodeWhere({type_nodetype => $typeid});
+	my ( $this, $type, $USER, $perm, $sortby ) = @_;
+	my $TYPE   = $DB->getType($type);
+	my $typeid = $$TYPE{node_id} if ( defined $TYPE );
+	my $NODES  = $DB->getNodeWhere( { type_nodetype => $typeid } );
 	my $NODE;
 	my $gValues = $this->getValuesArray();
 	my $gLabels = $this->getLabelsHash();
@@ -221,14 +225,14 @@ sub addType
 
 	foreach $NODE (@$NODES)
 	{
-		next unless((not $USER) or ($NODE->hasAccess($USER, $perm)));
-		$$gLabels{$$NODE{node_id}} = $$NODE{title};
+		next unless ( ( not $USER ) or ( $NODE->hasAccess( $USER, $perm ) ) );
+		$$gLabels{ $$NODE{node_id} } = $$NODE{title};
 		push @values, $$NODE{node_id};
 	}
 
-	if($sortby)
+	if ($sortby)
 	{
-		my $sort = $this->sortMenu($sortby, \@values, $gLabels);
+		my $sort = $this->sortMenu( $sortby, \@values, $gLabels );
 		push @$gValues, @$sort;
 	}
 	else
@@ -240,6 +244,7 @@ sub addType
 }
 
 =cut
+
 
 =head2 C<addGroup>
 
@@ -274,7 +279,7 @@ Returns true if successful, false otherwise.
 
 sub addGroup
 {
-	my ($this, $GROUP, $showType, $USER, $perm, $sortby) = @_;
+	my ( $this, $GROUP, $showType, $USER, $perm, $sortby ) = @_;
 	my $groupnode;
 	my $NODE;
 	my $GROUPNODES;
@@ -286,18 +291,18 @@ sub addGroup
 	foreach $groupnode (@$GROUPNODES)
 	{
 		$NODE = $DB->getNode($groupnode);
-		next unless((not $USER) or ($NODE->hasAccess($USER, $perm)));
+		next unless ( ( not $USER ) or ( $NODE->hasAccess( $USER, $perm ) ) );
 
 		my $label = $$NODE{title};
-		$label .= " ($$NODE{type}{title})" if($showType);
+		$label .= " ($$NODE{type}{title})" if ($showType);
 
-		$$gLabels{$$NODE{node_id}} = $label;
+		$$gLabels{ $$NODE{node_id} } = $label;
 		push @values, $$NODE{node_id};
 	}
 
-	if($sortby)
+	if ($sortby)
 	{
-		my $sort = $this->sortMenu($sortby, \@values, $gLabels);
+		my $sort = $this->sortMenu( $sortby, \@values, $gLabels );
 		push @$gValues, @$sort;
 	}
 	else
@@ -309,6 +314,7 @@ sub addGroup
 }
 
 =cut
+
 
 =head2 C<addHash>
 
@@ -347,18 +353,19 @@ Returns true if successful, false otherwise.
 
 sub addHash
 {
-	my ($this, $hashref, $keysAreLabels, $sortby) = @_;
+	my ( $this, $hashref, $keysAreLabels, $sortby ) = @_;
 	my $key;
 	my $gValues = $this->getValuesArray();
 	my $gLabels = $this->getLabelsHash();
 	my @values;
 
-	foreach $key (keys %$hashref)
+	foreach $key ( keys %$hashref )
 	{
-		if($keysAreLabels)
+		if ($keysAreLabels)
 		{
+
 			# the labels hash must labels{value} = 'label name'
-			$$gLabels{$$hashref{$key}} = $key;
+			$$gLabels{ $$hashref{$key} } = $key;
 			push @values, $$hashref{$key};
 		}
 		else
@@ -368,9 +375,9 @@ sub addHash
 		}
 	}
 
-	if($sortby)
+	if ($sortby)
 	{
-		my $sort = $this->sortMenu($sortby, \@values, $gLabels);
+		my $sort = $this->sortMenu( $sortby, \@values, $gLabels );
 		push @$gValues, @$sort;
 	}
 	else
@@ -382,6 +389,7 @@ sub addHash
 }
 
 =cut
+
 
 =head2 C<addArray>
 
@@ -403,9 +411,9 @@ Returns true if successful, false otherwise.
 
 sub addArray
 {
-	my ($this, $values) = @_;
+	my ( $this, $values ) = @_;
 
-	return unless($values);
+	return unless ($values);
 	my $gValues = $this->getValuesArray();
 
 	push @$gValues, @$values;
@@ -414,6 +422,7 @@ sub addArray
 }
 
 =cut
+
 
 =head2 C<addLabels>
 
@@ -441,26 +450,27 @@ Returns true if successful, false otherwise.
 
 sub addLabels
 {
-	my ($this, $labels, $keysAreLabels) = @_;
+	my ( $this, $labels, $keysAreLabels ) = @_;
 
-	return unless($labels);
+	return unless ($labels);
 	my $gLabels = $this->getLabelsHash();
 
 	$keysAreLabels ||= 0;
 
-	if($keysAreLabels)
+	if ($keysAreLabels)
 	{
-		@$gLabels{values %$labels} = keys %$labels;
+		@$gLabels{ values %$labels } = keys %$labels;
 	}
 	else
 	{
-		@$gLabels{keys %$labels} = values %$labels;
+		@$gLabels{ keys %$labels } = values %$labels;
 	}
 
 	return 1;
 }
 
 =cut
+
 
 =head2 C<genPopupMenu>
 
@@ -490,15 +500,18 @@ Returns the HTML for the popup menu.
 
 sub genPopupMenu
 {
-	my ($this, $cgi, $name, $selected) = @_;
+	my ( $this, $cgi, $name, $selected ) = @_;
 
-	return $cgi->popup_menu(-name => $name,
-	                        -values => $this->getValuesArray(),
-	                        -default => $selected,
-	                        -labels => $this->getLabelsHash());
+	return $cgi->popup_menu(
+		-name    => $name,
+		-values  => $this->getValuesArray(),
+		-default => $selected,
+		-labels  => $this->getLabelsHash()
+	);
 }
 
 =cut
+
 
 =head2 C<genListMenu>
 
@@ -537,23 +550,26 @@ Returns the HTML for this scrolling list form item.
 
 sub genListMenu
 {
-	my ($this, $cgi, $name, $selected, $size, $multi) = @_;
+	my ( $this, $cgi, $name, $selected, $size, $multi ) = @_;
 
 	# We want an array.  If we have a scalar, make it an array with one elem
-	$selected = [$selected] unless(ref $selected eq "ARRAY");
+	$selected = [$selected] unless ( ref $selected eq "ARRAY" );
 
 	$multi ||= 0;
-	$size ||= 6;
+	$size  ||= 6;
 
-	return $cgi->scrolling_list(-name => $name,
-	                            -values => $this->getValuesArray(),
-	                            -default => $selected,
-	                            -size => $size,
-	                            -multiple => $multi,
-	                            -labels => $this->getLabelsHash());
+	return $cgi->scrolling_list(
+		-name     => $name,
+		-values   => $this->getValuesArray(),
+		-default  => $selected,
+		-size     => $size,
+		-multiple => $multi,
+		-labels   => $this->getLabelsHash()
+	);
 }
 
 =cut
+
 
 =head2 C<genObject>
 

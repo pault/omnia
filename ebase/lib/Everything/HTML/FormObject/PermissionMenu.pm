@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::PermissionMenu
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -32,6 +33,7 @@ my %labels = (
 );
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -70,54 +72,55 @@ Returns the generated HTML for this PermissionMenu object.
 sub genObject
 {
 	my $this = shift;
-	my ($query, $bindNode, $field, $name, $perm, $default) = 
+	my ( $query, $bindNode, $field, $name, $perm, $default ) =
 		getParamArray( 'query, bindNode, field, name, perm, default', @_ );
 
 	$name    ||= $field;
 	$default ||= 'AUTO';
-	unless($perm && defined $masks{$perm})
+	unless ( $perm && defined $masks{$perm} )
 	{
-		Everything::logErrors( 'Incorrect Permission (need r, w, x, d, or c)' );
+		Everything::logErrors('Incorrect Permission (need r, w, x, d, or c)');
 		return '';
 	}
 
-	my $html = $this->SUPER::genObject($query, $bindNode,
-		"${field}:$perm", $name) . "\n";
+	my $html =
+		$this->SUPER::genObject( $query, $bindNode, "${field}:$perm", $name )
+		. "\n";
 
-	if ($default eq 'AUTO' && UNIVERSAL::isa( $bindNode, 'Everything::Node' ))
+	if ( $default eq 'AUTO' && UNIVERSAL::isa( $bindNode, 'Everything::Node' ) )
 	{
 		my $perms = $bindNode->{$field};
-		$default = substr($perms, $masks{$perm}, 1);
+		$default = substr( $perms, $masks{$perm}, 1 );
 	}
 	else
 	{
 		$default = undef;
 	}
 
-	$this->addHash( { $labels{$perm} => $perm }, 1);
-	$this->addHash( { 'disable' => '-' }, 1);
-	$this->addHash( { 'inherit' => 'i' }, 1);
-	$html .= $this->genPopupMenu($query, $name, $default);
+	$this->addHash( { $labels{$perm} => $perm }, 1 );
+	$this->addHash( { 'disable'      => '-' },   1 );
+	$this->addHash( { 'inherit'      => 'i' },   1 );
+	$html .= $this->genPopupMenu( $query, $name, $default );
 
 	return $html;
 }
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
 	my $value = $query->param($name);
-	my $field = $this->getBindField($query, $name);
+	my $field = $this->getBindField( $query, $name );
 
-	($field, my $perm) = split('::', $field);
+	( $field, my $perm ) = split( '::', $field );
 
 	# Make sure this is not a restricted field that we cannot update directly.
-	return 0 unless($overrideVerify or $NODE->verifyFieldUpdate($field));
+	return 0 unless ( $overrideVerify or $NODE->verifyFieldUpdate($field) );
 
 	$value ||= 'i';
 
 	# Perl at its best.  Assigning a value to a substring to overwrite
 	# the old permission setting.
-	substr($NODE->{$field}, $masks{$perm}, 1) = $value;
+	substr( $NODE->{$field}, $masks{$perm}, 1 ) = $value;
 
 	return 1;
 }

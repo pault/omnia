@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::user
 
 Package that implements the base node functionality
@@ -15,6 +16,7 @@ use Everything;
 
 =cut
 
+
 =head2 C<insert>
 
 We want all users to default to be owned by themselves.
@@ -23,7 +25,7 @@ We want all users to default to be owned by themselves.
 
 sub insert
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
 	my $id = $this->SUPER() or return;
 
@@ -36,6 +38,7 @@ sub insert
 }
 
 =cut
+
 
 =head2 C<isGod>
 
@@ -58,8 +61,8 @@ Returns true if the given user is a "god".  False otherwise.
 
 sub isGod
 {
-	my ($this, $recurse) = @_;
-	my $GODS = $this->{DB}->getNode('gods', 'usergroup');
+	my ( $this, $recurse ) = @_;
+	my $GODS = $this->{DB}->getNode( 'gods', 'usergroup' );
 
 	return 0 unless $GODS;
 
@@ -68,6 +71,7 @@ sub isGod
 }
 
 =cut
+
 
 =head2 C<isGuest>
 
@@ -83,17 +87,16 @@ sub isGuest
 {
 	my ($this) = @_;
 
-	my $SYS  = $this->{DB}->getNode('system settings', 'setting') or return 1;
+	my $SYS = $this->{DB}->getNode( 'system settings', 'setting' ) or return 1;
 	my $VARS = $SYS->getVars() or return 1;
 
-	return ($VARS->{guest_user} == $this->{node_id});
+	return ( $VARS->{guest_user} == $this->{node_id} );
 }
-	
 
 #############################################################################
 sub getNodeKeys
 {
-	my ($this, $forExport) = @_;
+	my ( $this, $forExport ) = @_;
 	my $keys = $this->SUPER();
 
 	# Remove these fields if we are exporting user nodes.
@@ -104,6 +107,7 @@ sub getNodeKeys
 
 =cut
 
+
 =head2 C<verifyFieldUpdate>
 
 See Everything::Node::node::verifyFieldUpdate() for info.
@@ -112,7 +116,7 @@ See Everything::Node::node::verifyFieldUpdate() for info.
 
 sub verifyFieldUpdate
 {
-	my ($this, $field) = @_;
+	my ( $this, $field ) = @_;
 
 	my $restrictedFields = {
 		title    => 1,
@@ -131,6 +135,7 @@ sub conflictsWith { 0 }
 sub updateFromImport { 0 }
 
 =cut
+
 
 =head2 C<restrictTitle>
 
@@ -151,12 +156,13 @@ Returns true, if the title is allowable, false otherwise.
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title  = $this->{title} or return;
+	my $title = $this->{title} or return;
 
 	return $title =~ tr/-<> !a-zA-Z0-9_//c ? 0 : 1;
 }
 
 =cut
+
 
 =head2 C<getNodelets>
 
@@ -176,27 +182,27 @@ Returns a reference to a list of nodelets to display.
 
 sub getNodelets
 {
-	my ($this, $defaultGroup) = @_;
+	my ( $this, $defaultGroup ) = @_;
 	my $VARS = $this->getVars();
 
 	my @nodelets;
-	@nodelets = split(/,/, $VARS->{nodelets}) if exists $VARS->{nodelets};
+	@nodelets = split( /,/, $VARS->{nodelets} ) if exists $VARS->{nodelets};
 
 	return \@nodelets if @nodelets;
 
 	my $NODELETGROUP;
-	$NODELETGROUP = $this->{DB}->getNode($VARS->{nodelet_group})
+	$NODELETGROUP = $this->{DB}->getNode( $VARS->{nodelet_group} )
 		if exists $VARS->{nodelet_group};
 
 	push @nodelets, @{ $NODELETGROUP->{group} }
-		if $NODELETGROUP and $NODELETGROUP->isOfType('nodeletgroup');
+		if $NODELETGROUP
+		and $NODELETGROUP->isOfType('nodeletgroup');
 
 	return \@nodelets if @nodelets;
 
 	# push default nodelets on
 	return $this->{DB}->getNode($defaultGroup)->{group};
 }
-
 
 #############################################################################
 # End of package

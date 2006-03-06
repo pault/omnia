@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::workspace
 
 Package that implements the base functionality for workspaces 
@@ -12,19 +13,17 @@ package Everything::Node::workspace;
 
 use strict;
 
-
 #############################################################################
-sub nuke  
+sub nuke
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
-	return 0 unless($this->hasAccess($USER, "d"));
+	return 0 unless ( $this->hasAccess( $USER, "d" ) );
 
-	$this->{DB}->sqlDelete("revision", "inside_workspace=$$this{node_id}");	
+	$this->{DB}->sqlDelete( "revision", "inside_workspace=$$this{node_id}" );
 	$this->SUPER();
-	
-}
 
+}
 
 #############################################################################
 # End of package

@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::AuthorMenu
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -17,6 +18,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -68,35 +70,41 @@ Returns the generated HTML for this AuthorMenu object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $default) =
-		getParamArray(
-		"query, bindNode, field, name, default", @_);
+	my ( $query, $bindNode, $field, $name, $default ) =
+		getParamArray( "query, bindNode, field, name, default", @_ );
 
 	$name ||= $field;
 
-	my $html = $this->SUPER::genObject($query, $bindNode, $field, $name) . "\n";
+	my $html =
+		$this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
 
-	if(ref $bindNode)
+	if ( ref $bindNode )
 	{
-		my $author = $DB->getNode($$bindNode{$field});
-		if($author && $author->isOfType('user'))
+		my $author = $DB->getNode( $$bindNode{$field} );
+		if ( $author && $author->isOfType('user') )
 		{
 			$default ||= $$author{title};
 		}
-		elsif($author)
+		elsif ($author)
 		{
 			$default ||= "";
 		}
 	}
 
-	$html .= $query->textfield(-name => $name,
-		-default => $default, -size => 15, -maxlength => 255,
-		-override => 1) . "\n";
+	$html .= $query->textfield(
+		-name      => $name,
+		-default   => $default,
+		-size      => 15,
+		-maxlength => 255,
+		-override  => 1
+		)
+		. "\n";
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<cgiVerify>
 
@@ -106,21 +114,22 @@ This checks to make sure the specified user exists.
 
 sub cgiVerify
 {
-	my ($this, $query, $name, $USER) = @_;
+	my ( $this, $query, $name, $USER ) = @_;
 
-	my $bindNode = $this->getBindNode($query, $name);
-	my $author = $query->param($name);
-	my $result = {};
+	my $bindNode = $this->getBindNode( $query, $name );
+	my $author   = $query->param($name);
+	my $result   = {};
 
-	if($author)
+	if ($author)
 	{
-		my $AUTHOR = $DB->getNode($author, 'user');
+		my $AUTHOR = $DB->getNode( $author, 'user' );
 
-		if($AUTHOR)
+		if ($AUTHOR)
 		{
+
 			# We have an author!!  Set the CGI param so that the
 			# inherited cgiUpdate() will just do what it needs to!
-			$query->param($name, $$AUTHOR{node_id});
+			$query->param( $name, $$AUTHOR{node_id} );
 		}
 		else
 		{
@@ -128,16 +137,15 @@ sub cgiVerify
 		}
 	}
 
-	if($bindNode)
+	if ($bindNode)
 	{
-		$$result{node} = $bindNode->getId();
+		$$result{node}   = $bindNode->getId();
 		$$result{failed} = "You do not have permission"
-			unless($bindNode->hasAccess($USER, 'w'));
+			unless ( $bindNode->hasAccess( $USER, 'w' ) );
 	}
 
 	return $result;
 }
 
 1;
-
 

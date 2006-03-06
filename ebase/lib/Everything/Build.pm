@@ -15,7 +15,7 @@ sub ACTION_test
 	my @files;
 
 	find( sub { /\.t\z/ and push @files, $File::Find::name }, 't' );
-	$self->SUPER::ACTION_test( 'test_files=' . join(' ', @files ) );
+	$self->SUPER::ACTION_test( 'test_files=' . join( ' ', @files ) );
 }
 
 sub ACTION_install
@@ -24,22 +24,24 @@ sub ACTION_install
 	my $installDir = $self->{args}{installDir};
 
 	# Create the installation directory
-	eval { mkpath( $installDir ) };
+	eval { mkpath($installDir) };
 	die "Couldn't create '$installDir': $@\n" if $@;
 
 	my $file = File::Copy->new( recursive => 1 );
 
-	for my $dir (qw( nodeballs web tables bin docs images
-		everything.apache.conf ))
+	for my $dir (
+		qw( nodeballs web tables bin docs images
+		everything.apache.conf )
+		)
 	{
 		$file->copy( $dir, $installDir )
 			or warn "No files copied from $dir to $installDir";
 	}
 
-	if (my $httpconf = $self->{args}{httpconf})
+	if ( my $httpconf = $self->{args}{httpconf} )
 	{
 		local *CONF;
-		if ( open( CONF, '>> ' . $httpconf ))
+		if ( open( CONF, '>> ' . $httpconf ) )
 		{
 			print CONF $self->{args}{includestr};
 		}

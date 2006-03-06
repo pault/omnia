@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::NodetypeMenu
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::TypeMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -75,31 +77,37 @@ Returns the generated HTML for this NodetypeMenu object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $omitutil, $USER, $none,
-		$inherit, $inherittxt) = getParamArray(
-		"query, bindNode, field, name, omitutil, USER, none, " .
-		"inherit, inherittxt", @_);
+	my (
+		$query, $bindNode, $field,   $name, $omitutil,
+		$USER,  $none,     $inherit, $inherittxt
+		)
+		= getParamArray(
+		"query, bindNode, field, name, omitutil, USER, none, "
+			. "inherit, inherittxt",
+		@_
+		);
 
 	$omitutil ||= 0;
-	$USER ||= -1;
+	$USER     ||= -1;
 
 	$$this{omitutil} = $omitutil;
-	my $html = $this->SUPER::genObject($query, $bindNode, $field, $name,
-		'nodetype', 'AUTO', $USER, 'c', $none, $inherit);
+	my $html = $this->SUPER::genObject(
+		$query, $bindNode, $field, $name, 'nodetype', 'AUTO',
+		$USER,  'c',       $none,  $inherit
+	);
 
 	return $html;
 }
 
-
 #############################################################################
 sub addTypes
 {
-	my ($this, $type, $USER, $perm, $none, $inherit) = @_;
-	
+	my ( $this, $type, $USER, $perm, $none, $inherit ) = @_;
+
 	$USER ||= -1;
 	$perm ||= 'r';
-	$this->addHash({"None" => $none}, 1) if(defined $none);
-	$this->addHash({"Inherit" => $inherit}, 1) if(defined $inherit);
+	$this->addHash( { "None"    => $none },    1 ) if ( defined $none );
+	$this->addHash( { "Inherit" => $inherit }, 1 ) if ( defined $inherit );
 
 	my @RAWTYPES = $DB->getAllTypes();
 	my %types;
@@ -111,29 +119,29 @@ sub addTypes
 
 	foreach my $TYPE (@SORTED)
 	{
-		next unless($TYPE->hasTypeAccess($USER, 'c'));
-		next if($omitutil && $TYPE->derivesFrom("utility"));
+		next unless ( $TYPE->hasTypeAccess( $USER, 'c' ) );
+		next if ( $omitutil && $TYPE->derivesFrom("utility") );
 		push @TYPES, $TYPE;
 	}
 
-	my $MENU = $this->createTree(\@TYPES);
+	my $MENU = $this->createTree( \@TYPES );
 	my %labels;
 	my @array;
-	
+
 	foreach my $item (@$MENU)
 	{
-		$labels{$$item{label}} = $$item{value};
+		$labels{ $$item{label} } = $$item{value};
 		push @array, $$item{value};
 	}
 
-	$this->addArray(\@array);
-	$this->addLabels(\%labels, 1);	
+	$this->addArray( \@array );
+	$this->addLabels( \%labels, 1 );
 
 	return 1;
 }
 
-
 =cut
+
 
 =head2 C<createTree>
 
@@ -162,7 +170,7 @@ into the menu.
 
 sub createTree
 {
-	my ($this, $types, $current) = @_;
+	my ( $this, $types, $current ) = @_;
 	my $type;
 	my @list;
 
@@ -170,14 +178,16 @@ sub createTree
 
 	foreach $type (@$types)
 	{
-		next if($$type{extends_nodetype} ne $current);
+		next if ( $$type{extends_nodetype} ne $current );
 
-		my $tmp = { 'label' => " + " . $$type{title},
-			'value' => $$type{node_id} };
+		my $tmp = {
+			'label' => " + " . $$type{title},
+			'value' => $$type{node_id}
+		};
 		push @list, $tmp;
 
 		my $sub;
-		$sub = $this->createTree($types, $$type{node_id});
+		$sub = $this->createTree( $types, $$type{node_id} );
 
 		foreach my $item (@$sub)
 		{

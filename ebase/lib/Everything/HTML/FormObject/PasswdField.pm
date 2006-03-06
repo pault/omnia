@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::PasswdField
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -63,38 +65,47 @@ Returns the generated HTML for this PasswdField object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $vertical, $labels) =
-		getParamArray(
-		"query, bindNode, field, name, vertical, labels", @_);
+	my ( $query, $bindNode, $field, $name, $vertical, $labels ) =
+		getParamArray( "query, bindNode, field, name, vertical, labels", @_ );
 
-	my $html = $this->SUPER::genObject(@_) . "\n";
+	my $html    = $this->SUPER::genObject(@_) . "\n";
 	my $default = "";
-	$default = $$bindNode{$field} if(ref $bindNode);
+	$default = $$bindNode{$field} if ( ref $bindNode );
 	$vertical ||= 1;
-	$labels ||= 0;
+	$labels   ||= 0;
 
 	$html .= "<table border=0>\n";
 	$html .= "<tr>\n";
-	$html .= "<td>Password:</td>\n" if($labels);
+	$html .= "<td>Password:</td>\n" if ($labels);
 
 	$html .= "<td>";
-	$html .= $query->password_field(-name => $name, -default => '',
-		-size => 10, -maxlength => 20, -override => 1);
+	$html .= $query->password_field(
+		-name      => $name,
+		-default   => '',
+		-size      => 10,
+		-maxlength => 20,
+		-override  => 1
+	);
 	$html .= "</td>\n";
 
-	$html .= "</tr><tr>\n" if($vertical);
+	$html .= "</tr><tr>\n" if ($vertical);
 
-	$html .= "<td>Re-Confirm:</td>\n" if($labels);
+	$html .= "<td>Re-Confirm:</td>\n" if ($labels);
 	$html .= "<td>";
-	$html .= $query->password_field(-name => $name . '_confirm',
-		-default => '', -size => 10, -maxlength => 20,
-		-override => 1);
+	$html .= $query->password_field(
+		-name      => $name . '_confirm',
+		-default   => '',
+		-size      => 10,
+		-maxlength => 20,
+		-override  => 1
+	);
 	$html .= "</td></tr></table>";
 
 	return $html;
 }
 
 =cut
+
 
 =head2 C<cgiVerify>
 
@@ -139,36 +150,38 @@ permission".
 
 sub cgiVerify
 {
-	my ($this, $query, $name, $USER) = @_;
+	my ( $this, $query, $name, $USER ) = @_;
 
-	my $bindNode = $this->getBindNode($query, $name);
-	my $result = {};
+	my $bindNode = $this->getBindNode( $query, $name );
+	my $result   = {};
 
 	my $passwd1 = $query->param($name);
-	my $passwd2 = $query->param($name . '_confirm');
+	my $passwd2 = $query->param( $name . '_confirm' );
 
-	if($passwd1 ne $passwd2)
+	if ( $passwd1 ne $passwd2 )
 	{
 		$$result{failed} = "Password and confirmation are different!";
 	}
-	elsif(length($passwd1) < 4 && length($passwd1) > 0)
+	elsif ( length($passwd1) < 4 && length($passwd1) > 0 )
 	{
+
 		# If they pass nothing as their passwords, it means that nothing
 		# was changed.
 		$$result{failed} = "Password too short!";
 	}
 
-	if($bindNode)
+	if ($bindNode)
 	{
-		$$result{node} = $bindNode->getId();
+		$$result{node}   = $bindNode->getId();
 		$$result{failed} = "User does not have permission"
-			unless($bindNode->hasAccess($USER, 'w'));
+			unless ( $bindNode->hasAccess( $USER, 'w' ) );
 	}
 
 	return $result;
 }
 
 =cut
+
 
 =head2 C<cgiUpdate>
 
@@ -211,13 +224,13 @@ Returns 1 (true) if successful, 0 (false) otherwise.
 
 sub cgiUpdate
 {
-	my ($this, $query, $name, $NODE, $overrideVerify) = @_;
+	my ( $this, $query, $name, $NODE, $overrideVerify ) = @_;
 	my $value = $query->param($name);
 
 	# If the password fields contained nothing, this means that the user did
 	# not want to change the password, so we just omit the update of this
 	# field.
-	return 1 unless($value && $value ne "");
+	return 1 unless ( $value && $value ne "" );
 
 	shift @_;
 	return $this->SUPER::cgiUpdate(@_);

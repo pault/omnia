@@ -1,3 +1,4 @@
+
 =head1 Everything::Security
 
 Support functions for Security and permissions
@@ -13,6 +14,7 @@ package Everything::Security;
 use strict;
 
 =cut
+
 
 =head2 C<inheritPermissions>
 
@@ -38,21 +40,24 @@ Returns a string that contains the merged
 
 sub inheritPermissions
 {
-	my ($child, $parent) = @_;
+	my ( $child, $parent ) = @_;
 
-	unless (length $child == length $parent) {
-		Everything::logErrors( "Permission length mismatch!" );
+	unless ( length $child == length $parent )
+	{
+		Everything::logErrors("Permission length mismatch!");
 		return;
 	}
 
 	my $pos;
-	while (($pos = index($child, 'i')) > -1) {
-		substr($child, $pos, 1, substr($parent, $pos, 1));
+	while ( ( $pos = index( $child, 'i' ) ) > -1 )
+	{
+		substr( $child, $pos, 1, substr( $parent, $pos, 1 ) );
 	}
 	return $child;
 }
 
 =cut
+
 
 =head2 C<checkPermissions>
 
@@ -79,18 +84,17 @@ otherwise
 
 sub checkPermissions
 {
-	my ($perms, $modes) = @_;
-	
+	my ( $perms, $modes ) = @_;
+
 	# if no modes are passed in, we have nothing to check against.  For
 	# security purposes, we will return false.  We need something to check!
 	return 0 unless defined $perms and $perms and defined $modes and $modes;
-	
+
 	# We remove any allowed permissions from the given modes.
 	$modes =~ s/[$perms]//g;
 
 	return $modes ? 0 : 1;
 }
-
 
 #############################################################################
 # End of package

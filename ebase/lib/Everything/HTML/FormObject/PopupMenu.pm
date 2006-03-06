@@ -1,3 +1,4 @@
+
 =head1 Everything::HTML::FormObject::PopupMenu
 
 Copyright 2001 - 2003 Everything Development Inc.
@@ -16,6 +17,7 @@ use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject::FormMenu");
 
 =cut
+
 
 =head2 C<genObject>
 
@@ -62,21 +64,21 @@ Returns the generated HTML for this PopupMenu object.
 sub genObject
 {
 	my $this = shift @_;
-	my ($query, $bindNode, $field, $name, $default) = getParamArray(
-		"query, bindNode, field, name, default", @_);
+	my ( $query, $bindNode, $field, $name, $default ) =
+		getParamArray( "query, bindNode, field, name, default", @_ );
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
 
-	$name ||= $field;
+	$name    ||= $field;
 	$default ||= 'AUTO';
 
-	if($default eq "AUTO")
+	if ( $default eq "AUTO" )
 	{
 		$default = "";
-		$default = $$bindNode{$field} if(ref $bindNode);
+		$default = $$bindNode{$field} if ( ref $bindNode );
 	}
 
-	$html .= $this->genPopupMenu($query, $name, $default);
+	$html .= $this->genPopupMenu( $query, $name, $default );
 
 	return $html;
 }

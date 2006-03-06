@@ -9,7 +9,6 @@ package Everything::Auth::EveryAuth;
 #
 #############################################################################
 
-
 use strict;
 use Everything;
 use Everything::HTML;
@@ -24,10 +23,10 @@ use Everything::Util;
 
 sub new
 {
-        my $class = shift;
-        my $this;
+	my $class = shift;
+	my $this;
 	$this->{Auth} = "EveryAuth";
-        return bless $this,$class;
+	return bless $this, $class;
 }
 
 #############################################################################
@@ -35,7 +34,7 @@ sub new
 #	Sub
 #		loginUser
 #	Purpose
-#		Determine who is logging in, inside of opLogin		
+#		Determine who is logging in, inside of opLogin
 #	Parameters
 #		(none)
 #	Returns
@@ -45,25 +44,28 @@ sub new
 sub loginUser
 {
 
-	my $this = shift;
-        my $user = $query->param("user");
-        my $passwd = $query->param("passwd");
-        my $cookie;
+	my $this   = shift;
+	my $user   = $query->param("user");
+	my $passwd = $query->param("passwd");
+	my $cookie;
 
-        my $U = getNode($user,'user');
-        $user = $$U{title} if $U;
+	my $U = getNode( $user, 'user' );
+	$user = $$U{title} if $U;
 
-        my $USER_HASH;
+	my $USER_HASH;
 
-	$USER_HASH = confirmUser($user, crypt ($passwd, $user)) if $user;
+	$USER_HASH = confirmUser( $user, crypt( $passwd, $user ) ) if $user;
 
-        # If the user/passwd was correct, set a cookie on the users
-        # browser.
-        $cookie = $query->cookie(-name => "userpass",
-                -value => $query->escape($user . '|' . crypt ($passwd, $user)),
-                -expires => $query->param("expires")) if $USER_HASH;
+	# If the user/passwd was correct, set a cookie on the users
+	# browser.
+	$cookie = $query->cookie(
+		-name    => "userpass",
+		-value   => $query->escape( $user . '|' . crypt( $passwd, $user ) ),
+		-expires => $query->param("expires")
+		)
+		if $USER_HASH;
 
-        $$USER_HASH{cookie} = $cookie if($cookie and $USER_HASH);
+	$$USER_HASH{cookie} = $cookie if ( $cookie and $USER_HASH );
 
 	return $USER_HASH;
 
@@ -74,7 +76,7 @@ sub loginUser
 #	Sub
 #		logoutUser
 #	Purpose
-#		Destroys the current session		
+#		Destroys the current session
 #	Parameters
 #		(none)
 #	Returns
@@ -84,20 +86,19 @@ sub loginUser
 #		if we were to implement some kind of su-like authentication
 #		scheme, and you weren't currently at your old user
 
-
 sub logoutUser
 {
 
 	my $this = shift;
-        # The user is logging out.  Nuke their cookie.
-        my $cookie = $query->cookie(-name => 'userpass', -value => "");
 
+	# The user is logging out.  Nuke their cookie.
+	my $cookie = $query->cookie( -name => 'userpass', -value => "" );
 
-	#We need to force the guest user on logouts here, otherwise the cookie won't get cleared.
-	my $user = getNode($this->{options}->{guest_user});
-        $$user{cookie} = $cookie if($cookie);
+#We need to force the guest user on logouts here, otherwise the cookie won't get cleared.
+	my $user = getNode( $this->{options}->{guest_user} );
+	$$user{cookie} = $cookie if ($cookie);
 
-        return $user;
+	return $user;
 
 }
 
@@ -106,7 +107,7 @@ sub logoutUser
 #	Sub
 #		authUser
 #	Purpose
-#		Per page load, figure out who is requesting data		
+#		Per page load, figure out who is requesting data
 #	Parameters
 #		(none)
 #	Returns
@@ -116,22 +117,23 @@ sub logoutUser
 sub authUser
 {
 	my $this = shift;
-	my ($user_id, $cookie, $user, $passwd);
-        my $USER_HASH;
+	my ( $user_id, $cookie, $user, $passwd );
+	my $USER_HASH;
 
-        if(my $oldcookie = $query->cookie("userpass"))
-        {
-                $USER_HASH = confirmUser (split (/\|/,
-                        Everything::Util::unescape($oldcookie)));
-        }
+	if ( my $oldcookie = $query->cookie("userpass") )
+	{
+		$USER_HASH =
+			confirmUser(
+			split( /\|/, Everything::Util::unescape($oldcookie) ) );
+	}
 
-        # Get the user node
-        $USER_HASH ||= getNode($user_id);
+	# Get the user node
+	$USER_HASH ||= getNode($user_id);
 
-        # Store this user's cookie!
-        $$USER_HASH{cookie} = $cookie if($cookie and $USER_HASH);
+	# Store this user's cookie!
+	$$USER_HASH{cookie} = $cookie if ( $cookie and $USER_HASH );
 
-        return $USER_HASH;
+	return $USER_HASH;
 
 }
 
@@ -153,22 +155,21 @@ sub authUser
 #
 sub confirmUser
 {
-        my ($nick, $crpasswd) = @_;
-        my $user = $DB->getNode($nick, getType('user'));
-        my $genCrypt;
+	my ( $nick, $crpasswd ) = @_;
+	my $user = $DB->getNode( $nick, getType('user') );
+	my $genCrypt;
 
-        return undef unless($user);
+	return undef unless ($user);
 
-        $genCrypt = crypt($$user{passwd}, $$user{title});
+	$genCrypt = crypt( $$user{passwd}, $$user{title} );
 
-        if ($genCrypt eq $crpasswd)
-        {
+	if ( $genCrypt eq $crpasswd )
+	{
 		$$user{lasttime} = $DB->sqlSelect("NOW()");
 		return $user;
-        }
+	}
 
-        return undef;
+	return undef;
 }
-
 
 1;

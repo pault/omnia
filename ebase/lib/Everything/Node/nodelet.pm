@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::nodelet
 
 Package that implements the base nodelet functionality
@@ -14,6 +15,7 @@ use strict;
 
 =cut
 
+
 =head2 C<insert>
 
 We need to set up some default settings when a nodelet is inserted.
@@ -22,13 +24,13 @@ We need to set up some default settings when a nodelet is inserted.
 
 sub insert
 {
-	my ($this, $USER) = @_;
+	my ( $this, $USER ) = @_;
 
-	my $GNC = $$this{DB}->getNode("general nodelet container", "container");
+	my $GNC = $$this{DB}->getNode( "general nodelet container", "container" );
 
 	# If this gets set to something inappropriate, we can have some
 	# infinite container loops.
-	if($GNC)
+	if ($GNC)
 	{
 		$$this{parent_container} = $$GNC{node_id};
 	}
@@ -42,6 +44,7 @@ sub insert
 
 =cut
 
+
 =head2 C<getNodeKeys>
 
 This removes the nltext parameter, as it is used in caching and will be invalid
@@ -51,17 +54,16 @@ when moving to another system or nodeball
 
 sub getNodeKeys
 {
-	my ($this, $forExport) = @_;
+	my ( $this, $forExport ) = @_;
 	my $keys = $this->SUPER($forExport);
 
-	if($forExport)
+	if ($forExport)
 	{
 		delete $$keys{nltext};
 	}
 
 	return $keys;
 }
-
 
 #############################################################################
 # End of package

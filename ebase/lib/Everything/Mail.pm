@@ -1,3 +1,4 @@
+
 =head1 Everything::Mail
 
 =cut
@@ -15,67 +16,69 @@ use vars qw( $VERSION @ISA @EXPORT );
 
 BEGIN
 {
-	@ISA=qw(Exporter);
-	@EXPORT=qw( node2mail mail2node );
+	@ISA    = qw(Exporter);
+	@EXPORT = qw( node2mail mail2node );
 }
 
 sub node2mail
 {
-	my ($addr, $node) = @_;
+	my ( $addr, $node ) = @_;
 
 	return unless $addr;
 	$node = getNode($node);
 	return unless $node;
 
-	my @addresses = (UNIVERSAL::isa( $addr, 'ARRAY') ? @$addr : $addr);
+	my @addresses = ( UNIVERSAL::isa( $addr, 'ARRAY' ) ? @$addr : $addr );
 
-	my $body    = $node->{doctext} || '';
-	Everything::logErrors( 'Sending email with empty body' )
+	my $body = $node->{doctext} || '';
+	Everything::logErrors('Sending email with empty body')
 		unless $body =~ /\S/;
 
 	my $subject = $node->{title} || '';
-	Everything::logErrors( 'Sending email with empty subject' )
+	Everything::logErrors('Sending email with empty subject')
 		unless $subject =~ /\S/;
 
-	my $from    = $node->{from_address} || '';
+	my $from = $node->{from_address} || '';
 
-	my $SETTING = getNode('mail settings', 'setting');
+	my $SETTING = getNode( 'mail settings', 'setting' );
 	my $mailserver;
 
 	if ($SETTING)
 	{
 		my $MAILSTUFF = $SETTING->getVars();
 		$mailserver = $MAILSTUFF->{mailserver};
-		$from     ||= $MAILSTUFF->{systemMailFrom};
+		$from ||= $MAILSTUFF->{systemMailFrom};
 	}
 
-	unless($mailserver and $from)
+	unless ( $mailserver and $from )
 	{
-		Everything::logErrors( "Can't find the mail settings;" .
-			'sending email with default server parameters' );
+		Everything::logErrors( "Can't find the mail settings;"
+				. 'sending email with default server parameters' );
 		$mailserver ||= 'localhost';
 		$from       ||= 'root@localhost';
 	}
 
-	my $sender = Mail::Sender->new({ smtp => $mailserver, from => $from })
-		or Everything::logErrors('','Mail::Sender creation failed!');
+	my $sender = Mail::Sender->new( { smtp => $mailserver, from => $from } )
+		or Everything::logErrors( '', 'Mail::Sender creation failed!' );
 	return unless $sender;
 
 	foreach my $out_addr (@addresses)
 	{
-		my $res = $sender->MailMsg({
-			to      => $out_addr,
-			msg     => $body,
-			subject => $subject,
-		});
+		my $res = $sender->MailMsg(
+			{
+				to      => $out_addr,
+				msg     => $body,
+				subject => $subject,
+			}
+		);
 
-		if(int($res) < 0)
+		if ( int($res) < 0 )
 		{
 			Everything::logErrors("MailMsg failed with code: $res");
 		}
 	}
 
-	$sender->Close();                
+	$sender->Close();
 }
 
 sub mail2node
@@ -87,90 +90,97 @@ sub mail2node
 
 	$files = [$files] unless UNIVERSAL::isa( $files, 'ARRAY' );
 
-	my ($from, $to, $subject, $body);
+	my ( $from, $to, $subject, $body );
 	foreach my $file (@$files)
 	{
-		unless(open FILE,"<$file")
+		unless ( open FILE, "<$file" )
 		{
 			Everything::logErrors("mail2node could not open '$file': $!");
-			next; 
+			next;
 		}
 		$from = $to = $subject = $body = '';
 
-		while(<FILE>)
+		while (<FILE>)
 		{
 			my $line = $_ || "";
-			unless($subject){
-				if ($line =~ /^From\:/)       
-				{ 
+			unless ($subject)
+			{
+				if ( $line =~ /^From\:/ )
+				{
 					my ($addr) = Mail::Address->parse($line);
-					$from      = $addr->address;
+					$from = $addr->address;
 
-				}elsif ($line =~ /^To\:/)  
+				}
+				elsif ( $line =~ /^To\:/ )
 				{
 					my ($addr) = Mail::Address->parse($line);
 					$to = $addr->address;
 
-				}elsif($line =~ /^Subject\: (.*)/)
+				}
+				elsif ( $line =~ /^Subject\: (.*)/ )
 				{
 					$subject = $1;
 				}
 			}
 			else
 			{
+
 				# Need to add the newline to preserve it correctly
 				$body .= $line . "\n";
 			}
-		
+
 		}
 
 		close(FILE);
 
-		unless($subject)
+		unless ($subject)
 		{
-			Everything::logErrors("mail2node: " .
-				"$file doesn't appear to be a valid mail file");
+			Everything::logErrors( "mail2node: "
+					. "$file doesn't appear to be a valid mail file" );
 			next;
 		}
 
-		my ($user, $node);
+		my ( $user, $node );
 
-		unless($to)
+		unless ($to)
 		{
-			Everything::logErrors("mail2node: " .
-				"No 'To:' parameter specified. Defaulting to user 'root'"); 
-			$user = getNode("root","user");
+			Everything::logErrors( "mail2node: "
+					. "No 'To:' parameter specified. Defaulting to user 'root'"
+			);
+			$user = getNode( "root", "user" );
 		}
 		else
 		{
-			$user = getNode({ email => $to }, getType('user'));
+			$user = getNode( { email => $to }, getType('user') );
 
-			unless($user)
+			unless ($user)
 			{
-				Everything::logErrors("mail2node: " .
-					"can't find user for email $to. Reverting to user 'root'");
-				$user ||= getNode("root","user");
+				Everything::logErrors( "mail2node: "
+						. "can't find user for email $to. Reverting to user 'root'"
+				);
+				$user ||= getNode( "root", "user" );
 			}
 
 		}
-		$node = getNode($subject, 'mail', 'create force');
+		$node = getNode( $subject, 'mail', 'create force' );
 
-		unless($node)
+		unless ($node)
 		{
-			Everything::logErrors( "","mail2node: " .
-				"Node creation of type mail failed!");
+			Everything::logErrors( "",
+				"mail2node: " . "Node creation of type mail failed!" );
 			next;
 		}
 
-		$node->{doctext}      = $body;
-		$node->{author_user}  = getId($user);
+		$node->{doctext}     = $body;
+		$node->{author_user} = getId($user);
 
-		if($from =~ /^From:(.*)/){
+		if ( $from =~ /^From:(.*)/ )
+		{
 			$node->{from_address} = $1;
 		}
 		$node->{title} = $subject;
 
-		unless($node->insert(-1))
+		unless ( $node->insert(-1) )
 		{
 			Everything::logErrors("mail2node: Node insertion failed!");
 			next;
