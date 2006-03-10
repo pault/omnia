@@ -1,12 +1,14 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
-use vars qw( $AUTOLOAD );
+use warnings;
+
+use vars '$AUTOLOAD';
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
 use FakeNode;
@@ -45,7 +47,7 @@ $INC{'Everything.pm'} = $INC{'Everything/HTML/FormObject/FormMenu.pm'} = 1;
 
 	*Everything::HTML::FormObject::PermissionMenu::import = sub { };
 
-	use_ok('Everything::HTML::FormObject::PermissionMenu');
+	use_ok( 'Everything::HTML::FormObject::PermissionMenu' );
 	is( scalar @imports, 2, 'TypeMenu should load two packages' );
 	is( $imports[0], 'Everything', '... Everything' );
 	is(
@@ -127,9 +129,9 @@ $INC{'Everything.pm'} = $INC{'Everything/HTML/FormObject/FormMenu.pm'} = 1;
 {
 	my $node = FakeNode->new();
 	$node->{_subs} = {
-		param             => [ 'p',   '',    '' ],
-		getBindField      => [ 'f:x', 'f:x', 'f:x' ],
-		verifyFieldUpdate => [ 1,     0,     0 ]
+		param             => [ 'p',        '',    ''  ],
+		getBindField      => [ 'f::x', 'f::x', 'f::x' ],
+		verifyFieldUpdate => [ 1,      0,      0      ],
 	};
 	$node->{f} = 'rrrrr';
 
@@ -139,8 +141,10 @@ $INC{'Everything.pm'} = $INC{'Everything/HTML/FormObject/FormMenu.pm'} = 1;
 	is( $node->{_calls}[2][0],
 		'verifyFieldUpdate',
 		'... and verifyFieldUpdate() if $overrideVerify is false' );
+
 	is( $node->{f}, 'rrprr',
 		'... should set correct char in $$NODE{$field} to $value' );
+
 	is( $result, 1, '... should return 1 if verifyFieldUpdate() is true' );
 
 	$result = cgiUpdate( $node, $node, 'n', $node, 1 );
