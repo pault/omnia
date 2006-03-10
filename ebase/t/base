@@ -2,7 +2,8 @@
 
 use strict;
 
-BEGIN {
+BEGIN
+{
 	chdir 't' if -d 't';
 	unshift @INC, '../blib/lib', 'lib/', '..';
 }

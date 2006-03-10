@@ -16,35 +16,37 @@ use Test::MockObject;
 
 # temporarily avoid sub redefined warnings
 my $mock = Test::MockObject->new();
-$mock->fake_module( 'Everything' );
-$mock->fake_module( 'Everything::Util' );
-$mock->fake_module( 'XML::Dom' );
+$mock->fake_module('Everything');
+$mock->fake_module('Everything::Util');
+$mock->fake_module('XML::Dom');
 
 my $package = 'Everything::Node';
 
 sub AUTOLOAD
 {
 	$AUTOLOAD =~ s/main:://;
-	if (my $sub = $package->can( $AUTOLOAD ))
+	if ( my $sub = $package->can($AUTOLOAD) )
 	{
 		no strict 'refs';
-		*{ $AUTOLOAD} = $sub;
+		*{$AUTOLOAD} = $sub;
 		goto &$AUTOLOAD;
 	}
 }
 
-use_ok( $package ) or die;
+use_ok($package) or die;
 
-my ($result, $method, $args, @le);
+my ( $result, $method, $args, @le );
 
 local *Everything::logErrors;
 *Everything::logErrors = sub {
-	push @le, [ @_ ];
+	push @le, [@_];
 };
 
 can_ok( $package, 'new' );
+
 # DESTROY()
 can_ok( $package, 'getId' );
+
 # AUTOLOAD()
 can_ok( $package, 'SUPER' );
 can_ok( $package, 'getNodeMethod' );
@@ -71,40 +73,49 @@ $mock->{node_id} = 11;
 $mock->{DB}      = $mock;
 
 $mock->set_series( sqlSelectMany => undef, $mock )
-	 ->set_series( fetchrow_hashref => 'bar', 'baz' )
-	 ->set_true( 'finish' )
-	 ->clear();
+	->set_series( fetchrow_hashref => 'bar', 'baz' )->set_true('finish')
+	->clear();
 
-$result = selectLinks( $mock );
-($method, $args) = $mock->next_call();
+$result = selectLinks($mock);
+( $method, $args ) = $mock->next_call();
 is( $method, 'sqlSelectMany', 'selectLinks() should select from the database' );
-is( join('-', ( @$args[0 .. 4], @{ $args->[5] } ) ),
-	"$mock-*-links-from_node=?--11", '... from links table for node_id' );
+is(
+	join( '-', ( @$args[ 0 .. 4 ], @{ $args->[5] } ) ),
+	"$mock-*-links-from_node=?--11",
+	'... from links table for node_id'
+);
 is( $result, undef, '... returning if that fails' );
 
-is_deeply( selectLinks( $mock, 'order' ), [ 'bar', 'baz' ],
-	'... returning an array reference of results' );
-($method, $args) = $mock->next_call();
+is_deeply(
+	selectLinks( $mock, 'order' ),
+	[ 'bar', 'baz' ],
+	'... returning an array reference of results'
+);
+( $method, $args ) = $mock->next_call();
 like( $args->[4], qr/ORDER BY order/, '... respecting order parameter' );
 
 can_ok( $package, 'getTables' );
 
 can_ok( $package, 'getHash' );
 $mock->{hash_field} = 'stored';
-is( getHash( $mock, 'field' ), 'stored',
-	'getHash() should return stored hash if it exists' );
+is( getHash( $mock, 'field' ),
+	'stored', 'getHash() should return stored hash if it exists' );
 
 $mock->{node_id} = 11;
 $mock->{title}   = 'title';
 
-is( getHash( $mock, 'nofield' ), undef,
-	'... returning nothing if field does not exist' );
+is( getHash( $mock, 'nofield' ),
+	undef, '... returning nothing if field does not exist' );
 is( @le, 1, '... logging a warning' );
-like( $le[0][0], qr/nofield.+does not exist.+11.+title/,
-	'... with the appropriate message' );
+like(
+	$le[0][0],
+	qr/nofield.+does not exist.+11.+title/,
+	'... with the appropriate message'
+);
 
 $mock->{falsefield} = 0;
-is_deeply( getHash( $mock, 'falsefield' ), { }, '... returning hash even if value is false' );
+is_deeply( getHash( $mock, 'falsefield' ),
+	{}, '... returning hash even if value is false' );
 
 $mock->{realfield} = 'foo=bar&baz=quux&blat= ';
 {
@@ -113,11 +124,15 @@ $mock->{realfield} = 'foo=bar&baz=quux&blat= ';
 	$result = getHash( $mock, 'realfield' );
 }
 
-is_deeply( $result, {
-	foo  => 'rab',
-	baz  => 'xuuq',
-	blat => '',
-}, '... returning hash reference of stored parameters' ); 
+is_deeply(
+	$result,
+	{
+		foo  => 'rab',
+		baz  => 'xuuq',
+		blat => '',
+	},
+	'... returning hash reference of stored parameters'
+);
 
 is( $mock->{hash_realfield}, $result, '... and caching it in node' );
 

@@ -20,49 +20,55 @@ use Test::MockObject;
 my $mock = Test::MockObject->new();
 my @le;
 
-$mock->fake_module( 'Everything', logErrors => sub { push @le, [ @_ ] } );
-$mock->fake_module( 'Everything::Auth' );
+$mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
+$mock->fake_module('Everything::Auth');
 
 my $package = 'Everything::HTML';
 
 sub AUTOLOAD
 {
 	$AUTOLOAD =~ s/main:://;
-	if (my $sub = $package->can( $AUTOLOAD ))
+	if ( my $sub = $package->can($AUTOLOAD) )
 	{
 		no strict 'refs';
-		*{ $AUTOLOAD} = $sub;
+		*{$AUTOLOAD} = $sub;
 		goto &$AUTOLOAD;
 	}
 }
 
-use_ok( $package ) or die;
+use_ok($package) or die;
 
-my ($result, $method, $args);
+my ( $result, $method, $args );
 can_ok( $package, 'deprecate' );
-deprecate( 0 );
+deprecate(0);
 is( @le, 1, 'deprecate() should log a message' );
 like( $le[0][0], qr/^Deprecated function.+called/, '... with a warning' );
 like( $le[0][0], qr/'main program'/, '... for main, if not in a sub' );
 
 test_dep();
-like( $le[1][0], qr/function 'main::test_dep' called/,
-	'... naming the function' );
+like(
+	$le[1][0],
+	qr/function 'main::test_dep' called/,
+	'... naming the function'
+);
 
 my $l = __LINE__ + 1;
-test_nest_dep( 2 );
-like( $le[2][0], qr/from $0 line #$l/,
-	'... reporting package and line, respecting nest level' );
+test_nest_dep(2);
+like(
+	$le[2][0],
+	qr/from $0 line #$l/,
+	'... reporting package and line, respecting nest level'
+);
 
 sub test_dep
 {
 	my $level = shift || 1;
-	deprecate( $level );
+	deprecate($level);
 }
 
 sub test_nest_dep
 {
-	test_dep( @_ );
+	test_dep(@_);
 }
 
 can_ok( $package, 'newFormObject' );
@@ -72,14 +78,14 @@ SKIP:
 {
 	my $flag;
 
-	my $dir = File::Spec->catdir( qw( lib Everything HTML FormObject ) );
-	if (-d $dir or $flag = mkpath( $dir ))
+	my $dir = File::Spec->catdir(qw( lib Everything HTML FormObject ));
+	if ( -d $dir or $flag = mkpath($dir) )
 	{
 		local *FILE;
 		my $file = File::Spec->catfile( $dir, 'foo.pm' );
-		if ($flag =	open( FILE, ">$file" ))
+		if ( $flag = open( FILE, ">$file" ) )
 		{
-			(my $module =<<"			END_HERE") =~ s/^\t+//gm;
+			( my $module = <<"			END_HERE") =~ s/^\t+//gm;
 			package Everything::HTML::FormObject::foo;
 			sub new { bless {}, __PACKAGE__ }
 			1;
@@ -94,11 +100,14 @@ SKIP:
 	local @INC = 'lib';
 	@le = ();
 
-	$result = newFormObject( 'foo' );
-	isa_ok( $result, 'Everything::HTML::FormObject::foo',
-		'... creating object that' );
-	
-	$result = newFormObject( 'not foo' );	
+	$result = newFormObject('foo');
+	isa_ok(
+		$result,
+		'Everything::HTML::FormObject::foo',
+		'... creating object that'
+	);
+
+	$result = newFormObject('not foo');
 	is( @le, 1, '... logging error if form object does not exist' );
 	like( $le[0][0], qr/Can't locate/, '... with error message' );
 	is( $result, undef, '... returning undef' );
@@ -110,41 +119,88 @@ can_ok( $package, 'htmlScreen' );
 can_ok( $package, 'encodeHTML' );
 can_ok( $package, 'decodeHTML' );
 {
-	#individually:
-	is(encodeHTML(''), '', 'encodeHTML() should preserve nullspace');
-	is(encodeHTML('&'), '&amp;', 'encodeHTML() should encode ampersands');
-	is(encodeHTML('"'), '&quot;','encodeHTML() should encode double quotes');
-	is(encodeHTML('<'), '&lt;', 'encodeHTML() should encode left angle brackets');
-	is(encodeHTML('>'), '&gt;', 'encodeHTML() should encode right angle brackets');
-	is(encodeHTML('['), '[', 'encodeHTML() should not encode left brackets without the adv parameter');
-	is(encodeHTML(']'), ']', 'encodeHTML() should not encode right brackets without the adv parameter');
-	is(encodeHTML('[',1), '&#91;', 'encodeHTML() should encode left brackets with the adv parameter');
-	is(encodeHTML(']',1), '&#93;', 'encodeHTML() should encode right brackets with the adv parameter');
 
-	is(decodeHTML(''), '', 'decodeHTML() should preserve nullspace');
-	is(decodeHTML('&amp;'), '&', 'decodeHTML() should decode apersands');
-	is(decodeHTML('&quot;'), '"', 'decodeHTML() should decode double quotes');	
-	is(decodeHTML('&lt;'), '<', 'decodeHTML() should decode angle left brackets');
-	is(decodeHTML('&gt;'), '>', 'decodeHTML() should decode angle right brackets');
-	is(decodeHTML('&#91;'), '&#91;', 'decodeHTML() should not decode left brackets without the adv parameter');
-	is(decodeHTML('&#93;'), '&#93;', 'decodeHTML() should not decode right brackets without the adv parameter');
-	is(decodeHTML('&#91;', 1), '[', 'decodeHTML() should decode left brackets with the adv parameter');
-	is(decodeHTML('&#93;', 1), ']', 'decodeHTML() should decode right brackets with the adv parameter');
+	#individually:
+	is( encodeHTML(''),  '',       'encodeHTML() should preserve nullspace' );
+	is( encodeHTML('&'), '&amp;',  'encodeHTML() should encode ampersands' );
+	is( encodeHTML('"'), '&quot;', 'encodeHTML() should encode double quotes' );
+	is( encodeHTML('<'), '&lt;',
+		'encodeHTML() should encode left angle brackets' );
+	is( encodeHTML('>'), '&gt;',
+		'encodeHTML() should encode right angle brackets' );
+	is( encodeHTML('['), '[',
+		'encodeHTML() should not encode left brackets without the adv parameter'
+	);
+	is( encodeHTML(']'), ']',
+'encodeHTML() should not encode right brackets without the adv parameter'
+	);
+	is( encodeHTML( '[', 1 ),
+		'&#91;',
+		'encodeHTML() should encode left brackets with the adv parameter' );
+	is( encodeHTML( ']', 1 ),
+		'&#93;',
+		'encodeHTML() should encode right brackets with the adv parameter' );
+
+	is( decodeHTML(''),       '',  'decodeHTML() should preserve nullspace' );
+	is( decodeHTML('&amp;'),  '&', 'decodeHTML() should decode apersands' );
+	is( decodeHTML('&quot;'), '"', 'decodeHTML() should decode double quotes' );
+	is( decodeHTML('&lt;'), '<',
+		'decodeHTML() should decode angle left brackets' );
+	is( decodeHTML('&gt;'), '>',
+		'decodeHTML() should decode angle right brackets' );
+	is( decodeHTML('&#91;'), '&#91;',
+		'decodeHTML() should not decode left brackets without the adv parameter'
+	);
+	is( decodeHTML('&#93;'), '&#93;',
+'decodeHTML() should not decode right brackets without the adv parameter'
+	);
+	is( decodeHTML( '&#91;', 1 ),
+		'[',
+		'decodeHTML() should decode left brackets with the adv parameter' );
+	is( decodeHTML( '&#93;', 1 ),
+		']',
+		'decodeHTML() should decode right brackets with the adv parameter' );
 
 	#integrated:
 	my $string = "'&foo; <br>'";
-	is(encodeHTML($string), "'&amp;foo; &lt;br&gt;'", 'encodeHTML() should create valid encoded characters in a string');
-	is(decodeHTML(encodeHTML($string)), $string, 'encodeHTML() and decodeHTML() should undo each other');
+	is(
+		encodeHTML($string),
+		"'&amp;foo; &lt;br&gt;'",
+		'encodeHTML() should create valid encoded characters in a string'
+	);
+	is( decodeHTML( encodeHTML($string) ),
+		$string, 'encodeHTML() and decodeHTML() should undo each other' );
 
 	$string = ' [ foo &amp;]"Hello';
-	is(encodeHTML($string), ' [ foo &amp;amp;]&quot;Hello', 'encodeHTML() should properly encode a complicated string');
-	is(decodeHTML($string), ' [ foo &]"Hello', 'decodeHTML() should properly decode a complicated string');
-	is(decodeHTML(encodeHTML($string)), $string, 'encodeHTML() and decodeHTML() should undo each other for a complicated string');
+	is(
+		encodeHTML($string),
+		' [ foo &amp;amp;]&quot;Hello',
+		'encodeHTML() should properly encode a complicated string'
+	);
+	is(
+		decodeHTML($string),
+		' [ foo &]"Hello',
+		'decodeHTML() should properly decode a complicated string'
+	);
+	is(
+		decodeHTML( encodeHTML($string) ),
+		$string,
+'encodeHTML() and decodeHTML() should undo each other for a complicated string'
+	);
 
 	$string = "<br>\n&lt;p&gt;";
-	is(encodeHTML($string), "&lt;br&gt;\n&amp;lt;p&amp;gt;", 'encodeHTML() should properly encode a string with a newline');
-	is(decodeHTML($string), "<br>\n<p>", 'decodeHTML() should properly decode a string with a newline');
-	is(decodeHTML(encodeHTML($string)), $string, 'encodeHTML() and decodeHTML() should undo each other for a string with a newline');
+	is(
+		encodeHTML($string),
+		"&lt;br&gt;\n&amp;lt;p&amp;gt;",
+		'encodeHTML() should properly encode a string with a newline'
+	);
+	is( decodeHTML($string), "<br>\n<p>",
+		'decodeHTML() should properly decode a string with a newline' );
+	is(
+		decodeHTML( encodeHTML($string) ),
+		$string,
+'encodeHTML() and decodeHTML() should undo each other for a string with a newline'
+	);
 
 }
 can_ok( $package, 'htmlFormatErr' );
@@ -158,11 +214,11 @@ can_ok( $package, 'urlGen' );
 	local *Everything::HTML::query;
 	*Everything::HTML::query = \$q;
 
-	$result = urlGen( { foo => [ 'bar', 'baz' ]} );
+	$result = urlGen( { foo => [ 'bar', 'baz' ] } );
 	is( $result, '"?foo=bar;foo=baz"',
 		'urlGen() should generate relative URL from params' );
-	is( urlGen( { foo => 'bar' }, 1 ), '?foo=bar',
-		'... without quotes, if noflags is true' );
+	is( urlGen( { foo => 'bar' }, 1 ),
+		'?foo=bar', '... without quotes, if noflags is true' );
 }
 
 can_ok( $package, 'getPageForType' );
@@ -181,10 +237,10 @@ can_ok( $package, 'nodemethod' );
 can_ok( $package, 'htmlsnippet' );
 can_ok( $package, 'embedCode' );
 can_ok( $package, 'parseCode' );
-can_ok( $package, 'oldparseCode' ); # probably unnecessary
+can_ok( $package, 'oldparseCode' );               # probably unnecessary
 can_ok( $package, 'listCode' );
 can_ok( $package, 'linkCode' );
-can_ok( $package, 'quote' ); # may be deprecated
+can_ok( $package, 'quote' );                      # may be deprecated
 can_ok( $package, 'insertNodelet' );
 can_ok( $package, 'updateNodelet' );
 can_ok( $package, 'genContainer' );
@@ -204,7 +260,7 @@ can_ok( $package, 'opNuke' );
 can_ok( $package, 'opLogin' );
 can_ok( $package, 'opLogout' );
 can_ok( $package, 'opNew' );
-can_ok( $package, 'opUnlock' ); # deprecated ?
+can_ok( $package, 'opUnlock' );                   # deprecated ?
 can_ok( $package, 'opLock' );
 can_ok( $package, 'opUpdate' );
 can_ok( $package, 'getOpCode' );
