@@ -6,7 +6,7 @@ use vars qw( $AUTOLOAD $errors );
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib', '..';
+	use lib 'lib';
 }
 
 use TieOut;
@@ -156,7 +156,8 @@ is( $mock->next_call(), 'cache', '... and caching node' );
 # update()
 $mock->{node_id} = 87;
 $mock->set_series( hasAccess => 0, 1, 1 )
-	->set_series( updateWorkspaced => 77, 0 )->clear();
+	->set_series( updateWorkspaced => 77, 0 )->clear()
+	->set_true( -canWorkspace );
 
 is( update( $mock, 'user' ),
 	0, 'update() should return 0 if user lacks write access' );
@@ -264,7 +265,7 @@ is(
 	'table1_id-table1-node_id = ?',
 	'... in group table'
 );
-is_deeply( $args->[4], [87], '... by node_id' );
+is_deeply( $args->[5], [87], '... by node_id' );
 
 is( $mock->next_call(3), 'fetchrow',
 	'... if it exists, should fetch all containing groups' );
