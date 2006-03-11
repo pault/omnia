@@ -1,17 +1,14 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
-BEGIN
-{
-	chdir 't' if -d 't';
-	use lib '..', 'blib/lib', 'lib';
-}
+use strict;
+use warnings;
 
-use Test::More 'no_plan';
-use Test::MockObject;
-my $mock = Test::MockObject->new();
-$mock->fake_module( 'Everything::Node::nodeball', import => sub { } );
+use Test::More tests => 2;
 
-use_ok('Everything::Node::theme');
+$INC{ 'Everything/Node/nodeball.pm' } = 1;
+$Everything::Node::nodeball::VERSION = $Everything::Node::nodeball::VERSION = 1;
+
+use_ok( 'Everything::Node::theme' );
 ok(
 	Everything::Node::theme->isa('Everything::Node::nodeball'),
 	'Everything::Node::theme should extend Everything::Node::nodeball'

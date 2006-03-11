@@ -5,8 +5,14 @@ use warnings;
 
 use lib 'lib';
 
+use File::Find;
 use File::Spec;
+
 use Everything::Build;
+
+my @test_files;
+
+find( sub { return unless /\.t\z/; push @test_files, $File::Find::name }, 't' );
 
 my $build = Everything::Build->new(
 	module_name       => 'Everything',
@@ -35,8 +41,8 @@ my $build = Everything::Build->new(
 		'Test::Exception'           => 0.13,
 		'Test::Simple'              => 0.47,
 	},
-	scripts => [ File::Spec->catfile( 'bin', 'nbmasta' ) ],
-	
+	scripts    => [ File::Spec->catfile( 'bin', 'nbmasta' ) ],
+	test_files => join( ' ', @test_files ),
 );
 
 my $httpconf   = '';

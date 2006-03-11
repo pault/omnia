@@ -11,6 +11,8 @@ Copyright 2000 - 2003 Everything Development Inc.
 
 package Everything::Node::theme;
 
+use base 'Everything::Node::nodeball';
+
 use strict;
 ############################################################################
 # End of package

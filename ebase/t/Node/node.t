@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use vars qw( $AUTOLOAD $errors );
+use vars '$AUTOLOAD';
 
 BEGIN
 {
@@ -411,12 +411,14 @@ $mock->set_series( getTagName => 'badtag', 'field', 'morefield' )->clear();
 
 $mock->{title} = 'thistype';
 my $out;
+my $errors;
+local *Everything::logErrors;
+*Everything::logErrors = sub { (undef, $errors) = @_ };
 {
 	$result = xmlTag( $mock, $mock );
 	is( $mock->next_call(), 'getTagName', 'xmlTag() should fetch tag name' );
 	ok( !$result, '... and should return false unless it contains "field"' );
-	like( $errors, qr/^|Err.+tag 'badtag'.+'thistype'/,
-		'... logging an error' );
+	like( $errors, qr/tag 'badtag'.+'thistype'/, '... logging an error'    );
 
 	local *Everything::XML::parseBasicTag;
 	my @pbt;
@@ -469,10 +471,11 @@ is( applyXMLFix( $mock, $fix ),
 $fix->{fixBy} = 'fixme';
 is( applyXMLFix( $mock, $fix, 1 ),
 	$fix, '... or if the field is not set to "node"' );
+
+$errors = '' unless defined $errors;
 like(
 	$errors,
-	qr/^|Error!.+handle fix by 'fixme'/,
-	'... and should log error if flag is set'
+	qr/handle fix by 'fixme'/, '... and should log error if flag is set'
 );
 
 $fix->{fixBy} = 'node';

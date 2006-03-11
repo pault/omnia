@@ -1,15 +1,16 @@
 #!/usr/bin/perl -w
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
 use strict;
-use vars qw( $AUTOLOAD );
+use vars '$AUTOLOAD';
 
 use File::Spec;
 use File::Path;
@@ -208,17 +209,17 @@ can_ok( $package, 'htmlErrorUsers' );
 can_ok( $package, 'htmlErrorGods' );
 can_ok( $package, 'urlGen' );
 {
-	local $ENV{SCRIPT_NAME} = 'http://this/';
+	local $ENV{SCRIPT_NAME} = '/this.pl';
 	my $q = CGI->new();
 
 	local *Everything::HTML::query;
 	*Everything::HTML::query = \$q;
 
 	$result = urlGen( { foo => [ 'bar', 'baz' ] } );
-	is( $result, '"?foo=bar;foo=baz"',
+	is( $result, '"this.pl?foo=bar;foo=baz"',
 		'urlGen() should generate relative URL from params' );
 	is( urlGen( { foo => 'bar' }, 1 ),
-		'?foo=bar', '... without quotes, if noflags is true' );
+		'this.pl?foo=bar', '... without quotes, if noflags is true' );
 }
 
 can_ok( $package, 'getPageForType' );
