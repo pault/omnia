@@ -27,7 +27,7 @@ sub ACTION_install
 	eval { mkpath($installDir) };
 	die "Couldn't create '$installDir': $@\n" if $@;
 
-	my $file = File::Copy->new( recursive => 1 );
+	my $file = File::NCopy->new( recursive => 1 );
 
 	for my $dir (
 		qw( nodeballs web tables bin docs images
