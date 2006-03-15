@@ -1,31 +1,29 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
-use Test::More tests => 26;
+use Test::More tests => 28;
 use Test::MockObject;
-
-# catch attempts to use these modules
-use vars qw( @imported );
 
 my ( $method, $args, $result );
 my $mock = Test::MockObject->new();
 
-my $imported = sub { push @imported, scalar caller() };
-foreach my $fake (qw( Everything Everything::Node::setting ))
-{
-	$mock->fake_module( $fake, import => $imported );
-}
+my $package = 'Everything::Node::nodeball';
+use_ok( $package ) or exit;
 
-use_ok('Everything::Node::nodeball') or exit;
-is( scalar grep( 'Everything::Node::nodeball', @imported ),
-	2, 'nodeball package should use Everything and Everything::Node::setting' );
+ok( $package->isa( 'Everything::Node::nodegroup' ),
+	'nodeball should extend nodegroup' );
+
+ok( $INC{'Everything.pm'}, 'nodeball should use Everything' );
+ok( $package->isa( 'Everything::Node::nodegroup' ),
+    "$package should extend nodegroup" );
 
 # insert()
 {

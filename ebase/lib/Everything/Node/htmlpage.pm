@@ -1,20 +1,17 @@
-
 =head1 Everything::Node::htmlpage
 
-Package that implements the base htmlpage functionality
+Class representing the htmlpage node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
 
 package Everything::Node::htmlpage;
 
-#   Format: tabs = 4 spaces
-
 use strict;
+use warnings;
 
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<insert>
 
@@ -36,9 +33,5 @@ sub insert
 
 	$this->SUPER();
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

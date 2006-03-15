@@ -1,20 +1,17 @@
-
 =head1 Everything::Node::location
 
-Package that implements the base functionality for locations
+Class representing the location node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
 
 package Everything::Node::location;
 
-#   Format: tabs = 4 spaces
-
 use strict;
+use warnings;
 
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<nuke>
 
@@ -43,9 +40,6 @@ sub nuke
 	return $result;
 }
 
-=cut
-
-
 =head2 C<listNodes>
 
 Get a list of all the nodes in this location, just like an 'ls'.  The nodes are
@@ -70,9 +64,6 @@ sub listNodes
 
 	return $this->listNodesWhere( '', '', $full );
 }
-
-=cut
-
 
 =head2 C<listNodesWhere>
 
@@ -124,9 +115,5 @@ sub listNodesWhere
 
 	return \@nodes;
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

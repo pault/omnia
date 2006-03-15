@@ -1,20 +1,17 @@
-
 =head1 Everything::Node::nodelet
 
-Package that implements the base nodelet functionality
+Class representing the nodelet node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::nodelet;
 
 use strict;
+use warnings;
 
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<insert>
 
@@ -42,9 +39,6 @@ sub insert
 	$this->SUPER();
 }
 
-=cut
-
-
 =head2 C<getNodeKeys>
 
 This removes the nltext parameter, as it is used in caching and will be invalid
@@ -64,9 +58,5 @@ sub getNodeKeys
 
 	return $keys;
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

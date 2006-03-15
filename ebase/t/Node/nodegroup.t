@@ -1,20 +1,23 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
-	@INC{ 'Everything.pm', 'Everything/XML.pm', 'XML/DOM.pm' } = ( 1, 1, 1 );
+	use lib 'lib';
 }
 
 use vars qw( $AUTOLOAD $errors );
 
 use Test::MockObject;
-use Test::More tests => 177;
+use Test::More tests => 178;
 
-use_ok('Everything::Node::nodegroup') or diag "Compile error\n", exit;
+my $module = 'Everything::Node::nodegroup';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::node' ), 'nodegroup should extend node' );
 
 sub AUTOLOAD
 {
@@ -31,12 +34,12 @@ sub AUTOLOAD
 	}
 }
 
-package Everything;
+local *Everything::logErrors;
 
-sub logErrors
+*Everything::logErrors = sub
 {
 	$main::errors = join( ' ', @_ );
-}
+};
 
 package main;
 

@@ -1,17 +1,27 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+
 use vars qw( $AUTOLOAD $errors );
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib', '..';
+	use lib 'lib';
 }
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
-use_ok('Everything::Node::htmlcode');
+my $module = 'Everything::Node::htmlcode';
+use_ok( $module ) or exit;
+ok( $module->isa( 'Everything::Node::node' ), 'htmlcode should extend node' );
+
+local *Everything::logErrors;
+*Everything::logErrors = sub
+{
+	$main::errors = join( ' ', @_ );
+};
 
 # restrictTitle()
 ok( !restrictTitle( {} ), 'restrictTitle() should return false with no title' );
@@ -44,9 +54,4 @@ sub AUTOLOAD
 		*{$AUTOLOAD} = \&{$sub};
 		goto &{$sub};
 	}
-}
-
-sub Everything::logErrors
-{
-	$main::errors = join( ' ', @_ );
 }

@@ -1,16 +1,21 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
-use_ok('Everything::Node::usergroup');
+my $module = 'Everything::Node::usergroup';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::nodegroup' ),
+	'usergroup should extend nodegroup' );
 
 ok(
 	!Everything::Node::usergroup::conflictsWith(),

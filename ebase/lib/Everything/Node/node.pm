@@ -1,17 +1,16 @@
-
 =head1 Everything::Node::node
 
-Package that implements the base node functionality
+Class representing the node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-#   Format: tabs = 4 spaces
 
 package Everything::Node::node;
 
 use strict;
+use warnings;
+
 use DBI;
 use Everything;
 use Everything::NodeBase;
@@ -19,9 +18,6 @@ use Everything::XML;
 
 sub construct { 1 }
 sub destruct  { 1 }
-
-=cut
-
 
 =head2 C<insert>
 
@@ -122,9 +118,6 @@ sub insert
 	return $node_id;
 }
 
-=cut
-
-
 =head2 C<update>
 
 Update the given node in the database.
@@ -188,9 +181,6 @@ sub update
 
 	return $this->{node_id};
 }
-
-=cut
-
 
 =head2 C<nuke>
 
@@ -308,9 +298,6 @@ sub nuke
 	return $result;
 }
 
-=cut
-
-
 =head2 C<getNodeKeys>
 
 We store instance info in the hash along with the database information.  This
@@ -366,9 +353,6 @@ sub getNodeKeys
 	return $keys;
 }
 
-=cut
-
-
 =head2 C<isGroup>
 
 Is this node a nodegroup?  Note, derived nodetypes that are groups will need to
@@ -383,9 +367,6 @@ sub isGroup
 {
 	return 0;
 }
-
-=cut
-
 
 =head2 C<getFieldDatatype>
 
@@ -422,9 +403,6 @@ sub getFieldDatatype
 	return 'literal_value';
 }
 
-=cut
-
-
 =head2 C<hasVars>
 
 Nodetypes that contain a "hash" variable table should override this and return
@@ -432,13 +410,7 @@ true.  This is a check to see if a given node has a vars setting.
 
 =cut
 
-sub hasVars
-{
-	return 0;
-}
-
-=cut
-
+sub hasVars { 0 }
 
 =head2 C<clone>
 
@@ -467,9 +439,6 @@ sub clone
 
 	return 1;
 }
-
-=cut
-
 
 =head2 C<fieldToXML>
 
@@ -507,7 +476,6 @@ sub fieldToXML
 	return genBasicTag( $DOC, 'field', $field, $this->{$field} );
 }
 
-#############################################################################
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
@@ -538,9 +506,6 @@ sub xmlTag
 	return \@fixes if @fixes;
 	return;
 }
-
-=cut
-
 
 =head2 C<xmlFinal>
 
@@ -575,7 +540,6 @@ sub xmlFinal
 	return $this->{node_id};
 }
 
-#############################################################################
 sub applyXMLFix
 {
 	my ( $this, $FIX, $printError ) = @_;
@@ -616,9 +580,6 @@ sub applyXMLFix
 	return;
 }
 
-=cut
-
-
 =head2 C<commitXMLFixes>
 
 After all the fixes for this node have been applied, this is called to allow
@@ -637,9 +598,6 @@ sub commitXMLFixes
 	return;
 }
 
-=cut
-
-
 =head2 C<getIdentifyingFields>
 
 When we export nodes to XML any fields that are pointers to other nodes.  A
@@ -656,12 +614,7 @@ undef if none (the default title/type fields are sufficient)
 
 =cut
 
-sub getIdentifyingFields
-{
-}
-
-=cut
-
+sub getIdentifyingFields {}
 
 =head2 C<updateFromImport>
 
@@ -698,9 +651,6 @@ sub updateFromImport
 	$this->{modified} = '0';
 	$this->update( $USER, 'nomodify' );
 }
-
-=cut
-
 
 =head2 C<conflictsWith>
 
@@ -743,9 +693,6 @@ sub conflictsWith
 	return 0;
 }
 
-=cut
-
-
 =head2 C<getNodeKeepKeys>
 
 This method returns a hash of keys that are kept on import changes like
@@ -760,18 +707,15 @@ Returns a hashref of node fields which are kept on import.
 
 sub getNodeKeepKeys
 {
-	return {
+	return
+	{
 		map { $_ => 1 }
-			qw(
-			authoraccess groupaccess otheraccess guestaccess dynamicguest_permission
-			dynamicauthor_permission dynamicgroup_permission dynamicother_permission
-			loc_location
+			qw( authoraccess groupaccess otheraccess guestaccess
+			    dynamicguest_permission dynamicauthor_permission
+			    dynamicgroup_permission dynamicother_permission loc_location
 			)
 	};
 }
-
-=cut
-
 
 =head2 C<verifyFieldUpdate>
 
@@ -812,11 +756,11 @@ sub verifyFieldUpdate
 
 	my $restrictedFields = {
 		map { $_ => 1 }
-			qw(
-			createtime node_id type_nodetype hits loc_location reputation locktime
-			lockedby_user authoraccess groupaccess otheraccess guestaccess
-			dynamicauthor_permission dynamicgroup_permission dynamicother_permission
-			dynamicguest_permission
+
+			qw( createtime node_id type_nodetype hits loc_location reputation
+			    locktime lockedby_user authoraccess groupaccess otheraccess
+			    guestaccess dynamicauthor_permission dynamicgroup_permission
+			    dynamicother_permission dynamicguest_permission
 			)
 	};
 
@@ -825,9 +769,6 @@ sub verifyFieldUpdate
 	my $isID = ( $field =~ /_id$/ );
 	return ( not( exists $restrictedFields->{$field} or $isID ) );
 }
-
-=cut
-
 
 =head2 C<getRevision>
 
@@ -870,9 +811,6 @@ sub getRevision
 
 	return $RN;
 }
-
-=cut
-
 
 =head2 C<logRevision>
 
@@ -977,9 +915,6 @@ sub logRevision
 
 	return $newest;
 }
-
-=cut
-
 
 =head2 C<undo>
 
@@ -1090,9 +1025,6 @@ sub undo
 	1;
 }
 
-=cut
-
-
 =head2 C<canWorkspace>
 
 Determine whether the current node's type allows it to be included in
@@ -1112,9 +1044,6 @@ sub canWorkspace
 	return 0 unless $this->{type}{derived_canworkspace};
 	1;
 }
-
-=cut
-
 
 =head2 C<getWorkspaced>
 
@@ -1148,9 +1077,6 @@ sub getWorkspaced
 	return unless $RN;
 	return $workspace->{cached_nodes}{"$this->{node_id}_$rev"} = $RN;
 }
-
-=cut
-
 
 =head2 C<updateWorkspaced>
 
@@ -1217,9 +1143,5 @@ sub restrictTitle
 
 	return 1;
 }
-
-##############################################################################
-# End of package
-#############################################################################
 
 1;

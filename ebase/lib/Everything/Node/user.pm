@@ -1,21 +1,18 @@
-
 =head1 Everything::Node::user
 
-Package that implements the base node functionality
+Class representing the user node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::user;
 
 use strict;
+use warnings;
+
 use Everything;
-
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<insert>
 
@@ -36,9 +33,6 @@ sub insert
 
 	return $id;
 }
-
-=cut
-
 
 =head2 C<isGod>
 
@@ -70,9 +64,6 @@ sub isGod
 	return $GODS->inGroupFast($this);
 }
 
-=cut
-
-
 =head2 C<isGuest>
 
 Checks to see if the given user is the guest user.  Certain system nodes need
@@ -93,7 +84,6 @@ sub isGuest
 	return ( $VARS->{guest_user} == $this->{node_id} );
 }
 
-#############################################################################
 sub getNodeKeys
 {
 	my ( $this, $forExport ) = @_;
@@ -104,9 +94,6 @@ sub getNodeKeys
 
 	return $keys;
 }
-
-=cut
-
 
 =head2 C<verifyFieldUpdate>
 
@@ -134,9 +121,6 @@ sub conflictsWith { 0 }
 # we don't allow user nodes to update
 sub updateFromImport { 0 }
 
-=cut
-
-
 =head2 C<restrictTitle>
 
 Prevent invalid characters in usernames (and optional near-duplicates)
@@ -160,9 +144,6 @@ sub restrictTitle
 
 	return $title =~ tr/-<> !a-zA-Z0-9_//c ? 0 : 1;
 }
-
-=cut
-
 
 =head2 C<getNodelets>
 
@@ -203,9 +184,5 @@ sub getNodelets
 	# push default nodelets on
 	return $this->{DB}->getNode($defaultGroup)->{group};
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

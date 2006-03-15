@@ -1,43 +1,22 @@
-
 =head1 Everything::Node::setting
 
-Package that implements the base functionality for setting
+Class representing the setting node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::setting;
 
 use strict;
+use warnings;
+
+use base 'Everything::Node::node';
+
 use Everything::Security;
 use Everything::Util;
 use Everything::XML;
 use XML::DOM;
-
-#############################################################################
-sub construct
-{
-	my ($this) = @_;
-
-	# Just do what our parent does...
-	$this->SUPER();
-
-	return 1;
-}
-
-#############################################################################
-sub destruct
-{
-	my ($this) = @_;
-
-	$this->SUPER();
-}
-
-=cut
-
 
 =head2 C<getVars>
 
@@ -53,9 +32,6 @@ sub getVars
 
 	return $this->getHash("vars");
 }
-
-=cut
-
 
 =head2 C<setVars>
 
@@ -85,14 +61,7 @@ sub setVars
 	return;
 }
 
-#############################################################################
-sub hasVars
-{
-	return 1;
-}
-
-=cut
-
+sub hasVars { 1 }
 
 =head2 C<fieldToXML>
 
@@ -154,7 +123,6 @@ sub fieldToXML
 	}
 }
 
-#############################################################################
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
@@ -200,7 +168,6 @@ sub xmlTag
 	}
 }
 
-#############################################################################
 sub applyXMLFix
 {
 	my ( $this, $FIX, $printError ) = @_;
@@ -263,9 +230,5 @@ sub updateFromImport
 	$this->setVars($NEWV);
 	$this->SUPER();
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

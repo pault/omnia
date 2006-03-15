@@ -1,19 +1,18 @@
-
 =head1 Everything::Node::workspace
 
-Package that implements the base functionality for workspaces 
+Class representing the workspace node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::workspace;
 
 use strict;
+use warnings;
 
-#############################################################################
+use base 'Everything::Node::setting';
+
 sub nuke
 {
 	my ( $this, $USER ) = @_;
@@ -24,9 +23,5 @@ sub nuke
 	$this->SUPER();
 
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

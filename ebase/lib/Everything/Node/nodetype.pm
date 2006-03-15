@@ -1,22 +1,19 @@
-
 =head1 Everything::Node::nodetype
 
-Package that implements the base nodetype functionality
+Class representing the nodetype node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::nodetype;
 
 use strict;
-use Everything::Node::node;
+use warnings;
+
 use Everything::Security;
 
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<construct>
 
@@ -70,11 +67,11 @@ sub construct
 	# We need to derive the following fields:
 	my $derive = {
 		map { $_ => 1 }
-			qw(
-			sqltable grouptable defaultauthoraccess defaultgroupaccess
-			defaultotheraccess defaultguestaccess defaultgroup_usergroup
-			defaultauthor_permission defaultgroup_permission defaultother_permission
-			defaultguest_permission maxrevisions canworkspace
+			qw( sqltable grouptable defaultauthoraccess defaultgroupaccess
+			    defaultotheraccess defaultguestaccess defaultgroup_usergroup
+			    defaultauthor_permission defaultgroup_permission
+			    defaultother_permission defaultguest_permission maxrevisions
+			    canworkspace
 			)
 	};
 
@@ -139,7 +136,6 @@ sub construct
 	return 1;
 }
 
-#############################################################################
 sub destruct
 {
 	my ($this) = @_;
@@ -150,9 +146,6 @@ sub destruct
 	# Delete the base stuff
 	#$this->SUPER();
 }
-
-=cut
-
 
 =head2 C<insert>
 
@@ -177,9 +170,6 @@ sub insert
 	return $this->SUPER();
 }
 
-=cut
-
-
 =head2 C<update>
 
 This allows the default "node" to actually update our node, but we need to
@@ -202,9 +192,6 @@ sub update
 	return $result;
 }
 
-=cut
-
-
 =head2 C<nuke>
 
 This keeps the user from accidentally deleting a nodetype for which nodes still
@@ -224,9 +211,6 @@ sub nuke
 
 	return $this->SUPER($USER);
 }
-
-=cut
-
 
 =head2 C<getTableArray>
 
@@ -258,9 +242,6 @@ sub getTableArray
 	return \@tables;
 }
 
-=cut
-
-
 =head2 C<getDefaultTypePermissions>
 
 This gets the default permissions for the given nodetype.  This is NOT the
@@ -288,9 +269,6 @@ sub getDefaultTypePermissions
 	return $this->{$field} if exists $this->{$field};
 }
 
-=cut
-
-
 =head2 C<getParentType>
 
 Get the parent nodetype that this nodetype derives from.
@@ -307,9 +285,6 @@ sub getParentType
 	return unless $this->{extends_nodetype};
 	return $this->{DB}->getType( $this->{extends_nodetype} );
 }
-
-=cut
-
 
 =head2 C<hasTypeAccess>
 
@@ -352,9 +327,6 @@ sub hasTypeAccess
 	return $dummy->hasAccess( $USER, $modes );
 }
 
-=cut
-
-
 =head2 C<isGroupType>
 
 Check to see if this type is a group (ie nodes of this type are nodegroup
@@ -370,9 +342,6 @@ sub isGroupType
 
 	return $this->{derived_grouptable};
 }
-
-=cut
-
 
 =head2 C<derivesFrom>
 
@@ -419,10 +388,10 @@ sub getNodeKeepKeys
 
 	my $ntkeys = {
 		map { $_ => 1 }
-			qw (
-			defaultauthoraccess defaultgroupaccess defaultotheraccess
+			qw( defaultauthoraccess defaultgroupaccess defaultotheraccess
 			defaultguestaccess defaultgroup_usergroup defaultauthor_permission
-			defaultgroup_permission defaultother_permission defaultguest_permission
+			defaultgroup_permission defaultother_permission
+			defaultguest_permission
 			)
 	};
 
@@ -432,9 +401,5 @@ sub getNodeKeepKeys
 
 	\%nodekeys;
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

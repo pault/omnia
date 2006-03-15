@@ -127,6 +127,7 @@ t/Node/nodelet.t
 t/Node/nodemethod.t
 t/Node/nodetype.t
 t/Node/setting.t
+t/Node/theme.t
 t/Node/user.t
 t/Node/usergroup.t
 t/Node/workspace.t

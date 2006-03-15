@@ -1,17 +1,21 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
 use FakeNode;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
-use_ok('Everything::Node::htmlpage');
+my $module = 'Everything::Node::htmlpage';
+use_ok( $module ) or exit;
+ok( $module->isa( 'Everything::Node::node' ), 'htmlpage should extend node' );
+
 my $node = FakeNode->new();
 
 $node->{_subs}{SUPER} = [ ( 1 .. 5 ) ];

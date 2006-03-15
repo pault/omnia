@@ -1,22 +1,22 @@
-
 =head1 Everything::Node::nodegroup
 
-Package that implements the base nodegroup functionality
+Class that represents the nodegroup node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::nodegroup;
 
 use strict;
+use warnings;
+
+use base 'Everything::Node::node';
+
 use Everything;
 use Everything::XML;
 use XML::DOM;
 
-#############################################################################
 sub construct
 {
 	my ($this) = @_;
@@ -29,9 +29,6 @@ sub construct
 	# save the CPU time and memory space and not call it.  If you need
 	# to have the entire group, call selectNodegroupFlat() at that time.
 }
-
-=cut
-
 
 =head2 C<selectGroupArray>
 
@@ -67,7 +64,6 @@ sub selectGroupArray
 	return \@group;
 }
 
-#############################################################################
 sub destruct
 {
 	my ($this) = @_;
@@ -78,7 +74,6 @@ sub destruct
 	delete $this->{flatgroup};
 }
 
-#############################################################################
 sub insert
 {
 	my ( $this, $USER ) = @_;
@@ -102,7 +97,6 @@ sub insert
 	return $return;
 }
 
-#############################################################################
 sub update
 {
 	my ( $this, $USER ) = @_;
@@ -121,9 +115,6 @@ sub updateFromImport
 
 	return $this->SUPER();
 }
-
-=cut
-
 
 =head2 C<updateGroup>
 
@@ -324,9 +315,6 @@ sub updateGroup
 	return 1;
 }
 
-=cut
-
-
 =head2 C<nuke>
 
 Nodegroups have entries in their group table that we need to clean up before
@@ -350,15 +338,11 @@ sub nuke
 	$this->SUPER();
 }
 
-#############################################################################
 sub isGroup
 {
 	my ($this) = @_;
 	return $this->{type}{derived_grouptable};
 }
-
-=cut
-
 
 =head2 C<inGroupFast>
 
@@ -396,9 +380,6 @@ sub inGroupFast
 	return $this->existsInGroupCache($nodeId);
 }
 
-=cut
-
-
 =head2 C<inGroup>
 
 This checks to see if the given node belongs to the given group.  This will
@@ -430,9 +411,6 @@ sub inGroup
 
 	return $this->existsInGroupCache($nodeId);
 }
-
-=cut
-
 
 =head2 C<selectNodegroupFlat>
 
@@ -485,9 +463,6 @@ sub selectNodegroupFlat
 
 	return $this->{flatgroup} = \@nodes;
 }
-
-=cut
-
 
 =head2 C<insertIntoGroup>
 
@@ -554,9 +529,6 @@ sub insertIntoGroup
 	return 1;
 }
 
-=cut
-
-
 =head2 C<removeFromGroup>
 
 Remove a node from a group.  THIS DOES NOT UPDATE THE NODE IN THE DATABASE! You
@@ -607,9 +579,6 @@ sub removeFromGroup
 	return 1;
 }
 
-=cut
-
-
 =head2 C<replaceGroup>
 
 This removes all nodes from the group and inserts new nodes.
@@ -653,9 +622,6 @@ sub replaceGroup
 	return 1;
 }
 
-=cut
-
-
 =head2 C<getNodeKeys>
 
 =cut
@@ -676,9 +642,6 @@ sub getNodeKeys
 
 	return $keys;
 }
-
-=cut
-
 
 =head2 C<fieldToXML>
 
@@ -731,7 +694,6 @@ sub fieldToXML
 	}
 }
 
-#############################################################################
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
@@ -778,9 +740,6 @@ sub xmlTag
 
 	return;
 }
-
-=cut
-
 
 =head2 C<applyXMLFix>
 
@@ -834,9 +793,6 @@ sub applyXMLFix
 	return;
 }
 
-=cut
-
-
 =head2 C<clone>
 
 Clone the node!  The normal clone doesn't duplicate members of a nodegroup, so
@@ -880,9 +836,6 @@ sub clone
 
 	return $NODE;
 }
-
-=cut
-
 
 =head2 C<restrict_type>
 
@@ -1016,9 +969,5 @@ sub existsInGroupCache
 	return
 		exists $this->{DB}->{cache}->{groupCache}->{ $this->{node_id} }->{$nid};
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

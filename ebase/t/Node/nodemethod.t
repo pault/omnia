@@ -1,25 +1,23 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
-# to catch use() in module
-use vars qw( $caller );
-$INC{'Everything/Node.pm'} = 1;
-
 use FakeNode;
-use Test::More tests => 9;
+use Test::More tests => 10;
 
-use_ok('Everything::Node::nodemethod');
+my $module = 'Everything::Node::nodemethod';
+use_ok( $module ) or exit;
 
-is(
-	$caller,
-	'Everything::Node::nodemethod',
+ok( $module->isa( 'Everything::Node::node' ), 'nodemethod should extend node' );
+
+ok( $INC{'Everything/Node.pm'},
 	'Everything::Node::nodemethod should use Everything::Node'
 );
 
@@ -55,11 +53,4 @@ SKIP:
 			'... and should call incrementGlobalVersion() with type'
 		);
 	}
-}
-
-package Everything::Node;
-
-sub import
-{
-	$main::caller = caller();
 }

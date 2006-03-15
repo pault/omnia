@@ -1,19 +1,23 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
 use Test::MockObject;
-use Test::More tests => 54;
+use Test::More tests => 55;
 
-use vars qw( $AUTOLOAD );
+use vars '$AUTOLOAD';
 
-my $package = 'Everything::Node::nodetype';
+my $module = 'Everything::Node::nodetype';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::node' ), 'nodetype should extend node' );
 
 sub AUTOLOAD
 {
@@ -22,7 +26,7 @@ sub AUTOLOAD
 	no strict 'refs';
 	$AUTOLOAD =~ s/^main:://;
 
-	if ( my $sub = UNIVERSAL::can( $package, $AUTOLOAD ) )
+	if ( my $sub = $module->can( $AUTOLOAD ) )
 	{
 		*{$AUTOLOAD} = $sub;
 		goto &$sub;
@@ -30,10 +34,7 @@ sub AUTOLOAD
 }
 
 my $mock = Test::MockObject->new();
-$mock->fake_module('Everything::Node::node');
 $mock->fake_module('Everything::Security');
-
-use_ok('Everything::Node::nodetype') or exit;
 
 my ( $method, $args, $result );
 

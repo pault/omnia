@@ -1,18 +1,24 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
-use vars qw( $AUTOLOAD );
+use warnings;
+
+use vars '$AUTOLOAD';
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
 use FakeNode;
-use Test::More tests => 20;
+use Test::More tests => 21;
 
-use_ok('Everything::Node::location');
+my $module = 'Everything::Node::location';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::node' ), 'location should extend node' );
+
 my $node = FakeNode->new();
 
 # nuke()

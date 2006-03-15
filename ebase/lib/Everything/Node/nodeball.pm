@@ -1,22 +1,20 @@
-
 =head1 Everything::Node::nodeball
 
-Package that implements the base functionality for nodeball
+Class representing the nodeball node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::nodeball;
 
 use strict;
+use warnings;
+
+use base 'Everything::Node::nodegroup';
+
 use Everything;
 use Everything::Node::setting;
-
-=cut
-
 
 =head2 C<insert>
 
@@ -56,7 +54,6 @@ sub insert
 	return 0;
 }
 
-#############################################################################
 sub getVars
 {
 	my ($this) = @_;
@@ -64,7 +61,6 @@ sub getVars
 	return $this->getHash('vars');
 }
 
-#############################################################################
 sub setVars
 {
 	my ( $this, $vars ) = @_;
@@ -72,14 +68,7 @@ sub setVars
 	$this->setHash( $vars, 'vars' );
 }
 
-#############################################################################
-sub hasVars
-{
-	return 1;
-}
-
-=cut
-
+sub hasVars { 1 }
 
 =head2 C<fieldToXML>
 
@@ -99,7 +88,6 @@ sub fieldToXML
 	return $this->SUPER();
 }
 
-#############################################################################
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
@@ -113,7 +101,6 @@ sub xmlTag
 	return $this->SUPER();
 }
 
-#############################################################################
 sub applyXMLFix
 {
 	my ( $this, $FIX, $printError ) = @_;
@@ -123,9 +110,5 @@ sub applyXMLFix
 
 	return $this->SUPER();
 }
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

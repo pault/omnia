@@ -1,20 +1,17 @@
-
 =head1 Everything::Node::dbtable
 
-Package that implements the base functionality for dbtable
+Class representing the dbtable node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
 
 package Everything::Node::dbtable;
 
-#   Format: tabs = 4 spaces
-
 use strict;
+use warnings;
 
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<insert>
 
@@ -62,9 +59,6 @@ my %reserved = map { $_ => 1 }
 	change tinytext load mediumtext sql_safe_updates distinctrow bigint like
 	use sql_log_bin day_second high_priority lines select hour_minute blob
 	references last_insert_id inner purge sql_calc_found_rows databases );
-
-=cut
-
 
 =head2 C<restrictTitle>
 
@@ -116,9 +110,6 @@ sub restrictTitle
 	return 1;
 }
 
-=cut
-
-
 =head2 C<nuke>
 
 Overrides the base node::nuke so we can drop the database table
@@ -134,9 +125,5 @@ sub nuke
 
 	return $result;
 }
-
-############################################################################
-# End of package
-############################################################################
 
 1;

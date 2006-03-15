@@ -1,17 +1,21 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
 use FakeNode;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
-use_ok('Everything::Node::nodelet');
+my $module = 'Everything::Node::nodelet';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::node' ), 'nodelet should extend node' );
 
 my $node = FakeNode->new();
 $node->{_subs} = {

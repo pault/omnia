@@ -1,21 +1,18 @@
-
 =head 1 Everything::Node::nodemethod
 
-Package that implements the base nodemethod functionality
+Class representing the nodemethod node.
 
-Copyright 2000 - 2003 Everything Development Inc.
+Copyright 2000 - 2006 Everything Development Inc.
 
 =cut
-
-# Format: tabs = 4 spaces
 
 package Everything::Node::nodemethod;
 
 use strict;
+use warnings;
+
 use Everything::Node;
-
-=cut
-
+use base 'Everything::Node::node';
 
 =head2 C<getIdentifyingFields>
 
@@ -32,36 +29,5 @@ sub getIdentifyingFields
 {
 	return ['supports_nodetype'];
 }
-
-#these functions exist to support the methodCache (in NodeCache.pm and Node.pm)
-#every time a nodemethod is manipulated in the database, everyone has
-#to rebuild their nodemethod cache to prevent potential corruption.
-#when we increment the version of the nodetype, the methodCache is wiped
-#(on all webservers)
-
-#sub insert {
-#	my ($this, $USER) = @_;
-#
-#	$this->SUPER();
-#	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
-#}
-
-#sub update {
-#	my ($this, $USER) = @_;
-#
-#	$this->SUPER();
-#	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
-#}
-
-#sub nuke {
-#	my ($this, $USER) = @_;
-#
-#    $this->SUPER();
-#	$this->{DB}->{cache}->incrementGlobalVersion($this->{type});
-#}
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

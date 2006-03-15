@@ -1,16 +1,23 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
+	use lib 'lib';
 }
 
-use vars qw( $AUTOLOAD );
+use vars '$AUTOLOAD';
 
-my $package = 'Everything::Node::user';
+use Test::MockObject;
+use Test::More tests => 39;
+
+my $module = 'Everything::Node::user';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::node' ), 'user should extend node' );
 
 sub AUTOLOAD
 {
@@ -19,7 +26,7 @@ sub AUTOLOAD
 	no strict 'refs';
 	$AUTOLOAD =~ s/^main:://;
 
-	my $sub = "${package}::$AUTOLOAD";
+	my $sub = "${module}::$AUTOLOAD";
 	if ( defined &{$sub} )
 	{
 		*{$AUTOLOAD} = \&{$sub};
@@ -27,16 +34,12 @@ sub AUTOLOAD
 	}
 }
 
-use Test::MockObject;
-use Test::More tests => 38;
-
 my $mock = Test::MockObject->new();
 my ( $method, $args, $result );
 
-$mock->fake_module( 'Everything', import => sub { $result = caller() } );
+# $mock->fake_module( 'Everything', import => sub { $result = caller() } );
 
-use_ok($package) or exit;
-is( $result, 'Everything::Node::user', '... should use Everything module' );
+ok( $INC{'Everything.pm'}, '... should use Everything module' );
 
 $mock->{DB} = $mock;
 
@@ -138,7 +141,7 @@ ok(
 	'... or true if it has only good chars'
 );
 
-can_ok( $package, 'getNodelets' );
+can_ok( $module, 'getNodelets' );
 my $nodelets = { nodelets => '1,2,4' };
 $mock->set_always( getVars => $nodelets );
 is_deeply(

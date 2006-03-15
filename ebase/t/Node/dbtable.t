@@ -1,19 +1,31 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
+	use blib;
 	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib', '..';
+	use lib 'lib';
 }
 
 use vars qw( $errors $AUTOLOAD );
 
 use FakeNode;
-use Test::More tests => 16;
+use Test::More tests => 17;
 
-use_ok('Everything::Node::dbtable');
+my $module = 'Everything::Node::dbtable';
+use_ok( $module ) or exit;
+
+ok( $module->isa( 'Everything::Node::node' ), 'dbtable should extend node' );
+
+local *Everything::logErrors;
+
+*Everything::logErrors = sub
+{
+	$main::errors = shift;
+};
 
 my $node = FakeNode->new();
 
@@ -90,11 +102,4 @@ sub AUTOLOAD
 		*{$AUTOLOAD} = \&{$sub};
 		goto &{$sub};
 	}
-}
-
-package Everything;
-
-sub logErrors
-{
-	$main::errors = shift;
 }
