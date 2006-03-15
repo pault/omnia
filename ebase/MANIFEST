@@ -122,7 +122,6 @@ t/Node/htmlpage.t
 t/Node/location.t
 t/Node/node.t
 t/Node/nodeball.t
-t/Node/nodebase.t
 t/Node/nodegroup.t
 t/Node/nodelet.t
 t/Node/nodemethod.t
