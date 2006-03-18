@@ -11,86 +11,47 @@ BEGIN
 	use lib 'lib';
 }
 
+use Test::More tests => 43;
+
 use TieOut;
-use FakeNode;
-use Test::More tests => 41;
+use Test::MockObject::Extends;
 
 my $module = 'Everything::Node::setting';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'setting should extend node' );
 
-SKIP:
-{
-	skip( 'Wow, this is a bad test', 39 );
-}
-exit;
-
-$INC{'Everything/Security.pm'} = $INC{'Everything/Util.pm'} =
-	$INC{'Everything/XML.pm'}  = $INC{'XML/DOM.pm'}         = 1;
-
-sub AUTOLOAD
-{
-	return if $AUTOLOAD =~ /DESTROY$/;
-
-	no strict 'refs';
-	$AUTOLOAD =~ s/^main:://;
-
-	my $sub = "Everything::Node::setting::$AUTOLOAD";
-
-	if ( defined &{$sub} )
-	{
-		*{$AUTOLOAD} = \&{$sub};
-		goto &{$sub};
-	}
+for my $class (
+	qw( Everything::Security Everything::Util Everything::XML XML::DOM )
+) {
+	(my $path = $class) =~ s{::}{/}g;
+	ok( $INC{ $path . '.pm' }, "$module should load $class" );
 }
 
-my @imports;
-local (
-	*Everything::Security::import, *Everything::Util::import,
-	*Everything::XML::import,      *XML::DOM::import
-);
-
-*Everything::Security::import = *Everything::Util::import =
-	*Everything::XML::import = *XML::DOM::import = sub {
-	push @imports, scalar caller();
-	};
-
-is(
-	scalar @imports,
-	4,
-'... and should use Everything::Security, Everything::Util, Everything::XML, and XML::DOM'
-) or diag( @imports );
-
-my $node = FakeNode->new();
+my $node = Test::MockObject::Extends->new( 'Everything::Node::setting' );
 
 # construct()
-ok(
-	Everything::Node::setting->construct($node),
-	'construct() should return a true value'
-);
+ok( $node->construct(), 'construct() should return a true value' );
 
 # destruct()
-$node->{_subs}{SUPER} = [2];
-is( Everything::Node::setting->($node),
-	2, 'destruct() should delegate to SUPER()' );
+is( $node->destruct(), 1, 'destruct() should delegate to SUPER()' );
 
 # getVars()
-$node->{_subs}{getHash} = [3];
-is( Everything::Node::setting::getVars($node),
-	3, 'getVars() should call getHash() on node' );
-is( $node->{_calls}[-1][1], 'vars', '... with "vars" argument' );
+$node->set_always( getHash => { foo => 'bar' } );
+is_deeply( $node->getVars($node),
+	{ foo => 'bar' }, 'getVars() should call getHash() on node' );
+is( ( $node->next_call() )[1]->[1], 'vars', '... with "vars" argument' );
 
+$node->set_true( 'setHash' );
 # setVars()
-Everything::Node::setting::setVars( $node, 'set' );
-is(
-	join( ' ', @{ $node->{_calls}[-1] } ),
-	'setHash set vars',
-	'setVars() should call setHash() with appropriate arguments'
-);
+$node->setVars( { my => 'vars' } );
+my ($method, $args) = $node->next_call();
+is( $method, 'setHash', 'setVars() should call setHash()' );
+is_deeply( $args->[1], { my => 'vars' }, '... with hash arguments' );
 
 # hasVars()
-ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
+ok( $node->hasVars(), 'hasVars() should return true' );
+
 
 # fieldToXML()
 {
@@ -110,21 +71,19 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 
 	*fieldToXML = \&Everything::Node::setting::fieldToXML;
 
-	$node->{_subs} = {
-		getVars => [    { a => 1, b => 1, c => 1 } ],
-		SUPER   => [ 2, 10 ],
-	};
+	$node->set_always( getVars => { a => 1, b => 1, c => 1 } );
+	$node->set_series( SUPER   => 2, 10 );
 
 	is(
-		fieldToXML( $node, '', '', '!' ),
+		$node->fieldToXML( '', '', '!' ),
 		2,
 		'fieldToXML() should delegate to SUPER() unless field param is "vars"'
 	);
 
-	$node->{_calls} = [];
-	is( fieldToXML( $node, '', 'vars' ),
+	$node->clear();
+	is( $node->fieldToXML( '', 'vars' ),
 		$node, '... should return XML::DOM element for vars, if "vars" field' );
-	is( scalar @dom, 5, '... should make several DOM nodes:' );
+	is( @dom, 5, '... should make several DOM nodes:' );
 	is( scalar grep( /Element/, @dom ), 1, '... one Element node' );
 	is( scalar grep( /Text/,    @dom ), 4, '... and several Text nodes' );
 
@@ -136,23 +95,18 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 
 	# could check $indent and $indentchild
 }
-
 # xmlTag()
 {
 	local *XML::DOM::TEXT_NODE;
 	*XML::DOM::TEXT_NODE = sub () { 1 };
 
-	$node->{_subs} = {
-		SUPER       => [3],
-		getTagName  => [ '', 'vars' ],
-		getVars     => [ $node, $node, $node ],
-		getNodeType => [ 1, 0, 0 ],
-	};
-
-	local *FakeNode::getChildNodes;
-	*FakeNode::getChildNodes = sub {
-		return ( $node, $node, $node );
-	};
+	$node->set_always( -SUPER         => 3 );
+	$node->set_series( -getTagName    => '', 'vars' );
+	$node->set_series( -getVars       => ($node) x 3 );
+	$node->set_series( -getChildNodes => ($node) x 3 );
+	$node->set_series( getNodeType   => 1, 0, 0 );
+	$node->set_true( 'setVars' );
+	$node->clear();
 
 	my @types = ( { where => 'foo', name => 'foo' }, { name => 'bar' } );
 	local *Everything::Node::setting::parseBasicTag;
@@ -160,8 +114,8 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 		return shift @types;
 	};
 
-	is( Everything::Node::setting::xmlTag( $node, $node ),
-		3, 'xmlTag() should delegate to SUPER() unless passed "vars" tag' );
+	is( $node->xmlTag( $node ), 3,
+		'xmlTag() should delegate to SUPER() unless passed "vars" tag' );
 
 	$node->{vars} = { foo => -1, bar => 1 };
 	my $fixes = Everything::Node::setting::xmlTag( $node, $node );
@@ -171,47 +125,47 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 	is( $node->{vars}{ $fixes->[0]{where} },
 		-1, '... and should mark fixable nodes by name in "vars"' );
 	is( $node->{vars}{bar}, 1, '... and keep tag value for fixed tags' );
-	is(
-		join( ' ', @{ $node->{_calls}[-1] } ),
-		"setVars $node",
-		'... and should call setVars() to keep them'
-	);
+	my ($method, $args) = $node->next_call( 2 );
+	is( join( ' ', $method, $args->[1] ), "setVars $node",
+		'... and should call setVars() to keep them' );
 }
 
 # applyXMLFix()
 {
 	local ( *Everything::XML::patchXMLwhere, *Everything::logErrors );
 	my $patch;
-	*Everything::XML::patchXMLwhere = sub {
+	*Everything::XML::patchXMLwhere = sub
+	{
 		$patch = shift;
 		return { type_nodetype => 'nodetype' };
 	};
 
 	my @errors;
-	*Everything::logErrors = sub {
+	*Everything::logErrors = sub
+	{
 		push @errors, join( ' ', @_ );
 	};
 
-	is( applyXMLFix($node), undef,
+	is( $node->applyXMLFix(), undef,
 		'applyXMLFix() should return if called without a fix' );
-	is( applyXMLFix( $node, 'bad' ), undef, '... or with a bad fix' );
+	is( $node->applyXMLFix( 'bad' ), undef, '... or with a bad fix' );
 	my $fix = {};
 	foreach my $key (qw( fixBy field where ))
 	{
-		is( applyXMLFix( $node, $fix ), undef, "... or without a '$key' key" );
+		is( $node->applyXMLFix( $fix ), undef, "... or without a '$key' key" );
 		$fix->{$key} = '';
 	}
-	is( applyXMLFix( $node, $fix ), undef, '... or unless fixing a setting' );
-	is( $node->{_calls}[-1][0], 'SUPER', '... and delegate to SUPER() ' );
 
-	$node->{_subs} = {
-		getVars => [ $node, $node, $node ],
-		getNode => [ 0, 0, { node_id => 888 } ],
-	};
+	$node->set_always( 'SUPER', 'duper' );
+	is( $node->applyXMLFix( $fix ), 'duper', '... or unless fixing a setting' );
+	is( $node->next_call(), 'SUPER',         '... and delegate to SUPER() ' );
+
+	$node->set_series( getVars => ( $node ) x 3 );
+	$node->set_series( getNode => 0, 0, { node_id => 888 } );
 	$node->{DB} = $node;
 
 	@$fix{ 'fixBy', 'where' } = ( 'setting', 'w' );
-	isa_ok( applyXMLFix( $node, $fix ),
+	isa_ok( $node->applyXMLFix( $fix ),
 		'HASH', '... should return setting $FIX if it cannot be found' );
 	is( $patch, 'w',
 		'... should call patchXMLwhere() with "where" field of FIX' );
@@ -222,8 +176,7 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 	local *STDOUT;
 	my $out = tie *STDOUT, 'TieOut';
 
-	applyXMLFix(
-		$node,
+	$node->applyXMLFix(
 		{
 			field         => 'field',
 			fixBy         => 'setting',
@@ -243,31 +196,27 @@ ok( Everything::Node::setting::hasVars($node), 'hasVars() should return true' );
 	$node->{node_id} = 0;
 	$fix->{field}    = 'foo';
 
-	is(
-		applyXMLFix( $node, $fix ),
-		undef,
+	$node->clear();
+	is( $node->applyXMLFix( $fix ), undef,
 		'applyXMLFix() should return undef if successfully called for setting'
 	);
 	is( $node->{foo}, 888, '... and set variable for field to node_id' );
-	is(
-		join( ' ', @{ $node->{_calls}[-1] } ),
-		"setVars $node",
+	my ($method, $args) = $node->next_call( 3 );
+	is( join( ' ', $method, $args->[1] ), "setVars $node",
 		'... and should call setVars() to save vars'
 	);
 }
 
 # getNodeKeepKeys()
-$node->{_subs}{SUPER} = [$node];
-is( Everything::Node::setting::getNodeKeepKeys($node),
-	$node, 'getNodeKeepKeys() should call SUPER()' );
+$node->set_always( SUPER => $node );
+is( $node->getNodeKeepKeys(), $node, 'getNodeKeepKeys() should call SUPER()' );
 is( $node->{vars}, 1, '... and should set "vars" to true in results' );
 
 # updateFromImport()
-$node->{_subs} = {
-	SUPER   => [10],
-	getVars => [ { a => 1, b => 2 }, $node ],
-};
-is( Everything::Node::setting::updateFromImport( $node, $node ),
+$node->set_always( -SUPER   => 10 );
+$node->set_series( -getVars => { a => 1, b => 2 }, $node );
+$node->clear();
+is( $node->updateFromImport( $node ),
 	10, 'updateFromImport() should call SUPER()' );
-is( $node->{_calls}[-2][0], 'setVars', '... and should call setVars()' );
+is( $node->next_call(), 'setVars', '... and should call setVars()' );
 is( join( '', @$node{ 'a', 'b' } ), '12', '... and merge keys from new node' );

@@ -17,6 +17,7 @@ use Everything::Security;
 use Everything::Util;
 use Everything::XML;
 use XML::DOM;
+use Scalar::Util 'reftype';
 
 =head2 C<getVars>
 
@@ -96,31 +97,25 @@ sub fieldToXML
 	my ( $this, $DOC, $field, $indent ) = @_;
 	$indent ||= '';
 
-	if ( $field eq "vars" )
+	return $this->SUPER() unless $field eq 'vars';
+
+	my $VARS = XML::DOM::Element->new( $DOC, "vars" );
+	my $vars = $this->getVars();
+	my @raw  = keys %$vars;
+	my @vars = sort { $a cmp $b } @raw;
+	my $indentself  = "\n" . $indent;
+	my $indentchild = $indentself . "  ";
+
+	foreach my $var (@vars)
 	{
-		my $VARS = new XML::DOM::Element( $DOC, "vars" );
-		my $vars = $this->getVars();
-		my @raw  = keys %$vars;
-		my @vars = sort { $a cmp $b } @raw;
-		my $tag;
-		my $indentself  = "\n" . $indent;
-		my $indentchild = $indentself . "  ";
-
-		foreach my $var (@vars)
-		{
-			$VARS->appendChild( new XML::DOM::Text( $DOC, $indentchild ) );
-			$tag = genBasicTag( $DOC, "var", $var, $$vars{$var} );
-			$VARS->appendChild($tag);
-		}
-
-		$VARS->appendChild( new XML::DOM::Text( $DOC, $indentself ) );
-
-		return $VARS;
+		$VARS->appendChild( XML::DOM::Text->new( $DOC, $indentchild ) );
+		my $tag = genBasicTag( $DOC, "var", $var, $$vars{$var} );
+		$VARS->appendChild($tag);
 	}
-	else
-	{
-		return $this->SUPER();
-	}
+
+	$VARS->appendChild( XML::DOM::Text->new( $DOC, $indentself ) );
+
+	return $VARS;
 }
 
 sub xmlTag
@@ -128,64 +123,56 @@ sub xmlTag
 	my ( $this, $TAG ) = @_;
 	my $tagname = $TAG->getTagName();
 
-	if ( $tagname eq "vars" )
+	return $this->SUPER() unless $tagname eq 'vars';
+
+	my @fixes;
+	my @childFields = $TAG->getChildNodes();
+
+	# On import, this could start out as nothing and we want it to be at least
+	# defined to empty string.  Otherwise, we will get warnings when we call
+	# getVars() below.
+
+	$$this{vars} ||= "";
+
+	my $vars = $this->getVars();
+
+	foreach my $child (@childFields)
 	{
-		my @fixes;
-		my @childFields = $TAG->getChildNodes();
+		next if ( $child->getNodeType() == XML::DOM::TEXT_NODE() );
 
-		# On import, this could start out as nothing and we want it to be
-		# at least defined to empty string.  Otherwise, we will get warnings
-		# when we call getVars() below.
-		$$this{vars} ||= "";
+		my $PARSE = parseBasicTag( $child, 'setting' );
 
-		my $vars = $this->getVars();
-
-		foreach my $child (@childFields)
+		if ( exists $$PARSE{where} )
 		{
-			next if ( $child->getNodeType() == XML::DOM::TEXT_NODE() );
+			$$vars{ $$PARSE{name} } = -1;
 
-			my $PARSE = parseBasicTag( $child, 'setting' );
-
-			if ( exists $$PARSE{where} )
-			{
-				$$vars{ $$PARSE{name} } = -1;
-
-				# The where contains our fix
-				push @fixes, $PARSE;
-			}
-			else
-			{
-				$$vars{ $$PARSE{name} } = $$PARSE{ $$PARSE{name} };
-			}
+			# The where contains our fix
+			push @fixes, $PARSE;
 		}
+		else
+		{
+			$$vars{ $$PARSE{name} } = $$PARSE{ $$PARSE{name} };
+		}
+	}
 
-		$this->setVars($vars);
-		return \@fixes;
-	}
-	else
-	{
-		return $this->SUPER();
-	}
+	$this->setVars($vars);
+	return \@fixes;
 }
 
 sub applyXMLFix
 {
 	my ( $this, $FIX, $printError ) = @_;
 
-	return unless $FIX and UNIVERSAL::isa( $FIX, 'HASH' );
+	return unless $FIX and (reftype( $FIX ) || '') eq 'HASH';
+
 	for my $required (qw( fixBy field where ))
 	{
 		return unless exists $FIX->{$required};
 	}
 
-	unless ( $FIX->{fixBy} eq 'setting' )
-	{
-		$this->SUPER();
-		return;
-	}
+	return $this->SUPER() unless $FIX->{fixBy} eq 'setting';
 
-	my $vars = $this->getVars();
-
+	my $vars  = $this->getVars();
 	my $where = Everything::XML::patchXMLwhere( $FIX->{where} );
 	my $TYPE  = $where->{type_nodetype};
 	my $NODE  = $this->{DB}->getNode( $where, $TYPE );
