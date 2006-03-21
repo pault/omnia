@@ -1,0 +1,16 @@
+=head1 Everything::Node::mail
+
+Class representing the mail node.
+
+Copyright 2006 Everything Development Inc.
+
+=cut
+
+package Everything::Node::mail;
+
+use strict;
+use warnings;
+
+use base 'Everything::Node::document';
+
+1;

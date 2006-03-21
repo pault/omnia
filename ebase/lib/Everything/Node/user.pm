@@ -12,7 +12,7 @@ use strict;
 use warnings;
 
 use Everything;
-use base 'Everything::Node::node';
+use base 'Everything::Node::setting';
 
 =head2 C<insert>
 

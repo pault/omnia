@@ -17,7 +17,7 @@ use Test::More tests => 39;
 my $module = 'Everything::Node::user';
 use_ok( $module ) or exit;
 
-ok( $module->isa( 'Everything::Node::node' ), 'user should extend node' );
+ok( $module->isa( 'Everything::Node::setting' ), 'user should extend setting' );
 
 sub AUTOLOAD
 {
