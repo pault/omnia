@@ -87,7 +87,7 @@ sub genObject
 		$this->SUPER::genObject( $query, $bindNode, "${field}:$perm", $name )
 		. "\n";
 
-	if ( $default eq 'AUTO' && UNIVERSAL::isa( $bindNode, 'Everything::Node' ) )
+	if ( $default eq 'AUTO' && eval { $bindNode->isa( 'Everything::Node' ) } )
 	{
 		my $perms = $bindNode->{$field};
 		$default = substr( $perms, $masks{$perm}, 1 );

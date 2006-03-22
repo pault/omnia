@@ -181,7 +181,7 @@ is( $result->{failed}, undef, '... and none if the user has it' );
 sub AUTOLOAD
 {
 	my ($subname) = $AUTOLOAD =~ /([^:]+)$/;
-	if ( my $sub = UNIVERSAL::can( $package, $subname ) )
+	if ( my $sub = $package->can( $subname ) )
 	{
 		$sub->(@_);
 	}

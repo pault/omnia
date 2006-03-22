@@ -314,7 +314,7 @@ sub AUTOLOAD
 {
 	my ($subname) = $AUTOLOAD =~ /([^:]+)$/;
 
-	if ( my $sub = UNIVERSAL::can( $package, $subname ) )
+	if ( my $sub = $package->can( $subname ) )
 	{
 		$sub->(@_);
 	}

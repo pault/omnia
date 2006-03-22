@@ -48,7 +48,7 @@ sub insert
 		my $title = 'ROOT';
 
 		$title = $user->{title}
-			if $user && UNIVERSAL::isa( $user, 'Everything::Node' );
+			if $user && $user->isa( 'Everything::Node' );
 
 		$VARS = {
 			author      => $title,

@@ -34,6 +34,7 @@ my $build = Everything::Build->new(
 		'File::Spec'                => 0.82,
 		'Mail::Address'             => 1.53,
 		'Mail::Sender'              => 0,
+		'Scalar::Util'              => 1.01,
 	},
 	build_requires    =>
 	{

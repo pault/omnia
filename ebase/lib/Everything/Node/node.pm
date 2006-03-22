@@ -12,9 +12,12 @@ use strict;
 use warnings;
 
 use DBI;
+
 use Everything;
 use Everything::NodeBase;
 use Everything::XML;
+
+use Scalar::Util 'reftype';
 
 sub construct { 1 }
 sub destruct  { 1 }
@@ -43,7 +46,7 @@ sub insert
 	my $node_id = $this->{node_id};
 	my ( $user_id, %tableData );
 
-	$user_id = $USER->getId() if UNIVERSAL::isa( $USER, 'Everything::Node' );
+	$user_id = $USER->getId() if eval { $USER->isa( 'Everything::Node' ) };
 
 	$user_id ||= $USER;
 
@@ -431,7 +434,7 @@ sub clone
 {
 	my ( $this, $NODE, $USER ) = @_;
 
-	return unless $NODE and UNIVERSAL::isa( $NODE, 'HASH' );
+	return unless $NODE and ( reftype( $NODE ) || '' ) eq 'HASH';
 
 	my %unique = map { $_ => 1 } qw( title createtime type_nodetype type );
 

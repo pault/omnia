@@ -70,7 +70,7 @@ sub new
 		my $cacheSize = 300;
 
 		# Get the settings from the system
-		if ( defined $CACHE && UNIVERSAL::isa( $CACHE, 'Everything::Node' ) )
+		if ( defined $CACHE && $CACHE->isa( 'Everything::Node' ) )
 		{
 			my $vars = $CACHE->getVars();
 			$cacheSize = $vars->{maxSize} if exists $vars->{maxSize};
@@ -150,8 +150,8 @@ sub getNodeWorkspace
 	my $cmpval = sub {
 		my ( $val1, $val2 ) = @_;
 
-		$val1 = $val1->{node_id} if UNIVERSAL::isa( $val1, 'Everything::Node' );
-		$val2 = $val2->{node_id} if UNIVERSAL::isa( $val2, 'Everything::Node' );
+		$val1 = $val1->{node_id} if eval { $val1->isa( 'Everything::Node' ) };
+		$val2 = $val2->{node_id} if eval { $val2->isa( 'Everything::Node' ) };
 
 		$val1 eq $val2;
 	};

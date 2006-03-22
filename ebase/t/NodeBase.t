@@ -285,8 +285,7 @@ my ( $first, $second, $third, $u ) = ( 1, 2, bless {}, 'Everything::Node' );
 $result = getRef( $mock, $first, $second, $third, $u );
 is( $first,  'first',  'getRef() should modify references in place' );
 is( $second, 'second', '... for all passed in node_ids' );
-ok( UNIVERSAL::isa( $third, 'Everything::Node' ),
-	'... not mangling existing nodes' );
+ok( $third->isa( 'Everything::Node' ), '... not mangling existing nodes' );
 is( $u, undef, '... skipping undefined values' );
 is( $result, 'first', '... returning node of first element' );
 

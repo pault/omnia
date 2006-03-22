@@ -15,7 +15,9 @@ use base 'Everything::Node::node';
 
 use Everything;
 use Everything::XML;
+
 use XML::DOM;
+use Scalar::Util 'reftype';
 
 sub construct
 {
@@ -501,7 +503,7 @@ sub insertIntoGroup
 	return 0 unless $USER and $insert and $this->hasAccess( $USER, 'w' );
 
 	# converts to a list reference w/ 1 element if we get a scalar
-	my $insertref = [$insert] unless UNIVERSAL::isa( $insert, 'ARRAY' );
+	my $insertref = [$insert] unless ( reftype( $insert ) || '' eq 'ARRAY' );
 
 	$insertref = $this->restrict_type($insertref);
 
@@ -606,7 +608,7 @@ sub replaceGroup
 
 	return 0 unless $this->hasAccess( $USER, 'w' );
 
-	$REPLACE = [$REPLACE] unless UNIVERSAL::isa( $REPLACE, 'ARRAY' );
+	$REPLACE = [$REPLACE] unless ( reftype( $REPLACE ) || '' ) eq 'ARRAY';
 
 	$REPLACE = $this->restrict_type($REPLACE);
 

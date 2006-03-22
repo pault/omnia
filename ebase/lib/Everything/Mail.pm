@@ -10,6 +10,7 @@ use Everything;
 
 use Mail::Sender;
 use Mail::Address;
+use Scalar::Util 'reftype';
 
 use Exporter ();
 use vars qw( $VERSION @ISA @EXPORT );
@@ -28,7 +29,7 @@ sub node2mail
 	$node = getNode($node);
 	return unless $node;
 
-	my @addresses = ( UNIVERSAL::isa( $addr, 'ARRAY' ) ? @$addr : $addr );
+	my @addresses = ( reftype( $addr ) || '' ) eq 'ARRAY' ? @$addr : $addr;
 
 	my $body = $node->{doctext} || '';
 	Everything::logErrors('Sending email with empty body')
@@ -88,7 +89,7 @@ sub mail2node
 	# Nothing to do here!
 	return Everything::logErrors('No input files for mail2node!') unless $files;
 
-	$files = [$files] unless UNIVERSAL::isa( $files, 'ARRAY' );
+	$files = [$files] unless ( reftype( $files ) || '' ) eq 'ARRAY';
 
 	my ( $from, $to, $subject, $body );
 	foreach my $file (@$files)

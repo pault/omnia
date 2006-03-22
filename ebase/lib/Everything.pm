@@ -14,7 +14,9 @@ package Everything;
 #############################################################################
 
 use strict;
+
 use DBI;
+use Scalar::Util 'reftype';
 
 use vars qw($DB $VERSION);
 
@@ -335,7 +337,7 @@ sub initEverything
 	my ( $db, $options ) = @_;
 	$options = {}
 		unless defined $options
-		and UNIVERSAL::isa( $options, 'HASH' );
+		and (reftype( $options ) || '' ) eq 'HASH';
 
 	# Make sure that we clear the warnings/errors for this go around.
 	clearFrontside();
