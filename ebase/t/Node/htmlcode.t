@@ -11,11 +11,16 @@ BEGIN
 	use lib 'lib';
 }
 
-use Test::More tests => 6;
+use Test::More tests => 8;
 
 my $module = 'Everything::Node::htmlcode';
 use_ok( $module ) or exit;
 ok( $module->isa( 'Everything::Node::node' ), 'htmlcode should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( htmlcode node )],
+	'dbtables() should return node tables' );
 
 local *Everything::logErrors;
 *Everything::logErrors = sub

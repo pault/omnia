@@ -11,7 +11,7 @@ BEGIN
 	use lib 'lib';
 }
 
-use Test::More tests => 43;
+use Test::More tests => 45;
 
 use TieOut;
 use Test::MockObject::Extends;
@@ -20,6 +20,11 @@ my $module = 'Everything::Node::setting';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'setting should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( setting node )],
+	'dbtables() should return node tables' );
 
 for my $class (
 	qw( Everything::Security Everything::Util Everything::XML XML::DOM )

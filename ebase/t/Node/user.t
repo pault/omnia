@@ -12,12 +12,17 @@ BEGIN
 use vars '$AUTOLOAD';
 
 use Test::MockObject;
-use Test::More tests => 39;
+use Test::More tests => 41;
 
 my $module = 'Everything::Node::user';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::setting' ), 'user should extend setting' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( user document setting node )],
+	'dbtables() should return node tables' );
 
 sub AUTOLOAD
 {

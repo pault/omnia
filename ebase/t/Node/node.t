@@ -13,9 +13,9 @@ BEGIN
 
 use TieOut;
 use Test::MockObject;
-use Test::More tests => 226;
+use Test::More tests => 228;
 
-my $package = 'Everything::Node::node';
+my $module = 'Everything::Node::node';
 
 sub AUTOLOAD
 {
@@ -26,7 +26,7 @@ sub AUTOLOAD
 
 	my $sub;
 
-	if ( $sub = UNIVERSAL::can( $package, $AUTOLOAD ) )
+	if ( $sub = $module->can( $AUTOLOAD ) )
 	{
 		*{$AUTOLOAD} = $sub;
 		goto &{$sub};
@@ -50,8 +50,12 @@ foreach my $mocked (qw( DBI Everything Everything::NodeBase Everything::XML))
 	$mock->fake_module( $mocked, import => $mockimport );
 }
 
-use_ok($package) or exit;
-is( keys %import, 4, 'Everything::Node::node should use several packages' );
+use_ok( $module ) or exit;
+is( keys %import, 4, 'Everything::Node::node should use several modules' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [ 'node' ], 'dbtables() should return node tables' );
 
 # construct()
 ok( construct(), 'construct() should return true' );

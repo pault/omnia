@@ -9,21 +9,24 @@ BEGIN
 	use lib 'lib';
 }
 
-use Test::More tests => 28;
+use Test::More tests => 29;
 use Test::MockObject;
 
 my ( $method, $args, $result );
 my $mock = Test::MockObject->new();
 
-my $package = 'Everything::Node::nodeball';
-use_ok( $package ) or exit;
-
-ok( $package->isa( 'Everything::Node::nodegroup' ),
-	'nodeball should extend nodegroup' );
+my $module = 'Everything::Node::nodeball';
+use_ok( $module ) or exit;
 
 ok( $INC{'Everything.pm'}, 'nodeball should use Everything' );
-ok( $package->isa( 'Everything::Node::nodegroup' ),
-    "$package should extend nodegroup" );
+
+ok( $module->isa( 'Everything::Node::nodegroup' ),
+	'nodeball should extend nodegroup' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( setting node )],
+	'dbtables() should return node tables' );
 
 # insert()
 {

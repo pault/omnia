@@ -12,12 +12,16 @@ BEGIN
 }
 
 use FakeNode;
-use Test::More tests => 21;
+use Test::More tests => 23;
 
 my $module = 'Everything::Node::location';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'location should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [ 'node' ], 'dbtables() should return node tables' );
 
 my $node = FakeNode->new();
 

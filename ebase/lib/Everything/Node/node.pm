@@ -19,6 +19,14 @@ use Everything::XML;
 sub construct { 1 }
 sub destruct  { 1 }
 
+=head2 C<dbtables()>
+
+Returns a list of tables this node uses in the database, most specific first.
+
+=cut
+
+sub dbtables { 'node' }
+
 =head2 C<insert>
 
 Insert this node object into the database.  If it already exists in the

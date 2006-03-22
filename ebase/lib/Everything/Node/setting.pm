@@ -19,6 +19,18 @@ use Everything::XML;
 use XML::DOM;
 use Scalar::Util 'reftype';
 
+=head2 C<dbtables()>
+
+Returns a list of tables this node uses in the database, most specific first.
+
+=cut
+
+sub dbtables
+{
+	my $self = shift;
+	return 'setting', $self->SUPER::dbtables();
+}
+
 =head2 C<getVars>
 
 All setting nodes join on the setting table.  The vars field in that table

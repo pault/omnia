@@ -12,12 +12,16 @@ BEGIN
 use vars qw( $AUTOLOAD $errors );
 
 use Test::MockObject;
-use Test::More tests => 178;
+use Test::More tests => 180;
 
 my $module = 'Everything::Node::nodegroup';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'nodegroup should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( node )], 'dbtables() should return node tables' );
 
 sub AUTOLOAD
 {

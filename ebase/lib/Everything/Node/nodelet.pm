@@ -13,6 +13,18 @@ use warnings;
 
 use base 'Everything::Node::node';
 
+=head2 C<dbtables()>
+
+Returns a list of tables this node uses in the database, most specific first.
+
+=cut
+
+sub dbtables
+{
+	my $self = shift;
+	return 'nodelet', $self->SUPER::dbtables();
+}
+
 =head2 C<insert>
 
 We need to set up some default settings when a nodelet is inserted.

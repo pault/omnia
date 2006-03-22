@@ -10,13 +10,18 @@ BEGIN
 }
 
 use FakeNode;
-use Test::More tests => 7;
+use Test::More tests => 9;
 
 my $module = 'Everything::Node::workspace';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::setting' ),
 	'workspace should extend setting' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( setting node )],
+	'dbtables() should return node tables' );
 
 my $node = FakeNode->new();
 $node->{_subs}{hasAccess} = [ undef, 1 ];

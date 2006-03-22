@@ -5,7 +5,6 @@ use warnings;
 
 BEGIN
 {
-	use blib;
 	chdir 't' if -d 't';
 	use lib 'lib';
 }
@@ -13,12 +12,16 @@ BEGIN
 use vars qw( $errors $AUTOLOAD );
 
 use FakeNode;
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 my $module = 'Everything::Node::dbtable';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'dbtable should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [ 'node' ], 'dbtables() should return node tables' );
 
 local *Everything::logErrors;
 

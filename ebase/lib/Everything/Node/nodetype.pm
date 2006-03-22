@@ -15,6 +15,18 @@ use Everything::Security;
 
 use base 'Everything::Node::node';
 
+=head2 C<dbtables()>
+
+Returns a list of tables this node uses in the database, most specific first.
+
+=cut
+
+sub dbtables
+{
+	my $self = shift;
+	return 'nodetype', $self->SUPER::dbtables();
+}
+
 =head2 C<construct>
 
 The constructor for a nodetype is rather involved.  We derive the nodetype when

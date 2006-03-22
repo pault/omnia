@@ -10,7 +10,7 @@ BEGIN
 }
 
 use Test::MockObject;
-use Test::More tests => 55;
+use Test::More tests => 57;
 
 use vars '$AUTOLOAD';
 
@@ -18,6 +18,11 @@ my $module = 'Everything::Node::nodetype';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'nodetype should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( nodetype node )],
+	'dbtables() should return node tables' );
 
 sub AUTOLOAD
 {

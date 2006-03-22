@@ -16,6 +16,18 @@ use base 'Everything::Node::nodegroup';
 use Everything;
 use Everything::Node::setting;
 
+=head2 C<dbtables()>
+
+Returns a list of tables this node uses in the database, most specific first.
+
+=cut
+
+sub dbtables
+{
+	my $self = shift;
+	return 'setting', $self->SUPER::dbtables();
+}
+
 =head2 C<insert>
 
 Override the default insert to have the nodeball created with some defaults.

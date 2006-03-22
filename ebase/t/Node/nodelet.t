@@ -10,12 +10,17 @@ BEGIN
 }
 
 use FakeNode;
-use Test::More tests => 6;
+use Test::More tests => 8;
 
 my $module = 'Everything::Node::nodelet';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::node' ), 'nodelet should extend node' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( nodelet node )],
+	'dbtables() should return node tables' );
 
 my $node = FakeNode->new();
 $node->{_subs} = {

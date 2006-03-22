@@ -14,6 +14,18 @@ use warnings;
 use Everything;
 use base 'Everything::Node::setting';
 
+=head2 C<dbtables()>
+
+Returns a list of tables this node uses in the database, most specific first.
+
+=cut
+
+sub dbtables
+{
+	my $self = shift;
+	return qw( user document ), $self->SUPER::dbtables();
+}
+
 =head2 C<insert>
 
 We want all users to default to be owned by themselves.

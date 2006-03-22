@@ -9,13 +9,18 @@ BEGIN
 	use lib 'lib';
 }
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 my $module = 'Everything::Node::usergroup';
 use_ok( $module ) or exit;
 
 ok( $module->isa( 'Everything::Node::nodegroup' ),
 	'usergroup should extend nodegroup' );
+
+can_ok( $module, 'dbtables' );
+my @tables = $module->dbtables();
+is_deeply( \@tables, [qw( node )],
+	'dbtables() should return node tables' );
 
 ok(
 	!Everything::Node::usergroup::conflictsWith(),
