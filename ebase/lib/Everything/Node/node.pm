@@ -11,13 +11,20 @@ package Everything::Node::node;
 use strict;
 use warnings;
 
-use DBI;
+use base 'Everything::Node';
 
+use DBI;
 use Everything;
-use Everything::NodeBase;
 use Everything::XML;
+use Everything::NodeBase;
 
 use Scalar::Util 'reftype';
+
+sub new
+{
+	my $class = shift;
+	bless {}, $class;
+}
 
 sub construct { 1 }
 sub destruct  { 1 }
@@ -58,7 +65,6 @@ sub insert
 
 	if ( $this->{type}{restrictdupes} )
 	{
-
 		# Check to see if we already have a node of this title.
 		my $id = $this->{type}->getId();
 

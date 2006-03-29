@@ -76,8 +76,9 @@ ok( $node->hasVars(), 'hasVars() should return true' );
 
 	*fieldToXML = \&Everything::Node::setting::fieldToXML;
 
-	$node->set_always( getVars => { a => 1, b => 1, c => 1 } );
-	$node->set_series( SUPER   => 2, 10 );
+	$node->set_always( getVars => { a => 1, b => 1, c => 1 } )
+		 ->set_series( SUPER   => 2, 10 )
+		  ->set_true( '-appendChild' );
 
 	is(
 		$node->fieldToXML( '', '', '!' ),

@@ -1,104 +1,178 @@
-#!/usr/bin/perl
+package Everything::Node::Test::node;
 
 use strict;
 use warnings;
 
-=cut
+use base 'Test::Class';
 
-use Everything::Node::Test::node;
-Test::Class->runtests();
-
-=cut
-
-use vars '$AUTOLOAD';
-
-BEGIN
-{
-	chdir 't' if -d 't';
-	use lib 'lib';
-}
-
-use TieOut;
+use Test::More;
 use Test::MockObject;
-use Test::More tests => 228;
+use Test::MockObject::Extends;
+
+sub node_class { 'Everything::Node::node' }
 
 my $module = 'Everything::Node::node';
 
-sub AUTOLOAD
+sub startup :Test( startup => 5 )
 {
-	return if $AUTOLOAD =~ /DESTROY$/;
+	my $self         = shift;
+	my $mock         = Test::MockObject->new();
+	$self->{mock_db} = $mock;
+	$self->{errors}  = \(my @le);
 
-	no strict 'refs';
-	$AUTOLOAD =~ s/^main:://;
+	$mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
+	*Everything::Node::node::DB = \$mock;
 
-	my $sub;
+	my $module = $self->node_class();
+	my %import;
 
-	if ( $sub = $module->can( $AUTOLOAD ) )
+	my $mockimport = sub { $import{ +shift }++ };
+
+	for my $mod (qw( DBI Everything Everything::NodeBase Everything::XML))
 	{
-		*{$AUTOLOAD} = $sub;
-		goto &{$sub};
+		$mock->fake_module( $mod, import => $mockimport );
 	}
+
+	use_ok( $module ) or exit;
+	is( keys %import, 4, "$module should use several modules" );
+
+	ok( $module->isa( 'Everything::Node' ),
+		"$module should extend Everything::Node" );
+
+	# now test that C<new()> works
+	can_ok( $module, 'new' );
+	isa_ok( $module->new(), $module );
 }
 
-my $mock = Test::MockObject->new();
-my ( $method, $args, $result, @le );
-
-$mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
-
-# fake this up -- imported from Everything::NodeBase
-local *Everything::Node::node::DB;
-*Everything::Node::node::DB = \$mock;
-
-my %import;
-my $mockimport = sub { $import{ +shift }++ };
-
-foreach my $mocked (qw( DBI Everything Everything::NodeBase Everything::XML))
+sub test_dbtables :Test( 2 )
 {
-	$mock->fake_module( $mocked, import => $mockimport );
+	my $self   = shift;
+	my $module = $self->node_class();
+	can_ok( $module, 'dbtables' );
+	my @tables = $module->dbtables();
+	is_deeply( \@tables, [ 'node' ], 'dbtables() should return node tables' );
 }
 
-use_ok( $module ) or exit;
-is( keys %import, 4, 'Everything::Node::node should use several modules' );
-
-can_ok( $module, 'dbtables' );
-my @tables = $module->dbtables();
-is_deeply( \@tables, [ 'node' ], 'dbtables() should return node tables' );
-
-# construct()
-ok( construct(), 'construct() should return true' );
-
-# destruct()
-ok( destruct(), 'destruct() should return true' );
-
-# insert()
-$mock->{node_id} = 5;
-$mock->set_series( getId => 4 .. 7 )->set_series( hasAccess => 0, (1) x 4 )
-	->set_series( sqlSelect => 1, 0, 1, 1 )
-	->set_series( restrictTitle => 0, 1, 1, 1, 1 )
-	->set_always( quoteField => 'quoted' );
-
-is( insert( $mock, $mock ),
-	0, 'insert() should return 0 if user lacks create access' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... so should check for access' );
-is( join( '-', @$args ), "$mock-$mock-c", '... create access for user' );
-
+sub make_fixture :Test(setup)
 {
-	local *UNIVERSAL::isa;
-	*UNIVERSAL::isa = sub { 1 };
-
-	is( insert( $mock, $mock ),
-		0, '... should return 0 if title is restricted' );
+	my $self      = shift;
+	$self->{mock} = Test::MockObject->new();
+	my $node      = $self->node_class()->new();
+	$self->{node} = Test::MockObject::Extends->new( $node );
 }
-is( $mock->next_call(), 'getId',
-	'... and should get node_id of inserting user if it is a node' );
-is( $mock->next_call(2), 'restrictTitle',
-	'... and should check for restriction' );
 
-is( insert( $mock, $mock ),
-	5, '... and should return it if it has already been inserted' );
+sub test_construct :Test( 1 )
+{
+	my $self = shift;
+	ok( $self->{node}->construct(), 'construct() should return true' );
+}
 
-$mock->clear();
+sub test_destruct :Test( 1 )
+{
+	my $self = shift;
+	ok( $self->{node}->destruct(), 'destruct() should return true' );
+}
+
+sub test_insert_access :Test( 3 )
+{
+	my $self = shift;
+	my $mock = $self->{mock};
+	my $node = $self->{node};
+
+	$node->set_false( 'hasAccess' );
+	is( $node->insert( $mock ), 0,
+		'insert() should return 0 if user lacks access' );
+
+	my ($method, $args) = $node->next_call();
+	is( $args->[1], $mock, 'checking for correct user' );
+	is( $args->[2], 'c',   '... and create access' );
+}
+
+sub test_insert_restrictions :Test( 2 )
+{
+	my $self = shift;
+	my $mock = $self->{mock};
+	my $node = $self->{node};
+
+	$node->set_true( 'hasAccess' )
+		 ->set_series( restrictTitle => 0, 1 );
+	is( $node->insert( $mock ), 0,
+		'insert() should return 0 if node title is restricted' );
+
+	$node->{node_id} = 5;
+	is( $node->insert( $mock ), 5,
+		'insert() should return node_id if it is positive already' );
+}
+
+sub test_is_group :Test( 1 )
+{
+	ok( ! shift->{node}->isGroup(), 'isGroup() should return false' );
+}
+
+sub test_get_field_datatype :Test( 3 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$node->{a_field} = 111;
+	is( $node->getFieldDatatype( 'a_field' ), 'noderef',
+		'getFieldDatatype() should mark node references as "noderef"' );
+
+	$node->{b_field} = 'foo';
+	$node->{cfield}  = 112;
+	is( $node->getFieldDatatype( 'b_field' ), 'literal_value',
+		'... but references without ids are literal' );
+	is( $node->getFieldDatatype( 'bfield' ), 'literal_value',
+		'... and so are fields without underscores' );
+}
+
+sub test_has_vars :Test( 1 )
+{
+	ok( !shift->{node}->hasVars(), 'hasVars() should return false' );
+}
+
+# clone()
+sub test_clone :Test( 4 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	is( $self->node_class->clone(), undef,
+		'clone() should return without a node to clone' );
+	is( $node->clone( 'foo' ), undef, '... or a node hash' );
+
+	# now set a field not to overwrite
+	$node->{node_id} = 1;
+
+	my $from_hash =
+	{
+		test          => 'test',
+		node_id       => 2,
+		type          => "don't copy",
+		title         => "don't copy",
+		createtime    => "don't copy",
+		type_nodetype => "don't copy",
+	};
+
+	ok( $node->clone( $from_hash ),	
+		'clone() should return true with proper args' );
+
+	is_deeply( $node, { %$node, test => 'test', node_id => 1 },
+		'clone() should copy only necessary fields' );
+}
+
+sub test_commit_xml_fixes :Test( 1 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	$node->set_true( 'update' );
+	$node->commitXMLFixes();
+
+	my ( $method, $args ) = $node->next_call();
+	is( "$method @$args", "update $node -1 nomodify",
+		'commitXMLFixes() should call update() on node' );
+}
+
+__END__
 
 $mock->{node_id}       = 0;
 $mock->{type}          = $mock;
@@ -338,62 +412,6 @@ ok( !exists $result->{foo_id}, '... should return no uid keys if exporting' );
 is( join( ' ', keys %$result ),
 	'bar', '... and should remove non-export keys as well' );
 
-# isGroup()
-ok( !isGroup(), 'isGroup() should return false' );
-
-# getFieldDatatype()
-$mock->{a_field} = 111;
-is( getFieldDatatype( $mock, 'a_field' ),
-	'noderef', 'getFieldDatatype() should mark node references as "noderef"' );
-
-$mock->{b_field} = 'foo';
-$mock->{cfield}  = 112;
-is( getFieldDatatype( $mock, 'b_field' ),
-	'literal_value', '... but references without ids are literal' );
-is( getFieldDatatype( $mock, 'bfield' ),
-	'literal_value', '... and so are fields without underscores' );
-
-# hasVars()
-ok( !hasVars(), 'hasVars() should return false' );
-
-# clone()
-{
-	my $gnode = {
-		type          => 'type',
-		title         => 'title',
-		node_id       => 1,
-		createtime    => 'createtime',
-		type_nodetype => 'type_nodetype',
-	};
-
-	clone(
-		$gnode,
-		{
-			test          => 'test',
-			node_id       => 2,
-			type          => "don't copy",
-			title         => "don't copy",
-			createtime    => "don't copy",
-			type_nodetype => "don't copy",
-		}
-	);
-
-	is_deeply(
-		$gnode,
-		{
-			test          => 'test',
-			type          => 'type',
-			title         => 'title',
-			node_id       => 1,
-			createtime    => 'createtime',
-			type_nodetype => 'type_nodetype',
-		},
-		'clone() should copy only necessary fields'
-	);
-	is( clone(), undef, '... returning without a node to clone' );
-	is( clone('foo'), undef, '... or a node hash' );
-}
-
 # fieldToXML()
 {
 	local *Everything::Node::node::genBasicTag;
@@ -525,16 +543,6 @@ like(
 $result = applyXMLFix( $mock, $fix );
 is( $mock->{fixme}, 42, '... should set field to found node_id' );
 ok( !$result, '... should return nothing on success' );
-
-# commitXMLFixes()
-$mock->set_true('update')->clear();
-commitXMLFixes($mock);
-( $method, $args ) = $mock->next_call();
-is(
-	"$method @$args",
-	"update $mock -1 nomodify",
-	'commitXMLFixes() should call update() on node'
-);
 
 # getIdentifyingFields()
 is( getIdentifyingFields($mock),
@@ -955,3 +963,4 @@ ok(
 	restrictTitle( { title => 'a good name zz9' } ),
 	'... but should return true otherwise'
 );
+}
