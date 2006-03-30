@@ -1149,7 +1149,7 @@ Returns true, if the title is allowable, false otherwise.
 sub restrictTitle
 {
 	my ($this) = @_;
-	my $title = $this->{title} or return;
+	return unless my $title = $this->{title};
 
 	if ( $title =~ tr/[]|<>// )
 	{

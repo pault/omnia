@@ -9,6 +9,8 @@ use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
 
+use Scalar::Util 'reftype';
+
 sub node_class { 'Everything::Node::node' }
 
 my $module = 'Everything::Node::node';
@@ -104,6 +106,33 @@ sub test_insert_restrictions :Test( 2 )
 		'insert() should return node_id if it is positive already' );
 }
 
+sub test_insert_restrict_dupes :Test( 2 )
+{
+	my $self               = shift;
+	my $node               = $self->{node};
+	my $db                 = $self->{mock_db};
+	$node->{node_id}       = 0;
+	$node->{type}          = $node;
+	$node->{restrictdupes} = 1;
+	$node->{DB}            = $db;
+	$node->set_true(qw( hasAccess restrictTitle getId ))
+		 ->set_always( getTableArray => [] );
+	$db->set_series( sqlSelect => 1, 0 )
+	   ->set_always( getFields => 'none' )
+	   ->set_always( now => '' )
+	   ->set_always( getNode => undef )
+	   ->set_true( 'sqlInsert' )
+	   ->set_always( lastValue => 100 );
+
+	is( $node->insert( '' ), 0,
+		'insert() should return 0 if dupes are restricted and exist' );
+
+	$node->{restrictdupes} = 0;
+
+	is( $node->insert( '' ), 100,
+		'... or should return the inserted node_id otherwise' );
+}
+
 sub test_is_group :Test( 1 )
 {
 	ok( ! shift->{node}->isGroup(), 'isGroup() should return false' );
@@ -172,35 +201,227 @@ sub test_commit_xml_fixes :Test( 1 )
 		'commitXMLFixes() should call update() on node' );
 }
 
+sub test_restrict_title :Test( 6 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	delete $node->{title};
+
+	ok( ! $node->restrictTitle(),
+		'restrictTitle() called with no title field should return false' );
+
+	$node->{title} = '[foo]';
+	ok( ! $node->restrictTitle(),
+		'... or if title contains a square bracket'
+	);
+
+	$node->{title} = 'f>o<o';
+	ok( ! $node->restrictTitle(), '... or an angle bracket' );
+
+	my $errors;
+	{
+		local *Everything::logErrors;
+		*Everything::logErrors = sub { $errors = shift };
+		$node->{title} = 'o|o';
+		ok( ! $node->restrictTitle(), '... or a pipe' );
+	}
+	like( $errors, qr/node.+invalid characters/, '... and should log error' );
+
+	$node->{title} = 'a good name zz9';
+	ok( $node->restrictTitle(), '... but should return true otherwise' );
+}
+
+sub test_get_node_keep_keys :Test( 10 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	my $result = $node->getNodeKeepKeys();
+	is( reftype( $result ), 'HASH',
+		'getNodeKeepKeys() should return a hash reference' );
+
+	for my $class (qw( author group other guest ))
+	{
+		ok( exists $result->{"${class}access"},
+			"... and should contain $class access" );
+		ok( exists $result->{"dynamic${class}_permission"},
+			"... and $class permission keys" );
+	}
+	ok( exists $result->{loc_location}, '... and location key' );
+}
+
+sub test_get_node_keys :Test( 4 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	my %keys = map { $_ => 1 }
+		qw( createtime modified hits reputation
+		lockedby_user locktime lastupdate foo_id bar );
+
+	$node->set_always( getNodeDatabaseHash => \%keys );
+
+	my $result = $node->getNodeKeys();
+
+	is( $node->next_call(), 'getNodeDatabaseHash',
+		'getNodeKeys() should fetch node database keys' );
+	is( keys %$result, 9,
+		'... and should return them unchanged, if not exporting' );
+
+	$result = $node->getNodeKeys( 1 );
+	ok( ! exists $result->{foo_id}, '... returning no uid keys if exporting' );
+	is( join( ' ', keys %$result ), 'bar',
+		'... and removing non-export keys as well' );
+}
+
+sub test_field_to_XML :Test( 5 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my @gbt;
+
+	local *Everything::Node::node::genBasicTag;
+
+	*Everything::Node::node::genBasicTag = sub {
+		push @gbt, [@_];
+		return 'tag';
+	};
+
+	$node->{afield} = 'thisfield';
+	is( $node->fieldToXML( $node, 'afield' ), 'tag',
+		'fieldToXML() should return an XML tag element' );
+	is( @gbt, 1, '... and should call genBasicTag()' );
+	is( join( ' ', @{ $gbt[0] } ), "$node field afield thisfield",
+		'... with the correct arguments' );
+
+	ok( ! $node->fieldToXML( $node, 'notafield' ),
+		'... and should return false if field does not exist' );
+	ok( ! exists $node->{notafield}, '... and should not create field' );
+}
+
+sub test_get_identifying_fields :Test( 1 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	is( $node->getIdentifyingFields(), undef,
+		'getIdentifyingFields() should return undef' );
+}
+
+sub test_update_from_import :Test( 4 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$node->set_true( 'update' )
+		 ->set_series( -getNodeKeys => { foo => 1, bar => 2, baz => 3 } )
+		 ->set_series( -getNodeKeepKeys => { bar => 1 } );
+
+	$node->updateFromImport( { foo => 1, bar => 2, baz => 3 }, 'user' );
+
+	is( $node->{foo} + $node->{baz}, 4,
+		'getNodeKeys() should merge node keys' );
+
+	ok( ! exists $node->{bar}, '... but not those it should keep' );
+	my ( $method, $args ) = $node->next_call();
+	is( "$method @$args", "update $node user nomodify",
+		'... and should update node' );
+	is( $node->{modified}, 0, '... setting "modified" to 0' );
+}
+
+sub test_xml_final :Test( 6 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	$node->set_series( existingNodeMatches => $node, 0 )
+		 ->set_true('updateFromImport')
+		 ->set_true('insert');
+
+	my $result = $node->xmlFinal();
+
+	is( $node->next_call(), 'existingNodeMatches',
+		'xmlFinal() should check for a matching node' );
+
+	my ( $method, $args ) = $node->next_call();
+	is( $method, 'updateFromImport', '... updating node if so' );
+	is( join( '+', @$args ), "$node+$node+-1", '... for node by superuser' );
+	is( $result, $node->{node_id}, '... returning the node_id' );
+
+	$result = $node->xmlFinal();
+
+	( $method, $args ) = $node->next_call(2);
+	is( "$method $args->[1]", 'insert -1', '... or should insert the node' );
+	is( $result, $node->{node_id}, '... returning the new node_id' );
+}
+
+sub test_conflicts_with :Test( 4 )
+{
+	my $self          = shift;
+	my $node          = $self->{node};
+	$node->{modified} = '';
+
+	ok( ! $node->conflictsWith(),
+		'conflictsWith() should return false with no digit in "modified"' );
+
+	$node->{modified} = 1;
+
+	my $keep     = { foo => 1 };
+	my $conflict = { foo => 1, bar => 2 };
+
+	$node->set_series( getNodeKeys => $node, $node )
+		->set_series( getNodeKeepKeys => $keep, {} );
+
+	$node->{foo} = 1;
+	$node->{bar} = 3;
+
+	my $result = $node->conflictsWith( $conflict );
+	my ( $method, $args ) = $node->next_call();
+
+	ok( $result, '... but should return true if any node field conflicts' );
+
+	$node->{bar} = 2;
+	ok( ! $node->conflictsWith( $conflict ), '... false otherwise' );
+
+	$node->{foo} = 2;
+	ok( ! $node->conflictsWith( $conflict ),
+		'... and should ignore keepable keys' );
+}
+
+sub test_verify_field_update :Test( 3 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my @fields;
+
+	for my $field (qw(
+		createtime node_id type_nodetype hits loc_location reputation
+		lockedby_user locktime authoraccess groupaccess otheraccess guestaccess
+		dynamicauthor_permission dynamicgroup_permission
+		dynamicother_permission dynamicguest_permission
+	))
+	{
+		push @fields, $field unless $node->verifyFieldUpdate( $field );
+	}
+
+	is( @fields, 16,
+		'verifyFieldUpdate() should return false for unmodifiable fields' );
+	ok( ! $node->verifyFieldUpdate( 'foo_id' ), '... and for _id fields' );
+	ok( $node->verifyFieldUpdate( 'agoodkey' ),
+		'... but true for everything else' );
+}
+
 __END__
+	$node->{getNode} = [ { key => 'value' } ];
+	$node->{foo}     = 11;
 
-$mock->{node_id}       = 0;
-$mock->{type}          = $mock;
-$mock->{restrictdupes} = 1;
-$mock->{DB}            = $mock;
-is( insert( $mock, '' ),
-	0, '... and should return 0 if dupes are restricted and exist' );
-is( $mock->next_call(3), 'getId', '... so it must fetch type node_id' );
+	delete $node->{type}{restrictdupes};
+	$node->set_true('hasAccess')->set_list( getFields => 'foo' )
+		->set_always( getTableArray => ['table'] )->set_series( getNode => 0, {} )
+		->set_always( sqlSelect => 87 )->set_true('sqlInsert')
+		->set_always( now => 'now' )->set_always( lastValue => 'lastValue' )
+		->set_true('cache')->clear();
+}
 
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlSelect', '... selecting matching nodes' );
-is(
-	join( '-', @$args[ 1 .. 4 ] ),
-	'count(*)-node-title = ? AND type_nodetype = ?-',
-	'... counting from node matching title and type'
-);
-is( join( '-', @{ $args->[5] } ), 'title-5', '... passing title and type' );
-
-$mock->{getNode} = [ { key => 'value' } ];
-$mock->{foo}     = 11;
-
-delete $mock->{type}{restrictdupes};
-$mock->set_true('hasAccess')->set_list( getFields => 'foo' )
-	->set_always( getTableArray => ['table'] )->set_series( getNode => 0, {} )
-	->set_always( sqlSelect => 87 )->set_true('sqlInsert')
-	->set_always( now => 'now' )->set_always( lastValue => 'lastValue' )
-	->set_true('cache')->clear();
-
+__END__
 $mock->{node_id} = 0;
 ok(
 	defined( $result = insert( $mock, 'user' ) ),
@@ -391,52 +612,6 @@ is( "$method @$args", "removeNode $mock $mock", '... uncaching it' );
 is( $mock->{node_id}, 0, '... should reset node_id' );
 ok( $result, '... and return true' );
 
-# getNodeKeys()
-$mock->clear();
-
-my %keys = map { $_ => 1 }
-	qw( createtime modified hits reputation
-	lockedby_user locktime lastupdate foo_id bar );
-
-$mock->set_always( getNodeDatabaseHash => \%keys )->clear();
-
-$result = getNodeKeys($mock);
-
-is( $mock->next_call(), 'getNodeDatabaseHash',
-	'getNodeKeys() should fetch node database keys' );
-is( scalar keys %$result,
-	9, '... and should return them unchanged, if not exporting' );
-
-$result = getNodeKeys( $mock, 1 );
-ok( !exists $result->{foo_id}, '... should return no uid keys if exporting' );
-is( join( ' ', keys %$result ),
-	'bar', '... and should remove non-export keys as well' );
-
-# fieldToXML()
-{
-	local *Everything::Node::node::genBasicTag;
-
-	my @gbt;
-	*Everything::Node::node::genBasicTag = sub {
-		push @gbt, [@_];
-		return 'tag';
-	};
-
-	$mock->{afield} = 'thisfield';
-	is( fieldToXML( $mock, $mock, 'afield' ),
-		'tag', 'fieldToXML() should return an XML tag element' );
-	is( scalar @gbt, 1, '... and should call genBasicTag()' );
-	is(
-		join( ' ', @{ $gbt[0] } ),
-		"$mock field afield thisfield",
-		'... with the correct arguments'
-	);
-
-	ok( !fieldToXML( $mock, $mock, 'notafield' ),
-		'... and should return false if field does not exist' );
-	ok( !exists $mock->{notafield}, '... and should not create field' );
-}
-
 # xmlTag()
 $mock->set_series( getTagName => 'badtag', 'field', 'morefield' )->clear();
 
@@ -470,27 +645,6 @@ local *Everything::logErrors;
 	is( $result->[0], $parse, '... with the fix in the array ref' );
 	is( $mock->{parsed}, -1, '... setting node field to -1' );
 }
-
-# xmlFinal()
-$mock->set_series( existingNodeMatches => $mock, 0 )
-	->set_true('updateFromImport')->set_true('insert')->clear();
-
-$result = xmlFinal($mock);
-
-is( $mock->next_call(), 'existingNodeMatches',
-	'xmlFinal() should check for a matching node' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'updateFromImport', '... updating node if so' );
-is( join( '+', @$args ), "$mock+$mock+-1", '... for node by superuser' );
-is( $result, $mock->{node_id}, '... returning the node_id' );
-
-$mock->clear();
-$result = xmlFinal($mock);
-
-( $method, $args ) = $mock->next_call(2);
-is( "$method $args->[1]", 'insert -1', '... or should insert the node' );
-is( $result, $mock->{node_id}, '... returning the new node_id' );
 
 # applyXMLFix()
 my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
@@ -543,100 +697,6 @@ like(
 $result = applyXMLFix( $mock, $fix );
 is( $mock->{fixme}, 42, '... should set field to found node_id' );
 ok( !$result, '... should return nothing on success' );
-
-# getIdentifyingFields()
-is( getIdentifyingFields($mock),
-	undef, 'getIdentifyingFields() should return undef' );
-
-# updateFromImport()
-delete @$mock{ keys %$mock };
-
-$mock->set_series( getNodeKeys => { foo => 1, bar => 2, baz => 3 } )
-	->set_series( getNodeKeepKeys => { bar => 1 } )->clear();
-
-updateFromImport( $mock, { foo => 1, bar => 2, baz => 3 }, 'user' );
-( $method, $args ) = $mock->next_call();
-is(
-	"$method @$args",
-	"getNodeKeys $mock 1",
-	'updateFromImport() should fetch node keys'
-);
-is( $mock->next_call(), 'getNodeKeepKeys', '... and keys to keep' );
-is( $mock->{foo} + $mock->{baz}, 4, '... should merge node keys' );
-ok( !exists $mock->{bar}, '... but not those that should be kept' );
-( $method, $args ) = $mock->next_call();
-is(
-	"$method @$args",
-	"update $mock user nomodify",
-	'... and should update node'
-);
-is( $mock->{modified}, 0, '... and should set "modified" to 0' );
-
-# conflictsWith()
-$mock->{modified} = '';
-ok( !conflictsWith($mock),
-	'conflictsWith() should return false with no digit in "modified" field' );
-
-$mock->{modified} = 1;
-
-my $keep     = { foo => 1 };
-my $conflict = { foo => 1, bar => 2 };
-
-$mock->set_series( getNodeKeys => $mock, $mock )
-	->set_series( getNodeKeepKeys => $keep, {} )->clear();
-
-$mock->{foo} = 1;
-$mock->{bar} = 3;
-$result = conflictsWith( $mock, $conflict );
-( $method, $args ) = $mock->next_call();
-is( "$method @$args", "getNodeKeys $mock 1", '... and should fetch node keys' );
-is( $mock->next_call(), 'getNodeKeepKeys', '... and keepable keys' );
-
-ok( $result, '... should return true if any node field conflicts' );
-
-$mock->{bar} = 2;
-ok( !conflictsWith( $mock, $conflict ), '... false otherwise' );
-
-$mock->{foo} = 2;
-ok( !conflictsWith( $mock, $conflict ), '... and should ignore keepable keys' );
-
-# getNodeKeepKeys()
-$result = getNodeKeepKeys($mock);
-isa_ok( $result, 'HASH', 'getNodeKeepKeys() should return a hash reference' );
-foreach my $class (qw( author group other guest ))
-{
-	ok( $result->{"${class}access"}, "... and should contain $class access" );
-	ok(
-		$result->{"dynamic${class}_permission"},
-		"... and $class permission keys"
-	);
-}
-ok( $result->{loc_location}, '... and location key' );
-
-# verifyFieldUpdate()
-my @fields;
-foreach my $field (
-	'createtime',               'node_id',
-	'type_nodetype',            'hits',
-	'loc_location',             'reputation',
-	'lockedby_user',            'locktime',
-	'authoraccess',             'groupaccess',
-	'otheraccess',              'guestaccess',
-	'dynamicauthor_permission', 'dynamicgroup_permission',
-	'dynamicother_permission',  'dynamicguest_permission'
-	)
-{
-	push @fields, $field unless verifyFieldUpdate( $mock, $field );
-}
-
-is( scalar @fields,
-	16, 'verifyFieldUpdate() should return false for unmodifiable fields' );
-ok(
-	!verifyFieldUpdate( $mock, 'foo_id' ),
-	'... and for primary key (uid) fields'
-);
-ok( verifyFieldUpdate( $mock, 'agoodkey' ),
-	'... but true for everything else' );
 
 # getRevision()
 $mock->{node_id}            = 11;
@@ -940,27 +1000,3 @@ is( "$method $args->[1]", 'update user', '... updating workspace node' );
 ( $method, $args ) = $mock->next_call();
 is( "$method $args->[1]", "removeNode $mock", '... removing node from cache' );
 is( $result, 41, '... and should return node_id' );
-
-# restrictTitle()
-ok( !restrictTitle( { foo => 1 } ),
-	'restrictTitle() with no title field should return false' );
-
-ok(
-	!restrictTitle( { title => '[foo]' } ),
-	'... or if title contains a square bracket'
-);
-
-ok( !restrictTitle( { title => 'f>o<o' } ), '... or an angle bracket' );
-
-{
-	local *Everything::logErrors;
-	*Everything::logErrors = sub { $errors = shift };
-	ok( !restrictTitle( { title => 'o|o' } ), '... or a pipe' );
-}
-like( $errors, qr/node.+invalid characters/, '... and should log error' );
-
-ok(
-	restrictTitle( { title => 'a good name zz9' } ),
-	'... but should return true otherwise'
-);
-}
