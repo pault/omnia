@@ -18,10 +18,14 @@ my $module = 'Everything::Node::node';
 sub startup :Test( startup => 5 )
 {
 	my $self         = shift;
-	$self->{errors}  = \(my @le);
+	$self->{errors}  = [];
 
 	my $mock         = Test::MockObject->new();
-	$mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
+	$mock->fake_module( 'Everything', logErrors => sub
+		{
+			push @{ $self->{errors} }, [@_]
+		}
+	);
 	*Everything::Node::node::DB = \$mock;
 
 	my $module = $self->node_class();
@@ -64,6 +68,8 @@ sub make_fixture :Test(setup)
 
 	*Everything::Node::node::DB = \$db;
 	$self->{mock_db}            = $db;
+	$node->{DB}                 = $db;
+	$self->{errors}             = [];
 }
 
 sub test_construct :Test( 1 )
@@ -117,7 +123,6 @@ sub test_insert_restrict_dupes :Test( 2 )
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
-	$node->{DB}            = $db;
 	$node->set_true(qw( -hasAccess -restrictTitle -getId ))
 		 ->set_always( -getTableArray => [] );
 	$db->set_series( -sqlSelect => 1, 0 )
@@ -144,7 +149,6 @@ sub test_insert :Test( 10 )
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
-	$node->{DB}            = $db;
 
 	$node->set_true(qw( -hasAccess -restrictTitle -getId ));
 	$db->set_always( getNode => { key => 'value' } )
@@ -216,7 +220,6 @@ sub test_update_workspaced :Test( 3 )
 		 ->set_true( -canWorkspace );
 
 	$db->{workspace}{nodes}{ $node->{node_id} } = 1;
-	$node->{DB}                                 = $db;
 
 	my $result = $node->update( 'user' );
 
@@ -236,7 +239,6 @@ sub test_update :Test( 11 )
 	$node->{type} = $node;
 	$node->{boom} = 88;
 	$node->{foom} = 99;
-	$node->{DB}   = $db;
 	$db->{cache}  = $db;
 
 	$node->set_true( -hasAccess )
@@ -354,14 +356,10 @@ sub test_restrict_title :Test( 6 )
 	$node->{title} = 'f>o<o';
 	ok( ! $node->restrictTitle(), '... or an angle bracket' );
 
-	my $errors;
-	{
-		local *Everything::logErrors;
-		*Everything::logErrors = sub { $errors = shift };
-		$node->{title} = 'o|o';
-		ok( ! $node->restrictTitle(), '... or a pipe' );
-	}
-	like( $errors, qr/node.+invalid characters/, '... and should log error' );
+	$node->{title} = 'o|o';
+	ok( ! $node->restrictTitle(), '... or a pipe' );
+	like( $self->{errors}[0][0], qr/node.+invalid characters/,
+		'... and should log error' );
 
 	$node->{title} = 'a good name zz9';
 	ok( $node->restrictTitle(), '... but should return true otherwise' );
@@ -433,6 +431,41 @@ sub test_field_to_XML :Test( 5 )
 	ok( ! $node->fieldToXML( $node, 'notafield' ),
 		'... and should return false if field does not exist' );
 	ok( ! exists $node->{notafield}, '... and should not create field' );
+}
+
+sub test_xml_tag :Test( 9 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	$node->set_series( getTagName => 'badtag', 'field', 'morefield' )->clear();
+
+	$node->{type}  = $node;
+	$node->{title} = 'thistype';
+	my $result = $node->xmlTag( $node );
+	is( $node->next_call(), 'getTagName', 'xmlTag() should fetch tag name' );
+	ok( !$result, '... and should return false unless it contains "field"' );
+	like( $self->{errors}[0][1], qr/tag 'badtag'.+'thistype'/,
+	    '... logging an error'    );
+
+	local *Everything::XML::parseBasicTag;
+	my @pbt;
+	my $parse = { name => 'parsed', parsed => 11 };
+	*Everything::XML::parseBasicTag = sub {
+		push @pbt, [@_];
+		return $parse;
+	};
+
+	$result = $node->xmlTag( $node );
+	is( join( ' ', @{ $pbt[0] } ), "$node node", '... should parse tag' );
+	is( $result, undef, '... should return false with no fixes' );
+	is( $node->{parsed}, 11, '... and should set node field to tag value' );
+
+	$parse->{where} = 1;
+	$result = $node->xmlTag( $node );
+	isa_ok( $result, 'ARRAY', '... should return array ref if fixes exist' );
+	is( $result->[0], $parse, '... with the fix in the array ref' );
+	is( $node->{parsed}, -1, '... setting node field to -1' );
 }
 
 sub test_get_identifying_fields :Test( 1 )
@@ -545,138 +578,110 @@ sub test_verify_field_update :Test( 3 )
 		'... but true for everything else' );
 }
 
+sub test_nuke_access :Test( 4 )
+{
+	my $self    = shift;
+	my $node    = $self->{node};
+	my $db      = $self->{mock_db};
+	$node->set_false( 'hasAccess' );
+	$db->set_true( 'getRef' );
+
+	my $result = $node->nuke( 'user' );
+
+	my ( $method, $args ) = $db->next_call();
+	is( "$method $args->[1]",
+		'getRef user', 'nuke() should fetch user node unless it is -1'   );
+	ok( !$result,      '... returning false if user lacks delete access' );
+
+	( $method, $args ) = $node->next_call();
+	is( $method, 'hasAccess', '... and should check for access' );
+	is( join( '-', @$args ), "$node-user-d", '... delete access for user' );
+}
+
+sub test_nuke :Test( 27 )
+{
+	my $self         = shift;
+	my $node         = $self->{node};
+	my $db           = $self->{mock_db};
+	$node->{type}    = $node;
+	$db->{cache}     = $db;
+	$node->{node_id} = 89;
+
+	$node->set_true( 'hasAccess' )
+		->set_series( isGroupType => 0, 'table1', 'table2' )
+	    ->set_always( getTableArray => [ 'deltable' ] )
+		->set_always( -getId => 'id' );
+	$db->set_true(qw( getRef finish removeNode incrementGlobalVersion ))
+	   ->set_always( getNode => $db )
+	   ->set_series( sqlSelectMany => 0, $db )
+	   ->set_series( fetchrow => 'group' )
+	   ->set_series( sqlDelete => (1) x 4 );
+
+	my $result;
+	{
+		my $gat;
+		$db->mock( getAllTypes => sub { $gat++; return ($node) x 3 } );
+		$result = $node->nuke( -1 );
+		ok( $gat, '... should get all nodetypes' );
+		$db->set_false( 'getAllTypes' );
+	}
+
+	isnt( $node->next_call(), 'getRef',
+		'... and should not get user node if it is -1' );
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'sqlDelete', '... should delete links' );
+	is( join( '-', @$args[ 1, 2 ] ), 'links-to_node=? OR from_node=?',
+		'... should delete from or to links from links table' );
+	is_deeply( $args->[3], [ 'id', 'id' ], '... with bound node id' );
+
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlDelete', '... and deleting node revisions' );
+	is( join( '-', @$args[ 1, 2 ] ), 'revision-node_id = ?',
+		'... by id from revision' );
+	is_deeply( $args->[3], [89], '... with node_id' );
+
+	is( $node->next_call(), 'isGroupType',
+		'... should check each type is a group node' );
+
+	( $method, $args ) = $db->next_call(2);
+	is( $method, 'sqlSelectMany', '... should check for node' );
+	is( join( '-', @$args[ 1 .. 3 ] ), 'table1_id-table1-node_id = ?',
+		'... in group table' );
+	is_deeply( $args->[5], [89], '... by node_id' );
+
+	is( $db->next_call(3), 'fetchrow',
+		'... if it exists, should fetch all containing groups' );
+	( $method, $args ) = $db->next_call( 2 );
+	is( $method, 'sqlDelete', '... and should delete' );
+	is( join( '-', @$args[ 1 .. 2 ] ), 'table2-node_id = ?',
+		'... from table on node_id' );
+	is_deeply( $args->[3], [89], '... for node' );
+
+	( $method, $args ) = $db->next_call();
+	is( $method, 'getNode', '... fetching node' );
+	is( join( '-', @$args ), "$db-group", '... for containing group' );
+
+	is( $db->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
+
+	( $method, $args ) = $node->next_call( 3 );
+	is( "$method @$args", "getTableArray $node 1",
+		'... should fetch all tables for node' );
+
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlDelete', '... deleting node' );
+	is( join( '-', @$args[ 1, 2 ] ), 'deltable-deltable_id = ?',
+		'... from tables' );
+	is_deeply( $args->[3], ['id'], '... by node_id' );
+	is( $db->next_call(), 'incrementGlobalVersion',
+		'... should mark node as updated in cache' );
+
+	( $method, $args ) = $db->next_call();
+	is( "$method @$args", "removeNode $db $node", '... uncaching it' );
+	is( $node->{node_id}, 0, '... should reset node_id' );
+	ok( $result, '... and return true' );
+}
+
 __END__
-# nuke()
-$mock->set_series( hasAccess => 0, 1 )
-	->set_series( isGroupType => 0, 'table1', 'table2' )
-	->set_series( sqlSelectMany => 0, $mock )
-	->set_always( getTableArray => ['deltable'] )->set_always( getId => 'id' )
-	->set_series( fetchrow => 'group' )->set_series( sqlDelete => (1) x 4 )
-	->set_true('getRef')->set_true('finish')->set_true('removeNode')->clear();
-
-$result = nuke( $mock, 'user' );
-
-( $method, $args ) = $mock->next_call();
-is( "$method $args->[1]",
-	'getRef user', 'nuke() should fetch user node unless it is -1' );
-ok( !$result, '... and should return false if user lacks delete access' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... and should check for access' );
-is( join( '-', @$args ), "$mock-user-d", '... delete access for user' );
-
-$mock->{dbh} = $mock;
-$mock->clear();
-{
-	my $gat;
-	$mock->mock( getAllTypes => sub { $gat++; return ($mock) x 3 } );
-	$result = nuke( $mock, -1 );
-	ok( $gat, '... should get all nodetypes' );
-	$mock->set_false('getAllTypes');
-}
-
-isnt( $mock->next_call(), 'getRef',
-	'... and should not get user node if it is -1' );
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'sqlDelete', '... should delete links' );
-is(
-	join( '-', @$args[ 1, 2 ] ),
-	'links-to_node=? OR from_node=?',
-	'... should delete from or to links from links table'
-);
-is_deeply( $args->[3], [ 'id', 'id' ], '... with bound node id' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlDelete', '... and deleting node revisions' );
-is(
-	join( '-', @$args[ 1, 2 ] ),
-	'revision-node_id = ?',
-	'... by id from revision'
-);
-is_deeply( $args->[3], [87], '... with node_id' );
-
-is( $mock->next_call(2), 'isGroupType',
-	'... should check each type is a group node' );
-
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'sqlSelectMany', '... should check for node' );
-is(
-	join( '-', @$args[ 1 .. 3 ] ),
-	'table1_id-table1-node_id = ?',
-	'... in group table'
-);
-is_deeply( $args->[5], [87], '... by node_id' );
-
-is( $mock->next_call(3), 'fetchrow',
-	'... if it exists, should fetch all containing groups' );
-( $method, $args ) = $mock->next_call(3);
-is( $method, 'sqlDelete', '... and should delete' );
-is(
-	join( '-', @$args[ 1 .. 2 ] ),
-	'table2-node_id = ?',
-	'... from table on node_id'
-);
-is_deeply( $args->[3], [87], '... for node' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'getNode', '... fetching node' );
-is( join( '-', @$args ), "$mock-group", '... for containing group' );
-
-is( $mock->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
-
-( $method, $args ) = $mock->next_call();
-is(
-	"$method @$args",
-	"getTableArray $mock 1",
-	'... should fetch all tables for node'
-);
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlDelete', '... deleting node' );
-is( join( '-', @$args[ 1, 2 ] ), 'deltable-deltable_id = ?',
-	'... from tables' );
-is_deeply( $args->[3], ['id'], '... by node_id' );
-is( $mock->next_call(), 'incrementGlobalVersion',
-	'... should mark node as updated in cache' );
-
-( $method, $args ) = $mock->next_call();
-is( "$method @$args", "removeNode $mock $mock", '... uncaching it' );
-is( $mock->{node_id}, 0, '... should reset node_id' );
-ok( $result, '... and return true' );
-
-# xmlTag()
-$mock->set_series( getTagName => 'badtag', 'field', 'morefield' )->clear();
-
-$mock->{title} = 'thistype';
-my $out;
-my $errors;
-local *Everything::logErrors;
-*Everything::logErrors = sub { (undef, $errors) = @_ };
-{
-	$result = xmlTag( $mock, $mock );
-	is( $mock->next_call(), 'getTagName', 'xmlTag() should fetch tag name' );
-	ok( !$result, '... and should return false unless it contains "field"' );
-	like( $errors, qr/tag 'badtag'.+'thistype'/, '... logging an error'    );
-
-	local *Everything::XML::parseBasicTag;
-	my @pbt;
-	my $parse = { name => 'parsed', parsed => 11 };
-	*Everything::XML::parseBasicTag = sub {
-		push @pbt, [@_];
-		return $parse;
-	};
-
-	$result = xmlTag( $mock, $mock );
-	is( join( ' ', @{ $pbt[0] } ), "$mock node", '... should parse tag' );
-	is( $result, undef, '... should return false with no fixes' );
-	is( $mock->{parsed}, 11, '... and should set node field to tag value' );
-
-	$parse->{where} = 1;
-	$result = xmlTag( $mock, $mock );
-	isa_ok( $result, 'ARRAY', '... should return array ref if fixes exist' );
-	is( $result->[0], $parse, '... with the fix in the array ref' );
-	is( $mock->{parsed}, -1, '... setting node field to -1' );
-}
 
 # applyXMLFix()
 my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
