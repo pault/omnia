@@ -18,10 +18,9 @@ my $module = 'Everything::Node::node';
 sub startup :Test( startup => 5 )
 {
 	my $self         = shift;
-	my $mock         = Test::MockObject->new();
-	$self->{mock_db} = $mock;
 	$self->{errors}  = \(my @le);
 
+	my $mock         = Test::MockObject->new();
 	$mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
 	*Everything::Node::node::DB = \$mock;
 
@@ -61,6 +60,10 @@ sub make_fixture :Test(setup)
 	$self->{mock} = Test::MockObject->new();
 	my $node      = $self->node_class()->new();
 	$self->{node} = Test::MockObject::Extends->new( $node );
+	my $db        = Test::MockObject->new();
+
+	*Everything::Node::node::DB = \$db;
+	$self->{mock_db}            = $db;
 }
 
 sub test_construct :Test( 1 )
@@ -115,14 +118,14 @@ sub test_insert_restrict_dupes :Test( 2 )
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
 	$node->{DB}            = $db;
-	$node->set_true(qw( hasAccess restrictTitle getId ))
-		 ->set_always( getTableArray => [] );
-	$db->set_series( sqlSelect => 1, 0 )
-	   ->set_always( getFields => 'none' )
-	   ->set_always( now => '' )
-	   ->set_always( getNode => undef )
+	$node->set_true(qw( -hasAccess -restrictTitle -getId ))
+		 ->set_always( -getTableArray => [] );
+	$db->set_series( -sqlSelect => 1, 0 )
+	   ->set_always( -getFields => 'none' )
+	   ->set_always( -now => '' )
+	   ->set_always( -getNode => undef )
 	   ->set_true( 'sqlInsert' )
-	   ->set_always( lastValue => 100 );
+	   ->set_always( -lastValue => 100 );
 
 	is( $node->insert( '' ), 0,
 		'insert() should return 0 if dupes are restricted and exist' );
@@ -131,6 +134,139 @@ sub test_insert_restrict_dupes :Test( 2 )
 
 	is( $node->insert( '' ), 100,
 		'... or should return the inserted node_id otherwise' );
+}
+
+sub test_insert :Test( 10 )
+{
+	my $self               = shift;
+	my $node               = $self->{node};
+	my $db                 = $self->{mock_db};
+	$node->{node_id}       = 0;
+	$node->{type}          = $node;
+	$node->{restrictdupes} = 1;
+	$node->{DB}            = $db;
+
+	$node->set_true(qw( -hasAccess -restrictTitle -getId ));
+	$db->set_always( getNode => { key => 'value' } )
+	    ->set_always( -lastValue => 101 );
+	$node->{foo}  = 11;
+
+	delete $node->{type}{restrictdupes};
+	$db->set_list( -getFields => 'foo' )
+	   ->set_series( getNode => 0, {} )
+	   ->set_true( 'sqlInsert' )
+	   ->set_always( -now => 'now' )
+	   ->clear();
+
+	$node->set_always( -getTableArray => [ 'table' ] )
+		 ->set_true( 'cache' );
+	$node->{node_id} = 0;
+
+	ok( defined $node->insert( 'user' ),
+		'... but should return node_id if no dupes exist' );
+	
+	my ( $method, $args ) = $db->next_call( 2 );
+	is( $method, 'sqlInsert', '... inserting base node' );
+
+	is( $args->[1], 'node', '... into the node table' );
+	is_deeply( $args->[2],
+		{
+			-createtime => 'now',
+			author_user => 'user',
+			hits        => 0,
+			foo         => 11,
+		},
+		'... with the proper fields'
+	);
+
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlInsert', '... inserting node' );
+	is( $args->[1], 'table', '... into proper table' );
+	is_deeply( $args->[2], { foo => 11, table_id => 101 },
+		'... proper fields' );
+
+	( $method, $args ) = $db->next_call();
+	is( $method, 'getNode', '... fetching node' );
+	is( join( '-', @$args ), "$db-101-force", '... forcing refresh' );
+	is( $node->next_call(), 'cache', '... and caching node' );
+}
+
+sub test_update_access :Test( 3 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$node->set_false( 'hasAccess' );
+	is( $node->update( 'user' ), 0,
+		'update() should return 0 if user lacks write access' );
+
+	my ( $method, $args ) = $node->next_call();
+	is( $method, 'hasAccess',                '... so should check access' );
+	is( join( '-', @$args ), "$node-user-w", '... write access for user'  );
+}
+
+sub test_update_workspaced :Test( 3 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	$node->{node_id} = 87;
+	$node->set_true( -hasAccess )
+		 ->set_series( updateWorkspaced => 77, 0 )
+		 ->set_true( -canWorkspace );
+
+	$db->{workspace}{nodes}{ $node->{node_id} } = 1;
+	$node->{DB}                                 = $db;
+
+	my $result = $node->update( 'user' );
+
+	my ( $method, $args ) = $node->next_call();
+	is( $method, 'updateWorkspaced',
+		'update() should update workspaced node if it is workspaced' );
+	is( $args->[1], 'user', '... for user' );
+	is( $result, 77, '... and should return the id if it that works' );
+}
+
+sub test_update :Test( 11 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	$node->{type} = $node;
+	$node->{boom} = 88;
+	$node->{foom} = 99;
+	$node->{DB}   = $db;
+	$db->{cache}  = $db;
+
+	$node->set_true( -hasAccess )
+		 ->set_always( getTableArray => [ 'table', 'table2' ] )
+		 ->set_true( 'cache' );
+
+	$db->set_true(qw( incrementGlobalVersion sqlUpdate now sqlSelect ))
+	   ->set_series( getFields => 'boom', 'foom' );
+
+	$node->update( 'user' );
+	is( $db->next_call(), 'incrementGlobalVersion',
+		'... incrementing global version in cache' );
+	is( $node->next_call(), 'cache', '... caching node' );
+
+	my $method = $db->next_call();
+	is( $db->next_call(), 'sqlSelect',
+		'... updating modified field without flag' );
+	is( $method, 'now', '... with current time' );
+	is( $node->next_call(), 'getTableArray', '... fetching type tables' );
+
+	( $method, my $args ) = $db->next_call();
+	is( $method, 'getFields', '... fetching the fields' );
+	is( $args->[1], 'table',  '... of each table' );
+
+	( $method, $args ) = $db->next_call();
+	is( "$method $args->[1]", 'sqlUpdate table', '... updating each table' );
+	is( keys %{ $args->[2] }, 1,
+		'... with only allowed fields' );
+	is( $args->[3],           'table_id = ?',    '... for table' );
+	is_deeply( $args->[4], [ $node->{node_id} ], '... with node id' );
 }
 
 sub test_is_group :Test( 1 )
@@ -410,110 +546,6 @@ sub test_verify_field_update :Test( 3 )
 }
 
 __END__
-	$node->{getNode} = [ { key => 'value' } ];
-	$node->{foo}     = 11;
-
-	delete $node->{type}{restrictdupes};
-	$node->set_true('hasAccess')->set_list( getFields => 'foo' )
-		->set_always( getTableArray => ['table'] )->set_series( getNode => 0, {} )
-		->set_always( sqlSelect => 87 )->set_true('sqlInsert')
-		->set_always( now => 'now' )->set_always( lastValue => 'lastValue' )
-		->set_true('cache')->clear();
-}
-
-__END__
-$mock->{node_id} = 0;
-ok(
-	defined( $result = insert( $mock, 'user' ) ),
-	'... but should return node_id if no dupes exist'
-);
-
-( $method, $args ) = $mock->next_call(6);
-is( $method, 'sqlInsert', '... inserting base node' );
-
-is( $args->[1], 'node', '... into the node table' );
-is_deeply(
-	$args->[2],
-	{
-		-createtime => 'now',
-		author_user => 'user',
-		hits        => 0,
-		foo         => 11,
-	},
-	'... with the proper fields'
-);
-
-is( $mock->next_call(), 'lastValue',     '... fetching node id' );
-is( $mock->next_call(), 'getTableArray', '... and node tables' );
-is( $mock->next_call(), 'getFields',     '... and table fields' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlInsert', '... inserting node' );
-is( $args->[1], 'table', '... into proper table' );
-is_deeply(
-	$args->[2],
-	{ foo => 11, table_id => 'lastValue' },
-	'... proper fields'
-);
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'getNode', '... fetching node' );
-is( join( '-', @$args ), "$mock-lastValue-force", '... forcing refresh' );
-is( $mock->next_call(), 'cache', '... and caching node' );
-
-# update()
-$mock->{node_id} = 87;
-$mock->set_series( hasAccess => 0, 1, 1 )
-	->set_series( updateWorkspaced => 77, 0 )->clear()
-	->set_true( -canWorkspace );
-
-is( update( $mock, 'user' ),
-	0, 'update() should return 0 if user lacks write access' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... so should check access' );
-is( join( '-', @$args ), "$mock-user-w", '... write access for user' );
-
-$mock->{workspace}{nodes}{ $mock->{node_id} } = 1;
-$mock->{DB}                                   = $mock;
-$mock->{cache}                                = $mock;
-$result = update( $mock, 'user' );
-
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'updateWorkspaced',
-	'... should update workspaced node if it is workspaced' );
-is( $args->[1], 'user', '... for user' );
-is( $result, 77, '... and should return the id if it that works' );
-
-delete $mock->{workspace};
-$mock->{type} = $mock;
-$mock->{boom} = 88;
-$mock->{foom} = 99;
-
-$mock->set_always( getTableArray => [ 'table', 'table2' ] )
-	->set_series( getFields => 'boom', 'foom' )
-	->set_true('incrementGlobalVersion')->set_true('sqlUpdate')->clear();
-
-update( $mock, 'user' );
-is( $mock->next_call(2), 'incrementGlobalVersion',
-	'... incrementing global version in cache' );
-is( $mock->next_call(), 'cache', '... caching node' );
-
-$method = $mock->next_call();
-is( $mock->next_call(), 'sqlSelect',
-	'... updating modified field without flag' );
-is( $method, 'now', '... with current time' );
-is( $mock->next_call(), 'getTableArray', '... fetching type tables' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'getFields', '... fetching thte fields' );
-is( $args->[1], 'table', '... of each table' );
-
-( $method, $args ) = $mock->next_call();
-is( "$method $args->[1]", 'sqlUpdate table', '... updating each table' );
-is( keys %{ $args->[2] }, 1,                 '... with only allowed fields' );
-is( $args->[3],           'table_id = ?',    '... for table' );
-is_deeply( $args->[4], [ $mock->{node_id} ], '... with node id' );
-
 # nuke()
 $mock->set_series( hasAccess => 0, 1 )
 	->set_series( isGroupType => 0, 'table1', 'table2' )
