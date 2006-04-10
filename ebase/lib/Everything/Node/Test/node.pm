@@ -208,28 +208,6 @@ sub test_update_access :Test( 3 )
 	is( join( '-', @$args ), "$node-user-w", '... write access for user'  );
 }
 
-sub test_update_workspaced :Test( 3 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	my $db   = $self->{mock_db};
-
-	$node->{node_id} = 87;
-	$node->set_true( -hasAccess )
-		 ->set_series( updateWorkspaced => 77, 0 )
-		 ->set_true( -canWorkspace );
-
-	$db->{workspace}{nodes}{ $node->{node_id} } = 1;
-
-	my $result = $node->update( 'user' );
-
-	my ( $method, $args ) = $node->next_call();
-	is( $method, 'updateWorkspaced',
-		'update() should update workspaced node if it is workspaced' );
-	is( $args->[1], 'user', '... for user' );
-	is( $result, 77, '... and should return the id if it that works' );
-}
-
 sub test_update :Test( 11 )
 {
 	my $self = shift;
@@ -297,7 +275,6 @@ sub test_has_vars :Test( 1 )
 	ok( !shift->{node}->hasVars(), 'hasVars() should return false' );
 }
 
-# clone()
 sub test_clone :Test( 4 )
 {
 	my $self = shift;
@@ -522,6 +499,68 @@ sub test_xml_final :Test( 6 )
 	is( $result, $node->{node_id}, '... returning the new node_id' );
 }
 
+sub test_apply_xml_fix_no_fixby_node :Test( 3 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
+	my $fix   = { where => $where,  field         => 'fixme', title => ''  };
+
+	is( $node->applyXMLFix( $fix ), $fix,
+		'applyXMLFix() should return fix if it has no "fixBy" field' );
+
+	$fix->{fixBy} = 'fixme';
+	is( $node->applyXMLFix( $fix, 1 ), $fix,
+		'... or if the field is not set to "node"' );
+
+	like( $self->{errors}[0][1],
+		qr/handle fix by 'fixme'/, '... and should log error if flag is set' );
+}
+
+sub test_apply_xml_fix :Test( 8 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	my $where = { title => 'title', type_nodetype => 'type',  field => 'b' };
+	my $fix   = { where => $where,  field         => 'fixme', fixBy => 'node' };
+
+	my @pxw;
+	$node->fake_module(
+		'Everything::XML',
+		patchXMLwhere => sub {
+			push @pxw, [@_];
+			return $_[0];
+		}
+	);
+
+	$db->set_series( getNode => 0, 0, { node_id => 42 } );
+	@{ $self->{errors} } = ();
+	my $result = $node->applyXMLFix( $fix );
+	is( $pxw[0][0], $where, '... should try to resolve node' );
+
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'getNode', '... should fetch resolved node' );
+	is( join( '-', @$args[ 1, 2 ] ), "$where-type",
+		'... by fix criteria for type' );
+
+	is( $result, $fix,           '... returning the fix if that did not work' );
+	is( @{ $self->{errors}[0] }, 0, '... returning no error without flag' );
+
+	$node->{title}       = 'n_title';
+	$node->{type}{title} = 't_title';
+	$result = $node->applyXMLFix( $fix, 1 );
+	like( $self->{errors}[1][1],
+		qr/Unable.+find 'title' of type 'type'.+'fixme'.+'n_title'.+'t_title'/s,
+		'... and logging an error if flag is set' );
+
+	$result = $node->applyXMLFix( $fix );
+	is( $node->{fixme}, 42, '... should set field to found node_id' );
+	ok( !$result, '... should return nothing on success' );
+}
+
 sub test_conflicts_with :Test( 4 )
 {
 	my $self          = shift;
@@ -576,6 +615,342 @@ sub test_verify_field_update :Test( 3 )
 	ok( ! $node->verifyFieldUpdate( 'foo_id' ), '... and for _id fields' );
 	ok( $node->verifyFieldUpdate( 'agoodkey' ),
 		'... but true for everything else' );
+}
+
+sub test_get_revision :Test( 9 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	$node->{node_id}          = 11;
+	$db->{workspace}{node_id} =  7;
+	$db->set_series( sqlSelect => 0, 'xml' )
+		->set_series( sqlSelectHashref => 0, { xml => 'myxml' } );
+
+	is( $node->getRevision( '' ), 0,
+		'getRevision() should return 0 if revision is not numeric' );
+
+	$node->set_always( xml2node => [] );
+	my $result = $node->getRevision( 0 );
+
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'sqlSelectHashref', '... should fetch revision from database' );
+
+	is( $args->[5][2], 7, '... using workspace id, if it exists' );
+	is( $result, 0, '... should return 0 if fetch fails' );
+
+	delete $db->{workspace};
+	my @fields = qw( node_id createtime reputation );
+	@$node{@fields} = (8) x 3;
+
+	{
+		local *Everything::Node::node::xml2node;
+		*Everything::Node::node::xml2node = sub { $node->xml2node( @_ ) };
+		$node->set_always( xml2node => [ { x2n => 1 } ] );
+		$result = $node->getRevision( 1 );
+	}
+
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlSelectHashref', '... should select the node revision' );
+	is( join( '-', @$args[ 1 .. 3 ], @{ $args->[5] } ),
+		'*-revision-node_id = ? and revision_id = ? and inside_workspace = ?-8-1-0',
+		'... using 0 with no workspace' );
+
+	( $method, $args ) = $node->next_call();
+	is( join( ' ', @$args ), "$node myxml noupdate",
+		'... should xml-ify revision' );
+
+	is( $result->{x2n}, 1, '... returning the revised node' );
+	is( "@$node{@fields}", "@$result{@fields}",
+		'... and should copy node_id, createtime, and reputation fields' );
+}
+
+sub test_log_revision_access :Test( 1 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$node->set_false( 'hasAccess' );
+	is( $node->logRevision( 'user' ), 0,
+		'logRevision() should return 0 if user lacks write access' );
+}
+
+sub test_log_revision :Test( 13 )
+{
+	my $self         = shift;
+	my $node         = $self->{node};
+	my $db           = $self->{mock_db};
+	$node->{node_id} = 99;
+	
+	$node->set_series( -hasAccess => (1) x 3 )
+		 ->set_series( getId => 'id' )
+		 ->set_true( 'canWorkspace' );
+
+	$db->set_always( -getNode   => $node )
+	   ->set_series( sqlSelect => 0, [ 2, 1, 4 ], 0, [ 0 ] )
+	   ->set_true(qw( sqlDelete sqlInsert ));
+
+	$node->{type}{maxrevisions} = 0;
+
+	my $result = $node->logRevision( 'user' );
+	is( $result, 0, 'logRevisions() should return 0 if lacking max revisons' );
+
+	$node->set_true( 'toXML' )
+		 ->set_always( -getId => 1 );
+
+	$node->{type}{maxrevisions}         = -1;
+	$node->{type}{derived_maxrevisions} = 1;
+
+	$result = $node->logRevision( 'user' );
+	my ( $method, $args ) = $db->next_call( 2 );
+	is( $method, 'sqlSelect', '... should fetch data' );
+	is( join( '-', @$args[ 1 .. 4 ] ),
+		'max(revision_id)+1-revision-node_id = ? and inside_workspace = ?-',
+		'... max revision from revision table'
+	);
+	is( join( '-', @{ $args->[5] } ), '99-0', '... for node_id and workspace' );
+
+	( $method, $args ) = $db->next_call();
+	is( "$method $args->[1]", 'sqlInsert revision',
+		'... inserting new revision' );
+	is( $args->[2]{revision_id}, 1, '... using revision id of 1 if necessary' );
+
+	( $method, $args ) = $db->next_call();
+	like( "$method @$args", qr/sqlSelect.+count.+min.+max.+revision/,
+		'... should fetch max, min, and total revisions' );
+	( $method, $args ) = $db->next_call();
+	like( "$method @$args", qr/sqlDelete.+revision.+revision_id = /,
+		'... should delete oldest revision if in workspace and at max limit' );
+
+	is( $result, 4, '... should return id of newest revision' );
+
+	$db->{workspace}{node_id}   = $node->{node_id} = 44;
+	$db->{workspace}{nodes}{44} = 'R';
+
+	$db->clear();
+	$node->logRevision( 'user' );
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlDelete', '... undoing a later revision if in workspace' );
+	is( join( '-', @$args[ 1, 2 ] ),
+		'revision-node_id = ? and revision_id > ? and inside_workspace = ?',
+		'... by node, revision, and workspace' );
+	is_deeply( $args->[3], [ 44, 'R', 44 ], '... with the correct values' );
+	is( $node->next_call(), 'toXML', '... XMLifying node for workspace' );
+}
+
+sub test_undo_access :Test()
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	$node->set_false( 'hasAccess' );
+
+	is( $node->undo( 'uS' ), 0,
+		'undo() should return 0 if user lacks write access' );
+}
+
+sub test_undo :Test( 27 )
+{
+	local *Everything::Node::node::ISA;
+	*Everything::Node::node::ISA = [];
+
+	my $self         = shift;
+	my $node         = $self->{node};
+	my $db           = $self->{mock_db};
+	$node->{node_id} = 13;
+	$db->{workspace} = $node;
+	$db->{cache}     = $node;
+
+	$node->set_true(qw( -hasAccess update toXML ));
+	$db->set_series( sqlSelectMany => ($db) x 6 )
+	   ->set_series( -fetchrow     => ( 1, 5, 0 ) x 6 )
+	   ->set_true( 'sqlUpdate' );
+
+	is( $node->undo( $node, '' ), 0,
+		'undo() should return 0 unless workspace contains this node' );
+
+	$node->set_true( 'setVars' );
+
+	my $position = \$db->{workspace}{nodes}{13};
+	$$position   = 4;
+	my $result   = $node->undo( 'user', 1, 1 );
+
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'sqlSelectMany', '... selecting many rows' );
+	is(
+		join( '-', @$args[ 1 .. 3 ] ),
+		'revision_id-revision-node_id = ? and inside_workspace = ?',
+		'... should fetch revision_ids for node in workspace'
+	);
+	is_deeply( $args->[5], [ 13, 13 ], '... for node and revision id' );
+
+	is( $result, 1,
+		'... returning true if testing/redoing and revision exists for pos' );
+	is( $node->undo( 'user', 0, 1 ), 1,
+		'... or if undoing and position is one or more' );
+
+	$$position = 0;
+	is( $node->undo( 'user', 0, 0 ), 0, '... otherwise false' );
+
+	$$position = 1;
+	is( $node->undo( 'user', 1, 0 ), 0,
+		'... returning false if redoing and revision does not exist for pos' );
+
+	$$position = 0;
+	is( $node->undo( 'user', 0, 0 ), 0,
+		'... or if undoing and position is not one or more' );
+
+	$$position = 1;
+
+	$result = $node->undo( 'user', 0, 0 );
+	is( $db->{workspace}{nodes}{13}, 0,
+		'... should update position in workspace for node' );
+
+	( $method, $args ) = $node->next_call();
+
+	is( $method, 'setVars', '... should set variables' );
+	is( $args->[1], $db->{workspace}{nodes}, '... in workspace' );
+	( $method, $args ) = $node->next_call();
+	is( $method, 'update',  '... updating workspace' );
+	is( $args->[1], 'user', '... for user' );
+	ok( $result,            '... and returning true' );
+
+	delete $db->{workspace};
+
+	my $rev = {};
+	$db->set_series( sqlSelectHashref => 0, ($rev) x 5 )
+	   ->clear();
+
+	$result = $node->undo( 'user', 0, 0 );
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlSelectHashref', '... fetching data' );
+	like( join( ' ', @$args ), qr/\* revision .+_id=13.+BY rev.+DESC/,
+		'... if not in workspace, should fetch revision for node' );
+	ok( !$result, '... should return false unless found' );
+
+	$rev->{revision_id} = 1;
+	ok( ! $node->undo( 'user', 1 ),
+		'... or false if redoing and revision_id is positive' );
+
+	$rev->{revision_id} = 0;
+	ok( ! $node->undo( 'user', 1 ), '... or zero' );
+
+	$rev->{revision_id} = -1;
+	ok( ! $node->undo( 'user', 0 ),
+		'... or false if undoing and revision_id is negative' );
+
+	$rev->{revision_id} = 77;
+	ok( $node->undo( 'user', 0, 1 ), '... or true if testing' );
+
+	$node->clear();
+	$db->clear();
+	{
+		local *Everything::Node::node::xml2node;
+		*Everything::Node::node::xml2node = sub { [] };
+		$result = $node->undo( 'user' );
+	}
+	is( $node->next_call(), 'toXML', '... should XMLify node' );
+	is( $rev->{revision_id}, -77, '... should invert revision' );
+
+	( $method, $args ) = $db->next_call( 2 );
+	is( $method, 'sqlUpdate', '... should update database' );
+	is( join( '-', @$args[ 1, 3 ] ),
+		'revision-node_id = ? and inside_workspace = ? and revision_id = ?',
+		'... with new revision' );
+	is_deeply( $args->[4], [ 13, 0, 77 ], '... for node, workspace, and revision' );
+}
+
+sub test_can_workspace :Test( 4 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $ws   = $node->{type} = { canworkspace => 1 };
+
+	ok( $node->canWorkspace(),
+		'canWorkspace() should return true if nodetype can workspace' );
+
+	$ws->{canworkspace} = 0;
+	ok( ! $node->canWorkspace(), '... and false if it cannot' );
+
+	$ws->{canworkspace}         = -1;
+	$ws->{derived_canworkspace} = 0;
+	ok( ! $node->canWorkspace(),
+		'... or false if inheriting and parent cannot' );
+	$ws->{derived_canworkspace} = 1;
+	ok( $node->canWorkspace(),
+		'... and true if inheriting and parent can workspace' );
+}
+
+sub test_get_workspaced :Test( 6 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	$node->set_series( -canWorkspace => 0, 1, 1, 1 )
+		 ->set_series( getRevision   => 'rev', 0 );
+
+	ok( ! $node->getWorkspaced(),
+		'getWorkspaced() should return unless node can be workspaced' );
+	$node->{node_id}   = 77;
+	$db->{workspace} =
+	{
+		nodes =>
+		{
+			77 => 44,
+			88 => 11,
+		},
+		cached_nodes => { '77_44' => 88, },
+	};
+	is( $node->getWorkspaced(), 88,
+		'... should return cached node version if it exists' );
+	$node->{node_id} = 88;
+
+	my $result = $node->getWorkspaced();
+	my ( $method, $args ) = $node->next_call();
+	is( "$method $args->[1]", 'getRevision 11', '... should fetch revision' );
+
+	is( $result, 'rev', '... returning it if it exists' );
+	is( $db->{workspace}{cached_nodes}{'88_11'},
+		'rev', '... and should cache it' );
+
+	$node->{node_id} = 4;
+	ok( !$node->getWorkspaced(), '... or false otherwise' );
+}
+
+sub test_update_workspaced :Test( 8 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	$node->set_series( -canWorkspace => 0, 1 )
+		 ->set_series( logRevision  => 17 )
+		 ->set_true(qw( setVars update removeNode ));
+
+	ok( ! $node->updateWorkspaced(),
+		'updateWorkspaced() should return false unless node can workspace' );
+
+	$db->{workspace} = $node;
+	$db->{cache}     = $node;
+	$node->{node_id} = 41;
+	my $result       = $node->updateWorkspaced( 'user' );
+
+	my ( $method, $args ) = $node->next_call();
+	is( $method, 'logRevision', '... should log revision' );
+	is( $args->[1], 'user', '... for user' );
+	is( $db->{workspace}{nodes}{41}, 17, '... logging revision in workspace');
+
+	( $method, $args ) = $node->next_call();
+	is( "$method $args->[1]", "setVars $db->{workspace}{nodes}",
+		'... updating variables for workspace' );
+	( $method, $args ) = $node->next_call();
+	is( "$method $args->[1]", 'update user', '... updating workspace node' );
+
+	( $method, $args ) = $node->next_call();
+	is( "$method $args->[1]", "removeNode $node",
+		'... removing node from cache' );
+	is( $result, 41, '... and should return node_id' );
 }
 
 sub test_nuke_access :Test( 4 )
@@ -680,360 +1055,3 @@ sub test_nuke :Test( 27 )
 	is( $node->{node_id}, 0, '... should reset node_id' );
 	ok( $result, '... and return true' );
 }
-
-__END__
-
-# applyXMLFix()
-my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
-my $fix   = { where => $where,  field         => 'fixme' };
-
-is( applyXMLFix( $mock, $fix ),
-	$fix, 'applyXMLFix() should return fix if it has no "fixBy" field' );
-
-$fix->{fixBy} = 'fixme';
-is( applyXMLFix( $mock, $fix, 1 ),
-	$fix, '... or if the field is not set to "node"' );
-
-$errors = '' unless defined $errors;
-like(
-	$errors,
-	qr/handle fix by 'fixme'/, '... and should log error if flag is set'
-);
-
-$fix->{fixBy} = 'node';
-
-my @pxw;
-$mock->fake_module(
-	'Everything::XML',
-	patchXMLwhere => sub {
-		push @pxw, [@_];
-		return $_[0];
-	}
-);
-
-$mock->set_series( getNode => 0, 0, { node_id => 42 } )->clear();
-$errors = '';
-$result = applyXMLFix( $mock, $fix );
-is( $pxw[0][0], $where, '... should try to resolve node' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'getNode', '... should fetch resolved node' );
-is( join( '-', @$args[ 1, 2 ] ), "$where-type",
-	'... by fix criteria for type' );
-
-is( $result, $fix, '... returning the fix if that did not work' );
-is( $errors, '', '... returning no error without flag' );
-
-$result = applyXMLFix( $mock, $fix, 1 );
-like(
-	$errors,
-	qr/^|Error.+find 'title' of type 'type'.+field b/,
-	'... and logging an error if flag is set'
-);
-
-$result = applyXMLFix( $mock, $fix );
-is( $mock->{fixme}, 42, '... should set field to found node_id' );
-ok( !$result, '... should return nothing on success' );
-
-# getRevision()
-$mock->{node_id}            = 11;
-$mock->{DB}                 = $mock;
-$mock->{workspace}{node_id} = 7;
-$mock->set_series( sqlSelect => 0, 'xml' )
-	->set_series( sqlSelectHashref => 0, { xml => 'myxml' } )->clear();
-
-is( getRevision( $mock, '' ),
-	0, 'getRevision() should return 0 if revision is not numeric' );
-
-{
-	local *Everything::Node::node::xml2node;
-	*Everything::Node::node::xml2node = sub { [] };
-	$result = getRevision( $mock, 0 );
-}
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlSelectHashref', '... should fetch revision from database' );
-
-is( $args->[5][2], 7, '... using workspace id, if it exists' );
-is( $result, 0, '... should return 0 if fetch fails' );
-
-delete $mock->{workspace};
-@fields = qw( node_id createtime reputation );
-@$mock{@fields} = (8) x 3;
-my @x2n;
-{
-	local *Everything::Node::node::xml2node;
-	*Everything::Node::node::xml2node = sub {
-		push @x2n, [@_];
-		return [ { x2n => 1 } ];
-	};
-
-	$result = getRevision( $mock, 1 );
-}
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlSelectHashref', '... should select the node revision' );
-is(
-	join( '-', @$args[ 1 .. 3 ], @{ $args->[5] } ),
-	'*-revision-node_id = ? and revision_id = ? and inside_workspace = ?-8-1-0',
-	'... using 0 with no workspace'
-);
-is( join( ' ', @{ $x2n[0] } ), 'myxml noupdate',
-	'... should xml-ify revision' );
-
-is( $result->{x2n}, 1, '... returning the revised node' );
-is( "@$mock{@fields}", "@$result{@fields}",
-	'... and should copy node_id, createtime, and reputation fields' );
-
-# logRevision()
-$mock->set_series( hasAccess => 0, (1) x 3 )->set_series( getId => 'id' )
-	->set_series( getNode   => $mock )
-	->set_series( sqlSelect => 0, [ 2, 1, 4 ], 0, [] )->clear();
-
-is( logRevision( $mock, 'user' ),
-	0, 'logRevision() should return 0 if user lacks write access' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... so should check for it' );
-is( join( ' ', @$args[ 1, 2 ] ), 'user w', '... write access for user' );
-
-delete $mock->{DB}{workspace};
-$mock->{type}{maxrevisions} = 0;
-
-$result = logRevision( $mock, 'user' );
-is( $result, 0, '... should return 0 if lacking max revisons' );
-
-$mock->set_true('toXML')->set_always( getId => 1 )->clear();
-
-$mock->{type}{maxrevisions}         = -1;
-$mock->{type}{derived_maxrevisions} = 1;
-
-$result = logRevision( $mock, 'user' );
-( $method, $args ) = $mock->next_call(6);
-is( $method, 'sqlSelect', '... should fetch data' );
-is(
-	join( '-', @$args[ 1 .. 4 ] ),
-	'max(revision_id)+1-revision-node_id = ? and inside_workspace = ?-',
-	'... max revision from revision table'
-);
-is( join( '-', @{ $args->[5] } ), '8-0', '... for node_id and workspace' );
-
-( $method, $args ) = $mock->next_call(2);
-is( "$method $args->[1]", 'sqlInsert revision', '... inserting new revision' );
-is( $args->[2]{revision_id}, 1, '... using revision id of 1 if necessary' );
-
-( $method, $args ) = $mock->next_call();
-like(
-	"$method @$args",
-	qr/sqlSelect.+count.+min.+max.+revision/,
-	'... should fetch max, min, and total revisions'
-);
-( $method, $args ) = $mock->next_call();
-like(
-	"$method @$args",
-	qr/sqlDelete.+revision.+revision_id = /,
-	'... should delete oldest revision if in workspace and at max limit'
-);
-
-is( $result, 4, '... should return id of newest revision' );
-
-$mock->{workspace}{node_id} = $mock->{node_id} = 44;
-$mock->{workspace}{nodes}{44} = 'R';
-
-$mock->clear();
-logRevision( $mock, 'user' );
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'sqlDelete', '... undoing a later revision if in workspace' );
-is(
-	join( '-', @$args[ 1, 2 ] ),
-	'revision-node_id = ? and revision_id > ? and inside_workspace = ?',
-	'... by node, revision, and workspace'
-);
-is_deeply( $args->[3], [ 44, 'R', 44 ], '... with the correct values' );
-is( $mock->next_call(), 'toXML', '... and should XMLify node for workspace' );
-
-# undo()
-$mock->{workspace} = $mock;
-$mock->set_series( hasAccess => 0, (1) x 7 )
-	->set_series( sqlSelectMany => ($mock) x 6 )
-	->set_series( fetchrow      => ( 1, 5, 0 ) x 6 )->clear();
-
-is( undo( $mock, 'uS' ),
-	0, 'undo() should return 0 if user lacks write access' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... so should call hasAccess()' );
-is( join( '-', @$args[ 1, 2 ] ), 'uS-w', '... read access for user' );
-
-$mock->{node_id} = 13;
-delete $mock->{workspace}{nodes}{13};
-is( undo( $mock, '' ),
-	0, '... returning 0 unless workspace contains this node' );
-
-$mock->set_true('setVars')->clear();
-my $position = \$mock->{workspace}{nodes}{13};
-$$position = 4;
-$result    = undo( $mock, 'user', 1, 1 );
-
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'sqlSelectMany', '... selecting many rows' );
-is(
-	join( '-', @$args[ 1 .. 3 ] ),
-	'revision_id-revision-node_id = ? and inside_workspace = ?',
-	'... should fetch revision_ids for node in workspace'
-);
-is_deeply( $args->[5], [ 13, 13 ], '... for node and revision id' );
-
-is( $result, 1,
-	'... should return true if testing/redoing and revision exists for pos' );
-is( undo( $mock, 'user', 0, 1 ),
-	1, '... or if undoing and position is one or more' );
-
-$$position = 0;
-is( undo( $mock, 'user', 0, 0 ), 0, '... otherwise false' );
-
-$$position = 1;
-is( undo( $mock, 'user', 1, 0 ),
-	0,
-	'... should return false if redoing and revision does not exist for pos' );
-
-$$position = 0;
-is( undo( $mock, 'user', 0, 0 ),
-	0, '... or if undoing and position is not one or more' );
-
-$$position = 1;
-$mock->clear();
-
-$result = undo( $mock, 'user', 0, 0 );
-is( $mock->{workspace}{nodes}{13},
-	0, '... should update position in workspace for node' );
-
-( $method, $args ) = $mock->next_call(6);
-
-is( $method, 'setVars', '... should set variables' );
-is( $args->[1], $mock->{workspace}{nodes}, '... in workspace' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'update', '... updating workspace' );
-is( $args->[1], 'user', '... for user' );
-ok( $result, '... returning true' );
-
-delete $mock->{workspace};
-
-my $rev = {};
-$mock->set_series( hasAccess => (1) x 6 )
-	->set_series( sqlSelectHashref => 0, ($rev) x 5 )->clear();
-
-$result = undo( $mock, 'user', 0, 0 );
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'sqlSelectHashref', '... fetching data' );
-like(
-	join( ' ', @$args ),
-	qr/\* revision .+_id=13.+BY rev.+DESC/,
-	'... if not in workspace, should fetch revision for node'
-);
-ok( !$result, '... should return false unless found' );
-
-$rev->{revision_id} = 1;
-ok( !undo( $mock, 'user', 1 ),
-	'... or false if redoing and revision_id is positive' );
-
-$rev->{revision_id} = 0;
-ok( !undo( $mock, 'user', 1 ), '... or zero' );
-
-$rev->{revision_id} = -1;
-ok( !undo( $mock, 'user', 0 ),
-	'... or false if undoing and revision_id is negative' );
-
-$rev->{revision_id} = 77;
-ok( undo( $mock, 'user', 0, 1 ), '... or true if testing' );
-
-$mock->clear();
-{
-	local *Everything::Node::node::xml2node;
-	*Everything::Node::node::xml2node = sub { [] };
-	$result = undo( $mock, 'user' );
-}
-is( $mock->next_call(3), 'toXML', '... should XMLify node' );
-is( $rev->{revision_id}, -77, '... should invert revision' );
-
-( $method, $args ) = $mock->next_call();
-is( $method, 'sqlUpdate', '... should update database' );
-is(
-	join( '-', @$args[ 1, 3 ] ),
-	'revision-node_id = ? and inside_workspace = ? and revision_id = ?',
-	'... with new revision'
-);
-is_deeply( $args->[4], [ 13, 0, 77 ], '... for node, workspace, and revision' );
-
-# canWorkspace()
-my $ws = $mock->{type} = { canworkspace => 1 };
-
-ok( Everything::Node::node::canWorkspace($mock),
-	'canWorkspace() should return true if nodetype can be workspaced' );
-
-$ws->{canworkspace} = 0;
-ok( !canWorkspace($mock), '... and false if it cannot' );
-
-$ws->{canworkspace}         = -1;
-$ws->{derived_canworkspace} = 0;
-ok( !canWorkspace($mock), '... or false if inheriting and parent cannot' );
-$ws->{derived_canworkspace} = 1;
-ok( canWorkspace($mock),
-	'... and true if inheriting and parent can workspace' );
-
-# getWorkspaced()
-$mock->set_series( canWorkspace => 0, 1, 1, 1 )
-	->set_series( getRevision => 'rev', 0 )->clear();
-
-ok( !getWorkspaced($mock),
-	'getWorkspaced() should return unless node can be workspaced' );
-$mock->{node_id}   = 77;
-$mock->{workspace} = {
-	nodes => {
-		77 => 44,
-		88 => 11,
-	},
-	cached_nodes => { '77_44' => 88, },
-};
-is( getWorkspaced($mock), 88,
-	'... should return cached node version if it exists' );
-$mock->{node_id} = 88;
-
-$mock->clear();
-$result = getWorkspaced($mock);
-( $method, $args ) = $mock->next_call(2);
-is( "$method $args->[1]", 'getRevision 11', '... should fetch revision' );
-
-is( $result, 'rev', '... returning it if it exists' );
-is( $mock->{workspace}{cached_nodes}{'88_11'},
-	'rev', '... and should cache it' );
-
-$mock->{node_id} = 4;
-ok( !getWorkspaced($mock), '... or false otherwise' );
-
-# updateWorkspaced()
-$mock->set_series( canWorkspace => 0, 1 )->set_series( logRevision => 17 );
-
-ok( !updateWorkspaced($mock),
-	'updateWorkspaced() should return false unless node can be workspaced' );
-
-$mock->clear();
-$mock->{workspace} = $mock;
-$mock->{cache}     = $mock;
-$mock->{node_id}   = 41;
-$result = updateWorkspaced( $mock, 'user' );
-( $method, $args ) = $mock->next_call(2);
-is( $method, 'logRevision', '... should log revision' );
-is( $args->[1], 'user', '... for user' );
-is( $mock->{workspace}{nodes}{41}, 17, '... should log revision in workspace' );
-
-( $method, $args ) = $mock->next_call();
-is(
-	"$method $args->[1]",
-	"setVars $mock->{workspace}{nodes}",
-	'... should update variables for workspace'
-);
-( $method, $args ) = $mock->next_call();
-is( "$method $args->[1]", 'update user', '... updating workspace node' );
-
-( $method, $args ) = $mock->next_call();
-is( "$method $args->[1]", "removeNode $mock", '... removing node from cache' );
-is( $result, 41, '... and should return node_id' );

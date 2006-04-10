@@ -123,7 +123,6 @@ t/HTML/FormObject/RemoveVarCheckbox.t
 t/HTML/FormObject/TextArea.t
 t/HTML/FormObject/TextField.t
 t/HTML/FormObject/TypeMenu.t
-t/lib/Everything/NodeBase/foo.pm
 t/lib/FakeDBI.pm
 t/lib/FakeNode.pm
 t/lib/FakeNodeBase.pm

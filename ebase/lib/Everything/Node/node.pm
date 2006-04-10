@@ -897,7 +897,7 @@ sub logRevision
 		'', [ $this->{node_id}, $workspace ] )
 		|| 1;
 
-	#insert the node as a revision
+	# insert the node as a revision
 	$this->{DB}->sqlInsert(
 		'revision',
 		{
