@@ -219,118 +219,177 @@ sub test_update :Test( +3 )
 		'... flushing the global cache, if SUPER() is successful' );
 }
 
-1;
-
-__END__
-
-# nuke()
-
-# getTableArray()
-$mock->{tableArray} = [ 1 .. 4 ];
-$result = getTableArray($mock);
-is( ref $result, 'ARRAY',
-	'getTableArray() should return array ref to "tableArray" field' );
-is( scalar @$result, 4, '... and should contain all items' );
-ok( !grep( { $_ eq 'node' } @$result ),
-	'... should not provide "node" table with no arguments' );
-is( getTableArray( $mock, 1 )->[-1],
-	'node', '... but should happily provide it with $mockTable set to true' );
-
-# getDefaultTypePermissions()
-is(
-	getDefaultTypePermissions( $mock, 'author' ),
-	$mock->{derived_defaultauthoraccess},
-	'getDefaultTypePermissions() should return derived permissions for class'
-);
-ok(
-	!getDefaultTypePermissions( $mock, 'fakefield' ),
-	'... should return false if field does not exist'
-);
-ok(
-	!exists $mock->{derived_defaultfakefieldaccess},
-	'... and should not autovivify bad field'
-);
-
-# getParentType()
-$mock->set_always( getType => 88 )->clear();
-
-$mock->{extends_nodetype} = 77;
-$result = getParentType($mock);
-( $method, $args ) = $mock->next_call();
-is( $method, 'getType',
-	'getParentType() should get parent type from the database, if it exists' );
-is( $args->[1], 77, '... with the parent id' );
-is( $result, 88, '... returning it' );
-
-$mock->{extends_nodetype} = 0;
-is( getParentType($mock), undef,
-	'... but should return false if it fails (underived nodetype)' );
-
-# hasTypeAccess()
-$mock->set_always( getNode => $mock )->set_always( hasAccess => 'acc' )
-	->clear();
-
-hasTypeAccess( $mock, 'user', 'modes' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'getNode', 'hasTypeAccess() should fetch node to check perms' );
-is(
-	join( '-', @$args ),
-	"$mock-dummy_access_node-$mock-create force",
-	'... forcing a dummy nodetype node'
-);
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... checking access on result' );
-is( join( '-', @$args ), "$mock-user-modes", '... for user and permissions' );
-
-# isGroupType()
-is(
-	isGroupType($mock),
-	$mock->{derived_grouptable},
-	'isGroupType() should return "derived_grouptable" if it exists'
-);
-delete $mock->{derived_grouptable},
-	is( isGroupType($mock), undef, '... and false if it does not' );
-
-# derivesFrom()
-$mock->set_series(
-	getType => 0,
-	{ type_nodetype => 2 },
-	{ type_nodetype => 1, node_id => 88 },
-	{ type_nodetype => 1, node_id => 99 }
-)->set_always( getParentType => $mock )->clear();
-
-$result = derivesFrom( $mock, 'foo' );
-is( $mock->next_call(), 'getType',
-	'derivesFrom() should find the type of the first parameter' );
-is( $result, 0, '... returning 0 unless it exists' );
-
-is( derivesFrom( $mock, 'bar' ), 0, '... or if it is not a nodetype node' );
-
-$mock->{node_id} = 77;
-my $gpt = 0;
+sub test_nuke_access :Test( +0 )
 {
-	$mock->mock(
-		getParentType => sub {
-			return if $gpt;
-			$gpt = 1;
-			$mock->{node_id} = 88;
-			return $mock;
-		}
-	);
-	$result = derivesFrom( $mock, 'theboatashore' );
+	my $self   = shift;
+	my $node   = $self->{node};
+	my $db     = $self->{mock_db};
+	$db->set_series( -getNode => 0 );
+	$self->SUPER();
 }
-ok( $gpt, '... and should walk up hierarchy with getParentType() as needed' );
-is( $result, 1, '... returning true if the nodes are related' );
-is( derivesFrom( $mock, '' ), 0, '... and false otherwise' );
 
-# getNodeKeepKeys()
-$mock->set_always( SUPER => { foo => 1 } )->clear();
+sub test_nuke :Test( 4 )
+{
+	my $self   = shift;
+	my $node   = $self->{node};
+	my $db     = $self->{mock_db};
+	$node->{DB} = $db;
+	$db->set_series( getNode => 1 );
 
-$result = getNodeKeepKeys($mock);
-is( $mock->next_call(), 'SUPER', 'getNodeKeepKeys() should call SUPER()' );
-is( ref $result, 'HASH', '... and should return a hash reference' );
-is( scalar grep( /default.+access/, keys %$result ),
-	4, '... and should save class access keys' );
-is( $result->{defaultgroup_usergroup}, 1, '... and the default usergroup key' );
-is( scalar grep( /default.+permission/, keys %$result ),
-	4, '... and default class permission keys' );
+	my $result = $node->nuke( 'user' );
+	is( $result, 0,
+		'nuke() should return false if nodes of this nodetype exist' );
+
+	like( $self->{errors}[0][0], qr/Can't delete.+still exist/,
+		'... giving an appropriate error message' );
+
+	$node->set_always( ('SUPER') x 2 );
+	$result = $node->nuke( 'user' );
+	is( $node->next_call(), 'SUPER',
+		'... otherwise calling parent implementation' );
+	is( $result, 'SUPER', '... and returning result' );
+}
+
+sub test_get_table_array :Test( 4 )
+{
+	my $self            = shift;
+	my $node            = $self->{node};
+	$node->{tableArray} = [ 1 .. 4 ];
+
+	my $result = $node->getTableArray();
+	is( ref $result, 'ARRAY',
+		'getTableArray() should return array ref to "tableArray" field' );
+	is( @$result, 4, '... and should contain all items' );
+	ok( !grep( { $_ eq 'node' } @$result ),
+		'... should not provide "node" table with no arguments' );
+	is( $node->getTableArray( 1 )->[-1], 'node',
+		'... but should happily provide it with $nodeTable set to true' );
+}
+
+sub test_get_default_type_permissions :Test( 3 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$node->{derived_defaultauthoraccess} = 'hi, i am the author';
+
+	is( $node->getDefaultTypePermissions( 'author' ),
+		$node->{derived_defaultauthoraccess},
+		'getDefaultTypePermissions() should return derived class permissions' );
+	ok( ! $node->getDefaultTypePermissions( 'fakefield' ),
+		'... should return false if field does not exist');
+	ok( ! exists $node->{derived_defaultfakefieldaccess},
+  		'... and should not autovivify bad field' );
+}
+
+sub test_get_parent_type :Test( 4 )
+{
+	my $self   = shift;
+	my $node   = $self->{node};
+	my $db     = $self->{mock_db};
+
+	$db->set_always( getType => 88 );
+	$node->{extends_nodetype} = 77;
+
+	my $result            = $node->getParentType();
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'getType',
+		'getParentType() should get parent type, if it exists' );
+	is( $args->[1], 77, '... with the parent id' );
+	is( $result, 88, '... returning it' );
+
+	$node->{extends_nodetype} = 0;
+	is( $node->getParentType(), undef,
+		'... but should return false if it fails (underived nodetype)' );
+}
+
+sub test_has_type_access :Test( 5 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+	$db->set_always( getNode => $node );
+	$node->set_always( hasAccess => 'acc' );
+
+	my $result = $node->hasTypeAccess( 'user', 'modes' );
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'getNode', 'hasTypeAccess() should fetch access node' );
+	is( join( '-', @$args ), "$db-dummy_access_node-$node-create force",
+		'... forcing a dummy nodetype node' );
+	( $method, $args ) = $node->next_call();
+	is( $method, 'hasAccess', '... checking access on result' );
+	is( join( '-', @$args ), "$node-user-modes", '... for user and perms' );
+	is( $result, 'acc', '... returning result' );
+}
+
+sub test_is_group_type :Test( 2 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	ok( ! $node->isGroupType(), 
+		'isGroupType() should return false unless "derived_grouptable" exists');
+
+	$node->{derived_grouptable} = 648;
+	is( $node->isGroupType(), 648, 
+		'... and should return "derived_grouptable" if it exists' );
+}
+
+sub test_derives_from :Test( 6 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+	$db->set_series(
+		getType => 0,
+		{ type_nodetype => 2 },
+		{ type_nodetype => 1, node_id => 88 },
+		{ type_nodetype => 1, node_id => 99 }
+	);
+
+	$node->set_always( getParentType => $node );
+
+	my $result = $node->derivesFrom( 'foo' );
+	is( $db->next_call(), 'getType',
+		'derivesFrom() should find the type of the first parameter' );
+	is( $result, 0, '... returning 0 unless it exists' );
+
+	is( $node->derivesFrom( 'bar' ), 0, '... or if it is not a nodetype node' );
+
+	$node->{node_id} = 77;
+	my $gpt = 0;
+	{
+		$node->mock(
+			getParentType => sub {
+				return if $gpt;
+				$gpt = 1;
+				$node->{node_id} = 88;
+				return $node;
+			}
+		);
+		$result = $node->derivesFrom( 'theboatashore' );
+	}
+	ok( $gpt, '... should walk up hierarchy with getParentType() as needed' );
+	is( $result, 1, '... returning true if the nodes are related' );
+	is( $node->derivesFrom( '' ), 0, '... and false otherwise' );
+}
+
+sub test_get_node_keep_keys :Test( 5 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	$node->set_always( SUPER => { foo => 1 } );
+
+	my $result = $node->getNodeKeepKeys();
+	is( $node->next_call(), 'SUPER', 'getNodeKeepKeys() should call SUPER()' );
+	is( ref $result, 'HASH', '... and should return a hash reference' );
+	is( grep( /default.+access/, keys %$result ), 4,
+		'... and should save class access keys' );
+	is( $result->{defaultgroup_usergroup}, 1,
+		'... and the default usergroup key' );
+	is( grep( /default.+permission/, keys %$result ), 4,
+		'... and default class permission keys' );
+}
+
+1;
