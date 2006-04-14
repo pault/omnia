@@ -3,6 +3,13 @@
 use strict;
 use warnings;
 
+=cut
+
+use Everything::Node::Test::nodetype;
+Everything::Node::Test::nodetype->runtests();
+
+=cut
+
 BEGIN
 {
 	chdir 't' if -d 't';

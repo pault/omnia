@@ -13,9 +13,7 @@ use Scalar::Util 'reftype';
 
 sub node_class { 'Everything::Node::node' }
 
-my $module = 'Everything::Node::node';
-
-sub startup :Test( startup => 5 )
+sub startup :Test( startup => 4 )
 {
 	my $self         = shift;
 	$self->{errors}  = [];
@@ -39,7 +37,6 @@ sub startup :Test( startup => 5 )
 	}
 
 	use_ok( $module ) or exit;
-	is( keys %import, 4, "$module should use several modules" );
 
 	ok( $module->isa( 'Everything::Node' ),
 		"$module should extend Everything::Node" );
@@ -1055,3 +1052,5 @@ sub test_nuke :Test( 27 )
 	is( $node->{node_id}, 0, '... should reset node_id' );
 	ok( $result, '... and return true' );
 }
+
+1;

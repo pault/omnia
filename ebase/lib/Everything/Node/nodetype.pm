@@ -170,7 +170,7 @@ Returns the inserted node id
 
 sub insert
 {
-	my ($this) = @_;
+	my $this = shift;
 
 	if (   not defined $this->{extends_nodetype}
 		or $this->{extends_nodetype} == 0
@@ -179,7 +179,7 @@ sub insert
 		$this->{extends_nodetype} = $this->{DB}->getType('node')->{node_id};
 	}
 
-	return $this->SUPER();
+	return $this->SUPER( @_ );
 }
 
 =head2 C<update>
@@ -193,9 +193,8 @@ would need to be reloaded and reinitialized, otherwise we may get weird data.
 
 sub update
 {
-	my ($this) = @_;
-
-	my $result = $this->SUPER();
+	my $this   = shift;
+	my $result = $this->SUPER( @_ );
 
 	# If the nodetype was successfully updated, we need to flush the
 	# cache to make sure all the nodetypes get reloaded.
