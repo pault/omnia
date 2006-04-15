@@ -58,15 +58,20 @@ sub test_dbtables :Test( 2 )
 sub make_fixture :Test(setup)
 {
 	my $self      = shift;
-	$self->{mock} = Test::MockObject->new();
-	my $node      = $self->node_class()->new();
-	$self->{node} = Test::MockObject::Extends->new( $node );
 	my $db        = Test::MockObject->new();
+	$self->reset_mock_node();
 
 	*Everything::Node::node::DB = \$db;
 	$self->{mock_db}            = $db;
-	$node->{DB}                 = $db;
+	$self->{node}{DB}           = $db;
 	$self->{errors}             = [];
+}
+
+sub reset_mock_node
+{
+	my $self      = shift;
+	my $node      = $self->node_class()->new();
+	$self->{node} = Test::MockObject::Extends->new( $node );
 }
 
 sub test_construct :Test( 1 )
@@ -412,7 +417,7 @@ sub test_xml_tag :Test( 9 )
 	my $self = shift;
 	my $node = $self->{node};
 
-	$node->set_series( getTagName => 'badtag', 'field', 'morefield' )->clear();
+	$node->set_always( getTagName => 'badtag' );
 
 	$node->{type}  = $node;
 	$node->{title} = 'thistype';
@@ -422,14 +427,16 @@ sub test_xml_tag :Test( 9 )
 	like( $self->{errors}[0][1], qr/tag 'badtag'.+'thistype'/,
 	    '... logging an error'    );
 
-	local *Everything::XML::parseBasicTag;
 	my @pbt;
 	my $parse = { name => 'parsed', parsed => 11 };
+
+	local *Everything::XML::parseBasicTag;
 	*Everything::XML::parseBasicTag = sub {
 		push @pbt, [@_];
 		return $parse;
 	};
 
+	$node->set_series( getTagName => 'field', 'morefield' );
 	$result = $node->xmlTag( $node );
 	is( join( ' ', @{ $pbt[0] } ), "$node node", '... should parse tag' );
 	is( $result, undef, '... should return false with no fixes' );
@@ -502,7 +509,7 @@ sub test_apply_xml_fix_no_fixby_node :Test( 3 )
 	my $node = $self->{node};
 
 	my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
-	my $fix   = { where => $where,  field         => 'fixme', title => ''  };
+	my $fix   = { where => $where,  field         => 'fixme', title => '' };
 
 	is( $node->applyXMLFix( $fix ), $fix,
 		'applyXMLFix() should return fix if it has no "fixBy" field' );

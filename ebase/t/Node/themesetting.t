@@ -10,6 +10,9 @@ BEGIN
 }
 
 use Test::More tests => 4;
+use SUPER;
+local *Everything::Node::setting::SUPER;
+*Everything::Node::setting::SUPER = \&UNIVERSAL::SUPER;
 
 my $module = 'Everything::Node::themesetting';
 use_ok( $module ) or exit;

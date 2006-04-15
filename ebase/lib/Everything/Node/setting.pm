@@ -28,7 +28,7 @@ Returns a list of tables this node uses in the database, most specific first.
 sub dbtables
 {
 	my $self = shift;
-	return 'setting', $self->SUPER::dbtables();
+	return 'setting', $self->SUPER( @_ );
 }
 
 =head2 C<getVars>
@@ -109,7 +109,7 @@ sub fieldToXML
 	my ( $this, $DOC, $field, $indent ) = @_;
 	$indent ||= '';
 
-	return $this->SUPER() unless $field eq 'vars';
+	return $this->SUPER( $DOC, $field, $indent ) unless $field eq 'vars';
 
 	my $VARS = XML::DOM::Element->new( $DOC, "vars" );
 	my $vars = $this->getVars();
@@ -133,9 +133,9 @@ sub fieldToXML
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
-	my $tagname = $TAG->getTagName();
+	my $tagname        = $TAG->getTagName();
 
-	return $this->SUPER() unless $tagname eq 'vars';
+	return $this->SUPER( $TAG ) unless $tagname eq 'vars';
 
 	my @fixes;
 	my @childFields = $TAG->getChildNodes();
@@ -179,10 +179,10 @@ sub applyXMLFix
 
 	for my $required (qw( fixBy field where ))
 	{
-		return unless exists $FIX->{$required};
+		return $FIX unless exists $FIX->{$required};
 	}
 
-	return $this->SUPER() unless $FIX->{fixBy} eq 'setting';
+	return $this->SUPER( $FIX, $printError ) unless $FIX->{fixBy} eq 'setting';
 
 	my $vars  = $this->getVars();
 	my $where = Everything::XML::patchXMLwhere( $FIX->{where} );

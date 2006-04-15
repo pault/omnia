@@ -20,9 +20,13 @@ use_ok( $module ) or exit;
 ok( $module->isa( 'Everything::Node::setting' ), 'user should extend setting' );
 
 can_ok( $module, 'dbtables' );
-my @tables = $module->dbtables();
-is_deeply( \@tables, [qw( user document setting node )],
-	'dbtables() should return node tables' );
+SKIP:
+{
+	skip( 'SUPER not appropriate yet', 1 );
+	my @tables = $module->dbtables();
+	is_deeply( \@tables, [qw( user document setting node )],
+		'dbtables() should return node tables' );
+}
 
 sub AUTOLOAD
 {
