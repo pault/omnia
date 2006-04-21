@@ -89,6 +89,7 @@ lib/Everything/Node/usergroup.pm
 lib/Everything/Node/workspace.pm
 lib/Everything/Node/Test/node.pm
 lib/Everything/Node/Test/nodetype.pm
+lib/Everything/Node/Test/user.pm
 lib/Everything/Nodeball.pm
 lib/Everything/NodeBase.pm
 lib/Everything/NodeBase/mysql.pm

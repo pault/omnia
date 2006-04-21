@@ -35,11 +35,12 @@ my $build = Everything::Build->new(
 		'Mail::Address'             => 1.53,
 		'Mail::Sender'              => 0,
 		'Scalar::Util'              => 1.01,
+		'SUPER'                     => 1.12,
 	},
 	build_requires    =>
 	{
 		'Test::Class'               => 0.11,
-		'Test::MockObject'          => 0.11,
+		'Test::MockObject'          => 1.05,
 		'Test::Exception'           => 0.13,
 		'Test::Simple'              => 0.47,
 	},

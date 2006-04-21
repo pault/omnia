@@ -23,7 +23,7 @@ Returns a list of tables this node uses in the database, most specific first.
 sub dbtables
 {
 	my $self = shift;
-	return qw( user document ), $self->SUPER::dbtables();
+	return qw( user document ), $self->SUPER();
 }
 
 =head2 C<insert>
@@ -36,7 +36,7 @@ sub insert
 {
 	my ( $this, $USER ) = @_;
 
-	my $id = $this->SUPER() or return;
+	return 0 unless my $id = $this->SUPER();
 
 	# Make all new users default to owning themselves.
 	$this->{author_user} = $id;
@@ -99,7 +99,7 @@ sub isGuest
 sub getNodeKeys
 {
 	my ( $this, $forExport ) = @_;
-	my $keys = $this->SUPER();
+	my $keys                 = $this->SUPER( $forExport );
 
 	# Remove these fields if we are exporting user nodes.
 	delete @$keys{qw( passwd lasttime )} if $forExport;
@@ -117,7 +117,8 @@ sub verifyFieldUpdate
 {
 	my ( $this, $field ) = @_;
 
-	my $restrictedFields = {
+	my $restrictedFields =
+	{
 		title    => 1,
 		karma    => 1,
 		lasttime => 1,

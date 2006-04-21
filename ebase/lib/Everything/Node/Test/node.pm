@@ -11,9 +11,10 @@ use Test::MockObject::Extends;
 
 use Scalar::Util 'reftype';
 
+local *Everything::Node::SUPER = \&UNIVERSAL::SUPER;
 sub node_class { 'Everything::Node::node' }
 
-sub startup :Test( startup => 4 )
+sub startup :Test( startup => 3 )
 {
 	my $self         = shift;
 	$self->{errors}  = [];
@@ -38,12 +39,18 @@ sub startup :Test( startup => 4 )
 
 	use_ok( $module ) or exit;
 
-	ok( $module->isa( 'Everything::Node' ),
-		"$module should extend Everything::Node" );
-
 	# now test that C<new()> works
 	can_ok( $module, 'new' );
 	isa_ok( $module->new(), $module );
+}
+
+sub test_extends :Test( 1 )
+{
+	my $self   = shift;
+	my $module = $self->node_class();
+
+	ok( $module->isa( 'Everything::Node' ),
+		"$module should extend Everything::Node" );
 }
 
 sub test_dbtables :Test( 2 )
