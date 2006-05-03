@@ -27,7 +27,7 @@ sub insert
 {
 	my ( $this, $USER ) = @_;
 
-	my $result = $this->SUPER();
+	my $result = $this->SUPER( $USER );
 
 	$this->{DB}->createNodeTable( $this->{title} ) if $result > 0;
 
@@ -119,7 +119,7 @@ Overrides the base node::nuke so we can drop the database table
 sub nuke
 {
 	my ( $this, $USER ) = @_;
-	my $result = $this->SUPER();
+	my $result = $this->SUPER( $USER );
 
 	$this->{DB}->dropNodeTable( $this->{title} ) if $result > 0;
 
