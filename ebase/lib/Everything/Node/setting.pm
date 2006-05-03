@@ -210,7 +210,7 @@ sub getNodeKeepKeys
 {
 	my ($this) = @_;
 
-	my $nodekeys = $this->SUPER();
+	my $nodekeys      = $this->SUPER();
 	$nodekeys->{vars} = 1;
 
 	return $nodekeys;
@@ -221,13 +221,13 @@ sub updateFromImport
 {
 	my ( $this, $NEWNODE, $USER ) = @_;
 
-	my $V    = $this->getVars;
-	my $NEWV = $NEWNODE->getVars;
+	my $V    = $this->getVars();
+	my $NEWV = $NEWNODE->getVars();
 
 	@$NEWV{ keys %$V } = values %$V;
 
 	$this->setVars($NEWV);
-	$this->SUPER();
+	$this->SUPER( $NEWNODE, $USER );
 }
 
 1;
