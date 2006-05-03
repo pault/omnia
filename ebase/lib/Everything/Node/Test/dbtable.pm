@@ -98,7 +98,7 @@ sub test_nuke :Test( 8 )
 	is( $args->[1], 'foo', '... named after the node' );
 }
 
-sub test_restrict_title :Test( 8 )
+sub test_restrict_title :Test( 6 )
 {
 	my $self = shift;
 	my $node = $self->{node};
