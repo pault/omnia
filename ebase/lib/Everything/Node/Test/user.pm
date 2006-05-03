@@ -10,7 +10,7 @@ use Test::More;
 
 *Everything::Node::user::SUPER = \&UNIVERSAL::SUPER;
 
-use base 'Everything::Node::Test::node';
+use base 'Everything::Node::Test::setting';
 
 sub node_class { 'Everything::Node::user' }
 
@@ -211,16 +211,5 @@ sub test_get_nodelets :Test( 3 )
 	is_deeply( $node->getNodelets( 'default' ), [ 8, 6, 1 ],
 		'... or from default group' );
 }
-
-# XXX - delete me soon
-sub test_has_vars :Test( 1 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	ok( $node->hasVars(), 'user node should have vars' );
-}
-
-# XXX - delete soon
-sub test_xml_tag :Test(+0) {}
 
 1;
