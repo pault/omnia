@@ -344,7 +344,7 @@ sub test_restrict_title :Test( 6 )
 
 	$node->{title} = 'o|o';
 	ok( ! $node->restrictTitle(), '... or a pipe' );
-	like( $self->{errors}[0][0], qr/node.+invalid characters/,
+	like( $self->{errors}[0][0], qr/name.+invalid characters/,
 		'... and should log error' );
 
 	$node->{title} = 'a good name zz9';
