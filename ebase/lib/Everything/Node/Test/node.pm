@@ -482,9 +482,9 @@ sub test_update_from_import :Test( 4 )
 	$node->updateFromImport( { foo => 1, bar => 2, baz => 3 }, 'user' );
 
 	is( $node->{foo} + $node->{baz}, 4,
-		'getNodeKeys() should merge node keys' );
-
+		'updateFromImport() should merge node keys' );
 	ok( ! exists $node->{bar}, '... but not those it should keep' );
+
 	my ( $method, $args ) = $node->next_call();
 	is( "$method @$args", "update $node user nomodify",
 		'... and should update node' );

@@ -1,7 +1,13 @@
-#!/usr/bin/perl
+#! perl
 
-use strict;
-use warnings;
+=cut
+
+use Everything::Node::Test::nodegroup;
+Everything::Node::Test::nodegroup->runtests();
+
+__END__
+
+=cut
 
 BEGIN
 {
@@ -12,7 +18,7 @@ BEGIN
 use vars qw( $AUTOLOAD $errors );
 
 use Test::MockObject;
-use Test::More tests => 180;
+use Test::More tests => 177;
 
 my $module = 'Everything::Node::nodegroup';
 use_ok( $module ) or exit;
@@ -99,20 +105,13 @@ ok( !exists $mock->{flatgroup}, '... and the "flatgroup" variable' );
 # insert()
 $mock->set_series( hasAccess => ( 0, 1 ) )->set_true('updateGroup')->clear();
 
-ok( !insert( $mock, 'user' ),
-	'insert() should return false if user cannot create node' );
-( $method, $args ) = $mock->next_call();
-is( $method, 'hasAccess', '... calling hasAccess to check' );
-is( join( '-', @$args ), "$mock-user-c", '... user create permissions' );
-
 $mock->{group} = 'foo';
-ok( insert( $mock, 'user2' ), '... should return node_id if check succeeds' );
-is( $mock->next_call(2), 'SUPER', '... calling SUPER()' );
+ok( insert( $mock, 'user2' ),
+	'insert() should return node_id if check succeeds' );
+is( $mock->next_call(), 'SUPER', '... calling SUPER()' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'updateGroup', '... calling updateGroup()' );
 is( $args->[1], 'user2', '... with user' );
-
-ok( !insert($mock), '... and should return false with no user provided' );
 
 # update()
 $mock->set_always( SUPER => 4 )->clear();
@@ -172,11 +171,9 @@ like(
 ( $method, $args ) = $mock->next_call();
 
 is( $method, 'sqlSelect', '... selecting max rank if inserting' );
-is(
-	join( '-', @$args ),
-	"$mock-MAX(rank)-gtable-gtable_id=411",
-	'... from proper table'
-);
+is( join( '-', @$args[1 .. 3] ), 'max(rank)-gtable-gtable_id=?',
+	'... from proper table' );
+is( $args->[5][0], 411, '... with proper id' );
 
 ( $method, $args ) = $mock->next_call();
 is( $method,               'sqlInsert', '... and should insert new nodes' );

@@ -90,6 +90,7 @@ lib/Everything/Node/workspace.pm
 lib/Everything/Node/Test/dbtable.pm
 lib/Everything/Node/Test/htmlcode.pm
 lib/Everything/Node/Test/node.pm
+lib/Everything/Node/Test/nodegroup.pm
 lib/Everything/Node/Test/nodetype.pm
 lib/Everything/Node/Test/setting.pm
 lib/Everything/Node/Test/user.pm

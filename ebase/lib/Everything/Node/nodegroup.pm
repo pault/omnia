@@ -21,10 +21,8 @@ use Scalar::Util 'reftype';
 
 sub construct
 {
-	my ($this) = @_;
-
-	my $group = $this->selectGroupArray();
-	$$this{group} = $group;
+	my ($this)    = @_;
+	$$this{group} = $this->selectGroupArray();
 
 	# We could call selectNodegroupFlat() here to have that info ready.
 	# However, since that info may not be needed all the time, we will
@@ -42,16 +40,15 @@ Returns an array ref of the node ids
 
 sub selectGroupArray
 {
-	my ($this) = @_;
+	my ($this)     = @_;
 	my $groupTable = $this->isGroup();
 
 	# Make sure the table exists first
-	$$this{DB}->createGroupTable($groupTable);
+	$this->{DB}->createGroupTable($groupTable);
 
 	# construct our array of node id's of the nodes in our group
-	my $cursor = $$this{DB}->sqlSelectMany(
-		'node_id', $groupTable,
-		$groupTable . "_id=$$this{node_id}",
+	my $cursor = $this->{DB}->sqlSelectMany(
+		'node_id', $groupTable, $groupTable . "_id=$$this{node_id}",
 		'ORDER BY orderby'
 	);
 	return unless $cursor;
@@ -80,15 +77,13 @@ sub insert
 {
 	my ( $this, $USER ) = @_;
 
-	return 0 unless $USER and $this->hasAccess( $USER, 'c' );
-
 	# We need to h4x0r this a bit.  node::insert clears the $this hash.
 	# This clears all fields (including our group field).  Normally,
 	# we would insert the group nodes first, but the problem is, this
 	# node has not been inserted yet, so we don't have a node id to
 	# insert them with.  So, we hold onto the group array for now.
 	my $group  = $this->{group};
-	my $return = $this->SUPER();
+	my $return = $this->SUPER( $USER );
 
 	# Now that the node has been inserted, we need to reassign our group
 	# array.
@@ -102,10 +97,9 @@ sub insert
 sub update
 {
 	my ( $this, $USER ) = @_;
-	$this->updateGroup($USER);
-	my $return = $this->SUPER();
 
-	return $return;
+	$this->updateGroup($USER);
+	return $this->SUPER( $USER );
 }
 
 sub updateFromImport
@@ -115,7 +109,7 @@ sub updateFromImport
 	$this->{group} = $NEW->{group};
 	$this->updateGroup($USER);
 
-	return $this->SUPER();
+	return $this->SUPER( $NEW, $USER );
 }
 
 =head2 C<updateGroup>
@@ -163,7 +157,7 @@ sub updateGroup
 
 	return 0 unless $USER and $this->hasAccess( $USER, 'w' );
 
-	my $group = $this->restrict_type( $this->{group} );
+	my $group    = $this->restrict_type( $this->{group} );
 
 	my %DIFF;
 	my $updated  = 0;
@@ -232,8 +226,8 @@ sub updateGroup
 
 			# Find what the current max rank of the group is.
 			my $rank =
-				$this->{DB}->sqlSelect( 'MAX(rank)', $table,
-				$table . "_id=$this->{node_id}" );
+				$this->{DB}->sqlSelect( 'max(rank)', $table,
+				$table . "_id=?", '', [ $this->{node_id} ] );
 
 			$rank ||= 0;
 
@@ -244,11 +238,10 @@ sub updateGroup
 				$this->{DB}->sqlInsert(
 					$table,
 					{
-						$table .
-							"_id" => $this->{node_id},
-						rank    => $rank,
-						node_id => $node,
-						orderby => 0,
+						$table . "_id" => $this->{node_id},
+						rank           => $rank,
+						node_id        => $node,
+						orderby        => 0,
 					}
 				);
 
