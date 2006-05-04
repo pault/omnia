@@ -9,10 +9,17 @@ use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
 
-use Scalar::Util 'reftype';
+use Scalar::Util qw( reftype blessed );
 
 local *Everything::Node::SUPER = \&UNIVERSAL::SUPER;
-sub node_class { 'Everything::Node::node' }
+
+sub node_class
+{
+	my $self =  shift;
+	my $name =  blessed( $self );
+	$name    =~ s/Test:://;
+	return $name;
+}
 
 sub startup :Test( startup => 3 )
 {

@@ -10,8 +10,6 @@ use SUPER;
 
 *Everything::Node::htmlcode::SUPER = \&UNIVERSAL::SUPER;
 
-sub node_class { 'Everything::Node::htmlcode' }
-
 sub test_dbtables :Test( 2 )
 {
 	my $self  = shift;

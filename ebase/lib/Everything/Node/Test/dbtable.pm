@@ -10,8 +10,6 @@ use Test::More;
 
 *Everything::Node::dbtable::SUPER = \&UNIVERSAL::SUPER;
 
-sub node_class { 'Everything::Node::dbtable' };
-
 sub test_insert :Test( 8 )
 {
 	my $self = shift;

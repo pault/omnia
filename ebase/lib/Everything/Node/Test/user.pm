@@ -12,8 +12,6 @@ use Test::More;
 
 use base 'Everything::Node::Test::setting';
 
-sub node_class { 'Everything::Node::user' }
-
 sub test_extends :Test( +1 )
 {
 	my $self   = shift;

@@ -10,8 +10,6 @@ use SUPER;
 # XXX - hack for now
 *Everything::Node::nodetype::SUPER = \&UNIVERSAL::SUPER;
 
-sub node_class { 'Everything::Node::nodetype' }
-
 sub startup :Test( +1 )
 {
 	my $self = shift;

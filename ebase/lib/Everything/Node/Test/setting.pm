@@ -10,8 +10,6 @@ use Test::More;
 
 *Everything::Node::setting::SUPER = \&UNIVERSAL::SUPER;
 
-sub node_class { 'Everything::Node::setting' }
-
 sub test_extends :Test( +1 )
 {
 	my $self   = shift;
