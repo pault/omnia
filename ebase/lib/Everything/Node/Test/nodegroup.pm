@@ -208,218 +208,266 @@ sub test_update_group :Test( 19 )
 		'... assigning new group to the node' );
 }
 
-1;
-__END__
-
-	# nuke()
+sub test_nuke :Test( 7 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+	
 	$node->{node_id} = 7;
-	$node->{dbh}     = $node;
 
-	$node->set_always( SUPER => 12 )->set_always( isGroup => 'table' )
-		->set_series( hasAccess => ( 1, 0 ) )->set_true('getRef')->clear();
+	$node->set_always( SUPER => 12 )
+	     ->set_always( isGroup => 'table' )
+		 ->set_true( -hasAccess );
+	$db->set_true(qw( getRef sqlDelete ));
 
-	is( nuke( $node, 'user' ), 12, 'nuke() should return result of SUPER() call' );
-	is( $node->next_call(), 'isGroup', '... should fetch group table' );
-	is( $node->next_call(), 'getRef',  '... should nodify user parameter' );
-	( $method, $args ) = $node->next_call();
-	is( $method, 'hasAccess', '... should check for access' );
-	is( join( '-', @$args ), "$node-user-d", '... user delete access' );
-	( $method, $args ) = $node->next_call();
+	is( $node->nuke( 'user' ), 12,
+		'nuke() should return result of SUPER() call' );
+
+	is( $node->next_call(), 'isGroup', '... fetching group table' );
+	is( $db->next_call(), 'getRef',  '... and nodifying user parameter' );
+
+	my ( $method, $args ) = $db->next_call();
 	is( $method, 'sqlDelete', '... and should delete the node' );
-	is( join( '-', @$args ), "$node-table-table_id=7", '... with the proper id' );
+	is( join( '-', @$args ), "$db-table-table_id=7",
+		'... with the proper id' );
 
-	is( $node->next_call(), 'SUPER', '... calling SUPER' );
-	ok( !nuke( $node, '' ), '... returning false if user cannot nuke this node' );
+	( $method, $args )    = $node->next_call();
+	is( $method, 'SUPER', '... calling SUPER' );
+	is( $args->[1], 'user', '... passing $USER' );
+}
 
-	# isGroup()
+sub test_is_group :Test( 1 )
+{
+	my $self = shift;
+	my $node = $self->{node};
 	$node->{type}{derived_grouptable} = 77;
-	is( isGroup($node), 77, 'isGroup() should return derived group table' );
+	is( $node->isGroup(), 77, 'isGroup() should return derived group table' );
+}
 
-	# inGroupFast()
+sub test_in_group_fast :Test( 4 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
 	$node->{group} = [ 1, 3, 5, 7, 17, 43 ];
-	$node->set_series( getId => 17, 44 )->set_true('groupCache')
-		->set_always( 'existsInGroupCache', 'cached?' )->clear();
+	$db->set_series( getId => 17, 44 );
+	$node->set_true('groupCache')
+		 ->set_always( 'existsInGroupCache', 'cached?' );
 
-	$result = inGroupFast( $node, 'node!' );
-	( $method, $args ) = $node->next_call();
-	is( $method,            'getId',      'inGroupFast() should find node_id' );
-	is( $args->[1],         'node!',      '... of node' );
+	my $result = $node->inGroupFast( 'node!' );
+
+	my ( $method, $args ) = $db->next_call();
+	is( $method,            'getId',   'inGroupFast() should find node_id' );
+	is( $args->[1],         'node!',   '... of node' );
 	is( $node->next_call(), 'groupCache', '... populating cache' );
-	is( $result,            'cached?',    '... returning result of cache lookup' );
+	is( $result,            'cached?', '... returning result of cache lookup' );
+}
 
-	# inGroup()
-	ok( !inGroup($node), 'inGroup() should return false if no node is provided' );
+sub test_in_group :Test( 10 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
 
-	$node->set_always( selectNodegroupFlat => 'flat' )
-		->set_always( getId => 'node_id' )->set_series( hasGroupCache => ( 0, 1 ) )
-		->set_always( existsInGroupCache => 'cached?' )->clear();
+	ok( ! $node->inGroup(),
+		'inGroup() should return false with no node provided' );
 
-	$result = inGroup( $node, 'foo' );
-	( $method, $args ) = $node->next_call();
-	is( $method, 'getId', '... should make sure it has a node_id' );
+	$node->set_always( -selectNodegroupFlat => 'flat' )
+		 ->set_series( -hasGroupCache => ( 0, 1 ) )
+		 ->set_always( existsInGroupCache => 'cached?' )
+		 ->set_true( 'groupCache' );
+	$db->set_always( getId => 'node_id' );
+
+	my $result = $node->inGroup( 'foo' );
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'getId', '... ensuring that it has a node_id' );
 	is( $args->[1], 'foo', '... with the node parameter' );
 
 	( $method, $args ) = $node->next_call();
-	is( $method, 'hasGroupCache', "... checking if there's a group cache" );
-
-	( $method, $args ) = $node->next_call();
-	is( $method, 'selectNodegroupFlat',
-		'... should call selectNodegroupFlat() to get all group members (if not)' );
-
-	( $method, $args ) = $node->next_call();
 	is( $method, 'groupCache', '... caching results' );
-	is( $args->[1], 'flat', '... with flat nodegroup' );
+	is( $args->[1], 'flat',    '... with flat nodegroup' );
 
 	( $method, $args ) = $node->next_call();
 	is( $method,    'existsInGroupCache', '... checking group cache' );
 	is( $args->[1], 'node_id',            '... with node_id' );
 	is( $result,    'cached?',            '... returning result' );
 
-	$node->clear();
-	inGroup( $node, 'bar' );
-	is( $node->next_call(3), 'existsInGroupCache',
+	$node->inGroup( 'bar' );
+	is( $node->next_call(), 'existsInGroupCache',
 		'... not rebuilding cache if it exists' );
-	ok( !inGroup(), '.... returning false if no node is provided' );
+	ok( ! $node->inGroup(), '.... returning false if no node is provided' );
+}
 
-	# selectNodegroupFlat()
+sub test_select_nodegroup_flat :Test( 10 )
+{
+	my $self       = shift;
+	my $node       = $self->{node};
+	my $db         = $self->{mock_db};
+	my $group_node = Test::MockObject->new();
+
 	$node->{flatgroup} = 17;
-	is( selectNodegroupFlat($node),
-		17, 'selectNodegroupFlat() should return cached group, if it exists' );
+	is( $node->selectNodegroupFlat(), 17,
+		'selectNodegroupFlat() should return cached group, if it exists' );
+
 	delete $node->{flatgroup};
 
+	$node->{node_id} = 7;
 	my $traversed = { $node->{node_id} => 1, };
-	is( selectNodegroupFlat( $node, $traversed ),
-		undef, '... or false if it has seen this node before' );
+	is( $node->selectNodegroupFlat( $traversed ), undef,
+		'... or false if it has seen this node before' );
 
 	$traversed = {};
-	$node->set_series( getNode => ( $node, undef, $node ) )
-		->set_series( isGroup => ( 1, 0 ) )
-		->set_always( selectNodegroupFlat => [ 4, 5 ] )->clear();
+	$db->set_series( getNode => ( $group_node, undef, $group_node ) );
+	$group_node->set_always( selectNodegroupFlat => [ 4, 5 ] )
+	           ->set_series( isGroup => ( 1, 0 ) );
 
 	$node->{group} = [ 1, 2 ];
 
-	$result = selectNodegroupFlat( $node, $traversed );
-	ok(
-		exists $traversed->{ $node->{node_id} },
-		'... should mark this node as seen'
-	);
+	my $result = $node->selectNodegroupFlat( $traversed );
+	ok( exists $traversed->{ $node->{node_id} },
+		'... marking this node as seen' );
 
-	( $method, $args ) = $node->next_call();
-	is( $method,            'getNode', '... should fetch each node in group' );
+	my ( $method, $args ) = $db->next_call();
+	is( $method,            'getNode', '... fetching each node in group' );
 	is( $args->[1],         1,         '... by node_id' );
-	is( $node->next_call(), 'isGroup', '... checking if node is a group node' );
+	is( $group_node->next_call(), 'isGroup',
+		'... checking if node is a group node' );
 
-	( $method, $args ) = $node->next_call();
+	( $method, $args ) = $group_node->next_call();
 	is( $method, 'selectNodegroupFlat', '... fetching group nodes' );
 	is( $args->[1], $traversed, '... passing traversed hash' );
 	is( join( ' ', @$result ), '4 5', '... returning list of contained nodes' );
-	is( $node->{flatgroup}, $result, '... and should cache group' );
+	is( $node->{flatgroup}, $result, '... and caching group' );
+}
 
-	# insertIntoGroup()
-	ok( !insertIntoGroup($node),
-		'insertIntoGroup() should return false unless a user is provided' );
-	ok( !insertIntoGroup( $node, 1 ), '... or if no insertables are provided' );
+sub test_insert_into_group :Test( 11 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
 
-	$node->set_series( hasAccess => ( 0, 1, 1 ) );
-	ok(
-		!insertIntoGroup( $node, 'user', 1 ),
-		'... or if user does not have write access'
-	);
+	$node->{group} = [ 1, 2 ];
+	$node->set_true( 'groupUncache' );
 
-	( $method, $args ) = $node->next_call(2);
-	is( $method, 'hasAccess', '... so it should check access' );
-	is( join( '-', @$args ), "$node-user-w", '... write access for user' );
+	ok( ! $node->insertIntoGroup(),
+		'insertIntoGroup() should return false without a user' );
+	ok( ! $node->insertIntoGroup( 1 ), '... or with no insertables' );
 
-	$node->set_series( restrict_type => ( [ 1 .. 3 ], [4] ) )
-		->set_series( getId => 3, 2, 1, 4 )->clear();
+	$node->set_series( -hasAccess => ( 0, 1, 1 ) );
+	ok( ! $node->insertIntoGroup( 'user', 1 ),
+		'... or if user lacks write access' );
 
-	insertIntoGroup( $node, 'user', 1, 1 );
-	( $method, $args ) = $node->next_call(2);
+	$node->set_series( restrict_type => ( [ 1 .. 3 ], [4] ) );
+	$db->set_series( getId => 3, 2, 1, 4 );
 
-	is( $method, 'restrict_type', '... checking for type restriction on group' );
+	$node->insertIntoGroup( 'user', 1, 1 );
+	my ( $method, $args ) = $node->next_call();
+
+	is( $method, 'restrict_type', '... checking for group type restriction' );
 	isa_ok( $args->[1], 'ARRAY',
 		'... allowing an insertion refs that is scalar or' );
 
 	my $count;
-	while ( $method = $node->next_call() )
+	while ( $method = $db->next_call() )
 	{
 		$count++ if $method eq 'getId';
 	}
 
-	is( $count, 3, '... should get node id of insertion' );
+	is( $count, 3, '... getting node id of insertion' );
 	is( join( ' ', @{ $node->{group} } ),
-		'1 3 2 1 2', '... should update "group" field' );
-	ok( !exists $node->{flatgroup}, '... and delete "flatgroup" field' );
-	ok( insertIntoGroup( $node, 'user', 1 ), '... should return true on success' );
-	is( join( ' ', @{ $node->{group} } ),
-		'1 3 2 1 2 4', '... appending new nodes if no position is given' );
+		'1 3 2 1 2', '... updating "group" field' );
+	ok( ! exists $node->{flatgroup}, '... and deleting "flatgroup" field' );
+	ok( $node->insertIntoGroup( 'user', 1 ), '... returning true on success' );
+	is( join( ' ', @{ $node->{group} } ), '1 3 2 1 2 4',
+		'... appending new nodes with no position given' );
+	is( $node->next_call(), 'groupUncache', '... and clearing cache' );
+}
 
-	# removeFromGroup()
-	ok( !removeFromGroup($node),
-		'removeFromGroup() should return false unless a user is provided' );
-	ok( !removeFromGroup( $node, 'user' ),
-		'... or if no insertables are provided' );
+sub test_remove_from_group :Test( 7 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
 
-	$node->set_series( hasAccess => ( 0, 1 ) )->clear();
+	ok( ! $node->removeFromGroup(),
+		'removeFromGroup() should return false without a user' );
+	ok( ! $node->removeFromGroup( 'user' ), '... or without insertables' );
 
-	ok(
-		!removeFromGroup( $node, 6, 'user' ),
-		'... or if user does not have write access'
-	);
-	( $method, $args ) = $node->next_call();
-	is( $method, 'hasAccess', '... checking for access' );
-	is( join( '-', @$args ), "$node-user-w", '... write access for user' );
+	$node->set_series( -hasAccess => 0, 1 )
+		 ->set_true( 'groupUncache' );
 
-	$node->set_always( hasAccess => (1) )->set_always( getId => (6) )->clear();
+	ok( ! $node->removeFromGroup( 6, 'user' ),
+		'... or if user lacks write access' );
 
-	$node->{_calls} = [];
+	$db->set_always( getId => 6 );
+
 	$node->{group}  = [ 3, 6, 9, 12 ];
 
-	$result = removeFromGroup( $node, 6, 'user' );
-	( $method, $args ) = $node->next_call(2);
-	is( $method, 'getId', '... should get node_id' );
-	is( $args->[1], 6, '... of removable node' );
+	my $result = $node->removeFromGroup( 6, 'user' );
 
-	is( join( ' ', @{ $node->{group} } ),
-		'3 9 12', '... should assign new "group" field without removed node' );
-	ok( $result, '... should return true on success' );
-	ok( !exists $node->{flatgroup}, '... deleting the cached flat group' );
+	is( join( ' ', @{ $node->{group} } ), '3 9 12',
+		'... assign new "group" field without removed node' );
+	ok( $result, '... returning true on success' );
+	ok( ! exists $node->{flatgroup}, '... deleting the cached flat group' );
 	is( $node->next_call(), 'groupUncache', '... and uncaching group' );
+}
 
-	# replaceGroup()
-	$node->set_series( isGroup => ( '', 'table' ) )->set_series( hasAccess => 0, 1 )
-		->set_always( restrict_type => 'abc' )->clear();
+sub test_replace_group :Test( 8 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
 
-	$result = replaceGroup( $node, 'replace', 'user' );
+	$node->set_series( isGroup => ( '', 'table' ) )
+	     ->set_series( -hasAccess => 0, 1 )
+		 ->set_always( restrict_type => 'abc' )
+		 ->set_true( 'groupUncache' );
 
-	is( $node->next_call(), 'isGroup', 'replaceGroup() should fetch group table' );
-	ok( !$result, '... should return false if user does not have write access' );
-	( $method, $args ) = $node->next_call();
-	is( $method, 'hasAccess', '... checking for access' );
-	is( join( '-', @$args ), "$node-user-w", '... write access for user' );
+	my $result = $node->replaceGroup( 'replace', 'user' );
+
+	is( $node->next_call(), 'isGroup',
+		'replaceGroup() should fetch group table' );
+	ok( ! $result, '... returning false unless user has write access' );
 
 	$node->{group} = $node->{flatgroup} = 123;
-	$result = replaceGroup( $node, 'replace', 'user' );
+	$result = $node->replaceGroup( 'replace', 'user' );
 
-	( $method, $args ) = $node->next_call(3);
+	my ( $method, $args ) = $node->next_call(2);
 	is( $method, 'restrict_type', '... restricting types of new group' );
-	isa_ok( $args->[1], 'ARRAY', '... constraining argument to something that ' );
+	isa_ok( $args->[1], 'ARRAY',
+		'... constraining argument to something that ' );
 	is( $node->{group}, 'abc',
-		'... should replace existing "group" field with new group' );
-	ok( !exists $node->{flatgroup}, '... and should delete any "flatgroup" field' );
+		'... replacing existing "group" field with new group' );
+	ok( !exists $node->{flatgroup}, '... and deleting any "flatgroup" field' );
 	is( $node->next_call(), 'groupUncache', '... uncaching group' );
-	ok( $result, '... should return true on success' );
+	ok( $result, '... returning true on success' );
+}
 
-	# getNodeKeys()
-	$node->set_series( SUPER => { foo => 1 }, { foo => 2 } )->clear();
+sub test_get_node_keys :Test( 5 )
+{
+	my $self = shift;
+	my $node = $self->{node};
 
-	$result = getNodeKeys( $node, 1 );
-	is( $node->next_call(), 'SUPER',
+	$node->set_series( SUPER => { foo => 1 }, { foo => 2 } );
+
+	my $result = $node->getNodeKeys( 1 );
+	my ($method, $args) = $node->next_call();
+
+	is( $method, 'SUPER',
 		'getNodeKeys() should call SUPER() to get parent type keys' );
+	is( $args->[1], 1, '... passing export flag' );
+
 	isa_ok( $result, 'HASH', '... should return a hash reference of keys' );
+
 	ok( exists $result->{group},
 		'... including a group key if the forExport flag is set' );
-	ok( !exists getNodeKeys($node)->{group}, '... excluding it otherwise' );
+	ok( !exists $node->getNodeKeys()->{group}, '... excluding it otherwise' );
+}
+
+1;
+__END__
 
 	# fieldToXML()
 	$node->set_series( SUPER => ( 5, 6, 7 ) )->set_true('appendChild')->clear();

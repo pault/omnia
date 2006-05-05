@@ -330,7 +330,7 @@ sub nuke
 	$$this{DB}->sqlDelete( $table, $table . "_id=$this->{node_id}" );
 
 	# Now go delete the node!
-	$this->SUPER();
+	$this->SUPER( $USER );
 }
 
 sub isGroup
@@ -558,12 +558,7 @@ sub removeFromGroup
 	my $group   = $this->{group};
 
 	# manipulate group in place for a speed boost
-	my $pos = -1;
-	while ( $pos < $#{$group} )
-	{
-		$pos++, next unless $group->[$pos] == $node_id;
-		splice( @$group, $pos, 1 );
-	}
+	$this->{group} = [ grep { $_ != $node_id } @$group ];
 
 	# If a flatgroup exists, it is no longer valid.
 	delete $this->{flatgroup};
@@ -624,11 +619,10 @@ sub replaceGroup
 sub getNodeKeys
 {
 	my ( $this, $forExport ) = @_;
-	my $keys = $this->SUPER();
+	my $keys                 = $this->SUPER( $forExport );
 
 	if ($forExport)
 	{
-
 		# Groups are special.  There is one field that we do want to
 		# include for export... the group field that is generated
 		# when the group node is constructed.
