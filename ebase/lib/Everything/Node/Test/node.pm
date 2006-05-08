@@ -450,13 +450,14 @@ sub test_xml_tag :Test( 9 )
 		return $parse;
 	};
 
-	$node->set_series( getTagName => 'field', 'morefield' );
+	$node->set_always( getTagName => 'field' );
 	$result = $node->xmlTag( $node );
 	is( join( ' ', @{ $pbt[0] } ), "$node node", '... should parse tag' );
 	is( $result, undef, '... should return false with no fixes' );
 	is( $node->{parsed}, 11, '... and should set node field to tag value' );
 
 	$parse->{where} = 1;
+	$node->set_always( getTagName => 'morefield' );
 	$result = $node->xmlTag( $node );
 	isa_ok( $result, 'ARRAY', '... should return array ref if fixes exist' );
 	is( $result->[0], $parse, '... with the fix in the array ref' );

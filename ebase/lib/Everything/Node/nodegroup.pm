@@ -71,6 +71,8 @@ sub destruct
 
 	delete $this->{group};
 	delete $this->{flatgroup};
+
+	1;
 }
 
 sub insert
@@ -659,74 +661,62 @@ sub fieldToXML
 {
 	my ( $this, $DOC, $field, $indent ) = @_;
 
-	if ( $field eq 'group' )
+	return $this->SUPER( $DOC, $field, $indent ) unless $field eq 'group';
+
+	my $GROUP       = XML::DOM::Element->new( $DOC, 'group' );
+	my $indentself  = "\n" . $indent;
+	my $indentchild = $indentself . "  ";
+
+	for my $member ( @{ $this->{group} } )
 	{
-		my $GROUP       = XML::DOM::Element->new( $DOC, 'group' );
-		my $indentself  = "\n" . $indent;
-		my $indentchild = $indentself . "  ";
+		$GROUP->appendChild( XML::DOM::Text->new( $DOC, $indentchild ) );
 
-		foreach my $member ( @{ $this->{group} } )
-		{
-			$GROUP->appendChild( XML::DOM::Text->new( $DOC, $indentchild ) );
-
-			my $tag = genBasicTag( $DOC, 'member', 'group_node', $member );
-			$GROUP->appendChild($tag);
-		}
-
-		$GROUP->appendChild( XML::DOM::Text->new( $DOC, $indentself ) );
-
-		return $GROUP;
+		my $tag = genBasicTag( $DOC, 'member', 'group_node', $member );
+		$GROUP->appendChild($tag);
 	}
-	else
-	{
-		return $this->SUPER();
-	}
+
+	$GROUP->appendChild( XML::DOM::Text->new( $DOC, $indentself ) );
+
+	return $GROUP;
 }
 
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
-	my $tagname = $TAG->getTagName();
+	my $tagname        = $TAG->getTagName();
 
-	if ( $tagname eq 'group' )
+	return $this->SUPER( $TAG ) unless $tagname eq 'group';
+
+	my @fixes;
+	my @childFields = $TAG->getChildNodes();
+	my $orderby     = 0;
+
+	for my $child (@childFields)
 	{
-		my @fixes;
-		my @childFields = $TAG->getChildNodes();
-		my $orderby     = 0;
+		next if $child->getNodeType() == XML::DOM::TEXT_NODE();
 
-		foreach my $child (@childFields)
+		my $PARSE = Everything::XML::parseBasicTag( $child, 'nodegroup' );
+
+		if ( exists $PARSE->{where} )
 		{
-			next if $child->getNodeType() == XML::DOM::TEXT_NODE();
+			$PARSE->{orderby} = $orderby;
+			$PARSE->{fixBy}   = 'nodegroup';
 
-			my $PARSE = Everything::XML::parseBasicTag( $child, 'nodegroup' );
+			# The where contains our fix
+			push @fixes, $PARSE;
 
-			if ( exists $PARSE->{where} )
-			{
-				$PARSE->{orderby} = $orderby;
-				$PARSE->{fixBy}   = 'nodegroup';
-
-				# The where contains our fix
-				push @fixes, $PARSE;
-
-				# Insert a dummy node into the group which we can later fix.
-				$this->insertIntoGroup( -1, -1, $orderby );
-			}
-			else
-			{
-				$this->insertIntoGroup( -1, $PARSE->{ $PARSE->{name} },
-					$orderby );
-			}
-
-			$orderby++;
+			# Insert a dummy node into the group which we can later fix.
+			$this->insertIntoGroup( -1, -1, $orderby );
+		}
+		else
+		{
+			$this->insertIntoGroup( -1, $PARSE->{ $PARSE->{name} }, $orderby );
 		}
 
-		return \@fixes if @fixes;
-	}
-	else
-	{
-		return $this->SUPER();
+		$orderby++;
 	}
 
+	return \@fixes if @fixes;
 	return;
 }
 
@@ -757,7 +747,8 @@ sub applyXMLFix
 {
 	my ( $this, $FIX, $printError ) = @_;
 
-	return $this->SUPER() unless $FIX->{fixBy} eq 'nodegroup';
+	return $this->SUPER( $FIX, $printError )
+		unless defined $FIX->{fixBy} and $FIX->{fixBy} eq 'nodegroup';
 
 	my $where = Everything::XML::patchXMLwhere( $FIX->{where} );
 	my $TYPE  = $where->{type_nodetype};
@@ -774,10 +765,8 @@ sub applyXMLFix
 		return $FIX;
 	}
 
-	my $group = $this->{group};
-
 	# Patch our group array with the now found node id!
-	$group->[ $FIX->{orderby} ] = $NODE->{node_id};
+	$this->{group}[ $FIX->{orderby} ] = $NODE->{node_id};
 
 	return;
 }
@@ -811,11 +800,10 @@ Returns the newly cloned node, if successful.  undef otherwise.
 
 sub clone
 {
-	my $this = shift;
+	my ($this, $USER) = @_;
 
 	# we need $USER for Everything::Node::node::clone() _and_ insertIntoGroup
-	my ($USER) = @_;
-	my $NODE = $this->SUPER(@_);
+	my $NODE = $this->SUPER( $USER );
 	return unless defined $NODE;
 
 	$NODE->insertIntoGroup( $USER, $this->{group} ) if exists $this->{group};
@@ -851,14 +839,14 @@ sub restrict_type
 	my $restricted_type;
 
 	# anything is allowed without a valid restriction
-	my $nodetype = getNode( $this->{type_nodetype} );
+	my $nodetype = $this->{DB}->getNode( $this->{type_nodetype} );
 	return $groupref unless $restricted_type = $nodetype->{restrict_nodetype};
 
 	my @cleaned;
 
-	foreach my $group (@$groupref)
+	for my $group (@$groupref)
 	{
-		my $node = getNode($group);
+		my $node = $this->{DB}->getNode($group);
 
 		# check if the member matches directly
 		if ( $node->{type_nodetype} == $restricted_type )
@@ -899,7 +887,7 @@ sub conflictsWith
 		return 1 unless $new->[$pos] == $old->[$pos];
 	}
 
-	$this->SUPER();
+	return $this->SUPER( $NEWNODE );
 }
 
 #############################################################################

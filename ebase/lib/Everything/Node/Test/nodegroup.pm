@@ -466,15 +466,21 @@ sub test_get_node_keys :Test( 5 )
 	ok( !exists $node->getNodeKeys()->{group}, '... excluding it otherwise' );
 }
 
-1;
-__END__
+sub test_field_to_XML :Test( +8 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$self->SUPER();
 
-	# fieldToXML()
-	$node->set_series( SUPER => ( 5, 6, 7 ) )->set_true('appendChild')->clear();
+	$node->set_series( SUPER => ( 5, 6, 7 ) )
+		 ->set_true('appendChild');
 
-	$result = fieldToXML( $node, '', '' );
-	is( $node->next_call(), 'SUPER',
-		'fieldToXML() should just call SUPER() if not handling a group field' );
+	my $result          = $node->fieldToXML( 'doc', 'field', 0 );
+	my ($method, $args) = $node->next_call();
+
+	is( $method, 'SUPER',
+		'fieldToXML() should call SUPER() unless handling a group field' );
+	is( join( '-', @$args ), "$node-doc-field-0", '... passing args' );
 
 	is( $result, 5, '... returning the results' );
 	{
@@ -497,14 +503,10 @@ __END__
 		};
 
 		$node->{group} = [ 3, 4, 5 ];
-		$node->clear();
-		$result = fieldToXML( $node, 'doc', 'group', "\r" );
+		$result = $node->fieldToXML( 'doc', 'group', "\r" );
 
-		is(
-			join( ' ', @{ $xd[0] } ),
-			'XML::DOM::Element doc group',
-			'... otherwise, it should create a new DOM group element'
-		);
+		is( join( ' ', @{ $xd[0] } ), 'XML::DOM::Element doc group',
+			'... otherwise, it should create a new DOM group element' );
 
 		my $count;
 		for ( 1 .. 6 )
@@ -520,27 +522,40 @@ __END__
 		is( $result, $node, '... and should return the new element' );
 	}
 
-	# xmlTag()
+}
+
+sub test_xml_tag :Test( +12 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
+	$node->set_always( -getTagName => '' );
+	$self->SUPER();
+
 	my $gcn;
 	$node->set_always( SUPER => 8 )
 		->set_series( getTagName  => '', 'group', 'group' )
-		->set_series( getNodeType => 1,  2,       3 )->set_true('insertIntoGroup')
+		->set_series( getNodeType => 1,  2, 3 )
+		->set_true( 'insertIntoGroup' )
 		->clear();
 
-	$result = xmlTag( $node, $node );
+	my $result = $node->xmlTag( $node );
 	is( $node->next_call(), 'getTagName', 'xmlTag() should get the tag name' );
-	is( $node->next_call(), 'SUPER',
-		'... calling SUPER() if it is not a group tag' );
-	is( $result, 8, '... returning the results' );
 
-	$node->clear();
+	my ($method, $args) = $node->next_call();
+	is( $method, 'SUPER',  '... calling SUPER() unless it is a group tag' );
+	is( $args->[1], $node, '... passing the tag' );
+	is( $result, 8,        '... and returning the results' );
 
 	{
 		local *XML::DOM::TEXT_NODE;
 		*XML::DOM::TEXT_NODE = sub { 3 };
 
-		$node->node( getChildNodes => sub { return if $gcn++; return ($node) x 3 }
-		);
+		$node->mock( getChildNodes => sub
+		{
+			return if $gcn++;
+			return ($node) x 3;
+		});
 		local *Everything::XML::parseBasicTag;
 
 		my @parses = (
@@ -550,10 +565,8 @@ __END__
 				me   => 'node',
 			}
 		);
-		*Everything::XML::parseBasicTag = sub {
-			return shift @parses;
-		};
-		$result = xmlTag( $node, $node );
+		*Everything::XML::parseBasicTag = sub { return shift @parses };
+		$result = $node->xmlTag( $node );
 
 		is( $gcn, 1, '... but if it is, should get the child nodes' );
 		isa_ok( $result, 'ARRAY',
@@ -565,25 +578,38 @@ __END__
 			push @inserts, $args if $method eq 'insertIntoGroup';
 		}
 
-		is( scalar @inserts, 2, '... and should skip text nodes' );
-		is( $result->[0]{fixBy}, 'nodegroup', '... should parse nodegroup nodes' );
+		is( @inserts, 2, '... and should skip text nodes' );
+		is( $result->[0]{fixBy}, 'nodegroup', '... parsing nodegroup nodes' );
 		is( join( ' ', map { $_->[3] } @inserts ),
 			'0 1', '... inserting each into the nodegroup in order' );
 		is( join( '|', @{ $inserts[0] } ),
-			"$node|-1|-1|0", '... as a dummy node if a where clause is provided' );
+			"$node|-1|-1|0", '... as a dummy node, given a where clause' );
 		is( join( '|', @{ $inserts[1] } ),
-			"$node|-1|node|1", '... or by name if a name is provided' );
+			"$node|-1|node|1", '... or by name, given a name' );
 
-		ok( !xmlTag( $node, $node ), '... should return nothing with no fixups' );
+		ok( ! $node->xmlTag( $node ), '... returning nothing with no fixups' );
 	}
+}
 
-	# applyXMLFix()
-	$node->set_always( SUPER => 14 )->clear();
+sub test_apply_xml_fix :Test( +10 )
+{
+	my $self       = shift;
+	my $node       = $self->{node};
+	my $db         = $self->{mock_db};
 
-	my $fix = { fixBy => 'foo' };
-	$result = applyXMLFix( $node, $fix );
-	is( $node->next_call(), 'SUPER',
+	$self->SUPER();
+
+	$node->{group} = [];
+
+	$node->set_always( SUPER => 14 );
+
+	my $fix             = { fixBy => 'foo' };
+	my $result          = $node->applyXMLFix( $fix, 'pE' );
+	my ($method, $args) = $node->next_call();
+
+	is( $method, 'SUPER',
 		'applyXMLFix() should call SUPER() unless handling a nodegroup node' );
+	is( join( '-', @$args ), "$node-$fix-pE", '... passing arguments' );
 	is( $result, 14, '... returning its results' );
 
 	{
@@ -592,132 +618,165 @@ __END__
 		my $pxw;
 		*Everything::XML::patchXMLwhere = sub {
 			$pxw++;
-			return {
+			return
+			{
 				title         => 'title',
 				field         => 'field',
 				type_nodetype => 'type',
 			};
 		};
 
-		$node->set_series( getNode => { node_id => 111 }, 0, 0 );
+		$db->set_series( getNode => { node_id => 111 }, 0, 0 );
 
-		$fix = {
+		$fix =
+		{
 			fixBy   => 'nodegroup',
 			orderby => 1,
 		};
 
-		$result = applyXMLFix( $node, $fix );
-		ok( $pxw, '... should call patchXMLwhere() to get the right node data' );
-		( $method, $args ) = $node->next_call();
+		$result = $node->applyXMLFix( $fix );
+		ok( $pxw, '... calling patchXMLwhere() to get the right node data' );
+		( $method, $args ) = $db->next_call();
 		is( $method, 'getNode', '... attemping to get the node' );
 		is( $args->[1]{type_nodetype}, 'type', '... with the where hashref' );
-		is( $node->{group}[1],
-			111, '... replacing dummy node with fixed node on success' );
+		is( $node->{group}[1], 111,
+			'... replacing dummy node with fixed node on success' );
 
 		$node->{title} = 'title';
 		$node->{type}  = { title => 'typetitle' };
 
-		$result = applyXMLFix( $node, $fix, 1 );
-		like(
-			$errors,
-			qr/Unable to find 'title' of type/,
-			'... should warn about missing node if error flag is set'
-		);
+		$self->{errors} = [];
+		$result = $node->applyXMLFix( $fix, 1 );
+		like( $self->{errors}[0][1], qr/Unable to find 'title' of type/,
+			'... warning about missing node if error flag is set' );
 
-		$errors = '';
-		$result = applyXMLFix( $node, $fix );
-		is( $errors, '', '... but should not warn without flag' );
+		$self->{errors} = [];
+		$result = $node->applyXMLFix( $fix );
+		is( @{ $self->{errors} }, 0, '... but not warning without flag' );
 
-		isa_ok( $result, 'HASH', '... should return fixup data if it failed' );
+		isa_ok( $result, 'HASH', '... returning fixup data if it failed' );
 	}
+}
 
-	# clone()
-	$node->set_series( SUPER => undef, ($node) x 2 )->set_true('update')->clear();
+sub test_clone :Test( 9 )
+{
+	my $self = shift;
+	my $node = $self->{node};
 
-	$result = clone( $node, 'user' );
-	( $method, $args ) = $node->next_call();
+	$node->set_series( SUPER => undef, ($node) x 2 )
+	      ->set_true(qw( update insertIntoGroup ));
+
+	my $result            = $node->clone( 'user' );
+	my ( $method, $args ) = $node->next_call();
 	is( $method, 'SUPER', 'clone() should call SUPER()' );
 	is( $args->[1], 'user', '... with the user' );
 	ok( !$result, '... and should return false unless that succeeded' );
 
 	$node->{group} = 'group';
-	$result = clone( $node, 'user' );
+	$result = $node->clone( 'user' );
 	is( $result, $node, '... or the new node if it succeeded' );
+
 	( $method, $args ) = $node->next_call(2);
-	is( $method, 'insertIntoGroup', '... inserting the group into the new node' );
+	is( $method, 'insertIntoGroup',
+		'... inserting the group into the new node' );
 	is( join( '-', @$args ), "$node-user-group",
 		'... with the user and the group' );
+
 	( $method, $args ) = $node->next_call();
 	is( $method, 'update', '... updating the node' );
 	is( $args->[1], 'user', '... with the user' );
 
 	delete $node->{group};
-	$node->{_calls} = [];
-	isnt( $node->{_calls}[1],
-		'insertIntoGroup',
+
+	$node->clone( 'user' );
+
+	isnt( $node->next_call( 2 ), 'insertIntoGroup',
 		'... but should avoid insert without a group in the parent' );
+}
 
-	# restrict_type()
+sub test_restrict_type :Test( 7 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	my $db   = $self->{mock_db};
+
+	my @nodes = ( 0, 1, 2, 1 );
+	$db->mock( getNode => sub
 	{
-		local *Everything::Node::nodegroup::getNode;
+		my $nodenum = shift @nodes;
+		return $nodenum
+			? { restrict_nodetype => $nodenum, type_nodetype => $nodenum }
+			: { type => { restrict_nodetype => 1 }, type_nodetype => 0 };
+	});
 
-		my @nodes = ( 0, 1, 2, 1 );
-		my @calls;
-		*Everything::Node::nodegroup::getNode = sub {
-			push @calls, [@_];
-			my $nodenum = shift @nodes;
-			return $nodenum
-				? { restrict_nodetype => $nodenum, type_nodetype => $nodenum }
-				: { type => { restrict_nodetype => 1 }, type_nodetype => 0 };
-		};
+	$node->{type_nodetype} = 6;
+	my $result = $node->restrict_type( 'group' );
 
-		$node->{type_nodetype} = 6;
-		$result = restrict_type( $node, 'group' );
+	my ($method, $args) = $db->next_call();
+	is( $method, 'getNode',
+		'restrict_type() should get the appropriate nodetype' );
+	is( $args->[1], 6, '... by node_id' );
+	is( $result, 'group',
+		'... returning group unchanged if there is no restriction' );
 
-		is( $calls[0][0], 6,
-			'restrict_type() should get the appropriate nodetype' );
-		is( $result, 'group',
-			'... and should return group unchanged if there is no restriction' );
+	$result   = $node->restrict_type( [ 1 .. 4 ] );
+	my $count = () = grep
+	{
+		my $call = $db->next_call() || '';
+		$call eq 'getNode'
+	} 1 .. 7;
 
-		$result = restrict_type( $node, [ 1 .. 4 ] );
-		is( scalar @calls, 6, '... should get each node in group reference' );
+	is( $count, 5, '... fetching each node in group reference' );
 
-		isa_ok( $result, 'ARRAY',
-			'... returning an array reference of proper nodes' );
+	isa_ok( $result, 'ARRAY',
+		'... returning an array reference of proper nodes' );
 
-		is( scalar @$result,
-			3, '... and should save nodes that are of the proper type' );
-		is( $result->[2], 4,
-			'... or group nodes that can contain the proper type' );
-	}
+	is( @$result, 3, '... saving nodes of the proper type' );
+	is( $result->[2], 4,
+		'... or group nodes that can contain the proper type' );
+}
 
-	# getNodeKeepKeys()
-	$node->set_series( SUPER => { keep => 1, me => 1 } )->clear();
+sub test_get_node_keep_keys :Test( +4 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+	$self->SUPER();
 
-	$result = getNodeKeepKeys($node);
+	$node->set_series( SUPER => { keep => 1, me => 1 } );
+
+	my $result = $node->getNodeKeepKeys();
 	is( $node->next_call(), 'SUPER', 'getNodeKeepKeys() should call SUPER()' );
 	isa_ok( $result, 'HASH', '... returning something that' );
-	is( scalar keys %$result, 3, '... containing keys from SUPER() and an extra' );
+	is( keys %$result, 3, '... containing keys from SUPER() and an extra' );
 	ok( $result->{group}, '... and one key should be "group"' );
+}
 
-	# conflictsWith()
+sub test_conflicts_with :Test( 6 )
+{
+	my $self = shift;
+	my $node = $self->{node};
+
 	$node->{modified} = '';
-	ok( !conflictsWith($node),
-		'conflictsWith() should return false with no number in "modified" field' );
+	ok( !$node->conflictsWith(),
+		'conflictsWith() should return false lacking "modified" field num' );
 
 	$node->{modified} = 7;
 	$node->{group}    = [ 1, 4, 6, 8 ];
 
-	$node->set_always( SUPER => 11 )->clear();
+	$node->set_always( SUPER => 11 );
 
 	my $group = { group => [ 1, 4, 6 ] };
-	is( conflictsWith( $node, $group ),
-		1, '... should return true if groups are different sizes' );
+	is( $node->conflictsWith( $group ), 1,
+		'... returing true if groups are different sizes' );
 
 	push @{ $group->{group} }, 9;
-	is( conflictsWith( $node, $group ),
-		1, '... should return true if a node conflicts between the two nodes' );
+	is( $node->conflictsWith( $group ), 1,
+		'... returning true if a node conflicts between the two nodes' );
 
-	$result = conflictsWith( $node, $node );
-	is( $node->next_call(), 'SUPER', '... calling SUPER() if that succeeds' );
+	my $result = $node->conflictsWith( $node );
+	my ($method, $args) = $node->next_call();
+	is( $method, 'SUPER',  '... calling SUPER() if that succeeds' );
+	is( $args->[1], $node, '... passing new node' );
+
 	is( $result, 11, '... returning the result' );
+}
