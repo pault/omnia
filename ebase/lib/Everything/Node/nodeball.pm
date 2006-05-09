@@ -37,9 +37,8 @@ Override the default insert to have the nodeball created with some defaults.
 sub insert
 {
 	my ( $this, $USER ) = @_;
-	$this->{vars} ||= '';
-
-	my $VARS = $this->getVars();
+	$this->{vars}     ||= '';
+	my $VARS            = $this->getVars();
 
 	# If the node was not inserted with some vars, we need to set some.
 	unless ($VARS)
@@ -59,7 +58,7 @@ sub insert
 		$this->setVars( $VARS, $USER );
 	}
 
-	my $insert_id = $this->SUPER();
+	my $insert_id = $this->SUPER( $USER );
 	return $insert_id if $insert_id;
 
 	Everything::logErrors("Got bad insert id: $insert_id!");
@@ -97,20 +96,20 @@ sub fieldToXML
 	return Everything::Node::setting::fieldToXML( $this, $DOC, $field, $indent )
 		if $field eq 'vars';
 
-	return $this->SUPER();
+	return $this->SUPER( $DOC, $field, $indent );
 }
 
 sub xmlTag
 {
 	my ( $this, $TAG ) = @_;
-	my $tagname = $TAG->getTagName();
+	my $tagname        = $TAG->getTagName();
 
 	# Since we derive from nodegroup, but also have some setting type
 	# functionality, we need to use the setting stuff here.
 	return Everything::Node::setting::xmlTag( $this, $TAG )
 		if $tagname =~ /vars/i;
 
-	return $this->SUPER();
+	return $this->SUPER( $TAG );
 }
 
 sub applyXMLFix
@@ -120,7 +119,7 @@ sub applyXMLFix
 	return Everything::Node::setting::applyXMLFix( $this, $FIX, $printError )
 		if $FIX->{fixBy} eq 'setting';
 
-	return $this->SUPER();
+	return $this->SUPER( $FIX, $printError );
 }
 
 1;
