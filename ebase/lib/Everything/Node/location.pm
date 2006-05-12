@@ -23,9 +23,9 @@ location to the parent location.
 sub nuke
 {
 	my ( $this, $USER ) = @_;
-	my $id        = $$this{node_id};
-	my $parentLoc = $$this{loc_location};
-	my $result    = $this->SUPER();
+	my $id              = $this->{node_id};
+	my $parentLoc       = $this->{loc_location};
+	my $result          = $this->SUPER( $USER );
 
 	if ( $result > 0 )
 	{
@@ -33,7 +33,7 @@ sub nuke
 		# Set all the nodes that were in this location to be in the
 		# parent location... deleting a location does not delete all
 		# the nodes inside of it.
-		$$this{DB}->sqlUpdate( "node", { loc_location => $parentLoc },
+		$this->{DB}->sqlUpdate( "node", { loc_location => $parentLoc },
 			"loc_location=$id" );
 	}
 
@@ -97,16 +97,16 @@ sub listNodesWhere
 	my ( $this, $where, $order, $full ) = @_;
 	$where ||= '';
 	$order ||= "order by title";
-	$where .= " loc_location='$$this{node_id}'";
+	$where .= " loc_location='$this->{node_id}'";
 
 	my @nodes;
 
 	if ( my $csr =
-		$$this{DB}->sqlSelectMany( "node_id", "node", $where, $order ) )
+	        $this->{DB}->sqlSelectMany( "node_id", "node", $where, $order ) )
 	{
 		while ( my $id = $csr->fetchrow() )
 		{
-			$$this{DB}->getRef($id) if ($full);
+			$this->{DB}->getRef($id) if ($full);
 			push @nodes, $id;
 		}
 
