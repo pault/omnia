@@ -22,6 +22,6 @@ Returns a list of tables this node uses in the database, most specific first.
 sub dbtables
 {
 	my $self = shift;
-	return 'mail', $self->SUPER::dbtables();
+	return 'mail', $self->SUPER();
 }
 1;
