@@ -91,6 +91,7 @@ lib/Everything/Node/Test/dbtable.pm
 lib/Everything/Node/Test/htmlcode.pm
 lib/Everything/Node/Test/location.pm
 lib/Everything/Node/Test/node.pm
+lib/Everything/Node/Test/nodelet.pm
 lib/Everything/Node/Test/nodeball.pm
 lib/Everything/Node/Test/nodegroup.pm
 lib/Everything/Node/Test/nodetype.pm

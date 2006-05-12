@@ -35,20 +35,12 @@ sub insert
 {
 	my ( $this, $USER ) = @_;
 
-	my $GNC = $$this{DB}->getNode( "general nodelet container", "container" );
+	my $GNC = $this->{DB}->getNode( "general nodelet container", "container" );
 
 	# If this gets set to something inappropriate, we can have some
 	# infinite container loops.
-	if ($GNC)
-	{
-		$$this{parent_container} = $$GNC{node_id};
-	}
-	else
-	{
-		$$this{parent_container} = 0;
-	}
-
-	$this->SUPER();
+	$this->{parent_container} = $GNC ? $GNC->{node_id} : 0;
+	$this->SUPER( $USER );
 }
 
 =head2 C<getNodeKeys>
@@ -61,12 +53,9 @@ when moving to another system or nodeball
 sub getNodeKeys
 {
 	my ( $this, $forExport ) = @_;
-	my $keys = $this->SUPER($forExport);
 
-	if ($forExport)
-	{
-		delete $$keys{nltext};
-	}
+	my $keys = $this->SUPER($forExport);
+	delete $keys->{nltext} if $forExport;
 
 	return $keys;
 }
