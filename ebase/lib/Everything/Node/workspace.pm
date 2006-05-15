@@ -17,11 +17,11 @@ sub nuke
 {
 	my ( $this, $USER ) = @_;
 
-	return 0 unless ( $this->hasAccess( $USER, "d" ) );
+	return unless $this->SUPER( $USER );
 
-	$this->{DB}->sqlDelete( "revision", "inside_workspace=$$this{node_id}" );
-	$this->SUPER();
+	$this->{DB}->sqlDelete( 'revision', "inside_workspace=$this->{node_id}" );
 
+	return 1;
 }
 
 1;
