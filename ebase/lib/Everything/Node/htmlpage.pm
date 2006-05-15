@@ -36,14 +36,14 @@ sub insert
 	my ( $this, $USER ) = @_;
 
 	# If there is no parent container set, we need a default
-	unless ( $$this{parent_container} )
+	unless ( $this->{parent_container} )
 	{
 		my $GNC =
-			$$this{DB}->getNode( "general nodelet container", "container" );
-		$$this{parent_container} = $GNC ? $GNC : 0;
+		    $this->{DB}->getNode( "general nodelet container", "container" );
+		$this->{parent_container} = $GNC ? $GNC : 0;
 	}
 
-	$this->SUPER();
+	$this->SUPER( $USER );
 }
 
 1;
