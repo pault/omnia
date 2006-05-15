@@ -22,7 +22,7 @@ Returns a list of tables this node uses in the database, most specific first.
 sub dbtables
 {
 	my $self = shift;
-	return 'image', $self->SUPER::dbtables();
+	return 'image', $self->SUPER();
 }
 
 1;
