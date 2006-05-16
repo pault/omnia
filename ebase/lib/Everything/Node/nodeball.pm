@@ -117,7 +117,7 @@ sub applyXMLFix
 	my ( $this, $FIX, $printError ) = @_;
 
 	return Everything::Node::setting::applyXMLFix( $this, $FIX, $printError )
-		if $FIX->{fixBy} eq 'setting';
+		if exists $FIX->{fixBy} and $FIX->{fixBy} eq 'setting';
 
 	return $this->SUPER( $FIX, $printError );
 }
