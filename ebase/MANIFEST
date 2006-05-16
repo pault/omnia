@@ -87,6 +87,7 @@ lib/Everything/Node/themesetting.pm
 lib/Everything/Node/user.pm
 lib/Everything/Node/usergroup.pm
 lib/Everything/Node/workspace.pm
+lib/Everything/Node/Test/container.pm
 lib/Everything/Node/Test/dbtable.pm
 lib/Everything/Node/Test/document.pm
 lib/Everything/Node/Test/htmlcode.pm
