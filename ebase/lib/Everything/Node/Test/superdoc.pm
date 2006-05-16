@@ -20,4 +20,15 @@ sub test_dbtables :Test( 2 )
 		'dbtables() should return node tables' );
 }
 
+sub test_extends :Test( +1 )
+{
+	my $self  = shift;
+	my $class = $self->node_class();
+
+	ok( $class->isa( 'Everything::Node::document' ),
+		'superdoc should extend document' );
+
+	$self->SUPER();
+}
+
 1;

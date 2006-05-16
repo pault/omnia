@@ -9,6 +9,17 @@ use Test::More;
 use SUPER;
 *Everything::Node::workspace::SUPER = \&UNIVERSAL::SUPER;
 
+sub test_extends :Test( +1 )
+{
+	my $self  = shift;
+	my $class = $self->node_class();
+
+	ok( $class->isa( 'Everything::Node::setting' ),
+		'workspace should extend setting' );
+
+	$self->SUPER();
+}
+
 sub test_nuke :Test( 7 )
 {
 	my $self = shift;
