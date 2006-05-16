@@ -160,7 +160,6 @@ sub test_xml_tag :Test( 5 )
 	is( "$node $node", "@saveargs", '... passing node and tag' );
 }
 
-
 sub test_apply_xml_fix :Test( 4 )
 {
 	my $self = shift;

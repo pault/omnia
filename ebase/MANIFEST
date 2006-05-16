@@ -106,6 +106,7 @@ lib/Everything/Node/Test/permission.pm
 lib/Everything/Node/Test/restricted_superdoc.pm
 lib/Everything/Node/Test/superdoc.pm
 lib/Everything/Node/Test/setting.pm
+lib/Everything/Node/Test/theme.pm
 lib/Everything/Node/Test/themesetting.pm
 lib/Everything/Node/Test/user.pm
 lib/Everything/Node/Test/usergroup.pm
