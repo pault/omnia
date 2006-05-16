@@ -94,6 +94,7 @@ lib/Everything/Node/Test/htmlcode.pm
 lib/Everything/Node/Test/htmlpage.pm
 lib/Everything/Node/Test/htmlsnippet.pm
 lib/Everything/Node/Test/image.pm
+lib/Everything/Node/Test/javascript.pm
 lib/Everything/Node/Test/location.pm
 lib/Everything/Node/Test/mail.pm
 lib/Everything/Node/Test/node.pm
