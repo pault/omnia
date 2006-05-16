@@ -102,6 +102,7 @@ lib/Everything/Node/Test/nodelet.pm
 lib/Everything/Node/Test/nodeletgroup.pm
 lib/Everything/Node/Test/nodemethod.pm
 lib/Everything/Node/Test/nodetype.pm
+lib/Everything/Node/Test/permission.pm
 lib/Everything/Node/Test/restricted_superdoc.pm
 lib/Everything/Node/Test/superdoc.pm
 lib/Everything/Node/Test/setting.pm
