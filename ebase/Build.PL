@@ -35,7 +35,7 @@ my $build = Everything::Build->new(
 		'Mail::Address'             => 1.53,
 		'Mail::Sender'              => 0,
 		'Scalar::Util'              => 1.01,
-		'SUPER'                     => 1.12,
+		'SUPER'                     => 1.14,
 	},
 	build_requires    =>
 	{
