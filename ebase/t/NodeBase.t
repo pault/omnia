@@ -1,12 +1,7 @@
-#!/usr/bin/perl -w
+#! perl
 
 use strict;
-
-BEGIN
-{
-	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
-}
+use warnings;
 
 use strict;
 use vars qw( $AUTOLOAD );

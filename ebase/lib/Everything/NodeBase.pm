@@ -1,15 +1,12 @@
-
 =head1 Everything::NodeBase
 
 Wrapper for the Everything database and cache.  
 
-Copyright 1999 - 2003 Everything Development Inc.
+Copyright 1999 - 2006 Everything Development Inc.
 
 =cut
 
 package Everything::NodeBase;
-
-#	Format: tabs = 4 spaces
 
 use strict;
 use DBI;
@@ -17,9 +14,7 @@ use File::Spec;
 use Everything ();
 use Everything::NodeCache;
 use Everything::Node;
-
-=cut
-
+use Scalar::Util 'reftype';
 
 =head2 C<new>
 
@@ -82,9 +77,6 @@ sub new
 	return $this;
 }
 
-=cut
-
-
 =head2 C<joinWorkspace>
 
 create the $DB-E<gt>{workspace} object if a workspace is specified.  If the
@@ -117,9 +109,6 @@ sub joinWorkspace
 
 	1;
 }
-
-=cut
-
 
 =head2 C<getNodeWorkspace>
 
@@ -185,9 +174,6 @@ sub getNodeWorkspace
 	\@results;
 }
 
-=cut
-
-
 =head2 C<rebuildNodetypeModules>
 
 Call this to account for any new nodetypes that may have been installed.
@@ -203,9 +189,6 @@ sub rebuildNodetypeModules
 
 	return;
 }
-
-=cut
-
 
 =head2 C<buildNodetypeModules>
 
@@ -257,9 +240,6 @@ sub loadNodetypeModule
 	return exists $INC{$modpath};
 }
 
-=cut
-
-
 =head2 C<resetNodeCache>
 
 The node cache holds onto nodes after they have been loaded from the database.
@@ -277,9 +257,6 @@ sub resetNodeCache
 	$this->{cache}->resetCache();
 }
 
-=cut
-
-
 =head2 C<getDatabaseHandle>
 
 This returns the DBI connection to the database.  This can be used to do raw
@@ -296,9 +273,6 @@ sub getDatabaseHandle
 
 	return $this->{dbh};
 }
-
-=cut
-
 
 =head2 C<getCache>
 
@@ -357,9 +331,6 @@ sub sqlDelete
 		or Everything::logErrors( '', "Delete failed: '$sql' [@$bound]" );
 }
 
-=cut
-
-
 =head2 C<sqlSelect>
 
 Select specific fields from a single record.  If you need multiple records, use
@@ -403,9 +374,6 @@ sub sqlSelect
 	return $result[0] if @result == 1;
 	return \@result;
 }
-
-=cut
-
 
 =head2 C<sqlSelectJoined>
 
@@ -462,9 +430,6 @@ sub sqlSelectJoined
 	return $cursor;
 }
 
-=cut
-
-
 =head2 C<sqlSelectMany>
 
 A general wrapper function for a standard SQL select command.  This returns the
@@ -516,9 +481,6 @@ sub sqlSelectMany
 	return;
 }
 
-=cut
-
-
 =head2 C<sqlSelectHashref>
 
 Grab one row from a table and return it as a hash.  This just grabs the first
@@ -559,9 +521,6 @@ sub sqlSelectHashref
 	$cursor->finish();
 	return $hash;
 }
-
-=cut
-
 
 =head2 C<sqlUpdate>
 
@@ -606,9 +565,6 @@ sub sqlUpdate
 	return $this->sqlExecute( $sql, $bound );
 }
 
-=cut
-
-
 =head2 C<sqlInsert>
 
 Wrapper for the sql insert command.
@@ -648,7 +604,6 @@ sub sqlInsert
 
 =cut
 
-
 C<_quoteData>
 
 Private method
@@ -687,9 +642,6 @@ sub _quoteData
 
 	return \@names, \@values, \@bound;
 }
-
-=cut
-
 
 =head2 C<sqlExecute>
 
@@ -739,9 +691,6 @@ sub getNodeById
 	return $this->getNode( $node_id, $selectop );
 }
 
-=cut
-
-
 =head2 C<newNode>
 
 A more programatically "graceful" way than getNode() to get a node that does
@@ -774,9 +723,6 @@ sub newNode
 
 	return $this->getNode( $title, $type, 'create force' );
 }
-
-=cut
-
 
 =head2 C<getNode>
 
@@ -830,7 +776,7 @@ sub getNode
 	return unless defined $node and $node ne '';
 
 	# it may already be a node
-	return $node if UNIVERSAL::isa( $node, 'Everything::Node' );
+	return $node if eval { $node->isa( 'Everything::Node' ) };
 
 	my $NODE;
 	my $cache = "";
@@ -928,7 +874,6 @@ sub getNode
 	return $NODE;
 }
 
-#############################################################################
 sub getNodeByName
 {
 	my ( $this, $node, $TYPE ) = @_;
@@ -961,9 +906,6 @@ sub getNodeByName
 	return $NODE;
 }
 
-=cut
-
-
 =head2 C<getNodeZero>
 
 The node with zero as its ID is a "dummy" node that represents the root
@@ -994,7 +936,6 @@ sub getNodeZero
 	return $$this{nodezero};
 }
 
-#############################################################################
 sub getNodeByIdNew
 {
 	my ( $this, $node_id, $selectop ) = @_;
@@ -1031,9 +972,6 @@ sub getNodeByIdNew
 
 	return $NODE;
 }
-
-=cut
-
 
 =head2 C<constructNode>
 
@@ -1096,9 +1034,6 @@ sub constructNode
 	return 1;
 }
 
-=cut
-
-
 =head2 C<getNodeWhere>
 
 Get a list of NODE hashes.  This constructs a complete node.
@@ -1150,7 +1085,7 @@ sub getNodeWhere
 
 	return
 		unless defined $selectNodeWhere
-		and UNIVERSAL::isa( $selectNodeWhere, 'ARRAY' );
+		and reftype( $selectNodeWhere || '' ) eq 'ARRAY';
 
 	my @nodelist;
 
@@ -1163,12 +1098,9 @@ sub getNodeWhere
 	return \@nodelist;
 }
 
-=cut
-
-
 =head2 C<selectNodeWhere>
 
-Retrieves node id's that match the given query.
+Retrieves node ids that match the given query.
 
 =over 4
 
@@ -1243,9 +1175,6 @@ sub selectNodeWhere
 	return unless @nodelist;
 	return \@nodelist;
 }
-
-=cut
-
 
 =head2 C<getNodeCursor>
 
@@ -1361,9 +1290,6 @@ sub getNodeCursor
 	return $cursor;
 }
 
-=cut
-
-
 =head2 C<countNodeMatches>
 
 Doing a full query has some extra overhead.  If you just want
@@ -1402,9 +1328,6 @@ sub countNodeMatches
 	return $matches;
 }
 
-=cut
-
-
 =head2 C<getType>
 
 This is just a quickie wrapper to get a nodetype by name or id.  Saves extra
@@ -1421,15 +1344,12 @@ sub getType
 	return unless defined $idOrName and $idOrName ne '';
 
 	# The thing they passed in is good to go.
-	return $idOrName if UNIVERSAL::isa( $idOrName, 'Everything::Node' );
+	return $idOrName if eval { $idOrName->isa( 'Everything::Node' ) };
 
 	return $this->getNode( $idOrName, 1 ) if $idOrName =~ /\D/;
 	return $this->getNode($idOrName) if $idOrName > 0;
 	return;
 }
-
-=cut
-
 
 =head2 C<getAllTypes>
 
@@ -1459,9 +1379,6 @@ sub getAllTypes
 	return @allTypes;
 }
 
-=cut
-
-
 =head2 C<getFields>
 
 Get the field names of a table.
@@ -1484,9 +1401,6 @@ sub getFields
 
 	return $this->getFieldsHash( $table, 0 );
 }
-
-=cut
-
 
 =head2 C<dropNodeTable>
 
@@ -1532,9 +1446,6 @@ sub dropNodeTable
 	return $this->{dbh}->do( "drop table " . $this->genTableName($table) );
 }
 
-=cut
-
-
 =head2 C<quote>
 
 A quick access to DBI's quote function for quoting strings so that they do not
@@ -1558,9 +1469,6 @@ sub quote
 
 	return $this->{dbh}->quote($str);
 }
-
-=cut
-
 
 =head2 C<genWhereString>
 
@@ -1606,7 +1514,7 @@ sub genWhereString
 
 			# if your where hash includes a hash to a node, you probably really
 			# want to compare the ID of the node, not the hash reference.
-			if ( UNIVERSAL::isa( $WHERE->{$key}, 'Everything::Node' ) )
+			if ( eval { $WHERE->{$key}->isa( 'Everything::Node' ) } )
 			{
 				$$WHERE{$key} = $this->getId( $WHERE->{$key} );
 			}
@@ -1667,14 +1575,11 @@ sub genWhereString
 	return $wherestr;
 }
 
-#############################################################################
-#	"Private" functions to this module
-#############################################################################
+=head1 Private methods
 
-=cut
+These methods are private.  Don't call them.  They won't call you.
 
-
-C<getNodetypeTables>
+=head2 C<getNodetypeTables>
 
 Returns an array of all the tables that a given nodetype joins on.
 This will create the array, if it has not already created it.
@@ -1725,12 +1630,9 @@ sub getNodetypeTables
 	return \@tablelist;
 }
 
-=cut
+=head2 C<getRef>
 
-
-C<getRef>
-
-This makes sure that we have an array of node hashes, not node id's.
+This makes sure that we have an array of node hashes, not node ids.
 
 Returns the node hash of the first element passed in.
 
@@ -1743,17 +1645,14 @@ sub getRef
 
 	for (@_)
 	{
-		next if UNIVERSAL::isa( $_, 'Everything::Node' );
+		next if eval { $_->isa( 'Everything::Node' ) };
 		$_ = $this->getNode($_) if defined $_;
 	}
 
 	return $_[0];
 }
 
-=cut
-
-
-C<getId>
+=head2 C<getId>
 
 Given a node object or a node id, return the id.  Just a quick function to call
 to make sure that you have an id.
@@ -1775,13 +1674,10 @@ sub getId
 	my ( $this, $node ) = @_;
 
 	return unless $node;
-	return $node->{node_id} if UNIVERSAL::isa( $node, 'Everything::Node' );
+	return $node->{node_id} if eval { $node->isa( 'Everything::Node' ) };
 	return $node if $node =~ /^-?\d+$/;
 	return;
 }
-
-=cut
-
 
 =head2 C<hasPermission>
 
@@ -1836,41 +1732,5 @@ sub hasPermission
 
 # if the database returns odd column names, override this to fix them
 sub fix_node_keys { }
-
-#############################################################################
-#	DEPRECATED - use hasAccess()
-sub canCreateNode
-{
-	my ( $this, $USER, $TYPE ) = @_;
-	return $this->hasAccess( $TYPE, $USER, "c" );
-}
-
-#############################################################################
-#	DEPRECATED - use hasAccess()
-sub canDeleteNode
-{
-	my ( $this, $USER, $NODE ) = @_;
-	return $this->hasAccess( $NODE, $USER, "d" );
-}
-
-#############################################################################
-#	DEPRECATED - use hasAccess()
-sub canUpdateNode
-{
-	my ( $this, $USER, $NODE ) = @_;
-	return $this->hasAccess( $NODE, $USER, "w" );
-}
-
-#############################################################################
-#	DEPRECATED - use hasAccess()
-sub canReadNode
-{
-	my ( $this, $USER, $NODE ) = @_;
-	return $this->hasAccess( $NODE, $USER, "r" );
-}
-
-#############################################################################
-#	End of Package
-#############################################################################
 
 1;
