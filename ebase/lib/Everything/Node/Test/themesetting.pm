@@ -5,9 +5,7 @@ use warnings;
 
 use base 'Everything::Node::Test::setting';
 
-use SUPER;
 use Test::More;
-*Everything::Node::themesetting::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_extends :Test( +1 )
 {
@@ -30,3 +28,5 @@ sub test_dbtables :Test( 2 )
 	is_deeply( \@tables, [qw( themesetting setting node )],
 		'dbtables() should return node tables' );
 }
+
+1;

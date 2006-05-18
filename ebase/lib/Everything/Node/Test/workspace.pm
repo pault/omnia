@@ -4,10 +4,8 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::setting';
-use Test::More;
 
-use SUPER;
-*Everything::Node::workspace::SUPER = \&UNIVERSAL::SUPER;
+use Test::More;
 
 sub test_extends :Test( +1 )
 {

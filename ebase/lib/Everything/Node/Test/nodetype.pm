@@ -4,11 +4,8 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::node';
-use Test::More;
-use SUPER;
 
-# XXX - hack for now
-*Everything::Node::nodetype::SUPER = \&UNIVERSAL::SUPER;
+use Test::More;
 
 sub startup :Test( +1 )
 {

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::htmlcode';
+
 use Test::More;
 
 sub test_extends :Test( +1 )

@@ -4,10 +4,8 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::node';
-use Test::More;
 
-use SUPER;
-*Everything::Node::htmlpage::SUPER = \&UNIVERSAL::SUPER;
+use Test::More;
 
 sub test_dbtables
 {

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::nodeball';
+
 use Test::More;
 
 sub test_extends :Test( +1 )

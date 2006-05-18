@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::node';
+
 use Test::More;
 
 sub test_dbtables :Test( 2 )

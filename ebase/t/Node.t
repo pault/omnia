@@ -1,15 +1,9 @@
-#!/usr/bin/perl -w
+#! perl
 
 use strict;
+use warnings;
 
-BEGIN
-{
-	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
-}
-
-use strict;
-use vars qw( $AUTOLOAD );
+use vars '$AUTOLOAD';
 
 use Test::More tests => 42;
 use Test::MockObject;

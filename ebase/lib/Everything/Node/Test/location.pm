@@ -4,9 +4,8 @@ use strict;
 use warnings;
 
 use base 'Everything::Node::Test::node';
+
 use Test::More;
-use SUPER;
-*Everything::Node::location::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_nuke :Test( +8 )
 {

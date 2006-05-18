@@ -3,14 +3,10 @@ package Everything::Node::Test::user;
 use strict;
 use warnings;
 
-use SUPER;
-use Scalar::Util 'reftype';
+use base 'Everything::Node::Test::setting';
 
 use Test::More;
-
-*Everything::Node::user::SUPER = \&UNIVERSAL::SUPER;
-
-use base 'Everything::Node::Test::setting';
+use Scalar::Util 'reftype';
 
 sub test_extends :Test( +1 )
 {

@@ -5,10 +5,7 @@ use warnings;
 
 use base 'Everything::Node::Test::node';
 
-use SUPER;
 use Test::More;
-
-*Everything::Node::nodegroup::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_construct :Test( 1 )
 {
@@ -780,3 +777,5 @@ sub test_conflicts_with :Test( 6 )
 
 	is( $result, 11, '... returning the result' );
 }
+
+1;

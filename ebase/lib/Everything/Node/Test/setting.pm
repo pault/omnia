@@ -5,10 +5,7 @@ use warnings;
 
 use base 'Everything::Node::Test::node';
 
-use SUPER;
 use Test::More;
-
-*Everything::Node::setting::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_extends :Test( +1 )
 {

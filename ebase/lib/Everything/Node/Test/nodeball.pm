@@ -5,10 +5,7 @@ use warnings;
 
 use base 'Everything::Node::Test::nodegroup';
 
-use SUPER;
 use Test::More;
-
-*Everything::Node::nodeball::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_dbtables :Test( 2 )
 {

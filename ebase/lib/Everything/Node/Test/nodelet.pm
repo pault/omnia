@@ -5,10 +5,7 @@ use warnings;
 
 use base 'Everything::Node::Test::node';
 
-use SUPER;
 use Test::More;
-
-*Everything::Node::nodelet::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_dbtables :Test( 2 )
 {

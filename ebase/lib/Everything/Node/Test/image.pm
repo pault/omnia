@@ -6,9 +6,6 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
-use SUPER;
-
-*Everything::Node::image::SUPER = \&UNIVERSAL::SUPER;
 
 sub test_dbtables
 {

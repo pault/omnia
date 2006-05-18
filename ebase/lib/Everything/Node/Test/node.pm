@@ -11,8 +11,6 @@ use Test::MockObject::Extends;
 
 use Scalar::Util qw( reftype blessed );
 
-local *Everything::Node::SUPER = \&UNIVERSAL::SUPER;
-
 sub node_class
 {
 	my $self =  shift;
