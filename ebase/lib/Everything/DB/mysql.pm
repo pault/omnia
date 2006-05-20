@@ -1,21 +1,19 @@
-package Everything::NodeBase::mysql;
+package Everything::DB::mysql;
 
 #############################################################################
-#	Everything::NodeBase::mysql
+#	Everything::DB::mysql
 #		MySQL database support.
 #
-#	Copyright 2002 - 2003 Everything Development Inc.
+#	Copyright 2002 - 2003, 2006 Everything Development Inc.
 #	Format: tabs = 4 spaces
 #
 #############################################################################
 
 use strict;
+use warnings;
+
 use DBI;
-use Everything::NodeBase;
-
-use vars qw($VERSION @ISA @EXPORT);
-
-@ISA = qw(Everything::NodeBase);
+use base 'Everything::DB';
 
 #############################################################################
 #	Sub
@@ -390,3 +388,5 @@ sub list_tables
 sub now { return 'now()' }
 
 sub timediff { "$_[1] - $_[2]" }
+
+1;

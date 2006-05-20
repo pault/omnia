@@ -1,21 +1,18 @@
-package Everything::NodeBase::Pg;
+package Everything::DB::Pg;
 
 #############################################################################
-#       Everything::NodeBase::Pg
-#               Postgresql database support.
+#       Everything::DB::Pg
+#               PostgreSQL database support.
 #
-#       Copyright 2002 Everything Development Inc.
-#       Format: tabs = 4 spaces
+#       Copyright 2002, 2006 Everything Development Inc.
 #
 #############################################################################
 
 use strict;
+use warnings;
+
 use DBI;
-use Everything::NodeBase;
-
-use vars qw($VERSION @ISA @EXPORT);
-
-@ISA = qw(Everything::NodeBase);
+use base 'Everything::DB';
 
 #############################################################################
 #	Sub
@@ -421,3 +418,5 @@ sub genTableName
 
 	return '"' . $table . '"';
 }
+
+1;

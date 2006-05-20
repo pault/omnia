@@ -1,20 +1,18 @@
-#!/usr/bin/perl -w
+#! perl
 
 use strict;
+use warnings;
 
 BEGIN
 {
-	chdir 't' if -d 't';
-	unshift @INC, '..', '../blib/lib', 'lib/';
-}
-
-BEGIN
-{
-
 	package Everything;
 	use subs qw( gmtime caller );
 
 	package main;
+
+	chdir 't' if -d 't';
+	use lib '../lib';
+
 	require 'lib/FakeNodeBase.pm';
 	$INC{'Everything/NodeBase.pm'} = 1;
 }
@@ -29,8 +27,7 @@ use Test::MockObject;
 $ENV{EVERYTHING_LOG} = File::Spec->catfile( File::Spec->curdir(), 'log' );
 use_ok('Everything');
 
-foreach my $sub (
-	qw(
+for my $sub ( qw(
 	getNode getNodeById getType getNodeWhere selectNodeWhere getRef getId )
 	)
 {
@@ -166,17 +163,14 @@ SKIP:
 
 	initEverything( 'onedb', { staticNodetypes => 1 } );
 
-	is( join( '', @$Everything::DB ),
-		'onedb1', 'initEverything() should create a new database if needed' );
+	is( join( '', @$Everything::DB ), 'onedb1mysql',
+		'initEverything() should create a new database if needed' );
 	is( @Everything::fsErrors, 0, '... and should clear @fsErrors' );
 	is( @Everything::bsErrors, 0, '... and @bsErrors' );
 
 	initEverything('onedb');
-	is(
-		$Everything::DB,
-		$Everything::NODEBASES{onedb},
-		'... should reuse NodeBase object with same DB requested'
-	);
+	is( $Everything::DB, $Everything::NODEBASES{onedb},
+		'... should reuse NodeBase object with same DB requested' );
 
 	initEverything('twodb');
 	is( keys %Everything::NODEBASES, 2, '... and should cache objects' );
@@ -193,7 +187,7 @@ SKIP:
 
 	@INC = 'lib';
 
-	my $path = File::Spec->catdir(qw( lib Everything NodeBase ));
+	my $path = File::Spec->catdir(qw( lib Everything DB ));
 
 	if ( -d $path or mkpath $path)
 	{
@@ -201,7 +195,7 @@ SKIP:
 		if ( open( OUT, '>', File::Spec->catfile( $path, 'foo.pm' ) ) )
 		{
 			( my $foo = <<'			END_HERE') =~ s/^\t+//gm;
-			package Everything::NodeBase::foo;
+			package Everything::DB::foo;
 
 			sub new { 'foo' }
 	
@@ -217,7 +211,7 @@ SKIP:
 
 	eval { initEverything( 'foo', { dbtype => 'foo' } ) };
 	is( $@, '', '... loading nodebase for requested database type' );
-	is( $Everything::NODEBASES{foo}, 'foo', "... and caching it" );
+	ok( exists $Everything::NODEBASES{foo}, '... and caching it' );
 }
 
 # clearFrontside()

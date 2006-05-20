@@ -37,6 +37,9 @@ lib/Everything/Auth/EveryAuth.pm
 lib/Everything/Auth/GuestOnly.pm
 lib/Everything/Build.pm
 lib/Everything/CacheQueue.pm
+lib/Everything/DB.pm
+lib/Everything/DB/mysql.pm
+lib/Everything/DB/Pg.pm
 lib/Everything/HTML.pm
 lib/Everything/HTML/FormObject.pm
 lib/Everything/HTML/FormObject/AuthorMenu.pm
@@ -117,8 +120,6 @@ lib/Everything/Node/Test/usergroup.pm
 lib/Everything/Node/Test/workspace.pm
 lib/Everything/Nodeball.pm
 lib/Everything/NodeBase.pm
-lib/Everything/NodeBase/mysql.pm
-lib/Everything/NodeBase/Pg.pm
 lib/Everything/NodeCache.pm
 lib/Everything/Security.pm
 lib/Everything/Util.pm

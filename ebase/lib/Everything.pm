@@ -346,13 +346,16 @@ sub initEverything
 	return if exists $NODEBASES{$db} and $DB = $NODEBASES{$db};
 
 	my $dbtype  = $options->{dbtype} || 'mysql';
-	my $package = 'Everything::NodeBase::' . $dbtype;
+	my $package = 'Everything::DB::' . $dbtype;
 
 	( my $module = $package . '.pm' ) =~ s!::!/!g;
 
-	eval {
+	eval
+	{
 		require $module;
-		$DB = $package->new( $db, $options->{staticNodetypes} );
+		$DB = Everything::NodeBase->new(
+			$db, $options->{staticNodetypes}, $dbtype
+		);
 	};
 
 	die "Unknown database type '$options->{dbtype}': $@" if $@;
