@@ -1,218 +1,140 @@
-#! perl
-
-=cut
-
-use Everything::Test::NodeBase;
-Everything::Test::NodeBase->runtests();
-
-__END__
-
-=cut
+package Everything::Test::NodeBase;
 
 use strict;
-use vars qw( $AUTOLOAD );
+use warnings;
 
-use Test::More tests => 223;
+use base 'Test::Class';
+
+use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
 
-# temporarily avoid sub redefined warnings
-my $mock = Test::MockObject->new();
-$mock->fake_module('Everything');
+use Scalar::Util 'blessed';
 
-my $package = 'Everything::NodeBase';
-
-sub AUTOLOAD
+sub module_class
 {
-	$AUTOLOAD =~ s/main:://;
-	if ( my $sub = $package->can($AUTOLOAD) )
+	my $self =  shift;
+	my $name =  blessed( $self );
+	$name    =~ s/Test:://;
+	return $name;
+}
+
+sub startup :Test( startup => 3 )
+{
+	my $self   = shift;
+	my $module = $self->module_class();
+	use_ok( $module ) or exit;
+
+	can_ok( $module, 'new' );
+
+	$self->reset_mock_nb();
+
+	isa_ok( $self->{nb}, $module );
+}
+
+sub make_fixture :Test( setup )
+{
+	my $self    = shift;
+	my $storage = Test::MockObject->new();
+	$self->reset_mock_nb();
+
+	$self->{storage}     = $storage;
+	$self->{nb}{storage} = $storage;
+	$self->{errors}      = [];
+}
+
+sub reset_mock_nb
+{
+	my $self   = shift;
+	my $module = $self->module_class();
+
+	my $mock_db = Test::MockObject->new();
+	$mock_db->set_false(qw( getNodeByIdNew getNodeByName ))
+			->set_true(qw( databaseConnect buildNodetypeModules ))
+			->fake_module( 'Everything::DB::fake_db', 'new', sub { $mock_db });
+
+	my $nb      = $module->new( '', 0, 'fake_db' );
+	$self->{nb} = Test::MockObject::Extends->new( $nb );
+}
+
+sub test_new
+{
+	# check $db param
+	# check presence of NodeCache
+	# check dbname
+	# check staticNodetypes field
+	# check storage
+	# check nodetypeModules
+	# check if setting type exists
+	#	- check cache settings
+	#	- check cache size
+}
+
+BEGIN
+{
+	for my $method (qw(
+		buildNodetypeModules getDatabaseHandle sqlDelete sqlSelect
+		sqlSelectJoined sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert
+		_quoteData sqlExecute getNodeByIdNew getNodeByName constructNode
+		selectNodeWhere getNodeCursor countNodeMatches getAllTypes
+		dropNodeTable quote genWhereString
+	))
 	{
-		no strict 'refs';
-		*{$AUTOLOAD} = $sub;
-		goto &$AUTOLOAD;
+		eval <<"		END_SUB";
+		sub test_$method :Test( 3 )
+		{
+			my \$self    = shift;
+			my \$nb      = \$self->{nb};
+			my \$storage = \$self->{storage};
+
+			\$storage->set_always( $method => 'proxied_$method' );
+			can_ok( \$nb, '$method' );
+
+			my \$result = \$nb->$method();
+
+			is( \$storage->next_call(), '$method',
+				'$method should proxy to storage method' );
+			is( \$result, 'proxied_$method', '... returning result' );
+		}
+		END_SUB
 	}
 }
 
-my @le;
-local *Everything::logErrors;
-*Everything::logErrors = sub {
-	push @le, [@_];
-};
-
-use_ok($package) or die;
-
-my ( $result, $method, $args );
-
-can_ok( $package, 'new' );
+sub test_get_type :Test( 9 )
 {
-	local (
-		*Everything::DB::subclass::databaseConnect,
-		*Everything::DB::subclass::buildNodetypeModules,
-		*Everything::NodeBase::getType,
-		*Everything::NodeBase::getNode,
-		*Everything::NodeBase::setCacheSize,
-		@Everything::DB::subclass::ISA,
-		@Test::MockObject::ISA,
-		*Everything::NodeCache::new,
-	);
+	my $self = shift;
+	my $nb   = $self->{nb};
 
-	@Test::MockObject::ISA         = 'Everything::Node';
-	@Everything::DB::subclass::ISA = 'Everything::DB';
+	is( $nb->getType(), undef,
+		'getType() should return unless passed a node thing' );
 
-	my ( @dbc, @bntm, $bntm, @ncn, $ncn, @gt, $gt, @gn, $gn, @scs, $scs );
-	*Everything::DB::subclass::databaseConnect = sub {
-		push @dbc, [@_];
-	};
+	is( $nb->getType( '' ), undef, '... or if it is empty' );
 
-	*Everything::DB::subclass::buildNodetypeModules = sub {
-		push @bntm, [@_];
-		return $bntm;
-	};
+	my $mock_node = Test::MockObject::Extends->new( 'Everything::Node' );
 
-	*Everything::NodeBase::getType = sub {
-		push @gt, [@_];
-		return $gt;
-	};
-
-	*Everything::NodeBase::setCacheSize = sub {
-		push @scs, [@_];
-		return $scs;
-	};
-
-	*Everything::NodeCache::new = sub {
-		push @ncn, [@_];
-		return $ncn;
-	};
-
-	*Everything::NodeBase::getNode = sub {
-		push @gn, [@_];
-		return $gn;
-	};
-
-	$bntm = 'bntm';
-	$ncn  = 'ncn';
-
-	$result = Everything::NodeBase->new( 'db:u:p:h', 1, 'subclass' );
-	isa_ok( $result, 'Everything::NodeBase' );
-	is( @dbc, 1, '... new() should call databaseConnect() on new node' );
-	is( join( '-', @{ $dbc[0] } ),
-		"$result->{storage}-db-h-u-p", '... passing db connect options' );
-	is( @ncn, 1, '... and should create a new nodecache object' );
-	is( $result->{cache}, 'ncn', '... storing it in the cache field' );
-
-	is( @bntm, 1, '... and should build nodetype modules' );
-	is( $result->{nodetypeModules},
-		'bntm', '... storing them in the appropriate field' );
-
-	ok( $result->{staticNodetypes},
-		'... setting staticNodetypes field appropriately' );
-
-	is( @gt, 1, '... and should check if it is a setting type' );
-
-	$gt     = 1;
-	$ncn    = 'Everything::NodeBase';
-	$result = Everything::NodeBase->new( 'ev', 0, 'subclass' );
-	is( join( '-', @{ $dbc[1] } ),
-		"$result->{storage}-ev-localhost-root-",
-		'... providing defaults for db connections' );
-	ok( !$result->{staticNodetypes}, '... and for staticNodetypes (disable)' );
-
-	is( @gn, 1, '... fetching cache settings, if this is a setting node' );
-	is(
-		join( '-', @{ $gn[0] } ),
-		"$result-cache settings-setting",
-		'... by name and type'
-	);
-
-	is( @scs, 1, '... setting the cache size' );
-	is( $scs[0]->[1], 300, '... to the default, with no cache settings' );
-
-	$gn = 'not a node';
-	$ncn->new( 'ev', undef, 'subclass' );
-	is( $scs[1]->[1], 300, '... or with no cache settings node' );
-
-	$gn = Test::MockObject->new();
-	$gn->set_series( getVars => {}, { maxSize => 100 } );
-
-	$ncn->new( 'ev', undef, 'subclass' );
-	is( $scs[2]->[1], 300, '... or if cache settings node has no max size' );
-	$ncn->new( 'ev', undef, 'subclass' );
-	is( $scs[3]->[1], 100, '... but should use max size if available' );
+	is( $nb->getType( $mock_node ), $mock_node,
+		'... returning node if it is a node' );
+	
+	$nb->set_series( getNode => 'name', 'id' );
+	
+	is( $nb->getType( 'name' ), 'name',
+		'... returning fetched node, if named' );
+	
+	my ( $method, $args ) = $nb->next_call();
+	is( join( '-', @$args ), "$nb-name-1", '... by name for nodetype' );
+	
+	is( $nb->getType( 12345 ), 'id',
+		'... returning node for positive node_id' );
+	
+	( $method, $args ) = $nb->next_call();
+	is( join( '-', @$args ), "$nb-12345", '... by id alone' );
+	
+	is( $nb->getType(  0 ), undef, '... returning nothing for zero id' );
+	is( $nb->getType( -1 ), undef, '... or for negative node_id' );
 }
 
-can_ok( $package, 'selectNodeWhere' );
-
-my $mock_storage = Test::MockObject::Extends->new( 'Everything::DB::mysql' );
-$mock->{storage} = $mock_storage;
-$mock_storage->set_always( countNodeMatches => 20 )
-	->set_series( getNodeCursor => 0, ($mock_storage) x 3 )
-	->set_series( execute => 0, (1) x 3 )
-	->set_series( fetchrow => 0 .. 3 )
-	->set_true('finish');
-
-my $count;
-$result = selectNodeWhere( $mock, 'w', '', 'o', 'l', 'off', \$count, 'n' );
-is( $count, 20,
-	'selectNodeWhere() should populate count reference if provided' );
-
-( $method, $args ) = $mock_storage->next_call(2);
-is( $method, 'getNodeCursor', '... fetching a database cursor' );
-is( join( '-', @$args[ 1, 2, 4 .. 7 ] ),
-	'node_id-w-o-l-off-n', '... passing along arguments' );
-is( $args->[3], undef, '... defaulting type to undef, if empty' );
-
-ok( !$result,                '... returning without a cursor' );
-ok( !selectNodeWhere($mock), '... or if cursor cannot execute' );
-ok( !selectNodeWhere($mock), '... or if there are no nodes' );
-
-$result = selectNodeWhere($mock);
-is_deeply(
-	$result,
-	[ 1, 2, 3 ],
-	'... returning a reference to a list of results'
-);
-
-can_ok( $package, 'countNodeMatches' );
-$mock_storage->set_series( getNodeCursor => 0, ($mock_storage) x 2 )
-	->set_series( execute => 0, 1 )
-	->set_always( fetchrow => 33 )
-	->set_true('finish')
-	->unmock( 'countNodeMatches' )
-	->clear();
-
-$result = countNodeMatches( $mock, 'w', 't' );
-
-( $method, $args ) = $mock_storage->next_call();
-is( $method, 'getNodeCursor', 'countNodeMatches() should get a db cursor' );
-is( join( '-', @$args ),
-	"$mock_storage-count(*)-w-t", '... counting and passing conditions' );
-is( $result,                 0,  '... returning zero without a cursor' );
-is( countNodeMatches($mock), 0,  '... or if cursor cannot execute' );
-is( countNodeMatches($mock), 33, '... returning the count on success' );
-
-can_ok( $package, 'getType' );
-is( getType(), undef, 'getType() should return unless passed a node thing' );
-is( getType( $mock, '' ), undef, '... or if it is empty' );
-{
-	local @Test::MockObject::ISA;
-	@Test::MockObject::ISA = 'Everything::Node';
-	is( getType( $mock, $mock ), $mock, '... returning node if it is a node' );
-}
-
-$mock->set_series( getNode => 'name', 'id' )->clear();
-
-is( getType( $mock, 'name' ), 'name', '... returning fetched node, if named' );
-
-( $method, $args ) = $mock->next_call();
-is( join( '-', @$args ), "$mock-name-1", '... by name for nodetype' );
-
-is( getType( $mock, 12345 ), 'id', '... returning node for positive node_id' );
-
-( $method, $args ) = $mock->next_call();
-is( join( '-', @$args ), "$mock-12345", '... by id alone' );
-
-is( getType( $mock, 0 ),  undef, '... returning nothing for zero id' );
-is( getType( $mock, -1 ), undef, '... or for negative node_id' );
+1;
+__END__
 
 can_ok( $package, 'getAllTypes' );
 my @list = ( 1 .. 3 );
@@ -384,6 +306,8 @@ $ennew = { node_id => 11 };
 
 isnt( getNode( $mock, 0 ),
 	undef, 'getNode() should return node zero given node_id of 0' );
+
+exit;
 
 can_ok( $package, 'getNodeByName' );
 can_ok( $package, 'getNodeByIdNew' );

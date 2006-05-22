@@ -16,6 +16,8 @@ use Everything ();
 use Everything::DB;
 use Everything::Node;
 use Everything::NodeCache;
+use Everything::NodeBase::Workspace;
+
 use Scalar::Util 'reftype';
 
 BEGIN
@@ -108,7 +110,8 @@ sub new
 =head2 C<joinWorkspace>
 
 create the $DB-E<gt>{workspace} object if a workspace is specified.  If the
-sole parameter is 0, then the workspace is deleted.
+sole parameter is 0, then the workspace is deleted.  Note that this will
+re-bless the current object, if the user is in a workspace.
 
 =over 4
 
@@ -128,78 +131,10 @@ sub joinWorkspace
 
 	return 1 unless $WORKSPACE;
 
-	$this->getRef($WORKSPACE);
-	return -1 unless $WORKSPACE;
-	$this->{workspace} = $WORKSPACE;
-	$this->{workspace}{nodes} = $WORKSPACE->getVars;
-	$this->{workspace}{nodes} ||= {};
-	$this->{workspace}{cached_nodes} = {};
+	# XXX - ugly workaround; fix soon
+	bless $this, 'Everything::NodeBase::Workspace';
 
-	1;
-}
-
-=head2 C<getNodeWorkspace>
-
-Helper funciton for getNode's workspace functionality.  Given a $WHERE hash (
-field =E<gt> value, or field =E<gt> [value1, value2, value3]) return a list of
-nodes in the workspace which fullfill this query
-
-=over 4
-
-=item * $WHERE
-
-where hash, similar to getNodeWhere
-
-=item * $TYPE
-
-type discrimination (optional)
-
-=back
-
-=cut
-
-sub getNodeWorkspace
-{
-	my ( $this, $WHERE, $TYPE ) = @_;
-	my @results;
-	$TYPE = $this->getType($TYPE) if $TYPE;
-
-	my $cmpval = sub {
-		my ( $val1, $val2 ) = @_;
-
-		$val1 = $val1->{node_id} if eval { $val1->isa( 'Everything::Node' ) };
-		$val2 = $val2->{node_id} if eval { $val2->isa( 'Everything::Node' ) };
-
-		$val1 eq $val2;
-	};
-
-	#we need to iterate through our workspace
-	foreach my $node ( keys %{ $this->{workspace}{nodes} } )
-	{
-		my $N = $this->getNode($node);
-		next if $TYPE and $$N{type}{node_id} != $$TYPE{node_id};
-
-		my $match = 1;
-		foreach ( keys %$WHERE )
-		{
-			if ( ref $$WHERE{$_} eq 'ARRAY' )
-			{
-				my $matchor = 0;
-				foreach my $orval ( @{ $$WHERE{$_} } )
-				{
-					$matchor = 1 if $cmpval->( $$N{$_}, $orval );
-				}
-				$match = 0 unless $matchor;
-			}
-			else
-			{
-				$match = 0 unless $cmpval->( $$N{$_}, $$WHERE{$_} );
-			}
-		}
-		push @results, $N if $match;
-	}
-
-	\@results;
+	$this->joinWorkspace( $WORKSPACE );
 }
 
 =head2 C<rebuildNodetypeModules>
@@ -372,40 +307,10 @@ sub getNode
 
 	if ( ref $node eq 'HASH' )
 	{
-
 		# This a "where" select
 		my $nodeArray = $this->getNodeWhere( $node, $ext, $ext2, 1 ) || [];
-		if ( exists $this->{workspace} )
-		{
-			my $wspaceArray = $this->getNodeWorkspace( $node, $ext );
-
-			#the nodes we get back are unordered, must be merged
-			#with the workspace.  Also any nodes which were in the
-			#nodearray, and the workspace, but not the wspace array
-			#must be removed
-
-			my @results = (
-				(
-					grep { !exists $this->{workspace}{nodes}{ $_->{node_id} } }
-						@$nodeArray
-				),
-				@$wspaceArray
-			);
-
-			return unless @results;
-			my $orderby = $ext2 || 'node_id';
-
-			my $position = ( $orderby =~ /\s+desc/i ) ? -1 : 0;
-
-			@results = sort { $a->{$orderby} cmp $b->{$orderby} } @results;
-			return $results[$position];
-			return shift @results;
-		}
-		else
-		{
-			return $nodeArray->[0] if @$nodeArray;
-			return;
-		}
+		return $nodeArray->[0] if @$nodeArray;
+		return;
 	}
 	elsif ( $node =~ /^\d+$/ )
 	{
@@ -450,15 +355,7 @@ sub getNode
 
 	return unless $NODE;
 
-	$NODE = Everything::Node->new( $NODE, $this, $cache );
-
-	if (    exists $this->{workspace}
-		and exists $this->{workspace}{nodes}{ $NODE->{node_id} }
-		and $this->{workspace}{nodes}{ $NODE->{node_id} } )
-	{
-		my $WS = $NODE->getWorkspaced();
-		return $WS if $WS;
-	}
+	return Everything::Node->new( $NODE, $this, $cache );
 
 	return $NODE;
 }

@@ -120,8 +120,10 @@ lib/Everything/Node/Test/usergroup.pm
 lib/Everything/Node/Test/workspace.pm
 lib/Everything/Nodeball.pm
 lib/Everything/NodeBase.pm
+lib/Everything/NodeBase/Workspace.pm
 lib/Everything/NodeCache.pm
 lib/Everything/Security.pm
+lib/Everything/Test/NodeBase.pm
 lib/Everything/Util.pm
 lib/Everything/XML.pm
 Makefile.PL

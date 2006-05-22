@@ -3032,7 +3032,7 @@ sub mod_perlInit
 
 	$query = getCGI($initializer);
 
-	$AUTH ||= new Everything::Auth($options);
+	$AUTH ||= Everything::Auth->new($options);
 
 	( $USER, $VARS ) = $AUTH->authUser();
 
