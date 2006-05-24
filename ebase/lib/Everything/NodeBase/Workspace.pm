@@ -13,8 +13,6 @@ use warnings;
 
 use base 'Everything::NodeBase';
 
-use File::Spec;
-
 =head2 C<joinWorkspace>
 
 create the $DB-E<gt>{workspace} object if a workspace is specified.  If the
@@ -33,9 +31,6 @@ workspace_id, node, or 0 for none
 sub joinWorkspace
 {
 	my ( $this, $WORKSPACE ) = @_;
-
-	delete $this->{workspace} if exists $this->{workspace};
-
 	return 1 unless $WORKSPACE;
 
 	$this->getRef($WORKSPACE);
@@ -51,9 +46,9 @@ sub joinWorkspace
 
 =head2 C<getNodeWorkspace>
 
-Helper funciton for getNode's workspace functionality.  Given a $WHERE hash (
-field =E<gt> value, or field =E<gt> [value1, value2, value3]) return a list of
-nodes in the workspace which fullfill this query
+Helper function for getNode's workspace functionality.  Given a $WHERE hash
+(field =E<gt> value, or field =E<gt> [value1, value2, value3]) return a list of
+nodes in the workspace which fulfill this query.
 
 =over 4
 
@@ -75,7 +70,9 @@ sub getNodeWorkspace
 	my @results;
 	$TYPE = $this->getType($TYPE) if $TYPE;
 
-	my $cmpval = sub {
+	# compare node ids
+	my $cmpval = sub
+	{
 		my ( $val1, $val2 ) = @_;
 
 		$val1 = $val1->{node_id} if eval { $val1->isa( 'Everything::Node' ) };
@@ -84,33 +81,36 @@ sub getNodeWorkspace
 		$val1 eq $val2;
 	};
 
-	#we need to iterate through our workspace
-	foreach my $node ( keys %{ $this->{workspace}{nodes} } )
+	# iterate through the workspace
+	for my $node ( keys %{ $this->{workspace}{nodes} } )
 	{
 		my $N = $this->getNode($node);
-		next if $TYPE and $$N{type}{node_id} != $$TYPE{node_id};
+		next if $TYPE and $N->{type}{node_id} != $TYPE->{node_id};
 
 		my $match = 1;
-		foreach ( keys %$WHERE )
+
+		for my $where ( keys %$WHERE )
 		{
-			if ( ref $$WHERE{$_} eq 'ARRAY' )
+			if ( ref $WHERE->{$where} eq 'ARRAY' )
 			{
-				my $matchor = 0;
-				foreach my $orval ( @{ $$WHERE{$_} } )
+				$match = 0;
+
+				for my $orval ( @{ $WHERE->{$where} } )
 				{
-					$matchor = 1 if $cmpval->( $$N{$_}, $orval );
+					next unless $cmpval->( $N->{$where}, $orval );
+					$match = 1; 
+					last;
 				}
-				$match = 0 unless $matchor;
 			}
 			else
 			{
-				$match = 0 unless $cmpval->( $$N{$_}, $$WHERE{$_} );
+				$match = 0 unless $cmpval->( $N->{$where}, $WHERE->{$where} );
 			}
 		}
 		push @results, $N if $match;
 	}
 
-	\@results;
+	return \@results;
 }
 
 =head2 C<getNode>
@@ -181,7 +181,7 @@ sub getNode
 
 		return unless @results;
 		my $orderby  = $ext2 || 'node_id';
-		my $position = ( $orderby =~ /\s+desc/i ) ? -1 : 0;
+		my $position = ( $orderby =~ s/\s+desc//i ) ? -1 : 0;
 		@results     = sort { $a->{$orderby} cmp $b->{$orderby} } @results;
 		return $results[$position];
 	}
