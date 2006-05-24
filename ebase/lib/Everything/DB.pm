@@ -1014,4 +1014,7 @@ sub genWhereString
 	return $wherestr;
 }
 
+# override this to fix odd column names
+sub fix_node_keys {}
+
 1;

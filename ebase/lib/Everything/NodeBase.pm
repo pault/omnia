@@ -160,10 +160,9 @@ sub loadNodetypeModule
 
 	return 1 if exists $INC{$modpath};
 
-	foreach my $path (@INC)
+	for my $path (@INC)
 	{
-		next
-			unless -e File::Spec->canonpath(
+		next unless -e File::Spec->canonpath(
 			File::Spec->catfile( $path, $modpath ) );
 		last if eval { require $modpath };
 	}
@@ -354,10 +353,7 @@ sub getNode
 	}
 
 	return unless $NODE;
-
 	return Everything::Node->new( $NODE, $this, $cache );
-
-	return $NODE;
 }
 
 =head2 C<getNodeZero>
@@ -375,19 +371,19 @@ Returns the "Zero Node".
 sub getNodeZero
 {
 	my ($this) = @_;
-	unless ( exists $$this{nodezero} )
+
+	unless ( exists $this->{nodezero} )
 	{
-		$$this{nodezero} = $this->getNode( "/", "location", "create force" );
+		$this->{nodezero} = $this->getNode( '/', 'location', 'create force' );
 
-		$$this{nodezero}{node_id} = 0;
-
-		$$this{nodezero}{guestaccess} = "-----";
-		$$this{nodezero}{otheraccess} = "-----";
-		$$this{nodezero}{groupaccess} = "-----";
-		$$this{nodezero}{author_user} = $this->getNode( "root", "user" );
+		$this->{nodezero}{node_id}     = 0;
+		$this->{nodezero}{guestaccess} = "-----";
+		$this->{nodezero}{otheraccess} = "-----";
+		$this->{nodezero}{groupaccess} = "-----";
+		$this->{nodezero}{author_user} = $this->getNode( 'root', 'user' );
 	}
 
-	return $$this{nodezero};
+	return $this->{nodezero};
 }
 
 =head2 C<getNodeWhere>
@@ -535,22 +531,22 @@ sub getNodetypeTables
 
 	# We need to short circuit on nodetype and nodemethod, otherwise we
 	# get inf recursion.
-	if ( ( $TYPE eq "1" ) or ( ( ref $TYPE ) && ( $$TYPE{node_id} == 1 ) ) )
+	if ( ( $TYPE eq '1' ) or ( ( ref $TYPE ) && ( $TYPE->{node_id} == 1 ) ) )
 	{
-		push @tablelist, "nodetype";
+		push @tablelist, 'nodetype';
 	}
-	elsif ( ref $TYPE && $$TYPE{title} eq "nodemethod" )
+	elsif ( ref $TYPE && $TYPE->{title} eq 'nodemethod' )
 	{
-		push @tablelist, "nodemethod";
+		push @tablelist, 'nodemethod';
 	}
 	else
 	{
 		$this->getRef($TYPE);
 		my $tables = $TYPE->getTableArray();
-		push @tablelist, @{$tables} if ($tables);
+		push @tablelist, @$tables if $tables;
 	}
 
-	push @tablelist, 'node' if ($addNode);
+	push @tablelist, 'node' if $addNode;
 
 	return \@tablelist;
 }
@@ -566,12 +562,11 @@ Returns the node hash of the first element passed in.
 sub getRef
 {
 	my $this = shift;
-	local $_;
 
-	for (@_)
+	for my $ref (@_)
 	{
-		next if eval { $_->isa( 'Everything::Node' ) };
-		$_ = $this->getNode($_) if defined $_;
+		next if eval { $ref->isa( 'Everything::Node' ) };
+		$ref = $this->getNode($ref) if defined $ref;
 	}
 
 	return $_[0];
@@ -654,8 +649,5 @@ sub hasPermission
 
 	return Everything::Security::checkPermissions( $perms, $modes );
 }
-
-# if the database returns odd column names, override this to fix them
-sub fix_node_keys { }
 
 1;
