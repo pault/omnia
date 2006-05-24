@@ -124,6 +124,7 @@ lib/Everything/NodeBase/Workspace.pm
 lib/Everything/NodeCache.pm
 lib/Everything/Security.pm
 lib/Everything/Test/NodeBase.pm
+lib/Everything/Test/NodeBase/Workspace.pm
 lib/Everything/Util.pm
 lib/Everything/XML.pm
 Makefile.PL
@@ -189,6 +190,7 @@ t/Node/usergroup.t
 t/Node/workspace.t
 t/NodeBase.t
 t/NodeBase/mysql.t
+t/NodeBase/Workspace.t
 t/NodeCache.t
 t/Security.t
 t/Util.t

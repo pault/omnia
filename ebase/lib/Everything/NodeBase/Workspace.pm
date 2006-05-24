@@ -156,12 +156,10 @@ Returns a node object if successful.  undef otherwise.
 sub getNode
 {
 	my ( $this, $node, $ext, $ext2 ) = @_;
-	warn "<$node>\n";
 	return unless defined $node and $node ne '';
 
 	# it may already be a node
 	return $node if eval { $node->isa( 'Everything::Node' ) };
-	warn "Not a node\n";
 
 	my $cache = "";
 
