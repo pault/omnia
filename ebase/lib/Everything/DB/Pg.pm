@@ -39,31 +39,6 @@ sub databaseConnect
 }
 
 #############################################################################
-#       Sub
-#               lastValue
-#
-#       Purpose
-#               Return the last sequence/auto_increment value inserted into
-#               the database.
-#
-#       Parameters
-#               table - the table (this MUST be the table used in the last query)
-#               field - the auto_increment field
-#
-#       Returns
-#               The last sequence/auto_increment value inserted into the
-#               database by this process/connection. undef if error.
-#
-sub lastValue
-{
-	my ( $this, $table, $field ) = @_;
-
-	return $this->{dbh}
-		->do( "SELECT currval(\'$table" . "_" . $field . "_seq\')" )
-		->fetchrow();
-}
-
-#############################################################################
 #   Sub
 #       getFieldsHash
 #

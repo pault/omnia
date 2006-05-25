@@ -50,32 +50,6 @@ sub databaseConnect
 		or die "Unable to get database connection!";
 }
 
-=head2 C<lastValue>
-
-Returns the last sequence/auto_increment value inserted into the
-database.  This will return undef on error.
-
-=over 4
-
-=item * $table
-
-the table (this MUST be the table used in the last query)
-
-=item * $field
-
-the auto_increment field
-
-=back
-
-=cut
-
-sub lastValue
-{
-	my ( $this, $table, $field ) = @_;
-
-	return $this->sqlSelect("LAST_INSERT_ID()");
-}
-
 =head2 C<getFieldsHash>
 
 Given a table name, returns the names of fields.  If C<$getHash> is true, it

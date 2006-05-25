@@ -3,9 +3,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 79;
+use Test::More tests => 77;
 use Test::Exception;
 use Test::MockObject;
+use Test::MockObject::Extends;
 
 # temporarily avoid sub redefined warnings
 my $mock = Test::MockObject->new();
@@ -35,12 +36,14 @@ is(
 is( $fake->{dbh}, 'new dbh', '... setting dbh field if connection succeeds' );
 
 can_ok( $package, 'lastValue' );
-$mock->set_always( 'sqlSelect', 'insert id' );
-my $result = Everything::DB::mysql::lastValue($mock);
-my ( $method, $args ) = $mock->next_call();
-is( $method, 'sqlSelect', 'lastValue() should fetch from the database' );
-is( $args->[1], 'LAST_INSERT_ID()', '... the last inserted id' );
-is( $result, 'insert id', '... returning the results' );
+
+{
+	my $mock = Test::MockObject::Extends->new( Everything::DB::mysql->new() );
+	$mock->set_always( getDatabaseHandle => $mock )
+		 ->set_always( last_insert_id    => 'insert id' );
+	my $result = $mock->lastValue();
+	is( $result, 'insert id', 'lastValue() should fetch the last inserted id' );
+}
 
 my $fields = [ { Field => 'foo', foo => 1 }, { Field => 'bar', bar => 2 } ];
 
@@ -50,7 +53,7 @@ $mock->set_always( 'getNode', $mock )->set_always( 'prepare_cached', $mock )
 	->set_true('execute')->set_series( 'fetchrow_hashref', @$fields );
 
 my @result = Everything::DB::mysql::getFieldsHash( $mock, 'table' );
-( $method, $args ) = $mock->next_call();
+my ( $method, $args ) = $mock->next_call();
 is( $method, 'getNode', 'getFieldsHash() should fetch node' );
 is( join( '-', @$args[ 1, 2 ] ),
 	'table-dbtable', '... by name, of dbtable type' );
@@ -76,7 +79,7 @@ can_ok( $package, 'tableExists' );
 $mock->set_always( prepare => $mock )->set_true('execute')
 	->set_series( 'fetchrow', 1, 2, 'target' )->set_true('finish');
 
-$result = Everything::DB::mysql::tableExists( $mock, 'target' );
+my $result = Everything::DB::mysql::tableExists( $mock, 'target' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'prepare', 'tableExists should check with the database' );
 is( $args->[1], 'show tables', '... fetching available table names' );

@@ -66,6 +66,32 @@ sub getDatabaseHandle
 	return $this->{dbh};
 }
 
+=head2 C<lastValue>
+
+Returns the last sequence/auto_increment value inserted into the
+database.  This will return undef on error.
+
+=over 4
+
+=item * $table
+
+the table (this MUST be the table used in the last query)
+
+=item * $field
+
+the auto_increment field
+
+=back
+
+=cut
+
+sub lastValue
+{
+	my ( $this, $table, $field ) = @_;
+
+	return $this->getDatabaseHandle()->last_insert_id();
+}
+
 =head2 C<sqlDelete>
 
 Quickie wrapper for deleting a row or rows from a specified table.
