@@ -1,12 +1,7 @@
-#!/usr/bin/perl -w
+#! perl
 
 use strict;
-
-BEGIN
-{
-	chdir 't' if -d 't';
-	unshift @INC, '../blib/lib', 'lib/', '..';
-}
+use warnings;
 
 use Test::More tests => 79;
 use Test::Exception;
@@ -17,19 +12,19 @@ my $mock = Test::MockObject->new();
 $mock->fake_module('Everything');
 $mock->fake_module('DBI');
 
-my $package = 'Everything::NodeBase::mysql';
+my $package = 'Everything::DB::mysql';
 
-use_ok($package);
+use_ok($package) or exit;
 
 can_ok( $package, 'databaseConnect' );
 my $fake = {};
 my @args = ( 0, 'new dbh' );
 my @dconn;
 $mock->fake_module( 'DBI', connect => sub { push @dconn, [@_]; shift @args } );
-throws_ok { Everything::NodeBase::mysql::databaseConnect( $fake, 1, 2, 3, 4 ) }
+throws_ok { Everything::DB::mysql::databaseConnect( $fake, 1, 2, 3, 4 ) }
 	qr/^Unable to get database connection!/,
 	'databaseConnect() should fail if db connection fails';
-lives_ok { Everything::NodeBase::mysql::databaseConnect( $fake, 1, 2, 3, 4 ) }
+lives_ok { Everything::DB::mysql::databaseConnect( $fake, 1, 2, 3, 4 ) }
 	'... but not if connection succeeds';
 is( @dconn, 2, '... calling DBI->connect' );
 is(
@@ -41,7 +36,7 @@ is( $fake->{dbh}, 'new dbh', '... setting dbh field if connection succeeds' );
 
 can_ok( $package, 'lastValue' );
 $mock->set_always( 'sqlSelect', 'insert id' );
-my $result = Everything::NodeBase::mysql::lastValue($mock);
+my $result = Everything::DB::mysql::lastValue($mock);
 my ( $method, $args ) = $mock->next_call();
 is( $method, 'sqlSelect', 'lastValue() should fetch from the database' );
 is( $args->[1], 'LAST_INSERT_ID()', '... the last inserted id' );
@@ -54,7 +49,7 @@ $mock->{dbh} = $mock;
 $mock->set_always( 'getNode', $mock )->set_always( 'prepare_cached', $mock )
 	->set_true('execute')->set_series( 'fetchrow_hashref', @$fields );
 
-my @result = Everything::NodeBase::mysql::getFieldsHash( $mock, 'table' );
+my @result = Everything::DB::mysql::getFieldsHash( $mock, 'table' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'getNode', 'getFieldsHash() should fetch node' );
 is( join( '-', @$args[ 1, 2 ] ),
@@ -66,7 +61,7 @@ is_deeply( $mock->{Fields}, $fields, '... caching the results' );
 is_deeply( \@result, $fields, '... defaulting to return complete hashrefs' );
 
 $mock->clear();
-@result = Everything::NodeBase::mysql::getFieldsHash( $mock, '', 0 );
+@result = Everything::DB::mysql::getFieldsHash( $mock, '', 0 );
 is( $mock->call_pos(-1), 'getNode',
 	'getFieldsHash() should respect fields cached in node' );
 ( $method, $args ) = $mock->next_call();
@@ -81,7 +76,7 @@ can_ok( $package, 'tableExists' );
 $mock->set_always( prepare => $mock )->set_true('execute')
 	->set_series( 'fetchrow', 1, 2, 'target' )->set_true('finish');
 
-$result = Everything::NodeBase::mysql::tableExists( $mock, 'target' );
+$result = Everything::DB::mysql::tableExists( $mock, 'target' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'prepare', 'tableExists should check with the database' );
 is( $args->[1], 'show tables', '... fetching available table names' );
@@ -90,7 +85,7 @@ is( $mock->call_pos(-1), 'finish', '... and closing the cursor' );
 
 $mock->mock( 'fetchrow', sub { } );
 ok(
-	!Everything::NodeBase::mysql::tableExists( $mock, 'target' ),
+	!Everything::DB::mysql::tableExists( $mock, 'target' ),
 	'... returning false if table name is not found'
 );
 
@@ -98,13 +93,13 @@ can_ok( $package, 'createNodeTable' );
 $mock->clear();
 $mock->set_series( 'tableExists', 1, 0 )->set_always( 'do', 'done' );
 
-$result = Everything::NodeBase::mysql::createNodeTable( $mock, 'elbat' );
+$result = Everything::DB::mysql::createNodeTable( $mock, 'elbat' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'tableExists', 'createNodeTable() should check if table exists' );
 is( $args->[1], 'elbat', '... by name' );
 is( $result, -1, '... returning -1 if so' );
 
-$result = Everything::NodeBase::mysql::createNodeTable( $mock, 'elbat' );
+$result = Everything::DB::mysql::createNodeTable( $mock, 'elbat' );
 ( $method, $args ) = $mock->next_call(2);
 is( $method, 'do', '... performing a SQL create otherwise' );
 like( $args->[1], qr/create table elbat/, '.. of the right name' );
@@ -117,13 +112,13 @@ $mock->clear();
 $mock->set_series( 'tableExists', 1, 0 )->set_always( 'do', 'done' )
 	->set_always( 'getDatabaseHandle', $mock );
 
-$result = Everything::NodeBase::mysql::createGroupTable( $mock, 'elbat' );
+$result = Everything::DB::mysql::createGroupTable( $mock, 'elbat' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'tableExists', 'createGroupTable() should check if table exists' );
 is( $args->[1], 'elbat', '... by name' );
 is( $result, -1, '... returning -1 if so' );
 
-$result = Everything::NodeBase::mysql::createGroupTable( $mock, 'elbat' );
+$result = Everything::DB::mysql::createGroupTable( $mock, 'elbat' );
 ( $method, $args ) = $mock->next_call(3);
 is( $method, 'do', '... performing a SQL create otherwise' );
 like( $args->[1], qr/create table elbat/, '.. of the right name' );
@@ -138,7 +133,7 @@ is( $result, 'done', '... returning the results' );
 
 can_ok( $package, 'dropFieldFromTable' );
 $mock->clear();
-$result = Everything::NodeBase::mysql::dropFieldFromTable( $mock, 't', 'f' );
+$result = Everything::DB::mysql::dropFieldFromTable( $mock, 't', 'f' );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'do', 'dropFieldFromTable() should do a SQL statement' );
 is(
@@ -150,16 +145,16 @@ is( $result, 'done', '... returning the results' );
 
 can_ok( $package, 'addFieldToTable' );
 ok(
-	!Everything::NodeBase::mysql::addFieldToTable( $mock, '' ),
+	!Everything::DB::mysql::addFieldToTable( $mock, '' ),
 	'addFieldToTable() should return false if table is blank'
 );
-ok( !Everything::NodeBase::mysql::addFieldToTable( $mock, 't', '' ),
+ok( !Everything::DB::mysql::addFieldToTable( $mock, 't', '' ),
 	'... or if fieldname is blank' );
-ok( !Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f', '' ),
+ok( !Everything::DB::mysql::addFieldToTable( $mock, 't', 'f', '' ),
 	'... or if type is blank' );
 
 $mock->clear();
-Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f', 'text', 0 );
+Everything::DB::mysql::addFieldToTable( $mock, 't', 'f', 'text', 0 );
 ( $method, $args ) = $mock->next_call();
 is( $method, 'do', 'addFieldToTable() should execute SQL statement' );
 like(
@@ -172,14 +167,14 @@ like(
 	qr/default "" not null/,
 	'... with a blank default for text fields'
 );
-Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f', 'int', 0 );
+Everything::DB::mysql::addFieldToTable( $mock, 't', 'f', 'int', 0 );
 ( $method, $args ) = $mock->next_call();
 like(
 	$args->[1],
 	qr/default "0" not null/,
 	'... a zero default for int fields'
 );
-Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f', 'something else',
+Everything::DB::mysql::addFieldToTable( $mock, 't', 'f', 'something else',
 	0 );
 ( $method, $args ) = $mock->next_call();
 like(
@@ -187,7 +182,7 @@ like(
 	qr/default "" not null/,
 	'... a blank default for all other fields'
 );
-Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f', 'something else',
+Everything::DB::mysql::addFieldToTable( $mock, 't', 'f', 'something else',
 	0, 'default' );
 ( $method, $args ) = $mock->next_call();
 like(
@@ -197,7 +192,7 @@ like(
 );
 
 $mock->mock( 'getFieldsHash', sub { } )->clear();
-Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f', 'something else',
+Everything::DB::mysql::addFieldToTable( $mock, 't', 'f', 'something else',
 	1, 'default' );
 ( $method, $args ) = $mock->next_call(2);
 is( $method, 'getFieldsHash', '... getting node fields if adding primary key' );
@@ -218,7 +213,7 @@ $mock->mock(
 	}
 )->clear();
 $result =
-	Everything::NodeBase::mysql::addFieldToTable( $mock, 't', 'f',
+	Everything::DB::mysql::addFieldToTable( $mock, 't', 'f',
 	'something else',
 	1, 'default' );
 ( $method, $args ) = $mock->next_call(3);
