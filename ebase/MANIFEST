@@ -40,6 +40,7 @@ lib/Everything/CacheQueue.pm
 lib/Everything/DB.pm
 lib/Everything/DB/mysql.pm
 lib/Everything/DB/Pg.pm
+lib/Everything/DB/sqlite.pm
 lib/Everything/HTML.pm
 lib/Everything/HTML/FormObject.pm
 lib/Everything/HTML/FormObject/AuthorMenu.pm
