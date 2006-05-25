@@ -1,13 +1,12 @@
-package Everything::DB::mysql;
+=head1	Everything::DB::mysql
 
-#############################################################################
-#	Everything::DB::mysql
-#		MySQL database support.
-#
-#	Copyright 2002 - 2003, 2006 Everything Development Inc.
-#	Format: tabs = 4 spaces
-#
-#############################################################################
+MySQL database support.
+
+Copyright 2002 - 2003, 2006 Everything Development Inc.
+
+=cut
+
+package Everything::DB::mysql;
 
 use strict;
 use warnings;
@@ -15,19 +14,34 @@ use warnings;
 use DBI;
 use base 'Everything::DB';
 
-#############################################################################
-#	Sub
-#		databaseConnect
-#
-#	Purpose
-#		Connect to the database.
-#
-#	Parameters
-#		dbname - the database name
-#		host - the hostname of the database server
-#		user - the username to use to connect
-#		pass - the password to use to connect
-#
+=head2 C<databaseConnect>
+
+Connect to the database.
+
+=over 4
+
+=item * dbname
+
+the database name
+
+=item * $host
+
+the hostname of the database server
+
+=item * $user
+
+the username to use to connect
+
+=item * $pass
+
+the password to use to connect
+
+=back
+
+This will throw an exception if the connection fails.
+
+=cut
+
 sub databaseConnect
 {
 	my ( $this, $dbname, $host, $user, $pass ) = @_;
@@ -36,22 +50,25 @@ sub databaseConnect
 		or die "Unable to get database connection!";
 }
 
-#############################################################################
-#	Sub
-#		lastValue
-#
-#	Purpose
-#		Return the last sequence/auto_increment value inserted into the
-#		database.
-#
-#	Parameters
-#		table - the table (this MUST be the table used in the last query)
-#		field - the auto_increment field
-#
-#	Returns
-#		The last sequence/auto_increment value inserted into the database by
-#		this process/connection. undef if error.
-#
+=head2 C<lastValue>
+
+Returns the last sequence/auto_increment value inserted into the
+database.  This will return undef on error.
+
+=over 4
+
+=item * $table
+
+the table (this MUST be the table used in the last query)
+
+=item * $field
+
+the auto_increment field
+
+=back
+
+=cut
+
 sub lastValue
 {
 	my ( $this, $table, $field ) = @_;
@@ -59,22 +76,26 @@ sub lastValue
 	return $this->sqlSelect("LAST_INSERT_ID()");
 }
 
-#############################################################################
-#   Sub
-#       getFieldsHash
-#
-#   Purpose
-#       Given a table name, returns a list of the fields or a hash.
-#
-#   Parameters
-#       $table - the name of the table to get fields for
-#       $getHash - set to 1 if you would also like the entire field hash
-#           instead of just the field name. (set to 1 by default)
-#
-#   Returns
-#       Array of field names, if getHash is 1, it will be an array of
-#       hashrefs of the fields.
-#
+=head2 C<getFieldsHash>
+
+Given a table name, returns the names of fields.  If C<$getHash> is true, it
+will be an array of hashrefs of the fields.
+
+=over 4
+
+=item * $table
+
+the name of the table to get fields for
+
+=item * $getHash
+
+Set to 1 if you would also like the entire field hash instead of just the field
+name. (By default, true.)
+
+=back
+
+=cut
+
 sub getFieldsHash
 {
 	my ( $this, $table, $getHash ) = @_;
@@ -99,19 +120,21 @@ sub getFieldsHash
 	return map { $$_{Field} } @{ $$DBTABLE{Fields} };
 }
 
-#############################################################################
-#	Sub
-#		tableExists
-#
-#	Purpose
-#		Check to see if a table of the given name exists in this database.
-#
-#	Parameters
-#		$tableName - the table to check for.
-#
-#	Returns
-#		1 if it exists, 0 if not.
-#
+=head2 C<tableExists>
+
+Check to see if a table of the given name exists in this database.  Returns 1
+if it exists, 0 if not.
+
+=over 4
+
+=item * $tableName
+
+The table to check.
+
+=back
+
+=cut
+
 sub tableExists
 {
 	my ( $this, $tableName ) = @_;
@@ -130,21 +153,24 @@ sub tableExists
 	return 0;
 }
 
-#############################################################################
-#	Sub
-#               createNodeTable
-#
-#	Purpose
-#		Create a new database table for a node, if it does not already exist.
-#		This creates a new table with one field for the id of the node in the
-#		form of tablename_id.
-#
-#	Parameters
-#		$tableName - the name of the table to create
-#
-#	Returns
-#		1 if successful, 0 if failure, -1 if it already exists.
-#
+=head2 C<createNodeTable>
+
+Create a new database table for a node, if it does not already exist.  This
+creates a new table with one field for the id of the node in the form of
+tablename_id.
+
+Returns 1 if successful, 0 if failure, -1 if table already exists.
+
+=over 4
+
+=item * $tableName
+
+the name of the table to create
+
+=back
+
+=cut
+
 sub createNodeTable
 {
 	my ( $this, $table ) = @_;
@@ -157,16 +183,21 @@ sub createNodeTable
 			. "PRIMARY KEY($tableid))" );
 }
 
-#############################################################################
-#	Sub
-#		createGroupTable
-#
-#	Purpose
-#		Creates a new group table if it does not already exist.
-#
-#	Returns
-#		1 if successful, 0 if failure, -1 if it already exists.
-#
+=head2 C<createGroupTable>
+
+Creates a new group table if it does not already exist.  Returns 1 if
+successful, 0 if failure, or -1 if table already exists.
+
+=over 4
+
+=item * $tableName
+
+the name of the table to create
+
+=back
+
+=cut
+
 sub createGroupTable
 {
 	my ( $this, $table ) = @_;
@@ -189,20 +220,24 @@ sub createGroupTable
 	return $dbh->do($sql);
 }
 
-#############################################################################
-#	Sub
-#		dropFieldFromTable
-#
-#	Purpose
-#		Remove a field from the given table.
-#
-#	Parameters
-#		$table - the table to remove the field from
-#		$field - the field to drop
-#
-#	Returns
-#		1 if successful, 0 if failure
-#
+=head2 C<dropFieldFromTable>
+
+Removes a field from the given table.  Returns 1 if successful, 0 on failure.
+
+=over 4
+
+=item * $table
+
+the table to remove the field from
+
+=item * $field
+
+the field to drop
+
+=back
+
+=cut
+
 sub dropFieldFromTable
 {
 	my ( $this, $table, $field ) = @_;
@@ -210,23 +245,37 @@ sub dropFieldFromTable
 	return $this->{dbh}->do("alter table $table drop $field");
 }
 
-#############################################################################
-#       Sub
-#               addFieldToTable
-#
-#       Purpose
-#               Add a new field to an existing database table.
-#
-#       Parameters
-#               $table - the table to add the new field to.
-#               $fieldname - the name of the field to add
-#               $type - the type of the field (ie int(11), char(32), etc)
-#               $primary - (optional) is this field a primary key?  Defaults to no.
-#               $default - (optional) the default value of the field.
-#
-#       Returns
-#               1 if successful, 0 if failure.
-#
+=head2 C<addFieldToTable>
+
+Adds a new field to an existing database table.  Returns 1 if successful, 0 on
+failure.
+
+=over 4
+
+=item * $table
+
+the table to add the new field to.
+
+=item * $fieldname
+
+the name of the field to add
+
+=item * $type
+
+the type of the field (ie int(11), char(32), etc)
+
+=item * $primary
+
+(optional) is this field a primary key?  Defaults to no.
+
+=item * $default
+
+(optional) the default value of the field.
+
+=back
+
+=cut
+
 sub addFieldToTable
 {
 	my ( $this, $table, $fieldname, $type, $primary, $default ) = @_;
@@ -273,56 +322,41 @@ sub addFieldToTable
 	return 1;
 }
 
-#############################################################################
-#       Sub
-#               startTransaction
-#
-#       Purpose
-#               Start a database transaction.
-#
-#       Parameters
-#               None.
-#
-#       Returns
-#               0 if a transaction is already in progress, 1 otherwise.
-#
+=head2 C<startTransaction>
+
+Starts a database transaction.
+
+Returns 0 if a transaction is already in progress, 1 otherwise.
+
+=cut
+
 sub startTransaction
 {
 	return 1;
 }
 
-#############################################################################
-#       Sub
-#               commitTransaction
-#
-#       Purpose
-#               Commit a database transaction.
-#
-#       Parameters
-#               None.
-#
-#       Returns
-#               1 if a transaction isn't already in progress, 0 otherwise.
-#
+=head2 commitTransaction
+
+Commits a database transaction.
+
+Returns 1 if a transaction isn't already in progress, 0 otherwise.
+
+=cut
+
 sub commitTransaction
 {
 	return 1;
 }
 
-#############################################################################
-#       Sub
-#               rollbackTransaction
-#
-#       Purpose
-#               Rollback a database transaction. This isn't guaranteed to work,
-#		due to lack of implementation in certain DBMs. Don't depend on it.
-#
-#       Parameters
-#               None.
-#
-#       Returns
-#               1 if a transaction isn't already in progress, 0 otherwise.
-#
+=head2 C<rollbackTransaction>
+
+Rolls back a database transaction. This isn't guaranteed to work,
+due to lack of implementation in certain DBMs. Don't depend on it.
+
+Returns 1 if a transaction isn't already in progress, 0 otherwise.
+
+=cut
+
 sub rollbackTransaction
 {
 	return 1;
