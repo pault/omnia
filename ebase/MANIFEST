@@ -124,6 +124,7 @@ lib/Everything/NodeBase.pm
 lib/Everything/NodeBase/Workspace.pm
 lib/Everything/NodeCache.pm
 lib/Everything/Security.pm
+lib/Everything/Test/DB.pm
 lib/Everything/Test/NodeBase.pm
 lib/Everything/Test/NodeBase/Workspace.pm
 lib/Everything/Util.pm

@@ -350,6 +350,8 @@ sub test_get_fields :Test( 2 )
 	is( join( '-', @$args ), "$nb-table-0", '... passing table name' );
 }
 
+=cut
+
 sub test_get_nodetype_tables :Test( 7 )
 {
 	my $self    = shift;
@@ -381,6 +383,8 @@ sub test_get_nodetype_tables :Test( 7 )
 	is_deeply( $nb->getNodetypeTables( 'flaz', 1 ), [ 'node' ],
 		'... but adding node if addNode flag is true' );
 }
+
+=cut
 
 sub test_get_ref :Test( 5 )
 {

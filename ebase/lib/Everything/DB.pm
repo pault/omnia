@@ -13,10 +13,12 @@ use strict;
 use warnings;
 
 use DBI;
+use Scalar::Util 'weaken';
 
 sub new
 {
 	my ($class, %args) = @_;
+	weaken( $args{nb} );
 	bless \%args, $class;
 }
 
@@ -520,7 +522,7 @@ sub getNodeByName
 
 	return unless ($TYPE);
 
-	$this->getRef($TYPE);
+	$this->{nb}->getRef($TYPE);
 
 	$NODE = $this->{cache}->getCachedNodeByName( $node, $$TYPE{title} );
 	return $NODE if ( defined $NODE );
@@ -860,6 +862,57 @@ sub getAllTypes
 	$cursor->finish();
 
 	return @allTypes;
+}
+
+=head2 C<getNodetypeTables>
+
+Returns an array of all the tables that a given nodetype joins on.
+This will create the array, if it has not already created it.
+
+=over 4
+
+=item * TYPE
+
+The string name or integer Id of the nodetype
+
+=item * addnode
+
+if true, add 'node' to list.  Defaults to false.
+
+=back
+
+Returns a reference to an array that contains the names of the tables to join
+on.  If the nodetype does not join on any tables, the array is empty.
+
+=cut
+
+sub getNodetypeTables
+{
+	my ( $this, $TYPE, $addNode ) = @_;
+	my @tablelist;
+
+	return unless $TYPE;
+
+	# We need to short circuit on nodetype and nodemethod, otherwise we
+	# get inf recursion.
+	if ( ( $TYPE eq '1' ) or ( ( ref $TYPE ) && ( $TYPE->{node_id} == 1 ) ) )
+	{
+		push @tablelist, 'nodetype';
+	}
+	elsif ( ref $TYPE && $TYPE->{title} eq 'nodemethod' )
+	{
+		push @tablelist, 'nodemethod';
+	}
+	else
+	{
+		$this->{nb}->getRef($TYPE);
+		my $tables = $TYPE->getTableArray();
+		push @tablelist, @$tables if $tables;
+	}
+
+	push @tablelist, 'node' if $addNode;
+
+	return \@tablelist;
 }
 
 =head2 C<dropNodeTable>

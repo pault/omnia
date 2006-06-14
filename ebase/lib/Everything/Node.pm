@@ -296,7 +296,6 @@ sub getClone
 
 =cut
 
-
 =head2 C<assignType>
 
 This is an "private" function that should never be needed to be called from
@@ -317,6 +316,8 @@ sub assignType
 	{
 		$$this{type} = $$this{DB}->getType( $$this{type_nodetype} );
 	}
+
+	bless $this, 'Everything::Node::'. $this->{type}->{title};
 }
 
 =cut

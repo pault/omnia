@@ -84,7 +84,10 @@ sub new
 	$this->{staticNodetypes} = $staticNodetypes ? 1 : 0;
 
 	my $storage_class = 'Everything::DB::' . $storage;
-	$this->{storage}  = $storage_class->new( cache => $this->{cache} );
+	$this->{storage}  = $storage_class->new(
+		nb    => $this,
+		cache => $this->{cache}
+	);
 
 	$this->{storage}->databaseConnect( $dbname, $host, $user, $pass );
 	$this->{nodetypeModules} = $this->buildNodetypeModules();
@@ -523,57 +526,6 @@ sub getFields
 =head1 Private methods
 
 These methods are private.  Don't call them.  They won't call you.
-
-=head2 C<getNodetypeTables>
-
-Returns an array of all the tables that a given nodetype joins on.
-This will create the array, if it has not already created it.
-
-=over 4
-
-=item * TYPE
-
-The string name or integer Id of the nodetype
-
-=item * addnode
-
-if true, add 'node' to list.  Defaults to false.
-
-=back
-
-Returns a reference to an array that contains the names of the tables to join
-on.  If the nodetype does not join on any tables, the array is empty.
-
-=cut
-
-sub getNodetypeTables
-{
-	my ( $this, $TYPE, $addNode ) = @_;
-	my @tablelist;
-
-	return unless $TYPE;
-
-	# We need to short circuit on nodetype and nodemethod, otherwise we
-	# get inf recursion.
-	if ( ( $TYPE eq '1' ) or ( ( ref $TYPE ) && ( $TYPE->{node_id} == 1 ) ) )
-	{
-		push @tablelist, 'nodetype';
-	}
-	elsif ( ref $TYPE && $TYPE->{title} eq 'nodemethod' )
-	{
-		push @tablelist, 'nodemethod';
-	}
-	else
-	{
-		$this->getRef($TYPE);
-		my $tables = $TYPE->getTableArray();
-		push @tablelist, @$tables if $tables;
-	}
-
-	push @tablelist, 'node' if $addNode;
-
-	return \@tablelist;
-}
 
 =head2 C<getRef>
 

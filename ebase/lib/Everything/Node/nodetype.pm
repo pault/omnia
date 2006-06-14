@@ -109,6 +109,7 @@ sub construct
 			Everything::logErrors("Missing '$field'")
 				unless defined $this->{$field};
 
+			$PARENT->{$field} ||= '';
 			if ( $this->{$field} eq '-1' )
 			{
 				$this->{$field} = $PARENT->{$field};
