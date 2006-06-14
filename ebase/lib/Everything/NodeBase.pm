@@ -23,7 +23,7 @@ use Scalar::Util 'reftype';
 BEGIN
 {
 	my @methlist = qw(
-	buildNodetypeModules getDatabaseHandle sqlDelete sqlSelect sqlSelectJoined
+	getDatabaseHandle sqlDelete sqlSelect sqlSelectJoined
 	sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert _quoteData sqlExecute
 	getNodeByIdNew getNodeByName constructNode selectNodeWhere getNodeCursor
 	countNodeMatches getAllTypes dropNodeTable quote genWhereString
@@ -87,7 +87,7 @@ sub new
 	$this->{storage}  = $storage_class->new( cache => $this->{cache} );
 
 	$this->{storage}->databaseConnect( $dbname, $host, $user, $pass );
-	$this->{nodetypeModules} = $this->{storage}->buildNodetypeModules();
+	$this->{nodetypeModules} = $this->buildNodetypeModules();
 
 	if ( $this->getType('setting') )
 	{
@@ -135,6 +135,30 @@ sub joinWorkspace
 	bless $this, 'Everything::NodeBase::Workspace';
 
 	$this->joinWorkspace( $WORKSPACE );
+}
+
+=head2 C<buildNodetypeModules>
+
+Perl 5.6 throws errors if we test "can" on a non-existing module.  This
+function builds a hashref with keys to all of the modules that exist in the
+Everything::Node:: dir This also casts "use" on the modules, loading them into
+memory
+
+=cut
+
+sub buildNodetypeModules
+{
+	my $self = shift;
+
+	my %modules;
+
+	for my $nodetype ( $self->{storage}->fetch_all_nodetype_names() )
+	{
+		my $module = "Everything::Node::$nodetype";
+		$modules{ $module } = 1 if $self->loadNodetypeModule( $module );
+	}
+
+	return \%modules;
 }
 
 =head2 C<rebuildNodetypeModules>

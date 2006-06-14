@@ -20,33 +20,28 @@ sub new
 	bless \%args, $class;
 }
 
-=head2 C<buildNodetypeModules>
+=head2 C<fetch_all_nodetype_names()>
 
-Perl 5.6 throws errors if we test "can" on a non-existing module.  This
-function builds a hashref with keys to all of the modules that exist in the
-Everything::Node:: dir This also casts "use" on the modules, loading them into
-memory
+This method returns a list of the names of all nodetypes in the system.
 
 =cut
 
-sub buildNodetypeModules
+sub fetch_all_nodetype_names
 {
-	my ($this) = @_;
+	my $self = shift;
+	my $csr  = $self->sqlSelectMany( 'title', 'node', 'type_nodetype=1' );
 
-	my $csr = $this->sqlSelectMany( 'title', 'node', 'type_nodetype=1' );
 	return unless $csr;
 
-	my %modules;
+	my @modules;
 
 	while ( my ($title) = $csr->fetchrow_array() )
 	{
 		$title =~ s/\W//g;
-		my $modname = "Everything::Node::$title";
-
-		$modules{$modname} = 1 if $this->loadNodetypeModule($modname);
+		push @modules, $title;
 	}
 
-	return \%modules;
+	return @modules;
 }
 
 =head2 C<getDatabaseHandle>

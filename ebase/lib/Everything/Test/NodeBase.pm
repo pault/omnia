@@ -49,7 +49,8 @@ sub reset_mock_nb
 	my $module = $self->module_class();
 
 	my $mock_db = Test::MockObject->new();
-	$mock_db->set_false(qw( getNodeByIdNew getNodeByName ))
+	$mock_db->set_false(qw( getNodeByIdNew getNodeByName
+	                        -fetch_all_nodetype_names ))
 			->set_true(qw( databaseConnect buildNodetypeModules ))
 			->fake_module( 'Everything::DB::fake_db', 'new', sub { $mock_db });
 
@@ -60,7 +61,7 @@ sub reset_mock_nb
 BEGIN
 {
 	for my $method (qw(
-		buildNodetypeModules getDatabaseHandle sqlDelete sqlSelect
+		getDatabaseHandle sqlDelete sqlSelect
 		sqlSelectJoined sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert
 		_quoteData sqlExecute getNodeByIdNew getNodeByName constructNode
 		selectNodeWhere getNodeCursor countNodeMatches getAllTypes
@@ -119,6 +120,26 @@ sub test_join_workspace :Test( 6 )
 		'... returning result of joinWorkspace() call in new package' );
 	ok( $nb->isa( 'Everything::NodeBase::Workspace' ),
 		'... reblessing into workspace package' );
+}
+
+sub test_build_nodetype_modules :Test( 2 )
+{
+	my $self    = shift;
+	my $nb      = $self->{nb};
+	my $storage = $self->{storage};
+
+	$nb->set_series( loadNodetypeModule => 1, 1, 0, 1 );
+	$storage->mock(
+		fetch_all_nodetype_names => sub { qw( node nodetype cow dbtable ) }
+	);
+
+	my $result  = $nb->buildNodetypeModules();
+	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
+	is_deeply(
+		$result,
+		{ map { 'Everything::Node::' . $_ => 1 } qw( node nodetype dbtable ) },
+		'... for all loadable nodes fetched from storage engine'
+	);
 }
 
 sub test_rebuild_nodetype_modules :Test( 1 )
