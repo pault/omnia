@@ -23,10 +23,10 @@ use Scalar::Util 'reftype';
 BEGIN
 {
 	my @methlist = qw(
-	getDatabaseHandle sqlDelete sqlSelect sqlSelectJoined
+	getDatabaseHandle sqlDelete sqlSelect sqlSelectJoined getFieldsHash
 	sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert _quoteData sqlExecute
 	getNodeByIdNew getNodeByName constructNode selectNodeWhere getNodeCursor
-	countNodeMatches getAllTypes dropNodeTable quote genWhereString
+	countNodeMatches getAllTypes dropNodeTable quote genWhereString lastValue
 	);
 
 	for my $method (@methlist)

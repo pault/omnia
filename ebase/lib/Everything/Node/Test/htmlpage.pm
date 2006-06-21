@@ -30,7 +30,8 @@ sub test_insert :Test( +5 )
 
 	$node->{DB} = $db;
 	delete $node->{parent_container};
-	$node->set_true( 'SUPER' );
+	$node->set_true( 'SUPER' )
+	     ->clear();
 	$db->set_series( -getNode => undef, 'gnc' );
 
 	$node->insert( 'user' );

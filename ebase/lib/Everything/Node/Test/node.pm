@@ -5,11 +5,18 @@ use warnings;
 
 use base 'Test::Class';
 
+use DBI;
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
 
+use File::Copy;
+use File::Temp;
+use File::Spec::Functions;
 use Scalar::Util qw( reftype blessed );
+
+use Everything::NodeBase;
+use Everything::DB::sqlite;
 
 sub node_class
 {
@@ -24,6 +31,8 @@ sub startup :Test( startup => 3 )
 	my $self         = shift;
 	$self->{errors}  = [];
 
+	$self->make_base_test_db();
+
 	my $mock         = Test::MockObject->new();
 	$mock->fake_module( 'Everything', logErrors => sub
 		{
@@ -32,12 +41,12 @@ sub startup :Test( startup => 3 )
 	);
 	*Everything::Node::node::DB = \$mock;
 
-	my $module = $self->node_class();
+	my $module     = $self->node_class();
 	my %import;
 
 	my $mockimport = sub { $import{ +shift }++ };
 
-	for my $mod (qw( DBI Everything Everything::NodeBase Everything::XML))
+	for my $mod (qw( DBI Everything Everything::XML))
 	{
 		$mock->fake_module( $mod, import => $mockimport );
 	}
@@ -48,6 +57,28 @@ sub startup :Test( startup => 3 )
 	can_ok( $module, 'new' );
 	isa_ok( $module->new(), $module );
 }
+
+sub make_base_test_db
+{
+	my $self      = shift;
+
+	my $blank_db  = catfile(qw( t ebase.db ));
+	require 't/lib/build_test_db.pm' unless -e $blank_db;
+
+	my $tempdir   = File::Temp::tempdir( DIR => 't', CLEANUP => 1 );
+	my $module    = $self->node_class();
+	my $module_db = catfile( $tempdir, $module . '_base.db' );
+
+	copy( $blank_db, $module_db )
+		or die "No test database for $module $!";
+
+	$self->{base_test_db} = $module_db;
+	$self->{tempdir}      = $tempdir;
+	$self->populate_base_database( $module_db );
+}
+
+# override if necessary
+sub populate_base_database {}
 
 sub test_extends :Test( 1 )
 {
@@ -70,13 +101,31 @@ sub test_dbtables :Test( 2 )
 sub make_fixture :Test(setup)
 {
 	my $self      = shift;
-	my $db        = Test::MockObject->new();
+	$self->make_test_db();
+
+	my $nb        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
+	my $db        = Test::MockObject::Extends->new( $nb );
 	$self->reset_mock_node();
 
 	*Everything::Node::node::DB = \$db;
 	$self->{mock_db}            = $db;
 	$self->{node}{DB}           = $db;
 	$self->{errors}             = [];
+}
+
+sub make_test_db
+{
+	my $self         = shift;
+	my $method_name  = $self->current_method();
+	my $base_db      = $self->{base_test_db};
+	my $tempdir      = $self->{tempdir};
+	my $test_db      = catfile( $tempdir, $method_name . '.db' );
+
+	copy( $base_db, $test_db )
+		or die "Cannot create test db for $method_name: $!\n";
+
+	$self->{test_db}  = $test_db;
+	$self->{test_dbh} = DBI->connect( "dbi:SQLite:dbname=$test_db", '', '' );
 }
 
 sub reset_mock_node
@@ -155,58 +204,48 @@ sub test_insert_restrict_dupes :Test( 2 )
 		'... or should return the inserted node_id otherwise' );
 }
 
-sub test_insert :Test( 10 )
+sub test_insert :Test( 3 )
 {
 	my $self               = shift;
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
+	my $type               = $db->getType( 'nodetype' );
+
 	$node->{node_id}       = 0;
-	$node->{type}          = $node;
-	$node->{restrictdupes} = 1;
+	$node->{type}          = $type;
+	$node->{type_nodetype} = 1;
 
 	$node->set_true(qw( -hasAccess -restrictTitle -getId ));
-	$db->set_always( getNode => { key => 'value' } )
-	    ->set_always( -lastValue => 101 );
 	$node->{foo}  = 11;
 
 	delete $node->{type}{restrictdupes};
-	$db->set_list( -getFields => 'foo' )
-	   ->set_series( getNode => 0, {} )
-	   ->set_true( 'sqlInsert' )
-	   ->set_always( -now => 'now' )
-	   ->clear();
 
-	$node->set_always( -getTableArray => [ 'table' ] )
-		 ->set_true( 'cache' );
+	my $time = time();
+	$db->set_always( -now => $time );
+
+	$node->set_true( 'cache' );
 	$node->{node_id} = 0;
 
-	ok( defined $node->insert( 'user' ),
-		'... but should return node_id if no dupes exist' );
-	
-	my ( $method, $args ) = $db->next_call( 2 );
-	is( $method, 'sqlInsert', '... inserting base node' );
+	my $result = $node->insert( 'user' );
 
-	is( $args->[1], 'node', '... into the node table' );
-	is_deeply( $args->[2],
+	ok( defined $result, 'insert() should return a node_id if no dupes exist' );
+	is( $result, 4, '... with the proper sequence' );
+
+	my $dbh = $db->{storage}->getDatabaseHandle();
+	my $sth = $dbh->prepare(
+		'SELECT createtime, author_user, hits FROM node WHERE node_id=?'
+	);
+	$sth->execute( $result );
+	my $node_ref = $sth->fetchrow_hashref();
+	is_deeply( $node_ref,
 		{
-			-createtime => 'now',
+			createtime  => $time,
 			author_user => 'user',
 			hits        => 0,
-			foo         => 11,
 		},
 		'... with the proper fields'
 	);
-
-	( $method, $args ) = $db->next_call();
-	is( $method, 'sqlInsert', '... inserting node' );
-	is( $args->[1], 'table', '... into proper table' );
-	is_deeply( $args->[2], { foo => 11, table_id => 101 },
-		'... proper fields' );
-
-	( $method, $args ) = $db->next_call();
-	is( $method, 'getNode', '... fetching node' );
-	is( join( '-', @$args ), "$db-101-force", '... forcing refresh' );
-	is( $node->next_call(), 'cache', '... and caching node' );
+	$sth->finish();
 }
 
 sub test_update_access :Test( 3 )

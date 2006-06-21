@@ -79,7 +79,7 @@ sub getFieldsHash
 	$getHash = 1 unless defined $getHash;
 	$table ||= "node";
 
-	my $DBTABLE = $this->getNode( $table, 'dbtable' ) || {};
+	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' ) || {};
 
 	unless ( exists $DBTABLE->{Fields} )
 	{
@@ -94,6 +94,12 @@ sub getFieldsHash
 
 	return @{ $DBTABLE->{Fields} } if $getHash;
 	return map { $_->{Field} } @{ $DBTABLE->{Fields} };
+}
+
+sub lastValue
+{
+	my $self = shift;
+	return $self->{dbh}->func( 'last_insert_rowid' );
 }
 
 =head2 C<tableExists>
