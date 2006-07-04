@@ -17,6 +17,7 @@ use strict;
 
 use DBI;
 use Scalar::Util 'reftype';
+use Everything::NodeBase;
 
 use vars qw($DB $VERSION);
 
