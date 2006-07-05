@@ -485,7 +485,7 @@ sub getNodeByIdNew
 
 	$selectop ||= "";
 
-	return $this->getNodeZero() if ( $node_id == 0 );
+	return $this->{nb}->getNodeZero() if ( $node_id == 0 );
 	return unless $node_id;
 
 	if ( $selectop ne "force" )
@@ -748,7 +748,7 @@ sub getNodeCursor
 	$nodeTableOnly ||= 0;
 
 	# Make sure we have a nodetype object
-	$TYPE = $this->getType($TYPE);
+	$TYPE = $this->{nb}->getType($TYPE);
 
 	my $wherestr = $this->genWhereString( $WHERE, $TYPE );
 
@@ -856,7 +856,7 @@ sub getAllTypes
 
 	while ( my ($node_id) = $cursor->fetchrow() )
 	{
-		push @allTypes, $this->getNode($node_id);
+		push @allTypes, $this->getNodeByIdNew($node_id);
 	}
 
 	$cursor->finish();
@@ -1029,7 +1029,7 @@ sub genWhereString
 			# want to compare the ID of the node, not the hash reference.
 			if ( eval { $WHERE->{$key}->isa('Everything::Node') } )
 			{
-				$$WHERE{$key} = $this->getId( $WHERE->{$key} );
+				$$WHERE{$key} = $this->{nb}->getId( $WHERE->{$key} );
 			}
 
 			# If $key starts with a '-', it means it's a single value.
@@ -1050,7 +1050,7 @@ sub genWhereString
 					foreach my $item (@$LIST)
 					{
 						$orstr .= " or " if ( $orstr ne "" );
-						$item = $this->getId($item);
+						$item = $this->{nb}->getId($item);
 						$orstr .= $key . '=' . $this->quote($item);
 					}
 
@@ -1082,7 +1082,7 @@ sub genWhereString
 	if ( defined $TYPE )
 	{
 		$wherestr .= " AND" if ( $wherestr ne "" );
-		$wherestr .= " type_nodetype=" . $this->getId($TYPE);
+		$wherestr .= " type_nodetype=" . $this->{nb}->getId($TYPE);
 	}
 
 	return $wherestr;
