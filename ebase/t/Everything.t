@@ -6,15 +6,13 @@ use warnings;
 BEGIN
 {
 	package Everything;
-	use subs qw( gmtime caller );
+  	use subs qw( gmtime caller );
 
 	package main;
 
 	chdir 't' if -d 't';
-	use lib '../lib';
+	use lib '../lib', 'lib';
 
-	require 'lib/FakeNodeBase.pm';
-	$INC{'Everything/NodeBase.pm'} = 1;
 }
 
 use TieOut;
@@ -155,16 +153,21 @@ is( join( '', getParamArray( 'red,blue', @args ) ),
 }
 
 # initEverything()
-SKIP:
+
 {
+        no warnings qw/redefine once/;
 	local @Everything::fsErrors = '123';
 	local @Everything::bsErrors = '321';
 	local ( $Everything::DB, %Everything::NODEBASES );
+	my $db = Test::MockObject->new;
+	$db->fake_module('Everything::DB::mysql');
 
+	local *Everything::NodeBase::getType = sub {0};
+
+	$db->fake_new('Everything::DB::mysql');
+	$db->set_true('databaseConnect', 'fetch_all_nodetype_names', 'getNodeByIdNew', 'getNodeByName');
 	initEverything( 'onedb', { staticNodetypes => 1 } );
-
-	is( join( '', @$Everything::DB ), 'onedb1mysql',
-		'initEverything() should create a new database if needed' );
+	isa_ok($Everything::DB, 'Everything::NodeBase');
 	is( @Everything::fsErrors, 0, '... and should clear @fsErrors' );
 	is( @Everything::bsErrors, 0, '... and @bsErrors' );
 
@@ -186,28 +189,8 @@ SKIP:
 	local @INC = 'lib';
 
 	@INC = 'lib';
-
-	my $path = File::Spec->catdir(qw( lib Everything DB ));
-
-	if ( -d $path or mkpath $path)
-	{
-		local *OUT;
-		if ( open( OUT, '>', File::Spec->catfile( $path, 'foo.pm' ) ) )
-		{
-			( my $foo = <<'			END_HERE') =~ s/^\t+//gm;
-			package Everything::DB::foo;
-
-			sub new { 'foo' }
-	
-			1;
-			END_HERE
-
-			print OUT $foo;
-			$status = 1;
-		}
-	}
-
-	skip( 'Cannot write fake module', 2 ) unless $status;
+        $db->fake_module('Everything::DB::foo');
+        $db->fake_new('Everything::DB::foo');
 
 	eval { initEverything( 'foo', { dbtype => 'foo' } ) };
 	is( $@, '', '... loading nodebase for requested database type' );
@@ -281,57 +264,77 @@ is( getFrontsideErrors(), \@Everything::fsErrors,
 is( getBacksideErrors(), \@Everything::bsErrors,
 	'getBacksideErrors() should return reference to @bsErrors' );
 
-# searchNodeName()
-{
-	local $Everything::DB;
-	$Everything::DB = Everything::NodeBase->new();
+ # searchNodeName()
+ {
+ 	local $Everything::DB = Test::MockObject->new;
+ 	my $mock = Test::MockObject->new;
+	my $quotes;
+	my $id = [];
+	my @calls;
+ 	my $fake_nodes = { foo => 1, bar => 2};
+ 	$Everything::DB->mock('getId',
+                               sub { push @$id, $fake_nodes->{$_[1]};
+                                     return $fake_nodes->{$_[1]} }
+                              )
+	               ->set_always('getNode', $mock)
+	               ->set_always('getDatabaseHandle', $mock)
+		       ->mock('sqlSelectMany',
+			      sub { push @calls, ['sqlSelectMany', @_ ]; $mock}
+	      		     );
 
-	my $skipwords = Test::MockObject->new();
-	$skipwords->set_always( getVars => { ab => 1, abcd => 1, } );
+ 	$mock->mock('quote', sub { my $r = qq{'$_[1]'}; $quotes .= $r; $r;});
+	$mock->set_series('fetchrow_hashref', 1, 2, 3);
 
-	Everything::NodeBase::setNode( nosearchwords => $skipwords );
+	## to test skipped words
+ 	$mock->set_always( getVars => { ab => 1, abcd => 1, } );
 
-	is( Everything::searchNodeName(''),
-		undef,
-		'searchNodeName() should return without workable words to find' );
 
-	Everything::NodeBase::calls();
-	Everything::NodeBase::setId( foo => 1, bar => 2 );
-	Everything::searchNodeName( '', [ 'foo', 'bar' ] );
-	my @calls = Everything::NodeBase::calls();
-	is( $calls[0]->[1], 'foo', '... should call getId() for first type' );
-	is( $calls[1]->[1], 'bar', '... and subsequent types (if passed)' );
 
-	my $results = FakeDBI->new( [ 1, 2, 3 ] );
-	Everything::NodeBase::setResults($results);
-	my $found =
-		Everything::searchNodeName( 'ab aBc!  abcd a ee', [ 'foo', 'bar' ] );
-	@calls = Everything::NodeBase::calls();
-	is( $calls[4]->[0], 'quote', '... should quote() searchable words' );
-	like( $calls[4]->[1], qr/abc\\!/, '... should escape nonword chars too' );
+ 	is( Everything::searchNodeName(''),
+ 		undef,
+ 		'searchNodeName() should return without workable words to find' );
 
-	is( $calls[-1]->[0], 'sqlSelectMany',
-		'... should sqlSelectMany() matching titles' );
-	like(
-		$calls[-1]->[1],
-		qr/\*.+?lower.title.+?rlike.+abc.+\+.+/,
-		'... selecting by title with regexes'
-	);
-	like(
-		$calls[-1]->[3],
-		qr/AND .type_nodetype = 1 OR type_nodetype = 2/,
-		'... should constrain by type, if provided'
-	);
-	is(
-		$calls[-1]->[4],
-		'ORDER BY matchval DESC',
-		'... and should order results properly'
-	);
 
-	is( ref $found, 'ARRAY', '... should return an arrayref on success' );
-	is( @$found, 3, '... should find all proper results' );
-	is( join( '', @$found ), '123', '... and should return results' );
-}
+ 	Everything::searchNodeName( '', [ 'foo', 'bar' ] );
+         is ($id->[0], 1, '... should call getId() for first type' );
+         is ($id->[1], 2, '... should call getId() for subsequent types (if passed)');
+
+ 	Everything::searchNodeName('quote');
+ 	is( $quotes, q{'[[:<:]]quote[[:>:]]'}, '... should quote() searchable words' );
+
+	# reset series
+	$mock->set_series('fetchrow_hashref', 1, 2, 3);
+
+ 	my $found =
+ 		Everything::searchNodeName( 'ab aBc!  abcd a ee', [ 'foo', 'bar' ] );
+
+
+ 	like( $quotes, qr/abc\\!/, '... should escape nonword chars too' );
+
+  	is( $calls[-1]->[0], 'sqlSelectMany',
+  		'... should sqlSelectMany() matching titles' );
+  	like(
+  		$calls[-1]->[2],
+  		qr/\*.+?lower.title.+?rlike.+abc.+/,
+  		'... selecting by title with regexes'
+  	);
+
+  	like(
+  		$calls[-1]->[4],
+  		qr/AND .type_nodetype = 1 OR type_nodetype = 2/,
+  		'... should constrain by type, if provided'
+  	);
+  	is(
+  		$calls[-1]->[5],
+  		'ORDER BY matchval DESC',
+  		'... and should order results properly'
+  	);
+
+ 	is( ref $found, 'ARRAY', '... should return an arrayref on success' );
+
+ 	is( @$found, 3, '... should find all proper results' );
+ 	is( join( '', @$found ), '123', '... and should return results' );
+ }
 
 # getCallStack() and dumpCallStack()
 {
