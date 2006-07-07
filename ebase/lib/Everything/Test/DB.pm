@@ -71,6 +71,12 @@ sub redefine_subs {
 
 }
 
+sub fixture_zap_stuff :Test(setup) {
+  my $self = shift;
+  $self->nuke_expected_sql;
+
+}
+
 sub fake_dbh {
     my $self = shift;
     $self->{instance}->{dbh} = Test::MockObject->new;
@@ -87,7 +93,30 @@ sub fake_dbh {
 
 }
 
+{
+my @expected_sql =();
+sub add_expected_sql {
+  my $self = shift;
+  unshift @expected_sql, @_;
+}
 
+sub nuke_expected_sql {
+  my $self = shift;
+  @expected_sql = ();
+}
+
+sub shift_expected_sql {
+  my $self = shift;
+  return shift @expected_sql;
+}
+
+sub isset_expected_sql {
+  my $self = shift;
+  return 1 if @expected_sql;
+  return 0;
+}
+
+}
 my @tablearray = ();
 
 sub fake_node {
@@ -225,14 +254,17 @@ qr/(?:foo='bar'|bar='foo')\s+AND\s+(?:foo='bar'|bar='foo')\s+AND\s+type_nodetype
 
 }
 
+
 sub test_fetch_all_nodetype_names : Test(2) {
     my $self   = shift;
     $self->{instance}->{dbh}->clear;
+
+    $self->add_expected_sql('SELECT title FROM node WHERE type_nodetype=1 ') unless $self->isset_expected_sql; 
     my @result = $self->{instance}->fetch_all_nodetype_names;
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
         $args->[1],
-        'SELECT title FROM node WHERE type_nodetype=1 ',
+        $self->shift_expected_sql(),
         'fetch_all_nodetype_names produces some sql'
     );
     is_deeply( \@result, [qw/one two three/] ),
@@ -268,6 +300,9 @@ sub test_sql_delete : Test(2) {
     my $self  = shift;
     my $value = 'a value';
 
+    $self->add_expected_sql('DELETE FROM atable WHERE foo="bar"')  unless $self->isset_expected_sql;
+
+
     ## This one only takes three arguments
     my @args = ( 'atable', 'foo="bar"', [$value] );
     $self->{instance}->{dbh}->clear;
@@ -275,7 +310,7 @@ sub test_sql_delete : Test(2) {
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
         $args->[1],
-        'DELETE FROM atable WHERE foo="bar"',
+        $self->shift_expected_sql,
         'sqlDelete creates some sql, we test it.'
     );
     is( $cursor, $self->{instance}->{dbh}, '...and returns a value.' );
@@ -284,6 +319,10 @@ sub test_sql_delete : Test(2) {
 
 sub test_sql_select : Test(3) {
     my $self  = shift;
+
+    $self->add_expected_sql('SELECT node FROM atable WHERE title = ? ORDER BY title')  unless $self->isset_expected_sql;
+
+
     my $value = 'a value';
     my @args  = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [$value] );
 
@@ -297,7 +336,7 @@ sub test_sql_select : Test(3) {
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
         $args->[1],
-        'SELECT node FROM atable WHERE title = ? ORDER BY title',
+        $self->shift_expected_sql,
         'sqlSelect creates some sql, we test it.'
     );
     ($method, $args) =  $self->{instance}->{dbh}->next_call;
@@ -308,6 +347,8 @@ sub test_sql_select : Test(3) {
 
 sub test_sql_select_joined : Test(4) {
     my $self  = shift;
+
+    $self->add_expected_sql(qr/SELECT node FROM atable LEFT JOIN (?:foo|one) ON (?:bar|two) LEFT JOIN (?:foo|one) ON (?:bar|two) WHERE title = \? ORDER BY title/) unless $self->isset_expected_sql;
     my $value = 'a value';
 
     my @args = (
@@ -321,25 +362,27 @@ sub test_sql_select_joined : Test(4) {
     my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     like(
         $args->[1],
-qr/SELECT node FROM atable LEFT JOIN (?:foo|one) ON (?:bar|two) LEFT JOIN (?:foo|one) ON (?:bar|two) WHERE title = \? ORDER BY title/,
+	 $self->shift_expected_sql,
         'sqlSelectJoined makes some sql'
     );
     is( $method, 'prepare', '...it calls prepare on the DBI' );
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     is( $method, 'execute', '...it calls execute on the DBI' );
     is_deeply( $cursor, $args->[0], '...returns the cursor' );
-
 }
 
 sub test_sql_select_many : Test(2) {
     my $self  = shift;
+
+    $self->add_expected_sql('SELECT node FROM atable WHERE title = ? ORDER BY title') unless $self->isset_expected_sql;
+
     my $value = 'a value';
     my @args = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [ \$value ] );    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlSelectMany(@args);
     my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     is(
         $args->[1],
-        'SELECT node FROM atable WHERE title = ? ORDER BY title',
+        $self->shift_expected_sql,
         'sqlSelectMany creates some sql, we test it.'
     );
     is_deeply(
@@ -351,6 +394,8 @@ sub test_sql_select_many : Test(2) {
 
 sub test_sql_select_hashref : Test(4) {
     my $self  = shift;
+
+    $self->add_expected_sql('SELECT node FROM atable WHERE title = ? ORDER BY title') unless $self->isset_expected_sql;
     my $value = 'a value';
 
     my @args = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [ \$value ] );
@@ -362,7 +407,7 @@ sub test_sql_select_hashref : Test(4) {
     my ($method, $args) =  $self->{instance}->{dbh}->next_call; 
    is(
         $args->[1],
-        'SELECT node FROM atable WHERE title = ? ORDER BY title',
+        $self->shift_expected_sql,
         'sqlSelectHashref makes some sql'
     );
     is( $method, 'prepare', '...it calls prepare on the DBI' );
@@ -378,15 +423,17 @@ sub test_sql_select_hashref : Test(4) {
 
 sub test_sql_update : Test(6) {
     my $self  = shift;
-    my $value = 'a value';
 
+    $self->add_expected_sql(qr/UPDATE atable SET foo = \?\s+WHERE title = \?/ms) unless $self->isset_expected_sql;
+
+    my $value = 'a value'; 
     my @args = ( 'atable', { foo => 'bar' }, 'title = ?', [$value] );
     $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlUpdate(@args);
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     like(
         $args->[1],
-        qr/UPDATE atable SET foo = \?\s+WHERE title = \?/ms,
+        $self->shift_expected_sql,
         'sqlUpdate makes some sql'
     );
     is( $method, 'prepare', '...it calls prepare on the DBI' );
@@ -395,12 +442,13 @@ sub test_sql_update : Test(6) {
     is( $args->[1], 'bar',     '...check bound values' );
     is( $args->[2], 'a value', '...check bound values' );
     ok($cursor);
-
 }
 
 sub test_sql_insert : Test(2) {
     my $self  = shift;
     my $value = 'a value';
+
+    $self->add_expected_sql(qr/INSERT INTO atable \((?:one|foo), (?:one|foo)\) VALUES\(\?, \?\)/ )  unless $self->isset_expected_sql;
 
     ## takes a table name and then a hash for the where clause
     my @args = ( 'atable', { foo => 'bar', one => 'two' } );
@@ -408,11 +456,10 @@ sub test_sql_insert : Test(2) {
     my $cursor = $self->{instance}->sqlInsert(@args);
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     like( $args->[1],
-        qr/INSERT INTO atable \((?:one|foo), (?:one|foo)\) VALUES\(\?, \?\)/ );
+        $self->shift_expected_sql);
 
     ## returns true on success;
     ok($cursor);
-
 }
 
 sub test_quote_data : Test(6) {
@@ -458,6 +505,8 @@ sub test_get_node_by_id_new : Test(6) {
 
     $self->fake_nodecache_reset();
 
+    $self->add_expected_sql('SELECT * FROM node WHERE node_id=2 ')  unless $self->isset_expected_sql;
+
     $self->{instance}->{dbh}->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
     my $rv = $self->{instance}->getNodeByIdNew(0);
     is( $rv->{title}, '/', 'getNodeByIdNew can return the zero node' );
@@ -470,7 +519,7 @@ sub test_get_node_by_id_new : Test(6) {
     is( $method, 'prepare', '...otherwise calls prepare on DBI' );
     is(
         $args->[1],
-        'SELECT * FROM node WHERE node_id=2 ',
+       $self->shift_expected_sql,
         '...and prepares some sql'
     );
     ($method, $args) =  $self->{instance}->{dbh}->next_call;
@@ -487,6 +536,9 @@ sub test_construct_node : Test(5) {
     ## skeleton having been constructed from the node table. Hence, it
     ## wants a semi-contstructed node passed as an argument
     my $self = shift;
+    
+    $self->add_expected_sql('SELECT * FROM table2 LEFT JOIN table1 ON table2_id=table1_id WHERE table2_id=100 ')  unless $self->isset_expected_sql;
+
     my $node = { type_nodetype => 99, node_id => 100 };
     @tablearray = ();
     is( $self->{instance}->constructNode($node),
@@ -503,7 +555,7 @@ sub test_construct_node : Test(5) {
    is( $method, 'prepare', '...it calls prepare on DBI' );
     is(
         $args->[1],
-'SELECT * FROM table2 LEFT JOIN table1 ON table2_id=table1_id WHERE table2_id=100 ',
+       $self->shift_expected_sql(),
         '...and prepares some sql'
     );
     is( $node->{bright}, 'sky',
@@ -512,6 +564,10 @@ sub test_construct_node : Test(5) {
 
 sub test_get_node_by_name : Test(5) {
     my $self = shift;
+
+    $self->add_expected_sql(q|SELECT * FROM node WHERE title='agamemnon' AND type_nodetype=9999 |,)  unless $self->isset_expected_sql;
+
+
     ## This one requires node name and node types as arguments
 
     ## It returns under of the type param is missing. (But oddly not if
@@ -541,7 +597,7 @@ sub test_get_node_by_name : Test(5) {
     is( $method, 'prepare', '...it calls prepare on DBI' );
     is(
         $args->[1],
-        q|SELECT * FROM node WHERE title='agamemnon' AND type_nodetype=9999 |,
+       $self->shift_expected_sql,
         '...and prepares some sql'
     );
 
@@ -550,6 +606,7 @@ sub test_get_node_by_name : Test(5) {
 sub test_get_node_cursor : Test(4) {
     my $self  = shift;
     my $value = 'a value';
+    $self->add_expected_sql( q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
     @tablearray = (qw{serpents lions});
     my @args = ( 'fieldname', { foo => 'bar' }, 'sometype', 'title', 1, 2 );
     $self->{instance}->{dbh}->clear;
@@ -558,7 +615,7 @@ sub test_get_node_cursor : Test(4) {
  
     is(
         $args->[1],
-q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|,
+        $self->shift_expected_sql(),
         'getNodeCursor makes some sql'
     );
     is( $method, 'prepare', '...it calls prepare on the DBI' );
@@ -570,6 +627,9 @@ q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpe
 
 sub test_select_node_where : Test(6) {
     my $self  = shift;
+
+    $self->add_expected_sql(q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
+
     my $value = 'a value';
     @tablearray = (qw{dryad sylph});
 
@@ -589,8 +649,8 @@ sub test_select_node_where : Test(6) {
 
     is(
         $args->[1],
-q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|,
-        'getNodeCursoer makes some sql'
+        $self->shift_expected_sql,
+        'getNodeCursor makes some sql'
     );
     is( $method, 'prepare', '...it calls prepare on the DBI' );
     ($method, $args) =  $self->{instance}->{dbh}->next_call;
@@ -603,6 +663,8 @@ q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad O
 
 sub test_count_node_matches : Test(4) {
     my $self  = shift;
+    $self->add_expected_sql (q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 |)  unless $self->isset_expected_sql;
+
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
     $self->{instance}->{dbh}->set_always( 'fetchrow', 3 );
@@ -615,7 +677,7 @@ sub test_count_node_matches : Test(4) {
 
     is(
         $args->[1],
-q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 |,
+       $self->shift_expected_sql,
         'countNodeMatches makes some sql'
     );
     is( $method, 'prepare', '...it calls prepare on the DBI' );
@@ -630,9 +692,13 @@ sub test_get_all_types : Test(4) {
     ### This calls the Nodebase function getNode.  Arguably, it
     ### shouldn't as this is a DB function. Naughty.
     my $self  = shift;
+
+    $self->add_expected_sql (q|SELECT node_id FROM node WHERE type_nodetype=1 |)  unless $self->isset_expected_sql;
+
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
-    $self->{instance}->{dbh}->set_series( 'fetchrow', 1, 2, 3, 5, 8, 11 );
+    $self->{instance}->{dbh}->set_series( 'fetchrow', 1, 2, 3, 5, 8, 11 )
+      ->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
 
     ## tables a WHERE hash and a type
     my @args = ( { foo => 'bar' }, 'sometype' );
@@ -642,7 +708,7 @@ sub test_get_all_types : Test(4) {
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
         $args->[1],
-        q|SELECT node_id FROM node WHERE type_nodetype=1 |,
+       $self->shift_expected_sql,
         'getAllTypes makes some sql'
     );
 
@@ -659,7 +725,7 @@ sub test_get_all_types : Test(4) {
 sub test_drop_node_table : Test(18) {
     my $self     = shift;
     my $instance = $self->{instance};
-
+    $self->add_expected_sql('drop table proserpina') unless $self->isset_expected_sql;
     # this takes one argument which is the table name.
 
     my @nodrop =
@@ -683,7 +749,7 @@ sub test_drop_node_table : Test(18) {
     my $method =  $self->{instance}->{dbh}->call_pos(-1);
     my @args =  $self->{instance}->{dbh}->call_args(-1);
     is ($method, 'do', '....calls "do" against DBI.');
-    is ($args[1], 'drop table proserpina', '...creates some sql.');
+    is ($args[1], $self->shift_expected_sql, '...creates some sql.');
     is( $rv, 1, '...returns success.');
 
 }

@@ -32,10 +32,10 @@ sub databaseConnect
 	my ( $this, $dbname, $host, $user, $pass ) = @_;
 
 	$this->{dbh} =
-		DBI->connect( "DBI:Pg:dbname=$dbname;host=$host", $user, $pass );
+		DBI->connect( "DBI:Pg:dbname=$dbname;host=$host", $user, $pass )or die "Unable to get database connection!";
 	$this->{dbh}->{ChopBlanks} = 1;
 
-	die "Unable to get database connection!" unless ( $this->{dbh} );
+	
 }
 
 #############################################################################
@@ -64,7 +64,7 @@ sub getFieldsHash
 	$getHash = 1 if ( not defined $getHash );
 	$table ||= "node";
 
-	my $DBTABLE = $this->getNode( $table, 'dbtable' );
+	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' );
 	$DBTABLE ||= {};
 	unless ( exists $$DBTABLE{Fields} )
 	{
