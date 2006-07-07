@@ -19,12 +19,10 @@ sub module_class {
 # a useful set of lists
 my @lists = ( [qw/one list/], [qw/two list/], [qw/three list/] );
 
-# a place to keep sql calls my prepare and execute
-my @calls;
-
 sub startup : Test(startup=>3) {
     my $self  = shift;
     my $class = $self->module_class;
+    $self->{class} = $class;
     use_ok($class) || exit;
     can_ok( $class, 'new' );
     isa_ok( $self->{instance} = $class->new, $class );
@@ -41,6 +39,15 @@ sub startup : Test(startup=>3) {
 
     $self->fake_nodecache();
 
+    ## redefine subs that don't exist in this class
+
+    $self->redefine_subs();
+
+}
+
+sub redefine_subs {
+  my $self = shift;
+  my $class = $self->module_class();
     ## genTableName is implemented in the db specific subclass, perhaps
     ## a dummy method should exist here.  At the moment, let's just
     ## pretend one exists.
@@ -68,22 +75,18 @@ sub fake_dbh {
     my $self = shift;
     $self->{instance}->{dbh} = Test::MockObject->new;
     $self->{instance}->{dbh}->mock( 'quote', sub { qq|'$_[1]'| } );
-    $self->{instance}->{dbh}->mock( 'prepare',
-        sub { push @calls, [ 'prepare', $_[0], $_[1] ]; return $_[0] } );
-    $self->{instance}->{dbh}
-      ->mock( 'execute', sub { push @calls, [ 'execute', @_ ]; return $_[0] } );
+    $self->{instance}->{dbh}->set_always( 'prepare', $self->{instance}->{dbh});
+    $self->{instance}->{dbh}->set_always( 'execute', $self->{instance}->{dbh});
     $self->{instance}->{dbh}->mock( 'fetchrow', sub { qw/a list/ } );
     {
         my @a = @lists;
         $self->{instance}->{dbh}->mock( 'fetchrow_array',
             sub { return unless my $b = shift @a; return @$b } );
     }
-    $self->{instance}->{dbh}
-      ->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
-    $self->{instance}->{dbh}->set_true('finish');
-    $self->{instance}->{dbh}->mock( 'do', sub { $_[1] } );
+    $self->{instance}->{dbh}->set_true('finish',  'do');
 
 }
+
 
 my @tablearray = ();
 
@@ -150,10 +153,6 @@ sub fake_nodecache_reset {
 
 }
 
-sub fixture_zap_stuff : Test(setup) {
-    @calls = ();
-
-}
 
 sub test_gen_where_string : Test(7) {
     my $self  = shift;
@@ -228,10 +227,11 @@ qr/(?:foo='bar'|bar='foo')\s+AND\s+(?:foo='bar'|bar='foo')\s+AND\s+type_nodetype
 
 sub test_fetch_all_nodetype_names : Test(2) {
     my $self   = shift;
+    $self->{instance}->{dbh}->clear;
     my @result = $self->{instance}->fetch_all_nodetype_names;
-
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
-        $calls[0]->[2],
+        $args->[1],
         'SELECT title FROM node WHERE type_nodetype=1 ',
         'fetch_all_nodetype_names produces some sql'
     );
@@ -239,7 +239,7 @@ sub test_fetch_all_nodetype_names : Test(2) {
       '...returns the first arguments from the array';
 }
 
-sub test_getDatabaseHandle : Test(1) {
+sub test_get_database_handle : Test(1) {
     my $self = shift;
     is_deeply(
         $self->{instance}->getDatabaseHandle,
@@ -249,13 +249,14 @@ sub test_getDatabaseHandle : Test(1) {
 
 }
 
-sub test_lastValue : Test(1) {
+sub test_last_value : Test(1) {
     my $self = shift;
 
-    ## This just calls last_insert_id on the database handle. Obviously
-    ## this should be overriden by sub-classes and is database
-    ## dependent.  So, there may possibly be some gotchas. We'll just
-    ## use our mocked objects here.
+    ## This just calls last_insert_id on the database
+    ## handle. Obviously this should be overriden by sub-classes and
+    ## is database dependent.  So, there may possibly be some
+    ## gotchas. We'll just use our mocked objects here. mysql.pm users
+    ## this one.  postgres.pm probably shouldn't.
 
     $self->{instance}->{dbh}->set_always( 'last_insert_id', 555 );
     is( $self->{instance}->lastValue,
@@ -263,15 +264,17 @@ sub test_lastValue : Test(1) {
 
 }
 
-sub test_sqlDelete : Test(2) {
+sub test_sql_delete : Test(2) {
     my $self  = shift;
     my $value = 'a value';
 
     ## This one only takes three arguments
     my @args = ( 'atable', 'foo="bar"', [$value] );
+    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlDelete(@args);
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
-        $calls[0]->[2],
+        $args->[1],
         'DELETE FROM atable WHERE foo="bar"',
         'sqlDelete creates some sql, we test it.'
     );
@@ -279,7 +282,7 @@ sub test_sqlDelete : Test(2) {
 
 }
 
-sub test_sqlSelect : Test(3) {
+sub test_sql_select : Test(3) {
     my $self  = shift;
     my $value = 'a value';
     my @args  = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [$value] );
@@ -288,20 +291,22 @@ sub test_sqlSelect : Test(3) {
     my @other_rows = @rows;
     $self->{instance}->{dbh}
       ->mock( 'fetchrow', sub { return shift @other_rows } );
-
+    $self->{instance}->{dbh}->clear;
+ 
     my $result = $self->{instance}->sqlSelect(@args);
-
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
-        $calls[0]->[2],
+        $args->[1],
         'SELECT node FROM atable WHERE title = ? ORDER BY title',
         'sqlSelect creates some sql, we test it.'
     );
-    is( $calls[1]->[0], 'execute', '...calls execute on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...calls execute on the DBI' );
 
     is_deeply( $result, $rows[0], '...test that exceute returns something' );
 }
 
-sub test_sqlSelectJoined : Test(4) {
+sub test_sql_select_joined : Test(4) {
     my $self  = shift;
     my $value = 'a value';
 
@@ -311,25 +316,29 @@ sub test_sqlSelectJoined : Test(4) {
         'ORDER BY title',
         [ \$value ]
     );
+    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlSelectJoined(@args);
+    my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     like(
-        $calls[0]->[2],
+        $args->[1],
 qr/SELECT node FROM atable LEFT JOIN (?:foo|one) ON (?:bar|two) LEFT JOIN (?:foo|one) ON (?:bar|two) WHERE title = \? ORDER BY title/,
         'sqlSelectJoined makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
-    is_deeply( $cursor, $calls[1]->[1], '...returns the cursor' );
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    is( $method, 'execute', '...it calls execute on the DBI' );
+    is_deeply( $cursor, $args->[0], '...returns the cursor' );
 
 }
 
-sub test_sqlSelectMany : Test(2) {
+sub test_sql_select_many : Test(2) {
     my $self  = shift;
     my $value = 'a value';
-    my @args = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [ \$value ] );
+    my @args = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [ \$value ] );    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlSelectMany(@args);
+    my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     is(
-        $calls[0]->[2],
+        $args->[1],
         'SELECT node FROM atable WHERE title = ? ORDER BY title',
         'sqlSelectMany creates some sql, we test it.'
     );
@@ -340,19 +349,25 @@ sub test_sqlSelectMany : Test(2) {
     );
 }
 
-sub test_sqlSelectHashref : Test(4) {
+sub test_sql_select_hashref : Test(4) {
     my $self  = shift;
     my $value = 'a value';
 
     my @args = ( 'node', 'atable', 'title = ?', 'ORDER BY title', [ \$value ] );
+    $self->{instance}->{dbh}->clear;
+    $self->{instance}->{dbh}
+      ->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
+
     my $cursor = $self->{instance}->sqlSelectHashref(@args);
-    is(
-        $calls[0]->[2],
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call; 
+   is(
+        $args->[1],
         'SELECT node FROM atable WHERE title = ? ORDER BY title',
         'sqlSelectHashref makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...it calls execute on the DBI' );
     is_deeply(
         $cursor,
         { title => 'wow', bright => 'sky' },
@@ -361,33 +376,38 @@ sub test_sqlSelectHashref : Test(4) {
 
 }
 
-sub test_sqlUpdate : Test(6) {
+sub test_sql_update : Test(6) {
     my $self  = shift;
     my $value = 'a value';
 
     my @args = ( 'atable', { foo => 'bar' }, 'title = ?', [$value] );
+    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlUpdate(@args);
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     like(
-        $calls[0]->[2],
+        $args->[1],
         qr/UPDATE atable SET foo = \?\s+WHERE title = \?/ms,
         'sqlUpdate makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
-    is( $calls[1]->[2], 'bar',     '...check bound values' );
-    is( $calls[1]->[3], 'a value', '...check bound values' );
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...it calls execute on the DBI' );
+    is( $args->[1], 'bar',     '...check bound values' );
+    is( $args->[2], 'a value', '...check bound values' );
     ok($cursor);
 
 }
 
-sub test_sqlInsert : Test(2) {
+sub test_sql_insert : Test(2) {
     my $self  = shift;
     my $value = 'a value';
 
     ## takes a table name and then a hash for the where clause
     my @args = ( 'atable', { foo => 'bar', one => 'two' } );
+    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlInsert(@args);
-    like( $calls[0]->[2],
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    like( $args->[1],
         qr/INSERT INTO atable \((?:one|foo), (?:one|foo)\) VALUES\(\?, \?\)/ );
 
     ## returns true on success;
@@ -395,7 +415,7 @@ sub test_sqlInsert : Test(2) {
 
 }
 
-sub test_quoteData : Test(6) {
+sub test_quote_data : Test(6) {
     my $self  = shift;
     my $data  = { foo => ' bar', good => 'day', -to => 'you' };
     my $bound = { foo => '?', good => '?', to => 'you' };
@@ -417,43 +437,51 @@ sub test_quoteData : Test(6) {
 
 }
 
-sub test_sqlExecute : Test(2) {
+sub test_sql_execute : Test(2) {
     my $self  = shift;
     my $value = 'a value';
 
     ## This one takes some sql and the bound values;
     my @args = ( 'SELECT something FROM nothing WHERE ?', [$value] );
+    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->sqlExecute(@args);
-    is( $calls[0]->[2], 'SELECT something FROM nothing WHERE ?' );
+    my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    is( $args->[1], 'SELECT something FROM nothing WHERE ?' );
 
     ## should return true
     ok($cursor);
 
 }
 
-sub test_getNodeByIdNew : Test(6) {
+sub test_get_node_by_id_new : Test(6) {
     my $self = shift;
 
     $self->fake_nodecache_reset();
+
+    $self->{instance}->{dbh}->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
     my $rv = $self->{instance}->getNodeByIdNew(0);
     is( $rv->{title}, '/', 'getNodeByIdNew can return the zero node' );
     $rv = $self->{instance}->getNodeByIdNew(1);
     is( $rv->{title}, 'cached node', '... can return a cached node' );
+
+    $self->{instance}->{dbh}->clear;
     $rv = $self->{instance}->getNodeByIdNew(2);
-    is( $calls[0]->[0], 'prepare', '...otherwise calls prepare on DBI' );
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'prepare', '...otherwise calls prepare on DBI' );
     is(
-        $calls[0]->[2],
+        $args->[1],
         'SELECT * FROM node WHERE node_id=2 ',
         '...and prepares some sql'
     );
-    is( $calls[1]->[0], 'execute', '...then calls execute.' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...then calls execute.' );
 
     ## here it calls fetchrow_hashref directly on the cursor, is this
     ## the best way to do it?
     is( $rv->{title}, 'wow', '... and gets a node (we hope)' );
 }
 
-sub test_constructNode : Test(5) {
+sub test_construct_node : Test(5) {
 
     ## The purpose of this is to fill out a node object that is a mere
     ## skeleton having been constructed from the node table. Hence, it
@@ -463,13 +491,18 @@ sub test_constructNode : Test(5) {
     @tablearray = ();
     is( $self->{instance}->constructNode($node),
         undef, 'constructNode returns undef if no tables are available' );
-
+    $self->{instance}->{dbh}->clear;
     @tablearray = (qw/table1 table2/);
+    $self->{instance}->{dbh}
+      ->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
+
     is( $self->{instance}->constructNode($node),
         1, '...and returns true if there are.' );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on DBI' );
+
+   my ($method, $args) =  $self->{instance}->{dbh}->next_call; 
+   is( $method, 'prepare', '...it calls prepare on DBI' );
     is(
-        $calls[0]->[2],
+        $args->[1],
 'SELECT * FROM table2 LEFT JOIN table1 ON table2_id=table1_id WHERE table2_id=100 ',
         '...and prepares some sql'
     );
@@ -477,7 +510,7 @@ sub test_constructNode : Test(5) {
         '...and completes construction of the node object' );
 }
 
-sub test_getNodeByName : Test(5) {
+sub test_get_node_by_name : Test(5) {
     my $self = shift;
     ## This one requires node name and node types as arguments
 
@@ -495,6 +528,7 @@ sub test_getNodeByName : Test(5) {
     );
 
     ## Now we don't
+    $self->{instance}->{dbh}->clear;
     is(
         ref $self->{instance}->getNodeByName(
             'agamemnon', { title => 'menelaos', node_id => 333 }
@@ -502,33 +536,39 @@ sub test_getNodeByName : Test(5) {
         'HASH',
         '...but returns a node if we specify both arguments'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on DBI' );
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call(2);
+
+    is( $method, 'prepare', '...it calls prepare on DBI' );
     is(
-        $calls[0]->[2],
+        $args->[1],
         q|SELECT * FROM node WHERE title='agamemnon' AND type_nodetype=9999 |,
         '...and prepares some sql'
     );
 
 }
 
-sub test_getNodeCursor : Test(4) {
+sub test_get_node_cursor : Test(4) {
     my $self  = shift;
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
     my @args = ( 'fieldname', { foo => 'bar' }, 'sometype', 'title', 1, 2 );
+    $self->{instance}->{dbh}->clear;
     my $cursor = $self->{instance}->getNodeCursor(@args);
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call(2);
+ 
     is(
-        $calls[0]->[2],
+        $args->[1],
 q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|,
-        'getNodeCursoer makes some sql'
+        'getNodeCursor makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
-    is_deeply( $cursor, $calls[1]->[1], '...returns a the cursor' );
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...it calls execute on the DBI' );
+    is_deeply( $cursor, $args->[0], '...returns the cursor' );
 
 }
 
-sub test_selectNodeWhere : Test(6) {
+sub test_select_node_where : Test(6) {
     my $self  = shift;
     my $value = 'a value';
     @tablearray = (qw{dryad sylph});
@@ -542,21 +582,26 @@ sub test_selectNodeWhere : Test(6) {
       ->mock( 'fetchrow', sub { return shift @other_rows } );
 
     my @args = ( { medusa => 'arachne' }, 111, 'title', 1, 2 );
+
+    $self->{instance}->{dbh}->clear;
     my $nodelist = $self->{instance}->selectNodeWhere(@args);
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call(2);
+
     is(
-        $calls[0]->[2],
+        $args->[1],
 q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|,
         'getNodeCursoer makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...it calls execute on the DBI' );
     is( ref $nodelist,  'ARRAY',   '...returns an array ref' );
     is( @$nodelist,     3,         '...returns the right number of items' );
     is_deeply( $nodelist, \@rows, '...and the right items' );
 
 }
 
-sub test_countNodeMatches : Test(4) {
+sub test_count_node_matches : Test(4) {
     my $self  = shift;
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
@@ -564,19 +609,23 @@ sub test_countNodeMatches : Test(4) {
 
     ## tables a WHERE hash and a type
     my @args = ( { foo => 'bar' }, 'sometype' );
+    $self->{instance}->{dbh}->clear;
     my $rv = $self->{instance}->countNodeMatches(@args);
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call(2);
+
     is(
-        $calls[0]->[2],
+        $args->[1],
 q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 |,
         'countNodeMatches makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...it calls execute on the DBI' );
     is( $rv,            3,         '...and returns the correct number.' );
 
 }
 
-sub test_getAllTypes : Test(4) {
+sub test_get_all_types : Test(4) {
 
     ### This calls the Nodebase function getNode.  Arguably, it
     ### shouldn't as this is a DB function. Naughty.
@@ -587,14 +636,19 @@ sub test_getAllTypes : Test(4) {
 
     ## tables a WHERE hash and a type
     my @args = ( { foo => 'bar' }, 'sometype' );
+
+    $self->{instance}->{dbh}->clear;
     my @rv = $self->{instance}->getAllTypes(@args);
+    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(
-        $calls[0]->[2],
+        $args->[1],
         q|SELECT node_id FROM node WHERE type_nodetype=1 |,
         'getAllTypes makes some sql'
     );
-    is( $calls[0]->[0], 'prepare', '...it calls prepare on the DBI' );
-    is( $calls[1]->[0], 'execute', '...it calls execute on the DBI' );
+
+    is( $method, 'prepare', '...it calls prepare on the DBI' );
+    ($method, $args) =  $self->{instance}->{dbh}->next_call;
+    is( $method, 'execute', '...it calls execute on the DBI' );
 
     # this returns stuff created by getNodeByIdNew and in the test
     # environment returns hashes.
@@ -602,7 +656,7 @@ sub test_getAllTypes : Test(4) {
 
 }
 
-sub test_dropNodeTable : Test(16) {
+sub test_drop_node_table : Test(18) {
     my $self     = shift;
     my $instance = $self->{instance};
 
@@ -623,12 +677,14 @@ sub test_dropNodeTable : Test(16) {
         0, '...we can\'t drop tables that don\'t exist.' );
 
     ## drop an existing table
-
-    is(
-        $instance->dropNodeTable('proserpina'),
-        'drop table proserpina',
-        '...we can drop tables that do exist.'
-    );
+    ### check sql
+    $self->{instance}->{dbh}->clear;
+    my $rv = $instance->dropNodeTable('proserpina');
+    my $method =  $self->{instance}->{dbh}->call_pos(-1);
+    my @args =  $self->{instance}->{dbh}->call_args(-1);
+    is ($method, 'do', '....calls "do" against DBI.');
+    is ($args[1], 'drop table proserpina', '...creates some sql.');
+    is( $rv, 1, '...returns success.');
 
 }
 

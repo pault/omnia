@@ -77,7 +77,7 @@ sub getFieldsHash
 	$getHash = 1 unless defined $getHash;
 	$table ||= "node";
 
-	my $DBTABLE = $this->getNode( $table, 'dbtable' ) || {};
+	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' ) || {};
 
 	unless ( exists $$DBTABLE{Fields} )
 	{
