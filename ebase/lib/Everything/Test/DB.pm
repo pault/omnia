@@ -93,30 +93,32 @@ sub fake_dbh {
 
 }
 
-{
-my @expected_sql =();
+
+
 sub add_expected_sql {
   my $self = shift;
-  unshift @expected_sql, @_;
+  $self->{expected_sql} = [] unless @{ $self->{expected_sql}};
+  unshift @{ $self->{expected_sql}}, @_;
+  return $self;
 }
 
 sub nuke_expected_sql {
   my $self = shift;
-  @expected_sql = ();
+  $self->{expected_sql} = [];
 }
 
 sub shift_expected_sql {
   my $self = shift;
-  return shift @expected_sql;
+  return shift @{ $self->{expected_sql} };
 }
 
 sub isset_expected_sql {
   my $self = shift;
-  return 1 if @expected_sql;
+  return 1 if @{ $self->{expected_sql} };
   return 0;
 }
 
-}
+
 my @tablearray = ();
 
 sub fake_node {
