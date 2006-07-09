@@ -372,12 +372,16 @@ sub test_construct_node : Test(+0) {
     $self->SUPER;
 }
 
-sub test_start_transaction : Test(2) {
+sub test_start_transaction : Test(5) {
     my $self = shift;
     can_ok( $self->{class}, 'startTransaction' );
+    $self->{instance}->{transaction} = 0;
     ok( $self->{instance}->startTransaction, '...should return true' );
-    ## of course mysql supports transactions now for some table types
-    ## so this should change to reflect that.
+    is ( $self->{instance}->{dbh}->{AutoCommit}, 0, '...sets the AutoCommit variable to false.' );
+    $self->{instance}->{transaction} = 1;
+    my $ac =  $self->{instance}->{dbh}->{AutoCommit};
+    ok(! $self->{instance}->startTransaction, '...should return false, if we are already in a transaction.' );
+    is ( $self->{instance}->{dbh}->{AutoCommit}, $ac, '...leaves the AutoCommit unchanged.' );
 
 }
 
@@ -405,6 +409,18 @@ sub test_sql_delete : Test(+0) {
     $self->add_expected_sql('DELETE FROM "atable" WHERE foo="bar"');
 
     $self->SUPER;
+
+}
+
+
+sub test_internal_drop_table :Test(3) {
+	my $self = shift;
+	can_ok($self->{class}, 'internalDropTable') || return;
+	$self->{instance}->{dbh}->clear;
+	my $result = $self->{instance}->internalDropTable('unwanted');
+	my ($method, $args) = $self->{instance}->{dbh}->next_call;
+	is ($method, 'do', '... calls the DBI object with "do".');	
+	is ($args->[1], 'drop table "unwanted"', '... with the correct sql.');
 
 }
 
@@ -459,17 +475,48 @@ sub test_sql_update : Test(+0) {
     $self->SUPER;
 }
 
-sub test_commit_transaction : Test(2) {
+sub test_commit_transaction : Test(6) {
     my $self = shift;
-    can_ok( $self->{class}, 'commitTransaction' );
-    ok( $self->{instance}->commitTransaction, '...should return true' );
+    can_ok( $self->{class}, 'commitTransaction' ) || return;
+
+    $self->{instance}->{dbh}->clear;    
+    $self->{instance}->{dbh}->set_true('commit');    
+
+    $self->{instance}->{transaction} = 0;
+    ok( $self->{instance}->commitTransaction, '...returns true if we are not in a transaction.' );
+
+    $self->{instance}->{transaction} = 1;
+    my $return = $self->{instance}->commitTransaction;
+    my ($method) = $self->{instance}->{dbh}->next_call;
+    is ($method, 'commit', '... calls commit on the DBI object if we are in a transaction.');
+    is ( $self->{instance}->{dbh}->{AutoCommit}, 1, '...sets the AutoCommit variable to true.' );
+    is ( $self->{instance}->{transaction}, 0, '...sets the transaction variable to false.' );
+    is ($return, 0, '...returns false.');
 
 }
 
-sub test_rollback_transaction : Test(2) {
+sub test_rollback_transaction : Test(6) {
     my $self = shift;
-    can_ok( $self->{class}, 'rollbackTransaction' );
-    ok( $self->{instance}->rollbackTransaction, '...should return true' );
+
+    can_ok( $self->{class}, 'rollbackTransaction' ) || return;
+
+
+    $self->{instance}->{dbh}->clear;    
+    $self->{instance}->{dbh}->set_true('rollback');    
+
+    $self->{instance}->{transaction} = 0;
+    ok( $self->{instance}->rollbackTransaction, '...returns true if we are not in a transaction.' );
+
+
+    $self->{instance}->{transaction} = 1;
+    my $return = $self->{instance}->rollbackTransaction;
+    my ($method) = $self->{instance}->{dbh}->next_call;
+    is ($method, 'rollback', '... calls rollback on the DBI object if we are in a transaction.');
+    is ( $self->{instance}->{dbh}->{AutoCommit}, 1, '...sets the AutoCommit variable to true.' );
+    is ( $self->{instance}->{transaction}, 0, '...sets the transaction variable to false.' );
+    is ($return, 0, '...returns false.');
+
+
 
 }
 
