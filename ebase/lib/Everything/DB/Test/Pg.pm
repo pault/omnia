@@ -75,7 +75,7 @@ sub test_get_all_types : Test(+0) {
 
 }
 
-sub test_get_fields_hash : Test(9) {
+sub test_get_fields_hash : Test(11) {
     my $self = shift;
 
     can_ok( $self->{class}, 'getFieldsHash' ) || return;
@@ -116,6 +116,20 @@ sub test_get_fields_hash : Test(9) {
         '... returning only fields if getHash is false'
     );
 
+    # If getNode does not return a valid dbtable
+	$self->{instance}->{nb}->set_always('getNode', undef);
+	@result = $self->{instance}->getFieldsHash( 'table');
+    is_deeply(
+        \@result,
+        [],
+        '... returning empty array if no dbtable exists'
+    );
+	@result = $self->{instance}->getFieldsHash( 'table', 0);
+    is_deeply(
+        \@result,
+        [],
+        '... same if get hash is false.'
+    );
 }
 
 sub test_get_node_by_id_new : Test(+0) {
@@ -270,7 +284,7 @@ sub test_drop_field_from_table : Test(4) {
 
 }
 
-sub test_add_field_to_table : Test(16) {
+sub test_add_field_to_table : Test(22) {
     my $self = shift;
     $self->{instance}->{dbh}
       ->set_always( 'prepare_cached', $self->{instance}->{dbh} );
@@ -362,6 +376,32 @@ sub test_add_field_to_table : Test(16) {
     );
     ok( $result, '... returning true' );
 
+#### if the new field is a primary key but there is no current primary key
+   $fields = [
+        { Field => 'foo', Key => '' },
+        { Field => 'bar', Key => '' },
+        { Field => 'baz', Key => '' }
+    ];
+
+    $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields )->clear;
+
+    $result =
+      $self->{instance}
+      ->addFieldToTable( 't', 'f', 'something else', 1, 'default' );
+    $method = $self->{instance}->{dbh}->call_pos(-2);
+    $args = $self->{instance}->{dbh}->call_args_pos(-2, 2);
+    isnt( $method, 'do', '... but we do not drop a primary key' ); 
+    unlike( $args, qr/drop primary key/, '... because there isn\'t one' );
+    $method = $self->{instance}->{dbh}->call_pos(-1);
+    $args = $self->{instance}->{dbh}->call_args_pos(-1, 2);
+    is( $method, 'do', '... but we call the sequel to add one.' );
+    unlike( $args, qr/drop primary key/, '... checking again we\'re not dropping anything.' );
+    is(
+        $args,
+        'alter table "t" add primary key(f)',
+        '... and add only the new field as primary key'
+    );
+    ok( $result, '... returning true' );
 }
 
 sub test_construct_node : Test(+0) {

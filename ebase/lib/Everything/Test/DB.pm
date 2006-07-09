@@ -71,9 +71,19 @@ sub redefine_subs {
 
 }
 
-sub fixture_zap_stuff :Test(setup) {
+sub fixture_reset_stuff :Test(setup) {
   my $self = shift;
   $self->nuke_expected_sql;
+
+  $self->{instance}->{nb}->mock(
+        'getNode',
+        sub {
+            my $node = $self->fake_node();
+            $node->{title}   = $_[1];
+            $node->{node_id} = 9999;
+            return $node;
+        }
+    );
 
 }
 
@@ -134,15 +144,6 @@ sub fake_nodebase {
     require Everything::NodeBase;
     my $nb = bless { storage => $self->{instance} }, 'Everything::NodeBase';
     my $enb = Test::MockObject::Extends->new($nb);
-    $enb->mock(
-        'getNode',
-        sub {
-            my $node = $self->fake_node();
-            $node->{title}   = $_[1];
-            $node->{node_id} = 9999;
-            return $node;
-        }
-    );
     $enb->mock(
         'getType',
         sub {
