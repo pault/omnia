@@ -84,7 +84,6 @@ sub fixture_reset_stuff :Test(setup) {
             return $node;
         }
     );
-
 }
 
 sub fake_dbh {
@@ -133,8 +132,9 @@ my @tablearray = ();
 
 sub fake_node {
     my $self = shift;
-
-    my $node = Test::MockObject->new;
+    my $n = bless {}, 'Everything::Node';
+    my $node = Test::MockObject::Extends->new($n);
+    $node->{DB} = $self->{instance}->{nb};
     $node->set_always( 'getTableArray', \@tablearray );
     return $node;
 }
@@ -690,7 +690,7 @@ sub test_count_node_matches : Test(4) {
 
 }
 
-sub test_get_all_types : Test(4) {
+sub test_get_all_types : Test(10) {
 
     ### This calls the Nodebase function getNode.  Arguably, it
     ### shouldn't as this is a DB function. Naughty.
@@ -722,6 +722,11 @@ sub test_get_all_types : Test(4) {
     # this returns stuff created by getNodeByIdNew and in the test
     # environment returns hashes.
     is( scalar @rv, 6, '...and returns the correct arguments.' );
+
+    # test that all returned items are proper nodes;
+    foreach (@rv) {
+	isa_ok($_, 'Everything::Node');
+    }
 
 }
 

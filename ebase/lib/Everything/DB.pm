@@ -12,6 +12,7 @@ package Everything::DB;
 use strict;
 use warnings;
 
+use Everything::Node;
 use DBI;
 use Scalar::Util 'weaken';
 
@@ -856,7 +857,7 @@ sub getAllTypes
 
 	while ( my ($node_id) = $cursor->fetchrow() )
 	{
-		push @allTypes, $this->getNodeByIdNew($node_id);
+		push @allTypes, $this->{nb}->getNode($node_id);
 	}
 
 	$cursor->finish();
