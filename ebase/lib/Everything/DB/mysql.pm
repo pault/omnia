@@ -397,4 +397,33 @@ sub now { return 'now()' }
 
 sub timediff { "$_[1] - $_[2]" }
 
+
+=head2 C<lastValue>
+
+Returns the last sequence/auto_increment value inserted into the
+database.  This will return undef on error.
+
+=over 4
+
+=item * $table
+
+the table (this MUST be the table used in the last query)
+
+=item * $field
+
+the auto_increment field
+
+=back
+
+=cut
+
+sub lastValue
+{
+	my ( $this, $table, $field ) = @_;
+
+	## NB: this list of undefs is required by DBI.pm for mysql. I
+	## believe this is a feature.
+	return $this->getDatabaseHandle()->last_insert_id(undef, undef, undef, undef);
+}
+
 1;
