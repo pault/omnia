@@ -46,6 +46,8 @@ sub construct
 	# Now we need to derive ourselves and assign the derived values
 	my $PARENT;
 
+	$this->{extends_nodetype} = 0 unless defined $this->{extends_nodetype};
+
 	# Special case where this is the 'nodetype' nodetype
 	if ( $this->{node_id} == 1 )
 	{
