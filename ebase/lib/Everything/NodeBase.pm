@@ -27,7 +27,7 @@ BEGIN
 	sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert _quoteData sqlExecute
 	getNodeByIdNew getNodeByName constructNode selectNodeWhere getNodeCursor
 	countNodeMatches getAllTypes dropNodeTable quote genWhereString lastValue
-       now createGroupTable fetchrow timediff
+       now createGroupTable fetchrow timediff getNodetypeTables
 	);
 
 	for my $method (@methlist)
@@ -158,11 +158,59 @@ sub buildNodetypeModules
 
 	for my $nodetype ( $self->{storage}->fetch_all_nodetype_names() )
 	{
-		my $module = "Everything::Node::$nodetype";
-		$modules{ $module } = 1 if $self->loadNodetypeModule( $module );
-	}
+	    my $module = "Everything::Node::$nodetype";
+	    if ($self->loadNodetypeModule( $module ) ){
+		$modules{ $module } = 1;
 
+	    } else {
+		my $module = "Everything::Node::$nodetype"; 
+		my $typenode = $self->getNode($nodetype, 'nodetype');
+		unless ($typenode) {
+		    warn "No such nodetype $nodetype.";
+		    next;
+		}
+		my $baseclass_id = $typenode->{extends_nodetype};
+		my $baseclass = $self->getType($baseclass_id);
+
+		eval qq|package $module;
+                        use base 'Everything::Node::$$baseclass{title}';
+                |;
+		if ($@) {
+		    warn "Error loading $nodetype as $module, $@";
+		} else {
+		    $modules{ $module } = 1;
+		}
+	    }
+
+	}
+	$self->load_nodemethods(\%modules);
 	return \%modules;
+}
+
+sub load_nodemethods {
+
+    my ($self, $modules) = @_;
+
+    foreach my $fullname (keys %$modules) {
+
+	my ($name) = $fullname =~ /::(\w+)$/;
+	my $nodetype_node = $self->getType($name);
+
+	my $methods = $self->getNodeWhere(
+					  {
+					   'supports_nodetype' => $nodetype_node->{node_id}
+					  },
+					  'nodemethod'
+					 );
+	next unless $methods;
+	foreach my $method (@$methods) {
+
+	    my $code = "package $fullname;\n use SUPER;" . "\n\n sub " .  $method->{title} . " {\n $$method{code} \n}";
+	    eval $code;
+	    warn "Having trouble putting nodemethod $$method{title} into symbol table, $@" if $@;
+	}
+    }
+    
 }
 
 =head2 C<rebuildNodetypeModules>

@@ -94,7 +94,7 @@ sub construct
 	# update this node, we don't corrupt the database.
 	foreach my $field ( keys %$derive )
 	{
-		$this->{"derived_$field"} = $this->{$field};
+		$this->{"derived_$field"} = $this->{$field} || '';
 	}
 
 	if ($PARENT)

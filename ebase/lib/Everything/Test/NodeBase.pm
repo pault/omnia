@@ -65,7 +65,7 @@ BEGIN
 		sqlSelectJoined sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert
 		_quoteData sqlExecute getNodeByIdNew getNodeByName constructNode
 		selectNodeWhere getNodeCursor countNodeMatches getAllTypes
-		dropNodeTable quote genWhereString  now createGroupTable fetchrow timediff
+		dropNodeTable quote genWhereString  now createGroupTable fetchrow timediff getNodetypeTables
 	))
 	{
 		eval <<"		END_SUB";
@@ -129,6 +129,7 @@ sub test_build_nodetype_modules :Test( 2 )
 	my $storage = $self->{storage};
 
 	$nb->set_series( loadNodetypeModule => 1, 1, 0, 1 );
+	$nb->set_false( 'getNode');
 	$storage->mock(
 		fetch_all_nodetype_names => sub { qw( node nodetype cow dbtable ) }
 	);
@@ -141,6 +142,60 @@ sub test_build_nodetype_modules :Test( 2 )
 		'... for all loadable nodes fetched from storage engine'
 	);
 }
+
+
+sub test_build_nodetypedb_modules :Test( 9 )
+{
+	my $self    = shift;
+	my $nb      = $self->{nb};
+	my $storage = $self->{storage};
+
+	$nb->set_false( 'loadNodetypeModule');
+	$storage->mock(
+		fetch_all_nodetype_names => sub { qw( supernode extendednode superextendednode ) }
+	);
+	$nb->set_series('getNode', {extends_nodetype => 1},  {extends_nodetype => 2},  {extends_nodetype => 3} );
+	$nb->set_series('getType', {title => 'node'},  {title => 'supernode'},  {title => 'extendednode'} );
+
+
+	my $result  = $nb->buildNodetypeModules();
+	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
+	is_deeply(
+		$result,
+		{ map { 'Everything::Node::' . $_ => 1 } qw( supernode extendednode superextendednode ) },
+		'... for all loadable nodes fetched from storage engine'
+	);
+
+	# ensure that each of these are in the symbol table
+	foreach my $type (qw/ supernode extendednode superextendednode /) {
+	    ok (defined %{ "Everything::Node::" . $type . "::"}, "... \%Everything::Node::${type}:: should be in the symbol table.")
+	}
+
+	## check that the nodes are properly blessed.
+	my $node = bless {}, 'Everything::Node::superextendednode';
+	isa_ok ($node, 'Everything::Node::node');
+	isa_ok ($node, 'Everything::Node::supernode');
+	isa_ok ($node, 'Everything::Node::extendednode');
+	isa_ok ($node, 'Everything::Node::superextendednode');
+}
+
+sub test_load_nodemethods : Test(5) {
+    my $self = shift;
+    my $nb = $self->{nb};
+    can_ok($self->module_class, "load_nodemethods") or return;
+    my %modules = ( "Everything::Node::foo" => 1, "Everything::Node::bar" => 1);
+    $nb->set_always('getNodeWhere', [ {code => 'return "hhhh"', title => 'vulcan'}, {code => 'my $x = 10', title => "hephaistos"} ]);
+    $nb->set_always('getType', { node_id => 1111} );
+    $nb->load_nodemethods(\%modules);
+
+    ok ( defined *{Everything::Node::foo::vulcan}{CODE}, '...should create relevant symbol table entry.');
+    ok ( defined *{Everything::Node::foo::hephaistos}{CODE}, '...should create relevant symbol table entry.');
+    ok ( defined *{Everything::Node::bar::vulcan}{CODE}, '...should create relevant symbol table entry.');
+    ok ( defined *{Everything::Node::bar::hephaistos}{CODE}, '...should create relevant symbol table entry.');
+
+
+}
+
 
 sub test_rebuild_nodetype_modules :Test( 1 )
 {
