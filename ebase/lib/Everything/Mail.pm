@@ -7,7 +7,7 @@ package Everything::Mail;
 
 use strict;
 use Everything;
-
+use IO::File;
 use Mail::Sender;
 use Mail::Address;
 use Scalar::Util 'reftype';
@@ -94,14 +94,15 @@ sub mail2node
 	my ( $from, $to, $subject, $body );
 	foreach my $file (@$files)
 	{
-		unless ( open FILE, "<$file" )
+	    my $fh;
+		unless ( $fh = IO::File->new("< $file") )
 		{
 			Everything::logErrors("mail2node could not open '$file': $!");
 			next;
 		}
 		$from = $to = $subject = $body = '';
 
-		while (<FILE>)
+		while (<$fh>)
 		{
 			my $line = $_ || "";
 			unless ($subject)
@@ -126,13 +127,12 @@ sub mail2node
 			else
 			{
 
-				# Need to add the newline to preserve it correctly
-				$body .= $line . "\n";
+				$body .= $line;
 			}
 
 		}
 
-		close(FILE);
+		$fh->close;
 
 		unless ($subject)
 		{
