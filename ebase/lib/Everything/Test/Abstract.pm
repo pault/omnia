@@ -22,7 +22,7 @@ sub startup :Test( startup => 1 )
 	my $self   = shift;
 	my $module = $self->module_class();
 	use_ok( $module ) or exit;
-	$self->{class} = $self->module_class;
+	$self->{class} = $module;
 
 }
 
