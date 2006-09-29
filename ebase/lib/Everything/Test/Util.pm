@@ -1,6 +1,6 @@
 package Everything::Test::Util;
 
-use base 'Everything::Test';
+use base 'Everything::Test::Abstract';
 use Test::More;
 use strict;
 

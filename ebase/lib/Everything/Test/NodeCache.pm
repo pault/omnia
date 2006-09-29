@@ -3,7 +3,7 @@ package Everything::Test::NodeCache;
 use Test::More;
 use Test::MockObject;
 use Scalar::Util qw/blessed/;
-use base 'Everything::Test';
+use base 'Everything::Test::Abstract';
 use strict;
 use warnings;
 

@@ -1,6 +1,6 @@
 package Everything::Test::Mail;
 
-use base 'Everything::Test';
+use base 'Everything::Test::Abstract';
 use Test::More;
 use Test::MockObject;
 use File::Spec;

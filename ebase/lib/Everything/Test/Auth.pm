@@ -1,6 +1,6 @@
 package Everything::Test::Auth;
 
-use base 'Everything::Test';
+use base 'Everything::Test::Abstract';
 use Test::More;
 use Test::Exception;
 use Test::MockObject;

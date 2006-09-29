@@ -1,6 +1,6 @@
 package Everything::Test::Security;
 
-use base 'Everything::Test';
+use base 'Everything::Test::Abstract';
 use Test::More;
 
 

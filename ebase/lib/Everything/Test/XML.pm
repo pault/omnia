@@ -5,7 +5,7 @@ use Test::More;
 use Test::MockObject;
 use SUPER;
 
-use base 'Everything::Test';
+use base 'Everything::Test::Abstract';
 
 sub startup : Test(startup => +0) {
     my $self = shift;
