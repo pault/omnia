@@ -16,15 +16,35 @@ sub startup : Test(startup => +0) {
 
     # Unfortunately this imports stuff from Everything.pm.
     my $mock = Test::MockObject->new;
-    $mock->fake_module('Everything');
+    $self->{mock}  = $mock;
+    $self->setup_globals;
+    $self->setup_mocks;
     my $module = $self->module_class();
-    no strict 'refs';
-    *{ $module . '::DB' } = \$mock;
-    use strict 'refs';
     use_ok($module) or exit;
     $self->{class} = $module;
-    $self->{mock}  = $mock;
 
+
+}
+
+sub setup_mocks {
+    my $self = shift;
+    $self->{mock}->fake_module('Everything');
+
+}
+
+sub setup_globals {
+    my $self = shift;
+    no strict 'refs';
+    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
+    use strict 'refs';
+
+}
+
+sub package_under_test
+{
+	my ($self, $this_package) =  @_;
+	$this_package    =~ s/Test:://;
+	return $this_package;
 }
 
 sub test_new : Test(startup => 3) {
@@ -43,6 +63,7 @@ sub fixture : Test(setup) {
     my $self = shift;
     $self->{instance} = $self->{class}->new;
     $self->{node}     = Test::MockObject->new;
+    $self->{mock}->clear;
 }
 
 sub test_gen_bind_field : Test(3) {
@@ -60,7 +81,7 @@ sub test_gen_bind_field : Test(3) {
     $node->{node_id} = 222;
     is(
         $instance->genBindField( $cgi, $node, 'foo', 'foobar' ),
-'<input type="hidden" name="formbind_FormObject_foobar" value="50:222:foo"  />',
+'<input type="hidden" name="formbind_' . $instance->{objectName} . '_foobar" value="50:222:foo"  />',
         '...should return html'
     );
 }
@@ -71,12 +92,12 @@ sub test_gen_object : Test(2) {
     ## we are assuming that Everything::getParamArray behaves as advertised
     no strict 'refs';
     my $cgi = CGI->new;
-    local *{ $self->{class} . '::getParamArray' } = sub { $cgi, @_ };
+    local *{ $self->package_under_test(__PACKAGE__) . '::getParamArray' } = sub { $cgi, @_ };
     use strict 'refs';
     can_ok( $self->{class}, 'genObject' );
     is(
         $instance->genObject(qw/one two three/),
-'<input type="hidden" name="formbind_FormObject_two" value="50::one"  />',
+'<input type="hidden" name="formbind_' . $instance->{objectName} . '_two" value="50::one"  />',
         '...returns html.'
     );
 
