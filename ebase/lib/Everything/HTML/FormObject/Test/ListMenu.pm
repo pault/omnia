@@ -1,6 +1,6 @@
 package Everything::HTML::FormObject::Test::ListMenu;
 
-use base 'Everything::HTML::Test::FormObject';
+use base 'Everything::HTML::FormObject::Test::FormMenu';
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
@@ -8,15 +8,6 @@ use CGI;
 use SUPER;
 use warnings;
 use strict;
-
-sub setup_globals {
-    my $self = shift;
-    $self->SUPER;
-    no strict 'refs';
-    *{'Everything::HTML::FormObject::FormMenu::DB'} = \$self->{mock};
-    use strict 'refs';
-
-}
 
 sub test_cgi_update : Test(11) {
     my $self     = shift;
