@@ -4,6 +4,7 @@ use base 'Everything::HTML::Test::FormObject';
 use Test::More;
 use Scalar::Util qw/blessed/;
 use base 'Test::Class';
+use SUPER;
 use strict;
 use warnings;
 
@@ -140,10 +141,10 @@ sub test_gen_list_menu : Test(1)
 
 }
 
-sub test_gen_object : Test(1)
+sub test_gen_object : Test(+0)
 {
     my $self = shift;
-    can_ok($self->{class}, 'genObject') || return 'genObject not implemented.';
+    $self->SUPER;
     my $instance = $self->{instance};
 
 
