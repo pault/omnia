@@ -40,21 +40,6 @@ package Everything::NodeCache;
 use strict;
 use Everything::CacheQueue;
 
-sub BEGIN
-{
-	use Exporter();
-	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
-		setCacheSize
-		getCacheSize
-		cacheNode
-		removeNode
-		getCachedNodeById
-		getCachedNodeByName
-		dumpCache);
-}
-
 =cut
 
 

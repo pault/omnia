@@ -321,6 +321,7 @@ sub test_select_nodegroup_flat :Test( 10 )
 	           ->set_series( isGroup => ( 1, 0 ) );
 
 	$node->{group} = [ 1, 2 ];
+	$group_node->clear;
 
 	my $result = $node->selectNodegroupFlat( $traversed );
 	ok( exists $traversed->{ $node->{node_id} },

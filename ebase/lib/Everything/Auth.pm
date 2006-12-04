@@ -21,11 +21,6 @@ package Everything::Auth;
 use strict;
 use Everything;
 
-use Exporter ();
-use vars qw( @ISA @EXPORT );
-@ISA    = qw( Exporter );
-@EXPORT = qw( loginUser logoutUser authUser );
-
 =cut
 
 

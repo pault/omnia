@@ -74,25 +74,25 @@ sub test_load_fake_module : Test(1) {
 
 }
 
-sub test_exported_subs : Test(18) {
+sub test_public_methods : Test(18) {
 
     my $self    = shift;
     my $package = $self->{class};
 
-    for my $export (qw( loginUser logoutUser authUser )) {
-        can_ok( $package, $export );
+    for my $public (qw( loginUser logoutUser authUser )) {
+        can_ok( $package, $public );
         my $mock = Test::MockObject->new();
-        $mock->set_always( $export      => 'user' )
+        $mock->set_always( $public      => 'user' )
           ->set_always( generateSession => 'generated' );
 
         $mock->{plugin} = $mock;
 
-        my $sub = __PACKAGE__->can($export);
+        my $sub = $package->can($public);
 
         my $result = $sub->( $mock, 'args', 'args' );
 
         my ( $method, $args ) = $mock->next_call();
-        is( $method, $export, "$export() should delegate to plugin" );
+        is( $method, $public, "$public() should delegate to plugin" );
         is_deeply( $args, [ $mock, qw( args args ) ], '... passing all args' );
 
         ( $method, $args ) = $mock->next_call();
