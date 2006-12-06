@@ -31,6 +31,19 @@ aggrigation to each of the interfaces is supposedly seemless; IE,
 Everything::HTML doesn't really need to know that another plugin is there.  We
 should be able to swap them out without changing anything.
 
+It takes one argument, a hash ref.  The hash ref takes the following key => value pairs.
+
+=over
+
+=item Auth => name of the authorisation module to use.
+Defaults to EveryAuth.
+
+=item guest_user => a node object that is the Guest User to use.
+
+The authorisation modules may accept other options.  Check their document.
+
+=back
+
 =cut
 
 sub new

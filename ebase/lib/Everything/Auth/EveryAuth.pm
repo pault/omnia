@@ -49,7 +49,7 @@ sub loginUser
 	my $passwd = $query->param("passwd");
 	my $cookie;
 
-	my $U = getNode( $user, 'user' );
+	my $U = $DB->getNode( $user, 'user' );
 	$user = $$U{title} if $U;
 
 	my $USER_HASH;
@@ -95,7 +95,7 @@ sub logoutUser
 	my $cookie = $query->cookie( -name => 'userpass', -value => "" );
 
 #We need to force the guest user on logouts here, otherwise the cookie won't get cleared.
-	my $user = getNode( $this->{options}->{guest_user} );
+	my $user = $DB->getNode( $this->{options}->{guest_user} );
 	$$user{cookie} = $cookie if ($cookie);
 
 	return $user;
@@ -117,7 +117,6 @@ sub logoutUser
 sub authUser
 {
 	my $this = shift;
-	my ( $user_id, $cookie, $user, $passwd );
 	my $USER_HASH;
 
 	if ( my $oldcookie = $query->cookie("userpass") )
@@ -126,13 +125,7 @@ sub authUser
 			confirmUser(
 			split( /\|/, Everything::Util::unescape($oldcookie) ) );
 	}
-
-	# Get the user node
-	$USER_HASH ||= getNode($user_id);
-
-	# Store this user's cookie!
-	$$USER_HASH{cookie} = $cookie if ( $cookie and $USER_HASH );
-
+	return unless $USER_HASH;
 	return $USER_HASH;
 
 }
@@ -156,7 +149,7 @@ sub authUser
 sub confirmUser
 {
 	my ( $nick, $crpasswd ) = @_;
-	my $user = $DB->getNode( $nick, getType('user') );
+	my $user = $DB->getNode( $nick, $DB->getType('user') );
 	my $genCrypt;
 
 	return undef unless ($user);
