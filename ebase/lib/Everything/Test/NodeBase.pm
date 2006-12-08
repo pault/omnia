@@ -38,6 +38,8 @@ sub make_fixture :Test( setup )
 	my $storage = Test::MockObject->new();
 	$self->reset_mock_nb();
 
+	$storage->set_always('selectNodeWhere', [1..3]);
+
 	$self->{storage}     = $storage;
 	$self->{nb}{storage} = $storage;
 	$self->{errors}      = [];

@@ -67,7 +67,8 @@ sub test_imported_subs : Test(7) {
 sub test_getTime : Test(2) {
     my $self = shift;
 
-    local *Everything::gmtime =
+    local *Everything::gmtime;
+    *Everything::gmtime =
       sub { return wantarray ? ( 0 .. 6 ) : 'long time' };
     is(
         Everything::getTime(),
@@ -266,7 +267,8 @@ sub test_callLogStack : Test(2) {
 
 sub test_getCallStack_dumpCallStack : Test(6) {
     my $self = shift;
-    local *Everything::caller = sub {
+    local *Everything::caller;
+    *Everything::caller = sub {
         my $frame = shift;
         return if $frame >= 5;
         return ( 'Everything', 'everything.t', 100 + $frame, $frame,
