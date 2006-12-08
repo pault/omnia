@@ -14,7 +14,7 @@ sub startup :Test(startup => +0) {
     $file .= '.pm';
 
     require $file;
-    $class->import;
+    $class->import(qw/escape unescape/); # expressly import these subs
 
 }
 

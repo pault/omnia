@@ -20,7 +20,7 @@ package Everything::Node;
 
 use strict;
 use Everything ();
-use Everything::Util;
+use Everything::Util ();
 use XML::DOM;
 use SUPER;
 

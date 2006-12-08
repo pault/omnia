@@ -13,18 +13,10 @@ package Everything::Util;
 
 use strict;
 
-sub BEGIN
-{
-	use Exporter ();
-	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
-		escape
-		unescape
-	);
-}
-
 use URI::Escape ();
+use base 'Exporter';
+our (@EXPORT_OK);
+@EXPORT_OK = qw/escape unescape/;
 
 =cut
 

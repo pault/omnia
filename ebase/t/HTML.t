@@ -6,7 +6,7 @@ use warnings;
 BEGIN
 {
 	chdir 't' if -d 't';
-	use lib 'lib';
+	use lib 'lib', '../lib';
 }
 
 use strict;

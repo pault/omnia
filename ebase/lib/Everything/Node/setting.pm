@@ -14,7 +14,6 @@ use warnings;
 use base 'Everything::Node::node';
 
 use Everything::Security;
-use Everything::Util;
 use Everything::XML;
 use XML::DOM;
 use Scalar::Util 'reftype';
