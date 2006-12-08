@@ -2579,7 +2579,8 @@ sub opNuke
 #############################################################################
 sub opLogin
 {
-	( $USER, $VARS ) = $AUTH->loginUser();
+	( $USER, $VARS ) = $AUTH->loginUser($query->param('user'),
+					    $query->param('passwd'));
 }
 
 #############################################################################
@@ -3031,6 +3032,10 @@ sub mod_perlInit
 	setHTMLVARS();
 
 	$query = getCGI($initializer);
+
+	$options->{nodebase} = $DB;
+
+	$options->{query} = $query;
 
 	$AUTH ||= Everything::Auth->new($options);
 

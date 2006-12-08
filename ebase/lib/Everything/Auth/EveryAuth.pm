@@ -10,9 +10,10 @@ package Everything::Auth::EveryAuth;
 #############################################################################
 
 use strict;
-use Everything;
-use Everything::HTML;
 use Everything::Util;
+use base 'Class::Accessor';
+__PACKAGE__->follow_best_practice;
+__PACKAGE__->mk_accessors(qw/query nodebase Auth/);
 
 #############################################################################
 #
@@ -23,9 +24,11 @@ use Everything::Util;
 
 sub new
 {
-	my $class = shift;
+	my ($class, $options) = @_;
 	my $this;
 	$this->{Auth} = "EveryAuth";
+	$this->{query} = $options->{query};
+	$this->{nodebase} = $options->{nodebase};
 	return bless $this, $class;
 }
 
@@ -44,9 +47,9 @@ sub new
 sub loginUser
 {
 
-	my $this   = shift;
-	my $user   = $query->param("user");
-	my $passwd = $query->param("passwd");
+	my ($this, $user, $passwd)   = @_;
+	my $query = $this->{query};
+	my $DB = $this->{nodebase};
 	my $cookie;
 
 	my $U = $DB->getNode( $user, 'user' );
@@ -54,7 +57,7 @@ sub loginUser
 
 	my $USER_HASH;
 
-	$USER_HASH = confirmUser( $user, crypt( $passwd, $user ) ) if $user;
+	$USER_HASH = confirmUser( $user, crypt( $passwd, $user ), $DB ) if $user;
 
 	# If the user/passwd was correct, set a cookie on the users
 	# browser.
@@ -90,6 +93,8 @@ sub logoutUser
 {
 
 	my $this = shift;
+	my $query = $this->{query};
+	my $DB = $this->{nodebase};
 
 	# The user is logging out.  Nuke their cookie.
 	my $cookie = $query->cookie( -name => 'userpass', -value => "" );
@@ -114,19 +119,19 @@ sub logoutUser
 #		The $USER hash of the person who is requesting information
 #		or undef to become the guest user
 
-sub authUser
-{
-	my $this = shift;
-	my $USER_HASH;
+sub authUser {
+    my $this  = shift;
+    my $query = $this->{query};
+    my $DB = $this->{nodebase};
+    my $USER_HASH;
 
-	if ( my $oldcookie = $query->cookie("userpass") )
-	{
-		$USER_HASH =
-			confirmUser(
-			split( /\|/, Everything::Util::unescape($oldcookie) ) );
-	}
-	return unless $USER_HASH;
-	return $USER_HASH;
+    if ( my $oldcookie = $query->cookie("userpass") ) {
+        $USER_HASH =
+          confirmUser( split( /\|/, Everything::Util::unescape($oldcookie) ),
+            $DB );
+    }
+    return unless $USER_HASH;
+    return $USER_HASH;
 
 }
 
@@ -148,7 +153,7 @@ sub authUser
 #
 sub confirmUser
 {
-	my ( $nick, $crpasswd ) = @_;
+	my ( $nick, $crpasswd, $DB ) = @_;
 	my $user = $DB->getNode( $nick, $DB->getType('user') );
 	my $genCrypt;
 

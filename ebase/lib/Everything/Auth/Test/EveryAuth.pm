@@ -14,13 +14,9 @@ sub startup : Test(startup=> 2) {
     $mock->fake_module('Everything');
     $mock->fake_module('Everything::HTML');
     my $cgi = CGI->new;
-    no strict 'refs';
-    *{ $module . '::query' } = \$cgi;
-    *{ $module . '::DB' }    = \$mock;
-    use strict 'refs';
     use_ok($module) or exit;
     $self->{class} = $module;
-    my $instance = $self->{class}->new;
+    my $instance = $self->{class}->new( { nodebase => $mock } );
     isa_ok( $instance, $self->{class} );
     $self->{instance} = $instance;
     $self->{mock}     = $mock;
@@ -32,10 +28,8 @@ sub fixture : Test(setup) {
     my $self  = shift;
     my $class = $self->{class};
     my $cgi   = CGI->new;
-    no strict 'refs';
-    *{ $class . '::query' } = \$cgi;
-    use strict 'refs';
     $self->{cgi} = $cgi;
+    $self->{instance}->set_query($cgi);
 }
 
 ##
@@ -54,7 +48,7 @@ sub test_login_user : Test(5) {
     no strict 'refs';
     local *{ $class . '::confirmUser' };
     *{ $class . '::confirmUser' } = sub {
-	@args = @_;
+        @args = @_;
         return { user => { a => 'user' } };
     };
     use strict 'refs';
@@ -65,7 +59,7 @@ sub test_login_user : Test(5) {
     $cgi->param( 'user',   'username' );
     $cgi->param( 'passwd', 'pw' );
 
-    my $result = $instance->loginUser;
+    my $result = $instance->loginUser( 'username', 'pw' );
     my ( $method, $args ) = $mock->next_call;
     is( $method, 'getNode', '...should get a user node.' );
     is( $args->[1], 'username', '... with args passed by the cgi object.' );
@@ -73,7 +67,11 @@ sub test_login_user : Test(5) {
     ## and calls the confirm user sub
     is_deeply(
         [@args],
-        [ 'a user title', crypt( 'pw', 'a user title' ) ],
+        [
+            'a user title',
+            crypt( 'pw', 'a user title' ),
+            $instance->get_nodebase
+        ],
         '...calls confirmUser with correct args'
     );
 
@@ -87,7 +85,7 @@ sub test_login_user : Test(5) {
         '...and returns a hash containing the cookie.' );
 }
 
-## returns the node of type 'user' specified by $self->
+## returns the node of type 'user'
 sub test_logout_user : Test(4) {
     my $self     = shift;
     my $class    = $self->{class};
@@ -125,10 +123,7 @@ sub test_auth_user : Test(4) {
 
     ## mock the $query global
     my $fake_cgi = Test::MockObject->new;
-    no strict 'refs';
-    local *{ $class . '::query' };
-    *{ $class . '::query' } = \$fake_cgi;
-    use strict 'refs';
+    $instance->set_query($fake_cgi);
 
     my $oldcookie = 'a cookie';
     $fake_cgi->set_always( 'cookie', $oldcookie );
@@ -139,13 +134,13 @@ sub test_auth_user : Test(4) {
     no strict 'refs';
     local *{ $class . '::confirmUser' };
     *{ $class . '::confirmUser' } = sub {
-	@a = @_;
+        @a = @_;
         return shift @rv;
     };
     use strict 'refs';
 
     my $result = $instance->authUser;
-    is( "@a", $oldcookie, '...should grab the old cookie.' );
+    is( "@a", "$oldcookie $mock", '...should grab the old cookie.' );
     is( $result->{cookie}, $oldcookie, '...returns the user with the cookie.' );
 
     $result = $instance->authUser;
@@ -175,10 +170,10 @@ sub test_confirm_user : Test(3) {
     $mock->set_always( 'sqlSelect', 'timestamp' );
 
     my $confirmUser = \&{ $class . '::confirmUser' };
-    my $result = $confirmUser->( $name, $crypted );
+    my $result = $confirmUser->( $name, $crypted, $mock );
     is( $result, undef, '..returns undef if getNode doesn\'t get a node.' );
 
-    $result = $confirmUser->( $name, $crypted );
+    $result = $confirmUser->( $name, $crypted, $mock );
     is_deeply( $result, $expected_rv, '...returns node if passwords match.' );
 }
 

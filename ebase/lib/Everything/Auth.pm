@@ -63,7 +63,7 @@ sub new
 	my $obj = eval {
 		( my $path = $authtype . '.pm' ) =~ s!::!/!g;
 		require $path or print "NOPE\n";
-		$authtype->new();
+		$authtype->new($options);
 	};
 
 	die "No authentication plugin!" if $@ or !$obj;
