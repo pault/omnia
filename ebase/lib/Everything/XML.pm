@@ -13,12 +13,11 @@ use strict;
 use Everything;
 use XML::DOM;
 
-BEGIN
-{
-	use Exporter();
-	use vars qw($VERSIONS @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
+
+use base 'Exporter';
+our (@EXPORT_OK);
+
+@EXPORT_OK = qw(
 		xml2node
 		xmlfile2node
 		fixNodes
@@ -27,7 +26,6 @@ BEGIN
 		parseBasicTag
 		patchXMLwhere
 	);
-}
 
 # This version is used to make sure that we are importing something that
 # was generated with an equal or earlier version of this parser/exporter.

@@ -14,7 +14,7 @@ use warnings;
 use base 'Everything::Node::node';
 
 use Everything;
-use Everything::XML;
+use Everything::XML (qw/genBasicTag/);
 
 use XML::DOM;
 use Scalar::Util 'reftype';

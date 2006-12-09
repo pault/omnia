@@ -9,7 +9,7 @@ package Everything::Nodeball;
 
 use strict;
 use Everything;
-use Everything::XML;
+use Everything::XML (qw/xmlfile2node fixNodes/);
 
 use vars qw(%OPTIONS);
 
