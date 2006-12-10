@@ -12,7 +12,7 @@ package Everything::HTML;
 
 use strict;
 use Everything;
-use Everything::Mail;
+use Everything::Mail qw/node2mail mail2node/;
 use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);

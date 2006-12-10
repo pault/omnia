@@ -12,14 +12,8 @@ use Mail::Sender;
 use Mail::Address;
 use Scalar::Util 'reftype';
 
-use Exporter ();
-use vars qw( $VERSION @ISA @EXPORT );
-
-BEGIN
-{
-	@ISA    = qw(Exporter);
-	@EXPORT = qw( node2mail mail2node );
-}
+use base 'Exporter';
+our @EXPORT_OK = qw(node2mail mail2node);
 
 sub node2mail
 {
