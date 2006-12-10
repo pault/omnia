@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w 
 
 use strict;
-use Everything::HTML;
+use Everything::HTML qw/mod_perlInit/;
 
 # >>> Extra Packages
 # <<< Extra Packages

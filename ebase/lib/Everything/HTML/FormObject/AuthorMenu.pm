@@ -11,7 +11,6 @@ package Everything::HTML::FormObject::AuthorMenu;
 
 use strict;
 use Everything;
-use Everything::HTML;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);

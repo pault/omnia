@@ -11,14 +11,11 @@ use strict;
 use Everything;
 use Everything::XML (qw/xmlfile2node fixNodes/);
 
-use vars qw(%OPTIONS);
+our %OPTIONS;
 
-sub BEGIN
-{
-	use Exporter();
-	use vars qw($VERSIONS @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
+use base 'Exporter';
+
+our @EXPORT_OK = qw(
 		%OPTIONS
 		setupOptions
 		removeNodeball
@@ -48,7 +45,8 @@ sub BEGIN
 		buildSqlCmdline
 		printSettings
 	);
-}
+
+our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 =cut
 

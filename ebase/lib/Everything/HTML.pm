@@ -17,39 +17,35 @@ use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
-sub BEGIN
-{
-	use Exporter ();
-	use vars qw($DB $AUTH $VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
-		$DB
-		%HTMLVARS
-		%GLOBAL
-		$query
-		$AUTH
-		newFormObject
-		parseLinks
-		htmlScreen
-		htmlFormatErr
-		quote
-		urlGen
-		getPage
-		getPageForType
-		linkNode
-		linkNodeTitle
-		searchForNodeByName
-		evalX
-		evalXTrapErrors
-		htmlcode
-		embedCode
-		displayPage
-		gotoNode
-		encodeHTML
-		decodeHTML
-		mod_perlInit);
-}
+use base 'Exporter';
+our @EXPORT_OK = qw(
+  $DB
+  %HTMLVARS
+  %GLOBAL
+  $query
+  $AUTH
+  newFormObject
+  parseLinks
+  htmlScreen
+  htmlFormatErr
+  quote
+  urlGen
+  getPage
+  getPageForType
+  linkNode
+  linkNodeTitle
+  searchForNodeByName
+  evalX
+  evalXTrapErrors
+  htmlcode
+  embedCode
+  displayPage
+  gotoNode
+  encodeHTML
+  decodeHTML
+  mod_perlInit);
 
+our ($AUTH, $DB);
 use vars qw( $query $GNODE $NODELET $THEME $USER $VARS %HTMLVARS %INCJS );
 
 # This is used for nodes to pass vars back-n-forth
