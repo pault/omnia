@@ -11,26 +11,58 @@ use base 'Test::Class';
 use strict;
 use warnings;
 
-sub startup : Test(startup => +0) {
+sub startup : Test(startup => 1) {
     my $self = shift;
 
     # Unfortunately this imports stuff from Everything.pm.
     my $mock = Test::MockObject->new;
     $self->{mock}  = $mock;
-    $self->setup_globals;
-    $self->setup_mocks;
     my $module = $self->module_class();
-    use_ok($module) or exit;
     $self->{class} = $module;
 
+    $self->setup_mocks;
+    $self->setup_globals;
+ 
+    use_ok($module);
+}
+
+sub test_imports :Test(startup => 1) {
+
+    my $self = shift;
+    is_deeply(
+	      $self->{import}->{Everything},
+	      { '$DB' => 1,  'getParamArray' => 1},
+	      '...imports $DB and getParamArray from Everything'
+	     );
 
 }
 
 sub setup_mocks {
     my $self = shift;
-    $self->{mock}->fake_module('Everything');
+    my $mock = Test::MockObject->new;
+    # test imports
+    my %import;
 
+    my $mockimport = sub {
+
+	# this little stanza is required to test the imports of
+	# sublasses to FormObject.pm. Otherwise we keep rechecking the
+	# imports only of FormObject
+	my $caller = caller();
+	$caller =~ s{/}{::}g;
+	$caller =~ s{\.pm$}{};
+	return unless $caller eq $self->{class};
+
+        $import{ +shift } = { map { $_ => 1 } @_[ 1 .. $#_ ] };
+
+    };
+
+    for my $mod ( 'Everything' ) {
+        $mock->fake_module( $mod, import => $mockimport );
+    }
+    $self->{import} = \%import;
 }
+
 
 sub setup_globals {
     my $self = shift;

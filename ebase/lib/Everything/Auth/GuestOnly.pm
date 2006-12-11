@@ -10,7 +10,6 @@ package Everything::Auth::GuestOnly;
 #############################################################################
 
 use strict;
-use Everything;
 
 sub new
 {

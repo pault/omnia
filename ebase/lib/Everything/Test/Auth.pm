@@ -9,14 +9,26 @@ use File::Path;
 use SUPER;
 use strict;
 
-sub startup : Test( startup => +5 ) {
+sub startup : Test( startup => +6 ) {
     my $self = shift;
-    $self->SUPER;
-    can_ok( $self->{class}, 'new' );
 
     my $db = Test::MockObject->new();
     local *Everything::Auth::DB;
+    my @imports;
     *Everything::Auth::DB = \$db;
+
+    $db->fake_module(
+        'Everything',
+        import => sub {
+            @imports              = @_;
+            *Everything::Auth::DB = \$db;
+        }
+    );
+
+    $self->SUPER;
+    is( $imports[1], '$DB', '...should import $DB from Everything.pm' );
+    can_ok( $self->{class}, 'new' );
+
     $db->set_always( getNode => { node_id => 88 } );
     $self->{db} = $db;
     my $instance = $self->{class}->new();

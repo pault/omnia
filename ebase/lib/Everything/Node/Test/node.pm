@@ -18,44 +18,67 @@ use Scalar::Util qw( reftype blessed );
 use Everything::NodeBase;
 use Everything::DB::sqlite;
 
-sub node_class
-{
-	my $self =  shift;
-	my $name =  blessed( $self );
-	$name    =~ s/Test:://;
-	return $name;
+sub node_class {
+    my $self = shift;
+    my $name = blessed($self);
+    $name =~ s/Test:://;
+    return $name;
 }
 
-sub startup :Test( startup => 3 )
-{
-	my $self         = shift;
-	$self->{errors}  = [];
+sub startup : Test( startup => 3 ) {
+    my $self = shift;
+    $self->{errors} = [];
 
-	$self->make_base_test_db();
+    $self->make_base_test_db();
 
-	my $mock         = Test::MockObject->new();
-	$mock->fake_module( 'Everything', logErrors => sub
-		{
-			push @{ $self->{errors} }, [@_]
-		}
-	);
-	*Everything::Node::node::DB = \$mock;
+    my $mock = Test::MockObject->new();
+    $mock->fake_module(
+        'Everything',
+        logErrors => sub {
+            push @{ $self->{errors} }, [@_];
+        }
+    );
+    *Everything::Node::node::DB = \$mock;
 
-	my $module     = $self->node_class();
-	my %import;
+    my $module = $self->node_class();
+    my %import;
 
-	my $mockimport = sub { $import{ +shift }++ };
+    my $mockimport = sub {
+        $import{ +shift } = { map { $_ => 1 } @_[ 1 .. $#_ ] };
+    };
 
-	for my $mod (qw( DBI Everything Everything::XML))
-	{
-		$mock->fake_module( $mod, import => $mockimport );
-	}
+    for my $mod ( $self->setup_imports ) {
+        $mock->fake_module( $mod, import => $mockimport );
+    }
 
-	use_ok( $module ) or exit;
+    use_ok($module) or exit;
 
-	# now test that C<new()> works
-	can_ok( $module, 'new' );
-	isa_ok( $module->new(), $module );
+    $self->{imports} = \%import;
+
+    # now test that C<new()> works
+    can_ok( $module, 'new' );
+    isa_ok( $module->new(), $module );
+}
+
+sub setup_imports {
+
+    return qw( DBI Everything Everything::XML);
+}
+
+sub test_imports :Test(startup => 2) {
+    my ( $self) = @_;
+    my $imports = $self->{imports};
+    is_deeply(
+	      $$imports{Everything},
+	      { '$DB' => 1},
+	      '...imports $DB from Everything'
+	     );
+    is_deeply(
+        $$imports{'Everything::XML'},
+        { xml2node => 1, genBasicTag => 1, parseBasicTag => 1 },
+        '...imports xml2node, genBasicTag, parseBasicTag from Everything::XML'
+    );
+
 }
 
 sub make_base_test_db

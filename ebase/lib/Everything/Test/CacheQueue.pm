@@ -6,12 +6,11 @@ use Test::MockObject;
 use strict;
 use warnings;
 
-sub startup : Test(startup => +1) {
+sub startup : Test(startup => +0) {
     my $self = shift;
 
     my $mock = Test::MockObject->new;
     my $import;
-    $mock->fake_module( 'Everything', import => sub { $import = caller } );
 
     $self->SUPER;
     my $class = $self->{class};
@@ -22,9 +21,6 @@ sub startup : Test(startup => +1) {
 
     require $file;
     $class->import;
-
-    is( $import, 'Everything::CacheQueue',
-        'Everything::CacheQueue should use() Everything' );
 
 }
 

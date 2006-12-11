@@ -10,7 +10,7 @@ Package that implements the base PopupMenu functionality.
 package Everything::HTML::FormObject::PopupMenu;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);

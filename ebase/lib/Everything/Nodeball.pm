@@ -8,8 +8,8 @@ Functions used by nbmasta and everything_install
 package Everything::Nodeball;
 
 use strict;
-use Everything;
-use Everything::XML (qw/xmlfile2node fixNodes/);
+use Everything qw/:all/;
+use Everything::XML qw/xmlfile2node fixNodes/;
 
 our %OPTIONS;
 

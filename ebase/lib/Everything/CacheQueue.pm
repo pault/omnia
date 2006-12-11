@@ -14,7 +14,6 @@ The queue is implemented as a double-linked list and a data field.
 package Everything::CacheQueue;
 
 use strict;
-use Everything;
 
 =cut
 

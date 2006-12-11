@@ -10,7 +10,7 @@ Package that implements the base NodetypeMenu functionality.
 package Everything::HTML::FormObject::NodetypeMenu;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::TypeMenu;
 use vars qw(@ISA);

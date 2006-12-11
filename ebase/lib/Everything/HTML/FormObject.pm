@@ -10,7 +10,7 @@ Package that implements the base FormObject functionality.
 package Everything::HTML::FormObject;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 =cut
 

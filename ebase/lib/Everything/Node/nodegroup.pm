@@ -13,7 +13,6 @@ use warnings;
 
 use base 'Everything::Node::node';
 
-use Everything;
 use Everything::XML (qw/genBasicTag/);
 
 use XML::DOM;

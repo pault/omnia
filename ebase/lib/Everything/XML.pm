@@ -10,7 +10,7 @@ Copyright 2000 - 2003 Everything Development
 package Everything::XML;
 
 use strict;
-use Everything;
+use Everything qw/getNode/;
 use XML::DOM;
 
 

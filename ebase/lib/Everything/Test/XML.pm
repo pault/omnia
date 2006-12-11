@@ -7,7 +7,7 @@ use SUPER;
 
 use base 'Everything::Test::Abstract';
 
-sub startup : Test(startup => +0) {
+sub startup : Test(startup => +1) {
     my $self = shift;
     my $mock = Test::MockObject->new;
 
@@ -16,9 +16,25 @@ sub startup : Test(startup => +0) {
         logErrors => sub { push @{ $self->{le} }, [@_] } );
     $mock->fake_module('XML::DOM');
 
+    # test imports
+    my %import;
+
+    my $mockimport = sub {
+        $import{ +shift } = { map { $_ => 1 } @_[ 1 .. $#_ ] };
+    };
+
+    for my $mod ( 'Everything' ) {
+        $mock->fake_module( $mod, import => $mockimport );
+    }
     $self->SUPER;
+
     $self->{mock} = $mock;
 
+    is_deeply(
+	      $import{Everything},
+	      { 'getNode' => 1},
+	      '...imports getNode from Everything'
+	     );
 }
 
 sub test_readtag : Test(1) {

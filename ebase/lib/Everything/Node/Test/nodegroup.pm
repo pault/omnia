@@ -7,6 +7,25 @@ use base 'Everything::Node::Test::node';
 
 use Test::More;
 
+
+sub setup_imports {
+
+    return qw( Everything::XML);
+}
+
+sub test_imports :Test(startup => 1) {
+    my ( $self) = @_;
+    my $imports = $self->{imports};
+
+    is_deeply(
+        $$imports{'Everything::XML'},
+        { genBasicTag => 1 },
+        '...imports genBasicTag from Everything::XML'
+    );
+
+}
+
+
 sub test_construct :Test( 1 )
 {
 	my $self = shift;

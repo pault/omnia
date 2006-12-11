@@ -13,7 +13,6 @@ use warnings;
 
 use base 'Everything::Node::nodegroup';
 
-use Everything;
 use Everything::Node::setting;
 
 =head2 C<dbtables()>

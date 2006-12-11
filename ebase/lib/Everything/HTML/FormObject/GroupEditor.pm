@@ -10,7 +10,7 @@ Package that implements the base groupEditor functionality.
 package Everything::HTML::FormObject::GroupEditor;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);

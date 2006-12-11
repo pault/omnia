@@ -19,7 +19,7 @@ Everything authentication routines
 package Everything::Auth;
 
 use strict;
-use Everything;
+use Everything qw/$DB/;
 
 =cut
 

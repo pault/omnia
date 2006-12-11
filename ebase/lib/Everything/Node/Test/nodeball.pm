@@ -7,6 +7,16 @@ use base 'Everything::Node::Test::nodegroup';
 
 use Test::More;
 
+
+sub setup_imports {
+
+    return ();
+}
+
+sub test_imports :Test(startup => 0) {
+    return "Doesn't import symbols";
+}
+
 sub test_dbtables :Test( 2 )
 {
 	my $self   = shift;

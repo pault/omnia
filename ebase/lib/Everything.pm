@@ -36,12 +36,9 @@ use vars qw(%NODEBASES);
 # Are we being run from the command line?
 use vars qw($commandLine);
 
-sub BEGIN
-{
-	use Exporter ();
-	use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-	@ISA    = qw(Exporter);
-	@EXPORT = qw(
+use base 'Exporter';
+
+our @EXPORT_OK = qw(
 		$DB
 		getParamArray
 		getRef
@@ -74,10 +71,11 @@ sub BEGIN
 		@bsErrors
 	);
 
+our %EXPORT_TAGS = ( all => \@EXPORT_OK );
+
 	# This will be true if we are being run from a command line, in which
 	# case all errors should be printed to STDOUT
 	$commandLine = ( -t STDIN && -t STDOUT ) ? 1 : 0;
-}
 
 #############################################################################
 #

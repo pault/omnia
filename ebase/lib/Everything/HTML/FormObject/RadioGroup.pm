@@ -10,7 +10,7 @@ Package that implements the base RadioGroup functionality.
 package Everything::HTML::FormObject::RadioGroup;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);

@@ -16,6 +16,7 @@ use File::Spec;
 use File::Path;
 use Test::More tests => 96;
 use Test::MockObject;
+require Everything;
 
 # temporarily avoid sub redefined warnings
 my $mock = Test::MockObject->new();

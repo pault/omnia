@@ -10,7 +10,7 @@ Package that implements the base RemoveVarCheckbox functionality.
 package Everything::HTML::FormObject::RemoveVarCheckbox;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::Checkbox;
 use vars qw(@ISA);

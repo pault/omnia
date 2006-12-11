@@ -11,7 +11,7 @@ and the basic HTML front end.
 package Everything::HTML;
 
 use strict;
-use Everything;
+use Everything ':all';
 use Everything::Mail qw/node2mail mail2node/;
 use Everything::Auth;
 use CGI;

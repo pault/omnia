@@ -11,7 +11,6 @@ package Everything::Node::user;
 use strict;
 use warnings;
 
-use Everything;
 use base 'Everything::Node::setting';
 
 =head2 C<dbtables()>

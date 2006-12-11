@@ -6,7 +6,7 @@
 package Everything::Mail;
 
 use strict;
-use Everything;
+use Everything qw/getNode/;
 use IO::File;
 use Mail::Sender;
 use Mail::Address;

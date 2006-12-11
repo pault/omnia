@@ -36,6 +36,10 @@ sub startup :Test( startup )
 }
 
 
+sub test_imports :Test(startup => 0) {
+    return "Doesn't import symbols";
+}
+
 sub make_fixture :Test(setup => 6)
 {
 	my $self      = shift;

@@ -14,8 +14,8 @@ use warnings;
 use base 'Everything::Node';
 
 use DBI;
-use Everything;
-use Everything::XML (qw/xml2node genBasicTag parseBasicTag/);
+use Everything qw/$DB/;
+use Everything::XML qw/xml2node genBasicTag parseBasicTag/;
 use Everything::NodeBase;
 
 use Scalar::Util 'reftype';

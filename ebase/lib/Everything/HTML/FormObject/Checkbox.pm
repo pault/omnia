@@ -10,7 +10,7 @@ Package that implements the base Checkbox functionality.
 package Everything::HTML::FormObject::Checkbox;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);

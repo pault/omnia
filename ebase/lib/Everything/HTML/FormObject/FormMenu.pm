@@ -22,7 +22,7 @@ populated with the desired items, call genPopupMenu() or genListMenu()
 package Everything::HTML::FormObject::FormMenu;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);

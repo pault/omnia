@@ -10,8 +10,8 @@ Package that implements the base PasswdField functionality.
 package Everything::HTML::FormObject::PasswdField;
 
 use strict;
-use Everything;
 
+use Everything qw/getParamArray/;
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");

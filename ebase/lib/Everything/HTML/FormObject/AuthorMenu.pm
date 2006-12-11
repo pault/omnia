@@ -10,7 +10,7 @@ Package that implements the base AuthorMenu functionality.
 package Everything::HTML::FormObject::AuthorMenu;
 
 use strict;
-use Everything;
+use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);

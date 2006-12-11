@@ -10,7 +10,7 @@ use SUPER;
 use strict;
 use warnings;
 
-sub startup : Test(startup => +0) {
+sub startup : Test(startup => +1) {
     my $self = shift;
 
     # We'll need a few MockObjects here
@@ -78,6 +78,17 @@ sub startup : Test(startup => +0) {
         }
     );
 
+    # test imports
+    my %import;
+
+    my $mockimport = sub {
+        $import{ +shift } = { map { $_ => 1 } @_[ 1 .. $#_ ] };
+    };
+
+    for my $mod ('Everything') {
+        $mock->fake_module( $mod, import => $mockimport );
+    }
+
     # We want to test whether or not someone closes this object
     # like they should. This just trips a flag for it.
 
@@ -93,6 +104,11 @@ sub startup : Test(startup => +0) {
     $self->{SETTINGS} = $SETTINGS;
     $self->SUPER;
 
+    is_deeply(
+        $import{Everything},
+        { 'getNode' => 1 },
+        '...imports getNode from Everything'
+    );
 }
 
 sub test_node2mail : Test(29) {
