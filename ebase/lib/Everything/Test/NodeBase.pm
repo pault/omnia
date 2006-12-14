@@ -67,7 +67,7 @@ BEGIN
 		sqlSelectJoined sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert
 		_quoteData sqlExecute getNodeByIdNew getNodeByName constructNode
 		selectNodeWhere getNodeCursor countNodeMatches getAllTypes
-		dropNodeTable quote genWhereString  now createGroupTable fetchrow timediff getNodetypeTables
+		dropNodeTable quote genWhereString  now createGroupTable fetchrow timediff getNodetypeTables createNodeTable
 	))
 	{
 		eval <<"		END_SUB";

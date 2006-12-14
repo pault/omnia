@@ -26,12 +26,12 @@ sub test_dbtables :Test( 2 )
 	is( $result[1], 'document', '... and document as first tables' );
 }
 
-sub test_insert :Test( 5 )
+sub test_insert :Test( 7 )
 {
 	my $self = shift;
 	my $node = $self->{node};
 
-	$node->set_series( -SUPER => 0, 10, 10 )
+	$node->set_always( SUPER => 0 )
 		 ->set_true( 'update' );
 
 	$node->{title} = 'foo';
@@ -39,10 +39,16 @@ sub test_insert :Test( 5 )
 	ok( ! $node->insert( 'user' ),
 		'insert() should return false if SUPER call fails' );
 
+	my ( $method, $args ) = $node->next_call();
+	is ($method, 'SUPER', '...should call SUPER.');
+	is_deeply ( $args, [ $node, 'user'], '...with same args as self.');
+
+	$node->set_always( -SUPER => 10 );
+
 	is( $node->insert( 'user' ), 10,
 		'... should return inserted node_id on success' );
 
-	my ( $method, $args ) = $node->next_call();
+	( $method, $args ) = $node->next_call();
 	is( $method, 'update',  '... then calling update()' );
 	is( $args->[1], 'user', '... with the user' );
 	is( $node->{author_user}, 10,

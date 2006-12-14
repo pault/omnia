@@ -32,7 +32,7 @@ sub startup : Test(startup => +1) {
 
     is_deeply(
 	      $import{Everything},
-	      { 'getNode' => 1},
+	      { 'getNode' => 1, getType => 1, selectNodeWhere => 1 },
 	      '...imports getNode from Everything'
 	     );
 }

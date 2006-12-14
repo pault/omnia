@@ -10,7 +10,7 @@ Copyright 2000 - 2003 Everything Development
 package Everything::XML;
 
 use strict;
-use Everything qw/getNode/;
+use Everything qw/getNode getType selectNodeWhere/;
 use XML::DOM;
 
 

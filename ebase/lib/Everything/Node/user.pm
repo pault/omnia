@@ -35,7 +35,7 @@ sub insert
 {
 	my ( $this, $USER ) = @_;
 
-	return 0 unless my $id = $this->SUPER();
+	return 0 unless my $id = $this->SUPER($USER);
 
 	# Make all new users default to owning themselves.
 	$this->{author_user} = $id;
