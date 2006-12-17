@@ -83,13 +83,14 @@ sub getFieldsHash
 
 	unless ( exists $DBTABLE->{Fields} )
 	{
-		my $sth = $this->{dbh}->prepare_cached( "SELECT * FROM $table" );
+		my $sth = $this->{dbh}->prepare_cached( "PRAGMA table_info($table)" );
 		$sth->execute();
 
-		my $href = $sth->fetchrow_hashref();
+		while ( my $table_desc = $sth->fetchrow_arrayref()) {
+		    push @{ $DBTABLE->{Fields} }, { Field => $$table_desc[1] };
+		}
 		$sth->finish();
 
-		@{ $DBTABLE->{Fields} } = map { { Field => $_ } } keys %$href;
 	}
 
 	return @{ $DBTABLE->{Fields} } if $getHash;

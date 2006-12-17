@@ -71,12 +71,14 @@ sub test_get_fields_hash : Test(9) {
     $self->{instance}->{nb}->clear;
     $self->{instance}->{dbh}->clear;
 
-    my $fields = { foo => 1, bar => 2 };
+    my @fields1 = qw/foo bar/;
+    my @fields2 = qw/ saturn jupiter /;
     $self->{instance}->{dbh}->mock( 'prepare_cached', sub { shift; } );
-    $self->{instance}->{dbh}->set_always( 'fetchrow_hashref', $fields );
+    $self->{instance}->{dbh}
+      ->set_series( 'fetchrow_arrayref', \@fields1, \@fields2 );
     my $DBTABLE = {};
     my @expected = @{ $DBTABLE->{Fields} } =
-      map { { Field => $_ } } keys %$fields;
+      map { { Field => $_ } } qw/bar jupiter/;
 
     my @result = $self->{instance}->getFieldsHash('table');
     my ( $method, $args ) = $self->{instance}->{nb}->next_call();
@@ -86,7 +88,11 @@ sub test_get_fields_hash : Test(9) {
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
 
     is( $method, 'prepare_cached', '... displaying the table columns' );
-    is( $args->[1], 'SELECT * FROM table', '... for the appropriate table' );
+    is(
+        $args->[1],
+        'PRAGMA table_info(table)',
+        '... for the appropriate table'
+    );
 
     is_deeply( \@result, \@expected,
         '... defaulting to return complete hashrefs' );
@@ -94,19 +100,18 @@ sub test_get_fields_hash : Test(9) {
     $self->{instance}->{nb}->clear();
     $self->{instance}->{dbh}->clear();
 
+    ## reset this
+    $self->{instance}->{dbh}
+      ->set_series( 'fetchrow_arrayref', \@fields1, \@fields2 );
+
     @result = $self->{instance}->getFieldsHash( '', 0 );
     is( $self->{instance}->{nb}->call_pos(-1),
         'getNode', 'getFieldsHash() should respect fields cached in node' );
     ( $method, $args ) = $self->{instance}->{nb}->next_call();
     is( $args->[1], 'node', '... using the node table by default' );
 
-    my $rv = 1;                           # assume success
-    my %hash = map { $_ => 1 } @result;
-    foreach (qw/foo bar/) {
-        $rv = 0 unless exists $hash{$_};
-    }
-
-    is_deeply( $rv, 1, '... returning only fields if getHash is false' );
+    is_deeply( \@result, [qw/bar jupiter/],
+        '... returning only fields if getHash is false' );
 
 }
 
