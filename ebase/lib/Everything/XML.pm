@@ -10,7 +10,7 @@ Copyright 2000 - 2003 Everything Development
 package Everything::XML;
 
 use strict;
-use Everything qw/getNode getType selectNodeWhere/;
+use Everything qw/getNode getType selectNodeWhere getRef/;
 use XML::DOM;
 
 
@@ -171,7 +171,7 @@ sub xml2node
 				"XML was created with a newer version of Everything.\n"
 					. "This may not import correctly.",
 				'', "'$title'"
-			);
+ 			);
 		}
 
 		# Start with a basic node.  We force create this to avoid over
@@ -394,7 +394,7 @@ sub parseBasicTag
 	{
 		my %WHERE;
 
-		my $len = $ATTRS->getLength();
+		my $len = $ATTRS->getLength();  # number of child nodes
 		for my $i ( 0 .. $len - 1 )
 		{
 			my $ATTR = $ATTRS->item($i);
