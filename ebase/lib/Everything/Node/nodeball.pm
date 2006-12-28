@@ -98,27 +98,4 @@ sub fieldToXML
 	return $this->SUPER( $DOC, $field, $indent );
 }
 
-sub xmlTag
-{
-	my ( $this, $TAG ) = @_;
-	my $tagname        = $TAG->getTagName();
-
-	# Since we derive from nodegroup, but also have some setting type
-	# functionality, we need to use the setting stuff here.
-	return Everything::Node::setting::xmlTag( $this, $TAG )
-		if $tagname =~ /vars/i;
-
-	return $this->SUPER( $TAG );
-}
-
-sub applyXMLFix
-{
-	my ( $this, $FIX, $printError ) = @_;
-
-	return Everything::Node::setting::applyXMLFix( $this, $FIX, $printError )
-		if exists $FIX->{fixBy} and $FIX->{fixBy} eq 'setting';
-
-	return $this->SUPER( $FIX, $printError );
-}
-
 1;

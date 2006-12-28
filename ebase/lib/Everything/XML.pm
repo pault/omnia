@@ -55,6 +55,125 @@ sub readTag
 	"";
 }
 
+our %tag_process = ( field => \&process_field_tag,
+		     group => \&process_group_tag,
+		     vars  => \&process_vars_tag
+		   );
+
+
+sub process_vars_tag
+{
+	my ( $node, $TAG ) = @_;
+
+	my @fixes;
+	my @childFields = $TAG->getChildNodes();
+
+	# On import, this could start out as nothing and we want it to be at least
+	# defined to empty string.  Otherwise, we will get warnings when we call
+	# getVars() below.
+
+	$$node{vars} ||= "";
+
+	my $vars = $node->getVars();
+
+	foreach my $child (@childFields)
+	{
+		next if ( $child->getNodeType() == XML::DOM::TEXT_NODE() );
+
+		my $PARSE = parseBasicTag( $child, 'setting' );
+
+		if ( exists $$PARSE{where} )
+		{
+			$$vars{ $$PARSE{name} } = -1;
+
+			# The where contains our fix
+			push @fixes, $PARSE;
+		}
+		else
+		{
+			$$vars{ $$PARSE{name} } = $$PARSE{ $$PARSE{name} };
+		}
+	}
+
+	$node->setVars($vars);
+	return \@fixes;
+}
+
+sub process_group_tag {
+
+	my ( $node, $TAG ) = @_;
+
+	my @fixes;
+	my @childFields = $TAG->getChildNodes();
+	my $orderby     = 0;
+
+	for my $child (@childFields)
+	{
+		next if $child->getNodeType() == XML::DOM::TEXT_NODE();
+
+		my $PARSE = Everything::XML::parseBasicTag( $child, 'nodegroup' );
+
+		if ( exists $PARSE->{where} )
+		{
+			$PARSE->{orderby} = $orderby;
+			$PARSE->{fixBy}   = 'nodegroup';
+
+			# The where contains our fix
+			push @fixes, $PARSE;
+
+			# Insert a dummy node into the group which we can later fix.
+			$node->insertIntoGroup( -1, -1, $orderby );
+		}
+		else
+		{
+			$node->insertIntoGroup( -1, $PARSE->{ $PARSE->{name} }, $orderby );
+		}
+
+		$orderby++;
+	}
+
+	return \@fixes if @fixes;
+	return;
+}
+
+sub process_field_tag {
+    my ( $node, $TAG ) = @_;
+
+    my $PARSE = Everything::XML::parseBasicTag( $TAG, 'node' );
+    my @fixes;
+
+    # The where contains our fix
+    if ( exists $PARSE->{where} )
+      {
+	  $node->{ $PARSE->{name} } = -1;
+	  push @fixes, $PARSE;
+      }
+    else
+      {
+	  $node->{ $PARSE->{name} } = $PARSE->{ $PARSE->{name} };
+      }
+
+	return \@fixes if @fixes;
+	return;
+}
+
+sub xmlTag
+{
+	my ( $node, $TAG ) = @_;
+	my $tagname = $TAG->getTagName();
+
+	## to emulate original functionality - not sure if there's any
+	## sense to it though.
+	$tagname = 'field' if $tagname =~ /field/i;
+	return $tag_process{$tagname}->($node, $TAG) if $tag_process{$tagname};
+
+	Everything::logErrors( '',
+			       "node.pm does not know how to handle XML tag '$tagname' "
+			       . "for type '$$node{type}{title}'" );
+	return;
+
+}
+
 #############################################################################
 sub initXMLParser
 {
@@ -67,6 +186,138 @@ sub _unfixed
 }
 
 #############################################################################
+
+### applyXMLFix
+#
+#
+# nodegroup code: if: $FIX->{fixBy} and $FIX->{fixBy} eq 'nodegroup'
+# then use nodegroup code else do standard code
+#
+# settings code:
+# elsif: not( $FIX and (reftype( $FIX ) || '') eq 'HASH' ) then return
+# and if not  $FIX->{fixBy} eq 'setting'; then standard
+#
+# nodeball code:
+# if if exists $FIX->{fixBy} and $FIX->{fixBy} eq 'setting'; then
+# do the settings code else do the standard code
+
+sub applyXMLFix_general {
+
+    my ( $node, $FIX, $printError ) = @_;
+
+    my $where = $FIX->{where};
+    my $type  = $where->{type_nodetype};
+
+    $where = patchXMLwhere($where);
+
+    my $TYPE = $where->{type_nodetype};
+    my $NODE = $node->{DB}->getNode( $where, $TYPE );
+
+    unless ($NODE) {
+        Everything::logErrors( '',
+                "Unable to find '$where->{title}' of type "
+              . "'$where->{type_nodetype}'\nfor field '$FIX->{field}'"
+              . " of node '$node->{title}', '$node->{type}{title}'\n" )
+          if $printError;
+
+        return $FIX;
+    }
+
+    $node->{ $FIX->{field} } = $NODE->{node_id};
+    return;
+
+}
+
+sub applyXMLFix_nodegroup {
+    my ( $node, $FIX, $printError ) = @_;
+
+    my $where = patchXMLwhere( $FIX->{where} );
+    my $TYPE  = $where->{type_nodetype};
+    my $NODE  = $node->{DB}->getNode( $where, $TYPE );
+
+    unless ($NODE) {
+        Everything::logErrors( '',
+                "Unable to find '$where->{title}' of type "
+              . "'$where->{type_nodetype}'\n for field '$where->{field}'\n"
+              . " in node 'node->{title}' of type '$node->{type}{title}'" )
+          if $printError;
+
+        return $FIX;
+    }
+
+    # Patch our group array with the now found node id!
+    $node->{group}[ $FIX->{orderby} ] = $NODE->{node_id};
+
+    return;
+}
+
+sub applyXMLFix_setting {
+    my ( $node, $FIX, $printError ) = @_;
+
+    my $vars  = $node->getVars();
+    my $where = patchXMLwhere( $FIX->{where} );
+    my $TYPE  = $where->{type_nodetype};
+    my $NODE  = $node->{DB}->getNode( $where, $TYPE );
+
+    unless ($NODE) {
+        Everything::logErrors( '',
+            "Unable to find '$FIX->{title}' of type '$FIX->{type_nodetype}'\n"
+              . "for field '$FIX->{field}' in '$node->{title}'"
+              . "of type '$node->{nodetype}{title}'" )
+          if $printError;
+        return $FIX;
+    }
+
+    $vars->{ $FIX->{field} } = $NODE->{node_id};
+
+    $node->setVars($vars);
+
+    return;
+}
+
+sub applyXMLFix {
+    my ( $node, $FIX, $printError ) = @_;
+    return unless $FIX;
+
+    my %dispatches = (
+        node      => \&applyXMLFix_general,
+        nodegroup => \&applyXMLFix_nodegroup,
+        setting   => \&applyXMLFix_setting,
+    );
+
+    return $dispatches{ $FIX->{fixBy} }->(@_)
+      if $FIX->{fixBy} && $dispatches{ $FIX->{fixBy} };
+
+    if ($printError) {
+        my $fixBy = $FIX->{fixBy} || '(no fix by)';
+        Everything::logErrors( '',
+                "node.pm does not know how to handle fix by '$fixBy'.\n"
+              . "'$FIX->{where}{title}', '$FIX->{where}{type_nodetype}'\n" );
+    }
+    return $FIX;
+
+}
+
+
+=head2 C<commitXMLFixes>
+
+After all the fixes for this node have been applied, this is called to allow
+the node to save those fixes as it needs.
+
+=cut
+
+sub commitXMLFixes
+{
+	my ($node) = @_;
+
+	# A basic node has no complex data structures, so all we need to do
+	# is a simple update.
+	$node->update( -1, 'nomodify' );
+
+	return;
+}
+
+
 sub fixNodes
 {
 	my ($printError) = @_;
@@ -88,7 +339,7 @@ sub fixNodes
 
 		foreach my $FIX ( @{ $UNFIXED_NODES{$node} } )
 		{
-			if ( $NODE->applyXMLFix( $FIX, $printError ) )
+			if ( applyXMLFix( $NODE, $FIX, $printError ) )
 			{
 
 				# The node attempted to apply the fix, but none was found.
@@ -108,7 +359,7 @@ sub fixNodes
 		}
 
 		# All the fixes for this node have been applied.
-		$NODE->commitXMLFixes();
+		commitXMLFixes($NODE);
 	}
 }
 
@@ -187,7 +438,7 @@ sub xml2node
 			# about text within the <NODE> tag.
 			next if $field->getNodeType() == XML::DOM::TEXT_NODE();
 
-			my $fixes = $NODE->xmlTag($field);
+			my $fixes = xmlTag($NODE, $field);
 			push @FIXES, @$fixes if $fixes;
 		}
 
@@ -197,7 +448,7 @@ sub xml2node
 			next;
 		}
 
-		my $id = $NODE->xmlFinal();
+		my $id = xmlFinal($NODE);
 
 		if ( $id > 0 )
 		{
@@ -362,6 +613,38 @@ sub genBasicTag
 
 =cut
 
+=head2 C<xmlFinal>
+
+This is called when a node has finished being constructed from an XML import.
+This is when the node needs to decide whether it is updating an existing node,
+or if it should insert itself as a new node.
+
+Returns the id of the node in the database that this has been stored to.  -1 if
+unable to save this.
+
+=cut
+
+sub xmlFinal
+{
+	my ($new_node) = @_;
+
+	# First lets check to see if this node already exists.
+	my $NODE = $new_node->existingNodeMatches();
+
+	if ($NODE)
+	{
+		$NODE->updateFromImport( $new_node, -1 );
+		return $NODE->{node_id};
+	}
+	else
+	{
+
+		# No node matches this one, just insert it.
+		$new_node->insert(-1);
+	}
+
+	return $new_node->{node_id};
+}
 
 =head2 C<parseBasicTag>
 

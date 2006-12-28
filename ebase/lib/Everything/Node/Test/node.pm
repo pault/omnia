@@ -379,19 +379,6 @@ sub test_clone :Test( 4 )
 		'clone() should copy only necessary fields' );
 }
 
-sub test_commit_xml_fixes :Test( 1 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-
-	$node->set_true( 'update' );
-	$node->commitXMLFixes();
-
-	my ( $method, $args ) = $node->next_call();
-	is( "$method @$args", "update $node -1 nomodify",
-		'commitXMLFixes() should call update() on node' );
-}
-
 sub test_restrict_title :Test( 6 )
 {
 	my $self = shift;
@@ -486,44 +473,6 @@ sub test_field_to_XML :Test( 5 )
 	ok( ! exists $node->{notafield}, '... and should not create field' );
 }
 
-sub test_xml_tag :Test( 9 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-
-	$node->set_always( getTagName => 'badtag' );
-
-	$node->{type}  = $node;
-	$node->{title} = 'thistype';
-	my $result = $node->xmlTag( $node );
-	is( $node->next_call(), 'getTagName', 'xmlTag() should fetch tag name' );
-	ok( !$result, '... and should return false unless it contains "field"' );
-	like( $self->{errors}[0][1], qr/tag 'badtag'.+'thistype'/,
-	    '... logging an error'    );
-
-	my @pbt;
-	my $parse = { name => 'parsed', parsed => 11 };
-
-	local *Everything::XML::parseBasicTag;
-	*Everything::XML::parseBasicTag = sub {
-		push @pbt, [@_];
-		return $parse;
-	};
-
-	$node->set_always( getTagName => 'field' );
-	$result = $node->xmlTag( $node );
-	is( join( ' ', @{ $pbt[0] } ), "$node node", '... should parse tag' );
-	is( $result, undef, '... should return false with no fixes' );
-	is( $node->{parsed}, 11, '... and should set node field to tag value' );
-
-	$parse->{where} = 1;
-	$node->set_always( getTagName => 'morefield' );
-	$result = $node->xmlTag( $node );
-	isa_ok( $result, 'ARRAY', '... should return array ref if fixes exist' );
-	is( $result->[0], $parse, '... with the fix in the array ref' );
-	is( $node->{parsed}, -1, '... setting node field to -1' );
-}
-
 sub test_get_identifying_fields :Test( 1 )
 {
 	my $self = shift;
@@ -550,94 +499,6 @@ sub test_update_from_import :Test( 4 )
 	is( "$method @$args", "update $node user nomodify",
 		'... and should update node' );
 	is( $node->{modified}, 0, '... setting "modified" to 0' );
-}
-
-sub test_xml_final :Test( 6 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-
-	$node->set_series( existingNodeMatches => $node, 0 )
-		 ->set_true('updateFromImport')
-		 ->set_true('insert');
-
-	my $result = $node->xmlFinal();
-
-	is( $node->next_call(), 'existingNodeMatches',
-		'xmlFinal() should check for a matching node' );
-
-	my ( $method, $args ) = $node->next_call();
-	is( $method, 'updateFromImport', '... updating node if so' );
-	is( join( '+', @$args ), "$node+$node+-1", '... for node by superuser' );
-	is( $result, $node->{node_id}, '... returning the node_id' );
-
-	$result = $node->xmlFinal();
-
-	( $method, $args ) = $node->next_call(2);
-	is( "$method $args->[1]", 'insert -1', '... or should insert the node' );
-	is( $result, $node->{node_id}, '... returning the new node_id' );
-}
-
-sub test_apply_xml_fix_no_fixby_node :Test( 3 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-
-	my $where = { title => 'title', type_nodetype => 'type', field => 'b' };
-	my $fix   = { where => $where,  field         => 'fixme', title => '' };
-
-	is( $node->applyXMLFix( $fix ), $fix,
-		'applyXMLFix() should return fix if it has no "fixBy" field' );
-
-	$fix->{fixBy} = 'fixme';
-	is( $node->applyXMLFix( $fix, 1 ), $fix,
-		'... or if the field is not set to "node"' );
-
-	like( $self->{errors}[0][1],
-		qr/handle fix by 'fixme'/, '... and should log error if flag is set' );
-}
-
-sub test_apply_xml_fix :Test( 8 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	my $db   = $self->{mock_db};
-
-	my $where = { title => 'title', type_nodetype => 'type',  field => 'b' };
-	my $fix   = { where => $where,  field         => 'fixme', fixBy => 'node' };
-
-	my @pxw;
-	$node->fake_module(
-		'Everything::XML',
-		patchXMLwhere => sub {
-			push @pxw, [@_];
-			return $_[0];
-		}
-	);
-
-	$db->set_series( getNode => 0, 0, { node_id => 42 } );
-	@{ $self->{errors} } = ();
-	my $result = $node->applyXMLFix( $fix );
-	is( $pxw[0][0], $where, '... should try to resolve node' );
-
-	my ( $method, $args ) = $db->next_call();
-	is( $method, 'getNode', '... should fetch resolved node' );
-	is( join( '-', @$args[ 1, 2 ] ), "$where-type",
-		'... by fix criteria for type' );
-
-	is( $result, $fix,           '... returning the fix if that did not work' );
-	is( @{ $self->{errors}[0] }, 0, '... returning no error without flag' );
-
-	$node->{title}       = 'n_title';
-	$node->{type}{title} = 't_title';
-	$result = $node->applyXMLFix( $fix, 1 );
-	like( $self->{errors}[1][1],
-		qr/Unable.+find 'title' of type 'type'.+'fixme'.+'n_title'.+'t_title'/s,
-		'... and logging an error if flag is set' );
-
-	$result = $node->applyXMLFix( $fix );
-	is( $node->{fixme}, 42, '... should set field to found node_id' );
-	ok( !$result, '... should return nothing on success' );
 }
 
 sub test_conflicts_with :Test( 4 )
