@@ -114,28 +114,4 @@ sub test_has_vars :Test( 1 )
 	ok( $node->hasVars(), 'hasVars() should return true' );
 }
 
-sub test_field_to_XML :Test( 4 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-
-	my @saveargs;
-	local *Everything::Node::setting::fieldToXML;
-	*Everything::Node::setting::fieldToXML = sub { @saveargs = @_ };
-
-	my @args = ( 'doc', '', 1 );
-	$node->set_always( SUPER => 4 );
-
-	is( $node->fieldToXML(@args), 4,
-		'fieldToXML() should call SUPER() unless handling a "vars" field' );
-
-	my ($method, $args) = $node->next_call();
-	is_deeply( $args, [ $node, @args ], '... passing all arguments' );
-
-	$args[1] = 'vars';
-	is( $node->fieldToXML( @args ), 4,
-		'... delegating to setting nodetype if handling "vars" field' );
-	is( "@saveargs", "$node @args", '... passing along its arguments' );
-}
-
 1;

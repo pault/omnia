@@ -62,10 +62,10 @@ sub startup : Test( startup => 3 ) {
 
 sub setup_imports {
 
-    return qw( DBI Everything Everything::XML);
+    return qw( DBI Everything );
 }
 
-sub test_imports :Test(startup => 2) {
+sub test_imports :Test(startup => 1) {
     my ( $self) = @_;
     my $imports = $self->{imports};
     is_deeply(
@@ -73,11 +73,6 @@ sub test_imports :Test(startup => 2) {
 	      { '$DB' => 1},
 	      '...imports $DB from Everything'
 	     );
-    is_deeply(
-        $$imports{'Everything::XML'},
-        { genBasicTag => 1 },
-        '...imports xml2node, genBasicTag, parseBasicTag from Everything::XML'
-    );
 
 }
 
@@ -446,31 +441,6 @@ sub test_get_node_keys :Test( 4 )
 	ok( ! exists $result->{foo_id}, '... returning no uid keys if exporting' );
 	is( join( ' ', keys %$result ), 'bar',
 		'... and removing non-export keys as well' );
-}
-
-sub test_field_to_XML :Test( 5 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	my @gbt;
-
-	local *Everything::Node::node::genBasicTag;
-
-	*Everything::Node::node::genBasicTag = sub {
-		push @gbt, [@_];
-		return 'tag';
-	};
-
-	$node->{afield} = 'thisfield';
-	is( $node->fieldToXML( $node, 'afield' ), 'tag',
-		'fieldToXML() should return an XML tag element' );
-	is( @gbt, 1, '... and should call genBasicTag()' );
-	is( join( ' ', @{ $gbt[0] } ), "$node field afield thisfield",
-		'... with the correct arguments' );
-
-	ok( ! $node->fieldToXML( $node, 'notafield' ),
-		'... and should return false if field does not exist' );
-	ok( ! exists $node->{notafield}, '... and should not create field' );
 }
 
 sub test_get_identifying_fields :Test( 1 )

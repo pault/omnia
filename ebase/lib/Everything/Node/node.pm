@@ -15,7 +15,6 @@ use base 'Everything::Node';
 
 use DBI;
 use Everything qw/$DB/;
-use Everything::XML qw/genBasicTag/;
 use Everything::NodeBase;
 
 use Scalar::Util 'reftype';
@@ -455,42 +454,6 @@ sub clone
 	}
 
 	return 1;
-}
-
-=head2 C<fieldToXML>
-
-Given a field of this node (ie title), convert that field into an XML tag.
-
-=over 4
-
-=item * $DOC
-
-the base XML::DOM::Document object that this tag belongs to
-
-=item * $field
-
-the field of the node to convert
-
-=item * $indent
-
-string that contains the amount this tag will be indented.  node::fieldToXML
-does not use this.  This is for more complicated structures that want to have a
-nice formatting.  This lets them know how far they are going to be indented so
-they know how far to indent their children.
-
-=back
-
-Returns an XML::DOM::Element object that can be inserted into the parent
-structure.
-
-=cut
-
-sub fieldToXML
-{
-	my ( $this, $DOC, $field, $indent ) = @_;
-	return unless exists $this->{$field};
-
-	return genBasicTag( $DOC, 'field', $field, $this->{$field} );
 }
 
 =head2 C<getIdentifyingFields>

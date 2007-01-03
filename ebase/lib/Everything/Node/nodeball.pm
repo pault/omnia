@@ -80,22 +80,4 @@ sub setVars
 
 sub hasVars { 1 }
 
-=head2 C<fieldToXML>
-
-A nodeball has both setting and group type information.  A nodeball derives
-from nodegroup, but we also need to handle our setting info.  The base setting
-object will handle that and pass the rest to our parent.
-
-=cut
-
-sub fieldToXML
-{
-	my ( $this, $DOC, $field, $indent ) = @_;
-
-	return Everything::Node::setting::fieldToXML( $this, $DOC, $field, $indent )
-		if $field eq 'vars';
-
-	return $this->SUPER( $DOC, $field, $indent );
-}
-
 1;

@@ -13,9 +13,6 @@ use warnings;
 
 use base 'Everything::Node::node';
 
-use Everything::XML (qw/genBasicTag/);
-
-use XML::DOM;
 use Scalar::Util 'reftype';
 
 sub construct
@@ -631,52 +628,6 @@ sub getNodeKeys
 	}
 
 	return $keys;
-}
-
-=head2 C<fieldToXML>
-
-Convert the field that contains the group structure to an XML format.
-
-=over 4
-
-=item * $DOC
-
-the base XML::DOM::Document object that contains this structure
-
-=item * $field
-
-the field of the node to convert (if it is not the group field, we just call
-SUPER())
-
-=item * $indent
-
-string that contains the spaces that this will be indented
-
-=back
-
-=cut
-
-sub fieldToXML
-{
-	my ( $this, $DOC, $field, $indent ) = @_;
-
-	return $this->SUPER( $DOC, $field, $indent ) unless $field eq 'group';
-
-	my $GROUP       = XML::DOM::Element->new( $DOC, 'group' );
-	my $indentself  = "\n" . $indent;
-	my $indentchild = $indentself . "  ";
-
-	for my $member ( @{ $this->{group} } )
-	{
-		$GROUP->appendChild( XML::DOM::Text->new( $DOC, $indentchild ) );
-
-		my $tag = genBasicTag( $DOC, 'member', 'group_node', $member );
-		$GROUP->appendChild($tag);
-	}
-
-	$GROUP->appendChild( XML::DOM::Text->new( $DOC, $indentself ) );
-
-	return $GROUP;
 }
 
 =head2 C<clone>

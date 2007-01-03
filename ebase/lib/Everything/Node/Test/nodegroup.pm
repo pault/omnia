@@ -7,25 +7,6 @@ use base 'Everything::Node::Test::node';
 
 use Test::More;
 
-
-sub setup_imports {
-
-    return qw( Everything::XML);
-}
-
-sub test_imports :Test(startup => 1) {
-    my ( $self) = @_;
-    my $imports = $self->{imports};
-
-    is_deeply(
-        $$imports{'Everything::XML'},
-        { genBasicTag => 1 },
-        '...imports genBasicTag from Everything::XML'
-    );
-
-}
-
-
 sub test_construct :Test( 1 )
 {
 	my $self = shift;
@@ -481,64 +462,6 @@ sub test_get_node_keys :Test( 5 )
 	ok( exists $result->{group},
 		'... including a group key if the forExport flag is set' );
 	ok( !exists $node->getNodeKeys()->{group}, '... excluding it otherwise' );
-}
-
-sub test_field_to_XML :Test( +8 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	$self->SUPER();
-
-	$node->set_series( SUPER => ( 5, 6, 7 ) )
-		 ->set_true('appendChild');
-
-	my $result          = $node->fieldToXML( 'doc', 'field', 0 );
-	my ($method, $args) = $node->next_call();
-
-	is( $method, 'SUPER',
-		'fieldToXML() should call SUPER() unless handling a group field' );
-	is( join( '-', @$args ), "$node-doc-field-0", '... passing args' );
-
-	is( $result, 5, '... returning the results' );
-	{
-		local ( *XML::DOM::Element::new, *XML::DOM::Text::new,
-			*Everything::Node::nodegroup::genBasicTag );
-
-		my @xd;
-		*XML::DOM::Text::new = sub {
-			push @xd, [@_];
-			return @_;
-		};
-		*XML::DOM::Element::new = sub {
-			push @xd, [@_];
-			return $node;
-		};
-
-		my @gbt;
-		*Everything::Node::nodegroup::genBasicTag = sub {
-			push @gbt, [@_];
-		};
-
-		$node->{group} = [ 3, 4, 5 ];
-		$result = $node->fieldToXML( 'doc', 'group', "\r" );
-
-		is( join( ' ', @{ $xd[0] } ), 'XML::DOM::Element doc group',
-			'... otherwise, it should create a new DOM group element' );
-
-		my $count;
-		for ( 1 .. 6 )
-		{
-			( $method, $args ) = $node->next_call();
-			$count++ if $method eq 'appendChild';
-		}
-
-		is( $count, 6, '... appending each child as a Text node' );
-		is( join( ' ', map { $_->[3] } @gbt ),
-			'3 4 5', '... noted with their node_ids' );
-		is( $method, 'appendChild', '... and appending the whole thing' );
-		is( $result, $node, '... and should return the new element' );
-	}
-
 }
 
 sub test_clone :Test( 9 )

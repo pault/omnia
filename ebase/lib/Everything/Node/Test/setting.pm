@@ -8,22 +8,6 @@ use base 'Everything::Node::Test::node';
 use Test::More;
 
 
-sub setup_imports {
-
-    return ('Everything::XML');
-}
-
-sub test_imports :Test(startup => 1) {
-    my ( $self) = @_;
-    my $imports = $self->{imports};
-    is_deeply(
-        $$imports{'Everything::XML'},
-        { genBasicTag => 1 },
-        '...imports genBasicTag and parseBasicTag from Everything::XML'
-    );
-}
-
-
 sub test_extends :Test( +1 )
 {
 	my $self   = shift;
@@ -75,41 +59,6 @@ sub test_has_vars :Test( 1 )
 	my $self = shift;
 	my $node = $self->{node};
 	ok( $node->hasVars(), 'hasVars() should return true' );
-}
-
-sub test_field_to_XML :Test( +5 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-
-	$self->SUPER();
-
-	local ( *XML::DOM::Element::new, *XML::DOM::Text::new,
-		*Everything::Node::setting::genBasicTag, *fieldToXML );
-
-	my @dom;
-	*XML::DOM::Element::new = *XML::DOM::Text::new = sub {
-		push @dom, shift;
-		return $node;
-	};
-
-	my @tags;
-	*Everything::Node::setting::genBasicTag = sub {
-		push @tags, join( ' ', @_[ 1 .. 3 ] );
-	};
-
-	$node->set_always( getVars => { a => 1, b => 1, c => 1 } )
-		 ->set_series( SUPER   => 2, 10 )
-		  ->set_true( '-appendChild' );
-
-	is( $node->fieldToXML( '', 'vars' ),
-		$node, '... should return XML::DOM element for vars, if "vars" field' );
-	is( @dom, 5, '... should make several DOM nodes:' );
-	is( scalar grep( /Element/, @dom ), 1, '... one Element node' );
-	is( scalar grep( /Text/,    @dom ), 4, '... and several Text nodes' );
-
-	is( join( '!', @tags ), 'var a 1!var b 1!var c 1',
-		'... should call genBasicTag() on each var pair' );
 }
 
 sub test_get_node_keep_keys :Test( +1 )

@@ -14,8 +14,6 @@ use warnings;
 use base 'Everything::Node::node';
 
 use Everything::Security;
-use Everything::XML (qw/genBasicTag/);
-use XML::DOM;
 use Scalar::Util 'reftype';
 
 =head2 C<dbtables()>
@@ -74,60 +72,6 @@ sub setVars
 }
 
 sub hasVars { 1 }
-
-=head2 C<fieldToXML>
-
-This is called when the node is being exported to XML.  The base node knows how
-to export fields to XML, but if the node contains some more complex data
-structures, that nodetype needs to export that data structure itself.  In this
-case, we have a settings field (hash) that needs to get exported.
-
-=over 4
-
-=item * $DOC
-
-an XML::DOM::Document object that this field belongs to
-
-=item * $field
-
-the field of this node that needs to be exported as XML
-
-=item * $indent
-
-string that contains the amount that this will be indented (used for formatting
-purposes)
-
-=back
-
-Returns the XML::DOM::Element that represents this field.
-
-=cut
-
-sub fieldToXML
-{
-	my ( $this, $DOC, $field, $indent ) = @_;
-	$indent ||= '';
-
-	return $this->SUPER( $DOC, $field, $indent ) unless $field eq 'vars';
-
-	my $VARS = XML::DOM::Element->new( $DOC, "vars" );
-	my $vars = $this->getVars();
-	my @raw  = keys %$vars;
-	my @vars = sort { $a cmp $b } @raw;
-	my $indentself  = "\n" . $indent;
-	my $indentchild = $indentself . "  ";
-
-	foreach my $var (@vars)
-	{
-		$VARS->appendChild( XML::DOM::Text->new( $DOC, $indentchild ) );
-		my $tag = genBasicTag( $DOC, "var", $var, $$vars{$var} );
-		$VARS->appendChild($tag);
-	}
-
-	$VARS->appendChild( XML::DOM::Text->new( $DOC, $indentself ) );
-
-	return $VARS;
-}
 
 sub getNodeKeepKeys
 {
