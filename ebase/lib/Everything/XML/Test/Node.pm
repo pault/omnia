@@ -78,7 +78,7 @@ sub test_field_to_XML_vars : Test( 5 ) {
 
     my @tags;
     *Everything::XML::Node::genBasicTag = sub {
-        push @tags, join( ' ', @_[ 1 .. 3 ] );
+        push @tags, join( ' ', @_[ 2 .. 4 ] );
     };
 
     $mock->set_always( getVars => { a => 1, b => 1, c => 1 } )
@@ -288,6 +288,45 @@ sub test_make_xml_safe : Test(2) {
         '&amp; &gt; &lt;',
         '...encodes a few XML character entities.'
     );
+}
+
+sub test_to_xml : Test(4) {
+    my $self = shift;
+    can_ok( $self->{class}, 'toXML' ) || return;
+    my $instance = $self->{instance};
+    my $mock = Test::MockObject->new;
+
+    $instance->set_node($mock);
+
+    my @fieldtoxml_args = ();
+    no strict 'refs';
+    local *{ $self->{class} . '::fieldToXML'};
+    *{ $self->{class} . '::fieldToXML'} =
+      sub {
+	  push @fieldtoxml_args, [@_];
+	  return 'a tag';
+      };
+    use strict 'refs';
+
+    $mock->set_always(getNodeKeys => { key1 => 'value1', key2 => 'value2'} );
+    $mock->fake_module('XML::DOM::Document');
+    $mock->fake_module('XML::DOM::Text');
+    $mock->fake_new('XML::DOM::Document');
+    $mock->fake_new('XML::DOM::Text');
+    $mock->fake_new('XML::DOM::Element');
+    $mock->fake_new('XML::DOM::Element');
+
+    $mock->set_true('-setAttribute', '-appendChild');
+    $mock->set_always('toString', 'a string of xml');
+
+    is ($instance->toXML, 'a string of xml', '...should return XML.');
+
+    my ($method, $args) = $mock->next_call( );
+
+    is($method, 'getNodeKeys', '...should get exportable keys from node object.');
+
+    is_deeply ( $fieldtoxml_args[0], [$instance, $mock, 'key1', '  '], '...calls fieldToXML with arguments.');
+
 }
 
 1;

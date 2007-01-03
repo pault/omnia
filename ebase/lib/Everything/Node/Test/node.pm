@@ -38,12 +38,15 @@ sub startup : Test( startup => 3 ) {
             push @{ $self->{errors} }, [@_];
         }
     );
+
     *Everything::Node::node::DB = \$mock;
 
     my $module = $self->node_class();
     my %import;
 
     my $mockimport = sub {
+	return unless (caller)[0] eq $module; # don't report imports
+                                              # from other packages
         $import{ +shift } = { map { $_ => 1 } @_[ 1 .. $#_ ] };
     };
 
@@ -62,18 +65,8 @@ sub startup : Test( startup => 3 ) {
 
 sub setup_imports {
 
-    return qw( DBI Everything );
-}
-
-sub test_imports :Test(startup => 1) {
-    my ( $self) = @_;
-    my $imports = $self->{imports};
-    is_deeply(
-	      $$imports{Everything},
-	      { '$DB' => 1},
-	      '...imports $DB from Everything'
-	     );
-
+    my $self = shift;
+    ();
 }
 
 sub make_base_test_db
@@ -602,6 +595,9 @@ sub test_log_revision :Test( 13 )
 
 	$node->{type}{maxrevisions} = 0;
 
+	$node->fake_module('Everything::XML::Node', new => sub { $node });
+	$node->set_true('toXML');
+
 	my $result = $node->logRevision( 'user' );
 	is( $result, 0, 'logRevisions() should return 0 if lacking max revisons' );
 
@@ -680,6 +676,9 @@ sub test_undo :Test( 27 )
 		'undo() should return 0 unless workspace contains this node' );
 
 	$node->set_true( 'setVars' );
+
+	$node->fake_module('Everything::XML::Node', new => sub { $node });
+	$node->set_true('toXML');
 
 	my $position = \$db->{workspace}{nodes}{13};
 	$$position   = 4;

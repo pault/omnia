@@ -15,7 +15,9 @@ use base 'Everything::Node';
 
 use DBI;
 use Everything qw/$DB/;
+use Everything::XML 'xml2node';
 use Everything::NodeBase;
+use Everything::XML::Node;
 
 use Scalar::Util 'reftype';
 
@@ -729,8 +731,8 @@ sub logRevision
 	}
 
 	my $data = $workspace
-		? $this->toXML()
-		: $this->{DB}->getNode( $this->getId, 'force' )->toXML();
+		?  Everything::XML::Node->new( node => $this, nodebase => $this->{DB} )->toXML
+		:  Everything::XML::Node->new( node => $this->{DB}->getNode( $this->getId, 'force'), nodebase => $this->{DB} )->toXML();
 
 	my $rev_id =
 		$DB->sqlSelect( 'max(revision_id)+1', 'revision',
@@ -870,7 +872,7 @@ sub undo
 
 	# prepare the redo/undo (inverse of what's being called)
 
-	$REVISION->{xml}         = $this->toXML();
+	$REVISION->{xml}         = Everything::XML::Node->new(node => $this, nodebase => $this->{DB} )->toXML();
 	$REVISION->{revision_id} = -$revision_id;
 
 	my ($NEWNODE) = @{ xml2node($xml) };

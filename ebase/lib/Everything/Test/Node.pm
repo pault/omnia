@@ -272,33 +272,6 @@ sub test_get_parent_location : Test(1) {
 
 }
 
-sub test_to_xml : Test(5) {
-    my $self = shift;
-    can_ok( $self->{class}, 'toXML' ) || return;
-
-    my $instance = Test::MockObject::Extends->new($self->{instance});
-    $instance->set_always(getNodeKeys => { key1 => 'value1', key2 => 'value2'} );
-    $instance->set_always(fieldToXML => 'a tag' );
-
-    my $mock = $self->{mock};
-    $mock->fake_module('XML::DOM::Document');
-    $mock->fake_module('XML::DOM::Text');
-    $mock->fake_new('XML::DOM::Document');
-    $mock->fake_new('XML::DOM::Text');
-    $mock->fake_new('XML::DOM::Element');
-    $mock->fake_new('XML::DOM::Element');
-
-    $mock->set_true('-setAttribute', '-appendChild');
-    $mock->set_always('toString', 'a string of xml');
-    is ($instance->toXML, 'a string of xml', '...should return XML.');
-    my ($method, $args) = $instance->next_call;
-
-    is($method, 'getNodeKeys', '...should get exportable keys from node object.');
-
-    ($method, $args) = $instance->next_call;
-    is ($method, 'fieldToXML', '...asks for field in XML.');
-    is_deeply ($args, [$instance, $mock, 'key1', '  '], '...with arguments.');
-}
 
 sub test_existing_node_matches : Test(1) {
     my $self = shift;

@@ -575,7 +575,8 @@ sub exportNodes
 			# a new node to the file.
 			open( FILE, ">>" . $file )
 				or die "couldn't create $file in $dir - do we have permission?";
-			print FILE $NODE->toXML();
+		        my $xmlifier = Everything::XML::Node->new(node => $NODE, nodebase => $DB );
+			print FILE $xmlifier->toXML();
 
 			close(FILE);
 
