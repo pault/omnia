@@ -18,7 +18,7 @@ sub test_imports :Test(startup => 1) {
     my $imports = $self->{imports};
     is_deeply(
         $$imports{'Everything::XML'},
-        { genBasicTag => 1, parseBasicTag => 1},
+        { genBasicTag => 1 },
         '...imports genBasicTag and parseBasicTag from Everything::XML'
     );
 }

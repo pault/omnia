@@ -75,7 +75,7 @@ sub test_imports :Test(startup => 2) {
 	     );
     is_deeply(
         $$imports{'Everything::XML'},
-        { xml2node => 1, genBasicTag => 1, parseBasicTag => 1 },
+        { genBasicTag => 1 },
         '...imports xml2node, genBasicTag, parseBasicTag from Everything::XML'
     );
 
