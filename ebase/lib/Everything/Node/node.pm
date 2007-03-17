@@ -72,7 +72,7 @@ sub insert
 		my $DUPELIST =
 			$this->{DB}
 			->sqlSelect( 'count(*)', 'node', 'title = ? AND type_nodetype = ?',
-			'', [ 'title', $id ] );
+			'', [ $this->{title}, $id ] );
 
 		# A node of this name already exists and restrict dupes is
 		# on for this nodetype.  Don't do anything

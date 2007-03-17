@@ -189,7 +189,7 @@ sub test_insert_restrictions :Test( 2 )
 		'insert() should return node_id if it is positive already' );
 }
 
-sub test_insert_restrict_dupes :Test( 2 )
+sub test_insert_restrict_dupes :Test( 4 )
 {
 	my $self               = shift;
 	my $node               = $self->{node};
@@ -199,7 +199,7 @@ sub test_insert_restrict_dupes :Test( 2 )
 	$node->{restrictdupes} = 1;
 	$node->set_true(qw( -hasAccess -restrictTitle -getId ))
 		 ->set_always( -getTableArray => [] );
-	$db->set_series( -sqlSelect => 1, 0 )
+	$db->set_series( sqlSelect => 1, 0 )
 	   ->set_always( -getFields => 'none' )
 	   ->set_always( -now => '' )
 	   ->set_series( -getNode => undef, { DB => $db } )
@@ -208,6 +208,20 @@ sub test_insert_restrict_dupes :Test( 2 )
 
 	is( $node->insert( '' ), 0,
 		'insert() should return 0 if dupes are restricted and exist' );
+
+	my ($method, $args) = $db->next_call;
+
+	is ($method, 'sqlSelect', '...checks to see whether there are dupes.');
+
+	is_deeply(
+		  $args,
+		  [
+		   $db,    'count(*)',
+		   'node', 'title = ? AND type_nodetype = ?',
+		   '', [ $node->{title}, 1 ]
+		  ],
+		  '...with the right title and id arguments.'
+		 );
 
 	$node->{restrictdupes} = 0;
 
