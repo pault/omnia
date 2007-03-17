@@ -1092,4 +1092,39 @@ sub genWhereString
 # override this to fix odd column names
 sub fix_node_keys {}
 
+
+=head2 C<parse_sql_file>
+
+This is a utility method for Nodeball.pm. It takes an open filehandle
+that should be open on a file of some raw sql perhaps dumped from a
+database. The method, strips out comments and blank lines and splits the string
+into seperate sql statements that can then be passed individually to
+DBI.pm.
+
+=over 4
+
+=item * $fh
+
+Takes an open filehandle.
+
+=back
+
+Returns a list of strings, that are SQL statements.
+
+=cut
+
+sub parse_sql_file {
+    my ($self, $fh) = @_;
+    my $sql = '';
+    foreach (<$fh>) {
+	next if /^\//;
+	next if /^\s*--/;
+	next if /^\s*$/;
+	$sql .= "$_";
+	}
+    my @statements = split /;\s*/, $sql;
+    return @statements;
+
+}
+
 1;

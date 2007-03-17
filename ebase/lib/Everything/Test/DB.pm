@@ -808,4 +808,74 @@ sub test_get_nodetype_tables : Test( 7 ) {
         ['node'], '... but adding node if addNode flag is true' );
 }
 
+sub test_parse_sql_file :Test(2){
+    my $self = shift;
+    my $instance = $self->{instance};
+    use File::Temp qw/tempfile/;
+    my $fh = tempfile(UNLINK => 1);
+
+    my $sql = <<SQL;
+BEGIN TRANSACTION;
+
+
+--
+-- Table: mail
+--
+DROP TABLE IF EXISTS mail;
+CREATE TABLE mail (
+-- Comments:
+-- Created by SQL::Translator::Producer::PostgreSQL
+-- Created on Mon Jun 14 12:06:35 2004
+-- Table: mail
+--
+
+  mail_id INTEGER PRIMARY KEY NOT NULL DEFAULT '0',
+  from_address char(80) NOT NULL DEFAULT ''
+);
+
+
+--
+-- Table: image
+--
+DROP TABLE IF EXISTS image;
+CREATE TABLE image (
+-- Comments:
+-- Created by SQL::Translator::Producer::PostgreSQL
+-- Created on Mon Jun 14 12:06:09 2004
+-- Table: image
+--
+
+  image_id INTEGER PRIMARY KEY NOT NULL,
+  src varchar(255),
+  alt varchar(255),
+  thumbsrc varchar(255),
+  description text
+);
+
+SQL
+
+my @expected= ('BEGIN TRANSACTION',
+'DROP TABLE IF EXISTS mail',
+q{CREATE TABLE mail (
+  mail_id INTEGER PRIMARY KEY NOT NULL DEFAULT '0',
+  from_address char(80) NOT NULL DEFAULT ''
+)},
+'DROP TABLE IF EXISTS image',
+'CREATE TABLE image (
+  image_id INTEGER PRIMARY KEY NOT NULL,
+  src varchar(255),
+  alt varchar(255),
+  thumbsrc varchar(255),
+  description text
+)');
+
+
+print $fh $sql;
+$fh->seek(0,0);
+ok(my @rv = $instance->parse_sql_file($fh), '...should parse OK.');
+is_deeply(\@rv, \@expected, '...splits the sql into manageable portions.');
+
+
+}
+
 1;
