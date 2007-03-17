@@ -9,10 +9,41 @@ package Everything::XML::Node;
 {
     use Object::InsideOut;
 
+
+    my @title
+      :Field
+      :Standard(title)
+      :Arg(title);
+
+    my @nodetype
+      :Field
+      :Standard(nodetype)
+      :Arg(nodetype);
+
+    my @export_version
+      :Field
+      :Standard(export_version)
+      :Arg(export_version);
+
     my @node
       :Field
       :Standard(node)
       :Arg(node);
+
+    my @attributes
+      :Field
+      :Standard(attributes)
+      :Arg(attributes);
+
+    my @vars
+      :Field
+      :Standard(vars)
+      :Arg(vars);
+
+    my @group_members
+      :Field
+      :Standard(group_members)
+      :Arg(group_members);
 
     my @nodebase
       :Field
@@ -21,6 +52,9 @@ package Everything::XML::Node;
 
 }
 
+use XML::DOM;
+use strict;
+use warnings;
 
 =head2 C<fieldToXML_vars>
 
@@ -366,6 +400,192 @@ sub toXML
 	# Return the structure as a string
 	return $DOC->toString();
 }
+
+
+sub parse_xml {
+    my ( $self, $xml ) = @_;
+    my $XMLPARSER = XML::DOM::Parser->new(
+					  ErrorContext     => 2,
+					  ProtocolEncoding => 'ISO-8859-1'
+					 );
+
+    my $doc = $XMLPARSER->parse("<everything>\n$xml\n</everything>");
+
+    my @nodes = $doc->getElementsByTagName("NODE");
+
+    foreach my $node (@nodes) {
+
+	$self->set_title( $node->getAttribute("title") );
+	$self->set_nodetype( $node->getAttribute("nodetype") );
+	$self->set_export_version( $node->getAttribute("export_version"));
+
+	my @list = $node->getElementsByTagName("field"); 
+
+	my @fields;
+
+	foreach my $field ( @list ) {
+
+	    my $atts = $field->getAttributes; # returns a NamedNodeMap
+	    my $name = $atts->getNamedItem('name')->getValue;
+	    my $type = $atts->getNamedItem('type')->getValue;
+	    my $type_nodetype = $atts->getNamedItem('type_nodetype');
+	    $type_nodetype = $type_nodetype->getValue if $type_nodetype;
+
+
+	    ## should be only one childNode that is a text node
+	    my @contents = $field->getChildNodes;
+
+	    my $text;
+	    $text .= $_->getData foreach @contents;
+
+	    my $node_attribute = Everything::XML::Node::Attribute->new;
+	    $node_attribute->set_name( $name );
+	    $node_attribute->set_type( $type );
+	    $node_attribute->set_type_nodetype( $type_nodetype ) if $type_nodetype;
+	    $node_attribute->set_content( $text );
+
+	    push @fields, $node_attribute;
+	}
+
+	$self->set_attributes( \@fields );
+
+
+	@list = $node->getElementsByTagName("var"); 
+
+	my @vars;
+
+	foreach my $var ( @list ) {
+
+	    my $atts = $var->getAttributes; # returns a NamedNodeMap
+	    my $name = $atts->getNamedItem('name')->getValue;
+	    my $type = $atts->getNamedItem('type')->getValue;
+	    my $type_nodetype = $atts->getNamedItem('type_nodetype');
+	    $type_nodetype = $type_nodetype->getValue if $type_nodetype;
+
+
+	    ## should be only one childNode that is a text node
+	    my @contents = $var->getChildNodes;
+
+	    my $text;
+	    $text .= $_->getData foreach @contents;
+
+	    my $node_vars = Everything::XML::Node::Attribute->new;
+	    $node_vars->set_name( $name );
+	    $node_vars->set_type( $type );
+	    $node_vars->set_type_nodetype( $type_nodetype ) if $type_nodetype;
+	    $node_vars->set_content( $text );
+	    push @vars, $node_vars;
+	}
+
+	$self->set_vars( \@vars );
+
+
+	@list = $node->getElementsByTagName("member"); 
+
+	my @members;
+
+	foreach my $member ( @list ) {
+
+	    my $atts = $member->getAttributes; # returns a NamedNodeMap
+	    my $name = $atts->getNamedItem('name')->getValue;
+	    my $type = $atts->getNamedItem('type')->getValue;
+	    my $type_nodetype = $atts->getNamedItem('type_nodetype');
+	    $type_nodetype = $type_nodetype->getValue if $type_nodetype;
+
+
+	    ## should be only one childNode that is a text node
+	    my @contents = $member->getChildNodes;
+
+	    my $text;
+	    $text .= $_->getData foreach @contents;
+
+	    my $group_member = Everything::XML::Node::Attribute->new;
+
+	    
+	    $group_member->set_name( $text );
+	    $group_member->set_type( $type );
+	    $group_member->set_type_nodetype( $type_nodetype ) if $type_nodetype;
+
+	    push @members, $group_member;
+	}
+
+	$self->set_group_members( \@members );
+
+    }
+    return $self;
+
+}
+
+package Everything::XML::Node::Attribute;
+
+{
+    use Object::InsideOut;
+
+    my @name
+      :Field
+      :Standard(name);
+
+    my @content
+      :Field
+      :Standard(content);
+
+    my @type_nodetype
+      :Field
+      :Standard(type_nodetype);
+
+    my @type
+      :Field
+      :Standard(type);
+
+}
+
+
+=head2 C<parse_xml>
+
+This method takes an XML string representing one node. It returns the instance itself.
+
+Onced parsed, the node attributes can be retrieved thusly:
+
+=over 8
+
+=item * get_title
+
+=item * get_nodetype
+
+=item * get_exportversion
+
+=back
+
+The attribtutes, vars and group members can be retrieved like this:
+
+=over 8
+
+=item * get_attributes
+
+=item * get_vars
+
+=item * get_group_members
+
+=back
+
+Each of these returns an array ref of Everything::XML::Node::Attribute objects. Everything::XML::Node::Attribute objects support the following methods:
+
+
+=over 8
+
+=item * get_name
+
+=item * get_type
+
+=item * get_type_nodetype
+
+=item * get_content
+
+=back
+
+That way we can parse XML files purporting to be nodes and extract the information therein.
+
+=cut
 
 
 1;

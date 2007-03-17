@@ -290,6 +290,53 @@ sub test_make_xml_safe : Test(2) {
     );
 }
 
+sub test_a_parse_xml : Test( 12 ) {
+    my $self = shift;
+    can_ok( $self->{class}, 'parse_xml' ) || return;
+    my $instance = $self->{instance};
+    my $mock = Test::MockObject->new;
+
+    my $xml = '<NODE title="a test node" nodetype="supertype" export_version="1000"><field name="a field name" type="literal_value">blah</field><vars><var name="default_theme" type="noderef" type_nodetype="theme,nodetype">default theme</var></vars><group><member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Everything settings</member></group></NODE>';
+
+    ok( $instance->parse_xml($xml), '...parses the XML');
+    my $fields = $instance->get_attributes;
+    my $vars = $instance->get_vars;
+    my $group_members = $instance->get_group_members;
+
+    is ($instance->get_title, 'a test node', '...with a node title.');
+    is ($instance->get_nodetype, 'supertype', '...with a node type.');
+    is ($instance->get_export_version, 1000, '...with an export version.');
+
+    foreach (@$fields) {
+	my $field_name = $_->get_name;
+	my $field_content = $_->get_content;
+	my $field_type = $_->get_type;
+	my $field_type_nodetype = $_->get_type_nodetype;
+	is($field_name, 'a field name', '...one field with field name.');
+	is ($field_content, 'blah', '...with the correct content');
+    }
+
+    foreach (@$vars) {
+	my $var_name = $_->get_name;
+	my $var_content = $_->get_content;
+	my $var_type = $_->get_type;
+	my $var_type_nodetype = $_->get_type_nodetype;
+	is($var_name, 'default_theme', '...one field with field name.');
+	is ($var_content, 'default theme', '...with the correct content');
+    }
+
+
+    foreach (@$group_members) {
+	my $member_name = $_->get_name;
+	my $member_type = $_->get_type;
+	my $member_type_nodetype = $_->get_type_nodetype;
+	is($member_name, 'Everything settings', '...one field with field name.');
+	is ($member_type_nodetype, 'restricted_superdoc,nodetype', '...with the correct content');
+	is($member_type, 'noderef', '...groups nodes are always noderefs.');
+    }
+
+}
+
 sub test_to_xml : Test(4) {
     my $self = shift;
     can_ok( $self->{class}, 'toXML' ) || return;
