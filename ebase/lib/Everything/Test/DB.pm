@@ -93,11 +93,7 @@ sub fake_dbh {
     $self->{instance}->{dbh}->set_always( 'prepare', $self->{instance}->{dbh});
     $self->{instance}->{dbh}->set_always( 'execute', $self->{instance}->{dbh});
     $self->{instance}->{dbh}->mock( 'fetchrow', sub { qw/a list/ } );
-    {
-        my @a = @lists;
-        $self->{instance}->{dbh}->mock( 'fetchrow_array',
-            sub { return unless my $b = shift @a; return @$b } );
-    }
+
     $self->{instance}->{dbh}->set_true('finish',  'do');
 
 }
@@ -263,6 +259,12 @@ sub test_fetch_all_nodetype_names : Test(2) {
     $self->{instance}->{dbh}->clear;
 
     $self->add_expected_sql('SELECT title FROM node WHERE type_nodetype=1 ') unless $self->isset_expected_sql; 
+    {
+        my @a = @lists;
+        $self->{instance}->{dbh}->mock( 'fetchrow_array',
+            sub { return unless my $b = shift @a; return @$b } );
+    }
+
     my @result = $self->{instance}->fetch_all_nodetype_names;
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is(

@@ -1117,6 +1117,7 @@ sub parse_sql_file {
     my ($self, $fh) = @_;
     my $sql = '';
     foreach (<$fh>) {
+	next if /^#/;
 	next if /^\//;
 	next if /^\s*--/;
 	next if /^\s*$/;

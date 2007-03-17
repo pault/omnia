@@ -127,7 +127,8 @@ sub tableExists
 
 	$sth->execute( $tableName );
 
-	my ($result) = $sth->fetch();
+	my ($result) = $sth->fetchrow_array();
+
 	return $result;
 }
 

@@ -119,7 +119,7 @@ sub test_table_exists : Test(6) {
     my $self = shift;
 
     can_ok( $self->{class}, 'tableExists' );
-    $self->{instance}->{dbh}->set_true( 'fetch')->clear;
+    $self->{instance}->{dbh}->set_true( 'fetchrow_array')->clear;
 
     my $result = $self->{instance}->tableExists('target');
     my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
@@ -133,9 +133,9 @@ sub test_table_exists : Test(6) {
 
     ok( $result, '... returns true if it exists.' );
 
-    is( $self->{instance}->{dbh}->call_pos(-1), 'fetch', '... calls fetch.' );
+    is( $self->{instance}->{dbh}->call_pos(-1), 'fetchrow_array', '... calls fetches a list.' );
 
-    $self->{instance}->{dbh}->set_false('fetch');
+    $self->{instance}->{dbh}->set_false('fetchrow_array');
     ok(
         !$self->{instance}->tableExists('target'),
         '... returning false if table name is not found'
@@ -162,7 +162,7 @@ sub test_create_node_table : Test(9) {
     $self->{instance}->{dbh}->clear();
 
     ## set fetch so that tableExists returns the appropriate value
-    $self->{instance}->{dbh}->set_true('fetch');
+    $self->{instance}->{dbh}->set_true('fetchrow_array');
 
     my $result = $self->{instance}->createNodeTable('proserpina');
     my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
@@ -177,7 +177,7 @@ sub test_create_node_table : Test(9) {
     $self->{instance}->{dbh}->clear();
 
     # for the benefit of tableExists
-    $self->{instance}->{dbh}->set_false('fetch');
+    $self->{instance}->{dbh}->set_false('fetchrow_array');
     $result = $self->{instance}->createNodeTable('euphrosyne');
     ( $method, $args ) = $self->{instance}->{dbh}->next_call;
     is( $method, 'prepare', '... calls tableExists' );
@@ -196,14 +196,14 @@ sub test_create_group_table : Test(8) {
     can_ok( $self->{class}, 'createGroupTable' );
     $self->{instance}->{dbh}->clear();
 
-    $self->{instance}->{dbh}->set_true('fetch');
+    $self->{instance}->{dbh}->set_true('fetchrow_array');
 
     my $result = $self->{instance}->createGroupTable('proserpina');
     my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     is( $method, 'prepare', 'Attempt to amend an existing table' );
     is( $result, -1,        '... returning -1 if so' );
 
-    $self->{instance}->{dbh}->set_false('fetch');
+    $self->{instance}->{dbh}->set_false('fetchrow_array');
     $self->{instance}->{dbh}->clear();
     $result = $self->{instance}->createGroupTable('elbat');
     ( $method, $args ) = $self->{instance}->{dbh}->next_call(4);
@@ -399,7 +399,7 @@ sub test_list_tables : Test(2) {
 
 sub test_drop_node_table : Test(+0) {
     my ($self) = @_;
-    $self->{instance}->{dbh}->set_series( 'fetch', 0, 1 );
+    $self->{instance}->{dbh}->set_series( 'fetchrow_array', 0, 1 );
     $self->SUPER;
 
 }
