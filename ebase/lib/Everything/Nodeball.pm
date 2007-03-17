@@ -10,6 +10,7 @@ package Everything::Nodeball;
 use strict;
 use Everything qw/:all/;
 use Everything::XML qw/xmlfile2node fixNodes/;
+use Everything::XML::Node;
 
 our %OPTIONS;
 
@@ -802,12 +803,12 @@ sub checkDeps
 	my %nodes;
 	local *buildDeplist = sub {
 		my ($NB) = @_;
-		getRef($NB);
-		return if $nodes{ getId($NB) };
-		$nodes{ getId($NB) } = 1;
+		$DB->getRef($NB);
+		return if $nodes{ $DB->getId($NB) };
+		$nodes{ $DB->getId($NB) } = 1;
 		foreach ( @{ $$NB{group} } )
 		{
-			my $NODE = getNode($_);
+			my $NODE = $DB->getNode($_);
 			next unless ref $NODE;
 			$nodes{ $NODE->getId() } = 1;
 			if ( $$NODE{type}{title} eq 'nodeball' )
@@ -819,7 +820,7 @@ sub checkDeps
 	buildDeplist($NODEBALL);
 
 	#we don't care if a dep is in the core
-	my $CORE      = getNode( 'core system', 'nodeball' );
+	my $CORE      = $DB->getNode( 'core system', 'nodeball' );
 	my $coregroup = $$CORE{group};
 
 	my %inCore;
@@ -830,7 +831,7 @@ sub checkDeps
 
 	foreach ( @{ $$NODEBALL{group} } )
 	{
-		my $NODE = getNode($_);
+		my $NODE = $DB->getNode($_);
 		next unless ( ref $NODE );
 
 		my $exportFields = $NODE->getNodeKeys(1);
@@ -851,7 +852,7 @@ sub checkDeps
 			# (mostly used by nodetypes).
 			next if ( $$NODE{$key} eq "-1" );
 
-			my $N = getNode( $$NODE{$key} );
+			my $N = $DB->getNode( $$NODE{$key} );
 			print "$$N{title} ($$N{type}{title}) is referenced by "
 				. "$$NODE{title}, but is not included as a dependancy\n";
 		}
@@ -1007,6 +1008,7 @@ sub installModules
 	my $e_dir = $dir;
 	$e_dir .= "/" unless ( $e_dir =~ /\/$/ );
 	$e_dir .= "Everything";
+
 	return $result unless ( -e $e_dir && -d $e_dir );
 
 	$includeDir = getPMDir() . "/Everything";
@@ -1087,9 +1089,9 @@ sub handleConflicts
 	return unless @workspaceable;
 
 	#the rest we put in a workspace
-	my $ROOT = getNode( 'root', 'user' );
+	my $ROOT = $DB->getNode( 'root', 'user' );
 	my $NBV  = $NEWBALL->getVars;
-	my $WS   = getNode( "$$NEWBALL{title}-$$NBV{version} changes",
+	my $WS   = $DB->getNode( "$$NEWBALL{title}-$$NBV{version} changes",
 		"workspace", "create" );
 	$WS->insert($ROOT);
 	$DB->joinWorkspace($WS);
@@ -1141,6 +1143,7 @@ sub updateNodeball
 	use File::Find;
 	find sub {
 		my $file = $File::Find::name;
+		return unless $file =~ /\.xml$/;
 		my $info = xmlfile2node( $file, 'nofinal' );
 		push @nodes, @$info if $info;
 	}, $nodesdir;
@@ -1151,13 +1154,14 @@ sub updateNodeball
 	my (%oldgroup);
 	foreach my $id ( @{ $$OLDBALL{group} } )
 	{
-		$oldgroup{$id} = getNode($id);
+		$oldgroup{$id} = $DB->getNode($id);
 	}
 
 	my $nbmembers = buildNodeballMembers($OLDBALL);
 	my $new_nbfile;
-	foreach my $N (@nodes)
+	foreach my $node_id (@nodes)
 	{
+	    my $N = $DB->getNode($node_id);
 		next
 			if $$N{type}{title} eq 'nodeball'
 			and $$N{title}      eq $$NEWBALL{title};
@@ -1168,14 +1172,14 @@ sub updateNodeball
 		if ($OLDNODE)
 		{
 			next if $$N{type}{title} eq 'nodeball';
-			if ( $oldgroup{ getId($OLDNODE) } )
+			if ( $oldgroup{ $OLDNODE->getId() } )
 			{
-				delete $oldgroup{ getId($OLDNODE) };
+				delete $oldgroup{ $OLDNODE->getId() };
 			}
 
-			if ( $$nbmembers{ getId($OLDNODE) } )
+			if ( $$nbmembers{ $OLDNODE->getId() } )
 			{
-				my $OTHERNB = getNode $$nbmembers{ getId($OLDNODE) };
+				my $OTHERNB = $DB->getNode( $$nbmembers{ $OLDNODE->getId() });
 				next
 					unless confirmYN(
 "$$OLDNODE{title} ($$OLDNODE{type}{title}) is also included in the \"$$OTHERNB{title}\" nodeball.  Do you want to replace it (N/y)?"
@@ -1214,7 +1218,7 @@ sub updateNodeball
 	#find the unused nodes and remove them
 	foreach ( values %oldgroup )
 	{
-		my $NODE = getNode($_);
+		my $NODE = $DB->getNode($_);
 
 		next unless ($NODE);
 
@@ -1282,7 +1286,7 @@ sub removeNodeball
 
 	foreach my $node ( @{ $DOOMEDBALL->{group} } )
 	{
-		my $N = getNode($node);
+		my $N = $DB->getNode($node);
 		unless ( defined $N )
 		{
 			Everything::logErrors( '',
