@@ -546,7 +546,7 @@ sub parseBasicTag
 	my $contents;
 
 	$contents = $first->toString() if $first;
-	$contents ||= '';
+	$contents = '' if not defined $contents;
 
 	$contents = unMakeXmlSafe($contents);
 
