@@ -384,7 +384,7 @@ sub genLimitString
 
 	$offset ||= 0;
 
-	return "LIMIT $limit, $offset";
+	return "LIMIT $limit OFFSET $offset";
 }
 
 sub genTableName
@@ -392,6 +392,41 @@ sub genTableName
 	my ( $this, $table ) = @_;
 
 	return '"' . $table . '"';
+}
+
+
+sub lastValue
+{
+	my ( $this, $table, $field ) = @_;
+
+	return $this->getDatabaseHandle()->selectrow_array("SELECT currval('${table}_${field}_seq')");
+}
+
+sub list_tables {
+
+    my ($this) = @_;
+    my $sth = $this->{dbh}->prepare("select c.relname FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN ('r','') AND n.nspname NOT IN ('pg_catalog', 'pg_toast') AND pg_catalog.pg_table_is_visible(c.oid)");
+
+	$sth->execute();
+
+	my @tables;
+	while ( my ($table) = $sth->fetchrow() )
+	{
+		push @tables, $table;
+	}
+
+	return @tables;
+}
+
+sub now { return 'now()' }
+
+sub _quoteData {
+
+    my $self = shift;
+    my ($names, $values, $bound) = $self->SUPER( @_ );
+    my @quoted_names = map { '"' . $_ .'"' } @$names;
+    return \@quoted_names, $values, $bound;
+
 }
 
 1;

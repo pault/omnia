@@ -148,16 +148,6 @@ sub test_get_node_by_name : Test(+0) {
     $self->SUPER;
 }
 
-sub test_get_node_cursor : Test(+0) {
-    my $self = shift;
-
-    $self->add_expected_sql(
-q|SELECT fieldname FROM "node" LEFT JOIN "lions" ON node_id=lions_id LEFT JOIN "serpents" ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 1, 2|,
-    );
-
-    $self->SUPER;
-}
-
 sub test_table_exists : Test(6) {
     my $self = shift;
 
@@ -433,14 +423,6 @@ q|SELECT count(*) FROM "node" LEFT JOIN "lions" ON node_id=lions_id LEFT JOIN "s
     $self->SUPER;
 }
 
-sub test_select_node_where : Test(+0) {
-    my $self = shift;
-
-    $self->add_expected_sql(
-q|SELECT node_id FROM "node" LEFT JOIN "sylph" ON node_id=sylph_id LEFT JOIN "dryad" ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 1, 2|
-    );
-    $self->SUPER;
-}
 
 sub test_sql_delete : Test(+0) {
     my $self  = shift;
@@ -468,7 +450,7 @@ sub test_sql_insert : Test(+0) {
     my $self = shift;
 
     $self->add_expected_sql(
-        qr/INSERT INTO "atable" \((?:one|foo), (?:one|foo)\) VALUES\(\?, \?\)/);
+        qr/INSERT INTO "atable" \((?:"one"|"foo"), (?:"one"|"foo")\) VALUES\(\?, \?\)/);
     $self->SUPER;
 }
 
@@ -511,7 +493,7 @@ sub test_sql_update : Test(+0) {
     my $self = shift;
 
     $self->add_expected_sql(
-        qr/UPDATE "atable" SET foo = \?\s+WHERE title = \?/ms);
+        qr/UPDATE "atable" SET "foo" = \?\s+WHERE title = \?/ms);
     $self->SUPER;
 }
 
@@ -565,9 +547,9 @@ sub test_gen_limit_string : Test(3) {
 
     can_ok( $self->{class}, 'genLimitString' );
     is( $self->{class}->genLimitString( 10, 20 ),
-        'LIMIT 20, 10', 'genLimitString() should return a valid limit' );
+        'LIMIT 20 OFFSET 10', 'genLimitString() should return a valid limit' );
     is( $self->{class}->genLimitString( undef, 20 ),
-        'LIMIT 20, 0', '... defaulting to an offset of zero' );
+        'LIMIT 20 OFFSET 0', '... defaulting to an offset of zero' );
     ## opposite from mysql :)
 }
 
@@ -587,13 +569,86 @@ sub test_database_exists : Test(0) {
 
 }
 
-sub test_list_tables : Test(0) {
-    local $TODO = "Unimplemented";
+sub test_get_node_cursor : Test(+0) {
+    my $self = shift;
+    $self->add_expected_sql( q|SELECT fieldname FROM "node" LEFT JOIN "lions" ON node_id=lions_id LEFT JOIN "serpents" ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 1 OFFSET 2|);
+    $self->SUPER;
 
 }
 
-sub test_now : Test(0) {
-    local $TODO = "Unimplemented";
+sub test_select_node_where : Test(+0) {
+    my $self = shift;
+    $self->add_expected_sql( q|SELECT node_id FROM "node" LEFT JOIN "sylph" ON node_id=sylph_id LEFT JOIN "dryad" ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 1 OFFSET 2|);
+    $self->SUPER;
+
+}
+
+sub test_list_tables : Test(2) {
+    my $self = shift;
+    can_ok( $self->{class}, 'list_tables' ) || return;
+    my @list     = (qw/auxo charis hegemone phaenna pasithea/);
+    my @expected = @list;
+    $self->{instance}->{dbh}->mock(
+        'fetchrow',
+        sub {
+            my $r = shift @list;
+            return () unless $r;
+            return ($r);
+        }
+    );
+
+    is_deeply( [ $self->{instance}->list_tables ],
+        \@expected, '...returns all the tables in the DB.' );
+
+}
+
+sub test_now : Test(2) {
+    my $self = shift;
+    can_ok( $self->{class}, 'now' ) || return;
+    is( $self->{instance}->now,
+        'now()',
+        '... should return the DB function that returns current time/date' );
+}
+
+
+sub test_quote_data : Test(6) {
+    my $self  = shift;
+    my $data  = { foo => ' bar', good => 'day', -to => 'you' };
+    my $bound = { '"foo"' => '?', '"good"' => '?', '"to"' => 'you' };
+    my $value = { '"foo"' => ' bar', '"good"' => 'day', -to => undef };
+    my @rv    = $self->{instance}->_quoteData($data);
+    my $index = 0;
+    foreach ( 0 .. $#{ $rv[0] } ) {
+        my $name = $rv[0]->[$_];
+
+        #bound
+        is( $rv[1]->[$_], $$bound{ $name },
+            '_quoteData must correctly return the bound variable' );
+
+        #value
+        is( $rv[2]->[$_], $$value{$name},
+            '_quoteData correctly returns the value' );
+
+    }
+
+}
+
+sub test_last_value : Test(3) {
+    my $self = shift;
+
+    ## This finds the last insert id. In theory it is supposed to just
+    ## call last_insert_id on the database handle. In practice, that
+    ## didn't work, so we have to examine the relevant pg sequence.
+
+    $self->{instance}->{dbh}->set_always( selectrow_array => 555 );
+    is( $self->{instance}->lastValue('table', 'field'),
+        555, 'lastValue should return the last insert id' );
+
+    my ($method, $args) = $self->{instance}->{dbh}->next_call;
+
+    is( $method, 'selectrow_array', '...with a select call.');
+    is( $args->[1], "SELECT currval('table_field_seq')", '...with the currval call.');
+
 }
 
 sub test_timediff : Test(0) {

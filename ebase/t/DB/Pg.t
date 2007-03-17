@@ -1,5 +1,5 @@
 #! perl
 use Everything::DB::Test::Pg;
 
-Test::Class->runtests;
+Everything::DB::Test::Pg->runtests;
 
