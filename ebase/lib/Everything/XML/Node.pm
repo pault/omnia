@@ -10,6 +10,11 @@ package Everything::XML::Node;
     use Object::InsideOut;
 
 
+    my @raw_xml
+      :Field
+      :Standard(raw_xml)
+      :Arg(raw_xml);
+
     my @title
       :Field
       :Standard(title)
@@ -409,6 +414,7 @@ sub parse_xml {
 					  ProtocolEncoding => 'ISO-8859-1'
 					 );
 
+    $self->set_raw_xml( $xml );
     my $doc = $XMLPARSER->parse("<everything>\n$xml\n</everything>");
 
     my @nodes = $doc->getElementsByTagName("NODE");
