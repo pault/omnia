@@ -85,6 +85,11 @@ sub new
 	$this->{staticNodetypes} = $staticNodetypes ? 1 : 0;
 
 	my $storage_class = 'Everything::DB::' . $storage;
+
+	( my $file = $storage_class ) =~ s/::/\//g;
+	$file .= '.pm';
+	require $file;
+
 	$this->{storage}  = $storage_class->new(
 		nb    => $this,
 		cache => $this->{cache}
