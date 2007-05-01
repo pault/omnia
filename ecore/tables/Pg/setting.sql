@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "setting" (
-  "setting_id" serial NOT NULL,
+  "setting_id" NOT NULL,
   "vars" text default '',
   PRIMARY KEY ("setting_id")
 );

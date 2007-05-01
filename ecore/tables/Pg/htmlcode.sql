@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "htmlcode" (
-  "htmlcode_id" serial NOT NULL,
+  "htmlcode_id" bigint NOT NULL,
   "code" text,
   PRIMARY KEY ("htmlcode_id")
 );

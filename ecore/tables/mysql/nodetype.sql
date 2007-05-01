@@ -8,7 +8,7 @@
 # Table structure for table 'nodetype'
 #
 CREATE TABLE nodetype (
-  nodetype_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  nodetype_id int(11) DEFAULT '0' NOT NULL,
   restrict_nodetype int(11) DEFAULT '0',
   extends_nodetype int(11) DEFAULT '0',
   restrictdupes int(11) DEFAULT '0',

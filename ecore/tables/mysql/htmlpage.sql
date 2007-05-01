@@ -8,7 +8,7 @@
 # Table structure for table 'htmlpage'
 #
 CREATE TABLE htmlpage (
-  htmlpage_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  htmlpage_id int(11) DEFAULT '0' NOT NULL,
   pagetype_nodetype int(11),
   displaytype varchar(20),
   page text,

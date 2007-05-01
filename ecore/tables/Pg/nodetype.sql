@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "nodetype" (
-  "nodetype_id" serial NOT NULL,
+  "nodetype_id" NOT NULL,
   "restrict_nodetype" bigint DEFAULT '0',
   "extends_nodetype" bigint DEFAULT '0',
   "restrictdupes" bigint DEFAULT '0',

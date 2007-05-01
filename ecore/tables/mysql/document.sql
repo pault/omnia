@@ -8,7 +8,7 @@
 # Table structure for table 'document'
 #
 CREATE TABLE document (
-  document_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  document_id int(11) DEFAULT '0' NOT NULL,
   doctext text,
   PRIMARY KEY (document_id)
 );

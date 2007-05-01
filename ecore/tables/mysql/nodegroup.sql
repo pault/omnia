@@ -8,7 +8,7 @@
 # Table structure for table 'nodegroup'
 #
 CREATE TABLE nodegroup (
-  nodegroup_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  nodegroup_id int(11) DEFAULT '0' NOT NULL,
   rank int(11) DEFAULT '0' NOT NULL,
   node_id int(11) DEFAULT '0' NOT NULL,
   orderby int(11),

@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "nodegroup" (
-  "nodegroup_id" serial NOT NULL,
+  "nodegroup_id" bigint NOT NULL,
   "rank" bigint DEFAULT '0' NOT NULL,
   "node_id" bigint DEFAULT '0' NOT NULL,
   "orderby" bigint,

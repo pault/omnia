@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "nodelet" (
-  "nodelet_id" serial NOT NULL,
+  "nodelet_id" bigint NOT NULL,
   "nltext" text,
   "nlcode" text,
   "parent_container" bigint,

@@ -8,7 +8,7 @@
 # Table structure for table 'nodelet'
 #
 CREATE TABLE nodelet (
-  nodelet_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  nodelet_id int(11) DEFAULT '0' NOT NULL,
   nltext text,
   nlcode text,
   parent_container int(11),

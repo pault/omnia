@@ -8,7 +8,7 @@
 # Table structure for table 'container'
 #
 CREATE TABLE container (
-  container_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  container_id int(11) DEFAULT '0' NOT NULL,
   context text,
   parent_container int(11),
   PRIMARY KEY (container_id)

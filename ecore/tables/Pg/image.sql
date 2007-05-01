@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "image" (
-  "image_id" serial NOT NULL,
+  "image_id" bigint NOT NULL,
   "src" character varying(255),
   "alt" character varying(255),
   "thumbsrc" character varying(255),

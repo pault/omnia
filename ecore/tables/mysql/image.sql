@@ -8,7 +8,7 @@
 # Table structure for table 'image'
 #
 CREATE TABLE image (
-  image_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  image_id int(11) DEFAULT '0' NOT NULL,
   src varchar(255),
   alt varchar(255),
   thumbsrc varchar(255),

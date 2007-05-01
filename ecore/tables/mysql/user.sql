@@ -8,7 +8,7 @@
 # Table structure for table 'user'
 #
 CREATE TABLE user (
-  user_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  user_id int(11) DEFAULT '0' NOT NULL,
   nick varchar(20),
   passwd varchar(10),
   realname varchar(40),

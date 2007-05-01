@@ -8,7 +8,7 @@
 # Table structure for table 'setting'
 #
 CREATE TABLE setting (
-  setting_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  setting_id int(11) DEFAULT '0' NOT NULL,
   vars text NOT NULL,
   PRIMARY KEY (setting_id)
 );

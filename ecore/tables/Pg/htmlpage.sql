@@ -7,14 +7,14 @@
 --
 
 CREATE TABLE "htmlpage" (
-  "htmlpage_id" serial NOT NULL,
+  "htmlpage_id" bigint NOT NULL,
   "pagetype_nodetype" bigint,
   "displaytype" character varying(20),
   "page" text,
   "parent_container" bigint,
   "ownedby_theme" bigint DEFAULT '0' NOT NULL,
   "permissionneeded" character(1) DEFAULT 'r' NOT NULL,
-  "mimetype" character varying(255) DEFAULT 'text/html' NOT NULL,
+  "MIMEtype" character varying(255) DEFAULT 'text/html' NOT NULL,
   PRIMARY KEY ("htmlpage_id")
 );
 

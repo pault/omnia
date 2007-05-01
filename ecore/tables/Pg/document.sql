@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "document" (
-  "document_id" serial NOT NULL,
+  "document_id" bigint NOT NULL,
   "doctext" text,
   PRIMARY KEY ("document_id")
 );

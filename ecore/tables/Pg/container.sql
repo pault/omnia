@@ -7,7 +7,7 @@
 --
 
 CREATE TABLE "container" (
-  "container_id" serial NOT NULL,
+  "container_id" bigint NOT NULL,
   "context" text,
   "parent_container" bigint,
   PRIMARY KEY ("container_id")
