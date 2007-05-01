@@ -492,6 +492,31 @@ sub install_xml_nodes {
 
 }
 
+
+=head2 C<install_xml_nodetype_nodes>
+
+This is a method.
+
+It installs nodetype nodes stored as XML in the nodeballs.
+
+Returns undef.
+
+=cut
+
+sub install_xml_nodetype_nodes {
+
+    my ( $self ) = @_;
+
+    my $select_cb = sub { my $xmlnode = shift; return 1 if $xmlnode->get_nodetype eq 'nodetype'; return; };
+
+    $self->install_xml_nodes( $select_cb );
+
+    $self->get_nodebase->{cache}->flushCache();
+
+    $self->get_nodebase->rebuildNodetypeModules();
+
+}
+
 =head2 C<install_nodeball>
 
 Installs the nodeball. If supplied with an argument in a
