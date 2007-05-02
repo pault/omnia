@@ -377,10 +377,10 @@ sub test_install_modules : Test(3) {
         close $fh;
     }
 
-    my @copy_args;
+    my %copy_args;
     no strict 'refs';
     local *{ $self->{class} . '::copy' };
-    *{ $self->{class} . '::copy' } = sub { my @c = @_; push @copy_args, \@c };
+    *{ $self->{class} . '::copy' } = sub {  $copy_args{ $_[0] } = $_[1] };
 
     local *{ $self->{class} . '::getPMDir' };
     *{ $self->{class} . '::getPMDir' } = sub { 'pm_dir' };
@@ -389,14 +389,14 @@ sub test_install_modules : Test(3) {
 
     $test_code->($tempdir);
 
-    is_deeply(
-        $copy_args[0],
-        [ "$tempdir/Everything/one.pm", 'pm_dir/Everything/one.pm' ],
+    is (
+        $copy_args{ "$tempdir/Everything/one.pm" },
+        'pm_dir/Everything/one.pm',
         '..copy first test file.'
     );
-    is_deeply(
-        $copy_args[1],
-        [ "$tempdir/Everything/two.pm", 'pm_dir/Everything/two.pm' ],
+    is (
+        $copy_args{ "$tempdir/Everything/two.pm" },
+        'pm_dir/Everything/two.pm',
         '..copy second test file.'
     );
 }

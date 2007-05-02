@@ -141,7 +141,7 @@ sub test_drop_dB : Test(3) {
 
 }
 
-sub test_add_tables_to_dB : Test(6) {
+sub test_add_tables_to_db : Test(6) {
     my $self = shift;
     can_ok( $self->{class}, 'addTablesToDB' )
       || return 'addTablesToDB not implemented.';
@@ -155,7 +155,7 @@ sub test_add_tables_to_dB : Test(6) {
         close $fh;
     }
 
-    my @sub_args = ();
+    my %sub_args = ();
     {
         no strict 'refs';
 
@@ -163,25 +163,25 @@ sub test_add_tables_to_dB : Test(6) {
         use subs 'system';
 
         *{ $self->{class} . '::system' } =
-          sub { my @c = @_; push @sub_args, \@c };
+          sub { $sub_args{ $_[0] } = 1 };
         use strict 'refs';
     }
 
     my @rv = $test_code->( 'test', $tempdir );
-    is_deeply( \@rv, \@files, '...returns the processed files' );
-    is_deeply(
-        $sub_args[0]->[0],
-        "mysql  -u  test<$tempdir/one.sql",
+    is_deeply( { map { $_ => 1} @rv } ,{ map { $_ => 1} @files }, '...returns the processed files' );
+    is (
+        $sub_args{"mysql  -u  test<$tempdir/one.sql"},
+        1,
         '...processing the sql files.'
     );
-    is_deeply(
-        $sub_args[1]->[0],
-        "mysql  -u  test<$tempdir/two.sql",
+    is (
+        $sub_args{"mysql  -u  test<$tempdir/two.sql"},
+        1,
         '...processing the sql files.'
     );
-    is_deeply(
-        $sub_args[2]->[0],
-        "mysql  -u  test<$tempdir/three.sql",
+    is (
+        $sub_args{"mysql  -u  test<$tempdir/three.sql"},
+        1,
         '...processing the sql files.'
     );
 
@@ -708,7 +708,7 @@ sub test_install_nodeball : Test(8) {
         close $fh;
     }
 
-    my @xmlfile2node_args = ();
+    my %xmlfile2node_args = ();
     no strict 'refs';
     local *{ $self->{class} . '::getTablesHashref' };
     *{ $self->{class} . '::getTablesHashref' } = sub { { 'three' => 1 } };
@@ -718,7 +718,7 @@ sub test_install_nodeball : Test(8) {
 
     local *{ $self->{class} . '::xmlfile2node' };
     *{ $self->{class} . '::xmlfile2node' } =
-      sub { push @xmlfile2node_args, $_[0] };
+      sub { $xmlfile2node_args{ $_[0] } = 1 };
 
     local *{ $self->{class} . '::fixNodes' };
     *{ $self->{class} . '::fixNodes' } = sub { 1 };
@@ -735,37 +735,37 @@ sub test_install_nodeball : Test(8) {
     $mock->{cache}  = $mock;
     $mock->set_true(qw/flushCache rebuildNodetypeModules/);
 
-    my @system_arg = ();
+    my %system_arg = ();
 
     {
 
         package Everything::Nodeball;
         no warnings 'redefine';
         use subs 'system';
-        *system = sub { push @system_arg, $_[0]; };
+        *system = sub { $system_arg{$_[0]} = 1 };
         local *STDOUT;    #stop this being so noisy.
         $test_code->($tempdir);
     }
 
     is(
-        $system_arg[0],
-        "mysql fictionaldb < $tables_dir/one.sql",
-        '...check sql being processed.'
+       $system_arg{"mysql fictionaldb < $tables_dir/one.sql"},
+       1,
+       '...check sql being processed.'
     );
     is(
-        $system_arg[1],
-        "mysql fictionaldb < $tables_dir/two.sql",
+       $system_arg{"mysql fictionaldb < $tables_dir/two.sql"},
+       1,
         '...check sql being processed.'
     );
-    is( $system_arg[2], undef, '...but misses already included table.' );
+    is( scalar( keys %system_arg ), 2, '...but misses already included table.' );
 
-    is( $xmlfile2node_args[0], "$typesdir/firsttype.xml",
+    is( $xmlfile2node_args{"$typesdir/firsttype.xml"}, 1,
         '...first type file.' );
-    is( $xmlfile2node_args[1], "$typesdir/secondtype.xml",
+    is( $xmlfile2node_args{"$typesdir/secondtype.xml"}, 1,
         '...second type file.' );
-    is( $xmlfile2node_args[2], "$tempdir/firstnode.xml",
+    is( $xmlfile2node_args{"$tempdir/firstnode.xml"}, 1,
         '...first node file.' );
-    is( $xmlfile2node_args[3], "$tempdir/secondnode.xml",
+    is( $xmlfile2node_args{"$tempdir/secondnode.xml"}, 1,
         '...second node file.' );
     rmtree $tempdir;
 }
@@ -788,10 +788,10 @@ sub test_install_modules : Test(3) {
         close $fh;
     }
 
-    my @copy_args;
+    my %copy_args;
     no strict 'refs';
     local *{ $self->{class} . '::copy' };
-    *{ $self->{class} . '::copy' } = sub { my @c = @_; push @copy_args, \@c };
+    *{ $self->{class} . '::copy' } = sub { $copy_args{$_[0]} = $_[1] };
 
     local *{ $self->{class} . '::getPMDir' };
     *{ $self->{class} . '::getPMDir' } = sub { 'pm_dir' };
@@ -801,14 +801,14 @@ sub test_install_modules : Test(3) {
         local *STDOUT;    # stop the noise;
         $test_code->($tempdir);
     }
-    is_deeply(
-        $copy_args[0],
-        [ "$tempdir/Everything/one.pm", 'pm_dir/Everything/one.pm' ],
+    is (
+        $copy_args{"$tempdir/Everything/one.pm"},
+	'pm_dir/Everything/one.pm',
         '..copy first test file.'
     );
-    is_deeply(
-        $copy_args[1],
-        [ "$tempdir/Everything/two.pm", 'pm_dir/Everything/two.pm' ],
+    is (
+        $copy_args{"$tempdir/Everything/two.pm"},
+	'pm_dir/Everything/two.pm',
         '..copy second test file.'
     );
 }
@@ -959,7 +959,7 @@ sub test_update_nodeball : Test(10) {
         close $fh;
     }
 
-    my @xmlfile2node_args = ();
+    my %xmlfile2node_args = ();
     my $confirmyn_args;
     no strict 'refs';
 
@@ -979,7 +979,7 @@ sub test_update_nodeball : Test(10) {
 
     my @xmlfile_returns = ( [111], [222] );
     *{ $self->{class} . '::xmlfile2node' } =
-      sub { push @xmlfile2node_args, $_[0]; return shift @xmlfile_returns };
+      sub { $xmlfile2node_args{$_[0]} = 1; return shift @xmlfile_returns };
 
     local *{ $self->{class} . '::checkTables' };
     *{ $self->{class} . '::checkTables' } = sub { 1 };
@@ -1012,18 +1012,16 @@ sub test_update_nodeball : Test(10) {
         $test_code->( $mock, $mock, $tempdir );
     }
 
-    is( $xmlfile2node_args[2], "$typesdir/firsttype.xml",
+    is( $xmlfile2node_args{"$typesdir/firsttype.xml"}, 1,
         '...first type file.' );
-    is( $xmlfile2node_args[3], "$typesdir/secondtype.xml",
+    is( $xmlfile2node_args{"$typesdir/secondtype.xml"}, 1,
         '...second type file.' );
     is(
-        $xmlfile2node_args[0],
-        "$tempdir/nodes/firstnode.xml",
+        $xmlfile2node_args{"$tempdir/nodes/firstnode.xml"}, 1,
         '...first node file.'
     );
     is(
-        $xmlfile2node_args[1],
-        "$tempdir/nodes/secondnode.xml",
+        $xmlfile2node_args{"$tempdir/nodes/secondnode.xml"}, 1,
         '...second node file.'
     );
 
