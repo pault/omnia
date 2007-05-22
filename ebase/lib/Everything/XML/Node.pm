@@ -267,7 +267,7 @@ sub genBasicTag
 
 		unless ( $REF->isOfType( $type, 1 ) )
 		{
-			Everything::logErrors( "Field '$fieldname' needs a node of type "
+			Everything::logErrors( "$doc Field '$fieldname' needs a node of type "
 					. "'$type',\nbut it is pointing to a node of type "
 					. "'$REF->{type}{title}'!" );
 		}

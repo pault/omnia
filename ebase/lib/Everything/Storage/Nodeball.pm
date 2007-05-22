@@ -1,3 +1,10 @@
+
+=head1 Everything::Storage::Nodeball
+
+A module that manages the import and export of nodeballs to/from a nodebase.
+
+=cut
+
 package Everything::Storage::Nodeball;
 
 {
@@ -116,6 +123,8 @@ use Exception::Class (
 
 use Carp;
 use IO::File;
+use File::Path ();
+use File::Temp ();
 use Everything::XML qw/readTag xmlfile2node xml2node fixNodes/;
 use Everything::XML::Node;
 use Everything::NodeBase;
@@ -125,7 +134,9 @@ use warnings;
 
 =head2 C<set_nodeball>
 
-Sets a nodeball file or directory
+Sets the nodeball attribute. The argument may be a file or directory. If it is a file, the file is expanded and the nodeball_dir attribute is set to the directory of the expanded nodeball.
+
+If the argument is a directory, the nodeball_dir is set to it.
 
 =cut
 
@@ -145,13 +156,19 @@ sub set_nodeball {
     return;
 }
 
+=head2 C<get_nodeball>
+
+If the file attribute is set returns its value. Otherwise returns the value of nodeball_dir.
+
+=cut
+
 sub get_nodeball {
     my ($self) = @_;
     return $self->get_file || $self->get_nodeball_dir;
 
 }
 
-=head2 C<expandNodeball>
+=head2 C<expand_nodeball>
 
 Take a tar-gziped nodeball and expand it to a dir in /tmp return the directory
 
@@ -467,11 +484,9 @@ sub fix_node_references {
 
 =head2 C<install_xml_nodes>
 
-This is a method.
-
 It installs nodes stored as XML in the nodeballs.
 
-Takes two optional arguments.  The first is the path to the nodeball directory. The second is a regular expression of node paths to avoid.
+Takes an optional argument of a call back that examines each node.  The call back should return true if it's a node we want or false otherwise.
 
 Returns undef.
 
@@ -485,10 +500,54 @@ sub install_xml_nodes {
     my $iterator = $self->make_node_iterator($select_cb);
 
     while ( my $xmlnode = $iterator->() ) {
-        xml2node( $xmlnode->get_raw_xml );
+	$self->install_xml_node( $xmlnode );
     }
 
     return;
+
+}
+
+=head2 C<install_xml_node>
+
+It installs a node stored as XML into the the current nodebase.
+
+It takes on argument which is the Everything::XML::Node object to be
+installed.
+
+
+=cut
+
+sub install_xml_node {
+
+    my ( $self, $xmlnode ) = @_;
+    xml2node( $xmlnode->get_raw_xml );
+
+}
+
+
+=head2 C<install_nodeball_description>
+
+It installs a node representing the current nodeball, as XML, into the
+the current nodebase.
+
+Currently, this means reading from the ME file.
+
+
+=cut
+
+sub install_nodeball_description {
+
+    my ( $self ) = @_;
+
+    my $dir = $self->get_nodeball_dir;
+    my $mefile = File::Spec->catfile( $dir, 'ME' );
+    my $fh = IO::File->new ( $mefile );
+    local $/;
+    my $xml = <$fh>;
+    $fh->close;
+    my $xmlnode = Everything::XML::Node->new;
+    $xmlnode->parse_xml( $xml );
+    $self->install_xml_node( $xmlnode );
 
 }
 
@@ -599,9 +658,39 @@ sub install_nodeball {
     #nodeballs are not installed...  but we don't
 }
 
-=cut
 
 
+sub export_nodeball_to_directory {
+
+    my ( $self, $nodeball_name, $dir ) = @_;
+    my $nodeball = $self->get_nodebase->getNode( $nodeball_name, 'nodeball');
+    croak "No nodeball, $nodeball_name" unless $nodeball;
+
+    ###setup directory for export
+    $self->set_nodeball_dir( $dir || $self->get_temp_dir );
+    $self->write_node_to_nodeball( $nodeball, 'ME' ); # create ME file
+    my $group = $nodeball->selectNodegroupFlat;
+    foreach ( @$group ) {
+
+	if ( $$_{type}{title} eq 'dbtable' ) {
+	    $self->write_sql_table_to_nodeball( $$_{title} );
+	}
+
+	$self->write_node_to_nodeball( $_ );
+
+    }
+
+}
+
+sub export_nodeball_to_file {
+
+    my ( $self, $nodeball_name, $filename ) = @_;
+
+    $self->export_nodeball_to_directory( $nodeball_name );
+    $self->create_nodeball_file( $nodeball_name, undef,  $filename );
+
+
+}
 
 =head2 C<installModules>
 
@@ -893,6 +982,123 @@ sub getTablesHashref {
     return \%tables;
 }
 
+=head2 C<write_node_to_nodeball>
+
+  Writes a node to a nodeball turning it into XML in the process. Takes one argument which should be the Everything::Node object to be written to the nodeball. Takes an optional second argument which is the path (under the nodeball directory) to which the node should be written.
+
+=cut
+
+sub write_node_to_nodeball {
+    my ( $self, $node, $filepath ) = @_;
+
+
+    my $volume;
+    my $save_title;
+    my $save_dir;
+    if ( ! $filepath ) {
+	$save_title = $$node{title};
+	$save_dir =  $$node{type}{title};
+	$save_dir =~ tr/ /_/;
+	$save_dir = File::Spec->catfile ('nodes', $save_dir);
+	$save_title =~ tr/ /_/;
+	$save_title =~ s/:+/-/;
+	$save_title .= '.xml';
+	$filepath = File::Spec->catfile( $save_dir, $save_title );
+    } else {
+	( $volume, $save_dir, $save_title ) = File::Spec->splitpath( $filepath );
+    }
+
+    my $save_path = File::Spec->catfile( $self->get_nodeball_dir, $save_dir );
+    File::Path::mkpath( $save_path ) unless -d $save_path; 
+    $save_path = File::Spec->catfile( $save_path, $save_title );
+    my $xml = Everything::XML::Node->new( nodebase => $self->get_nodebase, node => $node )->toXML;
+     my $fh = IO::File->new( $save_path, 'w' ) || croak "Can't open $save_path for writing, $!";
+     print $fh $xml;
+     $fh->close;
+
+}
+
+=head2 C<write_sql_table_to_nodeball>
+
+  Writes a sql create statement to a nodeball. Takes one argument which is the table name.
+
+=cut
+
+sub write_sql_table_to_nodeball {
+    my ( $self, $table_name ) = @_;
+
+    my $nb = $self->get_nodebase;
+
+    $nb->{storage} =~ /DB::(\w+)/;
+    my $storage_type = $1;
+    my $dir          = $self->get_nodeball_dir;
+    $dir = File::Spec->catfile( $dir, 'tables' );
+    mkdir $dir unless -d $dir;
+    if ( $storage_type eq 'Pg' ) {
+        $dir = File::Spec->catfile( $dir, 'Pg' );
+    }
+    elsif ( $storage_type eq 'sqlite' ) {
+        $dir = File::Spec->catfile( $dir, 'SQLite' );
+    }
+    elsif ( $storage_type eq 'mysql' ) {
+        $dir = File::Spec->catfile( $dir, 'mysql' );
+    }
+    mkdir $dir unless -d $dir;
+
+    my $sql       = $nb->{storage}->get_create_table($table_name);
+    my $file_name = File::Spec->catfile( $dir, "$table_name.sql" );
+
+    my $fh = IO::File->new( $file_name, 'w' )
+      or croak "Can't open $file_name for writing, $!";
+    print $fh $sql;
+    $fh->close;
+
+}
+
+
+=head2 C<create_nodeball_file>
+
+Tar-gzips a directory it -- as a nodeball
+
+=over 4
+
+=item * NODEBALL
+
+The nodeball object we are exporting
+
+=item * dir
+
+directory of stuff (optional if nodeball_dir is set).
+
+=back
+
+=cut
+
+sub create_nodeball_file
+{
+	my ( $self, $NODEBALL, $dir, $filename ) = @_;
+
+	$dir ||= $self->get_nodeball_dir;
+	my $nodeball = $self->get_nodebase->getNode( $NODEBALL, 'nodeball' );
+	my $VARS    = $nodeball->getVars();
+	my $version = $$VARS{version};
+
+	if ( ! $filename) {
+
+	    $filename = $$NODEBALL{title};
+	    $filename =~ tr/ /_/;
+	    $filename .= "-$version" if $version;
+	    $filename .= ".nbz";
+	}
+
+	use Cwd;
+	my $cwd = getcwd();
+	$cwd .= '/' . $filename;
+
+	`tar -cvzf $cwd -C $dir .`;
+
+}
+
 =head2 C<buildNodeballMembers>
 
 Builds a hash of node_id-E<gt>nodeball that it belongs to.  The nodeball(s)
@@ -928,6 +1134,65 @@ sub buildNodeballMembers {
     }
 
     return \%nbmembers;
+}
+
+=head2 C<check_nodeball_integrity>
+
+Checks the internal structure of a nodeball. Return undef if everything is OK.
+
+Otherwise, it returns a list of two array refs of hash refs.  The hash refs have two keys 'title' and 'type'. The first hashref lists the nodes present in the nodeball but not listed in the ME file.  The second lists those listed in the ME file, but not present in the nodeball.
+
+=cut
+
+sub check_nodeball_integrity {
+    my $self = shift;
+    local $/;
+    my $fh = IO::File->new( File::Spec->catfile ( $self->get_nodeball_dir, 'ME' ) );
+    my $xml =  <$fh>;
+    my $me = Everything::XML::Node->new;
+    $me->parse_xml( $xml );
+    my @members = @{ $me->get_group_members || [] };
+
+    my $iterator = $self->make_node_iterator;
+    my @nodes;
+    while ( my $xmlnode = $iterator->() ) {
+	push @nodes, $xmlnode;
+    }
+
+    my ( @not_in_me, @not_in_nodeball );
+
+    foreach my $member (@members) {
+	my ( $member_type ) = split /,/, $member->get_type_nodetype;
+	my $found_xmlnode = 0;
+      XMLNODE:
+	foreach my $xmlnode ( @nodes ) {
+
+	    if ( ($xmlnode->get_title eq $member->get_name) && ( $xmlnode->get_nodetype eq $member_type)) {
+		$found_xmlnode++;
+		last XMLNODE
+	    }
+	}
+	push @not_in_nodeball, { title => $member->get_name, type=> $member_type } unless $found_xmlnode;
+    }
+
+
+    foreach my $xmlnode (@nodes) {
+	my $found_xmlnode = 0;
+      GROUPMEMBER:
+	foreach my $member ( @members ) {
+	    my ( $member_type ) = split /,/, $member->get_type_nodetype;
+	    if ( ($xmlnode->get_title eq $member->get_name) && ( $xmlnode->get_nodetype eq $member_type ) ) {
+		$found_xmlnode++;
+		last GROUPMEMBER
+	    }
+
+	}
+	push @not_in_me, { title => $xmlnode->get_title, type=> $xmlnode->get_nodetype } unless $found_xmlnode;
+
+    }
+
+    return if ( ! @not_in_nodeball && ! @not_in_me );
+    return \@not_in_me, \@not_in_nodeball;
 }
 
 package Everything::Storage::Nodeball::SQLParser;

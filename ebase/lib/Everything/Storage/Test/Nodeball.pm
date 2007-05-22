@@ -101,7 +101,8 @@ sub test_nodeball_vars : Test(5) {
 
     my $mock = Test::MockObject->new;
     my $fh = File::Temp->new( UNLINK => 1 );
-    $mock->fake_module( 'IO::File', 'new', sub { $fh } );
+    local *IO::File::new;
+    *IO::File::new = sub { $fh };
     $mock->set_always( readline => 'some xml' );
     my @readTag_r = qw/version author description title/;
     my @readTag_a;
@@ -125,7 +126,8 @@ sub test_nodeball_vars : Test(5) {
 
     # test exception throwing.
     my $dir = "/some/path";
-    $mock->fake_module( 'IO::File', 'new', sub { } );
+    local *IO::File::new;
+    *IO::File::new =  sub { };
     throws_ok { $instance->nodeball_vars($dir) }
       'Everything::Exception::CorruptNodeball',
       "...if can't open ME file throws an error";
@@ -468,7 +470,26 @@ sub test_clean_up_dir : Test(2) {
     ok( !-e $tempdir, '..temp directory shouldn\'t exist.' );
 }
 
-sub test_update_nodeball : Test(6) {
+sub test_install_xml_node : Test(1) {
+    my $self = shift;
+
+    my $instance = $self->{instance};
+    my $mock = Test::MockObject->new;
+    $mock->set_always( get_raw_xml => 'some xml' );
+
+    my @xml2node_args = ();
+    no strict 'refs';
+    local *{ $self->{class} . '::xml2node' };
+    *{ $self->{class} . '::xml2node' } = sub { push @xml2node_args, $_[0] };
+    use strict 'refs';
+
+    $instance->install_xml_node( $mock );
+    is_deeply( \@xml2node_args, [ 'some xml' ], '...calls xml2node with with xml.');
+
+
+}
+
+sub test_update_nodebase_from_nodeball : Test(6) {
     my $self = shift;
 
     can_ok( $self->{class}, 'update_nodeball' )
@@ -532,8 +553,7 @@ sub test_check_named_tables : Test(3) {
     );
 
     $rv = $test_code->( [qw/mail node/], $dir, $mock );
-    use Data::Dumper;
-    print Dumper $rv;
+
     is_deeply( $rv, undef, '...returns undef if tables are the same.' );
 
     rmtree $dir;
@@ -577,6 +597,13 @@ sub test_export_nodeball : Test(7) {
     local $TODO = "Methods to export a nodeball stored in a nodebase.";
     can_ok( $self->{class}, 'export_nodeball' );
 
+
+    my @toXMLReturns = ('me file contents', 'data');
+
+    local *Everything::XML::Node;
+    *Everything::XML::Node::toXML = sub { shift @toXMLReturns };
+
+    ### calls update_nodeball_from_nodebase;
     ok( undef, '.... read nodeball data.' );
 
     ok( undef, '....create ME file and put nodeball data into it.' );
@@ -639,6 +666,255 @@ sub test_make_node_iterator : Test( 9 ) {
         'second', '...returns an Everything::XML::Node object.' );
 
     is( $iterator->(), undef, '...returns undef when no more nodes' );
+
+}
+
+sub test_write_sql_table_to_nodeball : Test(3) {
+
+    my $self = shift;
+
+    return unless can_ok( $self->{class}, 'write_sql_table_to_nodeball' );
+
+    my $instance = $self->{instance};
+    my $mock     = $self->{mock};
+
+    use Everything::DB::sqlite;
+    $mock->{storage} = Everything::DB::sqlite->new;
+
+    my @get_create_table_args;
+    local *Everything::DB::sqlite::get_create_table;
+    *Everything::DB::sqlite::get_create_table =
+      sub { push @get_create_table_args, $_[1]; return 'create statement' };
+
+    my $tempdir = get_temp_dir();
+    mkdir $tempdir;
+    $instance->set_nodebase($mock);
+    $instance->set_nodeball_dir($tempdir);
+
+    my $rv = $instance->write_sql_table_to_nodeball('atable');
+
+    is( $get_create_table_args[0],
+        "atable", '...asks for table passed as argument.' );
+    my $file =
+      File::Spec->catfile( $instance->get_nodeball_dir, 'tables', 'SQLite',
+        'atable.sql' );
+    my $fh = IO::File->new($file) || die "Can't open $file, $!";
+    local $/;
+    my $sql = <$fh>;
+    close $fh;
+    is(
+        $sql,
+        'create statement',
+        '...writes the create statement to an appropriately named file'
+    );
+
+}
+
+
+sub test_write_node_to_nodeball :Test(3) {
+
+    my $self = shift;
+    my $instance = $self->{instance};
+    my $mock = $self->{mock};
+
+    return unless can_ok( $self->{class}, 'write_node_to_nodeball');
+
+    local *Everything::XML::Node::new;
+    *Everything::XML::Node::new = sub { $mock };
+    $mock->set_always( 'toXML' => 'some xml' );
+
+    $mock->{ title } = 'a node title';
+    $mock->{ type } = { title  => 'a node type title' };
+
+    $instance->set_nodeball_dir( get_temp_dir() );
+
+    ## a node object is passed as the argument
+    my $rv = $instance->write_node_to_nodeball( $mock );
+
+    ( my $title = $$mock{title} ) =~ s/\s/_/g;
+    my $dir = $$mock{type}{title};
+    $dir =~ s/\s/_/g;
+    $title .= '.xml';
+    my $file =  File::Spec->catfile( $instance->get_nodeball_dir , 'nodes', $dir, $title );
+    my $fh = IO::File->new( $file ) || die "Can't open file, $file, $!";
+    local $/;
+    my $sql = <$fh>;
+    close $fh;
+
+    is ( $sql, 'some xml', '...writes the XML to the selected file.');
+
+    ### Now with our own filepath
+    $rv = $instance->write_node_to_nodeball( $mock, 'filepath' );
+    $fh = IO::File->new( File::Spec->catfile( $instance->get_nodeball_dir , 'filepath' ));
+
+    $sql = <$fh>;
+    close $fh;
+    is ( $sql, 'some xml', '...writes the XML to the filename of our choosing.');
+
+}
+
+sub test_create_nodeball : Test(2) {
+    return "Uses untestable backticks";
+    my $self = shift;
+    can_ok( $self->{class}, 'createNodeball' )
+      || return 'createNodeball not implemented.';
+    my $instance = $self->{instance};
+    my $mock     = $self->{mock};
+    $mock->{title} = 'a nodeball';
+    my $test_code = \&{ $self->{class} . '::createNodeball' };
+
+    my $tmpdir = get_temp_dir();
+    no strict 'refs';
+    local *{ $self->{class} . '::getcwd' };
+    *{ $self->{class} . '::getcwd' } = sub { File::Spec->tmpdir };
+    use strict 'refs';
+
+    $mock->set_always( 'getVars', { a => 1, b => 2 } );
+
+    mkdir $tmpdir;
+    my $printed;
+    my $in = 'y';
+
+    {
+        local *STDOUT;    # stop the noise;
+        $test_code->( $tmpdir, $mock );
+    }
+    ok(
+        -e File::Spec->tmpdir . "/a_nodeball.nbz",
+        '..nodeball file should be created.'
+    );
+    $self->{nodeball_file} = File::Spec->tmpdir . "/a_nodeball.nbz";
+    rmdir $tmpdir;
+}
+
+sub test_update_nodeball_from_nodebase :Test(6) {
+    local $TODO = 'Unimplemented.';
+    my $self = shift;
+
+    #### does almost everything by called write_node_to_nodeball
+
+    can_ok( $self->{class}, 'update_nodeball_from_nodebase' ) || return "Unimplemented";
+
+    local *Everything::XML::Node;
+    *Everything::XML::Node::toXML = sub { 'some xml' };
+
+    ok( undef, '...create new ME file.');
+
+    ok( undef, '...replace new ME file with old one.');
+
+    ok( undef, '...remove dbtables not in new ME file.');
+
+    ok( undef, '...remove nodes not in new ME file.');
+
+    ok( undef, '...run through nodeball members with modified dates greater than createtime (of nodeball) and save them.');
+
+}
+
+sub test_check_nodeball_against_nodebase :Test(1) {
+    local $TODO = "Unimplemented";
+
+    ok( undef, '...runs through each node in the nodeball and checks for type, attributes and values against the node stored in the nodebase.');
+
+
+}
+
+sub test_check_nodebase_against_nodeball :Test(1) {
+    local $TODO = "Unimplemented";
+
+    ok( undef, '...runs through each node in the nodebase and checks for type, attributes and values against the xmlnode stored in the nodeball.');
+
+
+}
+
+sub test_check_nodeball_integrity :Test(4) {
+
+    my $self = shift;
+    my $instance = $self->{instance};
+
+    my $dir = get_temp_dir();
+    mkdir $dir;
+
+    $instance->set_nodeball_dir( $dir );
+
+    my $mefile =  File::Spec->catfile ($dir, 'ME');
+    my $fh = IO::File->new;
+    $fh->open( $mefile, 'w' ) || die "Can't open $mefile, $!";
+    print $fh <<HERE;
+<NODE export_version="0.5" nodetype="nodeball" title="core system">
+  <group>
+    <member name="group_node" type="noderef" type_nodetype="theme,nodetype">default theme</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Create a new user</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</member>
+</group>
+</NODE>
+HERE
+    $fh->close;
+    my $one = Everything::XML::Node->new;
+    $one->set_title('Create a new user');
+    $one->set_nodetype( 'htmlcode' );
+
+    my $two = Everything::XML::Node->new;
+    $two->set_title('thingo');
+    $two->set_nodetype( 'thingotype' );
+
+    my $three = Everything::XML::Node->new;
+    $three->set_title('default theme');
+    $three->set_nodetype( 'theme' );
+
+    my @xmlnodes = ( $one, $two, $three );
+    no strict 'refs';
+    local *{ $self->{class} . '::make_node_iterator' };
+     *{ $self->{class} . '::make_node_iterator' } = sub { sub { shift @xmlnodes }};
+    use strict 'refs';
+
+    my ($not_in_ME, $not_in_nodeball) = $instance->check_nodeball_integrity;
+    use Data::Dumper; diag Dumper $not_in_ME, $not_in_nodeball;
+    my @sorted = sort { $a->{title} cmp $b->{title} } @$not_in_ME;
+    is($sorted[0]->{title}, 'Create a new user', '...not in ME when titles same but types are different.');
+    is($sorted[1]->{title}, 'thingo', '...not in ME when title not presnet.');
+
+    @sorted = sort { $a->{title} cmp $b->{title} } @$not_in_nodeball;
+    is($sorted[0]->{title}, 'Create a new user', '...not in nodeball when titles same but types are different.');
+    is($sorted[1]->{title}, 'Duplicates Found', '...not in nodeball when title not presnet.');
+
+
+}
+
+sub test_check_nodeball_presence :Test(4) {
+    local $TODO = "Unimplemented.";
+
+    my $self = shift;
+    my $instance = $self->{instance};
+    return "unimplemented";
+    my $dir = get_temp_dir();
+    mkdir $dir;
+    my $mock = Test::MockObject->new;
+    $instance->set_nodebase( $mock );
+    $mock->set_always( selectNodegroupFlat => [ { title => "Duplicate Found", type => { title => 'superdoc' }},  { title => "Create a new user", type => { title => 'htmlcode' }}, { title => "thingo", type => { title => 'thingtype' }} ] );
+
+    $instance->set_nodeball_dir( $dir );
+
+    my $mefile =  File::Spec->catfile ($dir, 'ME');
+    my $fh = IO::File->new( $mefile, 'w' ) || die "Can't open $mefile, $!";
+    print $fh <<HERE;
+<NODE export_version="0.5" nodetype="nodeball" title="core system">
+  <group>
+    <member name="group_node" type="noderef" type_nodetype="theme,nodetype">default theme</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Create a new user</member>
+    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</member>
+</group>
+</NODE>
+HERE
+
+    my ($not_in_nodebase, $not_in_nodeball) = $instance->check_nodeball_integrity;
+    my @sorted = sort { $a->get_title cmp $b->get_title } @{ $not_in_nodebase || [] };
+    is($sorted[0]->get_title, 'Create a new user', '...not in nodebase when titles same but types are different.');
+    is($sorted[1]->get_title, 'default theme', '...not in nodebase when title not presnet.');
+
+    @sorted = sort { $a->{title} cmp $b->{title} } @{ $not_in_nodeball || [] };
+    is($sorted[0]->get_title, 'Create a new user', '...not in nodeball when titles same but types are different.');
+    is($sorted[1]->get_title, 'default theme', '...not in nodeball when title not presnet.');
+
 
 }
 
