@@ -1075,7 +1075,7 @@ sub evalX
 	my $result = eval($EVALX_CODE);
 
 	# Log any errors that we get so that we may display them later.
-	logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE );
+	logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
 
 	return $result;
 }
@@ -1117,30 +1117,8 @@ sub AUTOLOAD
 	# We can only execute this if the logged in user has execute permissions.
 	return undef unless ( $CODE->hasAccess( $user, 'x' ) );
 
-	my $result;
+	return $CODE->run( undef, $HTMLVARS{noCompile}, @_ );
 
-	# this htmlcode may have been Compil-O-Cached
-	# check if we can execute the cached sub and try to do it
-	unless ( ( exists( $HTMLVARS{noCompile} ) and $HTMLVARS{noCompile} )
-		or exists( $CODE->{DB}->{workspace} ) )
-	{
-		$result = executeCachedCode( 'code', $CODE, \@_ );
-		return $result if ( defined($result) );
-
-		# otherwise, run it through Compil-O-Cache
-		if ( $$CODE{code} )
-		{
-			my $code = createAnonSub( $$CODE{code} );
-			$result = compileCache( $code, $CODE, 'code', \@_ );
-			return $result if defined $result;
-		}
-	}
-
-	# The reason we do not call evalXTrapErrors is because we want
-	# htmlcode that is called like normal functions to fail like
-	# normal function and not return some kind of bogus string that
-	# they were not expecting.
-	return evalX( $$CODE{code}, $CODE, @_ );
 }
 
 =cut
@@ -1212,6 +1190,43 @@ sub do_args
 =cut
 
 
+
+=head2 C<execute_coderef>
+
+This, as the name implies executes a code ref.
+
+
+=cut 
+
+sub execute_coderef {
+
+    my ( $code_ref, $field, $CURRENTNODE, $args ) = @_;
+    my $warn;
+    my $NODE = $GNODE;
+    local $SIG{__WARN__} = sub {
+        $warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
+    };
+
+    flushErrorsToBackside();
+
+    my $result = eval { $code_ref->( $CURRENTNODE, @$args ) } || '';
+
+    local $SIG{__WARN__} = sub { };
+
+    logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
+      if $warn or $@;
+
+    my $errors = getFrontsideErrors();
+
+    if ( int(@$errors) > 0 ) {
+        $result .= htmlFormatErr( $errors, $CURRENTNODE );
+    }
+    clearFrontside();
+
+    return $result;
+
+}
+
 =head2 C<executeCachedCode>
 
 This is a supporting function for Compile-O-Cache.  It attempts to execute a
@@ -1256,30 +1271,7 @@ sub executeCachedCode
 	{
 		if ( ref($code_ref) eq 'CODE' and defined &$code_ref )
 		{
-			my $warn;
-			my $NODE = $GNODE;
-			local $SIG{__WARN__} = sub {
-				$warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
-			};
-
-			flushErrorsToBackside();
-
-			my $result = eval { $code_ref->( $CURRENTNODE, @$args ) } || '';
-
-			local $SIG{__WARN__} = sub { };
-
-			logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
-				if $warn or $@;
-
-			my $errors = getFrontsideErrors();
-
-			if ( int(@$errors) > 0 )
-			{
-				$result .= htmlFormatErr( $errors, $CURRENTNODE );
-			}
-			clearFrontside();
-
-			return $result;
+		    execute_coderef( $code_ref, $field, $CURRENTNODE, $args );
 		}
 	}
 }
@@ -1316,6 +1308,17 @@ sub createAnonSub
 
 =cut
 
+=head2 C<make_coderef>
+
+Takes some text. Returns a code ref.
+
+=cut
+
+sub make_coderef {
+    my ( $code, $NODE ) = @_;
+    return evalX $code, $NODE;
+
+}
 
 =head2 C<compileCache>
 
@@ -1352,7 +1355,7 @@ sub compileCache
 {
 	my ( $code, $NODE, $field, $args ) = @_;
 
-	my $code_ref = evalX $code, $NODE;
+	my $code_ref = make_coderef( $code, $NODE);
 
 	return unless $code_ref;
 
@@ -1422,7 +1425,7 @@ sub htmlsnippet
 	# User must have execute permissions for this to be embedded.
 	if ( ( defined $node ) && $node->hasAccess( $USER, "x" ) )
 	{
-		$html = parseCode( 'code', $node );
+		$html = $node->run( 'code' );
 	}
 	return $html;
 }
@@ -1902,7 +1905,7 @@ sub updateNodelet
 	if (   ( not $currTime or not $interval )
 		or ( $currTime > $lastupdate + $interval ) || ( $lastupdate == 0 ) )
 	{
-		$$NODELET{nltext}     = parseCode( 'nlcode', $NODELET );
+		$$NODELET{nltext}     = $NODELET->run;
 		$$NODELET{lastupdate} = $currTime;
 
 		if ( not $NODELET->{DB}->{workspace} )
@@ -1959,7 +1962,7 @@ sub genContainer
 	# Mark this container as being "visted";
 	$GLOBAL{containerTrap}{ $$CONTAINER{node_id} } = 1;
 
-	$replacetext = parseCode( 'context', $CONTAINER );
+	$replacetext = $CONTAINER->run;
 	$containers = $query->param('containers') || '';
 
 	# SECURITY!  Right now, only gods can see the containers.  When we get
@@ -2128,8 +2131,7 @@ sub displayPage
 		}
 	}
 
-	my $page = parseCode( 'page', $PAGE );
-
+	my $page = $PAGE->run( undef, $HTMLVARS{noCompile} );
 	if ( $$PAGE{parent_container} )
 	{
 		my $container = genContainer( $$PAGE{parent_container} );
@@ -3033,7 +3035,7 @@ sub mod_perlInit
 
 	$options->{query} = $query;
 
-	$AUTH ||= Everything::Auth->new($options);
+	$AUTH = Everything::Auth->new($options);
 
 	( $USER, $VARS ) = $AUTH->authUser();
 
