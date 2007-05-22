@@ -11,6 +11,12 @@ package Everything::Node::htmlsnippet;
 use strict;
 use warnings;
 
-use base 'Everything::Node::htmlcode';
+use base 'Everything::Node::Parseable', 'Everything::Node::htmlcode';
+
+sub get_compilable_field {
+
+    'code'
+
+}
 
 1;

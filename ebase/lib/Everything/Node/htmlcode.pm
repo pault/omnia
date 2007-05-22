@@ -11,7 +11,7 @@ package Everything::Node::htmlcode;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node';
+use base 'Everything::Node::node', 'Everything::Node::Runnable';
 
 =head2 C<dbtables()>
 
@@ -57,6 +57,10 @@ sub restrictTitle
 	}
 
 	return 1;
+}
+
+sub get_compilable_field {
+    'code';
 }
 
 1;

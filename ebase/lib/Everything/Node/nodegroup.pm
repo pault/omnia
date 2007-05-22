@@ -418,7 +418,7 @@ the group node to get node hashes for.
 
 =back
 
-Returns a reference to an array of node hashes that belong to this group.
+Returns a reference to an array of node instances that belong to this group.
 
 =cut
 

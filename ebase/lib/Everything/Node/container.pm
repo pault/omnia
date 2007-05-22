@@ -11,7 +11,7 @@ package Everything::Node::container;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node';
+use base  'Everything::Node::Parseable', 'Everything::Node::node';
 
 =head2 C<dbtables()>
 
@@ -23,6 +23,10 @@ sub dbtables
 {
 	my $self = shift;
 	return 'container', $self->SUPER::dbtables();
+}
+
+sub get_compilable_field {
+    'context';
 }
 
 1;

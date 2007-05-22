@@ -11,7 +11,7 @@ package Everything::Node::htmlpage;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node';
+use base 'Everything::Node::node', 'Everything::Node::Parseable';
 
 =head2 C<dbtables()>
 
@@ -25,25 +25,8 @@ sub dbtables
 	return 'htmlpage', $self->SUPER::dbtables();
 }
 
-=head2 C<insert>
-
-We need to set up some default settings when a htmlpage is inserted.
-
-=cut
-
-sub insert
-{
-	my ( $this, $USER ) = @_;
-
-	# If there is no parent container set, we need a default
-	unless ( $this->{parent_container} )
-	{
-		my $GNC =
-		    $this->{DB}->getNode( "general nodelet container", "container" );
-		$this->{parent_container} = $GNC ? $GNC : 0;
-	}
-
-	$this->SUPER( $USER );
+sub get_compilable_field {
+    'page';
 }
 
 1;

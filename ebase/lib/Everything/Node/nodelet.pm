@@ -11,7 +11,7 @@ package Everything::Node::nodelet;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node';
+use base 'Everything::Node::Parseable', 'Everything::Node::node';
 
 =head2 C<dbtables()>
 
@@ -58,6 +58,10 @@ sub getNodeKeys
 	delete $keys->{nltext} if $forExport;
 
 	return $keys;
+}
+
+sub get_compilable_field {
+    'nlcode';
 }
 
 1;
