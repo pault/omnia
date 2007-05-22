@@ -10,7 +10,7 @@ use strict;
 use SUPER;
 use warnings;
 
-sub test_gen_object : Test(15) {
+sub test_gen_object : Test(13) {
     my $self     = shift;
     my $instance = Test::MockObject::Extends->new( $self->{instance} );
     my $cgi      = Test::MockObject->new;
@@ -35,7 +35,7 @@ sub test_gen_object : Test(15) {
 
     is(
         $params[0],
-        'query, bindNode, field, name, default, cols, rows, wrap ' . $cgi
+        'query, bindNode, field, name, default, cols, rows  ' . $cgi
           . ' bN f n d c r w',
         'genObject() should call getParamArray() with @_'
     );
@@ -47,7 +47,6 @@ sub test_gen_object : Test(15) {
     is( $args->[2],  'n',        '... should use provided name' );
     is( $args->[6],  'c',        '... should use provided cols' );
     is( $args->[8],  'r',        '... should use provided rows' );
-    is( $args->[10], 'w',        '... should use provided wrap' );
     is( $result, "html\na",
         '... returning concatenation of SUPER() and textfield() calls' );
 
@@ -57,7 +56,6 @@ sub test_gen_object : Test(15) {
         '... with no default value, should bind to node field (if provided)' );
     is( $args->[6],  80,        '... cols should default to 80' );
     is( $args->[8],  20,        '... rows should default to 20' );
-    is( $args->[10], 'virtual', '... wrap should default to "virtual"' );
     is( $args->[2],  'f',       '... name should default to node field name' );
 
     $instance->genObject( $cgi, '', 'f', 'n', '' );

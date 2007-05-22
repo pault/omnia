@@ -70,15 +70,15 @@ Returns the generated HTML for this TextArea object.
 sub genObject
 {
 	my $this = shift @_;
-	my ( $query, $bindNode, $field, $name, $default, $cols, $rows, $wrap ) =
+	my ( $query, $bindNode, $field, $name, $default, $cols, $rows, ) =
 		getParamArray(
-		"query, bindNode, field, name, default, cols, rows, wrap", @_ );
+		"query, bindNode, field, name, default, cols, rows ", @_ );
 
 	$name    ||= $field;
 	$default ||= 'AUTO';
 	$cols    ||= 80;
 	$rows    ||= 20;
-	$wrap    ||= 'virtual';
+
 
 	my $html =
 		$this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
@@ -94,7 +94,6 @@ sub genObject
 		-default => $default,
 		-cols    => $cols,
 		-rows    => $rows,
-		-wrap    => $wrap
 	);
 
 	return $html;
