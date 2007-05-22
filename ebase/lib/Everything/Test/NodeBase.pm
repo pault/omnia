@@ -504,4 +504,67 @@ sub test_has_permission :Test( 5 )
 	is( $result, 'cp', '... and returning results' );
 }
 
+sub test_search_node_name : Test(10) {
+    my $self = shift;
+
+    my $nb = $self->{nb};
+
+    my $mock = Test::MockObject->new;
+
+    my $id = [];
+
+    my $fake_nodes = { foo => 1, bar => 2 };
+    $nb->mock(
+        'getId',
+        sub {
+            push @$id, $fake_nodes->{ $_[1] };
+            return $fake_nodes->{ $_[1] };
+        }
+      )->set_always( 'getNode', $mock );
+
+    $mock->set_series( 'fetchrow_hashref', 1, 2, 3 );
+
+    $nb->{storage}->set_always( sqlSelectMany => undef );
+
+    is( $nb->search_node_name(['']),
+        undef,
+        'searchNodeName() should return without workable words to find' );
+
+    $nb->{storage}->set_always( sqlSelectMany => $mock );
+    $mock->set_always( fetchfow_hashref => undef );
+    $nb->{storage}->clear;
+    $mock->clear;
+    $nb->search_node_name( [''], [ 'foo', 'bar' ] );
+    is( $id->[0], 1, '... should call getId() for first type' );
+    is( $id->[1], 2,
+        '... should call getId() for subsequent types (if passed)' );
+
+    my ( $method, $args ) = $nb->{storage}->next_call;
+    is ($method, 'sqlSelectMany', '...calls execute against the db cursor.');
+    is ($$args[3], 'title like ? AND (type_nodetype = 1 OR type_nodetype = 2)', '... creates sql for types.');
+    $nb->{storage}->clear;
+    $mock->clear;
+
+    $nb->search_node_name(['quote']);
+    ( $method, $args ) = $nb->{storage}->next_call;
+    is_deeply( $$args[5], [q{%quote%}],
+        '... should process searchable words' );
+
+    # reset series
+    $mock->set_series( 'fetchrow_hashref', 1, 2, 3 );
+
+    $nb->{storage}->clear;
+    $mock->clear;
+
+    my $found =
+      $nb->search_node_name( ['ab', 'aBc!',  'abcd', 'a', 'ee'], [ 'foo', 'bar' ] );
+    ( $method, $args ) = $nb->{storage}->next_call;
+    is_deeply( $$args[5], ['%ab%aBc!%abcd%a%ee%'], '... processes all search word arguments.' );
+
+    is( ref $found, 'ARRAY', '... should return an arrayref on success' );
+
+    is( @$found, 3, '... should find all proper results' );
+    is( join( '', @$found ), '123', '... and should return results' );
+}
+
 1;

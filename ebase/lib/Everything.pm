@@ -486,20 +486,6 @@ sub searchNodeName
 	my ( $searchWords, $TYPE ) = @_;
 	my $typestr = '';
 
-	$TYPE = [$TYPE] if defined $TYPE and $TYPE and ref($TYPE) eq "SCALAR";
-
-	if ( ref($TYPE) eq 'ARRAY' and @$TYPE )
-	{
-		my $t = shift @$TYPE;
-		$typestr .= "AND (type_nodetype = " . getId($t);
-		foreach (@$TYPE)
-		{
-			$typestr .= " OR type_nodetype = " . getId($_);
-		}
-
-		$typestr .= ')';
-	}
-
 	my $NOSEARCH = getNode( 'stopwords', 'setting' );
 	my $NOWORDS = $NOSEARCH ? $NOSEARCH->getVars() : {};
 
@@ -507,35 +493,7 @@ sub searchNodeName
 		split ' ', $searchWords;
 
 	return unless @words;
-
-	my $match = '';
-	foreach my $word (@words)
-	{
-		$word = lc($word);
-		$word =~ s/(\W)/\\$1/gs;
-		$word = '[[:<:]]' . $word . '[[:>:]]';
-		$word =
-			"(lower(title) rlike "
-			. $DB->getDatabaseHandle()->quote($word) . ")";
-	}
-
-	$match = '(' . join( ' + ', @words ) . ')';
-	my $cursor = $DB->sqlSelectMany(
-		"*, $match AS matchval",
-		"node",
-		"$match >= 1 $typestr",
-		"ORDER BY matchval DESC"
-	);
-
-	return unless $cursor;
-
-	my @ret;
-	while ( my $m = $cursor->fetchrow_hashref )
-	{
-		push @ret, $m;
-	}
-
-	return \@ret;
+	return $DB->search_node_name(\@words, $TYPE);
 }
 
 =cut

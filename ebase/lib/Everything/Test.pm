@@ -375,13 +375,12 @@ sub test_flushErrorsToBackside : Test(4) {
         'getBacksideErrors() should return reference to @bsErrors' );
 }
 
-sub test_searchNodeName : Test(12) {
+sub test_searchNodeName : Test(8) {
     my $self = shift;
     local $Everything::DB = Test::MockObject->new;
     my $mock = Test::MockObject->new;
     my $quotes;
     my $id = [];
-    my @calls;
     my $fake_nodes = { foo => 1, bar => 2 };
     $Everything::DB->mock(
         'getId',
@@ -389,11 +388,7 @@ sub test_searchNodeName : Test(12) {
             push @$id, $fake_nodes->{ $_[1] };
             return $fake_nodes->{ $_[1] };
         }
-      )->set_always( 'getNode', $mock )
-      ->set_always( 'getDatabaseHandle', $mock )->mock(
-        'sqlSelectMany',
-        sub { push @calls, [ 'sqlSelectMany', @_ ]; $mock }
-      );
+      )->set_always( 'getNode', $mock );
 
     $mock->mock( 'quote', sub { my $r = qq{'$_[1]'}; $quotes .= $r; $r; } );
     $mock->set_series( 'fetchrow_hashref', 1, 2, 3 );
@@ -401,45 +396,27 @@ sub test_searchNodeName : Test(12) {
     ## to test skipped words
     $mock->set_always( getVars => { ab => 1, abcd => 1, } );
 
+    $Everything::DB->set_always( search_node_name => [ 1, 2, 3 ] );
+
     is( Everything::searchNodeName(''),
         undef,
         'searchNodeName() should return without workable words to find' );
 
-    Everything::searchNodeName( '', [ 'foo', 'bar' ] );
-    is( $id->[0], 1, '... should call getId() for first type' );
-    is( $id->[1], 2,
-        '... should call getId() for subsequent types (if passed)' );
-
+    $Everything::DB->clear;
     Everything::searchNodeName('quote');
-    is( $quotes, q{'[[:<:]]quote[[:>:]]'},
-        '... should quote() searchable words' );
 
-    # reset series
-    $mock->set_series( 'fetchrow_hashref', 1, 2, 3 );
+    my ($method, $args) = $Everything::DB->next_call(2);
+    is ($method, 'search_node_name');
+    is_deeply( $args->[1], [q{quote}],
+        '... passes searchable words to search function' );
 
+    $Everything::DB->clear;
     my $found =
       Everything::searchNodeName( 'ab aBc!  abcd a ee', [ 'foo', 'bar' ] );
 
-    like( $quotes, qr/abc\\!/, '... should escape nonword chars too' );
-
-    is( $calls[-1]->[0], 'sqlSelectMany',
-        '... should sqlSelectMany() matching titles' );
-    like(
-        $calls[-1]->[2],
-        qr/\*.+?lower.title.+?rlike.+abc.+/,
-        '... selecting by title with regexes'
-    );
-
-    like(
-        $calls[-1]->[4],
-        qr/AND .type_nodetype = 1 OR type_nodetype = 2/,
-        '... should constrain by type, if provided'
-    );
-    is(
-        $calls[-1]->[5],
-        'ORDER BY matchval DESC',
-        '... and should order results properly'
-    );
+    ($method, $args) = $Everything::DB->next_call(2);
+    is ($method, 'search_node_name', '...calls search node name.');
+    is_deeply( $args->[1], ['aBc!'], '... strips out unwanted strings.' );
 
     is( ref $found, 'ARRAY', '... should return an arrayref on success' );
 

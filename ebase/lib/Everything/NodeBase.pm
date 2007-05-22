@@ -680,4 +680,61 @@ sub hasPermission
 	return Everything::Security::checkPermissions( $perms, $modes );
 }
 
+
+=head2 C<search_node_title>
+
+Applies a search algorithm to words passed as arguments
+
+=over 4
+
+=item *
+
+Takes an array ref of words to search on
+
+
+=item *
+
+And an array ref of nodetypes to search on
+
+
+=back
+
+Returns an array of hash refs.
+
+=cut
+
+sub search_node_name {
+
+    my ( $self, $words, $types ) = @_;
+    my $match = '';
+
+    $types = [$types] if defined $types and $types and ref($types) eq "SCALAR";
+
+    my $typestr = '';
+    if ( ref($types) eq 'ARRAY' and @$types ) {
+        my $t = shift @$types;
+        $typestr .= "AND (type_nodetype = " . $self->getId($t);
+        foreach (@$types) {
+            $typestr .= " OR type_nodetype = " . $self->getId($_);
+        }
+
+        $typestr .= ')';
+    }
+
+    $match = '%' . join( '%', @$words ) . '%';
+    my $cursor =
+      $self->{storage}
+      ->sqlSelectMany( "*", "node", "title like ? $typestr", undef, [$match] );
+
+    return unless $cursor;
+
+    my @ret;
+    while ( my $m = $cursor->fetchrow_hashref ) {
+        push @ret, $m;
+    }
+
+    return \@ret;
+
+}
+
 1;
