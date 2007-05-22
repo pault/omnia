@@ -407,7 +407,7 @@ sub test_drop_node_table : Test(+0) {
 sub test_now : Test(2) {
     my $self = shift;
     can_ok( $self->{class}, 'now' ) || return;
-    ok( $self->{instance}->now, '... returns seconds since the epoch.' );
+    is( $self->{instance}->now, "datetime('now')", '... calls sqlite datetime function.' );
 }
 
 sub test_timediff : Test(2) {

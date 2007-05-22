@@ -390,7 +390,7 @@ sub list_tables
 	return @tables;
 }
 
-sub now { return time() }
+sub now { return "datetime('now')" }
 
 sub timediff { "$_[1] - $_[2]" }
 

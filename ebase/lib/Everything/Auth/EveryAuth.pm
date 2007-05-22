@@ -163,7 +163,7 @@ sub confirmUser
 
 	if ( $genCrypt eq $crpasswd )
 	{
-		$$user{lasttime} = $DB->sqlSelect("NOW()");
+		$$user{lasttime} = $DB->sqlSelect( $DB->now );
 		return $user;
 	}
 
