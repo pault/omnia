@@ -55,15 +55,24 @@ $GLOBAL{userFontAttr} ||= &quot;color=white&quot;;&quot;&quot;;
 [{includeJS: findFormObject, moveSelectItem, selectItem}]
 [%
 # First, make sure we have the nodelets field filled out
+return &quot;Nodelet editing disabled - buggy&quot;;
 my @nodelets = @{ $NODE-&gt;getNodelets($HTMLVARS{default_nodeletgroup}); };
 my $VARS = $NODE-&gt;getVars();
 unless(exists $$VARS{nodelets})
 {
   my @execnodelets;
   foreach (@nodelets) { push @execnodelets, $_ if getNode($_)-&gt;hasAccess($NODE, 'x') } 
-  $$VARS{nodelets} = join(',', @execnodelets);
-  $NODE-&gt;setVars($VARS, $USER);
-  $NODE-&gt;update($USER);
+
+#  $$VARS{nodelets} = join(',', @execnodelets);
+#  $NODE-&gt;setVars($VARS, $USER);
+
+## XXX: disabled because this causes a subtle bug.  The exporter does not know
+## how to handle a list of references to other nodes. They are exported as literal 
+## values which causes problems when exporting ecore and installing.
+## A FIX: ensure that the exporter/importer can handle lists of node
+## references.
+
+#  $NODE-&gt;update($USER);
 }
 
 use Everything::HTML::FormObject::SubsetSelector;

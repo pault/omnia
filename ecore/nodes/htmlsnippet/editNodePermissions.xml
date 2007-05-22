@@ -18,7 +18,7 @@ $GLOBAL{permColorDark} = $$THEME{permColorDark}
   &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Execute&lt;/td&gt;
   &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Delete&lt;/td&gt;
   &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Parent Settings&lt;/td&gt;
-  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Dynamic&lt;td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Dynamic&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;author&lt;/td&gt;

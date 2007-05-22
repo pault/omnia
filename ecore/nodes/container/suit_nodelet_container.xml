@@ -26,12 +26,7 @@ CONTAINED_STUFF
 &lt;/ul&gt;
 &lt;/font&gt;&lt;/td&gt;
 &lt;/tr&gt;
-&lt;tr [%
-my $bgcol = $$THEME{nodeletDivColor};
-$bgcol ||= '#999999';
-&quot;bgcolor='$bgcol'&quot;;
-%]&gt;&lt;td&gt;&lt;img src=&quot;&quot; width=1 height=1&gt;&lt;/td&gt;&lt;/tr&gt;
-&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;img src=&quot;&quot; width=1 height=1 alt=&quot;&quot;&gt;&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

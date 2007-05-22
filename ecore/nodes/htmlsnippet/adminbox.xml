@@ -22,12 +22,12 @@ foreach my $type (@displaytypes)
   if ($disp eq $type)
   {
     $GLOBAL{adminboxLinks}{$type} = 
-      &quot;&lt;img src=images/icon_&quot;.$type.&quot;_current.gif alt=&quot;.$type.&quot; border=0&gt;&quot;;
+      &quot;&lt;img src=images/icon_&quot;.$type.&quot;_current.gif alt=&quot;.$type.&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;;
   } 
   else
   {
     $GLOBAL{adminboxLinks}{$type} =  linkNode ($NODE,
-      &quot;&lt;img src=images/icon_&quot;.$type.&quot;.gif  alt=&quot;.$type.&quot; border=0&gt;&quot;, 
+      &quot;&lt;img src=images/icon_&quot;.$type.&quot;.gif  alt=&quot;.$type.&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;, 
       {displaytype =&gt; $type}) . &quot; &quot;;
   }
 }
@@ -57,7 +57,7 @@ $GLOBAL{adminboxDark} ||= &quot;#ff9999&quot;;
   &lt;tr&gt;
     &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align='center'&gt;
       &lt;a href='javascript: cloneNode();'&gt;
-       &lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;
+       &lt;img src=images/icon_clone.gif alt=clone border=0 height=&quot;20&quot; width=&quot;48&quot;&gt;&lt;/a&gt;
     &lt;/td&gt;
     &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align=center&gt;
       [% clonetotype() %]
@@ -68,7 +68,7 @@ my $str;
 if($NODE-&gt;hasAccess($USER, &quot;d&quot;))
 {
   $str .= &quot;&lt;a href='javascript: confirmDelete();'&gt;&quot;;
-  $str .= &quot;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;&quot;;
+  $str .= &quot;&lt;img src='images/icon_delete.gif' alt='delete' border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&lt;/a&gt;&quot;;
 }
 else
 {
@@ -94,7 +94,7 @@ if ($$NODE{type}{maxrevisions})
     $str.=&quot;&lt;tr&gt;&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center&gt;&quot;;
     if ($undo) {
       $str.=linkNode($NODE,
-        &quot;&lt;IMG src=images/icon_undo.gif alt=\&quot;undo\&quot; border=0&gt;&quot;,
+        &quot;&lt;IMG src=images/icon_undo.gif alt=\&quot;undo\&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;,
         { op =&gt; 'undo', displaytype =&gt; $disp });
     } else {
       $str.=&quot;&amp;nbsp;&quot;;
@@ -104,7 +104,7 @@ if ($$NODE{type}{maxrevisions})
 
     if ($redo) {
        $str.=linkNode($NODE,
-         &quot;&lt;IMG src=images/icon_redo.gif alt=\&quot;undo\&quot; border=0&gt;&quot;,
+         &quot;&lt;IMG src=images/icon_redo.gif alt=\&quot;undo\&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;,
          { op =&gt; 'redo', displaytype =&gt; $disp });
     } else {
       $str.=&quot;&amp;nbsp;&quot;;

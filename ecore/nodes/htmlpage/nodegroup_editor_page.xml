@@ -23,8 +23,7 @@ $$VARS{group}||= getId ($NODE);
 linkNode $NODE, &quot;close&quot;, {displaytype=&gt; $query-&gt;param('displaytype'),
 	op =&gt; 'close'};
 %]
-[{groupeditor}]
-&lt;/FORM&gt;</field>
+[{groupeditor}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodegroup</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">stdcontainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

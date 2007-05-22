@@ -31,16 +31,16 @@ foreach (@VALUES)
 	}
 	else
 	{
-		my $TYPE = $DB->getType($_); 
+		my $TYPE = $DB-&gt;getType($_); 
 		push @TYPES, $TYPE if(defined $TYPE); #replace w/ node refs
 	}
 }
 
-my $NODELIST = $DB->selectNodeWhere(
-  { type_nodetype => \@TYPES }, undef, "title") if @TYPES;
+my $NODELIST = $DB-&gt;selectNodeWhere(
+  { type_nodetype =&gt; \@TYPES }, undef, &quot;title&quot;) if @TYPES;
 
 foreach my $N (@$NODELIST) {
-	$N = $DB->getNodeById($N, 'light');
+	$N = $DB-&gt;getNodeById($N, 'light');
 	my $id = getId $N;
 	push @idlist, $id;
 	$items{$id} = $$N{title};
@@ -49,14 +49,14 @@ foreach my $N (@$NODELIST) {
 # The default thing to select
 my $SELECT = $$NODE{$field};
 
-if(not defined $items{"0"})
+if(not defined $items{&quot;0&quot;})
 {
 	# We have no value for zero, make it a default
-	$items{"0"} = "none";
-	push @idlist, "0";
+	$items{&quot;0&quot;} = &quot;none&quot;;
+	push @idlist, &quot;0&quot;;
 }
 
-$query->popup_menu($name, \@idlist, $SELECT, \%items);
+$query-&gt;popup_menu($name, \@idlist, $SELECT, \%items);
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

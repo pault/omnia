@@ -11,8 +11,7 @@ my $display = $query-&gt;param('displaytype');
 $display ||= 'display';
 $image ||= &quot;images/minime.gif&quot;;
 
-$str .= &quot;&lt;image src='$image'&quot;;
-$str .= &quot; valign='$valign'&quot; if($valign);
+$str .= &quot;&lt;img src='$image' height=\&quot;12\&quot; width=\&quot;11\&quot; alt=\&quot;minimize\&quot; &quot;;
 $str .= &quot; align='$align'&quot; if($align);
 $str .= &quot; border=0&gt;&quot;;
 

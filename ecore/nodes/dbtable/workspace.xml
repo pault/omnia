@@ -1,11 +1,6 @@
-<NODE export_version="0.5" nodetype="opcode" title="Flush">
+<NODE export_version="0.5" nodetype="dbtable" title="workspace">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $vars = $USER-&gt;getVars();
-delete $$vars{nodebucket};  # flush the nodebucket
-$USER-&gt;setVars($vars);
-# Don't need to update as $USER automatically gets updated on pageload end
-</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
@@ -13,8 +8,8 @@ $USER-&gt;setVars($vars);
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
-  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">opcode</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">dbtable</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="title" type="literal_value">Flush</field>
-  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
+  <field name="title" type="literal_value">workspace</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">dbtable</field>
 </NODE>

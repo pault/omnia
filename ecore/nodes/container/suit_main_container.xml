@@ -10,11 +10,11 @@
 [%
 my $default = getNode($HTMLVARS{default_node});
 my $IMG = getNode $$THEME{cornerIcon_image};
-linkNode($default, &quot;&lt;img border=0 src=$$IMG{src}&gt;&quot;);
+linkNode($default, &quot;&lt;img border=0 src=$$IMG{src} alt=\&quot;\&quot;&gt;&quot;);
 %]
    &lt;/td&gt;
  &lt;/tr&gt;
- &lt;tr&gt;&lt;td colspan=2 bgcolor='#999999'&gt;&lt;img src=&quot;&quot; width=1 height=3&gt;&lt;/td&gt;&lt;/tr&gt;
+ &lt;tr&gt;&lt;td colspan=2 bgcolor='#999999'&gt;&lt;img src=&quot;&quot; width=1 height=3 alt=&quot;&quot;&gt;&lt;/td&gt;&lt;/tr&gt;
  &lt;tr&gt;  
   &lt;td width=100% valign=top&gt;
    &lt;table width=100% cellspacing=0 cellpadding=5&gt;&lt;tr&gt;&lt;td&gt;

@@ -1,9 +1,7 @@
 <NODE export_version="0.5" nodetype="superdoc" title="Super Search">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">[{openform}]
-
-[%
+  <field name="doctext" type="literal_value">[%
 
 my $dbh = $DB-&gt;getDatabaseHandle;
 
@@ -29,7 +27,7 @@ sub hasTextField {
 
    my %tables;
 
-   foreach my $t (@{ $NT-&gt;getTableArray }) {
+   foreach my $t (@{ $NT-&gt;getTableArray || [] }) {
 
       push @{ $tables{$t} }, $$NT{node_id};
 
@@ -69,7 +67,8 @@ local *makeDateMenu=sub{
 
     my ($prefix,$defaultdate,$edge)=@_;
 
-    $defaultdate||=$DB-&gt;sqlSelect(&quot;left(now(),10)&quot;,&quot;node&quot;,&quot;&quot;,&quot;limit 1&quot;);
+    ### XXX: too db specific and we shouldn't be calling SQL from here anyway
+    $defaultdate||=$DB-&gt;sqlSelect($DB-&gt;now(),&quot;node&quot;,&quot;&quot;,&quot;limit 1&quot;);
 
     my ($year,$month,$day)=split(/-/,$defaultdate);
 
@@ -145,7 +144,7 @@ return @st;
 
 };
 
-
+$str.= $query-&gt;start_form;
 
 $str.=&quot;&lt;TABLE&gt;&quot;;
 
@@ -163,7 +162,7 @@ $query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates 
 
 &quot;&lt;BR&gt;Choose types to limit results to:&lt;BR&gt;&quot;.
 
-$query-&gt;checkbox_group(-name=&gt;'chosentypes',-rows=&gt;4,-values=&gt; \@nttitles).&quot;&lt;/UL&gt;&quot;;
+$query-&gt;checkbox_group(-name=&gt;'chosentypes',-rows=&gt;4,-values=&gt; \@nttitles);
 
 $str.=&quot;&lt;BR&gt;&quot;;
 

@@ -4,17 +4,16 @@
   <field name="context" type="literal_value">&lt;table width=95% align=center&gt;
  &lt;tr&gt;
   &lt;td&gt;
-   [{searchform:noendform}]
+   [{searchform}]
   &lt;/td&gt;
   &lt;td align=right&gt;
 [%
 my $default = getNode($HTMLVARS{default_node});
 my $IMG = getNode $$THEME{cornerIcon_image};
-linkNode($default, &quot;&lt;img border=0 src=$$IMG{src}&gt;&quot;) if $IMG;
+linkNode($default, &quot;&lt;img border=0 src=$$IMG{src} height=\&quot;48\&quot; width=\&quot;35\&quot; alt=\&quot;Corner Logo\&quot;\&gt;&quot;) if $IMG;
 %]
    &lt;/td&gt;
  &lt;/tr&gt;
-&lt;/form&gt;
 &lt;/table&gt;
 
 &lt;table width=&quot;100%&quot;&gt;

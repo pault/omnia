@@ -263,12 +263,22 @@
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">adminbox</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit main container</member>
     <member name="group_node" type="noderef" type_nodetype="theme,nodetype">suit theme</member>
-    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="image,nodetype">esuitlogo</member>
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">cloneNode</member>
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">confirmDelete</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">formatCols</member>
+    <member name="group_node" type="noderef" type_nodetype="setting,nodetype">uploadimage settings</member>
+    <member name="group_node" type="noderef" type_nodetype="opcode,nodetype">Flush</member>
+    <member name="group_node" type="noderef" type_nodetype="location,nodetype">meta-user</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">editPersonalNodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">availableMethods</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textarea</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">node_menu</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">jsescape</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textfield</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">workspace</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">showChoiceFunc</member>
+    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit nodelet container</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

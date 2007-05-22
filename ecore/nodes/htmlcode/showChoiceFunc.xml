@@ -6,17 +6,17 @@ use Everything::XML;
 my @modules = ('Everything', 'Everything::HTML', 'Everything::XML', 'Everything::NodeBase', 'Everything::NodeCache', 'Everything::Node::node', 'Everything::Node::nodeball','Everything::Node::nodegroup', 'Everything::Node::nodetype', 'Everything::Node::setting', 'Everything::Node::theme', 'Everything::Node::user', 'Everything::Node::nodetype');
 my $str;
 my $i;
-if (not $query->param('choicefunc')) 
+if (not $query-&gt;param('choicefunc')) 
 {
   my %funcs;
   my $rows = 0;
-  $str .= "&lt;table border=0 cellpadding=1 cellspacing=2>";
+  $str .= &quot;&lt;table border=0 cellpadding=1 cellspacing=2&gt;&quot;;
 
-  my $colwidth = "100%";
+  my $colwidth = &quot;100%&quot;;
   foreach my $modname (@modules) 
   {
     local *stash;
-    *stash = *{ "${modname}::" };
+    *stash = *{ &quot;${modname}::&quot; };
     my @modfuncs;
     foreach(keys %stash) 
     {
@@ -27,55 +27,55 @@ if (not $query->param('choicefunc'))
    @modfuncs = sort {$a cmp $b} @modfuncs;
    $funcs{$modname} = \@modfuncs;
    $rows = int(@modfuncs);
-   $str.="&lt;TH width=$colwidth colspan = 5 bgcolor=black>&lt;font color=white>$modname&lt;/white>&lt;/TH>";
+   $str.=&quot;&lt;TH width=$colwidth colspan = 5 bgcolor=\&quot;black\&quot;&gt;&lt;font color=\&quot;white\&quot;&gt;$modname&lt;/font&gt;&lt;/TH&gt;&quot;;
  
    my $count=0;
    while ($count &lt; $rows) 
    {
-     $str.="&lt;TR>";
+     $str.=&quot;&lt;TR&gt;&quot;;
      for ($i=1; $i&lt;=5; $i++)
      {
-       $str.= "&lt;TD bgcolor=#cbcbcb>"; 
-       if (int (@{ $funcs{$modname} }) > $count)
+       $str.= &quot;&lt;TD bgcolor=#cbcbcb&gt;&quot;; 
+       if (int (@{ $funcs{$modname} }) &gt; $count)
          { $str.=linkNode($NODE, $funcs{$modname}[$count], 
-             { choicefunc => $funcs{$modname}[$count] });
+             { choicefunc =&gt; $funcs{$modname}[$count] });
          }
        else
-         { $str.="&amp;nbsp;"; }
+         { $str.=&quot;&amp;nbsp;&quot;; }
                
         
-         $str.="&lt;/TD>";
+         $str.=&quot;&lt;/TD&gt;&quot;;
          $count++;
       }
-     $str.="&lt;/TR>\n"
+     $str.=&quot;&lt;/TR&gt;\n&quot;
    }
-   $str.="&lt;tr>&lt;td colspan=5>&lt;/td>&lt;/tr>";
+   $str.=&quot;&lt;tr&gt;&lt;td colspan=5&gt;&lt;/td&gt;&lt;/tr&gt;&quot;;
   }
 	
-  $str.="&lt;TH width=$colwidth colspan=5 bgcolor=black>&lt;font color=white>HTMLCODE&lt;/font>&lt;/TH>\n";
+  $str.=&quot;&lt;TH width=$colwidth colspan=5 bgcolor=\&quot;black\&quot;&gt;&lt;font color=\&quot;white\&quot;&gt;HTMLCODE&lt;/font&gt;&lt;/TH&gt;\n&quot;;
   my $HTMLCODE = getNodeWhere({}, getType('htmlcode'));
   $funcs{htmlcode}= $HTMLCODE;
   $rows=int(@$HTMLCODE);
  my $count=0;
    while ($count &lt; $rows) 
    {
-     $str.="&lt;TR>";
+     $str.=&quot;&lt;TR&gt;&quot;;
      for ($i=1; $i&lt;=5; $i++)
      {       
-        $str.="&lt;TD bgcolor=#cbcbcb>";
+        $str.=&quot;&lt;TD bgcolor=#cbcbcb&gt;&quot;;
         $str.= linkNode($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
-        $str.="&lt;/TD>\n";
+        $str.=&quot;&lt;/TD&gt;\n&quot;;
         $count++;
      }
-    $str.="&lt;/tr>\n";
+    $str.=&quot;&lt;/tr&gt;\n&quot;;
     }  
-  return $str.="&lt;/table>";
+  return $str.=&quot;&lt;/table&gt;&quot;;
 }
 
 #else...
-$str.= "or go back to the code ".linkNode($NODE, 'index');
-my $choicefunc = $query->param('choicefunc');
-my $parentmod = "";
+$str.= &quot;or go back to the code &quot;.linkNode($NODE, 'index');
+my $choicefunc = $query-&gt;param('choicefunc');
+my $parentmod = &quot;&quot;;
  if ($choicefunc =~ /^(.+?)\:\:(\w+)$/) {
   $choicefunc = $2;
   $parentmod = $1;
@@ -84,44 +84,44 @@ my $parentmod = "";
 foreach my $modname (@modules) {
     next if $parentmod;
     local *stash;
-    *stash = *{ "${modname}::" };
+    *stash = *{ &quot;${modname}::&quot; };
     if (exists $stash{$choicefunc}) {
         $parentmod=$modname;
     }
 }
 
 unless ($parentmod) {
-   return "&lt;i>sorry, man.  No dice on $choicefunc&lt;/i>&lt;br>\n"; 
+   return &quot;&lt;i&gt;sorry, man.  No dice on $choicefunc&lt;/i&gt;&lt;br&gt;\n&quot;; 
 }
 
 $parentmod =~ s/\:\:/\//g;
-my $parentfile = $INC{"${parentmod}.pm"};
+my $parentfile = $INC{&quot;${parentmod}.pm&quot;};
 
 open MODULE, $parentfile or die;
-my @mod = &lt;MODULE>;
+my @mod = &lt;MODULE&gt;;
 close MODULE;
 
 if (@mod) {
-  #$str.= "module $parentmod loaded: ".int(@mod)." lines\n";
+  #$str.= &quot;module $parentmod loaded: &quot;.int(@mod).&quot; lines\n&quot;;
 } else {
-  $str.= "hmm. couldn't load modules $parentfile\n";
+  $str.= &quot;hmm. couldn't load modules $parentfile\n&quot;;
 }
 
 my $count = 0;
 my @lines;
-while (@mod > $count and not @lines) {
+while (@mod &gt; $count and not @lines) {
     if ($mod[$count] =~ /^sub $choicefunc\s*/) {
         my $i = $count;
-        my $flag = "";
+        my $flag = &quot;&quot;;
         do {
             $i--;
             $mod[$i]=~/\s*(\S)/;
-            if (not defined $1 or $1 eq "#") {
-                $flag = "yes!";
+            if (not defined $1 or $1 eq &quot;#&quot;) {
+                $flag = &quot;yes!&quot;;
             } else {
-                $flag="";
+                $flag=&quot;&quot;;
             }
-        } while ($i > 0 and $flag);
+        } while ($i &gt; 0 and $flag);
 
         do {
             $i++;
@@ -133,9 +133,9 @@ while (@mod > $count and not @lines) {
 }
 
 if (@lines) {
-  $str.= listCode(join ("", @lines));
+  $str.= listCode(join (&quot;&quot;, @lines));
 } else {
-  $str.= "\n&lt;br>no comment found\n";
+  $str.= &quot;\n&lt;br&gt;no comment found\n&quot;;
 }
 $str;
 </field>

@@ -25,7 +25,7 @@ linkNode($NODE, &quot;Remove me from this workspace&quot;, { op =&gt; 'changewor
 &lt;p&gt;
 Users in this workspace:
 [%
-  my (@U) = @{ getNodeWhere({inside_workspace =&gt; $$NODE{node_id}}, 'user') };
+  my (@U) = @{ getNodeWhere({inside_workspace =&gt; $$NODE{node_id}}, 'user') || [] };
   return &quot;&lt;p&gt;&lt;i&gt;none&lt;/i&gt;&quot; unless @U;
   my $str;
   foreach (@U) { $str.=&quot;&lt;li&gt;&quot;.linkNode($_) }

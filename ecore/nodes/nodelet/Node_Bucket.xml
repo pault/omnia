@@ -63,9 +63,10 @@ $str .= $query-&gt;submit( -name =&gt; &quot;bflush&quot;, -value =&gt; &quot;Dr
 
 $str .= &quot;&lt;/font&gt;\n&quot;;
 
+$str .= $query-&gt;end_form;
+
 $str;
 %]
-&lt;/form&gt;
 </field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>

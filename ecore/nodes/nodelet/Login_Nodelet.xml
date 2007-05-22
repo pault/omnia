@@ -38,18 +38,20 @@ $query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&qu
  &lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
-&lt;font size='2'&gt;
+&lt;span style=&quot;font-size: 75%&quot;&gt;
 [%
-$query-&gt;checkbox(&quot;expires&quot;, &quot;&quot;, &quot;+10y&quot;, &quot;save me a cookie&quot;) . 
-$query-&gt;submit(&quot;login&quot;, &quot;Login&quot;) .
-$query-&gt;end_form;
+$query-&gt;span( { -style =&gt; &quot;font-size: 75%&quot;}, 
+$query-&gt;checkbox(&quot;expires&quot;, &quot;&quot;, &quot;+10y&quot;, &quot;save me a cookie&quot;) . &quot;\n&quot; .
+$query-&gt;submit(&quot;login&quot;, &quot;Login&quot;) . &quot;\n&quot;) .
+$query-&gt;end_form . &quot;\n&quot;;
 %]
-&lt;p&gt;
+
+&lt;p style=&quot;font-size: 75%&quot;&gt;
 Don't have an account?&lt;br&gt;
 [% linkNodeTitle(&quot;Create a new user&quot;); %]&lt;br&gt;
 [% my $N=getNode(&quot;What is my password&quot;,'superdoc'); 
    linkNode($N,&quot;Forgot your password?&quot;); %]
-&lt;/font&gt;</field>
+&lt;/p&gt;</field>
   <field name="otheraccess" type="literal_value">-----</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Login Nodelet</field>
