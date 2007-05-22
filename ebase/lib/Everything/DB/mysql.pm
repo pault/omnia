@@ -426,4 +426,32 @@ sub lastValue
 	return $this->getDatabaseHandle()->last_insert_id(undef, undef, undef, undef);
 }
 
+
+
+=head2 C<get_create_table>
+
+Returns the create table statements of the tables whose names were passed as arguments
+
+Returns a list if there is more than one table or a string if there is only one.
+
+=cut
+
+sub get_create_table {
+
+    my ( $self, @tables ) = @_;
+
+    @tables = $self->list_tables unless @tables;
+    my @statements = ();
+    my $dbh = $self->{dbh};
+
+    foreach ( @tables ) {
+	my $sth = $dbh->prepare("show create table $_") || die $DBI::errstr;
+	$sth->execute;
+	my $result = $sth->fetchrow_hashref;
+	push @statements, $result->{'Create Table'};
+    }
+    return $statements[0] if @statements == 1;
+    return @statements;
+}
+
 1;

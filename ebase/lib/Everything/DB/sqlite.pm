@@ -390,6 +390,33 @@ sub list_tables
 	return @tables;
 }
 
+=head2 C<get_create_table>
+
+Returns the create table statements of the tables whose names were passed as arguments
+
+Returns a list if there is more than one table or a string if there is only one.
+
+=cut
+
+sub get_create_table {
+
+    my ( $self, @tables ) = @_;
+
+    my @statements = ();
+    my $dbh = $self->{dbh};
+
+    my $where = " where type = 'table'";
+    $where .= " and " . join ' or ', map { "name = '$_'" } @tables if @tables;
+    my $sth = $dbh->prepare( "select sql from sqlite_master" . $where) || die $DBI::errstr;
+    $sth->execute;
+    while (my $sql = $sth->fetchrow_arrayref) {
+	push @statements, @$sql;
+    }
+
+    return $statements[0] if @statements == 1;
+    return @statements;
+}
+
 sub now { return "datetime('now')" }
 
 sub timediff { "$_[1] - $_[2]" }

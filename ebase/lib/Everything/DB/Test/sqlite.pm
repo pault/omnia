@@ -417,4 +417,33 @@ sub test_timediff : Test(2) {
         '2 - 1', '... makes a string from the arguments.' );
 }
 
+sub test_get_create_table : Test(6) {
+    my $self = shift;
+
+    my $dbh = $self->{instance}->{dbh};
+    $dbh->clear;
+    my @returns = map { [ $_ ] } qw/one two three/;
+    $dbh->mock('fetchrow_arrayref' => sub { shift @returns });
+    my @create = $self->{instance}->get_create_table('atable');
+
+    my ($method, $args) = $self->{instance}->{dbh}->next_call;
+    is ($method, 'prepare', '...prepares statement');
+    is ($$args[1], "select sql from sqlite_master where type = 'table' and name = 'atable'", '...creates sql with one where');
+    is_deeply (\@create, [ qw/one two three/ ], '...and returns a list');
+
+    $dbh->clear;
+
+    @create = $self->{instance}->get_create_table('atable', 'btable', 'ctable');
+    ($method, $args) = $self->{instance}->{dbh}->next_call;
+    is ($method, 'prepare', '...prepares statement');
+    is ($$args[1], "select sql from sqlite_master where type = 'table' and name = 'atable' or name = 'btable' or name = 'ctable'", '...creates sql with three wheres');
+
+   $dbh->clear;
+
+    @create = $self->{instance}->get_create_table();
+    ($method, $args) = $self->{instance}->{dbh}->next_call;
+    is ($$args[1], "select sql from sqlite_master where type = 'table'", '...creates sql with no where');
+
+}
+
 1;

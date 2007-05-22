@@ -655,4 +655,95 @@ sub test_timediff : Test(0) {
     local $TODO = "Unimplemented";
 }
 
+
+sub test_get_create_table : Test(8) {
+    my $self = shift;
+
+    my $dbh = $self->{instance}->{dbh};
+    $dbh->clear;
+    my $var = 0;
+
+    my @returns;
+
+    my $renew_returns = sub {
+        @returns = ();
+        for ( 1 .. 3 ) {
+            push @returns,
+              {
+                field     => $_,
+                type      => $_,
+                notnull   => $_ % 3,
+                length    => $_,
+                lengthvar => $_,
+                attnum    => $_
+              };
+        }
+    };
+
+    $renew_returns->();
+
+    $dbh->mock( 'fetchrow_hashref' => sub { shift @returns } );
+
+    my @frar_returns = ( ["default value"] );
+    $dbh->mock( fetchrow_arrayref => sub { shift @frar_returns } );
+
+    my @create = $self->{instance}->get_create_table('atable');
+
+    my ( $method, $args ) = $dbh->next_call;
+    is( $method, 'prepare', '...prepares statement' );
+    is(
+        $$args[1],
+"SELECT a.attnum, a.attname AS field, t.typname as type, a.attlen AS length, a.atttypmod as lengthvar, a.attnotnull as notnull
+        FROM  pg_type t, pg_class c,
+        pg_attribute a
+
+        WHERE c.relname = ?
+            AND a.attnum > 0  
+            AND a.attrelid = c.oid  
+            AND a.atttypid = t.oid
+        ORDER BY a.attnum",
+        '...creates sql to retrieve attributes and data types.'
+    );
+    is_deeply(
+        \@create,
+        [
+            "CREATE TABLE \"atable\" (
+\t\"1\" 1 DEFAULT default value NOT NULL,
+\t\"2\" 2 NOT NULL,
+\t\"3\" 3
+);
+"
+        ],
+        '...and returns a list of create statements.'
+    );
+
+    $dbh->clear;
+
+    $renew_returns->();
+    @create =
+      $self->{instance}->get_create_table( 'btable', 'atable', 'ctable' );
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call;
+    is( $method, 'prepare', '...prepares statement' );
+    like( $$args[1], qr/pg_class/, '...creates sql.' );
+    is( scalar @create, 3, '...and returns a list' );
+
+    $dbh->clear;
+    my @list = qw/ atable btable /;
+    $self->{instance}->{dbh}->mock(
+        'fetchrow',
+        sub {
+            my $r = shift @list;
+            return () unless $r;
+            return ($r);
+        }
+    );
+
+    $renew_returns->();
+
+    @create = $self->{instance}->get_create_table();
+    like( $create[1], qr/CREATE TABLE "btable"/, '...returns all tables.' );
+    like( $create[0], qr/CREATE TABLE "atable"/, '...returns all tables.' );
+
+}
+
 1;

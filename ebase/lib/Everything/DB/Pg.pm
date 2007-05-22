@@ -429,4 +429,187 @@ sub _quoteData {
 
 }
 
+
+=head2 C<get_create_table>
+
+Returns the create table statements of the tables whose names were passed as arguments
+
+Returns a list if there is more than one table or a string if there is only one.
+
+=cut
+
+### Here we build the create statement manually.  It should be OK with
+### the the current everything.  However, it doesn't work if we start
+### using other features, such as foreign key constraints.
+
+## The code below has been copied from some php code found here
+## http://www.phpbbstyles.com/viewtopic.php?p=69590&highlight= That
+## code is a bit broken as it uses pg_relcheck, which is not current.
+## CHECK constraints are now handled by pg_constraint.  Which is what
+## we'd use if we were going to beef up this method.
+
+sub get_create_table {
+
+    my ( $self, @tables ) = @_;
+
+    @tables = $self->list_tables unless @tables;
+    my %table_def;
+    my $dbh = $self->{dbh};
+
+    foreach (@tables) {
+
+        my $column_def = '';
+        ## First get columns:
+
+        my $sth = $dbh->prepare(
+'SELECT a.attnum, a.attname AS field, t.typname as type, a.attlen AS length, a.atttypmod as lengthvar, a.attnotnull as notnull
+        FROM  pg_type t, pg_class c,
+        pg_attribute a
+
+        WHERE c.relname = ?
+            AND a.attnum > 0  
+            AND a.attrelid = c.oid  
+            AND a.atttypid = t.oid
+        ORDER BY a.attnum'
+        )                 || die $DBI::errstr;
+        $sth->execute($_) || die $DBI::errstr;
+
+        my @col_def;
+        while ( my $result = $sth->fetchrow_hashref ) {
+
+            push @col_def,
+              {
+                field     => $$result{'field'},
+                data_type => $$result{'type'},
+                notnull   => $$result{'notnull'},
+                length    => $$result{'length'},
+                lengthvar => $$result{'lengthvar'},
+                attnum    => $$result{attnum}
+              };
+
+        }
+        $table_def{$_} = \@col_def;
+
+    }
+
+    ### Now get default values someone who is better at SQL than I
+    ### could do this in one statement with a proper use of LEFT JOIN
+    ### or UNION or something clever
+
+    my $sth = $dbh->prepare(
+        "SELECT d.adsrc AS rowdefault  
+            FROM pg_attrdef d, pg_class c  
+            WHERE (c.relname = ? )  
+                AND (c.oid = d.adrelid)  
+                AND d.adnum = ? "
+    ) || die $DBI::errstr;
+
+    foreach my $table_name ( keys %table_def ) {
+        foreach my $column ( @{ $table_def{$table_name} } ) {
+
+            $sth->execute( $table_name, $column->{attnum} ) || die $DBI::errstr;
+
+            while ( my $result = $sth->fetchrow_arrayref ) {
+                $column->{default} = $$result[0];
+            }
+
+        }
+
+    }
+
+    my @statements;
+    foreach my $table_name ( keys %table_def ) {
+        my $statement = "CREATE TABLE \"$table_name\" (\n";
+
+        my @col_defs;
+        foreach my $col ( @{ $table_def{$table_name} } ) {
+
+            my $col_name  = $col->{field};
+            my $data_type = $col->{'data_type'};
+            my $data_len  = $col->{'length'};
+            my $default   = $col->{'default'};
+            my $lengthvar = $col->{'lengthvar'};
+
+            if ( $data_type eq 'bpchar' ) {
+                $data_type = 'char(' . ( $lengthvar - 4 ) . ')';
+            }
+
+            if ( $data_type eq 'int8' ) {
+                $data_type = 'bigint';
+            }
+
+            if ( $data_type eq 'int4' ) {
+                $data_type = 'integer';
+            }
+
+            if ( $default && $default =~ /nextval/ ) {
+                undef $default;
+                $data_type = 'serial';
+            }
+
+            $default =~ s/::(.*)$// if $default;
+
+            my $statement = "\t\"$col_name\" $data_type";
+            $statement .= " DEFAULT $default" if $default;
+            $statement .= ' NOT NULL'         if $col->{'notnull'};
+            push @col_defs, $statement;
+        }
+
+        ## find keys
+
+        my $sth = $dbh->prepare(
+"SELECT ic.relname AS index_name, bc.relname AS tab_name, ta.attname AS column_name, i.indisunique AS unique_key, i.indisprimary AS primary_key  
+        FROM pg_class bc, pg_class ic, pg_index i, pg_attribute ta, pg_attribute ia  
+        WHERE (bc.oid = i.indrelid)  
+            AND (ic.oid = i.indexrelid)  
+            AND (ia.attrelid = i.indexrelid)  
+            AND    (ta.attrelid = bc.oid)  
+            AND (bc.relname = ?)  
+            AND (ta.attrelid = i.indrelid)  
+            AND (ta.attnum = i.indkey[ia.attnum-1])  
+        ORDER BY index_name, tab_name, column_name"
+        ) || die $DBI::errstr;
+
+        $sth->execute($table_name);
+
+        my %indices;
+        while ( my $result = $sth->fetchrow_hashref ) {
+
+            if ( $result->{primary_key} ) {
+                push @col_defs, "\tPRIMARY KEY (\"$$result{column_name}\")";
+            }
+            else {
+                if ( exists $indices{ $$result{index_name} } ) {
+                    push @{ $indices{ $$result{index_name} }->{column_name} },
+                      $$result{column_name};
+                }
+                else {
+                    $indices{ $$result{index_name} } = {
+                        unique => $$result{unique_key} ? ' UNIQUE' : '',
+                        column_name => [ $$result{column_name} ],
+                        table_name  => $$result{tab_name}
+                    };
+                }
+
+            }
+        }
+
+        $statement .= join ",\n", @col_defs;
+        $statement .= "\n);\n";
+        push @statements, $statement;
+
+        foreach ( keys %indices ) {
+            my %index = %{ $indices{$_} };
+            push @statements,
+              "CREATE$index{unique} INDEX \"$_\" ON \"$index{table_name}\" ("
+              . join( ', ', map { '"' . $_ . '"' } @{ $index{column_name} } )
+              . ");\n";
+        }
+
+    }
+    return $statements[0] if @statements == 1;
+    return @statements;
+}
+
+
 1;

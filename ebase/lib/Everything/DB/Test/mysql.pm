@@ -402,4 +402,48 @@ sub test_timediff : Test(2) {
         '2 - 1', '... makes a string from the arguments.' );
 }
 
+
+sub test_get_create_table : Test(7) {
+    my $self = shift;
+
+    my $dbh = $self->{instance}->{dbh};
+    $dbh->clear;
+    my @returns = map { { 'Create Table' => $_ } } qw/one two three/;
+    $dbh->mock( 'fetchrow_hashref' => sub { shift @returns } );
+    my @create = $self->{instance}->get_create_table('atable');
+
+    my ( $method, $args ) = $self->{instance}->{dbh}->next_call;
+    is( $method, 'prepare', '...prepares statement' );
+    is( $$args[1], "show create table atable",
+        '...creates one sql statement/' );
+    is_deeply( \@create, [qw/one/], '...and returns a list' );
+
+    $dbh->clear;
+
+    @returns = map { { 'Create Table' => $_ } } qw/one two three/;
+    @create =
+      $self->{instance}->get_create_table( 'btable', 'atable', 'ctable' );
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call;
+    is( $method, 'prepare', '...prepares statement' );
+    is( $$args[1], "show create table btable", '...creates sql.' );
+    is_deeply( \@create, [qw/one two three/], '...and returns a list' );
+
+    $dbh->clear;
+    my @list = qw/ atable btable /;
+    $self->{instance}->{dbh}->mock(
+        'fetchrow',
+        sub {
+            my $r = shift @list;
+            return () unless $r;
+            return ($r);
+        }
+    );
+
+    @returns = map { { 'Create Table' => $_ } } qw/one two/;
+    @create = $self->{instance}->get_create_table();
+    is_deeply( \@create, [qw/ one two /], '...returns all tables.' );
+
+}
+
+
 1;
