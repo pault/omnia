@@ -15,19 +15,13 @@
 my $time = 3 * 60;
 my $limit = 30;
 
-my $csr=$DB-&gt;getDatabaseHandle()-&gt;prepare(&quot;	
-	SELECT node_id, title FROM node, user
-	WHERE node_id=user_id and
-	type_nodetype=&quot;. getId ($DB-&gt;getType('user')) .&quot; and
-	(UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(lasttime) &lt; $time)
-	LIMIT $limit&quot;);
+my $users = $DB->getNodeWhere(&quot;(&quot; . $DB->timediff( $DB->now(), 'lasttime' ) . &quot; &lt; $time)&quot;, &quot;user&quot;, &quot;node_id&quot;, $limit);
 
-$csr-&gt;execute or return &quot;SHIT&quot;;
 my $str;
-while(my $U = $csr-&gt;fetchrow_hashref) {
+foreach my $U (@$users) {
 	$str .= linkNode($U, &quot;&lt;font size=1 color=#FFFFFF&gt; $$U{title} \;&lt;/font&gt;&quot;);
 }
-$csr-&gt;finish;
+
 return $str if $str;
 &quot;&lt;i&gt;no users logged in&lt;/i&gt;&quot;;
 %] </field>
