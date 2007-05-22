@@ -2,12 +2,12 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
- my $str="";
+ my $str=&quot;&quot;;
  my $arr = getNodeWhere({}, getType('setting'));
  my @arrsort = sort {$$a{title} cmp $$b{title}} @$arr;
  foreach (@arrsort)
   { 
-    $str.= linkNode($_)."&lt;br>";
+    $str.= linkNode($_).&quot;&lt;br&gt;&quot;;
   } 
  if (getNode('hintlaunch settings', 'restricted_superdoc'))
  {
@@ -15,40 +15,40 @@
  }
 $str;
 %][typeversion controls]
-&lt;p>
-&lt;hr width=90% align=center>
-&lt;h3>Theme Nodes:&lt;/h3>
+&lt;p&gt;
+&lt;hr width=90% align=center&gt;
+&lt;h3&gt;Theme Nodes:&lt;/h3&gt;
 [%
   my $str;
-  my $themes = getNodeWhere({type_nodetype=>[getType('theme'), getType('themesetting')]});
+  my $themes = getNodeWhere({type_nodetype=&gt;[getType('theme'), getType('themesetting')]});
   my @themesort = sort {$$a{title} cmp $$b{title}} @$themes;
 
   foreach (@themesort){
-    $str.=linkNode($_)."&lt;br>";
+    $str.=linkNode($_).&quot;&lt;br&gt;&quot;;
   }
   $str;
 %]
-&lt;p>
+&lt;p&gt;
 [{openform}]
 
-&lt;b>Warning!&lt;/b> If you turn off these things for the guest user you
-will have to type "&lt;code>index.pl?node=login&lt;/code>" in the URL to 
-get to the login screen!&lt;p>
+&lt;b&gt;Warning!&lt;/b&gt; If you turn off these things for the guest user you
+will have to type &quot;&lt;code&gt;index.pl?node=login&lt;/code&gt;&quot; in the URL to 
+get to the login screen!&lt;p&gt;
 
-&lt;table border=0>
-&lt;tr>
- &lt;td>Guest user sees nodelets:&lt;/td>
- &lt;td>[{settingradio:system settings,GUshownodelets}]&lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td>Guest user sees searchform:&lt;/td>
- &lt;td>[{settingradio:system settings,GUshowsearchform}]&lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td>Display Location:&lt;/td>
- &lt;td>[{settingradio:system settings,showlocations}]&lt;/td>
-&lt;/tr>
-&lt;/table>
+&lt;table border=0&gt;
+&lt;tr&gt;
+ &lt;td&gt;Guest user sees nodelets:&lt;/td&gt;
+ &lt;td&gt;[{settingradio:system settings,GUshownodelets}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;Guest user sees searchform:&lt;/td&gt;
+ &lt;td&gt;[{settingradio:system settings,GUshowsearchform}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;Display Location:&lt;/td&gt;
+ &lt;td&gt;[{settingradio:system settings,showlocations}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
 
 [{closeform}]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

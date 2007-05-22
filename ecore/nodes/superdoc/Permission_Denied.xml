@@ -4,7 +4,7 @@
   <field name="doctext" type="literal_value">[%
 my $deniedMsg = $GLOBAL{permissionDenied};
 
-$deniedMsg ||= "You do not have access to that node. &lt;p>Tough beans.";
+$deniedMsg ||= &quot;You do not have access to that node. &lt;p&gt;Tough beans.&quot;;
 
 return $deniedMsg;
 %]</field>

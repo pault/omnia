@@ -3,134 +3,134 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">[%
 # Set up color stuff for this page
-$GLOBAL{permColorLite} = "#cccccc";
+$GLOBAL{permColorLite} = &quot;#cccccc&quot;;
 $GLOBAL{permColorLite} = $$THEME{permColorLite}
     if(exists $$THEME{permColorLite});
-$GLOBAL{permColorDark} = "#999999";
+$GLOBAL{permColorDark} = &quot;#999999&quot;;
 $GLOBAL{permColorDark} = $$THEME{permColorDark}
     if(exists $$THEME{permColorDark});
 %]
-&lt;table cellspacing=1 border=0>
- &lt;tr>
-  &lt;td>&amp;nbsp;&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>Read&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>Write&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>Execute&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>Delete&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>Parent Settings&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>Dynamic&lt;td>
- &lt;/tr>
- &lt;tr>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>author&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, authoraccess, authorr, r}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, authoraccess, authorw, w}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, authoraccess, authorx, x}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, authoraccess, authord, d}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:author}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
+&lt;table cellspacing=1 border=0&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&amp;nbsp;&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Read&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Write&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Execute&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Delete&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Parent Settings&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;Dynamic&lt;td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;author&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, authoraccess, authorr, r}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, authoraccess, authorw, w}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, authoraccess, authorx, x}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, authoraccess, authord, d}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;[{displayInheritedPermissions:author}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
 [%
 my $inherit = $$NODE{type}{derived_defaultauthor_permission};
-my $inherittxt = "None";
-if($inherit &amp;&amp; $inherit > 0)
+my $inherittxt = &quot;None&quot;;
+if($inherit &amp;&amp; $inherit &gt; 0)
 {
-   my $N = $DB->getNode($inherit);
+   my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
 nodeFormObject('TypeMenu', 'dynamicauthor_permission', 'authorperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
-  &lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td nowrap bgcolor='["$GLOBAL{permColorLite}"]'>group
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td nowrap bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;group
 [%
 my $defgroup = getNode($$NODE{type}{derived_defaultgroup_usergroup});
-my $menu = newFormObject("PopupMenu");
+my $menu = newFormObject(&quot;PopupMenu&quot;);
 
-$menu->addHash({ "inherit ($$defgroup{title})" => -1 }, 1);
-$menu->addHash({ "None" => 0 }, 1);
-$menu->addType("usergroup", $USER, 'w', 'labels');
-$menu->genObject($query, $NODE, "group_usergroup", "usergroup");
-%]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, groupaccess, groupr, r}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, groupaccess, groupw, w}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, groupaccess, groupx, x}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, groupaccess, groupd, d}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:group,}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
+$menu-&gt;addHash({ &quot;inherit ($$defgroup{title})&quot; =&gt; -1 }, 1);
+$menu-&gt;addHash({ &quot;None&quot; =&gt; 0 }, 1);
+$menu-&gt;addType(&quot;usergroup&quot;, $USER, 'w', 'labels');
+$menu-&gt;genObject($query, $NODE, &quot;group_usergroup&quot;, &quot;usergroup&quot;);
+%]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, groupaccess, groupr, r}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, groupaccess, groupw, w}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, groupaccess, groupx, x}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, groupaccess, groupd, d}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;[{displayInheritedPermissions:group,}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
 [%
 my $inherit = $$NODE{type}{derived_defaultgroup_permission};
-my $inherittxt = "None";
-if($inherit &amp;&amp; $inherit > 0)
+my $inherittxt = &quot;None&quot;;
+if($inherit &amp;&amp; $inherit &gt; 0)
 {
-   my $N = $DB->getNode($inherit);
+   my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
 nodeFormObject('TypeMenu', 'dynamicgroup_permission', 'groupperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
- &lt;/td>
- &lt;/tr>
+ &lt;/td&gt;
+ &lt;/tr&gt;
 
- &lt;tr>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>other&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, otheraccess, otherr, r}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, otheraccess, otherw, w}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, otheraccess, otherx, x}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, otheraccess, otherd, d}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:other}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
+ &lt;tr&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;other&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, otheraccess, otherr, r}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, otheraccess, otherw, w}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, otheraccess, otherx, x}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, otheraccess, otherd, d}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;[{displayInheritedPermissions:other}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
 [%
 my $inherit = $$NODE{type}{derived_defaultother_permission};
-my $inherittxt = "None";
-if($inherit &amp;&amp; $inherit > 0)
+my $inherittxt = &quot;None&quot;;
+if($inherit &amp;&amp; $inherit &gt; 0)
 {
-   my $N = $DB->getNode($inherit);
+   my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
 nodeFormObject('TypeMenu', 'dynamicother_permission', 'otherperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
-  &lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td bgcolor='["$GLOBAL{permColorLite}"]'>guest&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, guestaccess, guestr, r}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, guestaccess, guestw, w}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, guestaccess, guestx, x}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
-    [{nodeFormObject: PermissionMenu, guestaccess, guestd, d}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>[{displayInheritedPermissions:guest}]&lt;/td>
-  &lt;td bgcolor='["$GLOBAL{permColorDark}"]'>
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorLite}&quot;]'&gt;guest&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, guestaccess, guestr, r}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, guestaccess, guestw, w}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, guestaccess, guestx, x}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
+    [{nodeFormObject: PermissionMenu, guestaccess, guestd, d}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;[{displayInheritedPermissions:guest}]&lt;/td&gt;
+  &lt;td bgcolor='[&quot;$GLOBAL{permColorDark}&quot;]'&gt;
 [%
 my $inherit = $$NODE{type}{derived_defaultguest_permission};
-my $inherittxt = "None";
-if($inherit &amp;&amp; $inherit > 0)
+my $inherittxt = &quot;None&quot;;
+if($inherit &amp;&amp; $inherit &gt; 0)
 {
-   my $N = $DB->getNode($inherit);
+   my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
 nodeFormObject('TypeMenu', 'dynamicguest_permission', 'guestperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 %]
-  &lt;/td>
- &lt;/tr>
-&lt;/table>
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

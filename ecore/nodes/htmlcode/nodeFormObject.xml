@@ -4,10 +4,10 @@
   <field name="code" type="literal_value">my $objectType = shift @_;
 my $formObject = newFormObject($objectType);
 
-return "" unless($formObject);
+return &quot;&quot; unless($formObject);
 
 unshift @_, ($query, $NODE);
-return $formObject->genObject(@_); </field>
+return $formObject-&gt;genObject(@_); </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

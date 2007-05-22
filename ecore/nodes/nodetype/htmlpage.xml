@@ -29,4 +29,3 @@
   <field name="title" type="literal_value">htmlpage</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
 </NODE>
-

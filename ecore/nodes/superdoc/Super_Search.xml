@@ -374,4 +374,3 @@ $str;
   <field name="title" type="literal_value">Super Search</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
 </NODE>
-

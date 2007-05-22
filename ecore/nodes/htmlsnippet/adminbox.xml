@@ -8,116 +8,116 @@ includeJS('cloneNode', 'confirmDelete');
 
 # This provides links to display, edit, clone, or delete 
 # the current node if the user has the authority to do so.  
-my $disp = $query->param("displaytype");
-$disp ||= "display";
+my $disp = $query-&gt;param(&quot;displaytype&quot;);
+$disp ||= &quot;display&quot;;
 
 $GLOBAL{adminboxLinks} = {};
 
 # If you want to have other default display links in the
 # adminbar, add them to this array.
-my @displaytypes = ("display", "edit", "permissions" );
+my @displaytypes = (&quot;display&quot;, &quot;edit&quot;, &quot;permissions&quot; );
 
 foreach my $type (@displaytypes)
 {
   if ($disp eq $type)
   {
     $GLOBAL{adminboxLinks}{$type} = 
-      "&lt;img src=images/icon_".$type."_current.gif alt=".$type." border=0>";
+      &quot;&lt;img src=images/icon_&quot;.$type.&quot;_current.gif alt=&quot;.$type.&quot; border=0&gt;&quot;;
   } 
   else
   {
     $GLOBAL{adminboxLinks}{$type} =  linkNode ($NODE,
-      "&lt;img src=images/icon_".$type.".gif  alt=".$type." border=0>", 
-      {displaytype => $type}) . " ";
+      &quot;&lt;img src=images/icon_&quot;.$type.&quot;.gif  alt=&quot;.$type.&quot; border=0&gt;&quot;, 
+      {displaytype =&gt; $type}) . &quot; &quot;;
   }
 }
 
 # Now theme stuff
 $GLOBAL{adminboxBG} = $$THEME{adminboxBG};
-$GLOBAL{adminboxBG} ||= "#ffffff";
+$GLOBAL{adminboxBG} ||= &quot;#ffffff&quot;;
 $GLOBAL{adminboxLite} = $$THEME{adminboxLite};
-$GLOBAL{adminboxLite} ||= "#ffcccc";
+$GLOBAL{adminboxLite} ||= &quot;#ffcccc&quot;;
 $GLOBAL{adminboxDark} = $$THEME{adminboxDark};
-$GLOBAL{adminboxDark} ||= "#ff9999";
-"";
+$GLOBAL{adminboxDark} ||= &quot;#ff9999&quot;;
+&quot;&quot;;
 %]
 
-&lt;table width=100% border=0 cellpadding=3 bgcolor=["$GLOBAL{adminboxBG}"] cellspacing=1>
-  &lt;tr bgcolor=["$GLOBAL{adminboxBG}"]> 
-    &lt;td bgcolor='["$GLOBAL{adminboxLite}"]' align='center'>
-      ["$GLOBAL{adminboxLinks}{display}"]
-    &lt;/td>
-    &lt;td bgcolor='["$GLOBAL{adminboxDark}"]' align='center'>
-      ["$GLOBAL{adminboxLinks}{edit}"]
-    &lt;/td>
-    &lt;td bgcolor='["$GLOBAL{adminboxLite}"]' align='center'>
-      ["$GLOBAL{adminboxLinks}{permissions}"]
-    &lt;/td>
-  &lt;/tr>
-  &lt;tr>
-    &lt;td bgcolor='["$GLOBAL{adminboxDark}"]' align='center'>
-      &lt;a href='javascript: cloneNode();'>
-       &lt;img src=images/icon_clone.gif alt=clone border=0>&lt;/a>
-    &lt;/td>
-    &lt;td bgcolor='["$GLOBAL{adminboxLite}"]' align=center>
+&lt;table width=100% border=0 cellpadding=3 bgcolor=[&quot;$GLOBAL{adminboxBG}&quot;] cellspacing=1&gt;
+  &lt;tr bgcolor=[&quot;$GLOBAL{adminboxBG}&quot;]&gt; 
+    &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align='center'&gt;
+      [&quot;$GLOBAL{adminboxLinks}{display}&quot;]
+    &lt;/td&gt;
+    &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align='center'&gt;
+      [&quot;$GLOBAL{adminboxLinks}{edit}&quot;]
+    &lt;/td&gt;
+    &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align='center'&gt;
+      [&quot;$GLOBAL{adminboxLinks}{permissions}&quot;]
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align='center'&gt;
+      &lt;a href='javascript: cloneNode();'&gt;
+       &lt;img src=images/icon_clone.gif alt=clone border=0&gt;&lt;/a&gt;
+    &lt;/td&gt;
+    &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align=center&gt;
       [% clonetotype() %]
-    &lt;/td>
-   &lt;td bgcolor='["$GLOBAL{adminboxDark}"]' align=center>
+    &lt;/td&gt;
+   &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align=center&gt;
 [%
 my $str;
-if($NODE->hasAccess($USER, "d"))
+if($NODE-&gt;hasAccess($USER, &quot;d&quot;))
 {
-  $str .= "&lt;a href='javascript: confirmDelete();'>";
-  $str .= "&lt;img src='images/icon_delete.gif' alt='delete' border=0>&lt;/a>";
+  $str .= &quot;&lt;a href='javascript: confirmDelete();'&gt;&quot;;
+  $str .= &quot;&lt;img src='images/icon_delete.gif' alt='delete' border=0&gt;&lt;/a&gt;&quot;;
 }
 else
 {
-  $str .= "&amp;nbsp;";
+  $str .= &quot;&amp;nbsp;&quot;;
 }
 $str; %]
-    &lt;/td>
-  &lt;/tr>
+    &lt;/td&gt;
+  &lt;/tr&gt;
 [%
 #another row for undo/delete
 my $workspace = 0;
-my $disp = $query->param('displaytype');
+my $disp = $query-&gt;param('displaytype');
 $disp ||= 'display';
 my $str;
 
 if ($$NODE{type}{maxrevisions})
 {
-  my $undo = $NODE->undo($USER, 0, 'test');
-  my $redo = $NODE->undo($USER, 1, 'test'); 
+  my $undo = $NODE-&gt;undo($USER, 0, 'test');
+  my $redo = $NODE-&gt;undo($USER, 1, 'test'); 
 
   if ($undo or $redo)
   {
-    $str.="&lt;tr>&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center>";
+    $str.=&quot;&lt;tr&gt;&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center&gt;&quot;;
     if ($undo) {
       $str.=linkNode($NODE,
-        "&lt;IMG src=images/icon_undo.gif alt=\"undo\" border=0>",
-        { op => 'undo', displaytype => $disp });
+        &quot;&lt;IMG src=images/icon_undo.gif alt=\&quot;undo\&quot; border=0&gt;&quot;,
+        { op =&gt; 'undo', displaytype =&gt; $disp });
     } else {
-      $str.="&amp;nbsp;";
+      $str.=&quot;&amp;nbsp;&quot;;
     }
 
-    $str.="&lt;/td>&lt;td bgcolor='$GLOBAL{adminboxDark}' align=center>";
+    $str.=&quot;&lt;/td&gt;&lt;td bgcolor='$GLOBAL{adminboxDark}' align=center&gt;&quot;;
 
     if ($redo) {
        $str.=linkNode($NODE,
-         "&lt;IMG src=images/icon_redo.gif alt=\"undo\" border=0>",
-         { op => 'redo', displaytype => $disp });
+         &quot;&lt;IMG src=images/icon_redo.gif alt=\&quot;undo\&quot; border=0&gt;&quot;,
+         { op =&gt; 'redo', displaytype =&gt; $disp });
     } else {
-      $str.="&amp;nbsp;";
+      $str.=&quot;&amp;nbsp;&quot;;
     }
   
-   $str.="&lt;/td>&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center>&amp;nbsp;&lt;/td>&lt;/tr>";
+   $str.=&quot;&lt;/td&gt;&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center&gt;&amp;nbsp;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
   }
 }
 
 $str;
 %]
-&lt;/table></field>
+&lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

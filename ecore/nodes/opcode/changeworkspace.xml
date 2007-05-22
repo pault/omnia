@@ -1,18 +1,18 @@
 <NODE export_version="0.5" nodetype="opcode" title="changeworkspace">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $N = $query->param('node_id');
+  <field name="code" type="literal_value">my $N = $query-&gt;param('node_id');
 return unless $N;
 $N = getNode $N;
-return unless $$N{type}{title} eq 'workspace' and $N->hasAccess($USER, 'x');
+return unless $$N{type}{title} eq 'workspace' and $N-&gt;hasAccess($USER, 'x');
 
-if (my $tf = $query->param('workspace_me')) {
+if (my $tf = $query-&gt;param('workspace_me')) {
   if ($tf eq 'true') {
     $$USER{inside_workspace} = $$N{node_id};
    } elsif ($tf eq 'false') {
     $$USER{inside_workspace} = 0;
    }
-   $USER->update($USER);
+   $USER-&gt;update($USER);
 }
 1;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="htmlcode" title="setvar">	
+<NODE export_version="0.5" nodetype="htmlcode" title="setvar">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($var, $len) = @_;
@@ -21,4 +21,3 @@ $query-&gt;textfield(&quot;set$var&quot;, $$VARS{$var}, $len);</field>
   <field name="title" type="literal_value">setvar</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>
-

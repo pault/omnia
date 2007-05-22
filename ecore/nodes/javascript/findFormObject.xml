@@ -17,7 +17,7 @@
     }
   }
 
-  alert("Could not find form object '" + name + "'!");
+  alert(&quot;Could not find form object '&quot; + name + &quot;'!&quot;);
   return null;
 }
 </field>

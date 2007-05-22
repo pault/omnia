@@ -2,13 +2,13 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"># This is used to update the permissions fields for nodes
-# and the "default" permissions fields on a nodetype.  If
+# and the &quot;default&quot; permissions fields on a nodetype.  If
 # this for a nodetype (default permissions) pass 1 (true)
 # to this code.
 
 my ($forType) = @_;
-my @who = ( "author", "group", "other", "guest" );
-my @what = ( "read", "write", "exec", "delete", "create" );
+my @who = ( &quot;author&quot;, &quot;group&quot;, &quot;other&quot;, &quot;guest&quot; );
+my @what = ( &quot;read&quot;, &quot;write&quot;, &quot;exec&quot;, &quot;delete&quot;, &quot;create&quot; );
 my $item;
 my $perms;
 my $perm;
@@ -19,19 +19,19 @@ my $found;
 
 foreach my $user (@who)
 {
-  $perms = "";
+  $perms = &quot;&quot;;
   $found = 0;
 
   foreach my $access (@what)
   {
     # We need to append a default 'i' for the create flag for non-type nodes 
-	$perms .= "i", next
-      if (($access eq "create") and ($user ne "author") and (!$forType));
+	$perms .= &quot;i&quot;, next
+      if (($access eq &quot;create&quot;) and ($user ne &quot;author&quot;) and (!$forType));
 	  
-    $item = "$user" . "_" . $access;
-    $item = "default_" . $item if($forType);
+    $item = &quot;$user&quot; . &quot;_&quot; . $access;
+    $item = &quot;default_&quot; . $item if($forType);
 
-    if($perm = $query->param($item))
+    if($perm = $query-&gt;param($item))
     {
       $perms .= $perm;
       $gfound = 1;
@@ -39,15 +39,15 @@ foreach my $user (@who)
     }
   }
 
-  $field = $user . "access";
-  $field = "default" . $field if($forType);
+  $field = $user . &quot;access&quot;;
+  $field = &quot;default&quot; . $field if($forType);
 
   $$NODE{$field} = $perms if($found);
 }
 
-$NODE->update($USER) if($gfound);
+$NODE-&gt;update($USER) if($gfound);
 
-""; # don't return anything</field>
+&quot;&quot;; # don't return anything</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

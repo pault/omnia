@@ -1,11 +1,11 @@
 <NODE export_version="0.5" nodetype="container" title="show container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 width=100%>&lt;tr>&lt;td bgcolor="[%
+  <field name="context" type="literal_value">&lt;table border=0 width=100%&gt;&lt;tr&gt;&lt;td bgcolor=&quot;[%
 my $color = $$THEME{showContainerColor};
-$color ||= "#cc99ff";
-$color;%]">
-&amp;lt;[% linkNode($GLOBAL{debugContainer}); %]&amp;gt;&lt;/td>&lt;/tr>&lt;/table>
+$color ||= &quot;#cc99ff&quot;;
+$color;%]&quot;&gt;
+&amp;lt;[% linkNode($GLOBAL{debugContainer}); %]&amp;gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 CONTAINED_STUFF</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

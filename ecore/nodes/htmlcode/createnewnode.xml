@@ -2,18 +2,18 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $str;
-my $title = $query->param('node');
-return "" unless $title;
+my $title = $query-&gt;param('node');
+return &quot;&quot; unless $title;
 
-$str .= "&lt;p>you could create a new \"$title\" node as type:";
+$str .= &quot;&lt;p&gt;you could create a new \&quot;$title\&quot; node as type:&quot;;
 
 my $SET=getNode('createnewnode settings','setting');
 my $MENU;
-$MENU = $SET->getVars() if $SET;
+$MENU = $SET-&gt;getVars() if $SET;
   my @aprtypes;
   my %approvedtypes;
-  foreach my $NODETYPE ($DB->getAllTypes()) {
-    if ($NODETYPE->hasTypeAccess($USER, "c")) {
+  foreach my $NODETYPE ($DB-&gt;getAllTypes()) {
+    if ($NODETYPE-&gt;hasTypeAccess($USER, &quot;c&quot;)) {
 		$approvedtypes{$$NODETYPE{title}} = $NODETYPE;
     }
   }
@@ -23,7 +23,7 @@ $MENU = $SET->getVars() if $SET;
   @aprtypes = sort {$a cmp $b} keys(%approvedtypes);
 if (not $MENU) {
   foreach my $type (@aprtypes) {
-	$str .= "&lt;LI>&lt;A href=" . urlGen ({node => $title, type => $type, op => 'new'}) .">$type&lt;/A>\n";
+	$str .= &quot;&lt;LI&gt;&lt;A href=&quot; . urlGen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) .&quot;&gt;$type&lt;/A&gt;\n&quot;;
   }
   return $str;
 } 
@@ -40,7 +40,7 @@ foreach my $m (keys %$MENU) {
     if ($derive) {
       foreach my $type (@aprtypes) {
         my $T = $approvedtypes{$type};
-        if (not exists $sections{$$T{node_id}} and $T->derivesFrom($NT)) {
+        if (not exists $sections{$$T{node_id}} and $T-&gt;derivesFrom($NT)) {
           $sections{$$T{node_id}} = $m;
         }
       }
@@ -62,24 +62,24 @@ delete $aprmenu{supress};  #we don't show these
 
 my $cols = 2;
 my $numsections = int keys %aprmenu;
-$cols = 3 if ($numsections > 5 or not $numsections%3);
+$cols = 3 if ($numsections &gt; 5 or not $numsections%3);
 
 my $count = 0;
-$str.="&lt;table width=100% border=1 cellpadding=2 cellspacing=0>";
+$str.=&quot;&lt;table width=100% border=1 cellpadding=2 cellspacing=0&gt;&quot;;
 
-my $width = int(100/$cols) . "%";
+my $width = int(100/$cols) . &quot;%&quot;;
 foreach (sort keys %aprmenu) {
-  $str.="&lt;TR>" unless $count % $cols;
+  $str.=&quot;&lt;TR&gt;&quot; unless $count % $cols;
 
-  $str.="&lt;td valign=top width=$width>&lt;b>$_&lt;/b>";
+  $str.=&quot;&lt;td valign=top width=$width&gt;&lt;b&gt;$_&lt;/b&gt;&quot;;
   foreach (sort @{ $aprmenu{$_} }) {
-    $str.="&lt;li>&lt;A href=" . urlGen ({node => $title, type => $$_{title} , op => 'new'}) .">$$_{title}&lt;/A>\n";
+    $str.=&quot;&lt;li&gt;&lt;A href=&quot; . urlGen ({node =&gt; $title, type =&gt; $$_{title} , op =&gt; 'new'}) .&quot;&gt;$$_{title}&lt;/A&gt;\n&quot;;
   }
-  $str.="&lt;/td>";
-  $str.="&lt;/TR>" unless ($count % $cols) + 1 - $cols;
+  $str.=&quot;&lt;/td&gt;&quot;;
+  $str.=&quot;&lt;/TR&gt;&quot; unless ($count % $cols) + 1 - $cols;
   $count++;
 }
-$str.="&lt;/table>";
+$str.=&quot;&lt;/table&gt;&quot;;
 $str;	
 
 </field>

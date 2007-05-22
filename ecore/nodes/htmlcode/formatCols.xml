@@ -3,13 +3,13 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"># Given an array ref and the number of columns, this will return a table
 # with the contents of the array formatted into a table of with the specified
-# number of columns.  This is similar to the &lt;multicol> tag that netscape has,
+# number of columns.  This is similar to the &lt;multicol&gt; tag that netscape has,
 # but will work on all browsers.
 
 my ($array, $numcols, $vert, $tableprops) = @_;
 $vert = 1 unless(defined $vert);
 $numcols ||= 3;
-$tableprops ||= "border=0";
+$tableprops ||= &quot;border=0&quot;;
 
 my $num = int(@$array);
 my @stuff;
@@ -30,10 +30,10 @@ if($vert)
     for(my $j = 0; $j &lt; $collength; $j++)
     {
       my $index = $i + ($numcols * $j);
-      return "something already here! $i,$j\n" if(exists $check{$index});
+      return &quot;something already here! $i,$j\n&quot; if(exists $check{$index});
       $check{$index} = 1;
       $sorted[$index] = shift @stuff;
-      $sorted[$index] ||= "&amp;nbsp;";
+      $sorted[$index] ||= &quot;&amp;nbsp;&quot;;
     }
   }
 
@@ -41,22 +41,22 @@ if($vert)
   push @stuff, @sorted;
 }
 
-my $str .= "&lt;table $tableprops>\n";
+my $str .= &quot;&lt;table $tableprops&gt;\n&quot;;
 for(my $i = 0; $i &lt; $num; $i += $numcols)
 {
-  $str .= "&lt;tr>\n";
+  $str .= &quot;&lt;tr&gt;\n&quot;;
   for(my $j = 0; $j &lt; $numcols; $j++)
   {
     my $index = $i + $j;
 
-    $str .= "&lt;td>";
+    $str .= &quot;&lt;td&gt;&quot;;
     $str .= $stuff[$index];
-    $str .= "&lt;/td>\n";
+    $str .= &quot;&lt;/td&gt;\n&quot;;
   }
-  $str .= "&lt;/tr>\n";
+  $str .= &quot;&lt;/tr&gt;\n&quot;;
 }
 
-$str .= "&lt;/table>\n";
+$str .= &quot;&lt;/table&gt;\n&quot;;
 
 return $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

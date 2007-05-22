@@ -6,7 +6,7 @@ foreach my $js (@_)
 {
   $INCJS{$js} = 1;
 }
-return "";</field>
+return &quot;&quot;;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

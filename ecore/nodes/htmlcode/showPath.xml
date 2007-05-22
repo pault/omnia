@@ -11,7 +11,7 @@ my $top = 0;
 return '' unless (defined($loc));
 
 # Define 'root_location' to be a sublocation and showPath will not show
-# any directories above that "root" location.
+# any directories above that &quot;root&quot; location.
 $top = $HTMLVARS{root_location} if(exists $HTMLVARS{root_location});
 
 do
@@ -22,9 +22,9 @@ do
   $loc = $$parentLoc{loc_location};
 }until($$parentLoc{node_id} == 0 || $$parentLoc{node_id} == $top);
 
-my $pathStr = join ' > ', @path;
+my $pathStr = join ' &gt; ', @path;
 
-$pathStr .= " >" if($pathStr ne "");
+$pathStr .= &quot; &gt;&quot; if($pathStr ne &quot;&quot;);
 return $pathStr;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

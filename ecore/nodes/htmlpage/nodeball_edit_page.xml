@@ -13,15 +13,15 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]
+  <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
 
-&lt;p>Nodeball settings:
+&lt;p&gt;Nodeball settings:
 [{editvars}]
 
-&lt;p>&lt;b>Edit the group:&lt;/b>&lt;br>
+&lt;p&gt;&lt;b&gt;Edit the group:&lt;/b&gt;&lt;br&gt;
 [{groupeditor}]
 
-&lt;p>
+&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

@@ -13,27 +13,27 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]
+  <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
 
-&lt;table border=0>
-&lt;tr>
- &lt;td>parent container:&lt;/td>
- &lt;td>[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td>update interval:&lt;/td>
- &lt;td>[{nodeFormObject: TextField, updateinterval}] (in seconds)&lt;/td>
-&lt;/tr>
-&lt;tr>
- &lt;td>Mini Nodelet:&lt;/td>
- &lt;td>[{nodeFormObject: TypeMenu, mini_nodelet, mininodelet, nodelet, AUTO, $USER, r, 0}]&lt;/td>
-&lt;/tr>
-&lt;/table>
+&lt;table border=0&gt;
+&lt;tr&gt;
+ &lt;td&gt;parent container:&lt;/td&gt;
+ &lt;td&gt;[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;update interval:&lt;/td&gt;
+ &lt;td&gt;[{nodeFormObject: TextField, updateinterval}] (in seconds)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+ &lt;td&gt;Mini Nodelet:&lt;/td&gt;
+ &lt;td&gt;[{nodeFormObject: TypeMenu, mini_nodelet, mininodelet, nodelet, AUTO, $USER, r, 0}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
 
-nodelet code:&lt;br>
+nodelet code:&lt;br&gt;
 [{nodeFormObject: TextArea, nlcode, nlcode, AUTO, 80, 20, off}]
 
-&lt;p>
+&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

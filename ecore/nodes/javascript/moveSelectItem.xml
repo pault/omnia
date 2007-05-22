@@ -6,12 +6,12 @@
   var group = findFormObject(name);
   if(!group) return;
   var sel = group.selectedIndex;
-  if((sel &lt; 0) || (sel >= group.length)) return;
+  if((sel &lt; 0) || (sel &gt;= group.length)) return;
   var tmp;
 
   if(op)
   {
-    if(group.length &lt; 2 || (sel+op &lt; 0) || (sel+op >= group.length)) return;
+    if(group.length &lt; 2 || (sel+op &lt; 0) || (sel+op &gt;= group.length)) return;
     var tmpval = group.options[sel+op].value;
     var tmptext = group.options[sel+op].text;
 
@@ -47,18 +47,18 @@ function maintainValues(name)
   var valname = name + '_values';
   var values = findFormObject(valname);
   if(!values) return;
-  var grouplist = "";
+  var grouplist = &quot;&quot;;
 
   for(var i = 0; i &lt; group.length; i++)
   {
-    if(grouplist != "") grouplist += ",";
+    if(grouplist != &quot;&quot;) grouplist += &quot;,&quot;;
     grouplist += group.options[i].value;
   } 
 
   values.value = grouplist;
 }</field>
   <field name="comment" type="literal_value">The is is used by the nodegroup editor to move items in the list up and
-down.  'name' is the name of the &lt;select> list box that contains the
+down.  'name' is the name of the &lt;select&gt; list box that contains the
 group list.  'op' is either -1, 0, or 1.  -1 moves the selected item
 up in the list, 1 moves down, and 0 deletes the selected item.
 

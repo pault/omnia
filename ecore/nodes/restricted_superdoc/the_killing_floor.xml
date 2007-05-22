@@ -3,31 +3,31 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
 
-return unless $query->param('op', 'nodelistcheck');
-my (@param) = $query->param;
-my $str ="Are you sure you want to delete the following nodes?
-&lt;p>
-&lt;ol>";
+return unless $query-&gt;param('op', 'nodelistcheck');
+my (@param) = $query-&gt;param;
+my $str =&quot;Are you sure you want to delete the following nodes?
+&lt;p&gt;
+&lt;ol&gt;&quot;;
 my $GNL = getNode('gigantic node lister', 'restricted_superdoc');
 
-$str.= $query->start_form("POST", $ENV{script_name}) .
-"&lt;INPUT TYPE=hidden NAME=node_id VALUE=$$GNL{node_id}>";
+$str.= $query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) .
+&quot;&lt;INPUT TYPE=hidden NAME=node_id VALUE=$$GNL{node_id}&gt;&quot;;
 
 foreach (@param) {
   next unless /bnode_(\d+)/;
   my $N = getNodeById($1);
 
-  $str.="&lt;input type=hidden name=$_ value=1>";
-  $str.="&lt;li>".linkNode($N)." by ".linkNode($$N{author_user});
+  $str.=&quot;&lt;input type=hidden name=$_ value=1&gt;&quot;;
+  $str.=&quot;&lt;li&gt;&quot;.linkNode($N).&quot; by &quot;.linkNode($$N{author_user});
  
 }
 
-$str.="&lt;p align=right>".$query->submit("op","massacre");
-$str.="&lt;p>".linkNode($GNL, "Changed my mind.");
-$str.=$query->end_form;
+$str.=&quot;&lt;p align=right&gt;&quot;.$query-&gt;submit(&quot;op&quot;,&quot;massacre&quot;);
+$str.=&quot;&lt;p&gt;&quot;.linkNode($GNL, &quot;Changed my mind.&quot;);
+$str.=$query-&gt;end_form;
 %]
 
-&lt;/ol></field>
+&lt;/ol&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

@@ -13,53 +13,53 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;table border=0>
- &lt;tr>
-  &lt;td>&lt;b>pagetype&lt;/b>:&lt;/td>
-  &lt;td>[%
-	my $N = $DB->getNodeById($$NODE{pagetype_nodetype}, 'light');
+  <field name="page" type="literal_value">&lt;table border=0&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;pagetype&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[%
+	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
 	linkNode $N;
-%]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>parent container&lt;/b>:&lt;/td>
-  &lt;td>[% 
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;parent container&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[% 
 return linkNode ($$NODE{parent_container})
   if $$NODE{parent_container};
-return "&lt;i>none&lt;/i>";
-%]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>displaytype&lt;/b>:&lt;/td>
-  &lt;td>["$$NODE{displaytype}"]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>MIME type&lt;/b>:&lt;/td>
-  &lt;td>["$$NODE{MIMEtype}"]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>theme&lt;/b>:&lt;/td>
-  &lt;td>[%
+return &quot;&lt;i&gt;none&lt;/i&gt;&quot;;
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;displaytype&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[&quot;$$NODE{displaytype}&quot;]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;MIME type&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[&quot;$$NODE{MIMEtype}&quot;]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;theme&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[%
 unless ($$NODE{ownedby_theme}) {
-  return "&lt;i>this htmlpage does not belong to a theme&lt;/i>";
+  return &quot;&lt;i&gt;this htmlpage does not belong to a theme&lt;/i&gt;&quot;;
 }
 my $THEME = getNode $$NODE{ownedby_theme};
 linkNode($THEME);
 
-%]&lt;/td>
- &lt;/tr>
- &lt;tr>
-  &lt;td>&lt;b>Permission needed&lt;/b>:&lt;/td>
-  &lt;td>[%
-my $trans = { 'r' => "read", 'w' => "write",
-  'x' => "execute", 'd' => "delete", 'c' => "create" };
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Permission needed&lt;/b&gt;:&lt;/td&gt;
+  &lt;td&gt;[%
+my $trans = { 'r' =&gt; &quot;read&quot;, 'w' =&gt; &quot;write&quot;,
+  'x' =&gt; &quot;execute&quot;, 'd' =&gt; &quot;delete&quot;, 'c' =&gt; &quot;create&quot; };
 
 $$trans{$$NODE{permissionneeded}};
-%]&lt;/td>
- &lt;/tr>
-&lt;/table>
+%]&lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;
  
-&lt;p>&lt;b>Code:&lt;/b>&lt;br>
+&lt;p&gt;&lt;b&gt;Code:&lt;/b&gt;&lt;br&gt;
 [{listcode:page}]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>

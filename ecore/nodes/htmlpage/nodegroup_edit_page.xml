@@ -15,7 +15,7 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[{groupeditor}]
 
-&lt;p>
+&lt;p&gt;
 [{submit}]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodegroup</field>

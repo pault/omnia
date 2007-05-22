@@ -16,46 +16,46 @@
   <field name="page" type="literal_value">[%
 
 if ($$USER{inside_workspace} != $$NODE{node_id}) {
-  return linkNode($NODE, "Join this workspace", { op => 'changeworkspace', workspace_me => 'true' });
+  return linkNode($NODE, &quot;Join this workspace&quot;, { op =&gt; 'changeworkspace', workspace_me =&gt; 'true' });
 }
 
-linkNode($NODE, "Remove me from this workspace", { op => 'changeworkspace', workspace_me => 'false'});
+linkNode($NODE, &quot;Remove me from this workspace&quot;, { op =&gt; 'changeworkspace', workspace_me =&gt; 'false'});
 
 %]
-&lt;p>
+&lt;p&gt;
 Users in this workspace:
 [%
-  my (@U) = @{ getNodeWhere({inside_workspace => $$NODE{node_id}}, 'user') };
-  return "&lt;p>&lt;i>none&lt;/i>" unless @U;
+  my (@U) = @{ getNodeWhere({inside_workspace =&gt; $$NODE{node_id}}, 'user') };
+  return &quot;&lt;p&gt;&lt;i&gt;none&lt;/i&gt;&quot; unless @U;
   my $str;
-  foreach (@U) { $str.="&lt;li>".linkNode($_) }
+  foreach (@U) { $str.=&quot;&lt;li&gt;&quot;.linkNode($_) }
   $str;
 %]
 
-&lt;p>
+&lt;p&gt;
 
 Nodes revised in this workspace:
 [%
 my $str;
-my $V = $NODE->getVars;
+my $V = $NODE-&gt;getVars;
 
 my $isInWS;
-if (exists($DB->{workspace})) {
-	$isInWS =  $DB->{workspace}{node_id} == $$NODE{node_id};
+if (exists($DB-&gt;{workspace})) {
+	$isInWS =  $DB-&gt;{workspace}{node_id} == $$NODE{node_id};
 }
 
-$str.= openform() ."
-&lt;INPUT TYPE=hidden NAME=op VALUE=commitworkspace>" if $isInWS;
+$str.= openform() .&quot;
+&lt;INPUT TYPE=hidden NAME=op VALUE=commitworkspace&gt;&quot; if $isInWS;
 
-return unless exists $DB->{workspace} and $DB->{workspace}{node_id} == $$NODE{node_id};
-return "&lt;p>&lt;i>none&lt;/i>" unless keys %$V;
+return unless exists $DB-&gt;{workspace} and $DB-&gt;{workspace}{node_id} == $$NODE{node_id};
+return &quot;&lt;p&gt;&lt;i&gt;none&lt;/i&gt;&quot; unless keys %$V;
 
 foreach (keys %$V) {
-  $str.="&lt;li>";
-  $str.=$query->radio_group("commit_$_", ['commit', 'discard', 'unchanged'], 'unchanged')." " if $isInWS;
+  $str.=&quot;&lt;li&gt;&quot;;
+  $str.=$query-&gt;radio_group(&quot;commit_$_&quot;, ['commit', 'discard', 'unchanged'], 'unchanged').&quot; &quot; if $isInWS;
   $str.= linkNode($_);
 }
-$str.="&lt;br>".$query->submit("trash", "commit changes")."&lt;/FORM>" if $isInWS;
+$str.=&quot;&lt;br&gt;&quot;.$query-&gt;submit(&quot;trash&quot;, &quot;commit changes&quot;).&quot;&lt;/FORM&gt;&quot; if $isInWS;
 $str;
 %]
 </field>

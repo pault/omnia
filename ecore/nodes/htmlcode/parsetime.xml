@@ -12,7 +12,7 @@ my ($date, $time) = split / /,$$NODE{$field};
 my ($hrs, $min, $sec) = split /:/, $time;
 my ($yy, $mm, $dd) = split /-/, $date;
 
-return "&lt;i>never&lt;/i>" unless (int($yy) and int($mm) and int($dd));
+return &quot;&lt;i&gt;never&lt;/i&gt;&quot; unless (int($yy) and int($mm) and int($dd));
 
 use Time::Local;
 my $epoch_secs=timelocal( $sec, $min, $hrs, $dd, $mm-1, $yy);

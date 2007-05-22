@@ -3,11 +3,11 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">this node is locked 
 [%
-return unless $query->param("node_id");
-my $N = $DB->getNodeById($query->param('node_id'));
-"by ". linkNode($$N{lockedby_user}) if $$N{lockedby_user};
+return unless $query-&gt;param(&quot;node_id&quot;);
+my $N = $DB-&gt;getNodeById($query-&gt;param('node_id'));
+&quot;by &quot;. linkNode($$N{lockedby_user}) if $$N{lockedby_user};
 %]
-&lt;p>Better stay away.</field>
+&lt;p&gt;Better stay away.</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

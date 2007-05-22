@@ -12,10 +12,10 @@
 my ($varsfield, $N) = @_;
 $varsfield ||= 'vars';
 $N ||= $NODE;
-my $html = "&lt;table border=0 width='80%'>\n";
-my $vars = $N->getHash($varsfield);
+my $html = &quot;&lt;table border=0 width='80%'&gt;\n&quot;;
+my $vars = $N-&gt;getHash($varsfield);
 
-return "&lt;i>No settings&lt;/i>\n" unless($vars);
+return &quot;&lt;i&gt;No settings&lt;/i&gt;\n&quot; unless($vars);
 
 my @keys;
 @keys = sort keys %$vars;
@@ -23,23 +23,23 @@ my @keys;
 my $keyColor = $$THEME{keyColor};
 my $valueColor = $$THEME{valueColor};
 
-$keyColor ||= "#cc99cc";
-$valueColor ||= "#cc99ff";
+$keyColor ||= &quot;#cc99cc&quot;;
+$valueColor ||= &quot;#cc99ff&quot;;
 
-$html .= "&lt;tr>&lt;td bgcolor='$keyColor'>&lt;b>Keys&lt;/b>&lt;/td>\n";
-$html .= "&lt;td bgcolor='$valueColor'>&lt;b>Values&lt;/b>&lt;/td>&lt;/tr>\n";
+$html .= &quot;&lt;tr&gt;&lt;td bgcolor='$keyColor'&gt;&lt;b&gt;Keys&lt;/b&gt;&lt;/td&gt;\n&quot;;
+$html .= &quot;&lt;td bgcolor='$valueColor'&gt;&lt;b&gt;Values&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
 
 foreach my $key (@keys)
 {
-  $html .= "&lt;tr>&lt;td colspan=3>New Key/Value:&lt;/td>&lt;/tr>\n" if($key eq "NEWFIELD");
-  $html .= "&lt;tr>&lt;td bgcolor='$keyColor' nowrap>$key&lt;/td>\n";
-  $html .= "&lt;td bgcolor='$valueColor' nowrap>$$vars{$key}";
+  $html .= &quot;&lt;tr&gt;&lt;td colspan=3&gt;New Key/Value:&lt;/td&gt;&lt;/tr&gt;\n&quot; if($key eq &quot;NEWFIELD&quot;);
+  $html .= &quot;&lt;tr&gt;&lt;td bgcolor='$keyColor' nowrap&gt;$key&lt;/td&gt;\n&quot;;
+  $html .= &quot;&lt;td bgcolor='$valueColor' nowrap&gt;$$vars{$key}&quot;;
   my $link = linkVar($key, $$vars{$key});
-  $link = "&amp;nbsp;&amp;nbsp;($link)" if($link &amp;&amp; $link ne "");
-  $html .= " $link &lt;/td>&lt;/tr>\n";
+  $link = &quot;&amp;nbsp;&amp;nbsp;($link)&quot; if($link &amp;&amp; $link ne &quot;&quot;);
+  $html .= &quot; $link &lt;/td&gt;&lt;/tr&gt;\n&quot;;
 }
 
-$html .= "&lt;/table>";
+$html .= &quot;&lt;/table&gt;&quot;;
 return $html;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

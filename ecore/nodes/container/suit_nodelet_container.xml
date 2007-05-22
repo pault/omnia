@@ -1,38 +1,38 @@
 <NODE export_version="0.5" nodetype="container" title="suit nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 cellpadding=0 cellspacing=0 width=100%>
-&lt;tr>&lt;td bgcolor=[%
+  <field name="context" type="literal_value">&lt;table border=0 cellpadding=0 cellspacing=0 width=100%&gt;
+&lt;tr&gt;&lt;td bgcolor=[%
    return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
-    "#CC99FF";
-  %]>
+    &quot;#CC99FF&quot;;
+  %]&gt;
   [% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
-    &lt;B>&lt;font [%
+    &lt;B&gt;&lt;font [%
       my $attr= $$THEME{nodeletTitleFontAttr};
       return $attr if $attr;
-      "color=white";
-      %]>&amp;nbsp;["$$NODELET{title}"]&lt;/font>&lt;/B>
-  &lt;/td>&lt;/tr>
+      &quot;color=white&quot;;
+      %]&gt;&amp;nbsp;[&quot;$$NODELET{title}&quot;]&lt;/font&gt;&lt;/B&gt;
+  &lt;/td&gt;&lt;/tr&gt;
 &lt;tr [%
 my $bgcol = $$THEME{nodeletBodyColor};
-$bgcol ||= "#CCCCCC";
-"bgcolor='$bgcol'";
-%]>&lt;td>&lt;FONT [%
+$bgcol ||= &quot;#CCCCCC&quot;;
+&quot;bgcolor='$bgcol'&quot;;
+%]&gt;&lt;td&gt;&lt;FONT [%
 my $fa = $$THEME{nodeletBodyFontAttr};
-$fa ||= "size=2";
+$fa ||= &quot;size=2&quot;;
 $fa;
-%]>&lt;ul>
+%]&gt;&lt;ul&gt;
 CONTAINED_STUFF
-&lt;/ul>
-&lt;/font>&lt;/td>
-&lt;/tr>
+&lt;/ul&gt;
+&lt;/font&gt;&lt;/td&gt;
+&lt;/tr&gt;
 &lt;tr [%
 my $bgcol = $$THEME{nodeletDivColor};
 $bgcol ||= '#999999';
-"bgcolor='$bgcol'";
-%]>&lt;td>&lt;img src="" width=1 height=1>&lt;/td>&lt;/tr>
-&lt;/tr>
-&lt;/table></field>
+&quot;bgcolor='$bgcol'&quot;;
+%]&gt;&lt;td&gt;&lt;img src=&quot;&quot; width=1 height=1&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

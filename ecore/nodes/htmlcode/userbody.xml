@@ -3,30 +3,30 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my @params;
 my $bgcolor ||= $$THEME{bodyBgcolor};
-$bgcolor ||= "#FFFFFF";
-push @params, "bgcolor='$bgcolor'";
+$bgcolor ||= &quot;#FFFFFF&quot;;
+push @params, &quot;bgcolor='$bgcolor'&quot;;
 
 my $textcolor = $$THEME{bodyTextcolor};
-$textcolor ||= "#000000";
-push @params, "text='$textcolor'";
+$textcolor ||= &quot;#000000&quot;;
+push @params, &quot;text='$textcolor'&quot;;
 
 my $linkcolor = $$THEME{bodyLinkcolor};
-$linkcolor ||= "#993333";
-push @params, "link='$linkcolor'";
+$linkcolor ||= &quot;#993333&quot;;
+push @params, &quot;link='$linkcolor'&quot;;
 
 my $vlinkcolor = $$THEME{bodyVlinkcolor};
-$vlinkcolor ||= "#333399";
-push @params, "vlink='$vlinkcolor'";
+$vlinkcolor ||= &quot;#333399&quot;;
+push @params, &quot;vlink='$vlinkcolor'&quot;;
 
 my $lmargin = $$THEME{bodyLMargin};
 $lmargin = 5 unless(defined $lmargin);
-push @params, "leftmargin='$lmargin' marginwidth='$lmargin'";
+push @params, &quot;leftmargin='$lmargin' marginwidth='$lmargin'&quot;;
 
 my $tmargin = $$THEME{bodyTMargin};
 $tmargin = 5 unless(defined $tmargin);
-push @params, "topmargin='$tmargin' marginheight='$tmargin'";
+push @params, &quot;topmargin='$tmargin' marginheight='$tmargin'&quot;;
 
-"&lt;BODY " . join(' ', @params). ">";</field>
+&quot;&lt;BODY &quot; . join(' ', @params). &quot;&gt;&quot;;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

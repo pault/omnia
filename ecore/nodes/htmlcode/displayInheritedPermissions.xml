@@ -7,10 +7,10 @@ my $parent;
 
 if($forType)
 {
-  if($$NODE{extends_nodetype} > 0)
+  if($$NODE{extends_nodetype} &gt; 0)
   {
-    return "Error. Not a nodetype.\n"
-      unless($NODE->isNodetype());
+    return &quot;Error. Not a nodetype.\n&quot;
+      unless($NODE-&gt;isNodetype());
     $parent = getType($$NODE{extends_nodetype});
   }
 }
@@ -19,10 +19,10 @@ else
   $parent = getType($$NODE{type_nodetype});
 }
 
-return "No parent" unless($parent);
+return &quot;No parent&quot; unless($parent);
 
-$perms = $parent->getDefaultTypePermissions($class);
-return $perms . "&amp;nbsp;";</field>
+$perms = $parent-&gt;getDefaultTypePermissions($class);
+return $perms . &quot;&amp;nbsp;&quot;;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

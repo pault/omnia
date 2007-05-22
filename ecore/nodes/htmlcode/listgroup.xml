@@ -5,22 +5,22 @@
 
 my $G = $$NODE{$field};
 
-if(($G eq "") || ($G == 0)) { return "none"; }
-elsif($G == -1) { return "parent"; }
+if(($G eq &quot;&quot;) || ($G == 0)) { return &quot;none&quot;; }
+elsif($G == -1) { return &quot;parent&quot;; }
 
 getRef $G;
-return "none" unless ref $G;
+return &quot;none&quot; unless ref $G;
 
-my $str = linkNode($G) . "($$G{type}{title})";
+my $str = linkNode($G) . &quot;($$G{type}{title})&quot;;
 return $str unless ($$G{group});
 
-$str .= "\n&lt;ol>\n";
+$str .= &quot;\n&lt;ol&gt;\n&quot;;
 my $groupref = $$G{group};
 foreach my $item (@$groupref) {
-	my $N = $DB->getNodeById($item, 'light');
-	$str .= "&lt;li>" . linkNode ($N) . "($$N{type}{title})\n";
+	my $N = $DB-&gt;getNodeById($item, 'light');
+	$str .= &quot;&lt;li&gt;&quot; . linkNode ($N) . &quot;($$N{type}{title})\n&quot;;
 }
-$str .= "&lt;/ol>\n";
+$str .= &quot;&lt;/ol&gt;\n&quot;;
 
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

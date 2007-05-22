@@ -33,6 +33,7 @@
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">themesetting</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">user</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">usergroup</member>
+    <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">workspace</member>
     <member name="group_node" type="noderef" type_nodetype="usergroup,nodetype">gods</member>
     <member name="group_node" type="noderef" type_nodetype="user,nodetype">Guest User</member>
     <member name="group_node" type="noderef" type_nodetype="user,nodetype">root</member>
@@ -267,6 +268,7 @@
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">cloneNode</member>
     <member name="group_node" type="noderef" type_nodetype="javascript,nodetype">confirmDelete</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">formatCols</member>
+    <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">workspace</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

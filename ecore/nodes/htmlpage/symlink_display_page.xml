@@ -13,7 +13,7 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;b>Symlink target: 
+  <field name="page" type="literal_value">&lt;b&gt;Symlink target: 
 [%
 my $target = getNode($$NODE{symlink_node});
 

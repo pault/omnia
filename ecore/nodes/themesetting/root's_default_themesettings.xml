@@ -15,7 +15,7 @@
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">themesetting</field>
   <vars>
     <var name="nodeletBodyColor" type="literal_value">#FFCCCC</var>
-    <var name="nodeletTitleBackground" type="literal_value">""</var>
+    <var name="nodeletTitleBackground" type="literal_value">&quot;&quot;</var>
     <var name="nodeletTitleColor" type="literal_value">#CC0000</var>
   </vars>
 </NODE>

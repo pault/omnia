@@ -38,4 +38,3 @@ $str;</field>
   <field name="title" type="literal_value">nodeletMetaContainer</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>
-

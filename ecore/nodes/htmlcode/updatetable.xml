@@ -7,40 +7,40 @@ my ($table) = @_;
 my $param;
 
 # Check to see if we need to remove a column
-foreach $param ($query->param)
+foreach $param ($query-&gt;param)
 {
   if(($param =~ /REMOVE$/) &amp;&amp;
-     ($query->param($param) eq "REMOVE"))
+     ($query-&gt;param($param) eq &quot;REMOVE&quot;))
   {
     my $fieldname = $param;
     $fieldname =~ s/REMOVE$//;
-    $DB->dropFieldFromTable($table, $fieldname); 
+    $DB-&gt;dropFieldFromTable($table, $fieldname); 
 
     # Null out this field
-    $query->param($param, "");
+    $query-&gt;param($param, &quot;&quot;);
   }
 }
 
 # If we need to create a new field in the table...
-if((defined $query->param("fieldname_new")) &amp;&amp;
-           (defined $query->param("fieldtype_new")) )
+if((defined $query-&gt;param(&quot;fieldname_new&quot;)) &amp;&amp;
+           (defined $query-&gt;param(&quot;fieldtype_new&quot;)) )
 {
-  my $fieldname = $query->param("fieldname_new");
-  my $fieldtype = $query->param("fieldtype_new");
-  my $primary = $query->param("fieldprimary_new");
-  my $default = $query->param("fielddefault_new");
+  my $fieldname = $query-&gt;param(&quot;fieldname_new&quot;);
+  my $fieldtype = $query-&gt;param(&quot;fieldtype_new&quot;);
+  my $primary = $query-&gt;param(&quot;fieldprimary_new&quot;);
+  my $default = $query-&gt;param(&quot;fielddefault_new&quot;);
 
-  $DB->addFieldToTable($table, $fieldname, $fieldtype, $primary, $default); 
+  $DB-&gt;addFieldToTable($table, $fieldname, $fieldtype, $primary, $default); 
 
-  $query->param("fieldname_new", "");
-  $query->param("fieldtype_new", "");
-  $query->param("fieldprimary_new", "");
-  $query->param("fielddefault_new", "");
+  $query-&gt;param(&quot;fieldname_new&quot;, &quot;&quot;);
+  $query-&gt;param(&quot;fieldtype_new&quot;, &quot;&quot;);
+  $query-&gt;param(&quot;fieldprimary_new&quot;, &quot;&quot;);
+  $query-&gt;param(&quot;fielddefault_new&quot;, &quot;&quot;);
 }
-  $NODE->update($USER);
+  $NODE-&gt;update($USER);
   $NODE = getNode($$NODE{node_id}, 'force');
   #we need to do this to refresh the field cache
-"";
+&quot;&quot;;
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

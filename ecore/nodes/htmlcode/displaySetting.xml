@@ -5,14 +5,14 @@
 # $setting - the name of the setting node
 # $key - the key to display
 my ($setting, $key) = @_;
-my $SETTING = $DB->selectNodeWhere({title => $setting},
- $DB->getType('setting'));
+my $SETTING = $DB-&gt;selectNodeWhere({title =&gt; $setting},
+ $DB-&gt;getType('setting'));
 my $vars;
-my $str = "";
+my $str = &quot;&quot;;
 
 $SETTING = $$SETTING[0];  # there should only be one in the array
-Everything::printLog("setting node: $SETTING");
-$vars = getVars($SETTING);
+Everything::printLog(&quot;setting node: $SETTING&quot;);
+$vars = $SETTING-&gt;getVars;
 $str .= $$vars{$key};
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

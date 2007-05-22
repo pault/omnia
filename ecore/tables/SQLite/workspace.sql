@@ -1,0 +1,3 @@
+CREATE TABLE workspace (
+  workspace_id INTEGER PRIMARY KEY NOT NULL DEFAULT '0'
+)

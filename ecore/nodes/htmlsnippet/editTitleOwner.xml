@@ -1,13 +1,13 @@
 <NODE export_version="0.5" nodetype="htmlsnippet" title="editTitleOwner">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">&lt;table border=0>
-&lt;tr>
-  &lt;td>&lt;b>Title:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: TextField, title}]&lt;/td>
-&lt;/tr>&lt;tr>
-  &lt;td>&lt;b>Owner:&lt;/b>&lt;/td>&lt;td>[{nodeFormObject: AuthorMenu, author_user}]&lt;/td>
-&lt;/tr>
-&lt;/table></field>
+  <field name="code" type="literal_value">&lt;table border=0&gt;
+&lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Title:&lt;/b&gt;&lt;/td&gt;&lt;td&gt;[{nodeFormObject: TextField, title}]&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td&gt;&lt;b&gt;Owner:&lt;/b&gt;&lt;/td&gt;&lt;td&gt;[{nodeFormObject: AuthorMenu, author_user}]&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

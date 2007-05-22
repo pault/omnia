@@ -5,70 +5,70 @@
 # of a database table.  The output is similar to what
 # you get when 'show columns from $table' is executed.
 my ($table, $edit) = @_;
-my @fields = $DB->getFieldsHash($table);
+my @fields = $DB-&gt;getFieldsHash($table);
 my $field;
 my $fieldname;
 my $value;
-my $str = "";
+my $str = &quot;&quot;;
 
 $edit = 0 if(not defined $edit);
 
-$str .= "&lt;table border=1 width=400>\n";
+$str .= &quot;&lt;table border=1 width=400&gt;\n&quot;;
 
 $field = $fields[0];
 
-  $str .= " &lt;tr>\n";
+  $str .= &quot; &lt;tr&gt;\n&quot;;
 foreach $fieldname (keys %$field)
 {
-  $str .= "  &lt;td bgcolor=\"#cccccc\">$fieldname&lt;/td>\n";
+  $str .= &quot;  &lt;td bgcolor=\&quot;#cccccc\&quot;&gt;$fieldname&lt;/td&gt;\n&quot;;
 }
 
-$str .= "  &lt;td bgcolor=\"#cccccc\">Remove Field?&lt;/td>\n" if($edit);
-$str .= " &lt;/tr>\n";
+$str .= &quot;  &lt;td bgcolor=\&quot;#cccccc\&quot;&gt;Remove Field?&lt;/td&gt;\n&quot; if($edit);
+$str .= &quot; &lt;/tr&gt;\n&quot;;
 
 foreach $field (@fields)
 {
-  $str .= " &lt;tr>\n";
+  $str .= &quot; &lt;tr&gt;\n&quot;;
   foreach $value (values %$field)
   {
-    $value = "&amp;nbsp;" if (!(defined $value) or ($value eq "")); # fill in the blanks
-    $str .= "  &lt;td>$value&lt;/td>\n";
+    $value = &quot;&amp;nbsp;&quot; if (!(defined $value) or ($value eq &quot;&quot;)); # fill in the blanks
+    $str .= &quot;  &lt;td&gt;$value&lt;/td&gt;\n&quot;;
   }
-  $str .= "  &lt;td>" .
-    $query->checkbox(-name => $$field{Field} . "REMOVE",
-        -value => 'REMOVE',
-        -label => 'Remove?') .
-    "  &lt;/td>\n" if($edit);
-  $str .= " &lt;/tr>\n";
+  $str .= &quot;  &lt;td&gt;&quot; .
+    $query-&gt;checkbox(-name =&gt; $$field{Field} . &quot;REMOVE&quot;,
+        -value =&gt; 'REMOVE',
+        -label =&gt; 'Remove?') .
+    &quot;  &lt;/td&gt;\n&quot; if($edit);
+  $str .= &quot; &lt;/tr&gt;\n&quot;;
 }
 
-$str .= "&lt;/table>\n";
+$str .= &quot;&lt;/table&gt;\n&quot;;
 
 if($edit)
 {
-  $str .= "&lt;br>\n";
-  $str .= "Add new field:&lt;br>";
-  $str .= "Field Name: ";
-  $str .= $query->textfield( -name => "fieldname_new",
-      -default => "",
-      -size => 30,
-      -maxlength => 50);
-  $str .= "&lt;br>Field type: ";
-  $str .= $query->textfield( -name => "fieldtype_new",
-      -default => "",
-      -size => 10,
-      -maxlength => 10);
-  $str .= " (i.e. int(11), char(32), text, etc.)";
-  $str .= "&lt;br>Default value: ";
-  $str .= $query->textfield( -name => "fielddefault_new",
-      -default => "",
-      -size => 50,
-      -maxlength => 50);
-  $str .= "&lt;br>\n";
-  $str .= $query->checkbox(-name => "fieldprimary_new",
-      -value => "primary",
-      -label => "Primary Key?");
-  $str .= "&lt;br>\n";
+  $str .= &quot;&lt;br&gt;\n&quot;;
+  $str .= &quot;Add new field:&lt;br&gt;&quot;;
+  $str .= &quot;Field Name: &quot;;
+  $str .= $query-&gt;textfield( -name =&gt; &quot;fieldname_new&quot;,
+      -default =&gt; &quot;&quot;,
+      -size =&gt; 30,
+      -maxlength =&gt; 50);
+  $str .= &quot;&lt;br&gt;Field type: &quot;;
+  $str .= $query-&gt;textfield( -name =&gt; &quot;fieldtype_new&quot;,
+      -default =&gt; &quot;&quot;,
+      -size =&gt; 10,
+      -maxlength =&gt; 10);
+  $str .= &quot; (i.e. int(11), char(32), text, etc.)&quot;;
+  $str .= &quot;&lt;br&gt;Default value: &quot;;
+  $str .= $query-&gt;textfield( -name =&gt; &quot;fielddefault_new&quot;,
+      -default =&gt; &quot;&quot;,
+      -size =&gt; 50,
+      -maxlength =&gt; 50);
+  $str .= &quot;&lt;br&gt;\n&quot;;
+  $str .= $query-&gt;checkbox(-name =&gt; &quot;fieldprimary_new&quot;,
+      -value =&gt; &quot;primary&quot;,
+      -label =&gt; &quot;Primary Key?&quot;);
+  $str .= &quot;&lt;br&gt;\n&quot;;
 }
 
 $str;

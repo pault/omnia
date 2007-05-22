@@ -3,27 +3,27 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
 my $str;
-my $title = $query->param('node');
-return "" unless $title;
-$str.="&lt;table border=0 cellpadding=2>";
+my $title = $query-&gt;param('node');
+return &quot;&quot; unless $title;
+$str.=&quot;&lt;table border=0 cellpadding=2&gt;&quot;;
 
 foreach (@{ $GLOBAL{searchgroup} }) {
   my $ND = getNode $$_{node_id};
-  $str .="&lt;tr>";
-  $str .= "&lt;td>" . linkNode ($ND) . "&lt;/td>";
-  $str .= "&lt;td>(".$$ND{type}{title}.")&lt;/td>";
-  my $keys = $ND->getIdentifyingFields();
+  $str .=&quot;&lt;tr&gt;&quot;;
+  $str .= &quot;&lt;td&gt;&quot; . linkNode ($ND) . &quot;&lt;/td&gt;&quot;;
+  $str .= &quot;&lt;td&gt;(&quot;.$$ND{type}{title}.&quot;)&lt;/td&gt;&quot;;
+  my $keys = $ND-&gt;getIdentifyingFields();
   $keys ||= [];
   foreach (@$keys) {
-    $str.="&lt;td>$_: ";
+    $str.=&quot;&lt;td&gt;$_: &quot;;
     $str.= Everything::XML::getFieldType($_) eq 'noderef' 
         ? linkNode($$ND{$_}) : $$ND{$_};
-    $str.="&lt;/td>";    
+    $str.=&quot;&lt;/td&gt;&quot;;    
   }
-  $str.="&lt;/tr>";
+  $str.=&quot;&lt;/tr&gt;&quot;;
 }
 
-$str.="&lt;/table>";
+$str.=&quot;&lt;/table&gt;&quot;;
 $str;
 %]
 [{createnewnode}]</field>

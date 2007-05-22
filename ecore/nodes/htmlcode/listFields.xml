@@ -2,10 +2,10 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $str;
-$str .= "&lt;li>";
-$str .= join "\n&lt;li>", $DB->getFields;
-$str .="\n&lt;li>";
-$str .= join "\n&lt;li>", $DB->getFields($$NODE{table});
+$str .= &quot;&lt;li&gt;&quot;;
+$str .= join &quot;\n&lt;li&gt;&quot;, $DB-&gt;getFields;
+$str .=&quot;\n&lt;li&gt;&quot;;
+$str .= join &quot;\n&lt;li&gt;&quot;, $DB-&gt;getFields($$NODE{table});
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

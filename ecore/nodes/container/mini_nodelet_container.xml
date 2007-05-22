@@ -1,18 +1,18 @@
 <NODE export_version="0.5" nodetype="container" title="mini nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table width=100% border=0 cellspacing=1>
-&lt;tr>
+  <field name="context" type="literal_value">&lt;table width=100% border=0 cellspacing=1&gt;
+&lt;tr&gt;
  &lt;td width=100% [%
    my $bgcol = $$THEME{nodeletBodyColor};
-   $bgcol ||= "#CCCCCC";
-   "bgcolor='$bgcol'"; %]>CONTAINED_STUFF&lt;/td>
+   $bgcol ||= &quot;#CCCCCC&quot;;
+   &quot;bgcolor='$bgcol'&quot;; %]&gt;CONTAINED_STUFF&lt;/td&gt;
  &lt;td width=1 valign=top align=center bgColor='[%
     return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
-    "#CC99FF"; %]'>[% miniNodelet($$NODELET{node_id}, 'center', 'top'); %]
- &lt;/td>
-&lt;/tr>
-&lt;/table></field>
+    &quot;#CC99FF&quot;; %]'&gt;[% miniNodelet($$NODELET{node_id}, 'center', 'top'); %]
+ &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

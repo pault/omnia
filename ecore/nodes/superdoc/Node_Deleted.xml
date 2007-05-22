@@ -5,9 +5,9 @@
 
 my $N = $GLOBAL{nodedeleted};
 
-return "Nothing to delete" unless($N);
+return &quot;Nothing to delete&quot; unless($N);
 
-my $str = "Node '$$N{title}' ($$N{type}{title}) was successfully deleted.";
+my $str = &quot;Node '$$N{title}' ($$N{type}{title}) was successfully deleted.&quot;;
 
 $str;
 %]</field>

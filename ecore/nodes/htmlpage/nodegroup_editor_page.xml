@@ -13,18 +13,18 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;p align=right>
+  <field name="page" type="literal_value">&lt;p align=right&gt;
 [%
-if ($query->param('op') eq 'close') {
-	$$VARS{group} = "";
-	return "&lt;SCRIPT language=\"javascript\">parent.close()&lt;/SCRIPT>";		
+if ($query-&gt;param('op') eq 'close') {
+	$$VARS{group} = &quot;&quot;;
+	return &quot;&lt;SCRIPT language=\&quot;javascript\&quot;&gt;parent.close()&lt;/SCRIPT&gt;&quot;;		
 } 
 $$VARS{group}||= getId ($NODE);
-linkNode $NODE, "close", {displaytype=> $query->param('displaytype'),
-	op => 'close'};
+linkNode $NODE, &quot;close&quot;, {displaytype=&gt; $query-&gt;param('displaytype'),
+	op =&gt; 'close'};
 %]
 [{groupeditor}]
-&lt;/FORM></field>
+&lt;/FORM&gt;</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodegroup</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">stdcontainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

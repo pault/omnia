@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="doUpdate">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value"># This is a simple way to mark a page as an "update page".  Just include
+  <field name="code" type="literal_value"># This is a simple way to mark a page as an &quot;update page&quot;.  Just include
 # this htmlcode on your edit pages and you are set.
 #
 # $redirectNode - (optional) node id, or NODE object that the update
@@ -18,37 +18,37 @@
 my ($redirectNode, $redirectDisplay, $preprocess, $postprocess) = @_;
 my $html;
 
-$html = $query->hidden(-name => 'op', -value => 'update', -override => 1);
-$html .= "\n";
-$html .= $query->hidden('node_id', $$NODE{node_id}) . "\n";
-$html .= $query->hidden('displaytype') . "\n";
+$html = $query-&gt;hidden(-name =&gt; 'op', -value =&gt; 'update', -override =&gt; 1);
+$html .= &quot;\n&quot;;
+$html .= $query-&gt;hidden('node_id', $$NODE{node_id}) . &quot;\n&quot;;
+$html .= $query-&gt;hidden('displaytype') . &quot;\n&quot;;
 
 return $html;
 
 if($redirectNode)
 {
-  $redirectNode = $DB->getNode($redirectNode);
+  $redirectNode = $DB-&gt;getNode($redirectNode);
 
-  $html .= $query->hidden(-name => 'opupdate_redirect', -override => 1,
-                 -value => $$redirectNode{node_id}). "\n" if($redirectNode);
+  $html .= $query-&gt;hidden(-name =&gt; 'opupdate_redirect', -override =&gt; 1,
+                 -value =&gt; $$redirectNode{node_id}). &quot;\n&quot; if($redirectNode);
 }
 
 if($redirectDisplay)
 {
-  $html .= $query->hidden(-name => 'opupdate_displaytype', -override => 1,
-                 -value => $redirectDisplay) . "\n";
+  $html .= $query-&gt;hidden(-name =&gt; 'opupdate_displaytype', -override =&gt; 1,
+                 -value =&gt; $redirectDisplay) . &quot;\n&quot;;
 }
 
 if($preprocess)
 {
-  $html .= $query->hidden(-name => 'opupdate_preprocess', -override => 1,
-                 -value => $preprocess) . "\n";
+  $html .= $query-&gt;hidden(-name =&gt; 'opupdate_preprocess', -override =&gt; 1,
+                 -value =&gt; $preprocess) . &quot;\n&quot;;
 }
 
 if($postprocess)
 {
-  $html .= $query->hidden(-name => 'opupdate_postprocess', -override => 1,
-                 -value => $postprocess) . "\n";
+  $html .= $query-&gt;hidden(-name =&gt; 'opupdate_postprocess', -override =&gt; 1,
+                 -value =&gt; $postprocess) . &quot;\n&quot;;
 }
 
 return $html;</field>

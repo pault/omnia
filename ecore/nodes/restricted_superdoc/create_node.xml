@@ -1,30 +1,30 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="create node">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">&lt;p>Create a new node!&lt;/p>
+  <field name="doctext" type="literal_value">&lt;p&gt;Create a new node!&lt;/p&gt;
 [% 
-$query->param("node", "");
-$query->startform; %]
+$query-&gt;param(&quot;node&quot;, &quot;&quot;);
+$query-&gt;startform; %]
 
 [%
-my $str = "Node name: ";
+my $str = &quot;Node name: &quot;;
 my %types;
 
-$str .= $query->textfield(-name => "node",
-                          -default => "",
-                          -size => 50,
-                          -maxlength => 100);
-$str .= "&lt;br>\n";
+$str .= $query-&gt;textfield(-name =&gt; &quot;node&quot;,
+                          -default =&gt; &quot;&quot;,
+                          -size =&gt; 50,
+                          -maxlength =&gt; 100);
+$str .= &quot;&lt;br&gt;\n&quot;;
 $str;
 %]
 
-Nodetype:&lt;code>
-[{formObject: NodetypeMenu, type, 1, $USER}]&lt;/code>
+Nodetype:&lt;code&gt;
+[{formObject: NodetypeMenu, type, 1, $USER}]&lt;/code&gt;
 
 [%
-my $str = "&lt;input TYPE=\"hidden\" NAME=\"op\" VALUE=\"new\">\n";
-$str .= $query->submit("createit", "Create It!") . "\n";
-$str .= $query->endform;
+my $str = &quot;&lt;input TYPE=\&quot;hidden\&quot; NAME=\&quot;op\&quot; VALUE=\&quot;new\&quot;&gt;\n&quot;;
+$str .= $query-&gt;submit(&quot;createit&quot;, &quot;Create It!&quot;) . &quot;\n&quot;;
+$str .= $query-&gt;endform;
 $str;
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

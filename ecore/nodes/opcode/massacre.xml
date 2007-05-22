@@ -1,9 +1,9 @@
 <NODE export_version="0.5" nodetype="opcode" title="massacre">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return unless $USER->isGod;
+  <field name="code" type="literal_value">return unless $USER-&gt;isGod;
 
-my @params = $query->param;
+my @params = $query-&gt;param;
 my @deathrow;
 foreach (@params) {
   next unless /^bnode_(\d+)$/;
@@ -14,7 +14,7 @@ return unless @deathrow;
 
 foreach (@deathrow) {
   my $N = getNodeById($_);
-  $N->nuke($USER);
+  $N-&gt;nuke($USER);
 }</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

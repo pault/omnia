@@ -15,7 +15,7 @@
       $$CURRENTNODE{parent_container} = $parent;
     }
 }
-"";
+&quot;&quot;;
 %]CONTAINED_STUFF</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

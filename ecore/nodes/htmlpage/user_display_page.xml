@@ -13,20 +13,20 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">user since: [{parsetime: createtime}]&lt;br>
+  <field name="page" type="literal_value">user since: [{parsetime: createtime}]&lt;br&gt;
 was last logged in: [{parsetime:lasttime}]
-&lt;p>
-&lt;b>Real Name:&lt;/b> ["$$NODE{realname}"]&lt;br>
+&lt;p&gt;
+&lt;b&gt;Real Name:&lt;/b&gt; [&quot;$$NODE{realname}&quot;]&lt;br&gt;
 
 
-&lt;p>
+&lt;p&gt;
 [{parselinks:doctext}]
 
-&lt;p>
+&lt;p&gt;
 [%
-return unless($NODE->hasAccess($USER, "w"));
+return unless($NODE-&gt;hasAccess($USER, &quot;w&quot;));
 
-linkNode($NODE, 'edit', { displaytype => 'edit' });
+linkNode($NODE, 'edit', { displaytype =&gt; 'edit' });
 %]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>

@@ -4,36 +4,36 @@
   <field name="doctext" type="literal_value">If nodes of a nodetype aren't
 updated often, you can save some database resources by only checking
 if any nodes of that type have changed instead of checking each node.  
-&lt;p>Good nodetypes to turn typeversion on: [nodetype], [htmlpage], [nodemethod], [htmlcode], [container]
+&lt;p&gt;Good nodetypes to turn typeversion on: [nodetype], [htmlpage], [nodemethod], [htmlcode], [container]
 or anything else which is rarely updated, but frequently read.
-&lt;p>Nodetypes which should &lt;b>NOT&lt;/b> have typeversion on: [user], [document] or any nodetypes
+&lt;p&gt;Nodetypes which should &lt;b&gt;NOT&lt;/b&gt; have typeversion on: [user], [document] or any nodetypes
 which are frequently updated.
 
-&lt;p>
+&lt;p&gt;
 [{openform}]
-&lt;INPUT type=hidden name=confirmpage value=1>
+&lt;INPUT type=hidden name=confirmpage value=1&gt;
 [%
-    my $nodetypes = getNodeWhere({type_nodetype => 1 }, "nodetype", "title");
+    my $nodetypes = getNodeWhere({type_nodetype =&gt; 1 }, &quot;nodetype&quot;, &quot;title&quot;);
     my $str;
     my %TVERSIONS;
     my %NEWVERSIONS;
 
-    if (my $csr = $DB->sqlSelectMany("*",'typeversion')) {
-        while (my $N = $csr->fetchrow_hashref) { $TVERSIONS{$$N{typeversion_id}} = 1 }
-        $csr->finish;
+    if (my $csr = $DB-&gt;sqlSelectMany(&quot;*&quot;,'typeversion')) {
+        while (my $N = $csr-&gt;fetchrow_hashref) { $TVERSIONS{$$N{typeversion_id}} = 1 }
+        $csr-&gt;finish;
     }
-if (defined $query->param('confirmpage')) {
-    foreach ($query->param) {
+if (defined $query-&gt;param('confirmpage')) {
+    foreach ($query-&gt;param) {
         next unless /^typeify_(\d+)$/;
         my $n_id = $1;
         $NEWVERSIONS{$n_id} = 1;
         if (not $TVERSIONS{$n_id}) {
-            $DB->sqlInsert("typeversion", { typeversion_id=> $n_id, version => 1 });
+            $DB-&gt;sqlInsert(&quot;typeversion&quot;, { typeversion_id=&gt; $n_id, version =&gt; 1 });
         }
     }
 
     foreach (keys %TVERSIONS) {
-        $DB->sqlDelete("typeversion", "typeversion_id=$_") unless exists $NEWVERSIONS{$_};
+        $DB-&gt;sqlDelete(&quot;typeversion&quot;, &quot;typeversion_id=$_&quot;) unless exists $NEWVERSIONS{$_};
     }
 } else { %NEWVERSIONS = %TVERSIONS }
 
@@ -44,8 +44,8 @@ foreach (@$nodetypes)
 {
     #nodemethods must be typeversioned (because of the methodCache)
     next if ($$_{title} eq 'nodemethod');
-    $str = $query->checkbox('typeify_'.getId($_),
-       exists($NEWVERSIONS{getId($_)}), 1, $$_{title}) . "&lt;br>";
+    $str = $query-&gt;checkbox('typeify_'.getId($_),
+       exists($NEWVERSIONS{getId($_)}), 1, $$_{title}) . &quot;&lt;br&gt;&quot;;
 
     push @list, $str;
 }

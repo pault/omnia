@@ -3,9 +3,9 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($buttonName, $label) = @_;
 
-$label ||= "submit";
-$buttonName ||= "button";
-return $query->submit($buttonName, $label);</field>
+$label ||= &quot;submit&quot;;
+$buttonName ||= &quot;button&quot;;
+return $query-&gt;submit($buttonName, $label);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

@@ -1,15 +1,15 @@
 <NODE export_version="0.5" nodetype="superdoc" title="Duplicates Found">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">Multiple nodes named [%$query->param("node");%] were found&lt;br>
+  <field name="doctext" type="literal_value">Multiple nodes named [%$query-&gt;param(&quot;node&quot;);%] were found&lt;br&gt;
 
 [%
 	my $str;
 
 	foreach my $NODE (@{ $$NODE{group} }) {
-		$NODE = $DB->getNodeById($NODE, 'light');
-		$str .= "&lt;LI>" . linkNode($NODE);
-		$str .= "(type: $$NODE{type}{title})\n";
+		$NODE = $DB-&gt;getNodeById($NODE, 'light');
+		$str .= &quot;&lt;LI&gt;&quot; . linkNode($NODE);
+		$str .= &quot;(type: $$NODE{type}{title})\n&quot;;
 	}
 	$str;
 %]

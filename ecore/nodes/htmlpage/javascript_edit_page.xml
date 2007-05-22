@@ -13,17 +13,17 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]
-&lt;b>Comments:&lt;/b> (these do not get printed in the HTML)&lt;br>
+  <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
+&lt;b&gt;Comments:&lt;/b&gt; (these do not get printed in the HTML)&lt;br&gt;
 [{nodeFormObject: TextArea, comment, comments, AUTO, 80, 10}]
 
-&lt;p>
-&lt;b>Code:&lt;/b>&lt;br>
+&lt;p&gt;
+&lt;b&gt;Code:&lt;/b&gt;&lt;br&gt;
 [{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]
-&lt;br>
+&lt;br&gt;
 [{nodeFormObject: Checkbox, dynamic, dynamic, 1, 0, AUTO, Has embedded Perl}]
 
-&lt;p>
+&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

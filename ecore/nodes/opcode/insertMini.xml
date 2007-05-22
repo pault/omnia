@@ -58,4 +58,3 @@ return 1;</field>
   <field name="title" type="literal_value">insertMini</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">opcode</field>
 </NODE>
-

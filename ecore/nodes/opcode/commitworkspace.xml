@@ -2,37 +2,37 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">#in order to commit a workspace, you must be on the workspace node
-#you must also be "inside" the workspace
+#you must also be &quot;inside&quot; the workspace
 
 my $WS;
-$WS = $query->param("workspace_id");
-$WS ||= $query->param("node_id");
+$WS = $query-&gt;param(&quot;workspace_id&quot;);
+$WS ||= $query-&gt;param(&quot;node_id&quot;);
 return unless $WS;
 $WS = getNode ($WS);
 
-return unless $$WS{node_id} == $DB->{workspace}{node_id};
-return unless $WS->hasAccess($USER, 'x');
+return unless $$WS{node_id} == $DB-&gt;{workspace}{node_id};
+return unless $WS-&gt;hasAccess($USER, 'x');
 
 my $changed = 0;
-foreach ($query->param) {
+foreach ($query-&gt;param) {
    next unless /^commit_(\d+)$/;
    my $id = $1;
-   my $val = $query->param($_);
+   my $val = $query-&gt;param($_);
    next unless $val eq 'commit' or $val eq 'discard';
    if ($val eq 'commit') {
      my $N = getNode($id);
-     $DB->{workspace}{nodes}{$id} = "commit";   
-     $N->update($USER);
+     $DB-&gt;{workspace}{nodes}{$id} = &quot;commit&quot;;   
+     $N-&gt;update($USER);
    }
-   delete $DB->{workspace}{nodes}{$id};
-   $DB->sqlDelete('revision', "node_id=$id and inside_workspace=".$DB->{workspace}{node_id});
+   delete $DB-&gt;{workspace}{nodes}{$id};
+   $DB-&gt;sqlDelete('revision', &quot;node_id=$id and inside_workspace=&quot;.$DB-&gt;{workspace}{node_id});
    $changed = 1;
 }
 
 
 return 1 unless $changed;
-$DB->{workspace}->setVars($DB->{workspace}{nodes});
-$DB->{workspace}->update($USER);
+$DB-&gt;{workspace}-&gt;setVars($DB-&gt;{workspace}{nodes});
+$DB-&gt;{workspace}-&gt;update($USER);
 
 1;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

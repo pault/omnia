@@ -7,16 +7,16 @@ $title||=$$NODE{title};
 $width||=300;
 $height||=400;
 
-"&lt;SCRIPT language=\"javascript\">
+&quot;&lt;SCRIPT language=\&quot;javascript\&quot;&gt;
 	function launchTheWinda() {
-	window.open('" .
-		urlGen({node_id => getId ($NODE),
-			displaytype => $displaytype}, "noquotes") .
-		"','". getId ($NODE) ."',
+	window.open('&quot; .
+		urlGen({node_id =&gt; getId ($NODE),
+			displaytype =&gt; $displaytype}, &quot;noquotes&quot;) .
+		&quot;','&quot;. getId ($NODE) .&quot;',
 		'width=$width,height=$height,scrollbars=yes');	
 	}
-&lt;/SCRIPT>
-&lt;A href=\"javascript:launchTheWinda()\">$title&lt;/a>";</field>
+&lt;/SCRIPT&gt;
+&lt;A href=\&quot;javascript:launchTheWinda()\&quot;&gt;$title&lt;/a&gt;&quot;;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

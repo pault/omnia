@@ -20,7 +20,7 @@
 
   if(!src || !dest) return;
   var sel = src.selectedIndex;
-  if(sel &lt; 0 || sel >= src.length) return;
+  if(sel &lt; 0 || sel &gt;= src.length) return;
 
   var opt = new Option(src.options[sel].text, src.options[sel].value);
   var len = src.length;
@@ -42,7 +42,7 @@
 }
 </field>
   <field name="comment" type="literal_value">This is used by the groupSelector to move items back and forth between
-the "source" list and the "destination".  It also depends on the
+the &quot;source&quot; list and the &quot;destination&quot;.  It also depends on the
 moveSelectItem() javascript as it uses both the moveSelectItem() and
 the maintainValues() functions.</field>
   <field name="dynamic" type="literal_value">0</field>

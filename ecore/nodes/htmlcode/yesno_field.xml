@@ -5,8 +5,8 @@
 
 my $val = int($$NODE{$field});
 
-$val . $query->radio_group("$$NODE{type}{title}_$field", ['1', '0'], 
-	$val, 0, { '0' => 'no', '1'=> 'yes'});</field>
+$val . $query-&gt;radio_group(&quot;$$NODE{type}{title}_$field&quot;, ['1', '0'], 
+	$val, 0, { '0' =&gt; 'no', '1'=&gt; 'yes'});</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

@@ -1,14 +1,14 @@
 <NODE export_version="0.5" nodetype="opcode" title="bucketOp">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">if($query->param("bmove"))
+  <field name="code" type="literal_value">if($query-&gt;param(&quot;bmove&quot;))
 {
-  my $loc = getNode($query->param("node_id"));
+  my $loc = getNode($query-&gt;param(&quot;node_id&quot;));
 
-  return unless($loc &amp;&amp; $loc->isOfType("location") &amp;&amp;
-    $loc->hasAccess($USER, "x"));
+  return unless($loc &amp;&amp; $loc-&gt;isOfType(&quot;location&quot;) &amp;&amp;
+    $loc-&gt;hasAccess($USER, &quot;x&quot;));
 
-  foreach my $param ($query->param)
+  foreach my $param ($query-&gt;param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -18,17 +18,17 @@
     next unless($node);
 
     $$node{loc_location} = $$loc{node_id};
-    $node->update($USER);
+    $node-&gt;update($USER);
   }
 }
-elsif($query->param("bsymlink"))
+elsif($query-&gt;param(&quot;bsymlink&quot;))
 {
-  my $loc = getNode($query->param("node_id"));
-  my $sym = getType("symlink");
-  return unless($loc &amp;&amp; $loc->isOfType("location") &amp;&amp;
-    $loc->hasAccess($USER, "x") &amp;&amp; $sym->hasTypeAccess($USER, "c"));
+  my $loc = getNode($query-&gt;param(&quot;node_id&quot;));
+  my $sym = getType(&quot;symlink&quot;);
+  return unless($loc &amp;&amp; $loc-&gt;isOfType(&quot;location&quot;) &amp;&amp;
+    $loc-&gt;hasAccess($USER, &quot;x&quot;) &amp;&amp; $sym-&gt;hasTypeAccess($USER, &quot;c&quot;));
 
-  foreach my $param ($query->param)
+  foreach my $param ($query-&gt;param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -37,21 +37,21 @@ elsif($query->param("bsymlink"))
    
     next unless($node);
 
-    my $symlink = getNode($$node{title}, "symlink", "create force");
+    my $symlink = getNode($$node{title}, &quot;symlink&quot;, &quot;create force&quot;);
 
     $$symlink{symlink_node} = $$node{node_id};
     $$symlink{loc_location} = $$loc{node_id};
 
-    $symlink->insert($USER);
+    $symlink-&gt;insert($USER);
   }
 }
-elsif($query->param("bgroupadd"))
+elsif($query-&gt;param(&quot;bgroupadd&quot;))
 {
-  my $group = getNode($query->param("node_id"));
+  my $group = getNode($query-&gt;param(&quot;node_id&quot;));
 
-  return unless($group &amp;&amp; $group->isGroup() &amp;&amp; $group->hasAccess($USER, "w"));
+  return unless($group &amp;&amp; $group-&gt;isGroup() &amp;&amp; $group-&gt;hasAccess($USER, &quot;w&quot;));
 
-  foreach my $param ($query->param)
+  foreach my $param ($query-&gt;param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -59,23 +59,23 @@ elsif($query->param("bgroupadd"))
     # Probably has something to do with default vars.  So, we need to assign
     # what we found to a scoped var.
     my $insert = $1;
-    $group->insertIntoGroup($USER, $insert);
-	$group->update($USER);
+    $group-&gt;insertIntoGroup($USER, $insert);
+	$group-&gt;update($USER);
   }
 }
-elsif($query->param('bflush'))
+elsif($query-&gt;param('bflush'))
 {
-  my $vars = $USER->getVars();
+  my $vars = $USER-&gt;getVars();
   delete $$vars{nodebucket};  # flush the nodebucket
-  $USER->setVars($vars);
+  $USER-&gt;setVars($vars);
   # Don't need to update as $USER automatically gets updated on pageload end
 }
 
 
-if($query->param("bdrop") or $query->param("dropexec"))
+if($query-&gt;param(&quot;bdrop&quot;) or $query-&gt;param(&quot;dropexec&quot;))
 {
   my $bucket = $$VARS{nodebucket};
-  foreach my $param ($query->param)
+  foreach my $param ($query-&gt;param)
   {
     next unless($param =~ /^bnode_(.*)$/);
 
@@ -85,7 +85,7 @@ if($query->param("bdrop") or $query->param("dropexec"))
   }
 
   $$VARS{nodebucket} = $bucket;
-  delete $$VARS{nodebucket} unless($bucket &amp;&amp; $bucket ne "");
+  delete $$VARS{nodebucket} unless($bucket &amp;&amp; $bucket ne &quot;&quot;);
 }</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

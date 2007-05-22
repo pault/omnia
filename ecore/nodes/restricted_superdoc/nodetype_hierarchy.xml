@@ -6,7 +6,7 @@ tree displays how the nodetypes inherit (extends_nodetype
 field) from each other.  Useful for seeing where permissions
 or inherited data may be coming from.
 [%
-my $nodetypes = getNodeWhere({type_nodetype => 1},
+my $nodetypes = getNodeWhere({type_nodetype =&gt; 1},
   getType('nodetype'));
 my $table;
 
@@ -16,17 +16,17 @@ sub createTree
 {
   my ($types, $current) = @_;
   my $type;
-  my $str = "";
+  my $str = &quot;&quot;;
 
   foreach $type (@$types)
   {
     next if($$type{extends_nodetype} ne $current);
 
-    $str .= "&lt;li>" . linkNode($type) . "&lt;/li>\n"; 
+    $str .= &quot;&lt;li&gt;&quot; . linkNode($type) . &quot;&lt;/li&gt;\n&quot;; 
     $str .= createTree($types, $$type{node_id});
   }
 
-  $str = "&lt;ul>\n" . $str . "&lt;/ul>" if($str ne "");
+  $str = &quot;&lt;ul&gt;\n&quot; . $str . &quot;&lt;/ul&gt;&quot; if($str ne &quot;&quot;);
 
   return $str;
 }

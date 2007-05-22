@@ -13,14 +13,14 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]
+  <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
 
-&lt;b>Parent container:&lt;/b>
-[{nodeFormObject: TypeMenu, parent_container, parentContainer, container, AUTO, $USER, r, 0}]&lt;br>
+&lt;b&gt;Parent container:&lt;/b&gt;
+[{nodeFormObject: TypeMenu, parent_container, parentContainer, container, AUTO, $USER, r, 0}]&lt;br&gt;
 
-container html:&lt;br>
+container html:&lt;br&gt;
 [{nodeFormObject: TextArea, context}]
-&lt;p>
+&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

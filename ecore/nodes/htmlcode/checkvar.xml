@@ -19,4 +19,3 @@ $query-&gt;checkbox(&quot;set$var&quot;, $$VARS{$var}, &quot;on&quot;, $label);
   <field name="title" type="literal_value">checkvar</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
 </NODE>
-

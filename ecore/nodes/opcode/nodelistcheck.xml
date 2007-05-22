@@ -4,14 +4,14 @@
   <field name="code" type="literal_value">#this opcode handles killing/bucket ops on the [Gigantic Node Lister]
 
 
-if ($query->param('addtonb')) {
-  my $OP = getOpCode("addBucket", $USER);
+if ($query-&gt;param('addtonb')) {
+  my $OP = getOpCode(&quot;addBucket&quot;, $USER);
   evalX($$OP{code}, $OP);
-} elsif ($query->param('massacre')) {
+} elsif ($query-&gt;param('massacre')) {
   
-  $query->param("node_id", getNode('the killing floor','restricted_superdoc')->getId);
+  $query-&gt;param(&quot;node_id&quot;, getNode('the killing floor','restricted_superdoc')-&gt;getId);
 }
-"1";</field>
+&quot;1&quot;;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

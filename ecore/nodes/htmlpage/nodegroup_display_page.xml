@@ -14,13 +14,13 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[% unless ($$NODE{group}) {
-	"&lt;i>This nodegroup is empty&lt;/i>";
+	&quot;&lt;i&gt;This nodegroup is empty&lt;/i&gt;&quot;;
 } else {
   my $GROUP = $$NODE{group};
   my $str;
   foreach my $n  (@$GROUP) {
-    my $N = $DB->getNode($n, 'light');
-    $str .= "&lt;li>" . linkNode ($N) . "($$N{type}{title})";
+    my $N = $DB-&gt;getNode($n, 'light');
+    $str .= &quot;&lt;li&gt;&quot; . linkNode ($N) . &quot;($$N{type}{title})&quot;;
   }
   $str;
 }

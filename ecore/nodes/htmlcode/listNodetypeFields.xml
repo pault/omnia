@@ -3,18 +3,18 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($type) = @_;
 
-return "" unless($type);
-my $TYPE = $DB->getType($type);
-return "" unless($TYPE);
+return &quot;&quot; unless($type);
+my $TYPE = $DB-&gt;getType($type);
+return &quot;&quot; unless($TYPE);
 
-my $tables = $TYPE->getTableArray(1);
+my $tables = $TYPE-&gt;getTableArray(1);
 my $str;
 foreach my $table (@$tables)
 {
-  $str .="$table table fields:&lt;ul>\n";
-  $str .= "&lt;li>\n";
-  $str .= join "\n&lt;li>", sort $DB->getFields($table);
-  $str .= "\n&lt;/ul>";
+  $str .=&quot;$table table fields:&lt;ul&gt;\n&quot;;
+  $str .= &quot;&lt;li&gt;\n&quot;;
+  $str .= join &quot;\n&lt;li&gt;&quot;, sort $DB-&gt;getFields($table);
+  $str .= &quot;\n&lt;/ul&gt;&quot;;
 }
 
 $str;</field>

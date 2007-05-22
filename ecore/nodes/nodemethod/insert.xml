@@ -2,11 +2,11 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($this) = @_;
-my $N = $$this{DB}->getNode("general nodelet container", "container");
+my $N = $$this{DB}-&gt;getNode(&quot;general nodelet container&quot;, &quot;container&quot;);
 
-$$this{parent_container} = $N->getId() if(ref $N);
+$$this{parent_container} = $N-&gt;getId() if(ref $N);
 
-return $this->SUPER();</field>
+return $this-&gt;SUPER();</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

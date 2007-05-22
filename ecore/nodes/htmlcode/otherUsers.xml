@@ -5,14 +5,14 @@
 $time ||= 3 * 60;
 my $limit = 50;
 
-my $USRS = getNodeWhere( $DB->timediff( $DB->now(), 'lasttime' ) . ' &lt;$time',
+my $USRS = getNodeWhere( $DB-&gt;timediff( $DB-&gt;now(), 'lasttime' ) . ' &lt;$time',
 	'user', 'node_id', $limit );
 
 my $str;
 foreach (@$USRS) {
-	$str .= linkNode($_) ."&lt;br>";
+	$str .= linkNode($_) .&quot;&lt;br&gt;&quot;;
 }
-$str ||= "&lt;i>no users logged in&lt;/i>";
+$str ||= &quot;&lt;i&gt;no users logged in&lt;/i&gt;&quot;;
 
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

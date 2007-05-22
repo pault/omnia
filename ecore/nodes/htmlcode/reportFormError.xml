@@ -13,7 +13,7 @@ elsif(exists $GLOBAL{VERIFYFAILED})
 {
   # if no object name was given, we will just report if any verify
   # errors were encountered.
-  $str = "Form verification failed."
+  $str = &quot;Form verification failed.&quot;
 }
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

@@ -6,8 +6,8 @@
 #
 my ($setting, $field, $labelon, $labeloff) = @_;
 
-$labelon ||= "on";
-$labeloff ||= "off";
+$labelon ||= &quot;on&quot;;
+$labeloff ||= &quot;off&quot;;
 
 
 my $S;
@@ -15,21 +15,21 @@ $S = getNode($setting) if $setting =~ /^\d+$/;
 $S = getNode($setting, 'setting');
 
 $S or return;
-return unless $S->hasAccess($USER);
+return unless $S-&gt;hasAccess($USER);
 
-my $V = $S->getVars();
-my $param = "setfield".getId($S).$field;
+my $V = $S-&gt;getVars();
+my $param = &quot;setfield&quot;.getId($S).$field;
 
-if (defined $query->param($param)) {
-  $$V{$field} = $query->param($param);
-  $S->setVars($V);
-  $S->update($USER);
+if (defined $query-&gt;param($param)) {
+  $$V{$field} = $query-&gt;param($param);
+  $S-&gt;setVars($V);
+  $S-&gt;update($USER);
 }
 
 
 
 
-$query->radio_group($param, [0,1], $$V{$field}, '', {0 => $labeloff, 1 => $labelon});
+$query-&gt;radio_group($param, [0,1], $$V{$field}, '', {0 =&gt; $labeloff, 1 =&gt; $labelon});
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

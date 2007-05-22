@@ -3,22 +3,24 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($delimiter) = @_;
 
-$delimiter ||= " | ";
+$delimiter ||= &quot; | &quot;;
 my $str;
 my @links;
 
 
-push @links, linkNode ($HTMLVARS{default_node}, "Log $$USER{title} out", {op => 'logout'});
-push @links, linkNode ($USER, "Edit $$USER{title}'s settings", { 'displaytype' => 'edit' });
+push @links, linkNode ($HTMLVARS{default_node}, &quot;Log $$USER{title} out&quot;, {op =&gt; 'logout'});
+push @links, linkNode ($USER, &quot;Edit $$USER{title}'s settings&quot;, { 'displaytype' =&gt; 'edit' });
 
-my $EN = getNode('epicenter nodes', 'nodegroup');
+my $EN = $DB-&gt;getNode('Epicenter Nodes', 'nodegroup');
+
 foreach (@{ $$EN{group} }) {
   my $N = getNode $_;
-  push @links, linkNode($N) if $N->hasAccess($USER, 'r');
+  push @links, linkNode($N) if $N-&gt;hasAccess($USER, 'r');
 }
 
 
-$str = join "$delimiter\n", @links;</field>
+$str = join &quot;$delimiter\n&quot;, @links;
+</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

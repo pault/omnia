@@ -22,7 +22,7 @@ Display: &lt;font color=White&gt;
       &quot;&lt;/font&gt;&quot;); %]
 &lt;/font&gt;</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general mini nodelet container</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Node Statistics Mini</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="updateinterval" type="literal_value">0</field>

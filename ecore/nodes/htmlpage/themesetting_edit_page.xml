@@ -13,13 +13,13 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[&lt;editTitleOwner>]
-&lt;b>Replacement settings for&lt;/b>:
-[{nodeFormObject: TypeMenu, parent_theme, parenttheme, theme}]&lt;br>
+  <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
+&lt;b&gt;Replacement settings for&lt;/b&gt;:
+[{nodeFormObject: TypeMenu, parent_theme, parenttheme, theme}]&lt;br&gt;
 
 [{editvars}]
 
-&lt;p>
+&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">themesetting</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

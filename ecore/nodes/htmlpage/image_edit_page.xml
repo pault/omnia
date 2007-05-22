@@ -41,4 +41,3 @@
   <field name="title" type="literal_value">image edit page</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
 </NODE>
-

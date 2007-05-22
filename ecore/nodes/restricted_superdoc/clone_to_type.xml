@@ -112,4 +112,3 @@ else
   <field name="title" type="literal_value">clone to type</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">restricted_superdoc</field>
 </NODE>
-

@@ -18,10 +18,10 @@
 my $N = getNode($$NODE{supports_nodetype}, 'light');
 
 return linkNode($N) if($N);
-return "No Nodetype selected\n";
+return &quot;No Nodetype selected\n&quot;;
 %]
 
-&lt;p>[{listcode:code}]
+&lt;p&gt;[{listcode:code}]
 </field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>

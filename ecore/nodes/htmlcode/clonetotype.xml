@@ -2,9 +2,9 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $CLONER=getNode('clone to type','restricted_superdoc');
-my $PARAMS={ "srcnode_id" => $$NODE{node_id},node_id=>$$CLONER{node_id}};
+my $PARAMS={ &quot;srcnode_id&quot; =&gt; $$NODE{node_id},node_id=&gt;$$CLONER{node_id}};
 my $url=urlGen($PARAMS);
-return "&lt;a href=$url>&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle>&lt;/A>";</field>
+return &quot;&lt;a href=$url&gt;&lt;img src=images/icon_cloneto.gif alt='clone to type' border=0 align=center valign=middle&gt;&lt;/A&gt;&quot;;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

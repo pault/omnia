@@ -158,4 +158,3 @@ nodeFormObject('TypeMenu', 'defaultguest_permission', 'defguestperm',
   <field name="title" type="literal_value">editDefaultPermissions</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</field>
 </NODE>
-
