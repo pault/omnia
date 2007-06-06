@@ -18,6 +18,10 @@ use Everything::Node;
 use Everything::NodeCache;
 use Everything::NodeBase::Workspace;
 
+use base 'Class::Accessor';
+__PACKAGE__->follow_best_practice;
+__PACKAGE__->mk_accessors(qw/storage/);
+
 use Scalar::Util 'reftype';
 
 BEGIN
@@ -188,8 +192,32 @@ sub buildNodetypeModules
 	    }
 
 	}
+	$self->make_node_accessors(\%modules);
 	$self->load_nodemethods(\%modules);
 	return \%modules;
+}
+
+sub make_node_accessors {
+    my ( $self, $modules ) = @_;
+    foreach (keys %$modules) {
+	/::(\w+)$/;
+	my $type_name = $1;
+	my $nodetype_node = $self->getNode( $type_name, 'nodetype' );
+
+	my $dbtable;
+	if ($type_name eq 'node' ) {
+	    $dbtable = 'node';
+	} else {
+	    $dbtable = $nodetype_node->{sqltable};
+	}
+	next unless $dbtable;
+	my @tables = split /,/, $dbtable;
+	my @fields;
+	push @fields, $self->getFields( $_ ) foreach @tables;
+	$_->mk_accessors( @fields );
+    }
+
+
 }
 
 sub load_nodemethods {

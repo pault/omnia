@@ -24,6 +24,10 @@ use Everything::Util ();
 use XML::DOM;
 use SUPER;
 
+use base 'Class::Accessor';
+__PACKAGE__->follow_best_practice;
+__PACKAGE__->mk_accessors(qw/type/);
+
 =cut
 
 
