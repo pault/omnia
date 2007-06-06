@@ -522,6 +522,32 @@ sub parse_xml {
 
 }
 
+sub get_attribute {
+    my ( $self, $name ) = @_;
+
+    my $atts = $self->get_attributes;
+    foreach ( @$atts ) {
+	next unless $_->get_name eq $name;
+	return $_;
+    }
+
+    return;
+}
+
+
+sub get_var {
+    my ( $self, $name ) = @_;
+
+    my $vars = $self->get_vars;
+    foreach ( @$vars ) {
+	next unless $_->get_name eq $name;
+	return $_;
+    }
+
+    return;
+}
+
+
 package Everything::XML::Node::Attribute;
 
 {
