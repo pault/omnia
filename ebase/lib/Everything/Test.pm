@@ -80,30 +80,6 @@ sub test_getTime : Test(2) {
 
 }
 
-sub test_getParamArray : Test(5) {
-    my $self = shift;
-    no strict 'refs';
-
-    local *{ __PACKAGE__ . '::getParamArray' } =
-      \&{ $self->{class} . '::getParamArray' };
-    my $order   = 'red, blue, one , two';
-    my @results = getParamArray( $order, qw( one two red blue ) );
-    my @args    = ( -one => 1, -two => 2, -red => 'red', -blue => 'blue' );
-    is( @results, 4, 'getParamArray() should return array params unchanged' );
-
-    @results = getParamArray( $order, @args );
-    is( @results, 4, '... and the right number of args in hash mode' );
-
-    # now ask for a repeated parameter
-    @results = getParamArray( $order . ', one', @args );
-    is( @results, 5, '... (even when being tricky)' );
-    is( join( '', @results ), 'redblue121', '... the values in hash mode' );
-
-    # and leave out some parameters
-    is( join( '', getParamArray( 'red,blue', @args ) ),
-        'redblue', '... and only the requested values' );
-}
-
 sub test_cleanLinks : Test(3) {
     my $self = shift;
 

@@ -9,16 +9,6 @@ use strict;
 use warnings;
 
 
-
-sub setup_globals {
-    my $self = shift;
-    $self->SUPER;
-    no strict 'refs';
-    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
-    use strict 'refs';
-
-}
-
 sub test_get_values_array : Test(3)
 {
     my $self = shift;

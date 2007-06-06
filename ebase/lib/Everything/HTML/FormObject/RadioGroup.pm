@@ -10,7 +10,6 @@ Package that implements the base RadioGroup functionality.
 package Everything::HTML::FormObject::RadioGroup;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -69,7 +68,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default, $vertical ) =
-		getParamArray( "query, bindNode, field, name, default, vertical", @_ );
+		$this->getParamArray( "query, bindNode, field, name, default, vertical", @_ );
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
 

@@ -10,7 +10,6 @@ Package that implements the base AuthorMenu functionality.
 package Everything::HTML::FormObject::AuthorMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -70,7 +69,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default ) =
-		getParamArray( "query, bindNode, field, name, default", @_ );
+		$this->getParamArray( "query, bindNode, field, name, default", @_ );
 
 	$name ||= $field;
 
@@ -79,7 +78,7 @@ sub genObject
 
 	if ( ref $bindNode )
 	{
-		my $author = $DB->getNode( $$bindNode{$field} );
+		my $author = $this->{nodebase}->getNode( $$bindNode{$field} );
 		if ( $author && $author->isOfType('user') )
 		{
 			$default ||= $$author{title};
@@ -121,7 +120,7 @@ sub cgiVerify
 
 	if ($author)
 	{
-		my $AUTHOR = $DB->getNode( $author, 'user' );
+		my $AUTHOR = $this->{nodebase}->getNode( $author, 'user' );
 
 		if ($AUTHOR)
 		{

@@ -10,7 +10,6 @@ Package that implements the base TypeMenu functionality.
 package Everything::HTML::FormObject::TypeMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -93,7 +92,7 @@ sub genObject
 		$type,  $default,  $USER,  $perm,
 		$none,  $inherit,  $inherittxt
 		)
-		= getParamArray(
+		= $this->getParamArray(
 		"query, bindNode, field, name, type, default, USER, "
 			. "perm, none, inherit, inherittxt",
 		@_

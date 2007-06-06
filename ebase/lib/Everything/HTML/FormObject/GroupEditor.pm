@@ -10,7 +10,6 @@ Package that implements the base groupEditor functionality.
 package Everything::HTML::FormObject::GroupEditor;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -64,7 +63,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $name, $USER, $perm, $color ) =
-		getParamArray( "query, bindNode, name, USER, perm, color", @_ );
+		$this->getParamArray( "query, bindNode, name, USER, perm, color", @_ );
 
 	return "No Node to get group from!" unless ( ref $bindNode );
 

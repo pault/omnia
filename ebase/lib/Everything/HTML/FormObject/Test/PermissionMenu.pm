@@ -10,15 +10,6 @@ use strict;
 use SUPER;
 use warnings;
 
-sub setup_globals {
-    my $self = shift;
-    my $mock = $self->{mock};
-    $self->{errors} = [];
-    $mock->fake_module( 'Everything',
-        'logErrors' => sub { shift @{ $self->{errors} }, @_ } );
-
-    $self->SUPER;
-}
 
 sub test_gen_object : Test(14) {
     my $self     = shift;
@@ -27,11 +18,12 @@ sub test_gen_object : Test(14) {
     $instance->set_true('addHash');
     $instance->set_always( 'genPopupMenu', 'a' );
     my @params;
-    *Everything::HTML::FormObject::PermissionMenu::getParamArray = sub {
+    $instance->mock( getParamArray => sub {
+	shift;
         push @params, "@_";
         shift;
         @_;
-    };
+    });
 
     my ( $method_name, $arguments );
     $instance->fake_module( 'Everything::HTML::FormObject::FormMenu',
@@ -48,7 +40,7 @@ sub test_gen_object : Test(14) {
 
     is( $method_name, 'genObject', '... should call SUPER::genObject()' );
 
-    my ( $method, $args ) = $instance->next_call;
+    my ( $method, $args ) = $instance->next_call(2);
     is( $method, 'addHash', '... should call addHash()' );
 
     ( $method, $args ) = $instance->next_call;

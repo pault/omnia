@@ -10,7 +10,6 @@ Package that implements the base RemoveVarCheckbox functionality.
 package Everything::HTML::FormObject::RemoveVarCheckbox;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::Checkbox;
 use vars qw(@ISA);
@@ -53,7 +52,7 @@ sub genObject
 {
 	my $this = shift;
 	my ( $query, $bindNode, $field, $var ) =
-		getParamArray( "query, bindNode, field, var", @_ );
+		$this->getParamArray( "query, bindNode, field, var", @_ );
 
 	# Form objects for updating the key/value pairs are < 55.  This way this
 	# will get executed after them, guaranteeing that they will be deleted.

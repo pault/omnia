@@ -10,7 +10,6 @@ Package that implements the base VarsTextField functionality.
 package Everything::HTML::FormObject::VarsTextField;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -68,7 +67,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $var, $key, $default, $size, $maxlen ) =
-		getParamArray(
+		$this->getParamArray(
 		"query, bindNode, field, var, key, default, size, maxlen", @_ );
 
 	if ($key)
@@ -187,7 +186,7 @@ sub cgiUpdate
 
 		if ( $type > 0 )
 		{
-			my $N = $DB->getNode( $value, $type );
+			my $N = $this->{nodebase}->getNode( $value, $type );
 			$value = $$N{node_id} if ($N);
 		}
 

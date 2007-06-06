@@ -9,14 +9,6 @@ use SUPER;
 use warnings;
 use strict;
 
-sub setup_globals {
-    my $self = shift;
-    $self->SUPER;
-    no strict 'refs';
-    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
-    use strict 'refs';
-
-}
 
 sub test_gen_object : Test(16) {
 
@@ -33,6 +25,7 @@ sub test_gen_object : Test(16) {
 
     my @params;
     *Everything::HTML::FormObject::Checkbox::getParamArray = sub {
+	shift;
         push @params, "@_";
         shift;
         @_;

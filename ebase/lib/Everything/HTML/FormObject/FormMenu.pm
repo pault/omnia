@@ -22,7 +22,6 @@ populated with the desired items, call genPopupMenu() or genListMenu()
 package Everything::HTML::FormObject::FormMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -215,9 +214,9 @@ Returns true if successful, false otherwise.
 sub addType
 {
 	my ( $this, $type, $USER, $perm, $sortby ) = @_;
-	my $TYPE   = $DB->getType($type);
+	my $TYPE   = $this->{nodebase}->getType($type);
 	my $typeid = $$TYPE{node_id} if ( defined $TYPE );
-	my $NODES  = $DB->getNodeWhere( { type_nodetype => $typeid } );
+	my $NODES  = $this->{nodebase}->getNodeWhere( { type_nodetype => $typeid } );
 	my $NODE;
 	my $gValues = $this->getValuesArray();
 	my $gLabels = $this->getLabelsHash();
@@ -290,7 +289,7 @@ sub addGroup
 	$GROUPNODES = $$GROUP{group};
 	foreach $groupnode (@$GROUPNODES)
 	{
-		$NODE = $DB->getNode($groupnode);
+		$NODE = $this->{nodebase}->getNode($groupnode);
 		next unless ( ( not $USER ) or ( $NODE->hasAccess( $USER, $perm ) ) );
 
 		my $label = $$NODE{title};

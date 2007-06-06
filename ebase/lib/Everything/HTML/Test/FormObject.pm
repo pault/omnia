@@ -21,20 +21,8 @@ sub startup : Test(startup => 1) {
     $self->{class} = $module;
 
     $self->setup_mocks;
-    $self->setup_globals;
  
     use_ok($module);
-}
-
-sub test_imports :Test(startup => 1) {
-
-    my $self = shift;
-    is_deeply(
-	      $self->{import}->{Everything},
-	      { '$DB' => 1,  'getParamArray' => 1},
-	      '...imports $DB and getParamArray from Everything'
-	     );
-
 }
 
 sub setup_mocks {
@@ -64,14 +52,6 @@ sub setup_mocks {
 }
 
 
-sub setup_globals {
-    my $self = shift;
-    no strict 'refs';
-    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
-    use strict 'refs';
-
-}
-
 sub package_under_test
 {
 	my ($self, $this_package) =  @_;
@@ -93,9 +73,10 @@ sub test_new : Test(startup => 3) {
 
 sub fixture : Test(setup) {
     my $self = shift;
-    $self->{instance} = $self->{class}->new;
-    $self->{node}     = Test::MockObject->new;
     $self->{mock}->clear;
+    $self->{instance} = $self->{class}->new( $self->{mock} );
+    $self->{node}     = Test::MockObject->new;
+
 }
 
 sub test_gen_bind_field : Test(3) {
@@ -122,10 +103,13 @@ sub test_gen_object : Test(2) {
     my $self     = shift;
     my $instance = $self->{instance};
     ## we are assuming that Everything::getParamArray behaves as advertised
-    no strict 'refs';
+
     my $cgi = CGI->new;
-    local *{ $self->package_under_test(__PACKAGE__) . '::getParamArray' } = sub { $cgi, @_ };
-    use strict 'refs';
+
+    no strict 'refs';
+    local *{ $self->{class} . '::getParamArray' };
+    *{ $self->{class} . '::getParamArray' }  = sub { shift; return ( $cgi, @_ )};
+
     can_ok( $self->{class}, 'genObject' );
     is(
         $instance->genObject(qw/one two three/),
@@ -261,6 +245,29 @@ sub test_get_bind_field : Test(3) {
     is( $instance->getBindField( $cgi, 'grah' ),
         'blah', '...otherwise returns the field name.' );
 
+}
+
+
+sub test_getParamArray : Test(5) {
+    my $self = shift;
+    my $instance = $self->{instance};
+
+    my $order   = 'red, blue, one , two';
+    my @results = $instance->getParamArray( $order, qw( one two red blue ) );
+    my @args    = ( -one => 1, -two => 2, -red => 'red', -blue => 'blue' );
+    is( @results, 4, 'getParamArray() should return array params unchanged' );
+
+    @results = $instance->getParamArray( $order, @args );
+    is( @results, 4, '... and the right number of args in hash mode' );
+
+    # now ask for a repeated parameter
+    @results = $instance->getParamArray( $order . ', one', @args );
+    is( @results, 5, '... (even when being tricky)' );
+    is( join( '', @results ), 'redblue121', '... the values in hash mode' );
+
+    # and leave out some parameters
+    is( join( '', $instance->getParamArray( 'red,blue', @args ) ),
+        'redblue', '... and only the requested values' );
 }
 
 1;

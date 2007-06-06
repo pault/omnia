@@ -8,15 +8,6 @@ use SUPER;
 use warnings;
 use strict;
 
-sub setup_globals {
-    my $self = shift;
-    $self->SUPER;
-    no strict 'refs';
-    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
-    use strict 'refs';
-
-}
-
 sub setup_mocks {
     my $self = shift;
     $self->SUPER;
@@ -106,8 +97,8 @@ sub test_gen_object : Test(18) {
     my @go;
     no strict 'refs';
     no warnings 'redefine';
-    local *{ $self->package_under_test(__PACKAGE__) . '::getParamArray' } =
-      sub { push @gpa, \@_; return @gpa{qw( q bn f n d )} };
+    local *{ $self->{class} . '::getParamArray' } =
+      sub { shift; push @gpa, \@_; return @gpa{qw( q bn f n d )} };
     local *{'Everything::HTML::FormObject::genObject'} =
       sub { push @go, \@_; return 'some html' };
 

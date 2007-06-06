@@ -10,7 +10,6 @@ Package that implements the base PermissionMenu functionality.
 package Everything::HTML::FormObject::PermissionMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -73,7 +72,7 @@ sub genObject
 {
 	my $this = shift;
 	my ( $query, $bindNode, $field, $name, $perm, $default ) =
-		getParamArray( 'query, bindNode, field, name, perm, default', @_ );
+		$this->getParamArray( 'query, bindNode, field, name, perm, default', @_ );
 
 	$name    ||= $field;
 	$default ||= 'AUTO';

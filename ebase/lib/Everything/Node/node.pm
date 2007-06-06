@@ -14,7 +14,6 @@ use warnings;
 use base 'Everything::Node';
 
 use DBI;
-use Everything qw/$DB/;
 use Everything::XML 'xml2node';
 use Everything::NodeBase;
 use Everything::XML::Node;
@@ -694,6 +693,8 @@ sub logRevision
 {
 	my ( $this, $USER ) = @_;
 	return 0 unless $this->hasAccess( $USER, 'w' );
+
+	my $DB = $this->{DB};
 
 	my $workspace;
 	$workspace = $this->{DB}->{workspace}{node_id}

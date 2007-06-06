@@ -64,11 +64,12 @@ sub test_gen_object : Test(16) {
     $instance->set_true('addTypes');
     $instance->set_always( 'genPopupMenu', "a" );
     my @params;
-    *Everything::HTML::FormObject::TypeMenu::getParamArray = sub {
+    $instance->mock( getParamArray => sub {
+        shift;
         push @params, "@_";
         shift;
         @_;
-    };
+    });
 
     my ( $genObject_name, $genObject_args );
     $node->fake_module(
@@ -93,7 +94,7 @@ sub test_gen_object : Test(16) {
     );
     is( $genObject_name, 'genObject', '... should call SUPER::genObject()' );
 
-    my ( $method, $args ) = $instance->next_call;
+    my ( $method, $args ) = $instance->next_call(2);
     is( $method,    'addTypes', '... should call addTypes()' );
     is( $args->[1], 't',        '... should use provided $type' );
     is( $args->[2], 'U',        '... should use provided $USER' );
@@ -108,7 +109,7 @@ sub test_gen_object : Test(16) {
 
     $instance->clear;
     $instance->genObject( 'q', { f => 'field' }, 'f' );
-    ( $method, $args ) = $instance->next_call;
+    ( $method, $args ) = $instance->next_call(2);
     is( $args->[1], 'nodetype', '... $type should default to "nodetype"' );
     is( $args->[2], '-1',       '... $USER should default to -1' );
     is( $args->[3], 'r',        '... $perm should default to "r"' );

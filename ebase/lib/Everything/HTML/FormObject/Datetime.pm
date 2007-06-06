@@ -10,7 +10,6 @@ Copyright 2001 - 2003 Everything Development Inc.
 package Everything::HTML::FormObject::Datetime;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -150,7 +149,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default ) =
-		getParamArray( "query, bindNode, field, name, default", @_ );
+		$this->getParamArray( "query, bindNode, field, name, default", @_ );
 
 	$name ||= $field;
 
@@ -177,7 +176,7 @@ sub genObject
 	#otherwise use "now()"
 	else
 	{
-		$date = $DB->sqlSelect('now()');
+		$date = $this->{nodebase}->sqlSelect('now()');
 	}
 
 	$html .= makeDatetimeMenu( $query, $name, $date );

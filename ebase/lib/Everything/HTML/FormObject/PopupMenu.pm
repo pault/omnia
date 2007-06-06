@@ -10,7 +10,6 @@ Package that implements the base PopupMenu functionality.
 package Everything::HTML::FormObject::PopupMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -65,7 +64,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default ) =
-		getParamArray( "query, bindNode, field, name, default", @_ );
+		$this->getParamArray( "query, bindNode, field, name, default", @_ );
 
 	my $html = $this->SUPER::genObject(@_) . "\n";
 

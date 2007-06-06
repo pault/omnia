@@ -10,7 +10,6 @@ Package that implements the base SubsetSelector functionality.
 package Everything::HTML::FormObject::SubsetSelector;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -67,7 +66,7 @@ sub genObject
 		$query, $bindNode, $field,    $name, $default,
 		$size,  $color,    $srclabel, $destlabel
 		)
-		= getParamArray(
+		= $this->getParamArray(
 		"query, bindNode, field, name, default, size, color, "
 			. "srclabel, destlabel",
 		@_

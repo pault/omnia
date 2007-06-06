@@ -10,7 +10,6 @@ Package that implements the base TextField functionality.
 package Everything::HTML::FormObject::TextField;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -66,7 +65,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default, $size, $maxlen ) =
-		getParamArray( "query, bindNode, field, name, default, size, maxlen",
+		$this->getParamArray( "query, bindNode, field, name, default, size, maxlen",
 		@_ );
 
 	$name    ||= $field;

@@ -25,6 +25,7 @@ sub test_gen_object : Test(9) {
 
     my @params;
     *Everything::HTML::FormObject::HiddenField::getParamArray = sub {
+	shift;
         push @params, "@_";
         shift;
         @_;

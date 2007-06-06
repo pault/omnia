@@ -207,6 +207,7 @@ sub make_node_accessors {
 	my $dbtable;
 	if ($type_name eq 'node' ) {
 	    $dbtable = 'node';
+	    require Everything::Node::node;
 	} else {
 	    $dbtable = $nodetype_node->{sqltable};
 	}

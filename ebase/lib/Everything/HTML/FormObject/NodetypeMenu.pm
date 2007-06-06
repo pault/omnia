@@ -10,7 +10,6 @@ Package that implements the base NodetypeMenu functionality.
 package Everything::HTML::FormObject::NodetypeMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::TypeMenu;
 use vars qw(@ISA);
@@ -81,7 +80,7 @@ sub genObject
 		$query, $bindNode, $field,   $name, $omitutil,
 		$USER,  $none,     $inherit, $inherittxt
 		)
-		= getParamArray(
+		= $this->getParamArray(
 		"query, bindNode, field, name, omitutil, USER, none, "
 			. "inherit, inherittxt",
 		@_
@@ -109,7 +108,7 @@ sub addTypes
 	$this->addHash( { "None"    => $none },    1 ) if ( defined $none );
 	$this->addHash( { "Inherit" => $inherit }, 1 ) if ( defined $inherit );
 
-	my @RAWTYPES = $DB->getAllTypes();
+	my @RAWTYPES = $this->{nodebase}->getAllTypes();
 	my %types;
 	my $omitutil = $$this{omitutil};
 	my @SORTED;

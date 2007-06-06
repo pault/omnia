@@ -10,7 +10,6 @@ Copyright 2001 - 2003 Everything Development Inc.
 package Everything::HTML::FormObject::ListMenu;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject::FormMenu;
 use vars qw(@ISA);
@@ -94,7 +93,7 @@ sub genObject
 		$query,    $bindNode, $field, $name,   $default,
 		$multiple, $values,   $size,  $labels, $sortby
 		)
-		= getParamArray(
+		= $this->getParamArray(
 		"query, bindNode, field, name, default, multiple, values, "
 			. "size, labels, sortby",
 		@_

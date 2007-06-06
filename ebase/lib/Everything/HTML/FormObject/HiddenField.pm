@@ -10,7 +10,6 @@ Package that implements the base HiddenField functionality.
 package Everything::HTML::FormObject::HiddenField;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -58,7 +57,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default ) =
-		getParamArray( "query, bindNode, field, name, default", @_ );
+		$this->getParamArray( "query, bindNode, field, name, default", @_ );
 
 	$name    ||= $field;
 	$default ||= 'AUTO';

@@ -20,11 +20,12 @@ sub test_gen_object : Test(10) {
     $instance->set_true( 'getValuesArray', 'getLabelsHash' );
     $instance->set_always( 'genPopupMenu', 'a' );
     my @params;
-    *Everything::HTML::FormObject::RadioGroup::getParamArray = sub {
+    $instance->mock(getParamArray => sub {
+	shift;
         push @params, "@_";
         shift;
         @_;
-    };
+    });
 
     my ( $method_name, $arguments );
     $instance->fake_module( 'Everything::HTML::FormObject::FormMenu',
@@ -40,7 +41,7 @@ sub test_gen_object : Test(10) {
     );
     is( $method_name, 'genObject', '... should call SUPER::genObject()' );
 
-    my ( $method, $args ) = $instance->next_call;
+    my ( $method, $args ) = $instance->next_call(2);
     is( $method, 'getValuesArray', '... should call getValuesArray()' );
 
     ( $method, $args ) = $instance->next_call;

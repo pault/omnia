@@ -10,7 +10,6 @@ Package that implements the base Checkbox functionality.
 package Everything::HTML::FormObject::Checkbox;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -73,7 +72,7 @@ sub genObject
 		$query,   $bindNode,  $field,   $name,
 		$checked, $unchecked, $default, $label
 		)
-		= getParamArray(
+		= $this->getParamArray(
 		"query, bindNode, field, name, checked, unchecked, default, label",
 		@_ );
 

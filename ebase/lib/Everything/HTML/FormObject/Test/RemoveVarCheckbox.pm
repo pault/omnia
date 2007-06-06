@@ -16,11 +16,12 @@ sub test_gen_object : Test(8) {
     my $cgi      = Test::MockObject->new;
 
     my @params;
-    *Everything::HTML::FormObject::RemoveVarCheckbox::getParamArray = sub {
+    $instance->mock( getParamArray => sub {
+	shift;
         push @params, "@_";
         shift;
         @_;
-    };
+    });
 
     my ( $method_name, $arguments );
     $instance->fake_module( 'Everything::HTML::FormObject::Checkbox',

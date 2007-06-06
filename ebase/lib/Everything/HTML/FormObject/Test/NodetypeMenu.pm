@@ -10,24 +10,15 @@ use strict;
 use SUPER;
 use warnings;
 
-sub setup_globals {
-    my $self = shift;
-    $self->SUPER;
-    no strict 'refs';
-    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
-    use strict 'refs';
-
-}
-
 sub test_gen_object : Test(10) {
     my $self     = shift;
     my $instance = Test::MockObject::Extends->new( $self->{instance} );
     my $mock     = Test::MockObject->new;
 
     my ( %gpa, @gpa );
-    $mock->fake_module( $self->{class},
+    $instance->mock(
         getParamArray =>
-          sub { push @gpa, \@_; return @gpa{qw( q bn f n ou U no i it )} } );
+          sub { shift; push @gpa, \@_; return @gpa{qw( q bn f n ou U no i it )} } );
 
     my @go;
     $mock->fake_module(
@@ -119,7 +110,7 @@ sub test_add_types : Test(22) {
     );
 
     ( $method, $args ) = $mock->next_call;
-    is( $method, 'getAllTypes', '... should call $DB->getAllTypes' );
+    is( $method, 'getAllTypes', '... should call getAllTypes' );
 
     is_deeply(
         [@hTA],

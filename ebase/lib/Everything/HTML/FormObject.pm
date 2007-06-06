@@ -10,7 +10,6 @@ Package that implements the base FormObject functionality.
 package Everything::HTML::FormObject;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 =cut
 
@@ -27,8 +26,8 @@ Returns the blessed FormObject class.
 
 sub new
 {
-	my $class = shift @_;
-	my $this  = {};
+	my ( $class, $DB ) = @_;
+	my $this  = { nodebase => $DB };
 
 	bless $this, $class;
 
@@ -86,7 +85,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name ) =
-		getParamArray( "query, bindNode, field, name", @_ );
+		$this->getParamArray( "query, bindNode, field, name", @_ );
 
 	return $this->genBindField( $query, $bindNode, $field, $name );
 }
@@ -328,7 +327,7 @@ sub getBindNode
 		my $nodeid = $1;
 		$nodeid = $query->param('node_id') if $nodeid eq 'new';
 
-		return $DB->getNode($nodeid);
+		return $this->{nodebase}->getNode($nodeid);
 	}
 }
 
@@ -372,5 +371,66 @@ sub getBindField
 
 	return $field;
 }
+
+
+=head2 C<getParamArray>
+
+This method allows your other functions to accept either an array of values,
+or a hash of "-name =E<gt> value" pairs.  Just call this function with the
+order of parameters (in case @_ is an array), and @_.  This will parse
+everything apart and return a hashref that contains paramName =E<gt> value no
+matter if the @_ is an array or hash.
+
+=over 4
+
+=item * $names
+
+a string of parameter names that also defines the order of the parameters if a
+hash is passed.
+
+=item * @_
+
+the parameters passed to your function
+
+=back
+
+Returns an array of the parameters.  For example, if your function is:
+
+  myfunc(name, age, weight, height);
+
+You would use this function like:
+
+  my $params = getParamArray("name, age, weight, height", @_);
+
+This would then return to you an array of the values in the order specified, no
+matter if they were originally passed as an array, or a "-name =E<gt> value"
+pair list.
+
+=cut
+
+sub getParamArray
+{
+        my $self = shift;
+	my $names = shift;
+	my $first = $_[0];
+
+	if ( $first =~ /^-/ )
+	{
+
+		# The first parameter starts with a '-'.  This indicates that
+		# @_ is a hash/value pair.  We need to convert this into an
+		# array based on the order specified.
+		my %hash = @_;
+		return @hash{ map { "-$_" } split( /\s*,\s*/, $names ) };
+	}
+	else
+	{
+
+		# @_ contains an array of values, just return it
+		return @_;
+	}
+}
+
+
 
 1;

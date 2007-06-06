@@ -18,11 +18,12 @@ sub test_gen_object : Test(13) {
     $cgi->set_always( 'param',    'some stuff' );
     $cgi->set_always( 'textarea', 'a' );
     my @params;
-    *Everything::HTML::FormObject::TextArea::getParamArray = sub {
+    $instance->mock( getParamArray => sub {
+	shift;
         push @params, "@_";
         shift;
         @_;
-    };
+    } );
 
     my ( $method_name, $arguments );
     $instance->fake_module( 'Everything::HTML::FormObject',

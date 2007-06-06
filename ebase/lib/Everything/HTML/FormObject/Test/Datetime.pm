@@ -10,15 +10,6 @@ use base 'Test::Class';
 use strict;
 use warnings;
 
-sub setup_globals {
-    my $self = shift;
-    $self->SUPER;
-    no strict 'refs';
-    *{ $self->package_under_test(__PACKAGE__) . '::DB' } = \$self->{mock};
-    use strict 'refs';
-
-}
-
 sub test_double_digit : Test(3) {
     my $self = shift;
     no strict 'refs';
@@ -208,7 +199,7 @@ sub test_gen_object : Test(19) {
     ### in its original form
 
     local *{ $self->{class} . '::getParamArray' } =
-      sub { push @gpa, \@_; return @gpa{qw( q bn f n d )} };
+      sub { shift; push @gpa, \@_; return @gpa{qw( q bn f n d )} };
 
     local *{ $self->{class} . '::makeDatetimeMenu' } =
       sub { push @mDM, \@_; return 'html2' };
@@ -268,14 +259,14 @@ sub test_gen_object : Test(19) {
     $gpa{d} = 'def0000';
     $instance->genObject();
     is( ${ $mDM[4] }[2],
-        'sql', '... and to the $DB->sqlSelect() call if $default is bad' );
+        'sql', '... and to sqlSelect() call if $default is bad' );
     is( join( ' ', $db->call_args(-1) ),
         "$db now()", '... passing "now()" to it' );
 
     $gpa{d} = '';
     $instance->genObject();
     is( ${ $mDM[5] }[2],
-        'sql', '... and to the $DB->sqlSelect() call if no $default' );
+        'sql', '... and to sqlSelect() call if no $default' );
 
     is( $result, "html1\nhtml2",
         '... should return parent object plus new menu html' );

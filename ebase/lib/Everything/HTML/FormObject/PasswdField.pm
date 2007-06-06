@@ -11,7 +11,6 @@ package Everything::HTML::FormObject::PasswdField;
 
 use strict;
 
-use Everything qw/getParamArray/;
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
@@ -66,7 +65,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $vertical, $labels ) =
-		getParamArray( "query, bindNode, field, name, vertical, labels", @_ );
+		$this->getParamArray( "query, bindNode, field, name, vertical, labels", @_ );
 
 	my $html    = $this->SUPER::genObject(@_) . "\n";
 	my $default = "";

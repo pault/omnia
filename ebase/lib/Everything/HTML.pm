@@ -149,7 +149,7 @@ sub newFormObject
 	# We eval so that if the requested nodetype doesn't exist, we don't die
 	my $object = eval {
 		require $modulepath;
-		$module->new();
+		$module->new( $DB );
 	};
 
 	Everything::logErrors($@) if $@;

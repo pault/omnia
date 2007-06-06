@@ -10,7 +10,6 @@ Package that implements the base TextArea functionality.
 package Everything::HTML::FormObject::TextArea;
 
 use strict;
-use Everything qw/$DB getParamArray/;
 
 use Everything::HTML::FormObject;
 use vars qw(@ISA);
@@ -71,7 +70,7 @@ sub genObject
 {
 	my $this = shift @_;
 	my ( $query, $bindNode, $field, $name, $default, $cols, $rows, ) =
-		getParamArray(
+		$this->getParamArray(
 		"query, bindNode, field, name, default, cols, rows ", @_ );
 
 	$name    ||= $field;

@@ -135,6 +135,7 @@ sub test_build_nodetype_modules :Test( 2 )
 	$storage->mock(
 		fetch_all_nodetype_names => sub { qw( node nodetype cow dbtable ) }
 	);
+	$storage->set_always( getFieldsHash => '' );
 
 	my $result  = $nb->buildNodetypeModules();
 	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );

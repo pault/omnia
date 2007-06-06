@@ -22,9 +22,6 @@ sub test_cgi_update : Test(11) {
 
     $instance->set_always( 'getBindField', 'field' );
     my ( %gpa, @gpa );
-    $mock->fake_module( $self->{class},
-        getParamArray =>
-          sub { push @gpa, \@_; return @gpa{qw( q bn f n d m v s l sb )} } );
 
     my @go;
     $mock->fake_module(
@@ -69,9 +66,9 @@ sub test_gen_object : Test(18) {
     my $mock     = $self->{mock};
 
     my ( %gpa, @gpa );
-    $mock->fake_module( $self->{class},
+    $instance->mock(
         getParamArray =>
-          sub { push @gpa, \@_; return @gpa{qw( q bn f n d m v s l sb )} } );
+          sub { shift; push @gpa, \@_; return @gpa{qw( q bn f n d m v s l sb )} } );
 
     my @go;
     $mock->fake_module(
@@ -102,7 +99,7 @@ sub test_gen_object : Test(18) {
     unlike( join( ' ', @{ $gpa[0] } ),
         qr/$mock/, '... but not the object itself' );
 
-    my ( $method, $args ) = $instance->next_call();
+    my ( $method, $args ) = $instance->next_call(2);
     is( 'clearMenu', $method, '... should call clearMenu' );
     is( join( ' ', @$args ), "$instance", '... passing one arg ($this)' );
 
@@ -138,12 +135,12 @@ sub test_gen_object : Test(18) {
 
     $gpa{d} = 'AUTO';
     $instance->genObject();
-    ( $method, $args ) = $instance->next_call(5);
+    ( $method, $args ) = $instance->next_call(6);
     is( $$args[3], '', '... should be blank if AUTO and no $bindNode' );
 
     $gpa{bn} = { field => "1,2" };
     $instance->genObject();
-    ( $method, $args ) = $instance->next_call(5);
+    ( $method, $args ) = $instance->next_call(6);
     is( "@{$$args[3]}", "1 2",
         '... and should be $$bindNode{$field} if AUTO and $bindNode' );
 
