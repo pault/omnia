@@ -741,8 +741,289 @@ sub installModules {
     return $result;
 }
 
+
+
+sub build_new_nodes {
+
+    my ( $self ) = @_;
+
+    my $select_cb ||= sub { 1 };
+    my $iterator = $self->make_node_iterator();
+
+    my @nodes;
+    while ( my $xmlnode = $iterator->() ) {
+	my $node =  xml2node( $xmlnode->get_raw_xml, 'nofinal' );
+	print "@$node\n";
+	push @nodes, @$node;
+    }
+
+    return @nodes;
+
+}
+
+sub get_conflicting_nodes {
+    my ( $self ) = @_;
+
+
+}
+
+sub update_node_to_nodebase {
+    my ( $self, $node, $handle_conflict_cb ) = @_;
+
+    my $oldnode = $node->existingNodeMatches();
+
+    ## default behaviour is to clobber nodes
+    $handle_conflict_cb ||= sub{     $oldnode->updateFromImport( $node, -1 ) };
+
+    if ( $oldnode->conflictsWith( $node ) ){
+	$handle_conflict_cb->();
+    } else {
+	$oldnode->updateFromImport( $node, -1 );
+    }
+
+
+
+}
+
+
+
+=head2 C<verify_nodes>
+
+Cycles through the nodeball and checks each node against what is in the nodebase. the Checks that a node in the nodeball is the same as the one in the nodebase.
+Returns an array ref of array refs.
+
+Each of the inner array refs are as follows:
+
+If the node is in the nodeball but not in the nodebase:
+
+[ $xmlnode, undef ]
+
+If the node is in the nodebase (and listed as a member of the nodeball), but not in the nodeball:
+
+[ undef, $node ]
+
+If the node is in the nodebase and nodeball, but there are differences:
+
+[ $xmlnode, $diff_hash ]
+
+$diff_hash is a hash of the difference as returned by verify_node().
+
 =cut
 
+
+sub verify_nodes {
+    my ( $self ) = @_;
+
+    my $nb =  $self->get_nodebase;
+
+    my $iterator = $self->make_node_iterator;
+
+    my @diffs;
+
+    my $nodebase_nodeball_group = $nb->getNode( $self->nodeball_vars->{title}, 'nodeball')->selectGroupArray;
+
+    ## get nodes in group;
+
+    my %nodebase_group = map { my $n = $nb->getNode( $_ );
+			    ("$$n{title},$$n{type}{title}" => 1);
+			}
+      @$nodebase_nodeball_group;
+
+  XMLNODE:
+    while (my $xmlnode = $iterator->() ) {
+
+	my $title =  $xmlnode->get_title;
+	my $type = $xmlnode->get_nodetype;
+	my $node  = $self->get_nodebase->getNode( $title, $type );
+
+	delete $nodebase_group{ "$title,$type" };
+
+	if ( ! $node) {
+
+	    push @diffs, [ $xmlnode, undef ];
+	    next XMLNODE;
+	}
+
+	if ( my  $diff = $self->verify_node( $xmlnode, $node) ) {
+
+	    push @diffs, [ $xmlnode, $diff ];
+	    next XMLNODE;
+	}
+
+    }
+
+    foreach ( keys %nodebase_group ) {
+	my ( $title, $type ) = split /,/, $_;
+	push @diffs, [ undef, $nb->getNode( $title, $type ) ];
+    }
+
+    return \@diffs;
+}
+
+=head2 C<verify_node>
+
+Checks that a node in the nodeball is the same as the one in the nodebase.
+
+First argument in the XML::Node object, the second one is the Everything::Node object.
+
+Returns a hash ref of differences. It has the the following structure.
+
+{
+
+ attribute => { attributename => [ $xmlnode, $node, $attributetype ],
+                attributename2 => [ $xmlnode, $node, 'noderef', $referenced_node ],
+                ....
+              },
+
+ var => { varname => [ $xmlnode, $node, 'literal_value' ],
+          varname2 => [ $xmlnode, $node, 'noderef', $referenced_node ],
+          ....
+        },
+
+
+ groupmember => { membernodetype,nodetype => [ $xmlnode, $node, $referenced_node ],
+          ....
+        }
+
+}
+
+=cut
+
+## Arguably, the return value is a little confusing and difficult to
+## unpack, so we should do itwith an Everything::Nodeball::Difference
+## object or something
+
+
+sub verify_node {
+
+    my ( $self, $xmlnode, $node ) = @_;
+
+
+    ### XXX: if we want to turn this into a function, $nb can be the
+    ### nodebae stored in $node
+    my $nb = $self->get_nodebase;
+
+    my %differences;
+    ## verify attributes
+        my $atts = $xmlnode->get_attributes;
+
+
+
+        my $node_title = $xmlnode->get_title;
+        my $node_type  = $xmlnode->get_nodetype;
+
+    my %attribute_differences;
+
+         foreach (@$atts) {
+            my $att_name = $_->get_name;
+
+            my $att_type = $_->get_type;
+
+            if ( $att_type eq 'literal_value' ) {
+
+                ## the line below makes undef an empty string to deal
+                ## with the way database tables are created at the
+                ## moment.
+                my $content = defined $_->get_content ? $_->get_content : '';
+
+                unless (  $node->{$att_name} eq $content ) {
+		    $attribute_differences{ $att_name } = [ $xmlnode, $node, $att_type ];
+		}
+
+            }
+            else {
+
+                my ($type_name) = split /,/, $_->get_type_nodetype;
+                my $node_name = $_->get_content;
+
+                my $wanted = $nb->getNode( $node_name, $type_name );
+
+                unless (  $node->{$att_name} == $wanted->{node_id} ) {
+		    $attribute_differences{ $att_name } = [ $xmlnode, $node, $att_type, $wanted ];
+		}
+
+            }
+	    $differences{ attributes } = \%attribute_differences if %attribute_differences;
+	}
+
+
+    ### verify vars
+
+        my $vars = $xmlnode->get_vars;
+
+    if (@$vars) {
+
+        my $db_vars = $node->getVars;
+
+	my %var_differences;
+
+        foreach (@$vars) {
+
+	    my $var_name = $_->get_name;
+
+            my $var_type = $_->get_type;
+
+
+            if ( $var_type eq 'literal_value' ) {
+
+                ## the line below makes undef an empty string to deal
+                ## with the way database tables are created at the
+                ## moment.
+                my $content = defined $_->get_content ? $_->get_content : '';
+
+                
+                unless (  $db_vars->{$var_name} eq $content ) {
+		    $var_differences{ $var_name } = [ $xmlnode, $node, $var_type ];
+		}
+
+            }
+            else {
+
+                my ($type_name) = split /,/, $_->get_type_nodetype;
+                my $node_name = $_->get_content;
+
+                my $wanted = $nb->getNode( $node_name, $type_name );
+
+		unless (  $db_vars->{$var_name} == $wanted->{node_id} ) {
+		    $var_differences{ $var_name } = [ $xmlnode, $node, $var_type, $wanted ];
+		}
+
+
+            }
+        }
+	$differences{ vars } = \%var_differences if %var_differences;
+
+
+    }
+    ## verify group members
+
+
+    my $members = $xmlnode->get_group_members;
+
+    if ( @$members ) {
+    
+        my %db_members = map { $_ => 1 } @{ $node->selectGroupArray };
+
+	my %member_differences;
+
+        foreach (@$members) {
+
+            my ($type_name) = split /,/, $_->get_type_nodetype;
+            my $node_name = $_->get_name;
+
+            my $wanted = $nb->getNode( $node_name, $type_name );
+
+	    unless ( $db_members{ $wanted->{node_id} } ) {
+		$member_differences{"$node_name,$type_name" } = [ $xmlnode, $node, $wanted ];
+	    }
+	}
+
+	$differences{groupmembers} = \%member_differences if %member_differences;
+
+    }
+    return \%differences if %differences;
+    return;
+}
 
 =head2 C<update_nodeball>
 
@@ -752,118 +1033,38 @@ files to add, remove, and update.
 =cut
 
 sub update_nodeball {
-    my ( $self, $OLDBALL, $dir ) = @_;
+    my ( $self, $dir ) = @_;
 
     my $DB = $self->get_nodebase
       || Everything::Exception::NoNodeBase->throw("No nodebase here!");
-    $dir ||= $self->get_nodeball_dir;
-    my $NEWBALL = $self->nodeball_xml;
 
-    my $script_dir = $dir . "/scripts";
-    my $preinst    = $script_dir . "/preupdate.pl";
-    require $preinst if -f $preinst;
+    $dir ||= $self->get_nodeball_dir;
+
+    my $NEWBALLXML = $self->nodeball_xml;
+
+    my $vars = $self->nodeball_vars;
+
+    my $OLDBALL = $self->get_nodebase->getNode( $vars->{title}, 'nodeball');
 
     #check the tables and make sure that they're compatable
 
     $self->insert_sql_tables($dir);
 
-    my $nodesdir      = $dir . "/nodes";
-    my @nodes         = ();
-    my @conflictnodes = ();
+    my @nodes = $self->build_new_nodes; # list of new nodes
 
-    use File::Find;
-
-    # XXX: for this to work we need to split XML::xml2node so that
-    # inserting into the database and creating functions from nodes
-    # are not going through the same function
-
-    # XXXX: xmlFinal also calls update
-    find sub {
-        my $file = $File::Find::name;
-        return unless $file =~ /\.xml$/;
-        ## no final means we don't insert the node into the db.
-        my $info = xmlfile2node( $file, 'nofinal' );
-        push @nodes, @$info if $info;
-    }, $nodesdir;
-
-    #check to make sure all dependencies are installed
-
-    # create a hash of the old nodegroup -- better lookup times
-    my (%oldgroup);
-    foreach my $id ( @{ $$OLDBALL{group} } ) {
-        $oldgroup{$id} = $DB->getNode($id);
-    }
-
-    ### get all the old noball members.
-    my $nbmembers = buildNodeballMembers($OLDBALL);
-    my $new_nbfile;
-    foreach my $node_id (@nodes) {
-        my $N = $DB->getNode($node_id);
-        next
-          if $$N{type}{title} eq 'nodeball'
-          and $$N{title}      eq $$NEWBALL{title};
-
-        # XXX: According to Node.pm, this is supposed to get called on
-        # a dummy node, but here we're calling it on a node retrieved
-        # from the DB. Something won't work.
-
-        my $OLDNODE = $N->existingNodeMatches();
-        if ($OLDNODE) {
-            next if $$N{type}{title} eq 'nodeball';
-            if ( $oldgroup{ $OLDNODE->getId() } ) {
-                delete $oldgroup{ $OLDNODE->getId() };
-            }
-
-            if ( $$nbmembers{ $OLDNODE->getId() } ) {
-                my $OTHERNB = $DB->getNode( $$nbmembers{ $OLDNODE->getId() } );
-                next
-                  unless confirmYN(
-"$$OLDNODE{title} ($$OLDNODE{type}{title}) is also included in the \"$$OTHERNB{title}\" nodeball.  Do you want to replace it (N/y)?"
-                  );
-            }
-            if ( not $OLDNODE->conflictsWith($N) ) {
-                $OLDNODE->updateFromImport( $N, -1 );
-            }
-            else {
-                push @conflictnodes, $N;
-            }
-        }
-        else {
-            if ( $$N{type}{title} eq 'nodeball' ) {
-                print
-"shoot!  Your nodeball says it needs $$N{title}.  You need to go get that.";
-                die unless $self->FORCE;
-            }
-            $N->xmlFinal();
-        }
+    foreach my $N (@nodes) {
+	print "$N\n";
+	$self->update_node_to_nodebase( $N );
     }
 
     fixNodes(0);
 
-    #fix broken dependancies
-
-    handleConflicts( \@conflictnodes, $NEWBALL );
-
     #insert the new nodeball
-    $OLDBALL->updateFromImport( $NEWBALL, -1 );
+    my $nodelist = xml2node( $NEWBALLXML, 'nofinal' );
+    $OLDBALL->updateFromImport( $$nodelist[0], -1 );
 
-    #find the unused nodes and remove them
-    foreach ( values %oldgroup ) {
-        my $NODE = $DB->getNode($_);
-
-        next unless ($NODE);
-
-        #we should probably confirm this
-        #$NODE->nuke(-1);
-    }
     fixNodes(1);
 
-    my $postinst = $script_dir . "/postupdate.pl";
-    require $postinst if -f $postinst;
-
-    installModules($dir);
-
-    print "$$OLDBALL{title} updated.\n";
 }
 
 =cut

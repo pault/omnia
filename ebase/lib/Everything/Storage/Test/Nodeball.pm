@@ -32,7 +32,7 @@ sub make_test_nodeball {
     my ($self) = @_;
 
     my $dir = get_temp_dir();
-
+    
     mkdir $dir;
 
     chdir $dir;
@@ -810,22 +810,6 @@ sub test_update_nodeball_from_nodebase :Test(6) {
 
 }
 
-sub test_check_nodeball_against_nodebase :Test(1) {
-    local $TODO = "Unimplemented";
-
-    ok( undef, '...runs through each node in the nodeball and checks for type, attributes and values against the node stored in the nodebase.');
-
-
-}
-
-sub test_check_nodebase_against_nodeball :Test(1) {
-    local $TODO = "Unimplemented";
-
-    ok( undef, '...runs through each node in the nodebase and checks for type, attributes and values against the xmlnode stored in the nodeball.');
-
-
-}
-
 sub test_check_nodeball_integrity :Test(4) {
 
     my $self = shift;
@@ -880,43 +864,183 @@ HERE
 
 }
 
-sub test_check_nodeball_presence :Test(4) {
-    local $TODO = "Unimplemented.";
-
+sub test_verify_nodes : Test(1) {
     my $self = shift;
+
     my $instance = $self->{instance};
-    return "unimplemented";
-    my $dir = get_temp_dir();
-    mkdir $dir;
-    my $mock = Test::MockObject->new;
-    $instance->set_nodebase( $mock );
-    $mock->set_always( selectNodegroupFlat => [ { title => "Duplicate Found", type => { title => 'superdoc' }},  { title => "Create a new user", type => { title => 'htmlcode' }}, { title => "thingo", type => { title => 'thingtype' }} ] );
+    my $mock     = $self->{mock};
 
-    $instance->set_nodeball_dir( $dir );
+    $instance->set_nodebase($mock);
 
-    my $mefile =  File::Spec->catfile ($dir, 'ME');
-    my $fh = IO::File->new( $mefile, 'w' ) || die "Can't open $mefile, $!";
-    print $fh <<HERE;
-<NODE export_version="0.5" nodetype="nodeball" title="core system">
-  <group>
-    <member name="group_node" type="noderef" type_nodetype="theme,nodetype">default theme</member>
-    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Create a new user</member>
-    <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Duplicates Found</member>
-</group>
-</NODE>
-HERE
+    local *Everything::Storage::Nodeball::verify_node;
+    *Everything::Storage::Nodeball::verify_node = sub { 'verified' };
 
-    my ($not_in_nodebase, $not_in_nodeball) = $instance->check_nodeball_integrity;
-    my @sorted = sort { $a->get_title cmp $b->get_title } @{ $not_in_nodebase || [] };
-    is($sorted[0]->get_title, 'Create a new user', '...not in nodebase when titles same but types are different.');
-    is($sorted[1]->get_title, 'default theme', '...not in nodebase when title not presnet.');
+    local *Everything::Storage::Nodeball::nodeball_vars;
+    *Everything::Storage::Nodeball::nodeball_vars =
+      sub { { title => 'nodeballname' } };
 
-    @sorted = sort { $a->{title} cmp $b->{title} } @{ $not_in_nodeball || [] };
-    is($sorted[0]->get_title, 'Create a new user', '...not in nodeball when titles same but types are different.');
-    is($sorted[1]->get_title, 'default theme', '...not in nodeball when title not presnet.');
+    my @returns = ( $mock, $mock, $mock );
+    local *Everything::Storage::Nodeball::make_node_iterator;
+    *Everything::Storage::Nodeball::make_node_iterator = sub {
+        sub { shift @returns }
+    };
+
+    $mock->set_always( selectGroupArray => [ 1 .. 4 ] );
+    $mock->set_series(
+        getNode => $mock,
+        $mock, $mock, $mock, $mock, undef, $mock, $mock, $mock, $mock, $mock,
+        $mock, $mock
+    );
+    $mock->set_always( get_nodetype => 'anodetype' );
+    $mock->set_series( get_title => qw/title1 title2 title3 title4/ );
+    $mock->{title} = 'node title';
+    $mock->{type}  = $mock;
+
+    my $rv = $instance->verify_nodes;
+
+    is_deeply(
+        $rv,
+        [
+            [ $mock, undef ],
+            [ $mock, 'verified' ],
+            [ $mock, 'verified' ],
+            [ undef, $mock ]
+        ],
+        '...returns an array ref.'
+    );
+}
+
+sub test_verify_node : Test(4) {
+    my $self     = shift;
+    my $instance = $self->{instance};
+    my $xmlnode  = Test::MockObject->new;
+    my $node     = Test::MockObject->new;
+    my $mock = $self->{mock};
+
+    $instance->set_nodebase( $self->{mock} );
+    $self->{mock}->set_always( getNode => $self->{mock} );
+    $self->{mock}->{title} = 3;
+    $self->{mock}->{node_id} = 123;
+
+    $xmlnode->set_always( 'get_attributes', [ $xmlnode, $xmlnode ] );
+
+    $xmlnode->set_always( get_vars          => [] );
+    $xmlnode->set_always( get_group_members => [] );
+
+    $xmlnode->set_always( get_title         => 'node name' );
+    $xmlnode->set_always( get_nodetype      => 'a nodetype' );
+    $xmlnode->set_series( get_name          => 'attribute name', 'att2' );
+    $xmlnode->set_always( get_content       => 'attribute content' );
+    $xmlnode->set_always( get_type_nodetype => 'anodetype,nodetype' );
+    $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
+
+    $node->{'attribute name'} = 'attribute content';
+    $node->{'att2'} = 123;
+    my $rv = $instance->verify_node( $xmlnode, $node );
+
+    is( $rv, undef, '...if the same returns nothing.' );
+
+
+
+    $xmlnode->set_series( get_name          => 'attribute name', 'att2' );
+    $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
+    $node->{'attribute name'} = 'different content';
+    $node->{'att2'} = 456;
+    $rv = $instance->verify_node( $xmlnode, $node );
+
+    is_deeply(
+        $rv->{attributes},
+	      {
+	    'attribute name' =>
+	       [
+            $xmlnode,
+            $node,
+            'literal_value'
+		],
+	    'att2' =>
+	       [
+            $xmlnode,
+            $node,
+            'noderef',
+		$mock
+		]
+
+	      },
+        '...returns a hash ref explaining differences if doesn\'t match.'
+    );
+
+
+    #Now test vars
+
+    $node->set_always( getVars => { varname1 => 'varvalue', varname2 => 123 } );
+    $xmlnode->set_series( get_name          => 'varname1', 'varname2' );
+    $xmlnode->set_always( 'get_attributes' => [] );
+    $xmlnode->set_always( get_vars          => [ $xmlnode, $xmlnode] );
+    $xmlnode->set_always( get_group_members => [] );
+    $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
+    $self->{mock}->{title} = "Title of a node retrieved from db.";
+    $self->{mock}->{node_id} = 456;
+    $rv = $instance->verify_node( $xmlnode, $node );
+
+    is_deeply(
+        $rv->{vars},
+	      {
+	    'varname1' =>
+	       [
+            $xmlnode,
+            $node,
+            'literal_value'
+		],
+	    'varname2' =>
+	       [
+            $xmlnode,
+            $node,
+            'noderef',
+		$mock
+		]
+
+	      },
+        '...returns a hash ref explaining var differences if no match.'
+    );
+
+
+    #Now test group members
+
+    $node->set_always( selectGroupArray => [ 1, 2 ] );
+    $xmlnode->set_series( get_name          => 'member1', 'member2' );
+    $xmlnode->set_always( 'get_attributes' => [] );
+    $xmlnode->set_always( get_vars          => [] );
+    $xmlnode->set_always( get_group_members => [ $xmlnode, $xmlnode ] );
+    $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
+    $self->{mock}->{title} = "Title of a node retrieved from db.";
+    $self->{mock}->{node_id} = 123;
+    $rv = $instance->verify_node( $xmlnode, $node );
+
+    is_deeply(
+        $rv->{groupmembers},
+	      {
+	    'member1,anodetype' =>
+	       [
+            $xmlnode,
+            $node,
+            $mock
+		],
+
+	    'member2,anodetype' =>
+	       [
+            $xmlnode,
+            $node,
+		$mock
+		]
+
+	      },
+        '...returns a hash ref explaining var differences if no match.'
+    );
+
 
 
 }
+
 
 sub parse_sql_file_returns {
 
