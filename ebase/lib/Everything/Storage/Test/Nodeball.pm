@@ -864,7 +864,7 @@ HERE
 
 }
 
-sub test_verify_nodes : Test(1) {
+sub test_verify_nodes : Test(3) {
     my $self = shift;
 
     my $instance = $self->{instance};
@@ -896,21 +896,20 @@ sub test_verify_nodes : Test(1) {
     $mock->{title} = 'node title';
     $mock->{type}  = $mock;
 
-    my $rv = $instance->verify_nodes;
+    my ( $in_nodeball, $in_nodebase, $diffs ) = $instance->verify_nodes;
+
+    is_deeply( $in_nodeball, [$mock], '...returns an array ref.' );
+
+    is_deeply( $in_nodebase, [$mock], '...returns an array ref.' );
 
     is_deeply(
-        $rv,
-        [
-            [ $mock, undef ],
-            [ $mock, 'verified' ],
-            [ $mock, 'verified' ],
-            [ undef, $mock ]
-        ],
+        $diffs,
+        [ [ $mock, 'verified' ], [ $mock, 'verified' ], ],
         '...returns an array ref.'
     );
 }
 
-sub test_verify_node : Test(4) {
+sub test_verify_node : Test(19) {
     my $self     = shift;
     my $instance = $self->{instance};
     my $xmlnode  = Test::MockObject->new;
@@ -921,6 +920,7 @@ sub test_verify_node : Test(4) {
     $self->{mock}->set_always( getNode => $self->{mock} );
     $self->{mock}->{title} = 3;
     $self->{mock}->{node_id} = 123;
+    $mock->set_always( get_node_id => 123 );
 
     $xmlnode->set_always( 'get_attributes', [ $xmlnode, $xmlnode ] );
 
@@ -929,51 +929,53 @@ sub test_verify_node : Test(4) {
 
     $xmlnode->set_always( get_title         => 'node name' );
     $xmlnode->set_always( get_nodetype      => 'a nodetype' );
-    $xmlnode->set_series( get_name          => 'attribute name', 'att2' );
+    $xmlnode->set_series( get_name          => 'attribute_name', 'attribute_name','attribute_name','attribute_name', 'att2', 'att2', 'att2', 'att2' );
     $xmlnode->set_always( get_content       => 'attribute content' );
     $xmlnode->set_always( get_type_nodetype => 'anodetype,nodetype' );
-    $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
+    $xmlnode->set_series( get_type => 'literal_value', 'literal_value', 'noderef', 'noderef' );
 
-    $node->{'attribute name'} = 'attribute content';
+    $node->set_always(get_attribute_name => 'attribute content');
     $node->{'att2'} = 123;
+    $node->set_always('get_att2' => 123);
+    $node->mock( selectGroupArray => sub { die } );
+
     my $rv = $instance->verify_node( $xmlnode, $node );
 
     is( $rv, undef, '...if the same returns nothing.' );
 
-
-
-    $xmlnode->set_series( get_name          => 'attribute name', 'att2' );
+    $xmlnode->set_series( get_name          => 'attribute_name', 'attribute_name', 'att2', 'att2', 'att2', 'att2' );
     $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
-    $node->{'attribute name'} = 'different content';
-    $node->{'att2'} = 456;
+    $node->set_always('get_attribute_name' => 'different content');
+    $node->set_always('get_att2' => 456);
+    $mock->set_always( get_title => 'anodetitle' );
+    $mock->set_always( get_type => $mock);
+
+    my @ids = ( 123, 456 );
+    $mock->mock( get_node_id => sub { shift @ids } );
     $rv = $instance->verify_node( $xmlnode, $node );
 
-    is_deeply(
-        $rv->{attributes},
-	      {
-	    'attribute name' =>
-	       [
-            $xmlnode,
-            $node,
-            'literal_value'
-		],
-	    'att2' =>
-	       [
-            $xmlnode,
-            $node,
-            'noderef',
-		$mock
-		]
+    my @diff = sort { $b->get_name cmp $a->get_name } @$rv;
 
-	      },
-        '...returns a hash ref explaining differences if doesn\'t match.'
-    );
+    ok (! $diff[0]->is_noderef, '...is a literal value.');
+
+    is( $diff[0]->get_nb_node_content, 'different content', '...returns content from nodebase' );
+    is( $diff[0]->get_xmlnode_content, 'attribute content', '...returns content from nodeball.' );
+
+    ok ( $diff[1]->is_noderef, '...returns a node reference.');
+
+    is( $diff[1]->get_nb_node_ref_name, 'anodetitle', '...returns node name of reference' );
+    is( $diff[1]->get_xmlnode_ref_name, 'attribute content', '...returns nodename of reference in nodeball.' );
+
+    is( $diff[1]->get_nb_node_ref_type, 'anodetitle', '...returns nodetype of reference in nodebase.' );
+    is( $diff[1]->get_xmlnode_ref_type, 'anodetype', '...returns nodetype of reference in nodeball.' );
 
 
     #Now test vars
 
+
+    @ids = ( 123, 456 );
     $node->set_always( getVars => { varname1 => 'varvalue', varname2 => 123 } );
-    $xmlnode->set_series( get_name          => 'varname1', 'varname2' );
+    $xmlnode->set_series( get_name          => 'varname1', 'varname1', 'varname2', 'varname2' );
     $xmlnode->set_always( 'get_attributes' => [] );
     $xmlnode->set_always( get_vars          => [ $xmlnode, $xmlnode] );
     $xmlnode->set_always( get_group_members => [] );
@@ -982,61 +984,56 @@ sub test_verify_node : Test(4) {
     $self->{mock}->{node_id} = 456;
     $rv = $instance->verify_node( $xmlnode, $node );
 
-    is_deeply(
-        $rv->{vars},
-	      {
-	    'varname1' =>
-	       [
-            $xmlnode,
-            $node,
-            'literal_value'
-		],
-	    'varname2' =>
-	       [
-            $xmlnode,
-            $node,
-            'noderef',
-		$mock
-		]
+    @diff = sort { $a->get_name cmp $b->get_name } @$rv;
 
-	      },
-        '...returns a hash ref explaining var differences if no match.'
-    );
+    ok (! $diff[0]->is_noderef, '...is var a literal value.');
 
+    is( $diff[0]->get_nb_node_content, 'varvalue', '...returns var content from nodebase' );
+    is( $diff[0]->get_xmlnode_content, 'attribute content', '...returns var content from nodeball.' );
+
+    ok ( $diff[1]->is_noderef, '...returns a node reference.');
+
+    is( $diff[1]->get_nb_node_ref_name, 'anodetitle', '...returns node name of reference from var' );
+    is( $diff[1]->get_xmlnode_ref_name, 'attribute content', '...returns nodename of reference in nodeball from var.' );
+
+    is( $diff[1]->get_nb_node_ref_type, 'anodetitle', '...returns nodetype of reference in nodebase from var.' );
+    is( $diff[1]->get_xmlnode_ref_type, 'anodetype', '...returns nodetype of reference in nodeball var.' );
 
     #Now test group members
 
-    $node->set_always( selectGroupArray => [ 1, 2 ] );
     $xmlnode->set_series( get_name          => 'member1', 'member2' );
     $xmlnode->set_always( 'get_attributes' => [] );
     $xmlnode->set_always( get_vars          => [] );
     $xmlnode->set_always( get_group_members => [ $xmlnode, $xmlnode ] );
     $xmlnode->set_series( get_type => 'literal_value', 'noderef' );
-    $self->{mock}->{title} = "Title of a node retrieved from db.";
-    $self->{mock}->{node_id} = 123;
+    $node->set_always( selectGroupArray => [ 1, 2 ] );
+    $node->set_always( get_type => $node );
+    $node->set_always( get_node_id => 1);
+    $node->set_always( get_title => 'The node title');
+    $mock->set_always( get_title => "dbnode");
+    $mock->set_always( get_type => $mock );
+    $mock->set_always( get_node_id => 123 );
+
     $rv = $instance->verify_node( $xmlnode, $node );
 
+    my ( $diff ) = @$rv;
     is_deeply(
-        $rv->{groupmembers},
-	      {
-	    'member1,anodetype' =>
-	       [
-            $xmlnode,
-            $node,
-            $mock
-		],
-
-	    'member2,anodetype' =>
-	       [
-            $xmlnode,
-            $node,
-		$mock
-		]
-
+        $diff->get_xmlnode_additional,
+	     [ {
+	       name => 'member1',
+	       type => 'anodetype'
 	      },
-        '...returns a hash ref explaining var differences if no match.'
+	       {
+	       name => 'member2',
+		type => 'anodetype'
+	       }
+		]
+	      ,
+        '...returns an array ref of hash refs with name & type keys.'
     );
 
+    my $nodes = $diff->get_nb_node_additional;
+    is ( $$nodes[0]->get_title . $$nodes[0]->get_type->get_title, 'dbnodedbnode', '...returns nodes not in nodeball.');
 
 
 }

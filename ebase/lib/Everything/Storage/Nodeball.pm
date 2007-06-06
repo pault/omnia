@@ -790,74 +790,73 @@ sub update_node_to_nodebase {
 =head2 C<verify_nodes>
 
 Cycles through the nodeball and checks each node against what is in the nodebase. the Checks that a node in the nodeball is the same as the one in the nodebase.
-Returns an array ref of array refs.
+Returns a list of array refs.
 
-Each of the inner array refs are as follows:
+The first is a list of xmlnodes that don't have corresonding entries
+in the nodebase.
 
-If the node is in the nodeball but not in the nodebase:
+The second is a list of nodes that don't have corresonding xmlnodes 
+in the nodeball.
 
-[ $xmlnode, undef ]
-
-If the node is in the nodebase (and listed as a member of the nodeball), but not in the nodeball:
-
-[ undef, $node ]
-
-If the node is in the nodebase and nodeball, but there are differences:
-
-[ $xmlnode, $diff_hash ]
-
-$diff_hash is a hash of the difference as returned by verify_node().
+The third is a list of Everything::Storage::Nodeball::Diff objects
+that set out that differences.
 
 =cut
 
 
 sub verify_nodes {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
-    my $nb =  $self->get_nodebase;
+    my $nb = $self->get_nodebase;
 
     my $iterator = $self->make_node_iterator;
 
-    my @diffs;
-
-    my $nodebase_nodeball_group = $nb->getNode( $self->nodeball_vars->{title}, 'nodeball')->selectGroupArray;
+    my $nodebase_nodeball_group =
+      $nb->getNode( $self->nodeball_vars->{title}, 'nodeball' )
+      ->selectGroupArray;
 
     ## get nodes in group;
 
-    my %nodebase_group = map { my $n = $nb->getNode( $_ );
-			    ("$$n{title},$$n{type}{title}" => 1);
-			}
-      @$nodebase_nodeball_group;
+    my %nodebase_group = map {
+        my $n = $nb->getNode($_);
+        ( "$$n{title},$$n{type}{title}" => 1 );
+    } @$nodebase_nodeball_group;
+
+    my @diffs;
+
+    my @in_nodeball;
+
+    my @in_nodebase;
 
   XMLNODE:
-    while (my $xmlnode = $iterator->() ) {
+    while ( my $xmlnode = $iterator->() ) {
 
-	my $title =  $xmlnode->get_title;
-	my $type = $xmlnode->get_nodetype;
-	my $node  = $self->get_nodebase->getNode( $title, $type );
+        my $title = $xmlnode->get_title;
+        my $type  = $xmlnode->get_nodetype;
+        my $node  = $self->get_nodebase->getNode( $title, $type );
 
-	delete $nodebase_group{ "$title,$type" };
+        delete $nodebase_group{"$title,$type"};
 
-	if ( ! $node) {
+        if ( !$node ) {
 
-	    push @diffs, [ $xmlnode, undef ];
-	    next XMLNODE;
-	}
+            push @in_nodeball, $xmlnode;
+            next XMLNODE;
+        }
 
-	if ( my  $diff = $self->verify_node( $xmlnode, $node) ) {
+        if ( my $diff = $self->verify_node( $xmlnode, $node ) ) {
 
-	    push @diffs, [ $xmlnode, $diff ];
-	    next XMLNODE;
-	}
+            push @diffs, [ $xmlnode, $diff ] ;
+            next XMLNODE;
+        }
 
     }
 
     foreach ( keys %nodebase_group ) {
-	my ( $title, $type ) = split /,/, $_;
-	push @diffs, [ undef, $nb->getNode( $title, $type ) ];
+        my ( $title, $type ) = split /,/, $_;
+        push @in_nodebase, $nb->getNode( $title, $type );
     }
 
-    return \@diffs;
+    return \@in_nodeball, \@in_nodebase, \@diffs;
 }
 
 =head2 C<verify_node>
@@ -866,32 +865,9 @@ Checks that a node in the nodeball is the same as the one in the nodebase.
 
 First argument in the XML::Node object, the second one is the Everything::Node object.
 
-Returns a hash ref of differences. It has the the following structure.
-
-{
-
- attribute => { attributename => [ $xmlnode, $node, $attributetype ],
-                attributename2 => [ $xmlnode, $node, 'noderef', $referenced_node ],
-                ....
-              },
-
- var => { varname => [ $xmlnode, $node, 'literal_value' ],
-          varname2 => [ $xmlnode, $node, 'noderef', $referenced_node ],
-          ....
-        },
-
-
- groupmember => { membernodetype,nodetype => [ $xmlnode, $node, $referenced_node ],
-          ....
-        }
-
-}
+Returns an array ref of Everything::Storage::Nodeball::Diff objects.
 
 =cut
-
-## Arguably, the return value is a little confusing and difficult to
-## unpack, so we should do itwith an Everything::Nodeball::Difference
-## object or something
 
 
 sub verify_node {
@@ -903,7 +879,7 @@ sub verify_node {
     ### nodebae stored in $node
     my $nb = $self->get_nodebase;
 
-    my %differences;
+    my @differences;
     ## verify attributes
         my $atts = $xmlnode->get_attributes;
 
@@ -912,116 +888,56 @@ sub verify_node {
         my $node_title = $xmlnode->get_title;
         my $node_type  = $xmlnode->get_nodetype;
 
-    my %attribute_differences;
-
          foreach (@$atts) {
+
             my $att_name = $_->get_name;
 
-            my $att_type = $_->get_type;
+	    my $diff = Everything::Storage::Nodeball::Diff->new( nodebase => $nb );
+	    if ( $diff->check_attribute( $xmlnode, $node, $_ ) ) {
 
-            if ( $att_type eq 'literal_value' ) {
+		push @differences, $diff;
+	    }
 
-                ## the line below makes undef an empty string to deal
-                ## with the way database tables are created at the
-                ## moment.
-                my $content = defined $_->get_content ? $_->get_content : '';
-
-                unless (  $node->{$att_name} eq $content ) {
-		    $attribute_differences{ $att_name } = [ $xmlnode, $node, $att_type ];
-		}
-
-            }
-            else {
-
-                my ($type_name) = split /,/, $_->get_type_nodetype;
-                my $node_name = $_->get_content;
-
-                my $wanted = $nb->getNode( $node_name, $type_name );
-
-                unless (  $node->{$att_name} == $wanted->{node_id} ) {
-		    $attribute_differences{ $att_name } = [ $xmlnode, $node, $att_type, $wanted ];
-		}
-
-            }
-	    $differences{ attributes } = \%attribute_differences if %attribute_differences;
 	}
 
 
     ### verify vars
 
-        my $vars = $xmlnode->get_vars;
+    my $vars = $xmlnode->get_vars;
 
     if (@$vars) {
 
         my $db_vars = $node->getVars;
 
-	my %var_differences;
-
         foreach (@$vars) {
 
-	    my $var_name = $_->get_name;
+	    my $diff = Everything::Storage::Nodeball::Diff->new( nodebase => $nb );
+	    if ( $diff->check_var( $xmlnode, $node, $_ ) ) {
 
-            my $var_type = $_->get_type;
+		push @differences, $diff;
+	    }
 
-
-            if ( $var_type eq 'literal_value' ) {
-
-                ## the line below makes undef an empty string to deal
-                ## with the way database tables are created at the
-                ## moment.
-                my $content = defined $_->get_content ? $_->get_content : '';
-
-                
-                unless (  $db_vars->{$var_name} eq $content ) {
-		    $var_differences{ $var_name } = [ $xmlnode, $node, $var_type ];
-		}
-
-            }
-            else {
-
-                my ($type_name) = split /,/, $_->get_type_nodetype;
-                my $node_name = $_->get_content;
-
-                my $wanted = $nb->getNode( $node_name, $type_name );
-
-		unless (  $db_vars->{$var_name} == $wanted->{node_id} ) {
-		    $var_differences{ $var_name } = [ $xmlnode, $node, $var_type, $wanted ];
-		}
-
-
-            }
-        }
-	$differences{ vars } = \%var_differences if %var_differences;
-
-
+	}
     }
+
+
     ## verify group members
 
 
     my $members = $xmlnode->get_group_members;
 
     if ( @$members ) {
-    
-        my %db_members = map { $_ => 1 } @{ $node->selectGroupArray };
 
-	my %member_differences;
+	    my $diff = Everything::Storage::Nodeball::Diff->new( nodebase => $nb );
+	    if ( $diff->check_members( $xmlnode, $node ) ) {
 
-        foreach (@$members) {
-
-            my ($type_name) = split /,/, $_->get_type_nodetype;
-            my $node_name = $_->get_name;
-
-            my $wanted = $nb->getNode( $node_name, $type_name );
-
-	    unless ( $db_members{ $wanted->{node_id} } ) {
-		$member_differences{"$node_name,$type_name" } = [ $xmlnode, $node, $wanted ];
+		push @differences, $diff;
 	    }
-	}
 
-	$differences{groupmembers} = \%member_differences if %member_differences;
-
+ 
     }
-    return \%differences if %differences;
+
+    return \@differences if @differences;
     return;
 }
 
@@ -1476,6 +1392,183 @@ sub CREATE {
     }
     $self->{"struct"}->{"table_names"} = [$table_name];
     return 1;
+}
+
+package Everything::Storage::Nodeball::Diff;
+
+{
+
+use Object::InsideOut;
+
+my @nodebase :Field :Arg(nodebase) :Std(nodebase);
+
+my @name :Field :Arg(name) :Std(name); # for attributes and vars
+
+my @is_noderef :Field :Default(0) :Acc(is_noderef);
+
+my @is_var :Field :Default(0) :Acc(is_var);
+
+my @is_attribute :Field :Default(0) :Acc(is_attribute);
+
+my @is_groupmember :Field :Default(0) :Acc(is_groupmember);
+
+my @xmlnode :Field :Arg(xmlnode) :Std(xmlnode);
+
+my @nb_node :Field :arg(nb_node) :Std(nb_node);
+
+my @xmlnode_attribute :Field :Std(xmlnode_attribute) :Type(Everything::XML::Node::Attribute);
+
+my @xmlnode_content :Field :Std(xmlnode_content); #for literal content
+
+my @nb_node_content :Field :Std(nb_node_content); #for literal content
+
+my @xmlnode_ref_name :Field :Std(xmlnode_ref_name); #for noderefs
+
+my @nb_node_ref_name :Field :Std(nb_node_ref_name); #for noderefs
+
+my @xmlnode_ref_type :Field :Std(xmlnode_ref_type); #for noderefs
+
+my @nb_node_ref_type :Field :Std(nb_node_ref_type); #for noderefs
+
+my @xmlnode_additional :Field :Std(xmlnode_additional) :Type(list); # for group members
+
+my @nb_node_additional :Field :Std(nb_node_additional) :Type(list); # for group members
+
+}
+
+sub check_attribute {
+
+    my ( $self, $xmlnode, $nb_node, $xmlnode_attribute ) = @_;
+
+    my $nb = $self->get_nodebase;
+
+    $self->is_attribute(1);
+
+    $self->set_xmlnode($xmlnode);
+    $self->set_nb_node($nb_node);
+
+    my $name = $xmlnode_attribute->get_name;
+
+    $self->set_name($name);
+
+    my $method = 'get_' . $name;
+
+    my $nb_node_content = $nb_node->$method;
+
+    return $self->compare_data( $xmlnode_attribute, $nb_node_content );
+}
+
+sub check_var {
+
+    my ( $self, $xmlnode, $nb_node, $xmlnode_attribute ) = @_;
+
+    my $nb = $self->get_nodebase;
+
+    $self->is_var(1);
+
+    $self->set_xmlnode($xmlnode);
+    $self->set_nb_node($nb_node);
+
+    my $name = $xmlnode_attribute->get_name;
+
+    $self->set_name($name);
+
+    my $vars = $nb_node->getVars;
+
+    my $nb_node_content = $vars->{$name};
+
+    return $self->compare_data( $xmlnode_attribute, $nb_node_content );
+}
+
+sub compare_data {
+
+    my ( $self, $xmlnode_attribute, $nb_node_content ) = @_;
+
+    $nb_node_content ||= '';
+
+    my $nb = $self->get_nodebase;
+
+    my $att_type = $xmlnode_attribute->get_type;
+
+    if ( $att_type eq 'literal_value' ) {
+
+        $self->is_noderef(0);
+
+        my $xmlcontent = $xmlnode_attribute->get_content || '';
+
+        return if $xmlcontent eq $nb_node_content;
+
+        $self->set_xmlnode_content($xmlcontent);
+        $self->set_nb_node_content($nb_node_content);
+
+    }
+    else {
+
+        my ($type_name) = split /,/, $xmlnode_attribute->get_type_nodetype;
+        my $node_name = $xmlnode_attribute->get_content;
+
+        my $expected = $nb->getNode( $node_name, $type_name );
+
+        my $nb_ref = $self->get_nodebase->getNode($nb_node_content);
+
+        return
+          if $expected
+          && $nb_ref
+          && ( $expected->get_node_id == $nb_ref->get_node_id );
+
+        $self->is_noderef(1);
+
+        $self->set_xmlnode_ref_name($node_name);
+        $self->set_xmlnode_ref_type($type_name);
+        $self->set_nb_node_ref_name( $nb_ref->get_title )           if $nb_ref;
+        $self->set_nb_node_ref_type( $nb_ref->get_type->get_title ) if $nb_ref;
+
+    }
+
+    return $self;
+
+}
+
+sub check_members {
+
+    my ( $self, $xmlnode, $nb_node ) = @_;
+
+    my $nb = $self->get_nodebase;
+
+    my @db_members = @{ $nb_node->selectGroupArray };    # node_ids
+    my %db_members = map { $_ => 1 } @db_members;
+
+    my @in_nodeball;
+
+    my $members = $xmlnode->get_group_members;
+
+  MEMBER:
+    foreach (@$members) {
+
+        my ($type_name) = split /,/, $_->get_type_nodetype;
+        my $node_name = $_->get_name;
+
+        my $wanted = $nb->getNode( $node_name, $type_name );
+
+        next MEMBER if $wanted && delete $db_members{ $wanted->get_node_id };
+        push @in_nodeball, { name => $node_name, type => $type_name };
+
+    }
+
+    my @in_nodebase;
+    foreach ( keys %db_members ) {
+
+        my $member = $nb->getNode($_);
+        push @in_nodebase, $member;
+    }
+
+    return if !@in_nodebase && !@in_nodeball;
+
+    $self->is_groupmember(1);
+    $self->set_xmlnode_additional( @in_nodeball ) if @in_nodeball;
+    $self->set_nb_node_additional( @in_nodebase ) if @in_nodebase;
+
+    return $self;
 }
 
 1;
