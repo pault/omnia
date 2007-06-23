@@ -1,12 +1,12 @@
 <NODE export_version="0.5" nodetype="nodemethod" title="insert">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my ($this) = @_;
+  <field name="code" type="literal_value">my $this = shift;
 my $N = $$this{DB}-&gt;getNode(&quot;general nodelet container&quot;, &quot;container&quot;);
 
 $$this{parent_container} = $N-&gt;getId() if(ref $N);
 
-return $this-&gt;SUPER();</field>
+return $this-&gt;SUPER( @_ );</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
