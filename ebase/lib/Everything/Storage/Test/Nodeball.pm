@@ -489,23 +489,121 @@ sub test_install_xml_node : Test(1) {
 
 }
 
-sub test_update_nodebase_from_nodeball : Test(6) {
+sub test_build_new_nodes : Test(2) {
     my $self = shift;
-
-    can_ok( $self->{class}, 'update_nodeball' )
-      || return 'update_nodeball not implemented.';
     my $instance = $self->{instance};
 
-    local $TODO = "Analyse, break down and fix update nodeball.";
-
     my $mock = Test::MockObject->new;
-    ok( undef, '...reads XML nodeball.' );
-    ok( undef,
-        '...finds nodes in old nodeball that have been modified since install.'
+    $mock->set_always( get_raw_xml => 'some xml' );
+
+    my @xmlnodes = ( $mock, $mock );
+    no strict 'refs';
+    local *{ $self->{class} . '::make_node_iterator' };
+     *{ $self->{class} . '::make_node_iterator' } = sub { sub { shift @xmlnodes } };
+    my @xml2node_args = ();
+    local *{ $self->{class} . '::xml2node' };
+    *{ $self->{class} . '::xml2node' } = sub { push @xml2node_args, $_[0], $_[1]; return [ $mock ] };
+    use strict 'refs';
+
+    my @nodes = $instance->build_new_nodes;
+
+    is_deeply ( \@nodes, [ $mock, $mock ], '...returns a list of node objects.');
+    is_deeply ( \@xml2node_args, ['some xml', 'nofinal', 'some xml', 'nofinal' ], '...calls  xml2node with nofinal argument.');
+}
+
+sub test_update_node_to_nodebase :Test(9) {
+    my $self = shift;
+    my $instance = $self->{instance};
+    my $node = Test::MockObject->new;
+    my $oldnode = Test::MockObject->new;
+
+    $oldnode->set_true('updateFromImport');
+    $oldnode->set_series(conflictsWith => 1, 0);
+
+    $node->set_series( existingNodeMatches => $oldnode, undef );
+    $node->set_true('insert');
+
+    $instance->update_node_to_nodebase( $node );
+
+    my ( $method, $args ) = $node->next_call;
+
+    is( $method, 'existingNodeMatches', '....checks to see whether a node is matching.');
+
+    ( $method, $args ) = $oldnode->next_call;
+    is($method, 'conflictsWith', '...tries to see whether an importing node is conflicting.');
+    is($args->[1], $node, '...with the new node as an argument.');
+
+   ( $method, $args ) = $oldnode->next_call;
+    is($method, 'updateFromImport', '...calls the nodes updateFromImport method.');
+    is($args->[1], $node, '...with the new node as an argument.');
+    is($args->[2], -1, '...and the superuser.');
+
+    $instance->update_node_to_nodebase( $node );
+
+    ( $method, $args ) = $node->next_call;
+
+    is( $method, 'existingNodeMatches', '....checks to see whether a node is matching.');
+
+    ( $method, $args ) = $oldnode->next_call;
+
+   ( $method, $args ) = $node->next_call;
+    is($method, 'insert', '...calls the nodes insert method.');
+    is($args->[1], -1, '...and the superuser.');
+
+}
+
+sub test_update_nodebase_from_nodeball : Test(11) {
+    my $self = shift;
+
+    can_ok( $self->{class}, 'update_nodebase_from_nodeball' )
+      || return 'update_nodeball not implemented.';
+
+    my $instance =
+      Test::MockObject::Extends::InsideOut->new( $self->{instance} );
+
+    $instance->set_always( nodeball_xml => 'some xml' );
+    $instance->set_always( -nodeball_vars => { title => 'foobar' } );
+    $instance->set_true( 'insert_sql_tables', 'update_node_to_nodebase',
+        'fix_node_references' );
+
+    my $mock = $self->{mock};
+    $mock->set_always( getNode => $mock );
+    $mock->set_true('updateFromImport');
+    $instance->set_nodebase($mock);
+    $instance->set_list( 'build_new_nodes' => $mock, $mock );
+
+    $instance->update_nodebase_from_nodeball;
+
+    my ( $method, $args ) = $instance->next_call;
+    is( $method, 'nodeball_xml', '...reads XML nodeball.' );
+
+    ( $method, $args ) = $instance->next_call;
+    is( $method, 'insert_sql_tables', '...tries to insert all sql tables.' );
+    ( $method, $args ) = $instance->next_call;
+    is( $method, 'build_new_nodes',
+        '...turns all new nodes into node objects.' );
+    ( $method, $args ) = $instance->next_call;
+    is( $method, 'update_node_to_nodebase',
+'...inserts/updates the node into the nodebase according to the algorithm.'
     );
-    ok( undef, '...workspaces updated new nodes if possibole.' );
-    ok( undef, '...if not then asks for instructions.' );
-    ok( undef, '...updates nodeball data.' );
+    is( $$args[1], $mock, '...calls with the newly created node object.' );
+
+    ( $method, $args ) = $instance->next_call;
+    is( $method, 'update_node_to_nodebase',
+'...inserts/updates the node into the nodebase according to the algorithm.'
+    );
+    is( $$args[1], $mock, '...calls with the newly created node object.' );
+
+    ( $method, $args ) = $instance->next_call;
+    is( $method, 'fix_node_references', '...fixes references.' );
+
+    ( $method, $args ) = $mock->next_call(2);
+    is( $method, 'updateFromImport',
+        '...calls updateFromImport against the old nodeball.' );
+
+    ( $method, $args ) = $instance->next_call;
+    is( $method, 'fix_node_references', '...and finally fixes references.' );
+
 }
 
 sub test_check_named_tables : Test(3) {
@@ -592,29 +690,39 @@ sub test_get_tables_hashref : Test(2) {
 
 }
 
-sub test_export_nodeball : Test(7) {
+sub test_export_nodeball_to_directory : Test(4) {
     my $self = shift;
-    local $TODO = "Methods to export a nodeball stored in a nodebase.";
-    can_ok( $self->{class}, 'export_nodeball' );
+
+    my $instance= Test::MockObject::Extends::InsideOut->new( $self->{instance} );
+    my $mock = $self->{mock};
+    $mock->set_always( getNode => $mock );
+    $mock->set_always( 'selectNodegroupFlat' => [$mock, $mock, $mock] );
+    $instance->set_nodebase( $mock );
+
+    $instance->set_true('write_node_to_nodeball');
+    can_ok( $self->{class}, 'export_nodeball_to_directory' );
 
 
     my @toXMLReturns = ('me file contents', 'data');
 
-    local *Everything::XML::Node;
+    local *Everything::XML::Node::toXML;
     *Everything::XML::Node::toXML = sub { shift @toXMLReturns };
 
     ### calls update_nodeball_from_nodebase;
-    ok( undef, '.... read nodeball data.' );
+    $instance->export_nodeball_to_directory('nodeballname', 'tmpdir');
+    my ($method, $args) = $mock->next_call;
+    is( "$method..$$args[1]$$args[2]", 'getNode..nodeballnamenodeball', '.... read nodeball data.' );
 
-    ok( undef, '....create ME file and put nodeball data into it.' );
+    ($method, $args) = $instance->next_call;
+    is( "$method$$args[1]$$args[2]", "write_node_to_nodeball${mock}ME", '....create ME file and put nodeball data into it.' );
 
-    ok( undef, '...create table sql files.' );
+    my $nodedata;
+    for (1..3) {
+	($method, $args) = $instance->next_call;
+	$nodedata .= "$method$$args[1]";
+    }
+    is( $nodedata, "write_node_to_nodeball$mock" x 3, '...export each node in the nodeball group as xml.' );
 
-    ok( undef, '...export each node in the nodeball group as xml.' );
-
-    ok( undef, '...compress nodeball and name it .nbz file.' );
-
-    ok( undef, '...clean up working directory.' );
 }
 
 sub test_remove_nodeball : Test( 5 ) {
@@ -852,14 +960,14 @@ HERE
     use strict 'refs';
 
     my ($not_in_ME, $not_in_nodeball) = $instance->check_nodeball_integrity;
-    use Data::Dumper; diag Dumper $not_in_ME, $not_in_nodeball;
+
     my @sorted = sort { $a->{title} cmp $b->{title} } @$not_in_ME;
     is($sorted[0]->{title}, 'Create a new user', '...not in ME when titles same but types are different.');
     is($sorted[1]->{title}, 'thingo', '...not in ME when title not presnet.');
 
     @sorted = sort { $a->{title} cmp $b->{title} } @$not_in_nodeball;
     is($sorted[0]->{title}, 'Create a new user', '...not in nodeball when titles same but types are different.');
-    is($sorted[1]->{title}, 'Duplicates Found', '...not in nodeball when title not presnet.');
+    is($sorted[1]->{title}, 'Duplicates Found', '...not in nodeball when title not present.');
 
 
 }
@@ -1070,4 +1178,43 @@ sub parse_sql_file_returns {
     );
 
 }
+
+
+package Test::MockObject::Extends::InsideOut;
+
+use SUPER;
+use base 'Test::MockObject::Extends';
+
+our $AUTOLOAD;
+
+sub new {
+    my ( $class, $fake_class ) = @_;
+
+    return Test::MockObject->new() unless defined $fake_class;
+
+    my $parent_class = $class->get_class($fake_class);
+    $class->check_class_loaded($parent_class);
+    my $self = { _oio => $fake_class };
+
+    bless $self, $class->gen_package($parent_class);
+}
+
+sub gen_package {
+    my ( $class, $parent ) = @_;
+    my $package = $class->SUPER($parent);
+
+    eval qq|package $package;
+use overload 
+  '\${}' => sub { return shift()->{_oio} },
+|;
+
+    die "Can't overload scalar dereferencing, $@" if $@;
+    no strict 'refs';
+
+    *{ $package . '::DESTROY' } =
+      sub { shift()->{_oio}->DESTROY };
+
+    return $package;
+}
+
 1;

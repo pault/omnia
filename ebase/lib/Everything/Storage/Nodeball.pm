@@ -671,11 +671,6 @@ sub export_nodeball_to_directory {
     $self->write_node_to_nodeball( $nodeball, 'ME' ); # create ME file
     my $group = $nodeball->selectNodegroupFlat;
     foreach ( @$group ) {
-
-	if ( $$_{type}{title} eq 'dbtable' ) {
-	    $self->write_sql_table_to_nodeball( $$_{title} );
-	}
-
 	$self->write_node_to_nodeball( $_ );
 
     }
@@ -743,27 +738,33 @@ sub installModules {
 
 
 
+=head2 C<build_new_nodes>
+
+Iterates through the nodes in the current nodeball and turns them into
+Everything::Node objects that aren't in the NodeBase (i.e. they are
+not stored in the database).
+
+Takes an optional subroutine references which is passed to
+make_node_iterator so that the nodes may be selected.
+
+Returns a list.
+
+=cut
+
 sub build_new_nodes {
 
     my ( $self ) = @_;
 
     my $select_cb ||= sub { 1 };
-    my $iterator = $self->make_node_iterator();
+    my $iterator = $self->make_node_iterator( $select_cb );
 
     my @nodes;
-    while ( my $xmlnode = $iterator->() ) {
+    while ( my $xmlnode = $iterator->( $select_cb ) ) {
 	my $node =  xml2node( $xmlnode->get_raw_xml, 'nofinal' );
-	print "@$node\n";
 	push @nodes, @$node;
     }
 
     return @nodes;
-
-}
-
-sub get_conflicting_nodes {
-    my ( $self ) = @_;
-
 
 }
 
@@ -773,15 +774,20 @@ sub update_node_to_nodebase {
     my $oldnode = $node->existingNodeMatches();
 
     ## default behaviour is to clobber nodes
-    $handle_conflict_cb ||= sub{     $oldnode->updateFromImport( $node, -1 ) };
+    $handle_conflict_cb ||= sub { $oldnode->updateFromImport( $node, -1 ) };
+    if ($oldnode) {
 
-    if ( $oldnode->conflictsWith( $node ) ){
-	$handle_conflict_cb->();
-    } else {
-	$oldnode->updateFromImport( $node, -1 );
+        if ( $oldnode->conflictsWith($node) ) {
+            $handle_conflict_cb->( $self, $node );
+        }
+        else {
+            $oldnode->updateFromImport( $node, -1 );
+        }
+
     }
-
-
+    else {
+        $node->insert(-1);
+    }
 
 }
 
@@ -941,20 +947,30 @@ sub verify_node {
     return;
 }
 
-=head2 C<update_nodeball>
+=head2 C<update_nodebase_from_nodeball>
 
-We already have this nodeball in the system, and we need to figure out which
-files to add, remove, and update.
+We already have this nodeball in the system, and we are going to
+update it. This does not delete nodes in the existing nodeball and not
+in the new one, it simply removes them from the nodeball in the
+nodebase. Takes an optional second argument of the nodeball directory
+and an optional third argument which is a call back that updates an
+indiviudal node to the nodebase. It is passed the nodeball object and
+a node object as arguments. It defaults to calling
+update_node_to_nodebase.
 
 =cut
 
-sub update_nodeball {
-    my ( $self, $dir ) = @_;
+sub update_nodebase_from_nodeball {
+    my ( $self, $dir, $update_node_cb ) = @_;
 
     my $DB = $self->get_nodebase
       || Everything::Exception::NoNodeBase->throw("No nodebase here!");
 
     $dir ||= $self->get_nodeball_dir;
+
+    $update_node_cb ||= sub { my ( $nodeball, $node ) = @_;
+			      $nodeball->update_node_to_nodebase( $node );
+			  };
 
     my $NEWBALLXML = $self->nodeball_xml;
 
@@ -969,17 +985,18 @@ sub update_nodeball {
     my @nodes = $self->build_new_nodes; # list of new nodes
 
     foreach my $N (@nodes) {
-	print "$N\n";
-	$self->update_node_to_nodebase( $N );
+
+	$update_node_cb->( $self, $N );
     }
 
-    fixNodes(0);
+    $self->fix_node_references(0);
 
     #insert the new nodeball
     my $nodelist = xml2node( $NEWBALLXML, 'nofinal' );
+
     $OLDBALL->updateFromImport( $$nodelist[0], -1 );
 
-    fixNodes(1);
+    $self->fix_node_references(1);
 
 }
 
@@ -1112,6 +1129,12 @@ sub write_node_to_nodeball {
     my $volume;
     my $save_title;
     my $save_dir;
+
+
+    if ( $$node{type}{title} eq 'dbtable' ) {
+	$self->write_sql_table_to_nodeball( $$node{title} );
+    }
+
     if ( ! $filepath ) {
 	$save_title = $$node{title};
 	$save_dir =  $$node{type}{title};
