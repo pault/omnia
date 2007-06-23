@@ -19,7 +19,6 @@ Everything authentication routines
 package Everything::Auth;
 
 use strict;
-use Everything qw/$DB/;
 
 =cut
 
@@ -50,6 +49,8 @@ sub new
 {
 	my ( $class, $options ) = @_;
 	$options ||= {};
+
+	my $DB = $options->{nodebase};
 
 	# We may not always get the guest user pref (if ever). We can default to
 	# plain Guest User
@@ -144,6 +145,8 @@ hash for the user saving each auth module the trouble of having to do so.
 sub generateSession
 {
 	my ( $this, $user ) = @_;
+
+	my $DB = $this->{options}->{nodebase};
 
 	$user ||= $DB->getNode( $this->{options}->{guest_user} );
 

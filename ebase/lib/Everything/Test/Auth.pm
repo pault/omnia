@@ -9,29 +9,18 @@ use File::Path;
 use SUPER;
 use strict;
 
-sub startup : Test( startup => +6 ) {
+sub startup : Test( startup => +5 ) {
     my $self = shift;
 
     my $db = Test::MockObject->new();
-    local *Everything::Auth::DB;
-    my @imports;
-    *Everything::Auth::DB = \$db;
-
-    $db->fake_module(
-        'Everything',
-        import => sub {
-            @imports              = @_;
-            *Everything::Auth::DB = \$db;
-        }
-    );
 
     $self->SUPER;
-    is( $imports[1], '$DB', '...should import $DB from Everything.pm' );
+
     can_ok( $self->{class}, 'new' );
 
     $db->set_always( getNode => { node_id => 88 } );
     $self->{db} = $db;
-    my $instance = $self->{class}->new();
+    my $instance = $self->{class}->new( { nodebase => $db } );
     isa_ok( $instance, $self->{class} );
     $self->{instance} = $instance;
 
@@ -120,23 +109,22 @@ sub test_generate_session : Test(5) {
     my $self    = shift;
     my $package = $self->{class};
     my $db      = $self->{db};
-    local *Everything::Auth::DB;
-    *Everything::Auth::DB = \$db;
+    my $instance = $self->{instance};
 
     can_ok( $package, 'generateSession' );
     my $mock = Test::MockObject->new();
-    $mock->{options} = { guest_user => 'guest' };
+    $instance->{options}->{guest_user} = 'guest';
     $mock->set_always( getVars => 'vars' );
 
     $db->set_false('getNode')->clear();
 
-    throws_ok { Everything::Auth::generateSession($mock) }
+    throws_ok { Everything::Auth::generateSession($instance) }
       qr/Unable to get user!/, 'generateSession() should die with no user';
     my ( $method, $args ) = $db->next_call();
     is( $method, 'getNode', '... so should fetch a user given none' );
     is( $args->[1], 'guest', '... using guest user option' );
 
-    my @results = Everything::Auth::generateSession( $mock, $mock );
+    my @results = $instance->generateSession( $mock );
     is_deeply(
         \@results,
         [ $mock, 'vars' ],
