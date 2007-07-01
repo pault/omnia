@@ -194,30 +194,27 @@ not approved, "" (nothing) will be returned.
 
 =cut
 
-sub tagApprove
-{
-	my ( $close, $tag, $attr, $APPROVED ) = @_;
+sub tagApprove {
+	my ($close, $tag, $attr, $APPROVED) = @_;
 
-	$tag = uc($tag) if ( exists $$APPROVED{ uc($tag) } );
-	$tag = lc($tag) if ( exists $$APPROVED{ lc($tag) } );
+	$tag = uc($tag) if (exists $$APPROVED{uc($tag)});
+	$tag = lc($tag) if (exists $$APPROVED{lc($tag)});
 
-	if ( exists $$APPROVED{$tag} )
-	{
+	if (exists $$APPROVED{$tag}) {
 		my @aprattr = split ",", $$APPROVED{$tag};
-		my $cleanattr;
-		foreach (@aprattr)
-		{
-			if (   ( $attr =~ /\b$_\b\='(\w+?)'/ )
-				or ( $attr =~ /\b$_\b\="(\w+?)"/ )
-				or ( $attr =~ /\b$_\b\="?'?(\w*)\b/ ) )
-			{
-				$cleanattr .= " " . $_ . '="' . $1 . '"';
-			}
-		}
-		return "<" . $close . $tag . $cleanattr . ">";
-	}
-	else { return ""; }
-}
+		my $cleanattr = '';
+		foreach (@aprattr) {
+		  if (($attr =~ /\b$_\b\='([\w\:\/\.\;\&\?\,\-]+?)'/) or
+		      ($attr =~ /\b$_\b\="([\w\:\/\.\;\&\?\,\-\s]+
+?)"/) or
+		      ($attr =~ /\b$_\b\="?'?([\w\:\/\.\;\&\?\,\-\
+s\=\+\#]*)\b/)) {
+		    $cleanattr.=" ".$_.'="'.$1.'"';
+		  }
+                }
+		return "<".$close.$tag.$cleanattr.">";
+	      } else { return ""; }
+      }
 
 =cut
 
@@ -576,15 +573,16 @@ Returns a string containing the generated URL.
 
 sub urlGen
 {
-	my ( $REF, $noquotes ) = @_;
+	my ($REF, $noquotes) = @_;
 
-	my $new_query = CGI->new($REF);
-	$new_query->url( $query->url( -base => 1 ) );
+ 	my $new_query = CGI->new( $REF );
 
-	my $str = $new_query->url( -relative => 1, -query => 1 );
-	$str = '"' . $str . '"' unless $noquotes;
+ 	my $str       = $new_query->url(  -query => 1, -absolute => 1);
 
-	return $str;
+ 	$str = '"' . $str . '"' unless $noquotes;
+
+ 	return $str;
+
 }
 
 =cut
@@ -766,47 +764,60 @@ node.
 
 sub linkNode
 {
-	my ( $NODE, $title, $PARAMS, $SCRIPTS ) = @_;
-	my $link;
-
+	my ($NODE, $title, $PARAMS, $SCRIPTS) = @_;
+    my $link;
+	
 	return "" unless defined($NODE);
 
 	# We do this instead of calling getRef, because we only need the node
 	# table data to create the link.
-	$NODE = getNode( $NODE, 'light' ) unless ( ref $NODE );
+	$NODE = $DB->getNode($NODE, 'light') unless (ref $NODE);
 
-	return "" unless ref $NODE;
+	return "" unless ref $NODE;	
 
 	$title ||= $$NODE{title};
-	$$PARAMS{node_id} = getId $NODE;
+
 	my $tags = "";
 
-	$$PARAMS{lastnode_id} = getId($GNODE) unless exists $$PARAMS{lastnode_id};
+	$$PARAMS{lastnode_id} = $GNODE->{node_id} unless exists $$PARAMS{lastnode_id};
 
-	# any params that have a "-" preceding
-	# get added to the anchor tag rather than the URL
-	foreach my $key ( keys %$PARAMS )
-	{
-		next unless ( $key =~ /^-/ );
-		my $pr = substr $key, 1;
-		$tags .= " $pr=\"$$PARAMS{$key}\"";
-		delete $$PARAMS{$key};
-	}
+	separate_params ($PARAMS, \$tags);
 
-	my @scripts;
-	foreach my $key ( keys %$SCRIPTS )
-	{
-		push @scripts, $key . "=" . $$SCRIPTS{$key};
-	}
+	my $scripts = handle_scripts($SCRIPTS);
 
-	my $scripts = "";
-	$scripts = join ' ', @scripts if (@scripts);
-
-	$link = "<A HREF=" . urlGen($PARAMS) . $tags;
-	$link .= " " . $scripts if ( $scripts ne "" );
+	$$PARAMS{node_id} = $NODE->{node_id};
+	
+	$link = "<a href=" . urlGen ($PARAMS) . $tags;
+	$link .= " " . $scripts if($scripts ne "");
 	$link .= ">$title</a>";
 
 	return $link;
+}
+
+sub separate_params {
+    my ($PARAMS, $tags_ref) = @_;
+	foreach my $key (keys %$PARAMS)
+	{
+		next unless ($key =~ /^-/); 
+		my $pr = substr $key, 1;
+		$$tags_ref .= " $pr=\"$$PARAMS{$key}\""; 
+		delete $$PARAMS{$key};
+	}
+
+
+}
+
+sub handle_scripts {
+    my ($SCRIPTS) = @_;
+    return '' unless $SCRIPTS && %$SCRIPTS;
+    my @scripts;
+    foreach my $key (keys %$SCRIPTS)
+      {
+	  push @scripts, $key . "=" . '"' . $$SCRIPTS{$key} . '"';
+      }
+    return '' unless @scripts;
+    return join ' ', @scripts;
+
 }
 
 =cut
@@ -841,25 +852,36 @@ the title of the link as seen from the browser.
 
 sub linkNodeTitle
 {
-	my ( $nodename, $lastnode, $title ) = @_;
-	my ( $name, $linktitle ) = split /\|/, $nodename;
+	my ($nodename, $lastnode, $title) = @_;
+	my ($name, $linktitle) = split /\|/, $nodename;
 
-	if ( $title && $linktitle )
+	if ($title && $linktitle)
 	{
-		logErrors( "Node '$nodename' has both title and linktitle", '', '',
-			'' );
+		logErrors("Node '$nodename' has both title and linktitle", '', '', '');
 	}
 
 	$title ||= $linktitle || $name;
 	$name =~ s/\s+/ /gs;
 
-	my $urlnode = $query->escape($name);
-	my $str     = qq|<a href="$ENV{SCRIPT_NAME}?node=$urlnode|;
-	$str .= "&lastnode_id=" . getId($lastnode) if ($lastnode);
-	$str .= qq|">$title</a>|;
+
+	my %params =( node => $name);
+
+	if (ref $lastnode) {
+	  	$params{lastnode_id} = $lastnode->{node_id};
+	      } elsif ( $lastnode && $lastnode !~ /\D/) {
+		$params{lastnode_id} = $lastnode;
+	      }
+
+
+	my $str = '';
+	## xxxxxx
+	## Following must be factored out with code from linkNode
+	$str .= '<a href=' .  urlGen(\%params) . ">$title</a>";
+
 
 	return $str;
 }
+
 
 =cut
 
@@ -1724,31 +1746,31 @@ set to true if linenumbers are desired
 
 sub listCode
 {
-	my ( $code, $numbering ) = @_;
-	return unless ($code);
+	my ($code, $numbering) = @_;
+	return unless($code); 
 
-	$code = encodeHTML( $code, 1 );
+	$code = encodeHTML($code, 1);
 
 	my @lines = split /\n/, $code;
 	my $count = 1;
 
-	if ($numbering)
+	if($numbering)
 	{
-		foreach my $ln (@lines)
-		{
-			$ln = sprintf( "%4d: %s", $count++, $ln );
+		foreach my $ln (@lines) {
+			$ln = sprintf("%4d: %s", $count++, $ln);
 		}
 	}
 
-	my $text = "<PRE>" . join( "\n", @lines ) . "</PRE>";
-	my $TYPE = getType("htmlsnippet");
+	my $text = "<pre>" . join ("\n", @lines) . "</pre>";
+	my $TYPE = $DB->getType("htmlsnippet");
 	$text =~ s/(&#91;\&lt;)(.*?)(\&gt;&#93;)/$1 . linkCode($2, $TYPE) . $3/egs;
 
-	$TYPE = getType("htmlcode");
+	$TYPE = $DB->getType("htmlcode");
 	$text =~ s/(&#91;\{)(.*?)(\}&#93;)/$1 . linkCode($2, $TYPE) . $3/egs;
 
 	return $text;
 }
+
 
 =cut
 
@@ -1786,7 +1808,7 @@ sub linkCode
 	# the name.
 	( $name, undef ) = split( /:/, $func, 2 );
 
-	my $NODE = getNode( $name, $TYPE );
+	my $NODE = $DB->getNode( $name, $TYPE );
 
 	return linkNode( $NODE, $func ) if ($NODE);
 	return $func;

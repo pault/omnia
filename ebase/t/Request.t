@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use Everything::Test::HTML;
+use Everything::HTTP::Test::Request;
 
 use strict;
 

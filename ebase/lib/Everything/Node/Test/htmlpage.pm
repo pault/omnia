@@ -46,4 +46,30 @@ sub test_insert_restrict_dupes :Test( +0 )
 	$self->SUPER();
 }
 
+
+sub test_make_html : Test(3) {
+  my $self = shift;
+  my $class = $self->node_class();
+  my $instance = $self->{node};
+  $instance->set_always( 'run', 'some htmlpage html <BacksideErrors>' );
+  my $mock = Test::MockObject->new;
+  $mock->set_always( get_user => $mock );
+  can_ok($class, 'make_html');
+  $instance->{NODE}->{page} = 'text in some htmlpage';
+  $instance->{NODE}->{title} = 'node title';
+  $instance->{NODE}->{node_id} = '2222';
+  $mock->set_series('isGod', 0, 1);
+
+  local *Everything::HTML::formatGodsBacksideErrors;
+  *Everything::HTML::formatGodsBacksideErrors = sub { "some errors" };
+  local *Everything::HTML::printBacksideToLogFile;
+  *Everything::HTML::printBacksideToLogFile = sub { 1 };
+
+
+  is($instance->make_html( $mock ), 'some htmlpage html ', '...creates html with no errors' );
+  is($instance->make_html( $mock ), 'some htmlpage html some errors', '...creates html with errors' );
+
+
+}
+
 1;

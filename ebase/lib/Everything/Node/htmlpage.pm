@@ -29,4 +29,30 @@ sub get_compilable_field {
     'page';
 }
 
+
+sub make_html {
+    my ( $this, $request ) = @_;
+
+    my $page = $this->run;
+
+    if ( $this->get_parent_container ) {
+        my $container =
+          $this->get_nodebase->getNode( $this->get_parent_container );
+        $page = $container->process_contained_data( $request, $page);
+    }
+
+    my $errors = '';
+    if ( $request->get_user->isGod() ) {
+        $errors = Everything::HTML::formatGodsBacksideErrors();
+    }
+    else {
+        Everything::HTML::printBacksideToLogFile();
+    }
+    $page =~ s/<BacksideErrors>/$errors/;
+
+    return $page;
+
+}
+
+
 1;

@@ -16,7 +16,7 @@ sub startup : Test( startup ) {
       || croak "Must have a nodebase object to continue, $!.";
 
     my @nodes_under_test = ();
-    foreach (qw/htmlpage htmlsnippet htmlcode container nodelet superdoc/) {
+    foreach (qw/htmlpage htmlsnippet htmlcode container nodelet superdoc opcode/) {
         my $nodes = $nb->getNodeWhere( '', $_ );
         push @nodes_under_test, @$nodes;
     }
@@ -178,6 +178,105 @@ sub test_execute_htmlcode_nodes : Tests {
 
     }
 
+}
+
+
+sub test_execute_opcode_nodes : Tests {
+    my $self = shift;
+
+    my $mock = $self->{mock};
+
+    $mock->{DB}    = $mock;
+    $mock->{cache} = $mock;
+    $mock->set_true(
+        'cacheMethod',  'isOfType',
+        'update',       'toXML',
+        'setVars',      'addType',
+        'sortMenu',     'getDefaultTypePermissions',
+        'genPopupMenu', 'addHash'
+    );
+    $mock->set_false( 'hasAccess', 'isGroup' );
+    $mock->set_always( 'getHash', {} );
+    $mock->set_always( 'genObject', $mock );
+    $mock->set_always( 'getVars', {} );
+    $mock->set_always( 'getNodelets', [] );
+    $mock->set_always( 'listNodes',   [] );
+    $mock->set_always( 'selectLinks', 1 );
+    $mock->{node_id} = 123;
+    $mock->{to_node} = 456;
+
+    my $test_nodes    = $self->{nodebase}->getNodeWhere( '', 'opcode' );
+    my $compilable    = $self->{test_execute_nodes};
+    my @nodes_to_test = grep { $$compilable{ $_->{node_id} } } @$test_nodes;
+    $self->num_tests( scalar(@nodes_to_test) );
+
+    local *Everything::HTML::logErrors;
+    local *Everything::logErrors;
+
+    my $err;
+
+    my $error_code = sub {
+        my ( $warn, $error, $text, $node ) = @_;
+        $err .= join "\n", $warn, $error, $text, $$node{title};
+        $err .= "\n" . '#' x 30;
+        $err .= "\n\n";
+    };
+
+    *Everything::HTML::logErrors = $error_code;
+    *Everything::logErrors       = $error_code;
+
+    local *Everything::HTML::getType;
+    local *Everything::HTML::getNode;
+    local *Everything::HTML::getPage;
+    local *Everything::HTML::newFormObject;
+
+    *Everything::HTML::getType       = sub { $mock };
+    *Everything::HTML::getNode       = sub { $mock };
+    *Everything::HTML::getPage       = sub { $mock };
+    *Everything::HTML::newFormObject = sub { $mock };
+    *Everything::HTML::HTMLVARS      = {};
+
+    local *Everything::DB::getTableArray;
+    *Everything::DB::getTableArray = sub { [qw/onetable twotable/] };
+
+    local *Everything::HTML::getNodeWhere;
+    *Everything::HTML::getNodeWhere =
+      sub { [ { node_id => 1 }, { node_id => 2 } ] };
+
+    local *Everything::NodeBase::selectNodeWhere;
+    *Everything::NodeBase::selectNodeWhere = sub { return ( [$mock] ) };
+
+    local *Everything::HTML::linkNode;
+    *Everything::HTML::linkNode = sub { "alink" };
+
+    my $DB = $self->{nodebase};
+
+    local *Everything::HTML::DB;
+    *Everything::HTML::DB = \$DB;
+
+    local *Everything::DB;
+    *Everything::DB = \$DB;
+
+    my %args = (
+        'displaytable' => [ ['node'] ],
+        'formatCols'   => [ [ ['one'] ] ],
+    );
+
+    foreach (@nodes_to_test) {
+        $err                     = '';
+        $Everything::HTML::GNODE = $mock;
+        my $node = $self->{nodebase}->getNode($_);
+        my @args = ();
+        ## setup
+        if ( $$node{title} eq 'formatCols' ) {
+            @args = ( [ 1, 2, 3 ] );
+        }
+
+        my $rv = $node->run( undef, undef, @args );
+        ok( !$err,
+"...execute node $$node{title}, type $$node{type}{title}, id, $$node{node_id}"
+        ) || diag $err;
+    }
 }
 
 sub test_execute_htmlpage_nodes : Tests {
