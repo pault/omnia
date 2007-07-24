@@ -5,7 +5,7 @@ use Everything::HTTP::Request;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
-    qw/http_header http_body request htmlpage theme allowed/);
+    qw/http_header http_body request htmlpage theme allowed redirect/);
 use strict;
 
 ### because this is called from a Class::Factory object new is not
@@ -35,7 +35,8 @@ sub create_http_body {
           $self->get_request->get_nodebase->getNode( $self->get_redirect );
         $self->get_request->set_node($node);
         $self->getTheme( $self->get_request );
-        die "Incorrect permissions!" unless $htmlpage->check_permissions;
+
+        die "Incorrect permissions!" unless $self->check_permissions;
 
     }
     return $self->set_http_body(
@@ -52,7 +53,7 @@ sub create_http_header {
 
 }
 
-=head2 C<getPageForType>
+=head2 C<get_page_for_type>
 
 Given a nodetype, get the htmlpages needed to display nodes of this type.  This
 runs up the nodetype inheritance hierarchy until it finds something.
@@ -73,7 +74,7 @@ Returns a node hashref to the page that can display nodes of this nodetype.
 
 =cut
 
-sub getPageForType {
+sub get_page_for_type {
     my ( $self, $TYPE, $displaytype ) = @_;
     my %WHEREHASH;
     my $PAGE;
@@ -133,7 +134,7 @@ sub check_permissions {
     my $NODE  = $E->get_node;
     my $user  = $E->get_user;
     my $query = $E->get_cgi;
-    my $permission_needed =  $PAGE->get_permissionneeded;
+    my $permission_needed =  $PAGE->get_permissionneeded();
 
     # If the user does not have the needed permission to view this
     # node through the desired htmlpage, we send them to the permission
@@ -141,7 +142,7 @@ sub check_permissions {
 
     #Also check to see if the particular displaytype can be executed by the user
 
-    unless ($NODE->hasAccess( $E->get_user, $permission_needed )
+    unless ($NODE->hasAccess( $user, $permission_needed )
         and $PAGE->hasAccess( $user, "x" ) )
     {
 
@@ -186,7 +187,7 @@ sub select_htmlpage {
     #	my ($NODE, $displaytype) = @_;
     my $TYPE;
 
-    $TYPE = $DB->getType( $$NODE{type_nodetype} );
+    $TYPE = $DB->getType( $NODE->get_type_nodetype );
     $displaytype ||= $$VARS{ 'displaypref_' . $$TYPE{title} }
       if exists $$VARS{ 'displaypref_' . $$TYPE{title} };
     $displaytype ||= $$THEME{ 'displaypref_' . $$TYPE{title} }
@@ -197,12 +198,10 @@ sub select_htmlpage {
 
     # First, we try to find the htmlpage for the desired display type,
     # if one does not exist, we default to using the display page.
-    $PAGE ||= $this->getPageForType( $TYPE, $displaytype );
-    $PAGE ||= $this->getPageForType( $TYPE, 'display' );
+    $PAGE ||= $this->get_page_for_type( $TYPE, $displaytype );
 
-    die "can't load a page $displaytype for $$TYPE{title} type" unless $PAGE;
+    die "Can't load a page $displaytype for $$TYPE{title} type" unless $PAGE;
 
-    die "NO PAGE!" unless $PAGE;
     $this->set_htmlpage($PAGE);
 
 }
