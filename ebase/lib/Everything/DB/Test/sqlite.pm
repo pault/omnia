@@ -73,7 +73,7 @@ sub test_get_fields_hash : Test(9) {
 
     my @fields1 = qw/foo bar/;
     my @fields2 = qw/ saturn jupiter /;
-    $self->{instance}->{dbh}->mock( 'prepare_cached', sub { shift; } );
+    $self->{instance}->{dbh}->mock( 'prepare', sub { shift; } );
     $self->{instance}->{dbh}
       ->set_series( 'fetchrow_arrayref', \@fields1, \@fields2 );
     my $DBTABLE = {};
@@ -87,7 +87,7 @@ sub test_get_fields_hash : Test(9) {
         'table-dbtable', '... by name, of dbtable type' );
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
 
-    is( $method, 'prepare_cached', '... displaying the table columns' );
+    is( $method, 'prepare', '... displaying the table columns' );
     is(
         $args->[1],
         'PRAGMA table_info(table)',
