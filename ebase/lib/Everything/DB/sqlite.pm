@@ -83,7 +83,7 @@ sub getFieldsHash
 
 	unless ( exists $DBTABLE->{Fields} )
 	{
-		my $sth = $this->{dbh}->prepare_cached( "PRAGMA table_info($table)" );
+		my $sth = $this->{dbh}->prepare( "PRAGMA table_info($table)" );
 		$sth->execute();
 
 		while ( my $table_desc = $sth->fetchrow_arrayref()) {
