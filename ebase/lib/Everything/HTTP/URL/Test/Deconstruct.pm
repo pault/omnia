@@ -10,7 +10,7 @@ use base 'Everything::HTTP::Test::URL';
 
 
 ## needs to be rewritten
-sub test_z_process : Test(5) {
+sub test_z_process : Test(4) {
 
     my $self = shift;
     can_ok($self->{class}, 'process') || return;
@@ -19,25 +19,23 @@ sub test_z_process : Test(5) {
 
     my $instance = $self->{instance};
 
-    $instance->set_request($mock);
-    $instance->get_request->set_always('get_nodebase',$mock)
-                    ->set_always('get_cgi', $mock);
     $mock->set_true('param');
 
     $instance->mock('make_requested_node_ref' => sub {$_[0]->set_requested_node_ref($mock) });
-    $instance->set_always('get_nodebase', $mock);
+
     $mock->set_always('getType', $mock);
     $instance->set_schema('/node/:node_id');
 
-    ok ($instance->process() );
-    my ($method, $args) = $instance->next_call;
-    is ($method, 'get_nodebase', '...gets nodebase object.');
+    my $fake_request = Test::MockObject->new;
+    $fake_request->set_always( get_nodebase => $mock );
 
+    ok ($instance->process( $fake_request ) );
+ 
     $instance->set_schema('/node/:type');
     $instance->get_nodebase->set_always('getType', {node_id => 111});
     $instance->set_always('get_matches', [['type_nodetype'], 222]);
-    ok ($instance->process() );
-    my ($method, $args) = $instance->next_call;
+    ok ($instance->process( $fake_request ) );
+    my ($method, $args) = $instance->next_call();
     is ($method, 'make_requested_node_ref', '...should call node making method.');
 
 
@@ -94,6 +92,7 @@ sub test_make_link_node :Test(7) {
     $instance->make_url_gen;
     my $mock = Test::MockObject->new;
 
+    *Everything::HTML::DB = \$mock;
 
     $mock->{node_id} = 111;
     $mock->{title}   = "Random node";
@@ -104,7 +103,7 @@ sub test_make_link_node :Test(7) {
     my $linkNode = $instance->make_link_node;
 
     is(ref $linkNode, 'CODE', '...creates a code ref');
-    is( $linkNode->(1), '<a href="/node/111">Random node</a>', "linkNode" );
+    is( $linkNode->($mock), '<a href="/node/111">Random node</a>', "linkNode" );
     $mock->{node_id} = 222;
     $mock->{title}   = "Another Random Node";
     is( $linkNode->($mock), '<a href="/node/222">Another Random Node</a>',
@@ -148,7 +147,7 @@ sub test_make_link_node_compulsory_value :Test(5) {
     my $linkNode = $instance->make_link_node;
 
     is(ref $linkNode, 'CODE', '...creates a code ref');
-    is( $linkNode->(1), '<a href="/node/Random%20node">Random node</a>', "...testing node url creation." );
+    is( $linkNode->($mock), '<a href="/node/Random%20node">Random node</a>', "...testing node url creation." );
 
     ## testing title
 

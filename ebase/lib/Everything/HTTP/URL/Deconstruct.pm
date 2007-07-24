@@ -1,14 +1,15 @@
 package Everything::HTTP::URL::Deconstruct;
 
 use strict;
-use base 'Everything::HTTP::URL';
+use base 'Class::Accessor::Fast', 'Everything::HTTP::URL';
 use Data::Dumper;
 use List::MoreUtils qw(zip);
 use URI;
 use SUPER;
 
+__PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
-    qw(re path_vars schema rule attributes tokens urlifier requested_node_id requested_node_ref url_gen matches nodebase )
+    qw(re path_vars schema rule attributes tokens urlifier requested_node_id requested_node_ref url_gen matches nodebase location)
 );
 
 #### DISPATCH TABLE FOR DECODING URLS
@@ -19,8 +20,8 @@ __PACKAGE__->mk_accessors(
 
 my $decode_attributes = {
     type => sub {
-        my ( $self, $attribute_value ) = @_;
-        my $type = $self->get_nodebase->getType( $attribute_value->[1] );
+        my ( $nodebase, $attribute_value ) = @_;
+        my $type = $nodebase->getType( $attribute_value->[1] );
         return 'type_nodetype', $type->{node_id};
     },
     __DEFAULT__ => sub { return @{ $_[1] }; },
@@ -38,8 +39,22 @@ my $encode_attributes = {
     __DEFAULT__ => sub { return $_[0]->{ $_[1] } },
 };
 
+sub make_modify_request {
+    my $self = shift;
+    my $sub = sub {
+        my ( $url, $e ) = @_;
+        return unless $self->match($url);
+        my $node = $self->process($e);
+        $e->set_node($node);
+        return 1;
+    };
+
+    $self->register_request_modifier($sub);
+
+}
+
 sub process {
-    my $self        = shift;
+    my ( $self, $e ) = @_;
     my @matches     = @{ $self->get_matches };
     my %node_params = ();
     while ( my ( $attribute, $value ) = splice @matches, 0, 2 ) {
@@ -47,12 +62,13 @@ sub process {
         my $action = $decode_attributes->{ $attribute->[0] }
           || $decode_attributes->{__DEFAULT__};
         ( $attribute, $value ) =
-          $action->( $self, compulsory_value( $attribute, $value ) );
+          $action->( $e->get_nodebase, compulsory_value( $attribute, $value ) );
         $node_params{$attribute} = $value;
 
     }
 
-    my $node = $self->make_requested_node_ref( \%node_params );
+    my $node =
+      $self->make_requested_node_ref( \%node_params, $e->get_nodebase );
     return $node;
 
 }
@@ -113,7 +129,8 @@ sub make_url_gen {
 }
 
 sub make_link_node {
-    my $self = shift;
+    my $self    = shift;
+    my $url_gen = $self->get_url_gen;
     sub {
 
         my ( $node, $title, $params, $scripts ) = @_;
@@ -123,7 +140,7 @@ sub make_link_node {
 
         # We do this instead of calling getRef, because we only need the node
         # table data to create the link.
-        $node = $self->get_nodebase->getNode( $node, 'light' )
+        $Everything::HTML::DB->getNode( $node, 'light' )
           unless ( ref $node );
 
         return "" unless ref $node;
@@ -136,7 +153,7 @@ sub make_link_node {
 
         my $scripts = handle_scripts($scripts);
 
-        $link = "<a href=" . $self->get_url_gen->( $params, '', $node ) . $tags;
+        $link = "<a href=" . $url_gen->( $params, '', $node ) . $tags;
         $link .= " " . $scripts if ( $scripts ne "" );
         $link .= ">$title</a>";
 
@@ -220,9 +237,9 @@ sub tokenize {
 ## Returns nothing of consequence.
 
 sub make_requested_node_ref {
-    my ( $self, $matches ) = @_;
+    my ( $self, $matches, $nodebase ) = @_;
 
-    my $nodes = $self->get_nodebase->getNodeWhere($matches);
+    my $nodes = $nodebase->getNodeWhere($matches);
 
     return unless $nodes;
     if ( @$nodes == 1 ) {
@@ -304,10 +321,10 @@ Everythning::URL::Deconstruct - match-and-extract stuff from HTTP request string
 
 =head1 SYNOPSIS
 
-  use Everything::HTTP::URLProcess::Deconstruct;
+  use Everything::HTTP::URL::Deconstruct;
   my $r = Apache->request;
   my $e = Everything::HTTP::Request->new;
-  my $processor = Everything::HTTP::URLProcess::Deconstruct->new({r => $r, e => $e});
+  my $processor = Everything::HTTP::URL::Deconstruct->new({r => $r, e => $e});
 
   $processor->set_schema('/path/text/:node_id');
 
@@ -335,21 +352,6 @@ Will match nodes that have type container and title of 'title'.
 =cut
 
 
-=head2 C<< $m->require_param NAME, VALUE >>
-
-NOT USED
-
-This internal method returns the regular expression
-to match a HTTP query parameter and its name.
-
-NAME is the name of the key into which the value will
-be captured.
-
-VALUE is the regular expression that will match
-the value.
-
-=cut
-
 
 =head2 C<< $m->make_regex >>
 
@@ -362,19 +364,17 @@ that will match and capture the request fields.
 
 =head2 C<< $m->match($url) >>
 
-This is also an internal method.
-
 Returns a list of captured values
 if the request matches.
 
 If the request matches but does not capture anything,
-a single 1 is returned. This is ugly but such is life.
+a single 1 is returned.
 
 =cut
 
-=head2 C<< $m->process($url) >>
+=head2 C<< $m->process ($e) >>
 
-Takes a URL.  Amends the Everything::HTTP::Request object in place setting the requested node to the appropriate values.
+Takes an Everything::HTTP::Request object and modifies it by setting the 'node',attribute. It should be called after 'match' and uses the 'matches' attribute to select the node.
 
 =cut
 

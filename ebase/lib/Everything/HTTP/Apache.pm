@@ -9,6 +9,8 @@ use Everything::HTTP::ResponseFactory;
 use strict;
 use warnings;
 
+use Carp;
+#BEGIN { $SIG{__WARN__} = \&Carp::cluck;}
 ## initialise
 Everything::HTTP::URL->set_default_sub( \&Everything::HTML::linkNode );
 
@@ -24,8 +26,10 @@ sub handler {
     ## scriptname for CGI
     my $e =
       Everything::HTTP::Request->new( "$db:$user:$password:$host", \%options );
-    create_url_parsers( $r, $e )
-      unless Everything::HTTP::URL->isset_url_parsers;
+
+    $e->get_nodebase->resetNodeCache;
+
+    create_url_parsers( $r, $e );
 
     ## sets up variables for serving web pages mostly pulled from db
 
@@ -47,16 +51,15 @@ sub handler {
 
     $e->set_node_from_cgi;
 
-    if ( !$e->get_node ) {
-        my $node = Everything::HTTP::URL->parse_url($r);
+       if ( !$e->get_node ) {
 
-        if ( $node && !ref $node ) {
-            return NOT_FOUND;
-        }
-        else {
-            $e->set_node($node);
-        }
-    }
+           Everything::HTTP::URL->modify_request($r->path_info, $e);
+
+   	my $node = $e->get_node;
+           if ( $node && !ref $node ) {
+               return NOT_FOUND;
+           }
+       }
 
     ### if we haven't returned find the default node
     if ( !$e->get_node && ( $r->path_info eq '/' || $r->path_info eq '' ) ) {
@@ -99,8 +102,23 @@ sub create_url_parsers {
     ## parse the URL
     ## setup url processing
 
+    Everything::HTTP::URL->clear_request_modifiers;
+    Everything::HTTP::URL->clear_node_to_url_subs;
+
+     Everything::HTTP::URL->register_request_modifier(
+ 						     sub {
+ 							  my ( $url, $e ) = @_;
+
+ 							  return unless $url eq '/location/';
+ 							  my $node = $e->get_nodebase->getNode( 0 );
+ 							  $e->set_node ($node);
+ 							  return 1;
+
+ });
+
     my @url_config = $r->dir_config->get('everything-url');
     return unless @url_config;
+
 
     while ( my ( $schema, $linker_arg ) = splice( @url_config, 0, 2 ) ) {
 
@@ -113,12 +131,16 @@ sub create_url_parsers {
         );
         $url_parser->set_schema($schema);
         $url_parser->make_url_gen;
-        $url_parser->register_url_parser;
+        $url_parser->make_modify_request;
         $url_parser->create_nodetype_rule( $url_parser->make_link_node,
             $linker_arg );
     }
+
+    my $link_node = Everything::HTTP::URL->create_linknode;
     no warnings 'redefine';
-    *Everything::HTML::linkNode = Everything::HTTP::URL->create_linknode;
+ 
+   *Everything::HTML::linkNode = sub { my $node = shift; $Everything::DB->getRef( $node ); $link_node->( $node, @_ ) };
+    use warnings 'redefine';
 
 }
 

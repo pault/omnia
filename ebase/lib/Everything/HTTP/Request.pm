@@ -178,8 +178,8 @@ sub setup_everything_html {
       $self, 'user';
     tie $Everything::HTML::VARS, "Everything::HTML::Environment::Variable",
       $self, 'user_vars';
-    $Everything::HTML::NODE     = $self->get_node;
-    $Everything::HTML::GNODE    = $self->get_node;
+    tie $Everything::HTML::NODE, "Everything::HTML::Environment::Variable", $self, 'node';
+    $Everything::HTML::GNODE = $Everything::HTML::NODE;
     *Everything::HTML::HTMLVARS = $self->get_system_vars;
     *Everything::HTML::GLOBAL   = {};
     $Everything::HTML::AUTH     = $self->get_authorisation;
