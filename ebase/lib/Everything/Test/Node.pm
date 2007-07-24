@@ -8,6 +8,11 @@ use base 'Test::Class';
 use strict;
 use warnings;
 
+BEGIN {
+    Test::MockObject->fake_module('Everything::Util');
+    Test::MockObject->fake_module('XML::Dom');
+}
+
 sub module_class {
     my $self = shift;
     my $name = blessed($self);
@@ -29,8 +34,6 @@ sub startup : Test(startup => 1) {
         }
     );
 
-    $mock->fake_module('Everything::Util');
-    $mock->fake_module('XML::Dom');
     $self->{mock} = $mock;
 
     use_ok( $self->{class} ) || exit;

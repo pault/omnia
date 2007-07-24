@@ -10,7 +10,9 @@ use Scalar::Util 'blessed';
 
 
 
-
+BEGIN {
+  Test::MockObject->fake_module('Everything::Auth');
+}
 
 
 
@@ -21,7 +23,6 @@ sub startup_runnable : Test(startup => 1) {
 		     flushErrorsToBackside => sub {1},
 		     getBacksideErrors => sub {1});
 
-  $mock->fake_module('Everything::Auth');
   *Everything::HTTP::Request::DB = \$mock;
   $mock->set_always('get_db', $mock);
   $mock->set_always('getNodeById', $mock);

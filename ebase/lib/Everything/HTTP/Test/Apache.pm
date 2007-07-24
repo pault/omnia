@@ -11,7 +11,6 @@ use warnings;
 sub test_startup : Test(startup => 1) {
     my $self = shift;
     my $mock = Test::MockObject->new;
-    $mock->fake_module('Everything');
     $mock->fake_module('Everything::Auth');
     my $fake_apache_request     = Test::MockObject->new;
     my $fake_everything_request = Test::MockObject->new;

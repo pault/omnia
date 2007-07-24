@@ -23,7 +23,7 @@ sub startup : Test(startup => 1) {
     my $self  = shift;
     my $class = $self->module_class();
     my $mock  = Test::MockObject->new;
-    $mock->fake_module('Everything');
+
     $mock->fake_module('Everything::HTTP::Request');
     $mock->fake_new('Everything::HTTP::Request');
     $mock->set_always( 'get_cgi', $mock )->set_always( 'get_node', $mock );

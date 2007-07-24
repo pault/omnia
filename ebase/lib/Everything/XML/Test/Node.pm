@@ -8,6 +8,12 @@ use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
+BEGIN {
+    Test::MockObject->fake_module('XML::DOM::Text');
+    Test::MockObject->fake_module('XML::DOM::Element');
+    Test::MockObject->fake_module('XML::DOM::Document');
+}
+
 sub object_class {
     my $self = shift;
     my $name = blessed($self);
@@ -177,9 +183,7 @@ sub test_gen_basic_tag : Test(15) {
     $instance->set_node($mock);
     $instance->set_nodebase($mock);
 
-    $mock->fake_module('XML::DOM::Element');
     $mock->fake_new('XML::DOM::Element');
-    $mock->fake_module('XML::DOM::Text');
     $mock->fake_new('XML::DOM::Text');
 
     $mock->set_true( 'setAttribute', 'appendChild', '-isOfType', '-getRef' );
@@ -356,8 +360,6 @@ sub test_to_xml : Test(4) {
     use strict 'refs';
 
     $mock->set_always(getNodeKeys => { key1 => 'value1', key2 => 'value2'} );
-    $mock->fake_module('XML::DOM::Document');
-    $mock->fake_module('XML::DOM::Text');
     $mock->fake_new('XML::DOM::Document');
     $mock->fake_new('XML::DOM::Text');
     $mock->fake_new('XML::DOM::Element');

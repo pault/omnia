@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
+use SUPER;
 
 sub test_dbtables
 {
@@ -52,6 +53,7 @@ sub test_make_html : Test(3) {
   my $class = $self->node_class();
   my $instance = $self->{node};
   $instance->set_always( 'run', 'some htmlpage html <BacksideErrors>' );
+  $instance->set_always(get_parent_container => 0 );
   my $mock = Test::MockObject->new;
   $mock->set_always( get_user => $mock );
   can_ok($class, 'make_html');

@@ -36,17 +36,6 @@ sub startup : Test(startup => 3) {
 }
 
 
-sub test_accessors : Test(10) {
-    my $self = shift;
-    my @attributes = qw/request cgi location path_info url/;
-    foreach (@attributes) {
-	can_ok($self->{class}, "set_$_");
-	can_ok($self->{class}, "get_$_");
-    }
-
-
-}
-
 
 sub test_create_nodetype_rule : Test(6) {
     my $self = shift;
@@ -56,9 +45,7 @@ sub test_create_nodetype_rule : Test(6) {
 
     my $node = $self->{mock};
 
-    $node->{DB}=$self->{mock};
-    $instance->set_always('get_e', $node);
-    $node->set_always('get_db', $node);
+    $node->set_always('get_nodebase', $node);
     $node->set_always('getNode', $node);
     $node->{type} = $node;
     my $nodetype_name = 'nodetypename';
@@ -68,13 +55,15 @@ sub test_create_nodetype_rule : Test(6) {
     my $nodetype_rule;
     ok ($nodetype_rule = $instance->create_nodetype_rule($sub, $nodetype_name),
 	'...should run nodetype rule');
+
     is (ref $nodetype_rule, 'CODE', '...and return a code ref.');
     $node->set_series('getType', {title => 'nodetypename'}, {title => 'notnodetypename'});
 
-    is ($nodetype_rule->($node), 'for real', '...should run the code if our node conforms.');
+    my $obj = bless {}, 'Everything::Node::nodetypename';
+    is ($nodetype_rule->($obj), 'for real', '...should run the code if our node conforms.');
     $node->{title} = "differentname";
     is ($nodetype_rule->($node), undef, '...and return undef when it does not.');
-    is ($instance->get_select_node_subs_ref->[-1], $nodetype_rule, '...and add it to the subs.')
+    is ($instance->get_node_to_url_subs_ref->[-1], $nodetype_rule, '...and add it to the subs.')
 }
 
 sub test_create_linknode : Test(3) {

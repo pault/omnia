@@ -8,6 +8,8 @@ use SUPER;
 
 use base 'Everything::Test::Abstract';
 
+BEGIN { Test::MockObject->fake_module( 'XML::DOM' ); }
+
 sub startup : Test(startup => +1) {
     my $self = shift;
     my $mock = Test::MockObject->new;
@@ -15,7 +17,6 @@ sub startup : Test(startup => +1) {
     $self->{le} = [];
     $mock->fake_module( 'Everything',
         logErrors => sub { push @{ $self->{le} }, [@_] } );
-    $mock->fake_module('XML::DOM');
 
     # test imports
     my %import;

@@ -14,6 +14,8 @@ my $exited;
 
 BEGIN {
     *CORE::GLOBAL::exit = sub { $exited++ };
+    Test::MockObject->fake_module('Everything::NodeBase');
+
 }
 
 sub test_get_options : Test(4) {
@@ -97,7 +99,6 @@ sub test_make_nodebase : Test(5) {
       || return 'abs_path not implemented.';
 
     my $mock = Test::MockObject->new;
-    $mock->fake_module('Everything::NodeBase');
 
     my @new_args;
     my $new_returns = $mock;

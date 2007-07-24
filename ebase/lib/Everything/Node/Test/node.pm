@@ -76,7 +76,7 @@ sub make_base_test_db
 	my $blank_db  = catfile(qw( t ebase.db ));
 	require 't/lib/build_test_db.pm' unless -e $blank_db;
 
-	my $tempdir   = File::Temp::tempdir( DIR => 't', CLEANUP => 1 );
+	my $tempdir   = File::Temp::tempdir( DIR => 't', CLEANUP => 1);
 	my $module    = $self->node_class();
 	my $module_db = catfile( $tempdir, $module . '_base.db' );
 

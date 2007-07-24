@@ -11,7 +11,6 @@ sub startup : Test(startup=> 2) {
     my $self   = shift;
     my $module = $self->module_class();
     my $mock   = Test::MockObject->new;
-    $mock->fake_module('Everything');
     $mock->fake_module('Everything::HTML');
     my $cgi = CGI->new;
     use_ok($module) or exit;

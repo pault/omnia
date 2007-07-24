@@ -2,7 +2,7 @@
 package Everything::Test::Ecore::SimpleServer;
 
 use SUPER;
-use Everything::HTML qw/mod_perlInit/;
+use Everything::HTTP::CGI;
 
 use base 'HTTP::Server::Simple::CGI';
 
@@ -30,7 +30,7 @@ sub handle_request {
 
     my $args = $self->{mod_perlInit};
 
-    mod_perlInit( @$args );
+    Everything::HTTP::CGI->handle( @$args );
 
 
 }

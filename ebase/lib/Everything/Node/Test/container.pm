@@ -95,6 +95,7 @@ sub test_generate_container : Test(4) {
     my $result;
     my $node_id = 123;
     $instance->mock( get_node_id => sub { $node_id } );
+    $instance->set_false( 'get_parent_container' );
 
     is( $result = $instance->generate_container( undef, $mock ),
         $expected,
@@ -102,7 +103,7 @@ sub test_generate_container : Test(4) {
 
     ## test for parent container;
 
-    $instance->set_parent_container($node_id);
+    $instance->mock(get_parent_container => sub { $node_id } );
     $mock->set_always( getNode => $instance );
 
     dies_ok { $result = $instance->generate_container( 1, $mock ) }

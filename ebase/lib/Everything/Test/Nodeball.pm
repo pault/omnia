@@ -15,6 +15,10 @@ use base 'Everything::Test::Abstract';
 use strict;
 use warnings;
 
+BEGIN {     
+    Test::MockObject->fake_module('Everything::XML::Node');
+}
+
 sub startup : Test(startup => +0) {
     my $self = shift;
     $self->SUPER;
@@ -436,7 +440,6 @@ sub test_export_nodes : Test(5) {
       || return 'exportNodes not implemented.';
     my $instance = $self->{instance};
     my $mock     = $self->{mock};
-    $mock->fake_module('Everything::XML::Node');
     $mock->fake_new('Everything::XML::Node');
     $mock->mock( toXML => sub { "some xml" } );
     my $test_code = \&{ $self->{class} . '::exportNodes' };

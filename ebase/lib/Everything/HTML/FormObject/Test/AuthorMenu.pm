@@ -8,13 +8,6 @@ use SUPER;
 use warnings;
 use strict;
 
-sub setup_mocks {
-    my $self = shift;
-    $self->SUPER;
-    $self->{mock}->fake_module('Everything::HTML');
-
-}
-
 sub test_cgi_verify : Test(17) {
     my $self     = shift;
     my $mock     = $self->{mock};

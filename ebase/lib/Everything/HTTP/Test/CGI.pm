@@ -6,6 +6,11 @@ use Test::MockObject;
 use strict;
 use warnings;
 
+BEGIN {
+    Test::MockObject->fake_module('Everything::HTTP::ResponseFactory');
+    Test::MockObject->fake_module('Everything::HTTP::Request');
+}
+
 sub test_handle : Test(17) {
     my $self    = shift;
     my $package = $self->{class};
@@ -25,10 +30,8 @@ sub test_handle : Test(17) {
     );
     $mock->set_series( 'isOfType', 0, 0, 1, 1, 0, 1, 1, 0 );
 
-    $mock->fake_module('Everything::HTTP::Request');
     $mock->fake_new('Everything::HTTP::Request');
 
-    $mock->fake_module('Everything::HTTP::ResponseFactory');
     $mock->fake_new('Everything::HTTP::ResponseFactory');
 
     local $ENV{SCRIPT_NAME} = 'http://foo/bar/';
