@@ -38,7 +38,7 @@ $query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&qu
  &lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
-&lt;span style=&quot;font-size: 75%&quot;&gt;
+
 [%
 $query-&gt;span( { -style =&gt; &quot;font-size: 75%&quot;}, 
 $query-&gt;checkbox(&quot;expires&quot;, &quot;&quot;, &quot;+10y&quot;, &quot;save me a cookie&quot;) . &quot;\n&quot; .

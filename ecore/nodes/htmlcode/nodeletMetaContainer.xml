@@ -11,20 +11,14 @@ my @nodelets = @{ $USER-&gt;getNodelets($HTMLVARS{default_nodeletgroup}) };
 
 return &quot;no nodelets!&quot; unless @nodelets;
 
-if ($$THEME{nodeletMCTableAttr}){
-  $str .= &quot;&lt;TABLE &quot;.$$THEME{nodeletMCTableAttr}.&quot;&gt;\n&quot;;
-} else {
-  $str .= &quot;&lt;TABLE width=150 cellpadding=1 cellspacing=1&gt;\n&quot;;
-}
-
 foreach (@nodelets)
 {
   my $NODELET = $DB-&gt;getNodeById($_);
   my $nl = insertNodelet($NODELET);
-  $str .= &quot;&lt;tr&gt;&lt;td&gt;&quot; . $nl . &quot;&lt;/td&gt;&lt;/tr&gt;\n&quot; if($nl);
+  $str .= $nl;
 }
 
-$str .=&quot;&lt;/TABLE&gt;&quot;;
+#$str .=&quot;&lt;/TABLE&gt;&quot;;
 $str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

@@ -1,0 +1,108 @@
+<NODE export_version="0.5" nodetype="htmlsnippet" title="stdstylesheet">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">&lt;style type=&quot;text/css&quot;&gt;
+
+body {
+background-color: [% $$THEME{bodyBgcolor} || '#FFFFFF' %];
+color: [% $$THEME{bodyTextcolor} || &quot;#000000&quot; %];
+margin-top: [% $$THEME{bodyTMargin} || 5 %];
+margin-bottom: [% $$THEME{bodyTMargin} || 5 %];
+margin-left: [% $$THEME{bodyLMargin} || 5 %];
+margin-right: [% $$THEME{bodyLMargin} || 5 %];
+font-family: verdana, helvetica, arial, sans-serif;
+font-size: small;
+
+}
+
+a:link {
+color: [% $$THEME{bodyLinkcolor} || &quot;#993333&quot; %];
+}
+
+a:visited {
+color: [% $$THEME{bodyVlinkcolor} || &quot;#333399&quot; %];
+} 
+
+#header {
+position:relative;
+padding: 20px;
+}
+
+#logoposition {
+position: absolute;
+top: 0px;
+right: 10px;
+}
+
+#searchform {
+position: absolute;
+top: 0px;
+left: 10px;
+}
+
+#maincontainer {
+position: relative;
+top:0;
+left:0;
+margin: 10px;
+
+}
+
+#nodelets {
+position:absolute;
+top: 0;
+right: 0;
+width: 20%;
+
+}
+
+#containedstuff {
+position:absolute;
+width: 80%;
+
+}
+
+.nodelettitle {
+color: white;
+background-color: [% $$THEME{nodeletTitleColor} || &quot;#CC99FF&quot; %];
+font-weight: bold;
+padding-left: 1em;
+
+}
+
+.nodeletbody {
+font-size: 7pt;
+padding-left: 2px;
+background-color: [% $$THEME{nodeletBodyColor} || &quot;#CCCCCC&quot; %];
+}
+.nodeletoutline {
+margin-top: 2px;
+border-color: black;
+border-style: solid;
+border-width: thin;
+}
+
+.listcode {
+font-family: fixed;
+font-size:12pt;
+width: 90%;
+border-width: 3px;
+border-color: gray;
+border-style: double;
+
+
+}
+
+&lt;/style&gt;</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlsnippet</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">stdstylesheet</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</field>
+</NODE>

@@ -1,34 +1,13 @@
 <NODE export_version="0.5" nodetype="container" title="nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 cellpadding=2 cellspacing=0 width=100%&gt;
-&lt;tr [%
-  my $bk = $$THEME{nodeletTitleBackground};
-  $bk||=&quot;images/titletest.gif&quot;;
-  return &quot;bgcolor='$bk'&quot; if $bk;
-%]&gt;
- &lt;td bgcolor=[%
-   return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
-    &quot;#CC99FF&quot;;
-  %]&gt;
-  [% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
-    &lt;B&gt;&lt;font [%
-      my $attr= $$THEME{nodeletTitleFontAttr};
-      return $attr if $attr;
-      &quot;color=white&quot;;
-      %]&gt;[&quot;$$NODELET{title}&quot;]&lt;/font&gt;&lt;/B&gt;
-  &lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
- &lt;td [%
-my $bgcol = $$THEME{nodeletBodyColor};
-$bgcol ||= &quot;#CCCCCC&quot;;
-&quot;bgcolor='$bgcol'&quot;;
-%] style=&quot;font-size: 7pt&quot;&gt;
+  <field name="context" type="literal_value">&lt;div class=&quot;nodelettitle&quot;&gt;
+[% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
+[&quot;$$NODELET{title}&quot;]
+&lt;/div&gt;
+&lt;div class=&quot;nodeletbody&quot;&gt;
 CONTAINED_STUFF
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
+&lt;/div&gt;
 
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

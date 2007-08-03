@@ -3,9 +3,7 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($field) = @_;
 my $str = listCode($$NODE{$field}, 1) || '';
-my $table = &quot;&lt;table width=500 border=1&gt;&lt;tr&gt;&lt;td&gt;\n&quot;;
-$table .= $str . &quot;\n&quot;;
-$table .= &quot; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;\n&quot;;
+'&lt;div class=&quot;listcode&quot;&gt;' . $str . '&lt;/div&gt;';
 </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

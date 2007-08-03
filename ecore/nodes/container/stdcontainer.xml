@@ -4,10 +4,10 @@
   <field name="context" type="literal_value">&lt;HTML&gt;
 &lt;head&gt;
 &lt;title&gt;[&quot;$$NODE{title}&quot;]&lt;/title&gt;
+[&lt;stdstylesheet&gt;]
 [{insertJavascript}]
 &lt;/head&gt;
-
-[{userbody}]
+&lt;body&gt;
 [&lt;BacksideErrors&gt;]
 CONTAINED_STUFF
 &lt;/BODY&gt;
