@@ -421,4 +421,95 @@ sub now { return "datetime('now')" }
 
 sub timediff { "$_[1] - $_[2]" }
 
+sub create_user {
+
+    1;
+
+}
+
+sub create_database {
+	my ( $this, $dbname ) = @_;
+
+	$this->{dbname} = $dbname;
+	$this->{dbh}    = DBI->connect( "dbi:SQLite:dbname=$dbname" )
+		or die "Unable to get database connection!";
+
+
+}
+
+
+=head2 C<grant_privileges>
+
+Does nothing for sqlite. Returns true.
+
+=cut
+
+sub grant_privileges {
+
+    1;
+
+}
+
+=head2 C<base_tables>
+
+Returns a list of SQL statements necessary to insert the base tables into a databse.
+
+=cut
+
+
+sub base_tables {
+    return (
+        q{CREATE TABLE setting (
+  setting_id INTEGER PRIMARY KEY NOT NULL,
+  vars text DEFAULT ''
+)},
+        q{CREATE TABLE node (
+  node_id INTEGER PRIMARY KEY NOT NULL,
+  type_nodetype integer(20) NOT NULL DEFAULT '0',
+  title char(240) NOT NULL DEFAULT '',
+  author_user integer(20) NOT NULL DEFAULT '0',
+  createtime timestamp NOT NULL,
+  modified timestamp NOT NULL DEFAULT '0000-00-00',
+  hits integer(20) DEFAULT '0',
+  loc_location integer(20) DEFAULT '0',
+  reputation integer(20) NOT NULL DEFAULT '0',
+  lockedby_user integer(20) NOT NULL DEFAULT '0',
+  locktime timestamp NOT NULL DEFAULT '0',
+  authoraccess char(4) NOT NULL DEFAULT 'iiii',
+  groupaccess char(5) NOT NULL DEFAULT 'iiiii',
+  otheraccess char(5) NOT NULL DEFAULT 'iiiii',
+  guestaccess char(5) NOT NULL DEFAULT 'iiiii',
+  dynamicauthor_permission integer(20) NOT NULL DEFAULT '-1',
+  dynamicgroup_permission integer(20) NOT NULL DEFAULT '-1',
+  dynamicother_permission integer(20) NOT NULL DEFAULT '-1',
+  dynamicguest_permission integer(20) NOT NULL DEFAULT '-1',
+  group_usergroup integer(20) NOT NULL DEFAULT '-1'
+)},
+        q{CREATE TABLE nodetype (
+nodetype_id INTEGER PRIMARY KEY NOT NULL,
+restrict_nodetype integer(20) DEFAULT '0',
+extends_nodetype integer(20) DEFAULT '0',
+restrictdupes integer(20) DEFAULT '0',
+sqltable char(255),
+grouptable char(40) DEFAULT '',
+defaultauthoraccess char(4) NOT NULL DEFAULT 'iiii',
+defaultgroupaccess char(5) NOT NULL DEFAULT 'iiiii',
+defaultotheraccess char(5) NOT NULL DEFAULT 'iiiii',
+defaultguestaccess char(5) NOT NULL DEFAULT 'iiiii',
+defaultgroup_usergroup integer(20) NOT NULL DEFAULT '-1',
+defaultauthor_permission integer(20) NOT NULL DEFAULT '-1',
+defaultgroup_permission integer(20) NOT NULL DEFAULT '-1',
+defaultother_permission integer(20) NOT NULL DEFAULT '-1',
+defaultguest_permission integer(20) NOT NULL DEFAULT '-1',
+maxrevisions integer(20) NOT NULL DEFAULT '-1',
+canworkspace integer(20) NOT NULL DEFAULT '-1'
+)},
+        q{CREATE TABLE version (
+  version_id INTEGER  PRIMARY KEY DEFAULT '0' NOT NULL,
+  version INTEGER DEFAULT '1' NOT NULL
+)}
+    );
+
+}
+
 1;

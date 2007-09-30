@@ -454,4 +454,96 @@ sub get_create_table {
     return @statements;
 }
 
+sub create_database {
+
+    my ($self, $db_name, $user, $password, $host, $port ) = @_;
+    $host ||= 'localhost';
+    $port ||= 3306;
+
+    my $drh = DBI->install_driver('mysql');
+    my $rc  =
+      $drh->func( 'createdb', $db_name, $host, $user, $password, 'admin' );
+    die($DBI::errstr) if $DBI::errstr;
+
+    $self->{dbh} = DBI->connect( "DBI:mysql:database=$db_name;host=$host;port=$port", $user, $password );
+    die($DBI::errstr) if $DBI::errstr;
+
+    return $db_name;
+
+}
+
+sub grant_privileges {
+    my ( $self, $dbname, $user, $password, $host ) = @_;
+
+    $host ||=  'localhost';
+
+    $self->{dbh}->do("GRANT ALL PRIVILEGES on ${dbname}.* TO '$user'\@'$host' IDENTIFIED BY '$password'");
+
+    die ( $DBI::errstr ) if $DBI::errstr;
+
+}
+
+sub base_tables {
+
+    return (
+        q{CREATE TABLE node (
+  node_id int(11) NOT NULL auto_increment,
+  type_nodetype int(11) DEFAULT '0' NOT NULL,
+  title char(240) DEFAULT '' NOT NULL,
+  author_user int(11) DEFAULT '0' NOT NULL,
+  createtime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  modified datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  hits int(11) DEFAULT '0',
+  loc_location int(11) DEFAULT '0',
+  reputation int(11) DEFAULT '0' NOT NULL,
+  lockedby_user int(11) DEFAULT '0' NOT NULL,
+  locktime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  authoraccess char(4) DEFAULT 'iiii' NOT NULL,
+  groupaccess char(5) DEFAULT 'iiiii' NOT NULL,
+  otheraccess char(5) DEFAULT 'iiiii' NOT NULL,
+  guestaccess char(5) DEFAULT 'iiiii' NOT NULL,
+  dynamicauthor_permission int(11) DEFAULT '-1' NOT NULL,
+  dynamicgroup_permission int(11) DEFAULT '-1' NOT NULL,
+  dynamicother_permission int(11) DEFAULT '-1' NOT NULL,
+  dynamicguest_permission int(11) DEFAULT '-1' NOT NULL,
+  group_usergroup int(11) DEFAULT '-1' NOT NULL,
+  PRIMARY KEY (node_id),
+  KEY title (title,type_nodetype),
+  KEY author (author_user),
+  KEY type (type_nodetype)
+)},
+        q{CREATE TABLE nodetype (
+  nodetype_id int(11) DEFAULT '0' NOT NULL,
+  restrict_nodetype int(11) DEFAULT '0',
+  extends_nodetype int(11) DEFAULT '0',
+  restrictdupes int(11) DEFAULT '0',
+  sqltable char(255),
+  grouptable char(40) DEFAULT '',
+  defaultauthoraccess char(4) DEFAULT 'iiii' NOT NULL,
+  defaultgroupaccess char(5) DEFAULT 'iiiii' NOT NULL,
+  defaultotheraccess char(5) DEFAULT 'iiiii' NOT NULL,
+  defaultguestaccess char(5) DEFAULT 'iiiii' NOT NULL,
+  defaultgroup_usergroup int(11) DEFAULT '-1' NOT NULL,
+  defaultauthor_permission int(11) DEFAULT '-1' NOT NULL,
+  defaultgroup_permission int(11) DEFAULT '-1' NOT NULL,
+  defaultother_permission int(11) DEFAULT '-1' NOT NULL,
+  defaultguest_permission int(11) DEFAULT '-1' NOT NULL,
+  maxrevisions int(11) DEFAULT '-1' NOT NULL,
+  canworkspace int(11) DEFAULT '-1' NOT NULL,
+  PRIMARY KEY (nodetype_id)
+)},
+        q{CREATE TABLE setting (
+  setting_id int(11) DEFAULT '0' NOT NULL,
+  vars text NOT NULL,
+  PRIMARY KEY (setting_id)
+)},
+        q{CREATE TABLE version (
+  version_id int(11) DEFAULT '0' NOT NULL,
+  version int(11) DEFAULT '1' NOT NULL,
+  PRIMARY KEY (version_id)
+)}
+      )
+
+}
+
 1;

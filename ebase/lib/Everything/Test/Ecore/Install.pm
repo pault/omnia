@@ -10,17 +10,6 @@ use base 'Test::Class';
 use strict;
 use warnings;
 
-sub startup : Test( startup ) {
-    my $self        = shift;
-    my $stored_ball = Everything::Storage::Nodeball->new;
-    $stored_ball->set_nodebase( $self->{nb} );
-    $stored_ball->set_nodeball( $self->{nodeball} );
-
-    $self->{ball} = $stored_ball;
-
-    #    $self->install_basenodes; # base nodes always in test db
-}
-
 sub test_10_sql_tables : Test(1) {
     my $self = shift;
 
@@ -28,7 +17,7 @@ sub test_10_sql_tables : Test(1) {
       map { $_ => 1 }
       qw/version mail image container node symlink nodemethod nodetype typeversion nodelet revision workspace htmlcode themesetting htmlpage nodegroup javascript setting document user links/;
 
-    $self->{ball}->insert_sql_tables;
+    $self->{installer}->install_sql_tables;
     my %actual_tables = map { $_ => 1 } $self->{nb}->{storage}->list_tables;
 
     is_deeply( \%actual_tables, \%expected_tables,
@@ -37,82 +26,31 @@ sub test_10_sql_tables : Test(1) {
 
 }
 
-sub test_11_base_nodes : Test(3) {
+   sub test_11_base_nodes : Test(1) {
 
-    my $self = shift;
+       my $self = shift;
 
-    my $nb = $self->{nb};
-
-    my $ball  = $self->{ball};
-    my $nodes = $nb->getNodeWhere( '', 'nodetype', 'node_id' );
-
-    my @get_these = ();
-    push @get_these, [ $$_{title}, $$_{type}{title} ] foreach @$nodes;
-
-    my $select = sub {
-        my $xmlnode  = shift;
-        my $nodetype = $xmlnode->get_nodetype;
-        my $title    = $xmlnode->get_title;
-        foreach (@get_these) {
-            if ( $title eq $_->[0] && $nodetype eq $_->[1] ) {
-                return 1;
-            }
-        }
-
-        return;
-    };
-    my $node_iterator = $ball->make_node_iterator($select);
-
-    while ( my $xmlnode = $node_iterator->() ) {
-        my $title = $xmlnode->get_title;
-        my $type  = $xmlnode->get_nodetype;
-
-        my $node = $nb->getNode( $title, $type );
-
-        foreach ( @{ $xmlnode->get_attributes } ) {
-
-            if ( $_->get_type eq 'literal_value' ) {
-                $$node{ $_->get_name } = $_->get_content;
-            }
-            elsif ( $_->get_type eq 'noderef' ) {
-
-                my ($ref_name) = split /,/, $_->get_type_nodetype;
-                my $ref_node = $nb->getNode( $_->get_content, $ref_name );
-
-                $$node{ $_->get_name } = $ref_node ? $ref_node->{node_id} : -1;
-            }
-        }
-
-        ok( $node->update( -1, 'nomodify' ),
-            "...base node, $$node{title}, has been updated" );
-    }
-    $nb->rebuildNodetypeModules();
-
-}
+       ok( $self->{installer}->update_existing_nodes );
+   }
 
 sub test_20_nodetypes : Test(1) {
 
     my $self = shift;
 
-    my $nb            = $self->{nb};
-    my $nodetypes_dir = $self->{ball}->get_nodeball_dir . '/nodes/nodetype';
-
+    my $nb            = $self->{installer}->get_nodebase;
+    my $ball = $self->{installer}->get_nodeball;
     $Everything::DB = $nb;
     my $errors;
     local *Everything::logErrors;
     *Everything::logErrors = sub { $errors = "@_"; };
 
-    $self->{ball}->install_xml_nodetype_nodes;
-    print "Fixing references...\n";
-    $self->{ball}->fix_node_references(1);
-    print "   - Done.\n";
-
+    $self->{installer}->install_nodetypes;
 
     my %all_types =
-      map { $_ => 1 } $self->{nb}->{storage}->fetch_all_nodetype_names;
+      map { $_ => 1 } $nb->{storage}->fetch_all_nodetype_names;
 
     my %xml_types = ();
-    my $iterator  = $self->{ball}->make_node_iterator(
+    my $iterator  = $ball->make_node_iterator(
         sub {
             my $xmlnode = shift;
             if ( $xmlnode->get_nodetype eq 'nodetype' ) {
@@ -136,7 +74,7 @@ sub test_30_install_nodes : Test(1) {
     local *Everything::logErrors;
     *Everything::logErrors = sub { confess("@_") };
 
-    my $node_iterator = $self->{ball}->make_node_iterator;
+    my $node_iterator = $self->{installer}->get_nodeball->make_node_iterator;
 
     my $number_of_nodes = 0;
     while ( $node_iterator->() ) {
@@ -147,31 +85,22 @@ sub test_30_install_nodes : Test(1) {
 
     $self->{number_of_nodes} = $number_of_nodes;
 
-    $self->{ball}->install_xml_nodes(
-        sub {
-            my $xmlnode = shift;
-            return 1 unless $xmlnode->get_nodetype eq 'nodetype';
-            return;
-        }
-    );
+    $self->{installer}->install_nodes;
 
-    ## the nodeball isn't part of itself.
-    $self->{ball}->install_nodeball_description;
-    $self->{ball}->fix_node_references(1);
-    my $nodes = $self->{nb}->selectNodeWhere();
+    my $nodes = $self->{installer}->get_nodebase->selectNodeWhere();
 
     is( @$nodes, $number_of_nodes, "...should be $number_of_nodes nodes installed." );
 }
 
 sub test_40_verify_nodes : Tests {
     my $self = shift;
-    my $nb   = $self->{nb};
+    my $nb   = $self->{installer}->get_nodebase;
 
     $self->num_tests( $self->{number_of_nodes} );
 
     $nb->resetNodeCache();
 
-    my $ball          = $self->{ball};
+    my $ball          = $self->{installer}->get_nodeball;
     my $node_iterator = $ball->make_node_iterator;
 
     while ( my $xmlnode = $node_iterator->() ) {
@@ -188,9 +117,9 @@ sub test_40_verify_nodes : Tests {
 
 sub test_50_verify_nodes_attributes : Tests {
     my $self = shift;
-    my $nb   = $self->{nb};
+    my $nb   = $self->{installer}->get_nodebase;
 
-    my $ball          = $self->{ball};
+    my $ball          = $self->{installer}->get_nodeball;
     my $node_iterator = $ball->make_node_iterator;
 
     my $total_tests = 0;
@@ -250,9 +179,10 @@ sub test_50_verify_nodes_attributes : Tests {
 
 sub test_60_verify_node_vars : Tests {
     my $self = shift;
-    my $nb   = $self->{nb};
 
-    my $ball = $self->{ball};
+    my $nb   = $self->{installer}->get_nodebase;
+
+    my $ball = $self->{installer}->get_nodeball;
 
     my $vars_selector = sub { return 1 if @{ $_[0]->get_vars }; return; };
 
@@ -316,9 +246,9 @@ sub test_60_verify_node_vars : Tests {
 
 sub test_70_verify_nodegroup_members : Tests {
     my $self = shift;
-    my $nb   = $self->{nb};
+    my $nb   = $self->{installer}->get_nodebase;
 
-    my $ball = $self->{ball};
+    my $ball = $self->{installer}->get_nodeball;
 
     my $group_selector =
       sub { return 1 if @{ $_[0]->get_group_members }; return; };

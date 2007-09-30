@@ -1,13 +1,14 @@
 package Everything::CmdLine;
 
 use Getopt::Long;
+use Term::ReadKey;
 use Cwd;
 use Carp;
 use base 'Exporter';
 use strict;
 use warnings;
 
-our @EXPORT_OK = qw(get_options abs_path usage_options make_nodebase);
+our @EXPORT_OK = qw(get_options abs_path usage_options make_nodebase readline_quick confirm_yn);
 
 Getopt::Long::Configure(qw/bundling/);
 
@@ -29,10 +30,10 @@ sub usage_options {
     $usage_msg ||= "Usage:\n\n";
 
     $usage_msg .= <<USAGE;
-Takes the following standard options:
+Also available are the following standard options:
 \t -d
 \t --database
-\t\t the db name. In the case of sqlite, it will be the file name of the test db, it will not be deleted on completion.  If no name is specified a temporary file will be used if possible. The temporary file will be deleted on completion.  In the case of mysql or postgresql, it is the name of the database to use.
+\t\t the db name. In the case of sqlite, it will be the file name.
 \t -u
 \t --user
 \t\tthe db user.
@@ -51,7 +52,7 @@ Takes the following standard options:
 
 USAGE
 
-    warn $usage_msg;
+    print $usage_msg;
     exit 1;
 }
 
@@ -101,6 +102,27 @@ sub make_nodebase {
       unless $nb;
 
     return $nb;
+}
+
+
+sub readline_quick
+{
+	my ($question) = @_;
+	print "$question ";
+	my $result = ReadLine 0;
+	chomp $result;
+	$result;
+}
+
+
+sub confirm_yn {
+
+    my ($q) = @_;
+    print "$q (N/y)";
+    my $ans = <STDIN>;
+    return 1 if $ans =~ /^y/i;
+    return 0;
+
 }
 
 1;

@@ -210,7 +210,7 @@ sub test_tokens_to_perl : Test(12) {
         push @$tokens, @$toke;
     }
 
-    my $tokens = $code_up_tokens->($tokens, sub {} );
+    $tokens = $code_up_tokens->($tokens, sub {} );
     is( ref $tokens, 'ARRAY', "tokens_to_perl tokens returns an array ref." );
     my @encoded = @$tokens;
     is(

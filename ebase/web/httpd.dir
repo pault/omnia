@@ -1,9 +1,0 @@
-
-<Directory #WEB_DIR#>
-    Options MultiViews Indexes SymLinksIfOwnerMatch ExecCGI
-	DirectoryIndex index.pl index.html
-	Order allow,deny
-	Allow from all
-</Directory>
-
-

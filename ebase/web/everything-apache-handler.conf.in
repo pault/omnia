@@ -1,0 +1,18 @@
+
+[% IF location %]
+<Location [% location %]>
+[% END %]
+        PerlSetupEnv On
+        PerlSetVar everything-database [% database %]
+        PerlSetVar everything-database-user [% user %]
+        PerlSetVar everything-database-password [% password %]
+        PerlSetVar everything-database-host [% host %]
+        PerlSetVar everything-database-options dbtype
+        PerlAddVar everything-database-options [% type %]
+        PerlAddVar everything-database-options authtype
+        PerlAddVar everything-database-options [% authtype %]
+        SetHandler perl-script
+        PerlResponseHandler +Everything::HTTP::Apache
+[% IF location %]
+</Location>
+[% END %]

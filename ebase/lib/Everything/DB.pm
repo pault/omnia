@@ -395,7 +395,9 @@ sub sqlInsert
 		. ") VALUES("
 		. join( ', ', @$values ) . ")";
 
-	return $this->sqlExecute( $sql, $bound );
+        my $rv = $this->sqlExecute( $sql, $bound );
+	die "$sql $DBI::errstr @$bound" if $DBI::errstr;
+	return $rv;
 }
 
 =cut
@@ -1125,6 +1127,62 @@ sub parse_sql_file {
 	}
     my @statements = split /;\s*/, $sql;
     return @statements;
+
+}
+
+
+=head2 C<install_base_tables>
+
+Installs the base tables into a new database.
+
+=cut
+
+sub install_base_tables {
+    my $self = shift;
+    
+    foreach ( $self->base_tables() ) {
+        $self->{dbh}->do($_);
+        die($DBI::errstr) if $DBI::errstr;
+    }
+
+
+}
+
+
+=head2 C<install_base_tables>
+
+Installs the base tables into a new database.
+
+=cut
+
+sub install_base_nodes {
+    my $self = shift;
+    
+    foreach ( $self->base_nodes() ) {
+        $self->{dbh}->do($_);
+        die("$_, $DBI::errstr") if $DBI::errstr;
+    }
+}
+
+
+
+=head2 C<base_tables>
+
+Returns a list of SQL statements necessary to insert the base nodes into a databse.
+
+=cut
+
+sub base_nodes {
+
+    return (
+q{INSERT INTO node VALUES (1,1,'nodetype',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','iiii','rwxdc','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node VALUES (2,1,'node',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',-1,-1,-1,-1,0)},
+q{INSERT INTO node VALUES (3,1,'setting',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0)},
+q{INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','rwxdc','-----','-----',0,0,0,0,0,-1,0)},
+q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,0,0,0,1000,1)},
+q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,-1,-1)},
+
+      )
 
 }
 

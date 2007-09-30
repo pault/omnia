@@ -1,17 +1,18 @@
 #!/usr/bin/perl -w 
 
 use strict;
-use Everything::HTML qw/mod_perlInit/;
+use Everything::HTTP::CGI;
 
 # >>> Extra Packages
 # <<< Extra Packages
 
-my $dbname   = $ENV{EVERYTHING_DBNAME}   ||= '#DB_NAME#';
-my $user     = $ENV{EVERYTHING_USER}     ||= '#USER#';
-my $password = $ENV{EVERYTHING_PASSWORD} ||= '#PASSWORD';
-my $host     = $ENV{EVERYTHING_HOST}     ||= '#HOST#';
+my $dbname   = $ENV{EVERYTHING_DBNAME}   ||= '[% database %]';
+my $dbtype   = $ENV{EVERYTHING_DBTYPE}   ||= '[% type %]';
+my $user     = $ENV{EVERYTHING_USER}     ||= '[% user %]';
+my $password = $ENV{EVERYTHING_PASSWORD} ||= '[% password %]';
+my $host     = $ENV{EVERYTHING_HOST}     ||= '[% host %]';
 
 # syntax is "dbname[:user:passwd:host]"
 my $db_string = join( ':', $dbname, $user, $password, $host );
 
-mod_perlInit $db_string;
+Everything::HTTP::CGI->handle( $db_string, { dbtype => $dbtype } );

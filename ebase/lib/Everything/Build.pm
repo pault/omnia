@@ -30,8 +30,7 @@ sub ACTION_install
 	my $file = File::NCopy->new( recursive => 1 );
 
 	for my $dir (
-		qw( nodeballs web tables bin docs images
-		everything.apache.conf )
+		qw( nodeballs web tables bin docs images )
 		)
 	{
 		$file->copy( $dir, $installDir )

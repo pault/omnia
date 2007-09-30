@@ -1,0 +1,368 @@
+---
+name: Everything
+version: 2.0-pre-alpha
+author:
+abstract: Yet Another Web Content Management Package using Perl, Apache and Mysql/Pg/sqlite
+license: artistic
+requires:
+  Archive::Tar: 0
+  Bundle::Apache2: 0
+  CGI: 2.46
+  Class::Factory: 0
+  DBI: 1.13
+  File::NCopy: 0.32
+  File::Spec: 0.82
+  IO::Zlib: 1
+  Mail::Address: 1.53
+  Mail::Sender: 0
+  Object::InsideOut: 3.21
+  SQL::Statement: 1.15
+  SUPER: 1.16
+  Scalar::Util: 1.01
+  XML::DOM: 1.27
+  XML::LibXML: 0
+  XML::Parser: 2.26
+  XML::SimpleObject::LibXML: 0
+build_requires:
+  Template: 0
+  Test::Class: 0.11
+  Test::Exception: 0.13
+  Test::MockObject: 1.05
+  Test::Simple: 0.47
+  Test::Warn: 0.1
+generated_by: Module::Build version 0.2808
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
+provides:
+  Everything:
+    file: lib/Everything.pm
+    version: 0
+  Everything::Auth:
+    file: lib/Everything/Auth.pm
+  Everything::Auth::EveryAuth:
+    file: lib/Everything/Auth/EveryAuth.pm
+  Everything::Auth::GuestOnly:
+    file: lib/Everything/Auth/GuestOnly.pm
+  Everything::Auth::Test::EveryAuth:
+    file: lib/Everything/Auth/Test/EveryAuth.pm
+  Everything::Build:
+    file: lib/Everything/Build.pm
+  Everything::CacheQueue:
+    file: lib/Everything/CacheQueue.pm
+  Everything::CmdLine:
+    file: lib/Everything/CmdLine.pm
+  Everything::DB:
+    file: lib/Everything/DB.pm
+  Everything::DB::Pg:
+    file: lib/Everything/DB/Pg.pm
+  Everything::DB::Test::Pg:
+    file: lib/Everything/DB/Test/Pg.pm
+  Everything::DB::Test::mysql:
+    file: lib/Everything/DB/Test/mysql.pm
+  Everything::DB::Test::sqlite:
+    file: lib/Everything/DB/Test/sqlite.pm
+  Everything::DB::mysql:
+    file: lib/Everything/DB/mysql.pm
+  Everything::DB::sqlite:
+    file: lib/Everything/DB/sqlite.pm
+  Everything::HTML:
+    file: lib/Everything/HTML.pm
+  Everything::HTML::Environment::Variable:
+    file: lib/Everything/HTTP/Request.pm
+  Everything::HTML::FormObject:
+    file: lib/Everything/HTML/FormObject.pm
+  Everything::HTML::FormObject::AuthorMenu:
+    file: lib/Everything/HTML/FormObject/AuthorMenu.pm
+  Everything::HTML::FormObject::Checkbox:
+    file: lib/Everything/HTML/FormObject/Checkbox.pm
+  Everything::HTML::FormObject::Datetime:
+    file: lib/Everything/HTML/FormObject/Datetime.pm
+  Everything::HTML::FormObject::FormMenu:
+    file: lib/Everything/HTML/FormObject/FormMenu.pm
+  Everything::HTML::FormObject::GroupEditor:
+    file: lib/Everything/HTML/FormObject/GroupEditor.pm
+  Everything::HTML::FormObject::HiddenField:
+    file: lib/Everything/HTML/FormObject/HiddenField.pm
+  Everything::HTML::FormObject::ListMenu:
+    file: lib/Everything/HTML/FormObject/ListMenu.pm
+  Everything::HTML::FormObject::NodetypeMenu:
+    file: lib/Everything/HTML/FormObject/NodetypeMenu.pm
+  Everything::HTML::FormObject::PasswdField:
+    file: lib/Everything/HTML/FormObject/PasswdField.pm
+  Everything::HTML::FormObject::PermissionMenu:
+    file: lib/Everything/HTML/FormObject/PermissionMenu.pm
+  Everything::HTML::FormObject::PopupMenu:
+    file: lib/Everything/HTML/FormObject/PopupMenu.pm
+  Everything::HTML::FormObject::RadioGroup:
+    file: lib/Everything/HTML/FormObject/RadioGroup.pm
+  Everything::HTML::FormObject::RemoveVarCheckbox:
+    file: lib/Everything/HTML/FormObject/RemoveVarCheckbox.pm
+  Everything::HTML::FormObject::SubsetSelector:
+    file: lib/Everything/HTML/FormObject/SubsetSelector.pm
+  Everything::HTML::FormObject::Test::AuthorMenu:
+    file: lib/Everything/HTML/FormObject/Test/AuthorMenu.pm
+  Everything::HTML::FormObject::Test::Checkbox:
+    file: lib/Everything/HTML/FormObject/Test/Checkbox.pm
+  Everything::HTML::FormObject::Test::Datetime:
+    file: lib/Everything/HTML/FormObject/Test/Datetime.pm
+  Everything::HTML::FormObject::Test::FormMenu:
+    file: lib/Everything/HTML/FormObject/Test/FormMenu.pm
+  Everything::HTML::FormObject::Test::HiddenField:
+    file: lib/Everything/HTML/FormObject/Test/HiddenField.pm
+  Everything::HTML::FormObject::Test::ListMenu:
+    file: lib/Everything/HTML/FormObject/Test/ListMenu.pm
+  Everything::HTML::FormObject::Test::NodetypeMenu:
+    file: lib/Everything/HTML/FormObject/Test/NodetypeMenu.pm
+  Everything::HTML::FormObject::Test::PermissionMenu:
+    file: lib/Everything/HTML/FormObject/Test/PermissionMenu.pm
+  Everything::HTML::FormObject::Test::PopupMenu:
+    file: lib/Everything/HTML/FormObject/Test/PopupMenu.pm
+  Everything::HTML::FormObject::Test::RadioGroup:
+    file: lib/Everything/HTML/FormObject/Test/RadioGroup.pm
+  Everything::HTML::FormObject::Test::RemoveVarCheckbox:
+    file: lib/Everything/HTML/FormObject/Test/RemoveVarCheckbox.pm
+  Everything::HTML::FormObject::Test::TextArea:
+    file: lib/Everything/HTML/FormObject/Test/TextArea.pm
+  Everything::HTML::FormObject::Test::TextField:
+    file: lib/Everything/HTML/FormObject/Test/TextField.pm
+  Everything::HTML::FormObject::Test::TypeMenu:
+    file: lib/Everything/HTML/FormObject/Test/TypeMenu.pm
+  Everything::HTML::FormObject::TextArea:
+    file: lib/Everything/HTML/FormObject/TextArea.pm
+  Everything::HTML::FormObject::TextField:
+    file: lib/Everything/HTML/FormObject/TextField.pm
+  Everything::HTML::FormObject::TypeMenu:
+    file: lib/Everything/HTML/FormObject/TypeMenu.pm
+  Everything::HTML::FormObject::VarsTextField:
+    file: lib/Everything/HTML/FormObject/VarsTextField.pm
+  Everything::HTML::Test::FormObject:
+    file: lib/Everything/HTML/Test/FormObject.pm
+  Everything::HTTP::Apache:
+    file: lib/Everything/HTTP/Apache.pm
+  Everything::HTTP::CGI:
+    file: lib/Everything/HTTP/CGI.pm
+  Everything::HTTP::Request:
+    file: lib/Everything/HTTP/Request.pm
+  Everything::HTTP::Response::Htmlpage:
+    file: lib/Everything/HTTP/Response/Htmlpage.pm
+  Everything::HTTP::Response::Test::Htmlpage:
+    file: lib/Everything/HTTP/Response/Test/Htmlpage.pm
+  Everything::HTTP::ResponseFactory:
+    file: lib/Everything/HTTP/ResponseFactory.pm
+  Everything::HTTP::Test::Apache:
+    file: lib/Everything/HTTP/Test/Apache.pm
+  Everything::HTTP::Test::CGI:
+    file: lib/Everything/HTTP/Test/CGI.pm
+  Everything::HTTP::Test::Request:
+    file: lib/Everything/HTTP/Test/Request.pm
+  Everything::HTTP::Test::URL:
+    file: lib/Everything/HTTP/Test/URL.pm
+  Everything::HTTP::Test::URLLink:
+    file: lib/Everything/HTTP/Test/URLLink.pm
+  Everything::HTTP::URL:
+    file: lib/Everything/HTTP/URL.pm
+  Everything::HTTP::URL::Deconstruct:
+    file: lib/Everything/HTTP/URL/Deconstruct.pm
+  Everything::HTTP::URL::Test::Deconstruct:
+    file: lib/Everything/HTTP/URL/Test/Deconstruct.pm
+  Everything::HTTP::URLLink:
+    file: lib/Everything/HTTP/URLLink.pm
+  Everything::Install:
+    file: lib/Everything/Install.pm
+  Everything::Mail:
+    file: lib/Everything/Mail.pm
+  Everything::Node:
+    file: lib/Everything/Node.pm
+  Everything::Node::Parseable:
+    file: lib/Everything/Node/Parseable.pm
+  Everything::Node::Runnable:
+    file: lib/Everything/Node/Runnable.pm
+  Everything::Node::Test::Parseable:
+    file: lib/Everything/Node/Test/Parseable.pm
+  Everything::Node::Test::Runnable:
+    file: lib/Everything/Node/Test/Runnable.pm
+  Everything::Node::Test::container:
+    file: lib/Everything/Node/Test/container.pm
+  Everything::Node::Test::dbtable:
+    file: lib/Everything/Node/Test/dbtable.pm
+  Everything::Node::Test::document:
+    file: lib/Everything/Node/Test/document.pm
+  Everything::Node::Test::extendednode:
+    file: lib/Everything/Node/Test/extendednode.pm
+  Everything::Node::Test::htmlcode:
+    file: lib/Everything/Node/Test/htmlcode.pm
+  Everything::Node::Test::htmlpage:
+    file: lib/Everything/Node/Test/htmlpage.pm
+  Everything::Node::Test::htmlsnippet:
+    file: lib/Everything/Node/Test/htmlsnippet.pm
+  Everything::Node::Test::image:
+    file: lib/Everything/Node/Test/image.pm
+  Everything::Node::Test::javascript:
+    file: lib/Everything/Node/Test/javascript.pm
+  Everything::Node::Test::location:
+    file: lib/Everything/Node/Test/location.pm
+  Everything::Node::Test::mail:
+    file: lib/Everything/Node/Test/mail.pm
+  Everything::Node::Test::node:
+    file: lib/Everything/Node/Test/node.pm
+  Everything::Node::Test::nodeball:
+    file: lib/Everything/Node/Test/nodeball.pm
+  Everything::Node::Test::nodegroup:
+    file: lib/Everything/Node/Test/nodegroup.pm
+  Everything::Node::Test::nodelet:
+    file: lib/Everything/Node/Test/nodelet.pm
+  Everything::Node::Test::nodeletgroup:
+    file: lib/Everything/Node/Test/nodeletgroup.pm
+  Everything::Node::Test::nodemethod:
+    file: lib/Everything/Node/Test/nodemethod.pm
+  Everything::Node::Test::nodetype:
+    file: lib/Everything/Node/Test/nodetype.pm
+  Everything::Node::Test::opcode:
+    file: lib/Everything/Node/Test/opcode.pm
+  Everything::Node::Test::permission:
+    file: lib/Everything/Node/Test/permission.pm
+  Everything::Node::Test::restricted_superdoc:
+    file: lib/Everything/Node/Test/restricted_superdoc.pm
+  Everything::Node::Test::setting:
+    file: lib/Everything/Node/Test/setting.pm
+  Everything::Node::Test::superdoc:
+    file: lib/Everything/Node/Test/superdoc.pm
+  Everything::Node::Test::symlink:
+    file: lib/Everything/Node/Test/symlink.pm
+  Everything::Node::Test::theme:
+    file: lib/Everything/Node/Test/theme.pm
+  Everything::Node::Test::themesetting:
+    file: lib/Everything/Node/Test/themesetting.pm
+  Everything::Node::Test::user:
+    file: lib/Everything/Node/Test/user.pm
+  Everything::Node::Test::usergroup:
+    file: lib/Everything/Node/Test/usergroup.pm
+  Everything::Node::Test::workspace:
+    file: lib/Everything/Node/Test/workspace.pm
+  Everything::Node::container:
+    file: lib/Everything/Node/container.pm
+  Everything::Node::dbtable:
+    file: lib/Everything/Node/dbtable.pm
+  Everything::Node::document:
+    file: lib/Everything/Node/document.pm
+  Everything::Node::htmlcode:
+    file: lib/Everything/Node/htmlcode.pm
+  Everything::Node::htmlpage:
+    file: lib/Everything/Node/htmlpage.pm
+  Everything::Node::htmlsnippet:
+    file: lib/Everything/Node/htmlsnippet.pm
+  Everything::Node::image:
+    file: lib/Everything/Node/image.pm
+  Everything::Node::javascript:
+    file: lib/Everything/Node/javascript.pm
+  Everything::Node::location:
+    file: lib/Everything/Node/location.pm
+  Everything::Node::mail:
+    file: lib/Everything/Node/mail.pm
+  Everything::Node::node:
+    file: lib/Everything/Node/node.pm
+  Everything::Node::nodeball:
+    file: lib/Everything/Node/nodeball.pm
+  Everything::Node::nodegroup:
+    file: lib/Everything/Node/nodegroup.pm
+  Everything::Node::nodelet:
+    file: lib/Everything/Node/nodelet.pm
+  Everything::Node::nodeletgroup:
+    file: lib/Everything/Node/nodeletgroup.pm
+  Everything::Node::nodemethod:
+    file: lib/Everything/Node/nodemethod.pm
+  Everything::Node::nodetype:
+    file: lib/Everything/Node/nodetype.pm
+  Everything::Node::opcode:
+    file: lib/Everything/Node/opcode.pm
+  Everything::Node::permission:
+    file: lib/Everything/Node/permission.pm
+  Everything::Node::restricted_superdoc:
+    file: lib/Everything/Node/restricted_superdoc.pm
+  Everything::Node::setting:
+    file: lib/Everything/Node/setting.pm
+  Everything::Node::superdoc:
+    file: lib/Everything/Node/superdoc.pm
+  Everything::Node::symlink:
+    file: lib/Everything/Node/symlink.pm
+  Everything::Node::theme:
+    file: lib/Everything/Node/theme.pm
+  Everything::Node::themesetting:
+    file: lib/Everything/Node/themesetting.pm
+  Everything::Node::user:
+    file: lib/Everything/Node/user.pm
+  Everything::Node::usergroup:
+    file: lib/Everything/Node/usergroup.pm
+  Everything::Node::workspace:
+    file: lib/Everything/Node/workspace.pm
+  Everything::NodeBase:
+    file: lib/Everything/NodeBase.pm
+  Everything::NodeBase::Workspace:
+    file: lib/Everything/NodeBase/Workspace.pm
+  Everything::NodeCache:
+    file: lib/Everything/NodeCache.pm
+  Everything::Security:
+    file: lib/Everything/Security.pm
+  Everything::Storage::Nodeball:
+    file: lib/Everything/Storage/Nodeball.pm
+  Everything::Storage::Nodeball::Diff:
+    file: lib/Everything/Storage/Nodeball.pm
+  Everything::Storage::Nodeball::SQLParser:
+    file: lib/Everything/Storage/Nodeball.pm
+  Everything::Storage::Test::Nodeball:
+    file: lib/Everything/Storage/Test/Nodeball.pm
+  Everything::Test:
+    file: lib/Everything/Test.pm
+  Everything::Test::Abstract:
+    file: lib/Everything/Test/Abstract.pm
+  Everything::Test::Auth:
+    file: lib/Everything/Test/Auth.pm
+  Everything::Test::CacheQueue:
+    file: lib/Everything/Test/CacheQueue.pm
+  Everything::Test::CmdLine:
+    file: lib/Everything/Test/CmdLine.pm
+  Everything::Test::DB:
+    file: lib/Everything/Test/DB.pm
+  Everything::Test::Ecore::Compile:
+    file: lib/Everything/Test/Ecore/Compile.pm
+  Everything::Test::Ecore::Install:
+    file: lib/Everything/Test/Ecore/Install.pm
+  Everything::Test::Ecore::SimpleServer:
+    file: lib/Everything/Test/Ecore/SimpleServer.pm
+  Everything::Test::HTML:
+    file: lib/Everything/Test/HTML.pm
+  Everything::Test::Install:
+    file: lib/Everything/Test/Install.pm
+  Everything::Test::Mail:
+    file: lib/Everything/Test/Mail.pm
+  Everything::Test::Node:
+    file: lib/Everything/Test/Node.pm
+  Everything::Test::NodeBase:
+    file: lib/Everything/Test/NodeBase.pm
+  Everything::Test::NodeBase::Workspace:
+    file: lib/Everything/Test/NodeBase/Workspace.pm
+  Everything::Test::NodeCache:
+    file: lib/Everything/Test/NodeCache.pm
+  Everything::Test::Security:
+    file: lib/Everything/Test/Security.pm
+  Everything::Test::Util:
+    file: lib/Everything/Test/Util.pm
+  Everything::Test::XML:
+    file: lib/Everything/Test/XML.pm
+  Everything::Util:
+    file: lib/Everything/Util.pm
+  Everything::XML:
+    file: lib/Everything/XML.pm
+  Everything::XML::Node:
+    file: lib/Everything/XML/Node.pm
+  Everything::XML::Node::Attribute:
+    file: lib/Everything/XML/Node.pm
+  Everything::XML::Test::Node:
+    file: lib/Everything/XML/Test/Node.pm
+  Test::MockObject::Extends::InsideOut:
+    file: lib/Everything/Storage/Test/Nodeball.pm
+  Test::MockObject::Extends::NoCheck:
+    file: lib/Everything/Node/Test/extendednode.pm
+resources:
+  license: http://opensource.org/licenses/artistic-license.php

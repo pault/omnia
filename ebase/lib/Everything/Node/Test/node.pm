@@ -197,7 +197,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
-	$node->set_true(qw( -hasAccess -restrictTitle -getId ))
+	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache))
 		 ->set_always( -getTableArray => [] );
 	$db->set_series( sqlSelect => 1, 0 )
 	   ->set_always( -getFields => 'none' )

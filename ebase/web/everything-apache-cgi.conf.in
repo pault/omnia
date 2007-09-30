@@ -1,0 +1,15 @@
+
+PerlModule Apache::DBI
+PerlModule CGI
+PerlSetupEnv On
+
+<Directory [% webdir %]>
+	Options MultiViews Indexes SymLinksIfOwnerMatch ExecCGI
+	DirectoryIndex index.pl index.html
+	AddHandler perl-script .pl
+	PerlResponseHandler ModPerl::Registry
+	Order allow,deny
+	Allow from all
+</Directory>
+
+

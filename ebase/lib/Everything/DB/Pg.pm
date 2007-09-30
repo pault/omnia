@@ -12,6 +12,7 @@ use strict;
 use warnings;
 
 use DBI;
+use SUPER;
 use base 'Everything::DB';
 
 #############################################################################
@@ -611,5 +612,153 @@ sub get_create_table {
     return @statements;
 }
 
+
+
+sub create_database {
+
+    my ($self, $db_name, $user, $password, $host, $port ) = @_;
+    $host ||= 'localhost';
+    $port ||= 5432;
+
+    my $dbh = DBI->connect( "DBI:Pg:dbname=postgres;host=$host;port=$port",
+        $user, $password )
+      || die(
+"$DBI::errstr,  Can't connect to Pg database."
+      );
+
+
+    $dbh->do( "CREATE DATABASE $db_name" );
+
+    die($DBI::errstr) if $DBI::errstr;
+
+    $self->{dbh} = DBI->connect( "DBI:Pg:dbname=$db_name;host=$host;port=$port", $user, $password );
+    die($DBI::errstr) if $DBI::errstr;
+
+    return $db_name;
+
+}
+
+
+sub grant_privileges {
+    my ( $self, $dbname, $user, $password, $host, $port ) = @_;
+
+    $port ||= 5432;
+
+    $host ||=  'localhost';
+
+    my $dbh = $self->{dbh};
+
+    my $sth = $dbh->prepare("SELECT usename FROM pg_user WHERE usename = '$user'");
+
+    die ( $DBI::errstr ) if $DBI::errstr;
+
+    $sth->execute;
+
+    die ( $DBI::errstr ) if $DBI::errstr;
+
+    unless ( $sth->fetchrow ) {
+
+	$dbh->do( "CREATE ROLE $user WITH LOGIN PASSWORD '$password'");
+	die ( "Can't create user, $user, $DBI::errstr" ) if $DBI::errstr;
+    }
+
+    $dbh->do("GRANT ALL PRIVILEGES on DATABASE $dbname TO $user");
+    die ( $DBI::errstr ) if $DBI::errstr;
+
+    ## we reconnect so our new user has full privileges to the newly
+    ## created tables, sequences, etc.
+    $dbh = DBI->connect( "DBI:Pg:dbname=$dbname;host=$host;port=$port",
+        $user, $password )
+      || die(
+"$DBI::errstr,  Can't connect to Pg database."
+      );
+
+    $self->{dbh} = $dbh;
+}
+
+sub install_base_nodes {
+    my $self = shift;
+
+    $self->SUPER;
+
+    ## ensure the node_id sequence is properly set
+    $self->{dbh}->do("SELECT setval('node_node_id_seq', 3)")
+
+
+}
+
+sub base_tables {
+    return (
+        q{CREATE TABLE "setting" (
+  "setting_id" serial NOT NULL,
+  "vars" text default '',
+  PRIMARY KEY ("setting_id")
+)},
+        q{CREATE TABLE "node" (
+  "node_id" serial UNIQUE NOT NULL,
+  "type_nodetype" bigint DEFAULT '0' NOT NULL,
+  "title" character(240) DEFAULT '' NOT NULL,
+  "author_user" bigint DEFAULT '0' NOT NULL,
+  "createtime" timestamp NOT NULL,
+  "modified" timestamp DEFAULT '-infinity' NOT NULL,
+  "hits" bigint DEFAULT '0',
+  "loc_location" bigint DEFAULT '0',
+  "reputation" bigint DEFAULT '0' NOT NULL,
+  "lockedby_user" bigint DEFAULT '0' NOT NULL,
+  "locktime" timestamp DEFAULT '-infinity' NOT NULL,
+  "authoraccess" character(4) DEFAULT 'iiii' NOT NULL,
+  "groupaccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "otheraccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "guestaccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "dynamicauthor_permission" bigint DEFAULT '-1' NOT NULL,
+  "dynamicgroup_permission" bigint DEFAULT '-1' NOT NULL,
+  "dynamicother_permission" bigint DEFAULT '-1' NOT NULL,
+  "dynamicguest_permission" bigint DEFAULT '-1' NOT NULL,
+  "group_usergroup" bigint DEFAULT '-1' NOT NULL,
+  PRIMARY KEY ("node_id")
+)},
+        q{CREATE INDEX "title" on node ("title", "type_nodetype")},
+        q{CREATE INDEX "author" on node ("author_user")},
+        q{CREATE INDEX "type" on node ("type_nodetype")},
+        q{CREATE TABLE "nodetype" (
+  "nodetype_id" serial NOT NULL,
+  "restrict_nodetype" bigint DEFAULT '0',
+  "extends_nodetype" bigint DEFAULT '0',
+  "restrictdupes" bigint DEFAULT '0',
+  "sqltable" character(255),
+  "grouptable" character(40) DEFAULT '',
+  "defaultauthoraccess" character(4) DEFAULT 'iiii' NOT NULL,
+  "defaultgroupaccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "defaultotheraccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "defaultguestaccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "defaultgroup_usergroup" bigint DEFAULT '-1' NOT NULL,
+  "defaultauthor_permission" bigint DEFAULT '-1' NOT NULL,
+  "defaultgroup_permission" bigint DEFAULT '-1' NOT NULL,
+  "defaultother_permission" bigint DEFAULT '-1' NOT NULL,
+  "defaultguest_permission" bigint DEFAULT '-1' NOT NULL,
+  "maxrevisions" bigint DEFAULT '-1' NOT NULL,
+  "canworkspace" bigint DEFAULT '-1' NOT NULL,
+  PRIMARY KEY ("nodetype_id")
+)},
+        q{CREATE TABLE version (
+  version_id INTEGER  PRIMARY KEY DEFAULT '0' NOT NULL,
+  version INTEGER DEFAULT '1' NOT NULL
+)}
+    );
+}
+
+sub base_nodes {
+
+    return (
+q{INSERT INTO node VALUES (1,1,'nodetype',-1,'-infinity','-infinity',0,0,0,0, '-infinity','iiii','rwxdc','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node VALUES (2,1,'node',-1,'-infinity','-infinity',0,0,0,0,'-infinity','rwxd','-----','-----','-----',-1,-1,-1,-1,0)},
+q{INSERT INTO node VALUES (3,1,'setting',-1,'-infinity','-infinity',0,0,0,0,'-infinity','rwxd','-----','-----','-----',0,0,0,0,0)},
+q{INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','rwxdc','-----','-----',0,0,0,0,0,-1,0)},
+q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,0,0,0,1000,1)},
+q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,-1,-1)},
+
+      )
+
+}
 
 1;

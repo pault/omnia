@@ -92,7 +92,7 @@ sub set_schema {
 sub make_urlifier {
     my ($self)   = @_;
     my @tokens   = @{ $self->get_tokens };
-    my $location = $self->get_location;
+    my $location = $self->get_location || '';
     my $urlifier = sub {
         my $node        = shift;
         my @url         = ();
@@ -151,7 +151,7 @@ sub make_link_node {
 
         separate_params( $params, \$tags );
 
-        my $scripts = handle_scripts($scripts);
+        $scripts = handle_scripts($scripts);
 
         $link = "<a href=" . $url_gen->( $params, '', $node ) . $tags;
         $link .= " " . $scripts if ( $scripts ne "" );

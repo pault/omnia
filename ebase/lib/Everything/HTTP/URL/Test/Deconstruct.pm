@@ -72,13 +72,12 @@ sub test_make_url_gen : Test(4) {
     my $class = $self->{class};
     my $instance = $self->{instance};
     can_ok( $class, 'make_url_gen' );
-
     my $code_ref = $instance->make_url_gen;
     is(ref $code_ref, 'CODE', '...creates a code ref');
-    my $result = $code_ref->( { foo => [ 'bar', 'baz' ] } );
+    my $result = $code_ref->( { foo => [ 'bar', 'baz' ] }, );
     is( $result, '"/node/?foo=bar&foo=baz"',
         'urlGen() should generate relative URL from params' );
-    is( $code_ref->( { foo => 'bar' }, 1 ),
+    is( $code_ref->( { foo => 'bar' }, 1),
         '/node/?foo=bar', '... without quotes, if noflags is true' );
 
 }

@@ -9,10 +9,10 @@ Requirements:
 
 here's whats required for Everything to work:
 
-Perl (5.005 or 5.6)
-Apache (1.3.6) with mod_perl module 
+Perl (5.8)
+Apache (2.0 or greater) with mod_perl module 
 	(note-- you'll probably have to edit your http.conf) 
-Mysql (3.22.27)
+Mysql (4.0 of greater)
 
 Currently the version numbers are what I'm running on my devel server.  Older
 versions might work, but newer versions probably work better.  For more 
@@ -28,16 +28,16 @@ handle Everything, second is installing sites.
 
 to do the base install:
 
-> perl Makefile.PL
-> make
-> make test
-> make install   (as root)
+> perl Build.PL
+> ./Build
+> ./Build test
+> ./Build install   (as root)
 
 to do the site-specific install
 
 bin/install_esite <NEWDATABASE>
 
-Running 'perl Makefile.PL' will ask you some questions about how you
+Running 'perl Build.PL' will ask you some questions about how you
 want to install the system.  By default, it will install it on the
 machine.  You will need to run 'make install' as root.
 
@@ -53,26 +53,41 @@ as Apache's DocumentRoot directory) -- but you may also need to know where
 some files are.  Please post any feedback on your experiences with the
 installer to Everydevel.com
 
+These days the Apache configuration file structure is more complicated
+than it used to be.  On Debian, anyway, there are a number of places
+you could install Everything's configuration.  One is in
+/etc/apache2/conf.d/ another is in /etc/apache2/sites-available/ if
+you are running virtual hosts or you could append the configuration
+option to /etc/apache2/apache2.conf.  If you know how to configure
+your server your setup will be unique, so you'll need to tweak it get
+Everything working.
+
 If you are only a mortal user on the system (no root access), you
 can specify alternate directories to install where you have write
 permissions.  Since you cannot install the perl modules (Everything.pm
 and the Everything directory) to the proper perl system directories,
 you will need to install them somewhere else.  Specify that directory with the
-PREFIX argument to Makefile.PL.  That is, to install the modules to
+PREFIX argument to Build.PL.  That is, to install the modules to
 /home/sunny/everythinglib, use the command:
 
-	perl Makefile.PL PREFIX=/home/sunny/everythinglib
+	perl Build.PL PREFIX=/home/sunny/everythinglib
 
 You will need to edit the index.pl file to add the line
 
 	use lib "/home/sunny/everythinglib";
 
-before "use Everything::HTML", or the Everything modules will not be found.
-You will need to make similar changes to the scripts in /bin.  You will need to
-make sure that the user as whom Apache runs (probably 'nobody') has permission
-to read these modules and their containing directories.
+before "use Everything::HTTP::CGI", or the Everything modules will not
+be found.  You will need to make similar changes to the scripts in
+/bin.  You will need to make sure that the user as whom Apache runs
+(probably 'www-data', 'nobody' or 'httpd') has permission to read
+these modules and their containing directories.
 
-You /will/ need to have root database access for creation of databases.
+You /will/ need to have root database access for creation of
+databases, this may or may not be the same as 'root' access for the
+server. For postgres in particular it probably won't be. Postgres
+access tends to be fairly restrictively when first installed and you
+should probably create a postgres 'superuser' that with a 'login'
+option.
 
 After you have Everything installed, you may want to add the bin
 directory in the Everything install to your path so you have access
@@ -95,7 +110,7 @@ system, as well as whatever nodeballs you want.
 
 Uninstall
 
-> make realclean (as root)
+> ./Build realclean (as root)
 
 Note that executing 'make realclean' will remove the perl modules for 
 Everything.  After this is executed the Everything system will not exist.  
@@ -127,7 +142,3 @@ nbmasta export "name_of_nodeball" DATABASE
 -- by default, files with the .nbz extention are used -- but these files
 are gzipped tarballs, so if you want to see the innards, merely
 tar -xvzf them.
-
-(Note: as of 1.0 nbmasta_old has been removed -- if you absolutely
-need to use old nodeballs, d/l XMLold.pm and nbmasta_old which are included
-in the old everything-0.9.1 distro)

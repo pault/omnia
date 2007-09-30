@@ -26,11 +26,11 @@ required stuff (at least these are the ones that I run):
 mysql-base
 mysql-doc
 mysql-server
-apache
+apache2
 apache-common
-apache-dev
-apache-doc
-libapache-mod-perl
+apache2-dev
+apache2-doc
+libapache2-mod-perl2
 libmysqlclient6-dev
 (optionally, apache-perl can replace libapache-mod-perl)
 

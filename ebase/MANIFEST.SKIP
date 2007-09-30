@@ -1,0 +1,7 @@
+^\.
+^_build
+~$
+^t/test/db$
+\.bak$
+^Build$
+^#

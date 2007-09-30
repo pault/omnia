@@ -16,14 +16,14 @@ find( sub { return unless /\.t\z/; push @test_files, $File::Find::name }, 't' );
 
 my $build = Everything::Build->new(
 	module_name       => 'Everything',
-	dist_version_from => 'lib/Everything.pm',
+    dist_version          => '2.0-pre-alpha',
+    dist_abstract          => 'Yet Another Web Content Management Package using Perl, Apache and Mysql/Pg/sqlite',
 	license           => 'artistic',
 	requires          =>
 	{
 		CGI                         => 2.46,
 		DBI                         => 1.13,
-		Mysql                       => 1.2202,
-		Apache                      => 0.82,
+		'Bundle::Apache2'           => 0,
 		'Archive::Tar'              => 1.0,
 		'File::NCopy'               => 0.32,
 		'IO::Zlib'                  => 1.0,
@@ -35,14 +35,21 @@ my $build = Everything::Build->new(
 		'Mail::Address'             => 1.53,
 		'Mail::Sender'              => 0,
 		'Scalar::Util'              => 1.01,
-		'SUPER'                     => 1.14,
+		'SUPER'                     => 1.16,
+		'Object::InsideOut'	    => 3.21,
+		'Archive::Tar'		    => 0,
+		'Class::Factory'	    => 0,
+		'SQL::Statement'	    => 1.15,
+
 	},
 	build_requires    =>
 	{
 		'Test::Class'               => 0.11,
 		'Test::MockObject'          => 1.05,
+		'Test::Warn'		    => 0.10,
 		'Test::Exception'           => 0.13,
 		'Test::Simple'              => 0.47,
+	 'Template' => 0,
 	},
 	scripts    => [ File::Spec->catfile( 'bin', 'nbmasta' ) ],
 	test_files => join( ' ', @test_files ),
@@ -51,28 +58,11 @@ my $build = Everything::Build->new(
 my $httpconf   = '';
 my $installDir = $build->prompt( 'Install directory: ',
 	'/usr/local/everything' );
-my $includestr = "Include " .
-	File::Spec->catfile( $installDir, 'everything.apache.conf' );
-
-my $include = $build->y_n("May I append:\n\n\t$includestr\n\n" .
-	"to your httpd.conf file?", 'n' );
-
-if ( $include )
-{
-	$httpconf = getHttpconf( $includestr, $build );
-}
-else
-{
-	print "You will have to manage httpd.conf yourself, then.\n",
-		  "Check out the HTTPCONF_SETUP file for some pointers.\n";
-}
 
 print <<CONFIG;
 Everything is configured to be installed as follows:
 	- Install directory: $installDir
 CONFIG
-
-print "	- Append Include to: $httpconf\n" if $httpconf;
 
 unless($build->y_n( 'Is this correct?', 'y' ))
 {
@@ -82,43 +72,5 @@ unless($build->y_n( 'Is this correct?', 'y' ))
 
 $build->{args}{installDir} = $installDir;
 $build->create_build_script();
-
-sub getHttpconf
-{
-	my ($includestr, $build) = @_;
-
-	my @dirs = qw( /etc/apache /etc/apache/conf /etc/httpd /etc/httpd/conf
-		/usr/local/apache/conf );
-
-	my $conf;
-
-	for my $dir (@dirs)
-	{
-		my $file = File::Spec->catfile( $dir, 'httpd.conf' );
-		$conf = $file if -e $file;
-	}
-
-	my $defaultstr = '';
-	$defaultstr    = "[$conf]" if $conf;
-
-	$conf = $build->prompt( 'Where is your httpd.conf?', $defaultstr );
-	unless (-e $conf)
-	{
-		print "$conf doesn't exist!  Exiting.";
-		exit 0;
-	}
-
-	local *APACHECONF;
-	open APACHECONF, $conf;
-	while (<APACHECONF>) {
-		if (/$includestr/) {
-			print "It looks like $conf is already including it.  Skipped";
-			return 0;
-		}
-	}
-	close APACHECONF;
-	
-	return $conf;
-}
 
 0;

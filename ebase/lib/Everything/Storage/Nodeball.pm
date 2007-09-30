@@ -1437,7 +1437,7 @@ my @is_groupmember :Field :Default(0) :Acc(is_groupmember);
 
 my @xmlnode :Field :Arg(xmlnode) :Std(xmlnode);
 
-my @nb_node :Field :arg(nb_node) :Std(nb_node);
+my @nb_node :Field :Arg(nb_node) :Std(nb_node);
 
 my @xmlnode_attribute :Field :Std(xmlnode_attribute) :Type(Everything::XML::Node::Attribute);
 

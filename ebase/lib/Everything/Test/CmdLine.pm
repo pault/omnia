@@ -18,7 +18,7 @@ BEGIN {
 
 }
 
-sub test_get_options : Test(4) {
+sub test_get_options : Test(5) {
     my $self      = shift;
     my $test_code = \&{ $self->{class} . '::get_options' };
 
@@ -67,10 +67,16 @@ sub test_get_options : Test(4) {
         '--port',     '1111',  '--type',     'atype'
     );
 
-    warnings_like { $opts = $test_code->() }[ qr/Unknown option/, qr/Usage/ ],
-      '... warns with incorrect options';
-    is( $exited, 1, '... and exits.' );
-
+    {
+	my $printed;
+	local *STDOUT;
+	open STDOUT, '>', \$printed;
+	warning_like  { $opts = $test_code->()} qr/Unknown option/,
+      '...warns with incorrect options';
+	like ( $printed, qr/Usage:/, '...prints usage message');
+	is( $exited, 1, '...and exits.' );
+	close STDOUT;
+    }
 }
 
 sub test_abs_path : Test(4) {

@@ -102,18 +102,18 @@ sub test_gen_bind_field : Test(3) {
 sub test_gen_object : Test(2) {
     my $self     = shift;
     my $instance = $self->{instance};
-    ## we are assuming that Everything::getParamArray behaves as advertised
 
     my $cgi = CGI->new;
 
     no strict 'refs';
     local *{ $self->{class} . '::getParamArray' };
-    *{ $self->{class} . '::getParamArray' }  = sub { shift; return ( $cgi, @_ )};
+    *{ $self->{class} . '::getParamArray' }  = sub { shift; shift; return ( $cgi, @_ )};
 
     can_ok( $self->{class}, 'genObject' );
+
     is(
-        $instance->genObject(qw/one two three/),
-'<input type="hidden" name="formbind_' . $instance->{objectName} . '_two" value="50::one"  />',
+        $instance->genObject({ node_id => 200 }, qw/one two/),
+'<input type="hidden" name="formbind_' . $instance->{objectName} . '_two" value="50:200:one"  />',
         '...returns html.'
     );
 
