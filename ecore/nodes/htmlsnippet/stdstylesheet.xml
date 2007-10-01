@@ -24,41 +24,45 @@ color: [% $$THEME{bodyVlinkcolor} || &quot;#333399&quot; %];
 } 
 
 #header {
-position:relative;
-padding: 20px;
+  top:0;
+  left:0;
+  height:5em;
+}
+
+#footer {
+  width:100%;
+  text-align:center;
+  margin-top:20px;
+  padding: 0.5em;
+  padding-bottom: 3em;
+  clear: both;
 }
 
 #logoposition {
-position: absolute;
+float:right;
 top: 0px;
 right: 10px;
 }
 
 #searchform {
-position: absolute;
+float:left;
 top: 0px;
 left: 10px;
 }
 
-#maincontainer {
-position: relative;
-top:0;
-left:0;
-margin: 10px;
-
-}
 
 #nodelets {
-position:absolute;
-top: 0;
-right: 0;
-width: 20%;
+  float: right;
+  width: 20%;
+  top: 6em;
+  right:0;
+  width:15em;
 
 }
 
 #containedstuff {
-position:absolute;
-width: 80%;
+  margin-right: 15em;
+  padding:0 3em 1em;
 
 }
 
@@ -89,10 +93,15 @@ width: 90%;
 border-width: 3px;
 border-color: gray;
 border-style: double;
-
-
 }
 
+#columncontainer {
+ width: 100%;
+margin: 10px auto;
+
+line-height: 130%;
+
+}
 &lt;/style&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
