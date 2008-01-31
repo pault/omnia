@@ -11,7 +11,7 @@ package Everything::Node::javascript;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node';
+use base 'Everything::Node::node', 'Everything::Node::Parseable';
 
 =head2 C<dbtables()>
 

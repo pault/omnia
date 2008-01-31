@@ -10,9 +10,39 @@ use strict;
 use warnings;
 
 
+=head2 C<run>
+
+Compiles, if necessary, and executes the node.  It also uses the node caching system to cache the code out put. 
+
+It takes one hash ref argument.  The hash may take keys as follows:
+
+=over 4
+
+=item field
+
+The field name of the node that contains code we wish to compile and run
+
+=item no_cache
+
+If true the code will not be cached in the node casche
+
+=item args
+
+An array ref of arguments to be passed to the compiled code. The code will fail if it is anything other than an array ref. This is a feature.
+
+=back
+
+Returns whatever the output of the code in the node outputs.
+
+=cut
+
 
 sub run {
-    my ( $self, $field, $no_cache, @args) = @_;
+    my ( $self, $arg_hash ) = @_;
+
+    my $field = $$arg_hash{ field };
+    my $no_cache = $$arg_hash{ no_cache };
+    my @args = $$arg_hash{args} ? @{ $$arg_hash{args} } : ();
 
     $field ||= $self->get_compilable_field;
 

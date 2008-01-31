@@ -478,12 +478,6 @@ sub test_evalx : Test(3) {
 
 }
 
-sub test_parse_code : Test(1) {
-    my $self    = shift;
-    my $package = $self->{class};
-    can_ok( $package, 'parseCode' );
-}
-
 sub test_insert_nodelet : Test(2) {
     my $self    = shift;
     my $package = $self->{class};

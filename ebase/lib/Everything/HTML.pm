@@ -1,10 +1,8 @@
 
 =head1 Everything::HTML.pm
 
-Copyright 1999 - 2003 Everything Development Company
+A module which handles html rendering.
 
-A module for the HTML stuff in Everything.  This takes care of CGI, cookies,
-and the basic HTML front end.
 
 =cut
 
@@ -17,33 +15,10 @@ use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
-use base 'Exporter';
-our @EXPORT_OK = qw(
-  $DB
-  %HTMLVARS
-  %GLOBAL
-  $query
-  $AUTH
-  newFormObject
-  parseLinks
-  htmlScreen
-  htmlFormatErr
-  quote
-  urlGen
-  getPage
-  getPageForType
-  linkNode
-  linkNodeTitle
-  searchForNodeByName
-  evalX
-  evalXTrapErrors
-  htmlcode
-  embedCode
-  displayPage
-  gotoNode
-  encodeHTML
-  decodeHTML
-  mod_perlInit);
+use base 'Class::Accessor::Fast';
+__PACKAGE__->follow_best_practice;
+__PACKAGE__->mk_accessors(
+    qw/htmlpage request/);
 
 our ($AUTH, $DB);
 use vars qw( $query $GNODE $NODELET $THEME $USER $VARS %HTMLVARS %INCJS );
@@ -886,98 +861,6 @@ sub linkNodeTitle
 =cut
 
 
-=head2 C<searchForNodeByName>
-
-This looks for a node by the given name.  If it finds something, it displays
-the node.
-
-=over 4
-
-=item * $node
-
-the string name of the node we are looking for.
-
-=item * $user_id
-
-the user trying to view this node (for authorization)
-
-=back
-
-Returns nothing
-
-=cut
-
-sub searchForNodeByName
-{
-	my ( $node, $user_id ) = @_;
-
-	my @types = $query->param("type");
-	foreach (@types)
-	{
-		$_ = getId( getType($_) );
-	}
-
-	my %selecthash = ( title => $node );
-	my @selecttypes = @types;
-	$selecthash{type_nodetype} = \@selecttypes if @selecttypes;
-	my $select_group = selectNodeWhere( \%selecthash );
-	my $search_group;
-	my $NODE;
-
-	my $type = $types[0];
-	$type ||= "";
-
-	if ( not $select_group or @$select_group == 0 )
-	{
-
-		# We did not find an exact match, so do a search thats a little
-		# more fuzzy.
-		$search_group = searchNodeName( $node, \@types );
-
-		if ( $search_group && @$search_group > 0 )
-		{
-			$NODE = getNode( $HTMLVARS{searchResults_node} );
-			$GLOBAL{searchgroup} = $search_group;
-		}
-		else
-		{
-			$NODE = getNode( $HTMLVARS{notFound_node} );
-		}
-
-		gotoNode( $NODE, $user_id );
-	}
-	elsif ( @$select_group == 1 )
-	{
-
-		# We found one exact match, goto it.
-		my $node_id = $$select_group[0];
-		gotoNode( $node_id, $user_id );
-		return;
-	}
-	else
-	{
-		my @canread;
-		foreach (@$select_group)
-		{
-			my $N = getNode $_;
-			next unless $N->hasAccess( $USER, 'r' );
-			push @canread, $_;
-		}
-
-		return gotoNode( $HTMLVARS{not_found}, $user_id ) unless @canread;
-		return gotoNode( $canread[0], $user_id ) if @canread == 1;
-
-		#we found multiple nodes with that name.  ick
-		my $NODE = getNode( $HTMLVARS{duplicatesFound_node} );
-
-		$$NODE{group} = \@canread;
-		gotoNode( $NODE, $user_id );
-	}
-}
-
-=cut
-
-
 =head2 C<evalXTrapErrors>
 
 This is a wrapper for the standard eval.  This way we can trap eval errors and
@@ -1139,7 +1022,7 @@ sub AUTOLOAD
 	# We can only execute this if the logged in user has execute permissions.
 	return undef unless ( $CODE->hasAccess( $user, 'x' ) );
 
-	return $CODE->run( undef, $HTMLVARS{noCompile}, @_ );
+	return $CODE->run( { no_cache => $HTMLVARS{noCompile}, args => \@_ } );
 
 }
 
@@ -1447,283 +1330,13 @@ sub htmlsnippet
 	# User must have execute permissions for this to be embedded.
 	if ( ( defined $node ) && $node->hasAccess( $USER, "x" ) )
 	{
-		$html = $node->run( 'code' );
+		$html = $node->run( { field => 'code' } );
 	}
 	return $html;
 }
 
 =cut
 
-
-=head2 C<embedCode>
-
-This takes code in the form of [%...%], [{...}], [E<lt>...E<gt>], or ["..."]
-and evals the internal code.
-
-=over 4
-
-=item * $block
-
-The block of code to eval.  It must be of one of the forms described above.
-
-=item * $CURRENTNODE
-
-the node in which this code is coming from.  Some code may need to know this
-(nodelets that modify themselves).  If not defined, this will default to the
-main node we are trying to display
-
-=back
-
-Returns the eval-ed result of the code.
-
-=cut
-
-sub embedCode
-{
-	my ( $block, $CURRENTNODE ) = @_;
-
-	my $NODE = $GNODE;
-
-	if ( $block =~ /^".*"$/ )
-	{
-
-		# This is used to eval data that a user may have entered.  It is
-		# wrapped in quotes so that variables are evaled, but if they
-		# contain code, that code is not evaled.  This prevents users from
-		# hacking the system by having node titles like:
-		# 	$DB->do("drop table nodes")
-		$block = evalXTrapErrors( $block . ';', $CURRENTNODE );
-	}
-	elsif ( $block =~ /^\{(.*)\}$/s )
-	{
-
-		# This is an htmlcode.  We need to construct a function call, and
-		# eval it.  AUTOLOAD will do the rest.
-
-		my ( $func, $args ) = split /\s*:\s*/, $1;
-		my @args;
-		$args ||= "";
-
-		@args = split( /\s*,\s*/, $args ) if ($args);
-
-		foreach (@args)
-		{
-
-			# Wrap each argument in quotes, except those that start with
-			# a '$'.  This way, global vars can be used in calling htmlcode
-			# ie [{mycode: hello, $USER}]
-			$_ = "'" . $_ . "'" unless ( $_ =~ /^\$/ );
-		}
-
-		$args = join( ", ", @args );
-
-		my $code = $func . "(" . $args . ");";
-		$block = evalXTrapErrors( $code, $CURRENTNODE );
-	}
-	elsif ( $block =~ /^\%(.*)\%$/s )
-	{
-		$block = evalXTrapErrors( $1, $CURRENTNODE );
-	}
-	elsif ( $block =~ /^<(.*)>$/s )
-	{
-		my $snippet = getNode( $1, "htmlsnippet" );
-
-		# User must have execute permissions for this to be embedded.
-		if ( ( defined $snippet ) && $snippet->hasAccess( $USER, "x" ) )
-		{
-			$block = parseCode( 'code', $snippet );
-		}
-		else
-		{
-			$block = "";
-		}
-	}
-
-	# Block needs to be defined, otherwise the search/replace regex
-	# stuff will break when it gets an undefined return from this.
-	$block ||= "";
-
-	return $block;
-}
-
-=cut
-
-
-=head2 C<parseCode (new)>
-
-Given the text from a node that is to be displayed, parse out the code blocks,
-compile the whole thing into an anonymous subroutine, cache it, and call it.
-Or call it if it's already compiled.  WHOOSH!
-
-NOTE!!! This is a full parse and eval.  You do NOT NOT NOT want to call this on
-text that an untrusted user can modify.  You don't want users creating nodes
-with [% `rm -rf /*` %] in their code.  Calling this on untrusted user text is a
-security breach.
-
-=over 4
-
-=item * $field
-
-the field to be parsed for the code blocks
-
-=item * $CURRENTNODE
-
-the node which this text is coming from.  
-
-=back
-
-Returns the parsed HTML with the embedded code parsed and replaced with its
-generated result.  Given:
-
-  E<lt>pE<gt>Hello ["$$USER{title}"]
-
-Will return:
-
-  E<lt>pE<gt>Hello Bob
-
-=cut
-
-sub parseCode
-{
-	my ( $field, $CURRENTNODE ) = @_;
-
-	if ( ( exists( $HTMLVARS{noCompile} ) and $HTMLVARS{noCompile} )
-		or exists( $CURRENTNODE->{DB}->{workspace} ) )
-	{
-		return oldparseCode( $field, $CURRENTNODE );
-	}
-
-	my $result = executeCachedCode( $field, $CURRENTNODE );
-	return $result if ( defined($result) );
-
-	my $args = [];
-
-	my $sub_text = ' my $result; ';
-
-	# the /s modifier makes . match newlines.  VERY important.
-	for my $chunk (
-		split(
-			/(\[(?:\{.*?\}|\".*?\"|%.*?%|<.*?>)\])/s, $$CURRENTNODE{$field}
-		)
-		)
-	{
-		next unless $chunk =~ /\S/;
-
-		$sub_text .= "\n\t";
-		my ( $start, $code, $end );
-		if ( ( $start, $code, $end ) =
-			$chunk =~ /^\[([%"<{])(.+?)([%">}])\]$/s )
-		{
-
-			# embedded code
-			$code =~ s!"!\"!g;
-
-			# htmlcode turns into a function call:
-			#	( $htmlcode('arg1', 'arg2') || '')
-			if ( $start eq '{' )
-			{
-				my ( $func, $args ) = split( /\s*:\s*/, $code );
-				$sub_text .= "\$result .= ( eval { $func(";
-				if ( defined $args )
-				{
-					my @args = do_args($args);
-					$sub_text .= join( ", ", @args ) if (@args);
-				}
-				$sub_text .= ") } || '' );";
-
-				# htmlsnippets turn into simpler function calls:
-				#	htmlsnippet('snippetname')
-			}
-			elsif ( $start eq '<' )
-			{
-				$sub_text .= "\$result .= eval {htmlsnippet('$code')} || '';\n";
-
-				# embedded code needs a dedicated block to work unmodified:
-				#	( eval { return 'foo'; } || '' )
-			}
-			elsif ( $start eq '"' or $start eq '%' )
-			{
-				$sub_text .= "\$result .= ( eval {\n$code\n} || '' );\n";
-			}
-			$sub_text .= qq|\nlogErrors('', \$\@, '', { title => 
-				'\Q$$CURRENTNODE{title}\E', node_id => '$$CURRENTNODE{node_id}' }) 
-				if (\$\@);\n|;
-
-			# raw text, needs to be quoted -- the quoting should work correctly
-			# as there's no need to escape quotes in raw HTML sections anyway
-		}
-		else
-		{
-			next unless ( $chunk =~ /\S/ );
-
-			# Use single quotes!!!  We need to wrap this chunk of text in
-			# single quotes because we do not want perl to be evaluating
-			# anything outside our embedded code.  If this is wrapped in
-			# double quotes, things like \n, \t, $hello, and anything the
-			# raw text contained that perl would recognize would be evaled
-			# and we don't want that.  Raw text is raw text and should
-			# be left alone.
-			$chunk =~ s!\'!\\'!g;
-			$sub_text .= qq|\$result .= '$chunk';\n|;
-		}
-	}
-
-	# add newlines so trailing comments don't cause eval() errors
-	$sub_text .= qq|\nreturn \$result;\n|;
-
-	$sub_text = createAnonSub($sub_text);
-
-	$result = compileCache( $sub_text, $CURRENTNODE, $field, $args );
-	return $result if defined $result;
-
-	# on failure, use old behavior
-	return oldparseCode( $field, $CURRENTNODE );
-}
-
-=cut
-
-
-=head2 C<oldparseCode>
-
-Given the text from a node that is to be displayed, parse out the code blocks
-and eval them.  No caching here, plod plod.
-
-=over 4
-
-=item * $field
-
-the field to be parsed for the code blocks
-
-=item * $CURRENTNODE
-
-the node which this text is coming from.  
-
-=back
-
-=cut
-
-sub oldparseCode
-{
-	my ( $field, $CURRENTNODE ) = @_;
-
-	my $text = $$CURRENTNODE{$field};
-
-	# the embedding styles are:
-	$text =~ s/
-	 \[
-	 (
-	 \{.*?\} # [{ }]s -- calls to the code database
-	 |".*?"  # [" "]s -- embedded code strings
-	 |%.*?%  # [% %]s -- full embedded perl
-	 |<.*?>  # [< >]s -- embedded HTML
-	 )
-	 \]
-	  /embedCode($1,$CURRENTNODE)/egsx;
-
-	$text;
-}
-
-=cut
 
 
 =head2 C<listCode>
@@ -2012,7 +1625,7 @@ sub genContainer
 		if ($debugcontainer)
 		{
 			$GLOBAL{debugContainer} = $CONTAINER;
-			my $debugtext = parseCode( 'context', $debugcontainer );
+			my $debugtext = $debugcontainer->run( { field => 'context' });
 			$debugtext =~ s/CONTAINED_STUFF/$middle/s;
 			$replacetext = $start . $debugtext . $end;
 		}
