@@ -1,7 +1,11 @@
 <NODE export_version="0.5" nodetype="opcode" title="redo">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $N = $query-&gt;param('node_id');
+  <field name="code" type="literal_value">my $r = shift;
+my $query = $r-&gt;get_cgi;
+my $USER = $r-&gt;get_user;
+
+my $N = $query-&gt;param('node_id');
 $N = getNode $N;
 $N-&gt;undo($USER, 1);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

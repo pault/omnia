@@ -1,7 +1,11 @@
 <NODE export_version="0.5" nodetype="opcode" title="changeworkspace">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $N = $query-&gt;param('node_id');
+  <field name="code" type="literal_value">my $r = shift;
+my $query = $r-&gt;get_cgi;
+my $USER = $r-&gt;get_user;
+
+my $N = $query-&gt;param('node_id');
 return unless $N;
 $N = getNode $N;
 return unless $$N{type}{title} eq 'workspace' and $N-&gt;hasAccess($USER, 'x');

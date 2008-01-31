@@ -1,7 +1,10 @@
 <NODE export_version="0.5" nodetype="opcode" title="massacre">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return unless $USER-&gt;isGod;
+  <field name="code" type="literal_value">my $r = shift;
+my $USER = $r-&gt;get_user;
+my $query = $r-&gt;get_cgi;
+return unless $USER-&gt;isGod;
 
 my @params = $query-&gt;param;
 my @deathrow;

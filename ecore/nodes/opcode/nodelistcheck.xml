@@ -2,11 +2,13 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">#this opcode handles killing/bucket ops on the [Gigantic Node Lister]
-
+my $r = shift;
+my $query = $r-&gt;get_cgi;
+my $USER = $r-&gt;get_user;
 
 if ($query-&gt;param('addtonb')) {
   my $OP = getOpCode(&quot;addBucket&quot;, $USER);
-  evalX($$OP{code}, $OP);
+    $OP-&gt;run( { field =&gt; 'code', args =&gt; [ $r ] } );
 } elsif ($query-&gt;param('massacre')) {
   
   $query-&gt;param(&quot;node_id&quot;, getNode('the killing floor','restricted_superdoc')-&gt;getId);

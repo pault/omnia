@@ -3,6 +3,9 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">#in order to commit a workspace, you must be on the workspace node
 #you must also be &quot;inside&quot; the workspace
+my $r = shift;
+my $query = $r-&gt;get_cgi;
+my $USER = $r-&gt;get_user;
 
 my $WS;
 $WS = $query-&gt;param(&quot;workspace_id&quot;);

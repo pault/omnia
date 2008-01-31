@@ -1,7 +1,9 @@
 <NODE export_version="0.5" nodetype="opcode" title="Flush">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $vars = $USER-&gt;getVars();
+  <field name="code" type="literal_value">my $r = shift;
+my $USER = $r-&gt;get_user;
+my $vars = $USER-&gt;getVars();
 delete $$vars{nodebucket};  # flush the nodebucket
 $USER-&gt;setVars($vars);
 # Don't need to update as $USER automatically gets updated on pageload end

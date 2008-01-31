@@ -1,7 +1,11 @@
 <NODE export_version="0.5" nodetype="opcode" title="insertMini">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $old;
+  <field name="code" type="literal_value">my $r = shift;
+my $query = $r-&gt;get_cgi;
+my $USER = $r-&gt;get_user;
+
+my $old;
 my $mini;
 my @nodelets;
 my $SETTINGS;
