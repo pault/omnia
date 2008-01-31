@@ -2198,6 +2198,10 @@ sub initForPageLoad
 #############################################################################
 sub opNuke
 {
+        my $request = shift;
+	my $query = $request->get_cgi;
+	my $USER = $request->get_user;
+	my %HTMLVARS = %{ $request->get_system_vars };
 	my $NODE = getNode( $query->param("node_id") );
 
 	$NODE->nuke($USER) if ($NODE);
@@ -2212,19 +2216,33 @@ sub opNuke
 #############################################################################
 sub opLogin
 {
-	( $USER, $VARS ) = $AUTH->loginUser($query->param('user'),
+         my $request  = shift;
+	 my $query = $request->get_cgi;
+	 my $AUTH = $request->get_authorisation;
+	 my ( $USER, $VARS ) = $AUTH->loginUser($query->param('user'),
 					    $query->param('passwd'));
+	 $request->set_user( $USER );
+	 $request->set_user_vars( $VARS );
 }
 
 #############################################################################
 sub opLogout
 {
-	( $USER, $VARS ) = $AUTH->logoutUser();
+        my $request = shift;
+	my $AUTH = $request->get_authorisation;
+	my ( $USER, $VARS ) = $AUTH->logoutUser();
+	$request->set_user( $USER );
+	$request->set_user_vars( $VARS );
 }
 
 #############################################################################
 sub opNew
 {
+        my $request = shift;
+	my $query = $request->get_cgi;
+	my $USER = $request->get_user;
+	my %HTMLVARS = %{ $request->get_system_vars };
+
 	my $node_id  = 0;
 	my $user_id  = $$USER{node_id};
 	my $type     = $query->param('type');
@@ -2255,6 +2273,10 @@ sub opNew
 #############################################################################
 sub opUnlock
 {
+        my $request = shift;
+	my $query = $request->get_cgi;
+	my $USER = $request->get_user;
+
 	my $LOCKEDNODE = getNode( $query->param('node_id') );
 	$LOCKEDNODE->unlock($USER);
 }
@@ -2262,6 +2284,10 @@ sub opUnlock
 #############################################################################
 sub opLock
 {
+        my $request = shift;
+	my $query = $request->get_cgi;
+	my $USER = $request->get_user;
+
 	my $LOCKEDNODE = getNode( $query->param('node_id') );
 	$LOCKEDNODE->lock($USER);
 }
@@ -2304,6 +2330,11 @@ redirect to another node's edit page.
 
 sub opUpdate
 {
+        my $request = shift;
+	my $query = $request->get_cgi;
+	my $USER = $request->get_user;
+	my %HTMLVARS = %{ $request->get_system_vars };
+
 	my @params = $query->param();
 	my %UPDATENODES;
 	my %UPDATEOBJECT;
@@ -2554,148 +2585,5 @@ sub setHTMLVARS
 		die "Error!  No system settings!";
 	}
 }
-
-=cut
-
-
-C<updateNodeData>
-
-DEPRECATED!!!  DO NOT USE!
-
-If we have a node_id, we may be getting some params that indicate that we
-should be updating the node.  This checks for those parameters and updates the
-node if necessary.
-
-=cut
-
-sub updateNodeData
-{
-
-	#warn("Using updateNodeData() (deprecated!).  Stop that!");
-	my $node_id = $query->param('node_id');
-
-	return undef unless ($node_id);
-
-	my $NODE       = getNode($node_id);
-	my $updateflag = 0;
-
-	return 0 unless ($NODE);
-
-	if ( $NODE->hasAccess( $USER, 'w' ) )
-	{
-		if ( my $groupadd = $query->param('add') )
-		{
-			$NODE->insertIntoGroup( $USER, $groupadd,
-				$query->param('orderby') );
-			$updateflag = 1;
-		}
-
-		if ( $query->param('group') )
-		{
-			my @newgroup;
-			my $counter = 0;
-
-			while ( my $item = $query->param( $counter++ ) )
-			{
-				push @newgroup, $item;
-			}
-
-			$NODE->replaceGroup( \@newgroup, $USER );
-			$updateflag = 1;
-		}
-
-		my @updatefields = $query->param;
-		my $RESTRICT     = getNode( 'restricted fields', 'setting' );
-		my $RESTRICTED   = $RESTRICT->getVars() if ($RESTRICT);
-
-		$RESTRICTED ||= {};
-		foreach my $field (@updatefields)
-		{
-			if ( $field =~ /^$$NODE{type}{title}\_(\w*)$/ )
-			{
-				next if exists $$RESTRICTED{$1};
-				$$NODE{$1} = $query->param($field);
-				$updateflag = 1;
-			}
-		}
-
-		if ($updateflag)
-		{
-			$NODE->logRevision($USER) unless exists $DB->{workspace};
-			$NODE->update($USER);
-
-			# This is the case where the user is modifying their own user
-			# node.  If we want the user node to take effect in one page
-			# load, we need to set it here.
-			if ( $$USER{node_id} == $$NODE{node_id} ) { $USER = $NODE; }
-		}
-	}
-}
-
-=cut
-
-
-=head2 C<mod_perlInit>
-
-This is the "main" function of Everything.  This gets called for each page load
-in an Everything system.
-
-=over 4
-
-=item * $db
-
-the string name of the database to get our information from.
-
-=item * $options
-
-optional options, see Everything::initEverything
-
-=back
-
-Returns nothing useful
-
-=cut
-
-sub mod_perlInit
-{
-	my ( $db, $options, $initializer ) = @_;
-
-	initForPageLoad( $db, $options );
-
-	setHTMLVARS();
-
-	$query = getCGI($initializer);
-
-	$options->{nodebase} = $DB;
-
-	$options->{query} = $query;
-
-	$AUTH = Everything::Auth->new($options);
-
-	( $USER, $VARS ) = $AUTH->authUser();
-
-	# join a workspace (if applicable)
-	$DB->joinWorkspace( $$USER{inside_workspace} );
-
-	# Execute any operations that we may have
-	execOpCode();
-
-	#an opcode might have changed our workspace.  Join again.
-	$DB->joinWorkspace( $$USER{inside_workspace} );
-
-	# DEPRECATED!  DO NOT USE!
-	updateNodeData();
-
-	# Do the work.
-	handleUserRequest();
-
-	# Lastly, set the vars on the user node so that things get saved.
-	$USER->setVars( $VARS, $USER );
-	$USER->update($USER);
-}
-
-#############################################################################
-# End of package
-#############################################################################
 
 1;

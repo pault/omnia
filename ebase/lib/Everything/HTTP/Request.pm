@@ -140,29 +140,29 @@ sub execute_opcodes {
 
         if ($opcode) {
 
-            $opcode->run;
+            $opcode->run( { args => [ $self ] } );
 
         }
         elsif ( $op eq 'login' ) {
-            Everything::HTML::opLogin();
+            Everything::HTML::opLogin( $self );
         }
         elsif ( $op eq 'logout' ) {
-            Everything::HTML::opLogout();
+            Everything::HTML::opLogout( $self );
         }
         elsif ( $op eq 'nuke' ) {
-            Everything::HTML::opNuke();
+            Everything::HTML::opNuke( $self );
         }
         elsif ( $op eq 'new' ) {
-            Everything::HTML::opNew();
+            Everything::HTML::opNew( $self );
         }
         elsif ( $op eq 'update' ) {
-            Everything::HTML::opUpdate();
+            Everything::HTML::opUpdate( $self );
         }
         elsif ( $op eq 'unlock' ) {
-            Everything::HTML::opUnlock();
+            Everything::HTML::opUnlock( $self );
         }
         elsif ( $op eq 'lock' ) {
-            Everything::HTML::opLock();
+            Everything::HTML::opLock( $self );
         }
 
     }

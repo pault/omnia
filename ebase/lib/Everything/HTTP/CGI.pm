@@ -24,6 +24,8 @@ sub handle  {
     ## execute options
     # Execute any operations that we may have
 
+    $e->execute_opcodes;
+
     $e->set_node_from_cgi;
 
     if ( !$e->get_node ) {
@@ -35,8 +37,6 @@ sub handle  {
     }
 
     $e->setup_everything_html;
-
-    $e->execute_opcodes;
 
     my $response = Everything::HTTP::ResponseFactory->new( 'htmlpage', $e );
     $response->create_http_body;
