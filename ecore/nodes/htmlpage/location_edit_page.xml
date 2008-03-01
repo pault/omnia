@@ -16,8 +16,7 @@
   <field name="page" type="literal_value">&lt;b&gt;location name:&lt;/b&gt;
 [{nodeFormObject: TextField, title}]
 
-&lt;p&gt;[{submit}]
-</field>
+&lt;p&gt;[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">location</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

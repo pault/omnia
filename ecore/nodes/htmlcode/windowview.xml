@@ -2,6 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($displaytype, $title, $width, $height) = @_;
+my $NODE = $this-&gt;get_node;
 
 $title||=$$NODE{title};
 $width||=300;
@@ -10,9 +11,9 @@ $height||=400;
 &quot;&lt;SCRIPT language=\&quot;javascript\&quot;&gt;
 	function launchTheWinda() {
 	window.open('&quot; .
-		urlGen({node_id =&gt; getId ($NODE),
+		$this-&gt;url_gen({node_id =&gt; $NODE-&gt;get_node_id,
 			displaytype =&gt; $displaytype}, &quot;noquotes&quot;) .
-		&quot;','&quot;. getId ($NODE) .&quot;',
+		&quot;','&quot;. $NODE-&gt;get_node_id .&quot;',
 		'width=$width,height=$height,scrollbars=yes');	
 	}
 &lt;/SCRIPT&gt;

@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str;
 my $execstr = $query-&gt;param(&quot;sqlquery&quot;);
 
@@ -14,10 +24,21 @@ $str .= $query-&gt;submit('execsql', 'Execute') . &quot;\n&quot;;
 $str .= $query-&gt;end_form;
 
 $str;
+
 %]
 
 &lt;p&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 #Cleaner output of SQL Errors
 local $SIG{__WARN__} = sub { return };
 
@@ -72,6 +93,7 @@ if($execstr)
 }
 
 $str;
+
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

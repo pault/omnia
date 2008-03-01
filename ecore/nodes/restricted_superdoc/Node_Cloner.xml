@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $src_id = $query-&gt;param(&quot;srcnode_id&quot;);
 my $newname = $query-&gt;param(&quot;newname&quot;);
 
@@ -42,6 +52,7 @@ else
 }
 
 $str;
+
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

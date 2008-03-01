@@ -12,6 +12,16 @@
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Other Users Mini</field>
   <field name="nlcode" type="literal_value">Your fellow noders:&lt;br&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $time = 3 * 60;
 my $limit = 30;
 
@@ -24,7 +34,8 @@ foreach (@$USRS) {
 $str ||= &quot;&lt;i&gt;no users logged in&lt;/i&gt;&quot;;
 
 $str;
-%] </field>
+
+%]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Other Users</field>

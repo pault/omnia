@@ -2,6 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my @params;
+my $THEME = $this-&gt;get_theme;
 my $bgcolor ||= $$THEME{bodyBgcolor};
 $bgcolor ||= &quot;#FFFFFF&quot;;
 push @params, &quot;bgcolor='$bgcolor'&quot;;

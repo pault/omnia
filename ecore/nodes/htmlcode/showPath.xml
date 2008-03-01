@@ -1,7 +1,11 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="showPath">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return unless $HTMLVARS{showlocations};
+  <field name="code" type="literal_value">my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $NODE = $this-&gt;get_node;
+my $DB = $this-&gt;get_nodebase;
+
+return unless $HTMLVARS{showlocations};
 my @path;
 my $loc = $$NODE{loc_location};
 my $parentLoc;
@@ -16,8 +20,8 @@ $top = $HTMLVARS{root_location} if(exists $HTMLVARS{root_location});
 
 do
 {
-  $parentLoc = getNode($loc);
-  unshift @path, linkNode($parentLoc);
+  $parentLoc = $DB-&gt;getNode($loc);
+  unshift @path, $this-&gt;link_node($parentLoc);
 
   $loc = $$parentLoc{loc_location};
 }until($$parentLoc{node_id} == 0 || $$parentLoc{node_id} == $top);

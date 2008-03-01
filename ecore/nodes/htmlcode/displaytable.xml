@@ -5,6 +5,8 @@
 # of a database table.  The output is similar to what
 # you get when 'show columns from $table' is executed.
 my ($table, $edit) = @_;
+my $query = $this-&gt;get_query;
+my $DB = $this-&gt;get_nodebase;
 my @fields = $DB-&gt;getFieldsHash($table);
 my $field;
 my $fieldname;

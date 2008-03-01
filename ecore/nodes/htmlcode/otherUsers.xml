@@ -1,16 +1,18 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="otherUsers">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $time = $HTMLVARS{otherusersTimeLimit};
+  <field name="code" type="literal_value">my $HTMLVARS = $this-&gt;get_htmlvars;
+my $DB = $this-&gt;get_nodebase;
+my $time = $$HTMLVARS{otherusersTimeLimit};
 $time ||= 3 * 60;
 my $limit = 50;
 
-my $USRS = getNodeWhere( $DB-&gt;timediff( $DB-&gt;now(), 'lasttime' ) . ' &lt;$time',
+my $USRS = $DB-&gt;getNodeWhere( $DB-&gt;timediff( $DB-&gt;now(), 'lasttime' ) . ' &lt;$time',
 	'user', 'node_id', $limit );
 
 my $str;
 foreach (@$USRS) {
-	$str .= linkNode($_) .&quot;&lt;br&gt;&quot;;
+	$str .= $this-&gt;link_node($_) .&quot;&lt;br&gt;&quot;;
 }
 $str ||= &quot;&lt;i&gt;no users logged in&lt;/i&gt;&quot;;
 

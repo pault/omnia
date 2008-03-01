@@ -6,7 +6,7 @@ my $html;
 
 if(($key =~ /.+?_(.*)/) &amp;&amp; ($value =~ /\d+/))
 {
-  $html = &quot;Points to '&quot; . linkNode(getNode($value)) . &quot;'&quot;;
+  $html = &quot;Points to '&quot; . $this-&gt;link_node($this-&gt;get_nodebase-&gt;getNode($value)) . &quot;'&quot;;
 }
 
 return $html;</field>

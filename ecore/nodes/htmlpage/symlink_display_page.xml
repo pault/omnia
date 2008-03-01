@@ -15,9 +15,20 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;b&gt;Symlink target: 
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $target = getNode($$NODE{symlink_node});
 
 linkNode($target);
+
 %]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">symlink</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>

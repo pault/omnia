@@ -2,7 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($buttonName, $label) = @_;
-
+my $query=$this-&gt;get_query;
 $label ||= &quot;submit&quot;;
 $buttonName ||= &quot;button&quot;;
 return $query-&gt;submit($buttonName, $label);</field>

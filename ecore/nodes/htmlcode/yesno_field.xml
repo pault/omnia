@@ -2,6 +2,8 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($field) = @_;
+my $NODE = $this-&gt;get_node;
+my $query = $this-&gt;get_query;
 
 my $val = int($$NODE{$field});
 

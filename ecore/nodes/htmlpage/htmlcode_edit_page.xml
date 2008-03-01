@@ -19,8 +19,7 @@
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]&lt;br&gt;
 &lt;p&gt;
-[{submit}]
-</field>
+[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

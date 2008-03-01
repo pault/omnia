@@ -13,7 +13,18 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;b&gt;[%linkNode($NODE, &quot;Upload the image&quot;, {displaytype=&gt;'upload'});%]
+  <field name="page" type="literal_value">&lt;b&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+linkNode($NODE, &quot;Upload the image&quot;, {displaytype=&gt;'upload'});
+%]
 &lt;table border=0&gt;
 &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;&lt;font size=2&gt;source:&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
@@ -33,8 +44,7 @@
 &lt;/tr&gt;
 &lt;/table&gt;
 &lt;p&gt;
-[{submit}]
-</field>
+[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

@@ -3,6 +3,10 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">no strict;
 use Everything::XML;
+my $query = $this-&gt;get_query;
+my $DB = $this-&gt;get_nodebase;
+my $NODE = $this-&gt;get_node;
+
 my @modules = ('Everything', 'Everything::HTML', 'Everything::XML', 'Everything::NodeBase', 'Everything::NodeCache', 'Everything::Node::node', 'Everything::Node::nodeball','Everything::Node::nodegroup', 'Everything::Node::nodetype', 'Everything::Node::setting', 'Everything::Node::theme', 'Everything::Node::user', 'Everything::Node::nodetype');
 my $str;
 my $i;
@@ -37,7 +41,7 @@ if (not $query-&gt;param('choicefunc'))
      {
        $str.= &quot;&lt;TD bgcolor=#cbcbcb&gt;&quot;; 
        if (int (@{ $funcs{$modname} }) &gt; $count)
-         { $str.=linkNode($NODE, $funcs{$modname}[$count], 
+         { $str.=$this-&gt;link_node($NODE, $funcs{$modname}[$count], 
              { choicefunc =&gt; $funcs{$modname}[$count] });
          }
        else
@@ -53,7 +57,7 @@ if (not $query-&gt;param('choicefunc'))
   }
 	
   $str.=&quot;&lt;TH width=$colwidth colspan=5 bgcolor=\&quot;black\&quot;&gt;&lt;font color=\&quot;white\&quot;&gt;HTMLCODE&lt;/font&gt;&lt;/TH&gt;\n&quot;;
-  my $HTMLCODE = getNodeWhere({}, getType('htmlcode'));
+  my $HTMLCODE = $DB-&gt;getNodeWhere({}, $DB-&gt;getType('htmlcode'));
   $funcs{htmlcode}= $HTMLCODE;
   $rows=int(@$HTMLCODE);
  my $count=0;
@@ -63,7 +67,7 @@ if (not $query-&gt;param('choicefunc'))
      for ($i=1; $i&lt;=5; $i++)
      {       
         $str.=&quot;&lt;TD bgcolor=#cbcbcb&gt;&quot;;
-        $str.= linkNode($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
+        $str.= $this-&gt;link_node($funcs{htmlcode}[$count]) if $count &lt; @{ $funcs{htmlcode} };
         $str.=&quot;&lt;/TD&gt;\n&quot;;
         $count++;
      }
@@ -73,7 +77,7 @@ if (not $query-&gt;param('choicefunc'))
 }
 
 #else...
-$str.= &quot;or go back to the code &quot;.linkNode($NODE, 'index');
+$str.= &quot;or go back to the code &quot;.$this-&gt;link_node($NODE, 'index');
 my $choicefunc = $query-&gt;param('choicefunc');
 my $parentmod = &quot;&quot;;
  if ($choicefunc =~ /^(.+?)\:\:(\w+)$/) {
@@ -133,7 +137,7 @@ while (@mod &gt; $count and not @lines) {
 }
 
 if (@lines) {
-  $str.= listCode(join (&quot;&quot;, @lines));
+  $str.= $this-&gt;list_code(join (&quot;&quot;, @lines));
 } else {
   $str.= &quot;\n&lt;br&gt;no comment found\n&quot;;
 }

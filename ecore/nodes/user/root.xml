@@ -20,6 +20,7 @@ Great Hair!</field>
   <field name="title" type="literal_value">root</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>
   <vars>
+    <var name="nodebucket" type="literal_value">237</var>
     <var name="nodelet_group" type="noderef" type_nodetype="nodeletgroup,nodetype">system nodelets</var>
     <var name="preferred_theme" type="noderef" type_nodetype="themesetting,nodetype">root's default themesettings</var>
   </vars>

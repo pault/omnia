@@ -3,8 +3,9 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $objectType = shift @_;
 my $bindNode = shift @_;
-
-my $formObject = newFormObject($objectType);
+my $query = $this-&gt;get_query;
+my $DB = $this-&gt;get_nodebase;
+my $formObject = $this-&gt;new_form_object($objectType);
 
 return &quot;&quot; unless($formObject);
 

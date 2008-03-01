@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 
 return unless $query-&gt;param('op', 'nodelistcheck');
 my (@param) = $query-&gt;param;
@@ -25,6 +35,7 @@ foreach (@param) {
 $str.=&quot;&lt;p align=right&gt;&quot;.$query-&gt;submit(&quot;op&quot;,&quot;massacre&quot;);
 $str.=&quot;&lt;p&gt;&quot;.linkNode($GNL, &quot;Changed my mind.&quot;);
 $str.=$query-&gt;end_form;
+
 %]
 
 &lt;/ol&gt;</field>

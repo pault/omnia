@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str;
 my $src_id = $query-&gt;param(&quot;srcnode_id&quot;);
 my $newtype = $query-&gt;param(&quot;newtype&quot;);
@@ -73,7 +83,7 @@ else
 {
   # Then you have some HTML form stuff...
   $str.=&quot;Cloning node &quot;.linkNode($SRCNODE).&quot; of type: &quot;.linkNode($$SRCNODE{type}).&quot;&lt;BR&gt;&quot;;
-     $str.=htmlcode('openform');
+     $str.=$this-&gt;htmlcode('openform');
      $str.=&quot;&lt;INPUT TYPE=\&quot;hidden\&quot; name=\&quot;srcnode_id\&quot; value=\&quot;$src_id\&quot;&gt;&quot;;
      $str.=&quot;To node with:&lt;BR&gt;&quot;;
      $str.=&quot;Title: &quot;.$query-&gt;textfield('newname',$$SRCNODE{title},50,240).&quot;&lt;BR&gt;&quot;;
@@ -97,8 +107,9 @@ else
      @idlist=sort{lc($items{$a}) cmp lc($items{$b})} @idlist;
      $str.=&quot;and type of &quot;.$query-&gt;popup_menu(&quot;newtype&quot;, \@idlist, &quot;&quot;, \%items).&quot;&lt;BR&gt;&quot;;
      $str.=$query-&gt;checkbox('deleteorig',&quot;&quot;,&quot;on&quot;,&quot;Delete original node:&quot;);
-     $str.=htmlcode('closeform');
+     $str.=$this-&gt;htmlcode('closeform');
 } 
+
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

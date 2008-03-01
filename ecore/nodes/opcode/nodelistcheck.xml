@@ -7,7 +7,8 @@ my $query = $r-&gt;get_cgi;
 my $USER = $r-&gt;get_user;
 
 if ($query-&gt;param('addtonb')) {
-  my $OP = getOpCode(&quot;addBucket&quot;, $USER);
+  my $OP = $r-&gt;get_nodebase-&gt;get_node(&quot;addBucket&quot;, &quot;opcode&quot;);
+  return unless $OP-&gt;hasAccess( $USER, 'x' );
     $OP-&gt;run( { field =&gt; 'code', args =&gt; [ $r ] } );
 } elsif ($query-&gt;param('massacre')) {
   

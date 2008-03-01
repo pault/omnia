@@ -13,6 +13,16 @@ which are frequently updated.
 [{openform}]
 &lt;INPUT type=hidden name=confirmpage value=1&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
     my $nodetypes = getNodeWhere({type_nodetype =&gt; 1 }, &quot;nodetype&quot;, &quot;title&quot;);
     my $str;
     my %TVERSIONS;
@@ -52,10 +62,8 @@ foreach (@$nodetypes)
 
 formatCols(\@list, 3);
 
-%]
-[{closeform}]
 
-</field>
+%][{closeform}]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

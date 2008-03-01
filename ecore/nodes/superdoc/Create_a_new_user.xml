@@ -2,12 +2,22 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str;
 
 local *generateLogin = sub {
  $query-&gt;start_form
     .'&lt;INPUT TYPE=&quot;hidden&quot; NAME=&quot;op&quot; VALUE=&quot;newuser&quot;&gt;'
-    .$query-&gt;hidden('node_id', getId($NODE))
+    .$query-&gt;hidden('node_id', $NODE-&gt;get_node_id)
     .'Preferred User Name:
       &lt;INPUT TYPE=&quot;text&quot; NAME=&quot;nu_name&quot; VALUE=&quot;&quot; MAXLENGTH=&quot;22&quot;&gt;&lt;br&gt;
       Real&amp;#153; Name:'
@@ -61,14 +71,14 @@ return &quot;There was an error processing your request.\n&quot;
 my @chars = ( &quot;A&quot; .. &quot;Z&quot;, &quot;a&quot; .. &quot;z&quot;, 0 .. 9);
 my $passwd = join(&quot;&quot;, @chars[ map { rand @chars } ( 1 .. 8 ) ]);
 
-if($NEWUSER-&gt;getId() == -1)
+if($NEWUSER-&gt;get_node_id() == -1)
 {
 #check if we have any '_' vs ' ' clashing that could lead to chatterbox conflicts
 my $match=lc($name);
 $match=~s/([a-zA-Z])/'['.$1.uc($1).']'/eg;
 $match=~s/[_ ]/[_ ]/g;
 $match=&quot;^$match\$&quot;;
-my ($closeuser)=$DB-&gt;sqlSelect(&quot;node_id,title&quot;,&quot;node&quot;,&quot;title regexp \&quot;$match\&quot; and type_nodetype=&quot;.getId(getType('user')));
+my ($closeuser)=$DB-&gt;sqlSelect(&quot;node_id,title&quot;,&quot;node&quot;,&quot;title regexp \&quot;$match\&quot; and type_nodetype=&quot;.$DB-&gt;getType('user')-&gt;get_node_id);
 if($closeuser){
    return &quot;Sorry, your username clashes with &quot;.linkNode($closeuser)
     .&quot; which already exists.  Pick a variation, or try another name...&lt;p&gt;\n&quot;.generateLogin();  
@@ -127,9 +137,8 @@ node2mail($NEWUSER-&gt;{email},$n);
 $str;
 
 
-%]
 
-</field>
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
  my $str=&quot;&quot;;
  my $arr = getNodeWhere({}, getType('setting'));
  my @arrsort = sort {$$a{title} cmp $$b{title}} @$arr;
@@ -14,11 +24,22 @@
   $str.=linkNode(getNode('hintlaunch settings', 'restricted_superdoc'));
  }
 $str;
+
 %][typeversion controls]
 &lt;p&gt;
 &lt;hr width=90% align=center&gt;
 &lt;h3&gt;Theme Nodes:&lt;/h3&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   my $str;
   my $themes = getNodeWhere({type_nodetype=&gt;[getType('theme'), getType('themesetting')]});
   my @themesort = sort {$$a{title} cmp $$b{title}} @$themes;
@@ -27,6 +48,7 @@ $str;
     $str.=linkNode($_).&quot;&lt;br&gt;&quot;;
   }
   $str;
+
 %]
 &lt;p&gt;
 [{openform}]

@@ -2,6 +2,9 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($var, @TYPES) = @_;
+my $DB = $this-&gt;get_nodebase;
+my $query = $this-&gt;get_query;
+my $VARS = $this-&gt;get_vars;
 
 $var or return;
 

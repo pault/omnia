@@ -2,20 +2,24 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($delimiter) = @_;
+my $NODE = $this-&gt;get_node;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $USER = $this-&gt;get_user;
+my $DB = $this-&gt;get_nodebase;
 
 $delimiter ||= &quot; | &quot;;
 my $str;
 my @links;
 
 
-push @links, linkNode ($HTMLVARS{default_node}, &quot;Log $$USER{title} out&quot;, {op =&gt; 'logout'});
+push @links, $this-&gt;link_node ($HTMLVARS{default_node}, &quot;Log $$USER{title} out&quot;, {op =&gt; 'logout'});
 push @links, linkNode ($USER, &quot;Edit $$USER{title}'s settings&quot;, { 'displaytype' =&gt; 'edit' });
 
 my $EN = $DB-&gt;getNode('Epicenter Nodes', 'nodegroup');
 
 foreach (@{ $$EN{group} }) {
-  my $N = getNode $_;
-  push @links, linkNode($N) if $N-&gt;hasAccess($USER, 'r');
+  my $N = $DB-&gt;getNode( $_ );
+  push @links, $this-&gt;link_node($N) if $N-&gt;hasAccess($USER, 'r');
 }
 
 

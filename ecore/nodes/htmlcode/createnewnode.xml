@@ -1,13 +1,15 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="createnewnode">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $str;
+  <field name="code" type="literal_value">my $query = $this-&gt;get_query;
+my $DB = $this-&gt;get_nodebase;
+my $str;
 my $title = $query-&gt;param('node');
 return &quot;&quot; unless $title;
 
 $str .= &quot;&lt;p&gt;you could create a new \&quot;$title\&quot; node as type:&quot;;
 
-my $SET=getNode('createnewnode settings','setting');
+my $SET=$DB-&gt;getNode('createnewnode settings','setting');
 my $MENU;
 $MENU = $SET-&gt;getVars() if $SET;
   my @aprtypes;
@@ -23,7 +25,7 @@ $MENU = $SET-&gt;getVars() if $SET;
   @aprtypes = sort {$a cmp $b} keys(%approvedtypes);
 if (not $MENU) {
   foreach my $type (@aprtypes) {
-	$str .= &quot;&lt;LI&gt;&lt;A href=&quot; . urlGen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) .&quot;&gt;$type&lt;/A&gt;\n&quot;;
+	$str .= &quot;&lt;LI&gt;&lt;A href=&quot; . $this-&gt;url_gen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) .&quot;&gt;$type&lt;/A&gt;\n&quot;;
   }
   return $str;
 } 
@@ -34,9 +36,9 @@ foreach my $m (keys %$MENU) {
   foreach (@nts) {
     my $derive;
     $derive = s/\+$//;  #that's not a mistake, I'm doing regex on $_
-    my $NT = getType($_);
+    my $NT = $DB-&gt;getType($_);
     next unless $NT;
-    $sections{getId($NT)} = $m if exists $approvedtypes{$$NT{title}};
+    $sections{$NT-&gt;get_node_id} = $m if exists $approvedtypes{$$NT{title}};
     if ($derive) {
       foreach my $type (@aprtypes) {
         my $T = $approvedtypes{$type};
@@ -50,11 +52,11 @@ foreach my $m (keys %$MENU) {
 
 my %aprmenu;
 foreach (keys %sections) {
-  push @{ $aprmenu{$sections{$_}}}, getType $_;
+  push @{ $aprmenu{$sections{$_}}}, $DB-&gt;getType($_);
 }
 
 foreach (@aprtypes) {
-  my $T = getType $_;
+  my $T = $DB-&gt;getType( $_ );
   push @{ $aprmenu{Extras} }, $T unless $sections{$$T{node_id}};
 }
 
@@ -63,6 +65,7 @@ delete $aprmenu{supress};  #we don't show these
 my $cols = 2;
 my $numsections = int keys %aprmenu;
 $cols = 3 if ($numsections &gt; 5 or not $numsections%3);
+$cols = 1 if keys %aprmenu == 1;
 
 my $count = 0;
 $str.=&quot;&lt;table width=100% border=1 cellpadding=2 cellspacing=0&gt;&quot;;
@@ -73,7 +76,7 @@ foreach (sort keys %aprmenu) {
 
   $str.=&quot;&lt;td valign=top width=$width&gt;&lt;b&gt;$_&lt;/b&gt;&quot;;
   foreach (sort @{ $aprmenu{$_} }) {
-    $str.=&quot;&lt;li&gt;&lt;A href=&quot; . urlGen ({node =&gt; $title, type =&gt; $$_{title} , op =&gt; 'new'}) .&quot;&gt;$$_{title}&lt;/A&gt;\n&quot;;
+    $str.=&quot;&lt;li&gt;&lt;A href=&quot; . $this-&gt;url_gen ({node =&gt; $title, type =&gt; $$_{title} , op =&gt; 'new'}) .&quot;&gt;$$_{title}&lt;/A&gt;\n&quot;;
   }
   $str.=&quot;&lt;/td&gt;&quot;;
   $str.=&quot;&lt;/TR&gt;&quot; unless ($count % $cols) + 1 - $cols;

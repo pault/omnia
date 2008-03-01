@@ -4,15 +4,16 @@
   <field name="code" type="literal_value">my $r = shift;
 my $query = $r-&gt;get_cgi;
 my $USER = $r-&gt;get_user;
+my $nb = $r-&gt;get_nodebase;
 
 my $old;
 my $mini;
 my @nodelets;
 my $SETTINGS;
 
-$old = getNode($query-&gt;param('nodelet'));
+$old = $nb-&gt;getNode($query-&gt;param('nodelet'));
 return 1 unless($old);
-$mini = getNode($$old{mini_nodelet});
+$mini = $nb-&gt;getNode($$old{mini_nodelet});
 return 1 unless($mini);
 
 $SETTINGS = $USER-&gt;getVars();
@@ -23,7 +24,7 @@ if ($$SETTINGS{nodelets})
 }
 else
 {
-  my $NODELETGROUP = getNode($$SETTINGS{nodelet_group}) if exists $$SETTINGS{nodelet_group};
+  my $NODELETGROUP = $nb-&gt;getNode($$SETTINGS{nodelet_group}) if exists $$SETTINGS{nodelet_group};
 
   if ($NODELETGROUP and $$NODELETGROUP{type}{title} eq 'nodeletgroup')
   {        
@@ -33,7 +34,7 @@ else
   if (not @nodelets)
   {  
     #push default nodelets on
-    my $DEFAULT = $DB-&gt;getNode($HTMLVARS{default_nodeletgroup});
+    my $DEFAULT = $nb-&gt;getNode($HTMLVARS{default_nodeletgroup});
     @nodelets = @{ $$DEFAULT{group} }; 
   }
 }

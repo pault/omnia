@@ -13,7 +13,17 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">[% unless ($$NODE{group} and @{ $$NODE{group} }) {
+  <field name="page" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+ unless ($$NODE{group} and @{ $$NODE{group} }) {
 	&quot;&lt;i&gt;This nodeball is empty&lt;/i&gt;&quot;;
 } else {
 	my $GROUP = $$NODE{group};
@@ -24,6 +34,7 @@
 	}
 	$str;
 }
+
 %]
 &lt;p&gt;[{displayvars}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>

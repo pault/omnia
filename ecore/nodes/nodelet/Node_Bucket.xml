@@ -11,20 +11,27 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
 return &quot;&quot; unless($NODE-&gt;hasAccess($USER, &quot;w&quot;));
 
 my $PARAMS = { op =&gt; 'addBucket', &quot;bnode_&quot; . $$NODE{node_id} =&gt; 1 };
-linkNode($NODE, &quot;Add '$$NODE{title}'&quot;, $PARAMS);
-%]
+$this-&gt;link_node($NODE, &quot;Add '$$NODE{title}'&quot;, $PARAMS);
 
-[%
+%][%
+
+my $query = $this-&gt;get_query;
+
+
 $query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) .
 $query-&gt;hidden(&quot;displaytype&quot;) .
 $query-&gt;hidden(&quot;node_id&quot;, $$NODE{node_id}) .
 $query-&gt;hidden(-name =&gt; &quot;op&quot;, -default =&gt; &quot;bucketOp&quot;, -override =&gt; 1);
-%]
 
-[%
+%][%
+my $query = $this-&gt;get_query;
+my $NODE = $this-&gt;get_requested_node;
+
 my @bnodes;
 @bnodes = split ',', $$VARS{nodebucket} if (defined($$VARS{nodebucket}));
 my $isLoc = $NODE-&gt;isOfType(&quot;location&quot;);
@@ -35,12 +42,12 @@ return &quot;Empty&lt;br&gt;\n&quot; unless(@bnodes);
 
 foreach $_ (@bnodes)
 {
-  my $node = getNode $_;
+  my $node = $DB-&gt;getNode( $_ );
 
   # Can't use CGI::checkbox here because it insists on having a label...
   $str .= &quot;&lt;INPUT TYPE='checkbox' NAME='bnode_$_' &quot; .
      &quot;VALUE='ON' UNCHECKED&gt;&quot;;
-  $str .= linkNode($node) . &quot;&lt;br&gt;\n&quot;;
+  $str .= $this-&gt;link_node($node) . &quot;&lt;br&gt;\n&quot;;
 }
 
 $str .= &quot;&lt;font size=1&gt;\n&quot;;
@@ -66,8 +73,8 @@ $str .= &quot;&lt;/font&gt;\n&quot;;
 $str .= $query-&gt;end_form;
 
 $str;
-%]
-</field>
+
+%]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Node Bucket</field>

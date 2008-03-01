@@ -2,6 +2,8 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($class, $forType) = @_;
+my $NODE = $this-&gt;get_node;
+my $DB=$this-&gt;get_nodebase;
 my $perms;
 my $parent;
 
@@ -11,12 +13,12 @@ if($forType)
   {
     return &quot;Error. Not a nodetype.\n&quot;
       unless($NODE-&gt;isNodetype());
-    $parent = getType($$NODE{extends_nodetype});
+    $parent = $DB-&gt;getType($$NODE{extends_nodetype});
   }
 }
 else
 {
-  $parent = getType($$NODE{type_nodetype});
+  $parent = $DB-&gt;getType($$NODE{type_nodetype});
 }
 
 return &quot;No parent&quot; unless($parent);

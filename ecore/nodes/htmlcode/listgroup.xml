@@ -2,23 +2,24 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($field) = @_;
-
+my $NODE = $this-&gt;get_node;
 my $G = $$NODE{$field};
+my $DB = $this-&gt;get_nodebase;
 
 if(($G eq &quot;&quot;) || ($G == 0)) { return &quot;none&quot;; }
 elsif($G == -1) { return &quot;parent&quot;; }
 
-getRef $G;
+$DB-&gt;getRef( $G );
 return &quot;none&quot; unless ref $G;
 
-my $str = linkNode($G) . &quot;($$G{type}{title})&quot;;
+my $str = $this-&gt;link_node($G) . &quot;($$G{type}{title})&quot;;
 return $str unless ($$G{group});
 
 $str .= &quot;\n&lt;ol&gt;\n&quot;;
 my $groupref = $$G{group};
 foreach my $item (@$groupref) {
 	my $N = $DB-&gt;getNodeById($item, 'light');
-	$str .= &quot;&lt;li&gt;&quot; . linkNode ($N) . &quot;($$N{type}{title})\n&quot;;
+	$str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node ($N) . &quot;($$N{type}{title})\n&quot;;
 }
 $str .= &quot;&lt;/ol&gt;\n&quot;;
 

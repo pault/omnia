@@ -6,7 +6,7 @@ my $query = $r-&gt;get_cgi;
 my $USER = $r-&gt;get_user;
 
 my $N = $query-&gt;param('node_id');
-$N = getNode $N;
+$N = $r-&gt;get_nodebase-&gt;getNode( $N );
 $N-&gt;undo($USER, 1);</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

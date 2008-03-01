@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str = &quot;&quot;;
 
 if ($query-&gt;param('op') eq 'login' &amp;&amp; $$USER{node_id} != $HTMLVARS{guest_user}) {
@@ -23,7 +33,7 @@ if ($query-&gt;param('op') eq 'login' &amp;&amp; $$USER{node_id} != $HTMLVARS{gu
 
 $str .= $query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
 		&quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;op\&quot; value=\&quot;login\&quot;&gt;&quot;.	
- 		$query-&gt;hidden(&quot;node_id&quot;, getId($NODE)).&quot;\n&quot;.
+ 		$query-&gt;hidden(&quot;node_id&quot;, $NODE-&gt;get_node_id).&quot;\n&quot;.
 		$query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&quot;)).&quot;\n&quot;.
 
 		$query-&gt;textfield (-name =&gt; &quot;user&quot;,
@@ -36,10 +46,8 @@ $str .= $query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
 		$query-&gt;submit(&quot;submit&quot;, &quot;submit&quot;) .
 		$query-&gt;end_form;
 	$str;
-%]
 
-	
-</field>
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

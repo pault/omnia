@@ -17,13 +17,11 @@
 &lt;table border=0&gt;
  &lt;tr&gt;
   &lt;td&gt;sqltable&lt;/td&gt;&lt;td&gt;
-   [{nodeFormObject: TextField, sqltable, sqltable, AUTO, 30, 255}]
-   [{displayInherited:sqltable}]&lt;/td&gt;
+   [{nodeFormObject: TextField, sqltable, sqltable, AUTO, 30, 255}][{displayInherited:sqltable}]&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;grouptable&lt;/td&gt;&lt;td&gt;
-   [{nodeFormObject: TextField, grouptable, grouptable, AUTO, 30, 255}]
-   [{displayInherited:grouptable}]&lt;/td&gt;
+   [{nodeFormObject: TextField, grouptable, grouptable, AUTO, 30, 255}][{displayInherited:grouptable}]&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;extends&lt;/td&gt;
@@ -34,28 +32,47 @@
  &lt;tr&gt;
   &lt;td&gt;restrict nodetype(groups)&lt;/td&gt;
   &lt;td&gt;
-  [{nodeFormObject: NodetypeMenu, restrict_nodetype, restrict, 0 ,$USER, 0}]
-    [{displayInherited:restrict_nodetype}] &lt;/td&gt;
+  [{nodeFormObject: NodetypeMenu, restrict_nodetype, restrict, 0 ,$USER, 0}][{displayInherited:restrict_nodetype}] &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;restrict duplicate titles&lt;/td&gt;
   &lt;td&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $menu = newFormObject('PopupMenu');
 $menu-&gt;addHash({ 'yes' =&gt; 1, 'no' =&gt; 0, inherit =&gt; -1}, 1);
 $menu-&gt;genObject($query, $NODE, 'restrictdupes', 'restrictdupes', $$NODE{restrictdupes});
-%]
-    [{displayInherited:restrictdupes}] &lt;/td&gt;
+
+%][{displayInherited:restrictdupes}] &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;can edit in workspace&lt;/td&gt;
   &lt;td&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $menu = newFormObject('PopupMenu');
 $menu-&gt;addHash({ 'yes' =&gt; 1, 'no' =&gt; 0, inherit =&gt; -1}, 1);
 $menu-&gt;genObject($query, $NODE, 'canworkspace', 'canworkspace', $$NODE{canworkspace});
-%]
-    [{displayInherited:canworkspace}] &lt;/td&gt;
+
+%][{displayInherited:canworkspace}] &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
    &lt;td&gt;Maximum Revisions (for Undo)&lt;/td&gt;

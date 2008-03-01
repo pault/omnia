@@ -15,6 +15,16 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;ul&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $nodes = $NODE-&gt;listNodes();
 
 return &quot;No nodes in this location&quot; unless(@$nodes &gt; 0);
@@ -24,7 +34,7 @@ my $title;
 my %params;
 foreach my $node (@$nodes)
 {
-  $node = getNode($node, 'light');
+  $node = $DB-&gt;getNode($node, 'light');
 
   $title = $$node{title};
   $title .= &quot;/&quot; if($node-&gt;isOfType('location'));
@@ -32,14 +42,15 @@ foreach my $node (@$nodes)
 
   undef %params;
 
-  $params{onMouseOver} = &quot;\&quot;window.status='&quot;.jsescape($$node{title}).
-     &quot; ($$node{node_id}) - &quot;.jsescape($$node{type}{title}).&quot;'; return true;\&quot;&quot;;
+  $params{onMouseOver} = &quot;window.status='&quot;.$this-&gt;jsescape($$node{title}).
+     &quot; ($$node{node_id}) - &quot;.$this-&gt;jsescape($$node{type}{title}).&quot;'; return true;&quot;;
 
-  $str .= &quot;&lt;li&gt;&quot; . linkNode($node, $title, undef, \%params) . &quot;\n&quot;;
+  $str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node($node, $title, undef, \%params) . &quot;\n&quot;;
   
 }
 
 return $str;
+
 %]
 &lt;/ul&gt;</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">location</field>

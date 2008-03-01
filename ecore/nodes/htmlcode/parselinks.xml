@@ -1,9 +1,10 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="parselinks">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value"> 	my ($field) = @_;
+  <field name="code" type="literal_value">my $NODE = $this-&gt;get_node; 	
+my ($field) = @_;
 	my $text = $$NODE{$field};
-	$text =~ s/\[(.*?)\]/linkNodeTitle ($1, $NODE)/egs;
+	$text =~ s/\[(.*?)\]/$this-&gt;link_node_title ($1, $NODE)/egs;
 	$text;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

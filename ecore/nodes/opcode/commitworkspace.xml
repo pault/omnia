@@ -11,7 +11,7 @@ my $WS;
 $WS = $query-&gt;param(&quot;workspace_id&quot;);
 $WS ||= $query-&gt;param(&quot;node_id&quot;);
 return unless $WS;
-$WS = getNode ($WS);
+$WS = $r-&gt;get_nodebase-&gt;getNode($WS);
 
 return unless $$WS{node_id} == $DB-&gt;{workspace}{node_id};
 return unless $WS-&gt;hasAccess($USER, 'x');
@@ -23,7 +23,7 @@ foreach ($query-&gt;param) {
    my $val = $query-&gt;param($_);
    next unless $val eq 'commit' or $val eq 'discard';
    if ($val eq 'commit') {
-     my $N = getNode($id);
+     my $N = $DB-&gt;getNode($id);
      $DB-&gt;{workspace}{nodes}{$id} = &quot;commit&quot;;   
      $N-&gt;update($USER);
    }

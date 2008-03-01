@@ -15,6 +15,16 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;p align=right&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 if ($query-&gt;param('op') eq 'close') {
 	$$VARS{group} = &quot;&quot;;
 	return &quot;&lt;SCRIPT language=\&quot;javascript\&quot;&gt;parent.close()&lt;/SCRIPT&gt;&quot;;		
@@ -22,8 +32,8 @@ if ($query-&gt;param('op') eq 'close') {
 $$VARS{group}||= getId ($NODE);
 linkNode $NODE, &quot;close&quot;, {displaytype=&gt; $query-&gt;param('displaytype'),
 	op =&gt; 'close'};
-%]
-[{groupeditor}]</field>
+
+%][{groupeditor}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodegroup</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">stdcontainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

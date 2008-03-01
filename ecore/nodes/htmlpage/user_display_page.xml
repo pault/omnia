@@ -16,7 +16,18 @@
   <field name="page" type="literal_value">user since: [{parsetime: createtime}]&lt;br&gt;
 was last logged in: [{parsetime:lasttime}]
 &lt;p&gt;
-&lt;b&gt;Real Name:&lt;/b&gt; [&quot;$$NODE{realname}&quot;]&lt;br&gt;
+&lt;b&gt;Real Name:&lt;/b&gt; [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{realname}
+%]&lt;br&gt;
 
 
 &lt;p&gt;
@@ -24,11 +35,21 @@ was last logged in: [{parsetime:lasttime}]
 
 &lt;p&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 return unless($NODE-&gt;hasAccess($USER, &quot;w&quot;));
 
 linkNode($NODE, 'edit', { displaytype =&gt; 'edit' });
-%]
-</field>
+
+%]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>

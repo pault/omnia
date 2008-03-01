@@ -11,6 +11,16 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my @links = @{ $NODE-&gt;selectLinks(&quot;food&quot;) };
 my $str = &quot;&quot;;
 
@@ -18,16 +28,16 @@ foreach (@links)
 {
   next if ($$_{linktype});
 
-  my $N = getNode($$_{to_node}, 'light');
+  my $N = $DB-&gt;getNode($$_{to_node}, 'light');
   next unless $N;
-  $str .= &quot;  &lt;li&gt;&quot;.linkNode($N).&quot;($$N{type}{title})&lt;/li&gt;\n&quot; if $N-&gt;hasAccess($USER, 'r');  
+  $str .= &quot;  &lt;li&gt;&quot;.$this-&gt;link_node($N).&quot;($$N{type}{title})&lt;/li&gt;\n&quot; if $N-&gt;hasAccess($USER, 'r');  
 }
 
 return &quot;No Links&quot; unless($str ne &quot;&quot;);
 
 $str = &quot;&lt;ol&gt;\n&quot; . $str  . &quot;\n&lt;/ol&gt;&quot;;
-%]
-</field>
+
+%]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Links</field>

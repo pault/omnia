@@ -11,13 +11,23 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   return if ($$USER{node_id} == $HTMLVARS{guest_user});
   my $limit = $HTMLVARS{personalNodeletLimit} || 10;
 
   my @nodes;
   @nodes = split(&quot;&lt;br&gt;&quot;,$$VARS{personal_nodelet}) if ($$VARS{personal_nodelet});
   if (my $n = $query-&gt;param(&quot;addpersonalnodelet&quot;)) {
-    $n = getNodeById $n;
+    $n = $DB-&gt;getNodeById( $n );
     $$VARS{personal_nodelet} .= '&lt;br&gt;'.$$n{title}
       if @nodes &lt; $limit;
     push @nodes, $$n{title};
@@ -27,14 +37,15 @@
   my $str;
   my $i=0;
   foreach (@nodes) {
-    $str.=linkNodeTitle($_).&quot;&lt;br&gt;\n&quot;;
+    $str.=$this-&gt;link_node_title($_).&quot;&lt;br&gt;\n&quot;;
     last if $i++ &gt;= 10;
   }
 
   $str.=&quot;\n&lt;p align=right&gt;&quot;
-    .linkNode($NODE, &quot;add \&quot;$$NODE{title}\&quot;&quot;, {addpersonalnodelet =&gt; getId($NODE)})
+    .$this-&gt;link_node($NODE, &quot;add \&quot;$$NODE{title}\&quot;&quot;, {addpersonalnodelet =&gt; $NODE-&gt;get_node_id})
     if @nodes &lt; $limit;
   $str;
+
 
 %]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>

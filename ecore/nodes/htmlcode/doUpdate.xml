@@ -15,6 +15,7 @@
 #    the normal opUpdate() code is run so it can do any custom setup
 #    or modification
 
+my $query = $this-&gt;get_query;
 my ($redirectNode, $redirectDisplay, $preprocess, $postprocess) = @_;
 my $html;
 
@@ -22,8 +23,6 @@ $html = $query-&gt;hidden(-name =&gt; 'op', -value =&gt; 'update', -override =&g
 $html .= &quot;\n&quot;;
 $html .= $query-&gt;hidden('node_id', $$NODE{node_id}) . &quot;\n&quot;;
 $html .= $query-&gt;hidden('displaytype') . &quot;\n&quot;;
-
-return $html;
 
 if($redirectNode)
 {

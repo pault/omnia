@@ -6,8 +6,13 @@
 # generates an input file field, and sets the field to the URL 
 
 my ($field) =@_;
+my $DB = $this-&gt;get_nodebase;
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
 
-my $S = getNode('uploadimage settings', 'setting');
+
+my $S = $DB-&gt;getNode('uploadimage settings', 'setting');
 $S or return &quot;can't find uploadimage settings!&quot;;
 
 my $V = $S-&gt;getVars;
@@ -16,7 +21,7 @@ my $str =&quot;&quot;;
 my $name = $field.&quot;_file&quot;;
 
 my $imagedir = $$V{uploadimagedir};
-return &quot;You need to specify the incoming image directory as 'uploadimagedir' in &quot;.linkNode($S).&quot;.  Make sure
+return &quot;You need to specify the incoming image directory as 'uploadimagedir' in &quot;.$this-&gt;link_node($S).&quot;.  Make sure
 it is a directory under your Apache's root directory, and writeable by the
 nobody user.&quot; if not $imagedir or $imagedir =~ /^\#/;
 
@@ -25,7 +30,7 @@ $imagedir .= &quot;/&quot; unless $imagedir =~ /\/$/;
 
 #you probably need to change this field
 my $imageurl = $$V{uploadimageURL};
-return &quot;You need to specify the incoming image directory's URL as 'uploadimageURL' in &quot;.linkNode($S).&quot;.  Make sure
+return &quot;You need to specify the incoming image directory's URL as 'uploadimageURL' in &quot;.$this-&gt;link_node($S).&quot;.  Make sure
 it is the path to $imagedir through Apache.&quot; if not $imagedir or $imagedir =~ /^\#/;
 
 $imageurl .= &quot;/&quot; unless $imageurl =~ /\/$/;

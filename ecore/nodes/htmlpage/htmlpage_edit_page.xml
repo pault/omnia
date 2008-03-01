@@ -46,6 +46,16 @@
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Permission needed:&lt;/b&gt;&lt;/td&gt;
   &lt;td&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $menu = newFormObject('FormMenu');
 my $html = $menu-&gt;genObject($query, $NODE, &quot;permissionneeded&quot;,
    &quot;permissionneeded&quot;);
@@ -53,6 +63,7 @@ $menu-&gt;addHash({ 'r' =&gt; &quot;read&quot;, &quot;w&quot; =&gt; &quot;write&
   &quot;x&quot; =&gt; &quot;execute&quot;, &quot;d&quot; =&gt; &quot;delete&quot;, &quot;c&quot; =&gt; &quot;create&quot;}, 0, 'labels');
 $html .= $menu-&gt;genPopupMenu($query, &quot;permissionneeded&quot;, $$NODE{permissionneeded});
 $html;
+
 %]&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;

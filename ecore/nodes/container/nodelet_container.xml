@@ -2,8 +2,13 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">&lt;div class=&quot;nodelettitle&quot;&gt;
-[% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
-[&quot;$$NODELET{title}&quot;]
+[%
+
+$this-&gt;miniNodelet($$NODELET{node_id}, 'right', 'top'); 
+%][%
+
+$$NODELET{title}
+%]
 &lt;/div&gt;
 &lt;div class=&quot;nodeletbody&quot;&gt;
 CONTAINED_STUFF

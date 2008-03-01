@@ -15,11 +15,54 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;TABLE width=100% cellpadding=0 cellspacing=1 border=0&gt;
 &lt;TR bgcolor=[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   $$VARS{mailhead_color} or &quot;#CCCCCC&quot;;
-%]&gt;&lt;TH&gt;To:&lt;/TH&gt;&lt;TD width=100%&gt;[%linkNode($$NODE{author_user})%]&lt;/TD&gt;&lt;/TR&gt;
+
+%]&gt;&lt;TH&gt;To:&lt;/TH&gt;&lt;TD width=100%&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+linkNode($$NODE{author_user})
+%]&lt;/TD&gt;&lt;/TR&gt;
 &lt;TR bgcolor=[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   $$VARS{mailhead_color} or &quot;#CCCCCC&quot;;
+
 %]&gt;&lt;TH&gt;From:&lt;/TH&gt;&lt;TD width=100%&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 if (not $$NODE{from_address}) {
   return &quot;&lt;i&gt;nobody&lt;/i&gt;&quot;;
 } else {
@@ -28,12 +71,23 @@ if (not $$NODE{from_address}) {
 #eventually this will have links to an addressbook
 #as well as a home node if a person exists within the 
 #system
+
 %]&lt;/TD&gt;&lt;/TR&gt;
 &lt;/TABLE&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   &quot;&lt;pre&gt;&quot;.encodeHTML($$NODE{doctext}).&quot;&lt;/pre&gt;&quot;;
-%]
-</field>
+
+%]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">mail</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>

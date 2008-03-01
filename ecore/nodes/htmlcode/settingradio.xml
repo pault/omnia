@@ -5,14 +5,16 @@
 #that settings value.  You can optionally send a label
 #
 my ($setting, $field, $labelon, $labeloff) = @_;
+my $query = $this-&gt;get_query;
+my $DB = $this-&gt;get_nodebase;
 
 $labelon ||= &quot;on&quot;;
 $labeloff ||= &quot;off&quot;;
 
 
 my $S;
-$S = getNode($setting) if $setting =~ /^\d+$/;
-$S = getNode($setting, 'setting');
+$S = $DB-&gt;getNode($setting) if $setting =~ /^\d+$/;
+$S = $DB-&gt;getNode($setting, 'setting');
 
 $S or return;
 return unless $S-&gt;hasAccess($USER);

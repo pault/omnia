@@ -3,9 +3,17 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
 
-[{openform}]
+[{openform}][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
 
-[%
+
 my $menu = newFormObject(&quot;FormMenu&quot;);
 my $type = $query-&gt;param('whichtype');
 my $group = $query-&gt;param('whichgroup');
@@ -26,14 +34,32 @@ $menu-&gt;addType('nodeball', $USER, 'r', 'labels');
 $str .= $menu-&gt;genPopupMenu($query, &quot;whichgroup&quot;, $group);
 $str .= $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
 $str;
-%]
-[{submit}]
 
-[%
+%][{submit}][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 $query-&gt;hidden(-name =&gt; 'op', -default =&gt; 'nodelistcheck', -override =&gt; 1) .
 $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
-%]
-[%
+
+%][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my %CLR = (
   document =&gt; &quot;#AAAAcc&quot;,
   user =&gt; &quot;#66dd66&quot;,
@@ -154,12 +180,20 @@ $str .= $nav;
 	
 $str .= &quot;&lt;/TABLE&gt;&quot;;
 $str;
-%]
 
-[{submit:addtonb,Add checked to Node Bucket}]
-[{submit:massacre,Send to the killing floor}]
-[%
+%][{submit:addtonb,Add checked to Node Bucket}][{submit:massacre,Send to the killing floor}][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 $query-&gt;endform;
+
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

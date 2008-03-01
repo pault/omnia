@@ -2,12 +2,19 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">[%
+my $query = $this-&gt;get_query;
+
 my $html = $query-&gt;start_form(&quot;POST&quot;, $ENV{script_name});
-$html .= doUpdate();
+$html .= $this-&gt;doUpdate();
 $html;
+
 %]
 CONTAINED_STUFF
-[% $query-&gt;end_form; %]</field>
+[%
+my $query = $this-&gt;get_query;
+
+ $query-&gt;end_form; 
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

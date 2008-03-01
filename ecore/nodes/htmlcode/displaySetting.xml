@@ -4,8 +4,9 @@
   <field name="code" type="literal_value"># This displays the value of a setting given the key
 # $setting - the name of the setting node
 # $key - the key to display
+my $DB = $this-&gt;get_nodebase;
 my ($setting, $key) = @_;
-my $SETTING = $DB-&gt;selectNodeWhere({title =&gt; $setting},
+my $SETTING = $DB-&gt;getNodeWhere({title =&gt; $setting},
  $DB-&gt;getType('setting'));
 my $vars;
 my $str = &quot;&quot;;

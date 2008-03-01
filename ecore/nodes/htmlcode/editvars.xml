@@ -12,7 +12,7 @@
 my ($varsfield, $N) = @_;
 
 $varsfield ||= 'vars';
-$N         ||= $NODE;
+$N         ||= $this-&gt;get_node;
 
 my $html = &quot;&lt;table border=0&gt;\n&quot;;
 my $vars = $N-&gt;getHash($varsfield);
@@ -40,13 +40,13 @@ for my $i (0 .. $numkeys)
   $html .= &quot;&lt;tr&gt;&lt;td colspan=3&gt;New Key/Value:&lt;/td&gt;&lt;/tr&gt;\n&quot;
     if $i == $numkeys;
   $html .= &quot;&lt;tr&gt;&lt;td bgcolor='$removeColor'&gt;&quot;;
-  $html .= bindFormObject('RemoveVarCheckbox', $N, $varsfield, $key)
+  $html .= $this-&gt;bindFormObject('RemoveVarCheckbox', $N, $varsfield, $key)
     unless $i == $numkeys;
   $html .= &quot;&lt;/td&gt;&lt;td bgcolor='$keyColor' nowrap&gt;&quot;;
-  $html .= bindFormObject('VarsTextField', $N, $varsfield, $key, 1);
+  $html .= $this-&gt;bindFormObject('VarsTextField', $N, $varsfield, $key, 1);
   $html .= &quot;&lt;/td&gt;&lt;td bgcolor='$valueColor' nowrap&gt;\n&quot;;
-  $html .= bindFormObject('VarsTextField', $N, $varsfield, $key, 0);
-  $html .= &quot; &quot; . linkVar($key, $$vars{$key});
+  $html .= $this-&gt;bindFormObject('VarsTextField', $N, $varsfield, $key, 0);
+  $html .= &quot; &quot; . $this-&gt;linkVar($key, $$vars{$key});
   $html .= &quot; &lt;/td&gt;&lt;/tr&gt;\n&quot;;
 }
 

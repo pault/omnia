@@ -2,7 +2,9 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($mini, $align, $valign, $image) = @_;
-
+my $query = $this-&gt;get_query;
+my $USER = $this-&gt;get_user;
+my $DB = $this-&gt;get_nodebase;
 return &quot;&quot; unless($mini);
 
 my $str;
@@ -18,9 +20,9 @@ $str .= &quot; border=0&gt;&quot;;
 $mini = $DB-&gt;getNode($mini);
 
 return &quot;&quot; unless($$mini{mini_nodelet});
-return &quot;&quot; unless(getNodeById($$mini{mini_nodelet})-&gt;hasAccess($USER, &quot;x&quot;));
+return &quot;&quot; unless($DB-&gt;getNodeById($$mini{mini_nodelet})-&gt;hasAccess($USER, &quot;x&quot;));
 
-my $link = linkNode($NODE, $str, { 'op' =&gt; 'insertMini','nodelet' =&gt; $$mini{node_id}, 'displaytype' =&gt; $display } ); 
+my $link = $this-&gt;link_node($NODE, $str, { 'op' =&gt; 'insertMini','nodelet' =&gt; $$mini{node_id}, 'displaytype' =&gt; $display } ); 
 
 $link;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

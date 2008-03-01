@@ -1,9 +1,16 @@
 <NODE export_version="0.5" nodetype="superdoc" title="Duplicates Found">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">Multiple nodes named [%$query-&gt;param(&quot;node&quot;);%] were found&lt;br&gt;
+  <field name="doctext" type="literal_value">Multiple nodes named [%
+my $query = $this-&gt;get_query;
+$query-&gt;param(&quot;node&quot;);
+%] were found&lt;br&gt;
 
 [%
+my $NODE = $this-&gt;get_node;
+my $DB = $this-&gt;get_nodebase;
+
+
 	my $str;
 
 	foreach my $NODE (@{ $$NODE{group} }) {
@@ -12,9 +19,8 @@
 		$str .= &quot;(type: $$NODE{type}{title})\n&quot;;
 	}
 	$str;
-%]
 
-</field>
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

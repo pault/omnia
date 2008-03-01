@@ -8,9 +8,20 @@
   &lt;/td&gt;
   &lt;td align=right width=50&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $default = getNode($HTMLVARS{default_node});
 my $IMG = getNode $$THEME{cornerIcon_image};
 linkNode($default, &quot;&lt;img border=0 src=$$IMG{src} alt=\&quot;\&quot;&gt;&quot;);
+
 %]
    &lt;/td&gt;
  &lt;/tr&gt;
@@ -18,20 +29,52 @@ linkNode($default, &quot;&lt;img border=0 src=$$IMG{src} alt=\&quot;\&quot;&gt;&
  &lt;tr&gt;  
   &lt;td width=100% valign=top&gt;
    &lt;table width=100% cellspacing=0 cellpadding=5&gt;&lt;tr&gt;&lt;td&gt;
-    &lt;h3&gt;[{showPath}] [&quot;$$NODE{title}&quot;]&lt;/h3&gt;
+    &lt;h3&gt;[{showPath}][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{title}
+%]&lt;/h3&gt;
     CONTAINED_STUFF
     &lt;/td&gt;&lt;/tr&gt;
    &lt;/table&gt;
   &lt;/td&gt;
   &lt;td width=1 valign=top align=right&gt;
    &lt;!-- nodelets start here --&gt;
-   [% $USER-&gt;isGod? &quot;&quot; : adminbar() %]
-   [{nodeletMetaContainer}]
+   [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+ $USER-&gt;isGod? &quot;&quot; : adminbar() 
+%][{nodeletMetaContainer}]
   &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td colspan=2 align=right&gt;&lt;font size=1&gt;&amp;nbsp;
-    Maintained by [% linkNode ($$NODE{author_user}) %]&amp;nbsp;&lt;/font&gt;&lt;/td&gt;
+    Maintained by [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+ linkNode ($$NODE{author_user}) 
+%]&amp;nbsp;&lt;/font&gt;&lt;/td&gt;
  &lt;/tr&gt;
 &lt;/table&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

@@ -3,24 +3,43 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">&lt;table border=0 cellpadding=0 cellspacing=0 width=100%&gt;
 &lt;tr&gt;&lt;td bgcolor=[%
+
+my $THEME = $this-&gt;get_theme;
+
    return $$THEME{nodeletTitleColor} if $$THEME{nodeletTitleColor};
     &quot;#CC99FF&quot;;
-  %]&gt;
-  [% miniNodelet($$NODELET{node_id}, 'right', 'top'); %]
+  
+%]&gt;
+  [%
+$this-&gt;miniNodelet($$NODELET{node_id}, 'right', 'top'); 
+%]
     &lt;B&gt;&lt;font [%
+
+my $THEME = $this-&gt;get_theme;
+
       my $attr= $$THEME{nodeletTitleFontAttr};
       return $attr if $attr;
       &quot;color=white&quot;;
-      %]&gt;&amp;nbsp;[&quot;$$NODELET{title}&quot;]&lt;/font&gt;&lt;/B&gt;
+      
+%]&gt;&amp;nbsp;[%
+
+$$NODELET{title}
+%]&lt;/font&gt;&lt;/B&gt;
   &lt;/td&gt;&lt;/tr&gt;
 &lt;tr [%
+my $THEME = $this-&gt;get_theme;
+
 my $bgcol = $$THEME{nodeletBodyColor};
 $bgcol ||= &quot;#CCCCCC&quot;;
 &quot;bgcolor='$bgcol'&quot;;
+
 %]&gt;&lt;td&gt;&lt;FONT [%
+my $THEME = $this-&gt;get_theme;
+
 my $fa = $$THEME{nodeletBodyFontAttr};
 $fa ||= &quot;size=2&quot;;
 $fa;
+
 %]&gt;&lt;ul&gt;
 CONTAINED_STUFF
 &lt;/ul&gt;

@@ -2,10 +2,10 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"># Include the javascript needed to make this object work
-includeJS('findFormObject', 'moveSelectItem');
+$this-&gt;includeJS('findFormObject', 'moveSelectItem');
 
 # Make the object!
-return nodeFormObject('GroupEditor', 'daGroup');</field>
+return $this-&gt;nodeFormObject('GroupEditor', 'daGroup');</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

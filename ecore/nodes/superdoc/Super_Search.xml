@@ -2,6 +2,16 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 
 my $dbh = $DB-&gt;getDatabaseHandle;
 
@@ -51,7 +61,7 @@ sub hasTextField {
 
 
 
-my $nodetypes = getNodeWhere({type_nodetype =&gt; 1}, 'nodetype', 'title');
+my $nodetypes = $DB-&gt;getNodeWhere({type_nodetype =&gt; 1}, 'nodetype', 'title');
 
 my @nttitles;
 
@@ -180,15 +190,15 @@ if($query-&gt;param('formsubmit')){
 
     my $AUTHOR;
 
-    $AUTHOR=getNode($author,'user') if $author;
+    $AUTHOR=$DB-&gt;getNode($author,'user') if $author;
 
 
 
     my @where;
 
-    push @where, &quot;author_user=&quot;.$dbh-&gt;quote(getId($AUTHOR)) if getId($AUTHOR);
+    push @where, &quot;author_user=&quot;.$dbh-&gt;quote($AUTHOR-&gt;get_node_id) if $AUTHOR-&gt;get_node_id;
 
-    $errormsg.=&quot;&lt;BR&gt;Couldn't find any author by the name of $author&lt;BR&gt;&quot; if  (!getId($AUTHOR) and $author);
+    $errormsg.=&quot;&lt;BR&gt;Couldn't find any author by the name of $author&lt;BR&gt;&quot; if  (!$AUTHOR-&gt;get_node_id and $author);
 
 
 
@@ -254,7 +264,7 @@ push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')
 
         foreach (@types) {
 
-            my $NT = getNode $_;
+            my $NT = $DB-&gt;getNode( $_ );
 
 
 
@@ -318,7 +328,7 @@ push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')
 
             while (my $N = $csr-&gt;fetchrow_hashref) {
 
-                push @$RESULTS, getNodeById($$N{node_id});
+                push @$RESULTS, $DB-&gt;getNodeById($$N{node_id});
 
             }
 
@@ -358,9 +368,8 @@ push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')
 
 $str;
 
-%]
 
-</field>
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

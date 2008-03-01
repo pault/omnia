@@ -2,11 +2,17 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $THEME = $this-&gt;get_theme;
+my $query = $this-&gt;get_query;
+my %GLOBAL;
+my $str;
+
 #Setup
 
-includeJS('cloneNode', 'confirmDelete');
+$this-&gt;includeJS('cloneNode', 'confirmDelete');
 
-# This provides links to display, edit, clone, or delete 
+# This provides links to display, edit, clone, or delete
 # the current node if the user has the authority to do so.  
 my $disp = $query-&gt;param(&quot;displaytype&quot;);
 $disp ||= &quot;display&quot;;
@@ -16,6 +22,13 @@ $GLOBAL{adminboxLinks} = {};
 # If you want to have other default display links in the
 # adminbar, add them to this array.
 my @displaytypes = (&quot;display&quot;, &quot;edit&quot;, &quot;permissions&quot; );
+# Now theme stuff
+$GLOBAL{adminboxBG} = $$THEME{adminboxBG};
+$GLOBAL{adminboxBG} ||= &quot;#ffffff&quot;;
+$GLOBAL{adminboxLite} = $$THEME{adminboxLite};
+$GLOBAL{adminboxLite} ||= &quot;#ffcccc&quot;;
+$GLOBAL{adminboxDark} = $$THEME{adminboxDark};
+$GLOBAL{adminboxDark} ||= &quot;#ff9999&quot;;
 
 foreach my $type (@displaytypes)
 {
@@ -32,39 +45,33 @@ foreach my $type (@displaytypes)
   }
 }
 
-# Now theme stuff
-$GLOBAL{adminboxBG} = $$THEME{adminboxBG};
-$GLOBAL{adminboxBG} ||= &quot;#ffffff&quot;;
-$GLOBAL{adminboxLite} = $$THEME{adminboxLite};
-$GLOBAL{adminboxLite} ||= &quot;#ffcccc&quot;;
-$GLOBAL{adminboxDark} = $$THEME{adminboxDark};
-$GLOBAL{adminboxDark} ||= &quot;#ff9999&quot;;
-&quot;&quot;;
-%]
 
-&lt;table width=100% border=0 cellpadding=3 bgcolor=[&quot;$GLOBAL{adminboxBG}&quot;] cellspacing=1&gt;
-  &lt;tr bgcolor=[&quot;$GLOBAL{adminboxBG}&quot;]&gt; 
-    &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align='center'&gt;
-      [&quot;$GLOBAL{adminboxLinks}{display}&quot;]
+
+
+$str.=&quot;&lt;table width=100% border=0 cellpadding=3 bgcolor=$GLOBAL{adminboxBG} cellspacing=1&gt;
+  &lt;tr bgcolor=$GLOBAL{adminboxBG}&gt; 
+    &lt;td bgcolor=\&quot;$GLOBAL{adminboxLite}\&quot; align=\&quot;center\&quot;&gt;
+$GLOBAL{adminboxLinks}{display}
+    &lt;/td&gt;&quot;;
+
+$str.=qq|    &lt;td bgcolor=&quot;$GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
+$GLOBAL{adminboxLinks}{edit}
+    &lt;/td&gt;|;
+$str.=qq|&lt;td bgcolor=&quot;$GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;
+$GLOBAL{adminboxLinks}{permissions}
     &lt;/td&gt;
-    &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align='center'&gt;
-      [&quot;$GLOBAL{adminboxLinks}{edit}&quot;]
-    &lt;/td&gt;
-    &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align='center'&gt;
-      [&quot;$GLOBAL{adminboxLinks}{permissions}&quot;]
-    &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align='center'&gt;
-      &lt;a href='javascript: cloneNode();'&gt;
+  &lt;/tr&gt;|;
+
+$str.=qq|  &lt;tr&gt;
+    &lt;td bgcolor=&quot;$GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
+      &lt;a href=&quot;javascript: cloneNode();&quot;&gt;
        &lt;img src=images/icon_clone.gif alt=clone border=0 height=&quot;20&quot; width=&quot;48&quot;&gt;&lt;/a&gt;
     &lt;/td&gt;
-    &lt;td bgcolor='[&quot;$GLOBAL{adminboxLite}&quot;]' align=center&gt;
-      [% clonetotype() %]
-    &lt;/td&gt;
-   &lt;td bgcolor='[&quot;$GLOBAL{adminboxDark}&quot;]' align=center&gt;
-[%
-my $str;
+    &lt;td bgcolor=&quot;$GLOBAL{adminboxLite}&quot; align=center&gt;|;
+ $str.= $this-&gt;clonetotype();
+$str.=qq|    &lt;/td&gt;|;
+$str.=qq|   &lt;td bgcolor=&quot;$GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;|;
+
 if($NODE-&gt;hasAccess($USER, &quot;d&quot;))
 {
   $str .= &quot;&lt;a href='javascript: confirmDelete();'&gt;&quot;;
@@ -74,15 +81,14 @@ else
 {
   $str .= &quot;&amp;nbsp;&quot;;
 }
-$str; %]
+$str .=q|
     &lt;/td&gt;
-  &lt;/tr&gt;
-[%
+  &lt;/tr&gt;|;
+
 #another row for undo/delete
 my $workspace = 0;
 my $disp = $query-&gt;param('displaytype');
 $disp ||= 'display';
-my $str;
 
 if ($$NODE{type}{maxrevisions})
 {
@@ -103,7 +109,7 @@ if ($$NODE{type}{maxrevisions})
     $str.=&quot;&lt;/td&gt;&lt;td bgcolor='$GLOBAL{adminboxDark}' align=center&gt;&quot;;
 
     if ($redo) {
-       $str.=linkNode($NODE,
+       $str.= $this-&gt;link_node($NODE,
          &quot;&lt;IMG src=images/icon_redo.gif alt=\&quot;undo\&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;,
          { op =&gt; 'redo', displaytype =&gt; $disp });
     } else {
@@ -115,9 +121,8 @@ if ($$NODE{type}{maxrevisions})
   }
 }
 
-$str;
-%]
-&lt;/table&gt;</field>
+$str .= q|&lt;/table&gt;|;
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

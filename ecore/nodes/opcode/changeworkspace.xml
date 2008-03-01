@@ -4,10 +4,11 @@
   <field name="code" type="literal_value">my $r = shift;
 my $query = $r-&gt;get_cgi;
 my $USER = $r-&gt;get_user;
+my $nodebase = $r-&gt;get_nodebase;
 
 my $N = $query-&gt;param('node_id');
 return unless $N;
-$N = getNode $N;
+$N = $nodebase-&gt;getNode( $N );
 return unless $$N{type}{title} eq 'workspace' and $N-&gt;hasAccess($USER, 'x');
 
 if (my $tf = $query-&gt;param('workspace_me')) {

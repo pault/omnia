@@ -2,6 +2,8 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($var, $label) = @_;
+my $VARS = $this-&gt;get_vars;
+my $query = $this-&gt;get_query;
 $label ||= &quot; &quot;;
 if (my $c = $query-&gt;param(&quot;set$var&quot;)) {$$VARS{$var} = $c;}
 elsif ($query-&gt;param(&quot;formsubmit&quot;)) {$$VARS{$var} = &quot;&quot;;}

@@ -14,13 +14,14 @@
  &lt;tr&gt;
   &lt;td nowrap&gt;
     &lt;font size=2&gt;
-[% 
+[%
+my $query = $this-&gt;get_query;
 my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
 $str .= &quot;node&quot;;
 $str .= $query-&gt;textfield(-name =&gt; &quot;node&quot;, -default =&gt; &quot;&quot;,
      -override =&gt; 1, -size =&gt; 10, -maxlength =&gt; 240);
-%]
-[{closeform}]
+
+%][{closeform}]
    &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;
@@ -28,13 +29,14 @@ $str .= $query-&gt;textfield(-name =&gt; &quot;node&quot;, -default =&gt; &quot;
   &lt;td nowrap&gt;
    &lt;font size=2&gt;
 [%
+my $query = $this-&gt;get_query;
 my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
 $str .= &quot;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&quot;;
 $str .= $query-&gt;textfield(-name =&gt; &quot;node_id&quot;,
   -default =&gt; &quot;&quot;, -override =&gt; 1, -size =&gt; 10,
   -maxlength =&gt; 240);
-%]
-[{closeform}]
+
+%][{closeform}]
    &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;
@@ -42,18 +44,23 @@ $str .= $query-&gt;textfield(-name =&gt; &quot;node_id&quot;,
   &lt;td&gt;
    &lt;font size=2&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $query = $this-&gt;get_query;
 my $str = &quot;&lt;a href=&quot;; 
 my $displaytype = $query-&gt;param('displaytype');
 $displaytype ||= 'display';
 $str .= urlGen({ 'node_id' =&gt; getId($NODE),
  'displaytype' =&gt; $displaytype,
  'containers' =&gt; 'show'}).&quot; &gt;Show containers&lt;/a&gt;&quot;;
+
 %]&lt;br&gt;
 
    [%
 linkNode(getNode('create node', 'restricted_superdoc'),
-  'Create new node'); %]&lt;br&gt;
-   Current node id: [&quot;$$NODE{node_id}&quot;]
+  'Create new node'); 
+%]&lt;br&gt;
+   Current node id: [% $this-&gt;get_node-&gt;get_node_id
+%]
    &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;

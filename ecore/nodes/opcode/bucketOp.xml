@@ -8,7 +8,7 @@ my $VARS = $r-&gt;get_user_vars;
 
 if($query-&gt;param(&quot;bmove&quot;))
 {
-  my $loc = getNode($query-&gt;param(&quot;node_id&quot;));
+  my $loc = $r-&gt;get_nodebase-&gt;getNode($query-&gt;param(&quot;node_id&quot;));
 
   return unless($loc &amp;&amp; $loc-&gt;isOfType(&quot;location&quot;) &amp;&amp;
     $loc-&gt;hasAccess($USER, &quot;x&quot;));

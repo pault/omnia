@@ -3,6 +3,16 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">&lt;strong&gt;Available methods:&lt;/strong&gt;&lt;br&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   return &quot;&quot; unless $NODE-&gt;{type}{title} eq &quot;nodetype&quot;;
 
   sub getSymbolsForType
@@ -116,6 +126,7 @@
   }
   $str.=&quot;&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;;
   return $str;
+
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

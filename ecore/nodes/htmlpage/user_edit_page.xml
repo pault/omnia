@@ -14,21 +14,76 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 $GLOBAL{userFontAttr} = $$THEME{nodeletTitleFontAttr};
 $GLOBAL{userFontAttr} ||= &quot;color=white&quot;;&quot;&quot;;
+
 %]
 
 &lt;table border=0 cellspacing=10&gt;
- &lt;tr bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;]&gt;&lt;td colspan=2&gt;
-  &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;User Information&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+ &lt;tr bgcolor=[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$THEME{nodeletTitleColor}
+%]&gt;&lt;td colspan=2&gt;
+  &lt;font [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$GLOBAL{userFontAttr}
+%]&gt;&lt;b&gt;User Information&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;
-  &lt;b&gt;Real Name&lt;/b&gt;: [&quot;$$NODE{realname}&quot;]&lt;br&gt;
+  &lt;b&gt;Real Name&lt;/b&gt;: [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{realname}
+%]&lt;br&gt;
   [{nodeFormObject: TextField, realname}]
  &lt;/td&gt;
  &lt;td&gt;
-   &lt;b&gt;Email Address&lt;/b&gt;: [&quot;$$NODE{email}&quot;]&lt;br&gt;
+   &lt;b&gt;Email Address&lt;/b&gt;: [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{email}
+%]&lt;br&gt;
    [{nodeFormObject: TextField, email, email, AUTO, 40, 255}]
  &lt;/td&gt;
 &lt;/tr&gt;
@@ -39,21 +94,96 @@ $GLOBAL{userFontAttr} ||= &quot;color=white&quot;;&quot;&quot;;
 &lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
-  &lt;td bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;]&gt;
-   &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;Authentication&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
-  &lt;td bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;]&gt;
-   &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;Preferences&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+  &lt;td bgcolor=[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$THEME{nodeletTitleColor}
+%]&gt;
+   &lt;font [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$GLOBAL{userFontAttr}
+%]&gt;&lt;b&gt;Authentication&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+  &lt;td bgcolor=[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$THEME{nodeletTitleColor}
+%]&gt;
+   &lt;font [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$GLOBAL{userFontAttr}
+%]&gt;&lt;b&gt;Preferences&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
   &lt;td&gt;[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]&lt;/td&gt;
   &lt;td&gt;Theme: [{themeselector}]&lt;/td&gt;
 &lt;/tr&gt;
-&lt;tr&gt;&lt;td bgcolor=[&quot;$$THEME{nodeletTitleColor}&quot;] colspan=2&gt;
-  &lt;font [&quot;$GLOBAL{userFontAttr}&quot;]&gt;&lt;b&gt;Nodelets&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
+&lt;tr&gt;&lt;td bgcolor=[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$THEME{nodeletTitleColor}
+%] colspan=2&gt;
+  &lt;font [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$GLOBAL{userFontAttr}
+%]&gt;&lt;b&gt;Nodelets&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=2&gt;
-[{includeJS: findFormObject, moveSelectItem, selectItem}]
-[%
+[{includeJS: findFormObject, moveSelectItem, selectItem}][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 # First, make sure we have the nodelets field filled out
 return &quot;Nodelet editing disabled - buggy&quot;;
 my @nodelets = @{ $NODE-&gt;getNodelets($HTMLVARS{default_nodeletgroup}); };
@@ -80,9 +210,20 @@ my $nodelets = newFormObject('SubsetSelector');
 $nodelets-&gt;addType('nodelet', $NODE, 'x', 'labels');
 $nodelets-&gt;genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
 10, undef, 'Available Nodelets:', 'Selected Nodelets:');
+
 %]
 &lt;/td&gt;&lt;/tr&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
  my $PN = getNode('personal nodelet', 'nodelet');
  return unless $PN;
  return unless grep /^$$PN{node_id}$/, @{$NODE-&gt;getNodelets($HTMLVARS{default_nodeletgroup})};
@@ -91,6 +232,7 @@ $nodelets-&gt;genObject($query, $NODE, 'vars:nodelets', 'nodelets', 'AUTO',
   &lt;font $GLOBAL{userFontAttr}&gt;&lt;b&gt;Personal Nodelet&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
  &lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;&quot;.htmlsnippet(&quot;editPersonalNodelet&quot;).&quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
+
 %]
 &lt;/table&gt;
 &lt;p&gt;

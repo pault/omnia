@@ -1,9 +1,11 @@
 <NODE export_version="0.5" nodetype="javascript" title="cloneNode">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">function cloneNode()
+  <field name="code" type="literal_value">my $NODE = $this-&gt;get_node;
+my $DB = $this-&gt;get_nodebase;
+function cloneNode()
 {
-  var newname = prompt(&quot;Cloning node '[% jsescape($$NODE{title}) %]'\nEnter a new name:&quot;, &quot;&quot;);
+  var newname = prompt(&quot;Cloning node '[% $this-&gt;jsescape($$NODE{title}) %]'\nEnter a new name:&quot;, &quot;&quot;);
 
   if(newname)
   {

@@ -13,8 +13,14 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;p&gt;Database table [% $$NODE{title}; %]&lt;/p&gt;
-[% displaytable($$NODE{title}); %]</field>
+  <field name="page" type="literal_value">&lt;p&gt;Database table [%
+my $NODE = $this-&gt;get_node;
+$$NODE{title}; 
+%]&lt;/p&gt;
+[%
+my $NODE = $this-&gt;get_node;
+$this-&gt;displaytable($$NODE{title}); 
+%]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">dbtable</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>

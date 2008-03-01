@@ -22,15 +22,47 @@
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor=#cccccc&gt;Author:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultauthoraccess}&quot;]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{defaultauthoraccess}
+%]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultauthoraccess} if($TYPE);
 &quot;&quot;;
+
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor=#cccccc&gt;Group: [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str;
 if($$NODE{defaultgroup_usergroup} &gt; 0)
 { 
@@ -42,49 +74,148 @@ else
 }
 
 $str;
+
 %]&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultgroupaccess}&quot;]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{defaultgroupaccess}
+%]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultgroupaccess} if($TYPE);
 &quot;&quot;;
+
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor=#cccccc&gt;Other:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultotheraccess}&quot;]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{defaultotheraccess}
+%]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultotheraccess} if($TYPE);
 &quot;&quot;;
+
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td bgcolor=#cccccc&gt;Guest:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[&quot;$$NODE{defaultguestaccess}&quot;]&lt;/code&gt;&lt;/td&gt;
   &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+$$NODE{defaultguestaccess}
+%]&lt;/code&gt;&lt;/td&gt;
+  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $TYPE = getType($$NODE{extends_nodetype});
 return $$TYPE{defaultguestaccess} if($TYPE);
 &quot;&quot;;
+
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
 &lt;/table&gt;
 
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 if($NODE-&gt;isGroup())
 { 
   return &quot;&lt;p&gt;&lt;b&gt;Restricted Nodetypes&lt;/b&gt;: &quot;;
 }
+
 %]
 
 &lt;p&gt;&lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
-	[% if($$NODE{restrictdupes} == -1) { &quot;parent&quot;; }
-	   else{ $$NODE{restrictdupes}?&quot;Yes&quot;:&quot;No&quot;;} %]
+	[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+ if($$NODE{restrictdupes} == -1) { &quot;parent&quot;; }
+	   else{ $$NODE{restrictdupes}?&quot;Yes&quot;:&quot;No&quot;;} 
+%]
 
 &lt;p&gt; &lt;b&gt;Sql Tables&lt;/b&gt;: 
 
 
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $tables = $DB-&gt;getNodetypeTables($NODE);
 my $str;
 foreach (@$tables) {
@@ -93,14 +224,36 @@ foreach (@$tables) {
 }
 return  &quot;&lt;i&gt;none&lt;/i&gt;&quot; unless @$tables;
 $str;
+
 %] 
 &lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; 
-[% linkNode ($$NODE{extends_nodetype}) 
-	if ($$NODE{extends_nodetype});%]
+[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+ linkNode ($$NODE{extends_nodetype}) 
+	if ($$NODE{extends_nodetype});
+%]
 
 
 &lt;p&gt; &lt;b&gt;Maximum Revisions for undo:&lt;/b&gt; 
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   if ($$NODE{maxrevisions}) {
     if ($$NODE{maxrevisions} == -1) {
       return &quot;$$NODE{derived_maxrevisions} (inherited)&quot;;
@@ -112,9 +265,20 @@ $str;
    return &quot;&lt;i&gt;undo disabled&lt;/i&gt;&quot;;
   }
 
+
 %]
 &lt;p&gt;  &lt;b&gt;Can be changed in a workspace:&lt;/b&gt;
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   if ($$NODE{canworkspace}) {
     if ($$NODE{canworkspace} == -1) {
        return ($$NODE{derived_canworkspace}?&quot;enabled&quot;:&quot;disabled&quot;).&quot; (inherited)&quot;;
@@ -124,10 +288,21 @@ $str;
   } else {
     return &quot;&lt;i&gt;disabled&lt;/i&gt;&quot;;
   }
+
 %]
 &lt;p&gt; &lt;b&gt;Relevant pages:&lt;/b&gt;&lt;br&gt;
 
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str;
 my $pages = getNodeWhere(
   { pagetype_nodetype =&gt; $$NODE{node_id} }, getType('htmlpage'));
@@ -139,6 +314,7 @@ foreach (@$pages)
   $str .= &quot;&lt;li&gt;&quot; .linkNode ($_);
 }
 $str;
+
 %]
 &lt;br&gt;&lt;br&gt;
 [&lt;availableMethods&gt;]</field>

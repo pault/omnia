@@ -6,6 +6,16 @@ tree displays how the nodetypes inherit (extends_nodetype
 field) from each other.  Useful for seeing where permissions
 or inherited data may be coming from.
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $nodetypes = getNodeWhere({type_nodetype =&gt; 1},
   getType('nodetype'));
 my $table;
@@ -32,6 +42,7 @@ sub createTree
 }
 
 $table;
+
 %]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

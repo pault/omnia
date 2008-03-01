@@ -1,10 +1,11 @@
 <NODE export_version="0.5" nodetype="javascript" title="confirmDelete">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">function confirmDelete()
+  <field name="code" type="literal_value">my $NODE = $this-&gt;get_node;
+function confirmDelete()
 {
-  if(confirm(&quot;Delete '[% jsescape($$NODE{title}) %]'?&quot;))
-      parent.location = [% urlGen({node_id =&gt; $$NODE{node_id}, op =&gt; &quot;nuke&quot;});%]
+  if(confirm(&quot;Delete '[% $this-&gt;jsescape($$NODE{title}) %]'?&quot;))
+      parent.location = [% $this-&gt;url_gen({node_id =&gt; $$NODE{node_id}, op =&gt; &quot;nuke&quot;});%]
 }</field>
   <field name="comment" type="literal_value"></field>
   <field name="dynamic" type="literal_value">1</field>

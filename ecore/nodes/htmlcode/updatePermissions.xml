@@ -6,6 +6,10 @@
 # this for a nodetype (default permissions) pass 1 (true)
 # to this code.
 
+my $USER = $this-&gt;get_user;
+my $NODE = $this-&gt;get_node;
+my $query = $this-&gt;get_query;
+
 my ($forType) = @_;
 my @who = ( &quot;author&quot;, &quot;group&quot;, &quot;other&quot;, &quot;guest&quot; );
 my @what = ( &quot;read&quot;, &quot;write&quot;, &quot;exec&quot;, &quot;delete&quot;, &quot;create&quot; );

@@ -7,6 +7,12 @@ my %items;
 my @TYPES;
 
 $field or return;
+
+my $NODE = $this-&gt;get_node;
+my $query = $this-&gt;get_query;
+my $USER = $this-&gt;get_user;
+my $DB = $this-&gt;get_nodebase;
+
 my ($fieldname, $type) = split /\_/, $field;
 my ($name) = $$NODE{type}{title} .'_'. $field;
 
@@ -41,7 +47,7 @@ my $NODELIST = $DB-&gt;selectNodeWhere(
 
 foreach my $N (@$NODELIST) {
 	$N = $DB-&gt;getNodeById($N, 'light');
-	my $id = getId $N;
+	my $id = $N-&gt;get_node_id;
 	push @idlist, $id;
 	$items{$id} = $$N{title};
 }

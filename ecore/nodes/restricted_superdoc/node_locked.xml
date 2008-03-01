@@ -3,9 +3,20 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">this node is locked 
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 return unless $query-&gt;param(&quot;node_id&quot;);
 my $N = $DB-&gt;getNodeById($query-&gt;param('node_id'));
 &quot;by &quot;. linkNode($$N{lockedby_user}) if $$N{lockedby_user};
+
 %]
 &lt;p&gt;Better stay away.</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

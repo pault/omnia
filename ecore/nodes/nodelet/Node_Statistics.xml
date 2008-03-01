@@ -10,16 +10,30 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics Mini</field>
-  <field name="nlcode" type="literal_value">Node ID:[% getId $NODE %]&lt;br&gt;
-Created on:&lt;br&gt; [&quot;$$NODE{createtime}&quot;]&lt;br&gt;
-Last modified:&lt;br&gt; [%
-	return &quot;&lt;i&gt;never&lt;/i&gt;&quot; unless ($$NODE{modified} and
-		$$NODE{modified} =~ /[1-9]/);
-		$$NODE{modified}
+  <field name="nlcode" type="literal_value">Node ID:[%
+$this-&gt;get_node-&gt;get_node_id; 
 %]&lt;br&gt;
-&lt;Hits: [&quot;$$NODE{hits}&quot;]&lt;br&gt;
-Nodetype: [% linkNode $$NODE{type_nodetype}; %]&lt;br&gt;
-Display page: &lt;br&gt;[% linkNode (getPage($NODE, $query-&gt;param(&quot;displaytype&quot;))); %]</field>
+Created on:&lt;br&gt; [%
+$this-&gt;get_node-&gt;get_createtime;
+%]&lt;br&gt;
+Last modified:&lt;br&gt; [%
+my $modified = $this-&gt;get_node-&gt;get_modified;
+
+	return &quot;&lt;i&gt;never&lt;/i&gt;&quot; unless ($modified and
+		$modified =~ /[1-9]/);
+		$modified
+
+%]&lt;br&gt;
+Hits: [%
+$this-&gt;get_node-&gt;get_hits;
+%]&lt;br&gt;
+Nodetype: [%
+ $this-&gt;link_node($this-&gt;get_node-&gt;get_type); 
+%]&lt;br&gt;
+Display page: &lt;br&gt;[%
+my $query = $this-&gt;get_query;
+$this-&gt;link_node ($this-&gt;get_htmlpage); 
+%]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Node Statistics</field>

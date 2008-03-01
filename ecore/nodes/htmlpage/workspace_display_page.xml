@@ -14,6 +14,16 @@
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 
 if ($$USER{inside_workspace} != $$NODE{node_id}) {
   return linkNode($NODE, &quot;Join this workspace&quot;, { op =&gt; 'changeworkspace', workspace_me =&gt; 'true' });
@@ -21,21 +31,43 @@ if ($$USER{inside_workspace} != $$NODE{node_id}) {
 
 linkNode($NODE, &quot;Remove me from this workspace&quot;, { op =&gt; 'changeworkspace', workspace_me =&gt; 'false'});
 
+
 %]
 &lt;p&gt;
 Users in this workspace:
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
   my (@U) = @{ getNodeWhere({inside_workspace =&gt; $$NODE{node_id}}, 'user') || [] };
   return &quot;&lt;p&gt;&lt;i&gt;none&lt;/i&gt;&quot; unless @U;
   my $str;
   foreach (@U) { $str.=&quot;&lt;li&gt;&quot;.linkNode($_) }
   $str;
+
 %]
 
 &lt;p&gt;
 
 Nodes revised in this workspace:
 [%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $str;
 my $V = $NODE-&gt;getVars;
 
@@ -57,8 +89,8 @@ foreach (keys %$V) {
 }
 $str.=&quot;&lt;br&gt;&quot;.$query-&gt;submit(&quot;trash&quot;, &quot;commit changes&quot;).&quot;&lt;/FORM&gt;&quot; if $isInWS;
 $str;
-%]
-</field>
+
+%]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">workspace</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">x</field>

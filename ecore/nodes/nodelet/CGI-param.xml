@@ -11,6 +11,8 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
+my $query = $this-&gt;get_query;
+
 my $str;
 foreach ($query-&gt;param) {
   next if $_ eq &quot;passwd&quot;;
@@ -18,6 +20,7 @@ foreach ($query-&gt;param) {
     unless length ($query-&gt;param($_)) &gt; 30 or not defined $query-&gt;param($_);
 }
 $str;
+
 %]</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>

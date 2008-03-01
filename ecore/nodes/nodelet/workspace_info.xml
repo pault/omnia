@@ -11,6 +11,16 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 my $wspace = 0;
 my $str;
 $wspace = $DB-&gt;{workspace}{node_id} if exists $DB-&gt;{workspace};
@@ -22,12 +32,22 @@ while ($csr and my ($ws) = $csr-&gt;fetchrow) {
   next if $ws == $wspace;
   next if $WSPACES{$ws} == 1;
   $WSPACES{$ws} = 1;
-  $str.= &quot;This node is in workspace &quot;.linkNode($ws).&quot;&lt;br&gt;&quot;;
+  $str.= &quot;This node is in workspace &quot;.$this-&gt;link_node($ws).&quot;&lt;br&gt;&quot;;
 }
 $str.=&quot;Editing it may cause corruption&lt;br&gt;&quot; if $str;
 $str;
-%]
-[%
+
+%][%
+my $NODE = $this-&gt;get_node;
+my $USER = $this-&gt;get_user;
+my $query = $this-&gt;get_query;
+my $THEME = $this-&gt;get_theme;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
+my $VARS = $this-&gt;get_vars;
+my $DB = $this-&gt;get_nodebase;
+my %GLOBAL;
+
+
 return &quot;Not in workspace&quot; unless $DB-&gt;{workspace} and $DB-&gt;{workspace}{title};
 my $str;
 
@@ -45,6 +65,7 @@ if (exists $DB-&gt;{workspace}{nodes}{$$NODE{node_id}}) {
 }
 
 $str;
+
 %]</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>

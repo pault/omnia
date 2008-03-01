@@ -1,9 +1,11 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="clonetotype">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $CLONER=getNode('clone to type','restricted_superdoc');
+  <field name="code" type="literal_value">my $DB = $this-&gt;get_nodebase;
+my $NODE = $this-&gt;get_node;
+my $CLONER=$DB-&gt;getNode('clone to type','restricted_superdoc');
 my $PARAMS={ &quot;srcnode_id&quot; =&gt; $$NODE{node_id},node_id=&gt;$$CLONER{node_id}};
-my $url=urlGen($PARAMS);
+my $url=$this-&gt;url_gen($PARAMS);
 return qq{&lt;a href=$url&gt;&lt;img src=&quot;images/icon_cloneto.gif&quot; alt=&quot;clone to type&quot; border=0 align=&quot;middle&quot; height=&quot;20&quot; width=&quot;48&quot;&gt;&lt;/A&gt;};</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

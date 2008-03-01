@@ -5,6 +5,8 @@
 # checks to see if the given field has any inherited
 # values.
 my ($field) = @_;
+my $NODE = $this-&gt;get_node;
+my $DB = $this-&gt;get_nodebase;
 my $str = &quot;&quot;;
 my $TYPE;
 

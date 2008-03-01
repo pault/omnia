@@ -2,7 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my ($limit) = @_;
-
+my $NODE = $this-&gt;get_node;
 $limit ||= 90000;
 my $spill=50;
 my $maxlist=20;
@@ -13,14 +13,14 @@ foreach my $key (sort keys %$NODE) {
   next unless defined($$NODE{$key});
 
   my $keyref = ref $$NODE{$key};
-  my $val = encodeHTML($$NODE{$key});
+  my $val = $this-&gt;encode_html($$NODE{$key});
   next if &quot;$val&quot; eq &quot;-1&quot;;
   next if $val eq &quot;&quot;;
   next if $val =~ /^\s+$/;
 
   if ($key &amp;&amp; $key =~ /\_/ &amp;&amp; !($key =~ /\_id/))
   {
-    $val = (($$NODE{$key})?(linkNode($val)):(&quot;&lt;em&gt;none&lt;/em&gt;&quot;));
+    $val = (($$NODE{$key})?($this-&gt;link_node($val)):(&quot;&lt;em&gt;none&lt;/em&gt;&quot;));
   }elsif( length($val) &gt; $spill)
   {
     $val = (substr $val,0,$spill).&quot;...&quot;;

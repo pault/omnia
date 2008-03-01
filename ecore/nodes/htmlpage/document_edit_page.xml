@@ -17,8 +17,7 @@
 
 &lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the document text:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
 [{nodeFormObject: TextArea, doctext}]&lt;br&gt;
-[{submit}]
-</field>
+[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">document</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>
