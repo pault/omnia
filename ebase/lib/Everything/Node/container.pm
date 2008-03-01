@@ -31,8 +31,8 @@ sub get_compilable_field {
 
 
 sub process_contained_data {
-    my ( $self, $request, $data, $no_clear ) = @_;
-    my $html = $self->generate_container( $no_clear, $request);
+    my ( $self, $request, $data, $no_clear, $ehtml ) = @_;
+    my $html = $self->generate_container( $no_clear, $request, $ehtml);
     $html =~ s/CONTAINED_STUFF/$data/s;
     return $html;
 }
@@ -40,7 +40,7 @@ sub process_contained_data {
 my %container_trap = ();
 
 sub generate_container {
-    my ( $self, $noClear, $request ) = @_;
+    my ( $self, $noClear, $request, $ehtml) = @_;
     my $nodebase = $self->get_nodebase;
     my $cgi      = $request->get_cgi;
     my $user     = $request->get_user;
@@ -60,7 +60,7 @@ sub generate_container {
 
     $Everything::HTML::CURRENTNODE = $self; # ugly temporary hack
 
-    $replacetext = $self->run;
+    $replacetext = $self->run( { ehtml => $ehtml } );
 
     $containers = $cgi->param('containers') || '';
 
@@ -70,13 +70,13 @@ sub generate_container {
         $replacetext = $self->show_containers( $replacetext, $request );
     }
 
-    if ( $self->get_parent_container ) {
+     if ( $self->get_parent_container ) {
 
-        my $parentcontainer = $nodebase->getNode( $self->get_parent_container );
-        $replacetext =
-          $parentcontainer->process_contained_data( $request, $replacetext, 1 );
+         my $parentcontainer = $nodebase->getNode( $self->get_parent_container );
+         $replacetext =
+           $parentcontainer->process_contained_data( $request, $replacetext, 1, $ehtml );
 
-    }
+     }
 
     return $replacetext;
 }

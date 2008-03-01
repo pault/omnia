@@ -31,15 +31,16 @@ sub get_compilable_field {
 
 
 sub make_html {
-    my ( $this, $request ) = @_;
+    my ( $this, $request, $ehtml ) = @_;
 
-    my $page = $this->run;
+    my $page = $this->run(
+        { ehtml => $ehtml } );
 
-    if ( $this->get_parent_container ) {
-        my $container =
-          $this->get_nodebase->getNode( $this->get_parent_container );
-        $page = $container->process_contained_data( $request, $page);
-    }
+     if ( $this->get_parent_container ) {
+         my $container =
+           $this->get_nodebase->getNode( $this->get_parent_container );
+         $page = $container->process_contained_data( $request, $page, undef, $ehtml );
+     }
 
     my $errors = '';
     if ( $request->get_user->isGod() ) {

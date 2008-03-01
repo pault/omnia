@@ -47,6 +47,8 @@ sub setup : Test(setup) {
     $Everything::HTML::DB    = $self->{mock};
     $Everything::HTML::query = CGI->new;
     $mock->set_always( url => 'http://fakeurl' );
+    $self->{instance}=$self->{class}->new( { request => $mock } );
+    $mock->set_always( get_nodebase => $mock );
 }
 
 sub test_list_code : Test(3) {
@@ -453,10 +455,11 @@ sub test_htmlsnippet : Test(3) {
     $mock->set_series( 'hasAccess', 0, 1 );
     $mock->{code} = "some code";
 
-    is( htmlsnippet('snippet'), '', 'htmlsnippet with access denied' );
+    my $obj = $self->{ instance };
+    is( $obj->htmlsnippet('snippet'), '', 'htmlsnippet with access denied' );
 
     $mock->set_always( 'run', 'some code' );
-    is( htmlsnippet('snippet'), 'some code',
+    is( $obj->htmlsnippet('snippet'), 'some code',
         'htmlsnippet with access allowed' );
 
 }
@@ -486,7 +489,6 @@ sub test_insert_nodelet : Test(2) {
     local *insertNodelet = \&{ $package . '::insertNodelet' };
 
     $mock->{DB}             = $mock;
-    $mock->{nlcode}         = 'some code';
     $mock->{NODE}           = $mock;
     $mock->{USER}           = $mock;
     $mock->{title}          = 'a nodelet';
@@ -502,7 +504,12 @@ sub test_insert_nodelet : Test(2) {
     local *{ $self->{class} . '::genContainer' };
     *{ $self->{class} . '::genContainer' } = sub { 'CONTAINED_STUFF' };
 
-    is( insertNodelet($mock), "some code", '...we can insertNodelet' );
+    my $obj = $self->{class}->new( { request => $mock } );
+    $mock->set_always( get_nodebase => $mock );
+    $mock->set_always( generate_container => 'some html' );
+
+
+    is( $obj->insertNodelet($mock), "some html", '...we can insertNodelet' );
 
 }
 
@@ -522,7 +529,11 @@ sub test_update_nodelet : Test(2) {
     $mock->set_always( 'run' => 'parsed and compiled html' );
     $mock->{updateinterval} = 2;
     $mock->{lastupdate}     = 2;
-    is( updateNodelet($mock), "" );
+
+    my $obj = $self->{class}->new( { request => $mock } );
+    $mock->set_always( get_nodebase => $mock );
+
+    is( $obj->updateNodelet($mock), "" );
 
 }
 

@@ -24,7 +24,11 @@ The field name of the node that contains code we wish to compile and run
 
 =item no_cache
 
-If true the code will not be cached in the node casche
+If true the code will not be cached in the node cache
+
+=item ehtml
+
+An Everything::HTML object. Essential for some node types.
 
 =item args
 
@@ -43,7 +47,7 @@ sub run {
     my $field = $$arg_hash{ field };
     my $no_cache = $$arg_hash{ no_cache };
     my @args = $$arg_hash{args} ? @{ $$arg_hash{args} } : ();
-
+    unshift  @args, $$arg_hash{ ehtml };
     $field ||= $self->get_compilable_field;
 
     if ( $no_cache ) {

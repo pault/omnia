@@ -60,10 +60,10 @@ sub test_handle : Test(17) {
         '...sets the node attribute from the request.' );
 
     ( $method, $args ) = $mock->next_call;
-    is( $method, 'setup_everything_html', '...sets up the code environment.' );
+    is( $method, 'execute_opcodes', '...runs those things called opcodes.' );
 
     ( $method, $args ) = $mock->next_call;
-    is( $method, 'execute_opcodes', '...runs those things called opcodes.' );
+    is( $method, 'setup_everything_html', '...sets up the code environment.' );
 
     ( $method, $args ) = $mock->next_call;
     is( $method, 'create_http_body', '...create_http_body.' );

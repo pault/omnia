@@ -76,7 +76,7 @@ sub set_default_handlers {
             sub {
                 my ( $func, $args ) = split( /\s*:\s*/, $_[0] );
 
-                my $rv = " $func(";
+                my $rv = '$this->'."$func(";
                 if ( defined $args ) {
                     my @args = do_args($args);
                     $rv .= join( ", ", @args ) if (@args);
@@ -91,7 +91,7 @@ sub set_default_handlers {
             return " '$text';";
         },
         HTMLSNIPPET =>
-          basic_handler( sub { "htmlsnippet('$_[0]')" } ),
+          basic_handler( sub { '$this->' . "htmlsnippet('$_[0]')" } ),
         PERL => basic_handler( sub { " \n$_[0]\n" } ),
     );
 }

@@ -93,7 +93,7 @@ sub htmlcode_hash {
         HTMLCODE => {
             input  => q/[{anhtmlcodething:   one, two  ,three  }]/,
             output =>
-qr/\s*eval\s*\{\s*anhtmlcodething\s*\(\s*'one'\s*,\s*'two'\s*,\s*'three'\s*\)\s+\}\s+\|\|\s+''\s*;/s
+qr/\s*eval\s*\{\s*\$this->anhtmlcodething\s*\(\s*'one'\s*,\s*'two'\s*,\s*'three'\s*\)\s+\}\s+\|\|\s+''\s*;/s
 
         },
 
@@ -114,7 +114,7 @@ qr/\s*eval\s*\{\s* do \{ \$stuff = "%thing\{3\}" \} while \(\$x == 2\)\s*\}\s+\|
         HTMLSNIPPET => {
             input  => q/[<htmlsnippettext>]/,
             output =>
-qr/eval\s*\{\s*htmlsnippet\s*\(\s*'htmlsnippettext'\s*\)\s*\}\s+\|\|\s+''\s*;/s
+qr/eval\s*\{\s*\$this->htmlsnippet\s*\(\s*'htmlsnippettext'\s*\)\s*\}\s+\|\|\s+''\s*;/s
 
         },
     }
@@ -215,7 +215,7 @@ sub test_tokens_to_perl : Test(12) {
     my @encoded = @$tokens;
     is(
         $encoded[0]->[1],
-        q! eval { ahtmlcodebit('one', 'two', 'three') } || '';! . "\n",
+        q! eval {$this->ahtmlcodebit('one', 'two', 'three') } || '';! . "\n",
         "Encoding HTMLCODE"
     );
     is(
@@ -230,7 +230,7 @@ sub test_tokens_to_perl : Test(12) {
     );
     is(
         $encoded[3]->[1],
-        qq! eval {htmlsnippet('somehtmlsnippet')} || '';\n!,
+        qq! eval {\$this->htmlsnippet('somehtmlsnippet')} || '';\n!,
         "Encoding HTMLSNIPPET"
     );
     is( $encoded[4]->[1], q{ 'random\'s text"!$';}, "Encoding TEXT" );

@@ -39,8 +39,9 @@ sub create_http_body {
         die "Incorrect permissions!" unless $self->check_permissions;
 
     }
+    my $ehtml =  Everything::HTML->new( { request => $self->get_request, htmlpage => $self->get_htmlpage, theme => $self->get_request->get_theme } );
     return $self->set_http_body(
-        $self->get_htmlpage->make_html( $self->get_request ) );
+        $self->get_htmlpage->make_html( $self->get_request, $ehtml ) );
 
 }
 

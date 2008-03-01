@@ -24,9 +24,11 @@ sub handle  {
     ## execute options
     # Execute any operations that we may have
 
-    $e->execute_opcodes;
-
     $e->set_node_from_cgi;
+
+    # set node before opcodes
+    # opcodes may override
+    $e->execute_opcodes;
 
     if ( !$e->get_node ) {
         my $node =

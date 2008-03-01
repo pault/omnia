@@ -31,7 +31,7 @@ BEGIN
 	sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert _quoteData sqlExecute
 	getNodeByIdNew getNodeByName constructNode selectNodeWhere getNodeCursor
 	countNodeMatches getAllTypes dropNodeTable quote genWhereString lastValue
-       now createGroupTable fetchrow timediff getNodetypeTables createNodeTable
+       now createGroupTable fetchrow timediff getNodetypeTables createNodeTable addFieldToTable
 	);
 
 	for my $method (@methlist)

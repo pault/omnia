@@ -3,7 +3,7 @@
 use Everything::NodeBase;
 use Everything::CmdLine qw/get_options abs_path make_nodebase/;
 use Everything::Test::Ecore::Compile;
-use Test::Harness::Straps;
+use Test::Harness::Straps '0.26';
 use IO::Tee;
 use Carp qw/cluck confess croak/;
 use CGI;
@@ -34,15 +34,15 @@ $tests->runtests;
 my $strap = Test::Harness::Straps->new;
 
 my @lines = split("\n", $capture);
-my $results = $strap->analyze( $0, \@lines );
+my %results = $strap->analyze( $0, \@lines );
 
-my @failed;
-my $details = $results->details;
+my @failed = ();
+my $details = $results{details};
 foreach (0..$#$details) {
     push @failed, $_ + 1 unless $$details[$_]->{ok};
 }
 
-printf <<ENDREPORT, $0, $results->max, $results->seen, $results->ok, $results->skip, $results->todo, $results->bonus;
+printf <<ENDREPORT, $0, $results{max}, $results{seen}, $results{ok}, $results{skip}, $results{todo}, $results{bonus};
 
 Test Report for %s:
 
@@ -55,6 +55,6 @@ Test Report for %s:
 
 ENDREPORT
 
-print "Failed tests: @failed\n";
+print "Failed tests: @failed\n" if @failed;
 
 exit;
