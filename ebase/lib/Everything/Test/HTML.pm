@@ -32,7 +32,6 @@ sub startup : Test(startup => 1) {
     $mock->fake_module('Everything::Auth');
     $mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
 
-    *Everything::HTML::getNode = sub { $mock };
     $self->{mock}  = $mock;
     $self->{class} = $class;
     use_ok($class) or die;
@@ -534,6 +533,81 @@ sub test_update_nodelet : Test(2) {
     $mock->set_always( get_nodebase => $mock );
 
     is( $obj->updateNodelet($mock), "" );
+
+}
+
+sub mock_everything_request {
+    my $self = shift;
+    my $mock = Test::MockObject->new;
+
+    $mock->set_always( -get_cgi         => $mock );
+    $mock->set_always( -get_user        => $mock );
+    $mock->set_always( -get_system_vars => { akey => 'avalue' } );
+    $mock->set_always( -get_nodebase    => $mock );
+
+    #nodebase
+    $mock->set_always( -getNode => $mock );
+    $mock->set_true(qw/-run/);
+
+
+    return $mock;
+}
+
+ sub test_op_update : Test(6) {
+     my $self    = shift;
+     my $package = $self->{class};
+     my $mock    = $self->mock_everything_request;
+
+
+     $mock->{node_id} = 999; #prevents warning;
+     $mock->set_always( -isGod => 'randomdata' );
+    my $list_flag = 0;
+    my @returns   = (qw/first second third fourth fifth/);
+    $mock->mock(
+        -param => sub {
+            unless ( $list_flag++ ) {
+
+                return (qw/firstparam secondparam formbind_objecttype1_objectname1 formbind_objecttype2_objectname2/);
+            }
+            return shift @returns;
+        }
+    );
+
+     local *opUpdate = \&{ $package . '::opUpdate' };
+
+     my $form_object_return;
+     no strict 'refs';
+     local *{ $package . '::create_form_object' };
+      *{ $package . '::create_form_object' } = sub { $form_object_return };
+     use strict 'refs';
+
+     my $rv = opUpdate( $mock );
+
+     ok($rv, '...returns true if form_object returns nothing.' );
+
+     ### setup new test
+     @returns = qw/first second third forth fifth sixth seventh/;
+     $list_flag = 0;
+     $form_object_return = $mock;
+     $mock->set_always(cgiVerify => {failed => 'a good reason'} );
+     $rv = opUpdate( $mock );
+     ok(! $rv, '...returns false if cgiVerify fails.' );
+ 
+
+     ### setup new test
+     @returns = qw/first second third forth fifth sixth seventh/;
+     $list_flag = 0;
+     $form_object_return = $mock;
+     $mock->set_always(-cgiVerify => {node => 222} );
+     $mock->set_true( qw/cgiUpdate -logRevision -update/ );
+     $mock->clear;
+     $rv = opUpdate( $mock );
+     my( $method, $args ) = $mock->next_call;
+     is( $method, 'cgiUpdate', '...asks formobject to update the node. ');
+     is( "@$args", "$mock $mock objectname2 $mock randomdata", '...calls with correct arguments.');
+     ( $method, $args ) = $mock->next_call;
+     is( $method, 'cgiUpdate', '...asks formobject to update the node. ');
+     is( "@$args", "$mock $mock objectname1 $mock randomdata", '...calls with correct arguments.');
 
 }
 

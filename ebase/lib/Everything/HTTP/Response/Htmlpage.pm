@@ -26,9 +26,16 @@ sub init {
 }
 
 sub create_http_body {
-    my $self     = shift;
+    my ( $self, $args )     = @_;
     my $htmlpage = $self->get_htmlpage;
+
+    my $ehtml = $$args{ ehtml } || Everything::HTML->new;
+
     $self->getTheme( $self->get_request );
+
+    $ehtml->set_request( $self->get_request );
+    $ehtml->set_htmlpage( $self->get_htmlpage );
+    $ehtml->set_theme( $self->get_request->get_theme );
 
     unless ( $self->check_permissions ) {
         my $node =
@@ -39,7 +46,7 @@ sub create_http_body {
         die "Incorrect permissions!" unless $self->check_permissions;
 
     }
-    my $ehtml =  Everything::HTML->new( { request => $self->get_request, htmlpage => $self->get_htmlpage, theme => $self->get_request->get_theme } );
+
     return $self->set_http_body(
         $self->get_htmlpage->make_html( $self->get_request, $ehtml ) );
 

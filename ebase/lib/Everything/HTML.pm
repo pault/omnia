@@ -17,7 +17,7 @@ use CGI::Carp qw(fatalsToBrowser);
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_accessors(qw/htmlpage request theme/);
+__PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub/);
 
 our ( $AUTH, $DB );
 use vars qw( $query $GNODE $NODELET $THEME $USER $VARS %HTMLVARS %INCJS );
@@ -29,7 +29,6 @@ sub get_requested_node { $_[0]->get_request->get_node }
 sub get_node           { $_[0]->get_requested_node }
 sub get_vars           { $_[0]->get_request->get_user_vars }
 sub get_user           { $_[0]->get_request->get_user }
-sub get_node           { $_[0]->get_request->get_node }
 sub get_htmlvars       { $_[0]->get_request->get_system_vars }
 sub get_query          { $_[0]->get_request->get_cgi }
 sub get_nodebase       { $_[0]->get_request->get_nodebase }
@@ -97,6 +96,33 @@ sub deprecate {
 
 =cut
 
+=head2 C<create_form_object>
+
+A generic form object creation function.  Takes two arguments, a
+nodebase object and a string represnting teh type of form object to be
+created.  Returns the form object on success undef otherwise.
+
+=cut
+
+sub create_form_object {
+
+    my ($nodebase, $objName ) = @_;
+    my $module = "Everything::HTML::FormObject::$objName";
+    ( my $modulepath = $module . '.pm' ) =~ s!::!/!g;
+
+    # We eval so that if the requested nodetype doesn't exist, we don't die
+    my $object = eval {
+        require $modulepath;
+        $module->new($nodebase);
+    };
+
+    Everything::logErrors($@) if $@;
+
+    return $object;
+
+
+}
+
 
 =head2 C<newFormObject>
 
@@ -119,19 +145,8 @@ Returns the form object ref if successful, undef otherwise.
 sub newFormObject {
     my ($objName) = @_;
     return unless $objName;
+    return create_form_object( $DB, $objName );
 
-    my $module = "Everything::HTML::FormObject::$objName";
-    ( my $modulepath = $module . '.pm' ) =~ s!::!/!g;
-
-    # We eval so that if the requested nodetype doesn't exist, we don't die
-    my $object = eval {
-        require $modulepath;
-        $module->new($DB);
-    };
-
-    Everything::logErrors($@) if $@;
-
-    return $object;
 }
 
 =cut
@@ -143,19 +158,7 @@ sub new_form_object {
     my ($objName) = @_;
     return unless $objName;
 
-    my $module = "Everything::HTML::FormObject::$objName";
-    ( my $modulepath = $module . '.pm' ) =~ s!::!/!g;
-
-    # We eval so that if the requested nodetype doesn't exist, we don't die
-    my $object = eval {
-        require $modulepath;
-        $module->new($DB);
-    };
-
-    Everything::logErrors($@) if $@;
-
-    return $object;
-
+    return create_form_object ( $DB, $objName );
 }
 
 =head2 C<tagApprove>
@@ -792,11 +795,12 @@ sub link_node {
 
     return "" unless defined($NODE);
 
-    # We do this instead of calling getRef, because we only need the node
-    # table data to create the link.
     $NODE = $self->get_nodebase->getNode( $NODE, 'light' ) unless ( ref $NODE );
 
     return "" unless ref $NODE;
+
+    $link = $self->get_link_node_sub->($self, $NODE, $title, $PARAMS, $SCRIPTS );
+    return $link if $link;
 
     $title ||= $$NODE{title};
 
@@ -2262,7 +2266,7 @@ sub opNuke {
     my $query    = $request->get_cgi;
     my $USER     = $request->get_user;
     my %HTMLVARS = %{ $request->get_system_vars };
-    my $NODE     = getNode( $query->param("node_id") );
+    my $NODE     = $request->get_nodebase->getNode( $query->param("node_id") );
 
     $NODE->nuke($USER) if ($NODE);
 
@@ -2298,11 +2302,12 @@ sub opNew {
     my $query    = $request->get_cgi;
     my $USER     = $request->get_user;
     my %HTMLVARS = %{ $request->get_system_vars };
+    my $nodebase = $request->get_nodebase;
 
     my $node_id  = 0;
     my $user_id  = $$USER{node_id};
     my $type     = $query->param('type');
-    my $TYPE     = getType($type);
+    my $TYPE     = $nodebase->getType($type);
     my $nodename = cleanNodeName( $query->param('node') );
 
     # Depending on whether the TYPE allows for duplicate names or not,
@@ -2311,7 +2316,7 @@ sub opNew {
     $create = "create" if ( $$TYPE{restrictdupes} );
     $create ||= "create force";
 
-    my $NEWNODE = getNode( $nodename, $TYPE, $create );
+    my $NEWNODE = $nodebase->getNode( $nodename, $TYPE, $create );
     $NEWNODE->insert($USER);
 
     $query->param( "node_id", $$NEWNODE{node_id} );
@@ -2330,7 +2335,7 @@ sub opUnlock {
     my $query   = $request->get_cgi;
     my $USER    = $request->get_user;
 
-    my $LOCKEDNODE = getNode( $query->param('node_id') );
+    my $LOCKEDNODE = $request->get_nodebase->getNode( $query->param('node_id') );
     $LOCKEDNODE->unlock($USER);
 }
 
@@ -2340,7 +2345,7 @@ sub opLock {
     my $query   = $request->get_cgi;
     my $USER    = $request->get_user;
 
-    my $LOCKEDNODE = getNode( $query->param('node_id') );
+    my $LOCKEDNODE = $request->get_nodebase->getNode( $query->param('node_id') );
     $LOCKEDNODE->lock($USER);
 }
 
@@ -2385,6 +2390,7 @@ sub opUpdate {
     my $query    = $request->get_cgi;
     my $USER     = $request->get_user;
     my %HTMLVARS = %{ $request->get_system_vars };
+    my $nodebase = $request->get_nodebase;
 
     my @params = $query->param();
     my %UPDATENODES;
@@ -2410,8 +2416,10 @@ sub opUpdate {
 
     if ($preprocess) {
 
-        # turn the htmlcode name into a function call
-        evalX( $preprocess . "();" ) if getNode( $preprocess, 'htmlcode' );
+        # preprocess is a function call because the ehtml object does
+        # not yet exist
+	my $preproc = $nodebase->getNode( $preprocess, 'opcode');
+	$preproc->run( { args => [ $request ] } );
     }
 
     # First, we need to verify that all fields in this update are
@@ -2420,7 +2428,7 @@ sub opUpdate {
         $param =~ /formbind_(.+?)_(.+)$/;
         my $objectType = $1;
         my $objectName = $2;
-        my $formObject = newFormObject($objectType);
+        my $formObject = create_form_object($nodebase, $objectType);
 
         next unless ($formObject);
 
@@ -2433,7 +2441,7 @@ sub opUpdate {
         }
         elsif ( $$verify{node} ) {
             $UPDATEOBJECT{$param} = $$verify{node};
-            $UPDATENODES{ $$verify{node} } ||= getNode( $$verify{node} );
+            $UPDATENODES{ $$verify{node} } ||= $nodebase->getNode( $$verify{node} );
         }
     }
 
@@ -2450,7 +2458,7 @@ sub opUpdate {
         $param =~ /formbind_(.*?)_(.*)$/;
         my $objectType = $1;
         my $objectName = $2;
-        my $formObject = newFormObject($objectType);
+        my $formObject = create_form_object($nodebase, $objectType);
 
         next unless ($formObject);
 
@@ -2484,10 +2492,11 @@ sub opUpdate {
     $query->param( 'displaytype', $goto_displaytype ) if ($goto_displaytype);
 
     if ($postprocess) {
+        # preprocess is a function call because the ehtml object does
+        # not yet exist
+	my $postproc = $nodebase->getNode( $preprocess, 'opcode');
+	$postproc->run( { args => [ $request ] } );
 
-        # turn the htmlcode name into a function call.  This will end
-        # up calling HTML::AUTOLOAD()
-        evalX( $postprocess . "();" ) if getNode( $postprocess, 'htmlcode' );
     }
 
     return 1;

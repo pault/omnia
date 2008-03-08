@@ -55,7 +55,7 @@ sub test_handler : Test(25) {
           sub { $fake_everything_request->{node_id} = 777 if ++$count == 1 } );
 
     no strict 'refs';
-    local *{ $self->{class} . '::parse_url' };
+    local *{ $self->{class} . '::create_url_parsers' };
     *{ $self->{class} . '::create_url_parsers' } =
       sub { [ $fake_parser, $fake_parser, $fake_parser ] };
     use strict 'refs';
@@ -68,7 +68,8 @@ sub test_handler : Test(25) {
     $fake_apache_request->set_always( 'dir_config', $dir_config );
     $fake_apache_request->set_true( 'assbackwards', 'print', 'content_type' );
     $fake_apache_request->set_always( 'headers_out', $mock );
-    $mock->set_true('set');
+    $fake_apache_request->set_always( -uri => '/' );
+    $mock->set_true('set', '-resetNodeCache');
     $dir_config->set_series( 'get', qw/db user password host/ );
 
     $fake_everything_request->set_true(

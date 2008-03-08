@@ -42,7 +42,7 @@ sub test_z_process : Test(4) {
 }
 
 
-sub test_make_url : Test(4) {
+sub test_make_url : Test(5) {
 
     my $self = shift;
     can_ok($self->{class}, 'make_url') || return;
@@ -55,6 +55,9 @@ sub test_make_url : Test(4) {
     is ($instance->make_url($mock), '/node/222');
     is ($instance->make_url($mock), '/node/222');
     is ($instance->make_url($mock), '/node/222');
+
+    $mock->{node_id} = 0;
+    is ($instance->make_url($mock), '/node/0', '...if node id is 0, creates correct url.');
 
 
 
@@ -82,7 +85,7 @@ sub test_make_url_gen : Test(4) {
 
 }
 
-sub test_make_link_node :Test(7) {
+sub test_make_link_node :Test(8) {
     my $self    = shift;
     my $class = $self->{class};
     my $instance = $self->{instance};
@@ -123,6 +126,9 @@ sub test_make_link_node :Test(7) {
         "linkNode"
     );
 
+    $mock->{node_id}=0;
+    is( $linkNode->($mock), '<a href="/node/0">Another Random Node</a>',
+        "...treats node with id = 0 properly." );
 
 }
 
@@ -200,11 +206,14 @@ sub test_make_regex : Test(5) {
 
 }
 
-sub test_match : Test(2) {
+sub test_match : Test(3) {
     my $self = shift;
     can_ok($self->{class}, 'match');
     my $instance = $self->{instance};
     $instance->set_schema('/:type/node/:node_id/foo');
     is_deeply ( $instance->match('/baaa/node/77/foo'), [ ['type'], 'baaa', ['node_id'], '77'], '...returns a list of pairs.');
+
+    # test zero match
+    is_deeply ( $instance->match('/baaa/node/0/foo'), [ ['type'], 'baaa', ['node_id'], '0'], '...returns a list of pairs withj zero.');
 }
 1;

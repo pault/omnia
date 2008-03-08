@@ -6,21 +6,24 @@ use Everything::HTTP::Request;
 use Everything::HTTP::URL::Deconstruct;
 use Everything::HTTP::URL;
 use Everything::HTTP::ResponseFactory;
+use Everything::HTML;
 use strict;
 use warnings;
 
 use Carp;
+
 #BEGIN { $SIG{__WARN__} = \&Carp::cluck;}
 ## initialise
 Everything::HTTP::URL->set_default_sub( \&Everything::HTML::linkNode );
+my $ehtml;
 
 sub handler {
 
     my $r        = shift;
     my $db       = $r->dir_config->get('everything-database');
-    my $user     = $r->dir_config->get('everything-database-user');
+    my $user     = $r->dir_config->get('everything-database-user') || '';
     my $password = $r->dir_config->get('everything-database-password') || '';
-    my $host     = $r->dir_config->get('everything-database-host');
+    my $host     = $r->dir_config->get('everything-database-host') || '';
     my %options  = $r->dir_config->get('everything-database-options');
 
     ## scriptname for CGI
@@ -29,7 +32,10 @@ sub handler {
 
     $e->get_nodebase->resetNodeCache;
 
-    create_url_parsers( $r, $e );
+    unless ($ehtml) {
+        $ehtml = Everything::HTML->new;
+        create_url_parsers( $r, $e, $ehtml );
+    }
 
     ## sets up variables for serving web pages mostly pulled from db
 
@@ -51,15 +57,20 @@ sub handler {
 
     $e->set_node_from_cgi;
 
-       if ( !$e->get_node ) {
+    if ( !$e->get_node && $r->uri ) {
 
-           Everything::HTTP::URL->modify_request($r->path_info, $e);
+        Everything::HTTP::URL->modify_request( $r->uri, $e );
 
-   	my $node = $e->get_node;
-           if ( $node && !ref $node ) {
-               return NOT_FOUND;
-           }
-       }
+        my $node = $e->get_node;
+
+        if ( $node && !ref $node ) {
+            return NOT_FOUND;
+        }
+    }
+
+    if ( $r->uri ne '/' && ! $e->get_node ) {
+	return NOT_FOUND
+    }
 
     ### if we haven't returned find the default node
     if ( !$e->get_node && ( $r->path_info eq '/' || $r->path_info eq '' ) ) {
@@ -79,7 +90,7 @@ sub handler {
     ### XXX- response factory should set up the environment that htmlpage needs
 
     my $response = Everything::HTTP::ResponseFactory->new( 'htmlpage', $e );
-    $response->create_http_body;
+    $response->create_http_body( { ehtml => $ehtml } );
     my $html = $response->get_http_body;
 
     $r->content_type( $response->get_mime_type );
@@ -97,7 +108,7 @@ sub handler {
 }
 
 sub create_url_parsers {
-    my ( $r, $e ) = @_;
+    my ( $r, $e, $ehtml ) = @_;
 
     ## parse the URL
     ## setup url processing
@@ -105,20 +116,7 @@ sub create_url_parsers {
     Everything::HTTP::URL->clear_request_modifiers;
     Everything::HTTP::URL->clear_node_to_url_subs;
 
-     Everything::HTTP::URL->register_request_modifier(
- 						     sub {
- 							  my ( $url, $e ) = @_;
-
- 							  return unless $url eq '/location/';
- 							  my $node = $e->get_nodebase->getNode( 0 );
- 							  $e->set_node ($node);
- 							  return 1;
-
- });
-
     my @url_config = $r->dir_config->get('everything-url');
-    return unless @url_config;
-
 
     while ( my ( $schema, $linker_arg ) = splice( @url_config, 0, 2 ) ) {
 
@@ -138,10 +136,22 @@ sub create_url_parsers {
 
     my $link_node = Everything::HTTP::URL->create_linknode;
     no warnings 'redefine';
- 
-   *Everything::HTML::linkNode = sub { my $node = shift; $Everything::DB->getRef( $node ); $link_node->( $node, @_ ) };
+
+    *Everything::HTML::linkNode = sub {
+        my $node = shift;
+        $Everything::DB->getRef($node);
+        $link_node->( $node, @_ );
+    };
     use warnings 'redefine';
 
+    my $link_node_sub = sub {
+        my $self = shift;
+        my $node = shift;
+        $self->get_nodebase->getRef($node);
+        $link_node->( $node, @_ );
+    };
+
+    $ehtml->set_link_node_sub($link_node_sub);
 }
 
 1;
