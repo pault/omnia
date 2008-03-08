@@ -58,6 +58,8 @@ sub create_index : Test(2) {
     my $webdir = tempdir( CLEANUP => 1 );
     my $user = $ENV{USER};
 
+    $self->{instance}->set_web_user( $user );
+    $self->{instance}->set_web_group( $user );
     $self->{instance}->create_index(
         {
             edir     => '.',
