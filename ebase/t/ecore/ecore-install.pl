@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 use Everything::NodeBase;
-use Everything::Nodeball;
 use Everything::Install;
 use Everything::Test::Ecore::Install;
 use Everything::CmdLine qw/get_options abs_path/;
