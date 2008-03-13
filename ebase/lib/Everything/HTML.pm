@@ -799,8 +799,9 @@ sub link_node {
 
     return "" unless ref $NODE;
 
-    $link = $self->get_link_node_sub->($self, $NODE, $title, $PARAMS, $SCRIPTS );
-    return $link if $link;
+    my $linker = $self->get_link_node_sub;
+
+    return $linker->($self, $NODE, $title, $PARAMS, $SCRIPTS ) if $linker;
 
     $title ||= $$NODE{title};
 
