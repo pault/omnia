@@ -20,7 +20,7 @@ __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub/);
 
 our ( $AUTH, $DB );
-use vars qw( $query $GNODE $NODELET $THEME $USER $VARS %HTMLVARS %INCJS );
+use vars qw( $query $GNODE $THEME $USER $VARS %HTMLVARS );
 
 # This is used for nodes to pass vars back-n-forth
 use vars qw( %GLOBAL );
@@ -1388,13 +1388,13 @@ Returns the HTML from the snippet
 =cut
 
 sub htmlsnippet {
-    my ( $self, $snippet ) = @_;
+    my ( $self, $snippet, @args ) = @_;
     my $node = $self->get_nodebase->getNode( $snippet, 'htmlsnippet' );
     my $html = '';
 
     # User must have execute permissions for this to be embedded.
     if ( ( defined $node ) && $node->hasAccess( $USER, "x" ) ) {
-        $html = $node->run( { field => 'code', ehtml => $self } );
+        $html = $node->run( { field => 'code', ehtml => $self, args => \@args } );
     }
     return $html;
 }
@@ -1557,52 +1557,6 @@ sub quote {
     $text;
 }
 
-=cut
-
-
-=head2 C<insertNodelet>
-
-This generates the nodelet by grabbing the nodelet, executing its code, and
-then wrapping it in all the specified nodelet containers to generate the
-nodelet.
-
-=over 4
-
-=item * $NODELET
-
-the nodelet to insert
-
-=back
-
-=cut
-
-sub insertNodelet {
-    my $self = shift;
-
-    # Don't "my" NODELET!  It is a global!
-    $NODELET = shift @_;
-    my $type = shift @_;
-
-    $type ||= 'nodelet';
-    $NODELET = $self->get_nodebase->getNode( $NODELET, $type );
-
-    # If the user can't "execute" this nodelet, we don't let them see it!
-    return undef
-      unless ( defined $NODELET && $NODELET->hasAccess( $USER, "x" ) );
-
-    my $html;
-    my $container = $self->get_nodebase->getNode( $$NODELET{parent_container} );
-    $html = $container->generate_container( undef, $self->get_request, $self );
-
-    # Make sure the nltext is up to date
-    $self->updateNodelet($NODELET);
-    return unless ( $$NODELET{nltext} =~ /\S/ );
-
-    # now that we are guaranteed that nltext is up to date, sub it in.
-    if ($html) { $html =~ s/CONTAINED_STUFF/$$NODELET{nltext}/s; }
-    else       { $html = $$NODELET{nltext}; }
-    return $html;
-}
 
 =cut
 
@@ -2241,12 +2195,10 @@ sub initForPageLoad {
     my ( $db, $options ) = @_;
 
     undef %GLOBAL;
-    undef %INCJS;
 
     $GNODE   = {};
     $USER    = {};
     $VARS    = {};
-    $NODELET = {};
     $THEME   = {};
 
     $query = "";

@@ -1,0 +1,37 @@
+<NODE export_version="0.5" nodetype="htmlcode" title="insertNodelet">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">
+# Don't &quot;my&quot; NODELET!  It is a global!
+my $NODELET = shift @_;
+my $type = shift @_;
+
+$type ||= 'nodelet';
+$NODELET = $this-&gt;get_nodebase-&gt;getNode( $NODELET, $type );
+
+# If the user can't &quot;execute&quot; this nodelet, we don't let them see it!
+return undef
+  unless ( defined $NODELET &amp;&amp; $NODELET-&gt;hasAccess( $USER, &quot;x&quot; ) );
+
+my $html;
+
+my $block = $this-&gt;get_nodebase-&gt;getNode( 'nodelet_block', 'htmlsnippet');
+# Make sure the nltext is up to date
+$this-&gt;updateNodelet($NODELET);
+return unless ( $$NODELET{nltext} =~ /\S/ );
+
+return $block-&gt;run( { ehtml =&gt; $this, args =&gt; [ $NODELET-&gt;get_title, $NODELET-&gt;get_nltext ] } );
+return;
+</field>
+  <field name="dynamicauthor_permission" type="literal_value">-1</field>
+  <field name="dynamicgroup_permission" type="literal_value">-1</field>
+  <field name="dynamicguest_permission" type="literal_value">-1</field>
+  <field name="dynamicother_permission" type="literal_value">-1</field>
+  <field name="group_usergroup" type="literal_value">-1</field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">insertNodelet</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
+</NODE>

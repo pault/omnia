@@ -3,28 +3,12 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">&lt;p&gt;Create a new node!&lt;/p&gt;
 [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
- 
 $query-&gt;param(&quot;node&quot;, &quot;&quot;);
 $query-&gt;startform; 
 %][%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
 
 my $str = &quot;Node name: &quot;;
 my %types;
@@ -42,15 +26,7 @@ Nodetype:&lt;code&gt;
 [{formObject: NodetypeMenu, type, 1, $USER}]&lt;/code&gt;
 
 [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
 
 my $str = &quot;&lt;input TYPE=\&quot;hidden\&quot; NAME=\&quot;op\&quot; VALUE=\&quot;new\&quot;&gt;\n&quot;;
 $str .= $query-&gt;submit(&quot;createit&quot;, &quot;Create It!&quot;) . &quot;\n&quot;;

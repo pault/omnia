@@ -4,17 +4,10 @@
   <field name="doctext" type="literal_value">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
 
 [{openform}][%
-my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
-
-my $menu = newFormObject(&quot;FormMenu&quot;);
+my $menu = $this-&gt;new_form_object(&quot;FormMenu&quot;);
 my $type = $query-&gt;param('whichtype');
 my $group = $query-&gt;param('whichgroup');
 my $str;
@@ -36,16 +29,7 @@ $str .= $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
 $str;
 
 %][{submit}][%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-
 $query-&gt;hidden(-name =&gt; 'op', -default =&gt; 'nodelistcheck', -override =&gt; 1) .
 $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
 
@@ -91,12 +75,12 @@ $offset ||= 0;
 
 if($type eq &quot;alltypes&quot;)
 {
-  $ref = selectNodeWhere({}, undef,
+  $ref = $DB-&gt;selectNodeWhere({}, undef,
     &quot;type_nodetype&quot;, $limit, $offset, \$totalRows);
 }
 else
 {
-  $ref = selectNodeWhere({type_nodetype =&gt; $type}, undef, undef, $limit,
+  $ref = $DB-&gt;selectNodeWhere({type_nodetype =&gt; $type}, undef, undef, $limit,
     $offset, \$totalRows);
 }
 
@@ -111,13 +95,13 @@ $next = ($totalRows &gt; $offset + $limit ? $offset + $limit : $totalRows);
 $prev = ($offset &lt; $limit ? 0 : $offset - $limit);
 
 my $link = {
-  node_id =&gt; getId( $NODE ),
+  node_id =&gt; $NODE-&gt;get_node_id,
   whichtype =&gt; $type,
   whichgroup =&gt; $group,
   next =&gt; $prev,
 };
 
-$nav .= &quot;&lt;a href=&quot; . urlGen ($link) . 
+$nav .= &quot;&lt;a href=&quot; . $this-&gt;url_gen ($link) . 
   &quot;&gt;Previous &quot; . ($offset-$prev) . &quot; entries...&lt;/a&gt;&quot;
   if ($offset &gt; 0);
 
@@ -134,7 +118,7 @@ $nav .= &quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
 #construct the table
 my $str = &quot;&lt;TABLE width=100% border=0&gt;&quot;;
 my $ngroup = $query-&gt;param('whichgroup') || '';
-my $NODEGROUP = getNode($ngroup);
+my $NODEGROUP = $DB-&gt;getNode($ngroup);
 my $colfields = { 
     &quot;MAINTAINER&quot; =&gt; &quot;author_user&quot;,
     &quot;CREATE TIME&quot; =&gt; &quot;createtime&quot;};
@@ -152,7 +136,7 @@ $str.=&quot;&lt;/tr&gt;\n&quot;;
 
 for (my $i=0; $i &lt; @$ref; $i++)
 {
-  my $N = getNode($$ref[$i], 'light');
+  my $N = $DB-&gt;getNode($$ref[$i], 'light');
 
   $str .= &quot;&lt;tr&gt;&lt;td&gt;&lt;font size=-2&gt;&quot;;
   $str .= &quot;&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' UNCHECKED&gt;&quot;;
@@ -163,14 +147,14 @@ for (my $i=0; $i &lt; @$ref; $i++)
     $str .= &quot; is in '$$NODEGROUP{title}'&quot;;
   }
 
-  $str .= &quot;&lt;/td&gt;&lt;td bgcolor=$gnlcolor&gt;&quot; . linkNode ($N) .
+  $str .= &quot;&lt;/td&gt;&lt;td bgcolor=$gnlcolor&gt;&quot; . $this-&gt;link_node ($N) .
      &quot;&lt;/td&gt;&lt;td bgcolor=&quot; . 
      ($CLR{$$N{type}{title}} || $CLR{default}) . 
      &quot;&gt;$$N{type}{title}&lt;/td&gt;&quot; if (ref $$N{type});
   foreach (@columns) {
     $str.=&quot;&lt;td bgcolor=$gnlcolor&gt;&quot;;
     if (exists($$linkcols{$_})) {
-       $str.= linkNode($$N{$$colfields{$_}})
+       $str.= $this-&gt;link_node($$N{$$colfields{$_}})
     } else { $str.= $$N{$$colfields{$_}}; }
     $str.=&quot;&lt;/td&gt;&quot;;
   }	
@@ -182,16 +166,7 @@ $str .= &quot;&lt;/TABLE&gt;&quot;;
 $str;
 
 %][{submit:addtonb,Add checked to Node Bucket}][{submit:massacre,Send to the killing floor}][%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-
 $query-&gt;endform;
 
 %]</field>

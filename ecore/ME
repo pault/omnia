@@ -196,7 +196,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">password_field</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">reportFormError</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Node Deleted</member>
-    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">includeJS</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">javascript</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">insertJavascript</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">linkVar</member>
@@ -243,7 +242,6 @@
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">main container</member>
-    <member name="group_node" type="noderef" type_nodetype="container,nodetype">nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">nodelet outline container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">nodeletshadow container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">show container</member>
@@ -258,7 +256,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">javascript edit page</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">jsWindow</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general mini nodelet container</member>
-    <member name="group_node" type="noderef" type_nodetype="container,nodetype">mini nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">miniNodelet</member>
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">adminbox</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit main container</member>
@@ -278,8 +275,9 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">textfield</member>
     <member name="group_node" type="noderef" type_nodetype="dbtable,nodetype">workspace</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">showChoiceFunc</member>
-    <member name="group_node" type="noderef" type_nodetype="container,nodetype">suit nodelet container</member>
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">stdstylesheet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">nodelet_block</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">insertNodelet</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

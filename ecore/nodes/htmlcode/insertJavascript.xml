@@ -1,11 +1,11 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="insertJavascript">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">return &quot;&quot; unless(int(keys %INCJS));
+  <field name="code" type="literal_value">my $scripts = $this-&gt;get_nodebase-&gt;getNodeWhere( '', 'javascript' );
+return unless @$scripts;
 
 my $str = &quot;&lt;script language='javascript'&gt;\n&quot;;
 $str .= &quot;&lt;!--\n&quot;;
-my $scripts = $this-&gt;get_nodebase-&gt;getNodeWhere( '', 'javascript' );
 foreach my $js ( @$scripts )
 {
   # We need to check to see if the javascript is &quot;dynamic&quot;. 

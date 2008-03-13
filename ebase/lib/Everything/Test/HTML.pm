@@ -480,38 +480,6 @@ sub test_evalx : Test(3) {
 
 }
 
-sub test_insert_nodelet : Test(2) {
-    my $self    = shift;
-    my $package = $self->{class};
-    my $mock    = $self->{mock};
-    can_ok( $package, 'insertNodelet' );
-    local *insertNodelet = \&{ $package . '::insertNodelet' };
-
-    $mock->{DB}             = $mock;
-    $mock->{NODE}           = $mock;
-    $mock->{USER}           = $mock;
-    $mock->{title}          = 'a nodelet';
-    $mock->{node_id}        = 222;
-    $mock->{updateinterval} = 2;
-    $mock->{lastupdate}     = 2;
-
-    $mock->set_always( 'run', 'some code' );
-    $mock->set_always( getNode => $mock );
-    $mock->set_true( 'hasAccess', 'update' );
-
-    no strict 'refs';
-    local *{ $self->{class} . '::genContainer' };
-    *{ $self->{class} . '::genContainer' } = sub { 'CONTAINED_STUFF' };
-
-    my $obj = $self->{class}->new( { request => $mock } );
-    $mock->set_always( get_nodebase => $mock );
-    $mock->set_always( generate_container => 'some html' );
-
-
-    is( $obj->insertNodelet($mock), "some html", '...we can insertNodelet' );
-
-}
-
 sub test_update_nodelet : Test(2) {
     my $self    = shift;
     my $package = $self->{class};

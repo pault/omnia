@@ -37,7 +37,7 @@ my %GLOBAL;
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">nodelet container</field>
+  <field name="parent_container" type="literal_value"></field>
   <field name="title" type="literal_value">general mini nodelet container</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
 </NODE>

@@ -10,8 +10,6 @@ my $str;
 
 #Setup
 
-$this-&gt;includeJS('cloneNode', 'confirmDelete');
-
 # This provides links to display, edit, clone, or delete
 # the current node if the user has the authority to do so.  
 my $disp = $query-&gt;param(&quot;displaytype&quot;);
