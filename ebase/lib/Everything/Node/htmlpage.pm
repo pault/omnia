@@ -44,7 +44,7 @@ sub make_html {
 
     my $errors = '';
     if ( $request->get_user->isGod() ) {
-        $errors = Everything::HTML::formatGodsBacksideErrors();
+        $errors = $ehtml->formatGodsBacksideErrors();
     }
     else {
         Everything::HTML::printBacksideToLogFile();

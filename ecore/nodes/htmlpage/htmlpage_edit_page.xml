@@ -17,7 +17,7 @@
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Title:&lt;/b&gt;&lt;/td&gt;&lt;td align=left&gt;[{nodeFormObject: TextField, title}]&lt;/td&gt;
   &lt;td rowspan=9&gt;&lt;font size=2&gt;
-  [{listNodetypeFields: $$NODE{pagetype_nodetype}}]
+  [% $this-&gt;listNodetypeFields( $this-&gt;get_node-&gt;get_pagetype_nodetype ) %]
   &lt;/font&gt;&lt;/td&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Owner:&lt;/b&gt;&lt;/td&gt;
@@ -37,11 +37,12 @@
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Parent container:&lt;/b&gt;&lt;/td&gt;
-  &lt;td&gt;[{nodeFormObject: TypeMenu, parent_container, parentContainer, container, AUTO, $USER, r, 0}]&lt;/td&gt;
+  &lt;td&gt;[% $this-&gt;nodeFormObject( 'TypeMenu', 'parent_container',
+  'parentContainer', 'container', 'AUTO', $this-&gt;get_user, 'r', 0 ) %]&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Theme:&lt;/b&gt;&lt;/td&gt;
-  &lt;td&gt;[{nodeFormObject: TypeMenu, ownedby_theme, theme, theme, AUTO, $USER, r, 0}]&lt;/td&gt;
+  &lt;td&gt;[% $this-&gt;nodeFormObject( 'TypeMenu', 'ownedby_theme', 'theme', 'theme', 'AUTO', $this-&gt;get_user, 'r', 0 ) %]&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Permission needed:&lt;/b&gt;&lt;/td&gt;

@@ -20,7 +20,7 @@ __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub/);
 
 
-use vars qw( $query $GNODE $USER $VARS %HTMLVARS );
+use vars qw( $GNODE );
 
 # This is used for nodes to pass vars back-n-forth
 use vars qw( %GLOBAL );
@@ -346,14 +346,14 @@ Returns an html/text string that will be displayed to the browser.
 =cut
 
 sub htmlFormatErr {
-    my ( $err, $CONTEXT ) = @_;
+    my ( $self, $err, $CONTEXT ) = @_;
     my $str;
 
-    if ( $USER->isGod() ) {
-        $str = htmlErrorGods( $err, $CONTEXT );
+    if ( $self->get_user->isGod() ) {
+        $str = $self->htmlErrorGods( $err, $CONTEXT );
     }
     else {
-        $str = htmlErrorUsers( $err, $CONTEXT );
+        $str = $self->htmlErrorUsers( $err, $CONTEXT );
     }
 
     return $str;
@@ -394,7 +394,9 @@ Returns an html/text string that will be displayed to the browser.
 =cut
 
 sub htmlErrorUsers {
-    my ( $errors, $CONTEXT ) = @_;
+    my ( $self, $errors, $CONTEXT ) = @_;
+    my $USER = $self->get_user;
+    my $query = $self->get_query;
     my $errorId = int( rand(9999999) );    # just generate a random error id.
     my $str;                               #= htmlError($errorId);
 
@@ -462,9 +464,9 @@ Returns an html/text string that will be displayed to the browser.
 =cut
 
 sub htmlErrorGods {
-    my ( $errors, $CONTEXT ) = @_;
+    my ( $self, $errors, $CONTEXT ) = @_;
     my $str;
-
+    my $VARS = $self->get_vars;
     foreach my $err (@$errors) {
         my $error = $$err{error} . $$err{warning};
         my $linenum;
@@ -906,6 +908,7 @@ sub AUTOLOAD {
 
     my $self = shift;
 
+    my $HTMLVARS = $self->get_htmlvars;
     # @_ contains the parameters for the htmlcode so we don't need to
     # extract them.
     my $subname = $Everything::HTML::AUTOLOAD;
@@ -913,7 +916,7 @@ sub AUTOLOAD {
     $subname =~ s/.*:://;
 
     my $CODE = $self->get_nodebase->getNode( $subname, 'htmlcode' );
-    my $user = $USER;
+    my $user = $self->get_user;
 
     $user ||= -1;
 
@@ -929,7 +932,7 @@ sub AUTOLOAD {
     return undef unless ( $CODE->hasAccess( $user, 'x' ) );
 
     return $CODE->run(
-        { no_cache => $HTMLVARS{noCompile}, args => \@_, ehtml => $self } );
+        { no_cache => $$HTMLVARS{noCompile}, args => \@_, ehtml => $self } );
 
 }
 
@@ -1015,6 +1018,7 @@ sub execute_coderef {
 
     flushErrorsToBackside();
 
+    my ($ehtml) = @$args; #E::H object should be first one on array
     my $result = eval { $code_ref->( $CURRENTNODE, @$args ) } || '';
 
     local $SIG{__WARN__} = sub { };
@@ -1025,7 +1029,7 @@ sub execute_coderef {
     my $errors = getFrontsideErrors();
 
     if ( int(@$errors) > 0 ) {
-        $result .= htmlFormatErr( $errors, $CURRENTNODE );
+        $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
     }
     clearFrontside();
 
@@ -1165,45 +1169,6 @@ sub compileCache {
     return executeCachedCode( $field, $NODE, $args );
 }
 
-=cut
-
-
-=head2 C<nodemethod>
-
-Allow compil-o-caching and calling of nodemethods.  Internal use only.
-
-=over 4
-
-=item * $CURRENTNODE
-
-the nodemethod node in question
-
-=item * @_
-
-further arguments for the nodemethod code
-
-=back
-
-Returns the text results of the nodemethod code, if it succeeded.  Undef
-otherwise.  See Everything::Node::AUTOLOAD for the emergency backup plan.
-
-=cut
-
-sub nodemethod {
-
-    # args for the nodemethod may be passed here
-    my ($CURRENTNODE) = shift;
-
-    unless ( ( exists( $HTMLVARS{noCompile} ) and $HTMLVARS{noCompile} )
-        or exists( $CURRENTNODE->{DB}->{workspace} ) )
-    {
-        my $result = executeCachedCode( 'code', $CURRENTNODE, \@_ );
-        return $result if ( defined($result) );
-
-        my $code = "sub {\n$$CURRENTNODE{code}\n}";
-        return compileCache( $code, $CURRENTNODE, 'code', \@_ );
-    }
-}
 
 =cut
 
@@ -1219,6 +1184,7 @@ Returns the HTML from the snippet
 
 sub htmlsnippet {
     my ( $self, $snippet, @args ) = @_;
+    my $USER = $self->get_user;
     my $node = $self->get_nodebase->getNode( $snippet, 'htmlsnippet' );
     my $html = '';
 
@@ -1457,6 +1423,7 @@ blank string if there aren't any errors.
 =cut
 
 sub formatGodsBacksideErrors {
+    my $self = shift;
     Everything::flushErrorsToBackside();
 
     my $errors = Everything::getBacksideErrors();
@@ -1474,7 +1441,7 @@ sub formatGodsBacksideErrors {
 
         $str .= "<tr><td bgcolor='#ff3333'>";
         $str .= "<font color='black'>Error: $$error{error}</font></td></tr>\n";
-        $str .= "<tr><td>From: " . linkNode( $$error{context} ) . "</td></tr>\n"
+        $str .= "<tr><td>From: " . $self->link_node( $$error{context} ) . "</td></tr>\n"
           if ( $$error{context} );
         $str .= "<tr><td><pre>$$error{code}</pre></td></tr>\n";
     }
@@ -1497,6 +1464,7 @@ Returns nothing of value.
 =cut
 
 sub printBacksideToLogFile {
+    my $self = shift;
     Everything::flushErrorsToBackside();
 
     my $errors = Everything::getBacksideErrors();

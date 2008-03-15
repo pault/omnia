@@ -13,6 +13,7 @@
   <field name="nlcode" type="literal_value">[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
+
 return &quot;&quot; unless($NODE-&gt;hasAccess($USER, &quot;w&quot;));
 
 my $PARAMS = { op =&gt; 'addBucket', &quot;bnode_&quot; . $$NODE{node_id} =&gt; 1 };
@@ -31,6 +32,7 @@ $query-&gt;hidden(-name =&gt; &quot;op&quot;, -default =&gt; &quot;bucketOp&quot
 %][%
 my $query = $this-&gt;get_query;
 my $NODE = $this-&gt;get_requested_node;
+my $VARS = $this-&gt;get_vars;
 
 my @bnodes;
 @bnodes = split ',', $$VARS{nodebucket} if (defined($$VARS{nodebucket}));

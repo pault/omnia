@@ -7,6 +7,7 @@
 my ($setting, $field, $labelon, $labeloff) = @_;
 my $query = $this-&gt;get_query;
 my $DB = $this-&gt;get_nodebase;
+my $USER = $this-&gt;get_user;
 
 $labelon ||= &quot;on&quot;;
 $labeloff ||= &quot;off&quot;;

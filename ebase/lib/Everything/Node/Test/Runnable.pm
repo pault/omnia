@@ -89,6 +89,7 @@ sub test_eval_code : Test(4) {
   my $self = shift;
   my $class = $self->{class};
   my $instance = $self->{instance};
+  my $mock = $self->{mock};
   can_ok($class, 'eval_code');
 
 
@@ -106,7 +107,7 @@ sub test_eval_code : Test(4) {
 
   my $code = eval "sub {'random text'}";
   is (ref $code, 'CODE', '...we get a code ref.');
-  is($instance->eval_code($code, 'page'), 'random text', 'Eval code works');
+  is($instance->eval_code($code, 'page', [ $mock ]), 'random text', 'Eval code works');
   is ($errors, '', '...runs without errors.') || diag $errors;
 }
 

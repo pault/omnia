@@ -26,7 +26,7 @@
 &lt;/tr&gt;
 &lt;tr&gt;
  &lt;td&gt;Mini Nodelet:&lt;/td&gt;
- &lt;td&gt;[{nodeFormObject: TypeMenu, mini_nodelet, mininodelet, nodelet, AUTO, $USER, r, 0}]&lt;/td&gt;
+ &lt;td&gt;[% $this-&gt;nodeFormObject( 'TypeMenu', 'mini_nodelet', 'mininodelet', 'nodelet', 'AUTO', $this-&gt;get_user, 'r', 0) %]&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
 

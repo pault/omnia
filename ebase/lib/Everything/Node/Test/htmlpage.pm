@@ -62,14 +62,13 @@ sub test_make_html : Test(3) {
   $instance->{NODE}->{node_id} = '2222';
   $mock->set_series('isGod', 0, 1);
 
-  local *Everything::HTML::formatGodsBacksideErrors;
-  *Everything::HTML::formatGodsBacksideErrors = sub { "some errors" };
+  $mock->mock( formatGodsBacksideErrors => sub { "some errors" } );
   local *Everything::HTML::printBacksideToLogFile;
   *Everything::HTML::printBacksideToLogFile = sub { 1 };
 
 
-  is($instance->make_html( $mock ), 'some htmlpage html ', '...creates html with no errors' );
-  is($instance->make_html( $mock ), 'some htmlpage html some errors', '...creates html with errors' );
+  is($instance->make_html( $mock, $mock ), 'some htmlpage html ', '...creates html with no errors' );
+  is($instance->make_html( $mock, $mock ), 'some htmlpage html some errors', '...creates html with errors' );
 
 
 }

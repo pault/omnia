@@ -5,6 +5,7 @@
 my $NODE = $this-&gt;get_node;
 my $THEME = $this-&gt;get_theme;
 my $query = $this-&gt;get_query;
+my $USER = $this-&gt;get_user;
 my %GLOBAL;
 my $str;
 

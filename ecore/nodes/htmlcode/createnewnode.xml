@@ -3,6 +3,7 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">my $query = $this-&gt;get_query;
 my $DB = $this-&gt;get_nodebase;
+my $USER = $this-&gt;get_user;
 my $str;
 my $title = $query-&gt;param('node');
 return &quot;&quot; unless $title;

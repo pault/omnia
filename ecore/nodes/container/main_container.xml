@@ -10,7 +10,7 @@
 my $DB = $this-&gt;get_nodebase;
 my $THEME = $this-&gt;get_theme;
 my $HTMLVARS = $this-&gt;get_htmlvars;
-my $default = $DB-&gt;getNode($HTMLVARS{default_node});
+my $default = $DB-&gt;getNode($$HTMLVARS{default_node});
 my $IMG = $DB-&gt;getNode( $$THEME{cornerIcon_image} );
 $this-&gt;link_node($default, &quot;&lt;img border=0 src=$$IMG{src} height=\&quot;48\&quot; width=\&quot;35\&quot; alt=\&quot;Corner Logo\&quot;\&gt;&quot;) if $IMG;
 %]

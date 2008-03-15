@@ -26,13 +26,13 @@
  &lt;tr&gt;
   &lt;td&gt;extends&lt;/td&gt;
   &lt;td&gt;
-  [{nodeFormObject: NodetypeMenu, extends_nodetype, extends, 0, $USER, 0}]
+  [% $this-&gt;nodeFormObject( 'NodetypeMenu', 'extends_nodetype', 'extends', 0, $this-&gt;get_user, 0) %]
   &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;restrict nodetype(groups)&lt;/td&gt;
   &lt;td&gt;
-  [{nodeFormObject: NodetypeMenu, restrict_nodetype, restrict, 0 ,$USER, 0}][{displayInherited:restrict_nodetype}] &lt;/td&gt;
+  [% $this-&gt;nodeFormObject( 'NodetypeMenu', 'restrict_nodetype', 'restrict', 0 ,$this-&gt;get_user, 0 ) %][{displayInherited:restrict_nodetype}] &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
   &lt;td&gt;restrict duplicate titles&lt;/td&gt;

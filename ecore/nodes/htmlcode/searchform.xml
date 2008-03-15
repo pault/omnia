@@ -8,7 +8,7 @@ my $NODE = $this-&gt;get_node;
 my $query = $this-&gt;get_query;
 
 return if (($$USER{node_id} == $$HTMLVARS{guest_user}) and 
-		not($HTMLVARS{GUshowsearchform}) ); 
+		not($$HTMLVARS{GUshowsearchform}) ); 
 my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name) .
 	$query-&gt;textfield(-name =&gt; &quot;node&quot;,
 		-default =&gt; &quot;&quot;,

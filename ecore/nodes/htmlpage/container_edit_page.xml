@@ -16,7 +16,7 @@
   <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
 
 &lt;b&gt;Parent container:&lt;/b&gt;
-[{nodeFormObject: TypeMenu, parent_container, parentContainer, container, AUTO, $USER, r, 0}]&lt;br&gt;
+[% $this-&gt;nodeFormObject( 'TypeMenu', 'parent_container', 'parentContainer', 'container', 'AUTO', $this-&gt;get_user, 'r', 0 ) %]&lt;br&gt;
 
 container html:&lt;br&gt;
 [{nodeFormObject: TextArea, context}]

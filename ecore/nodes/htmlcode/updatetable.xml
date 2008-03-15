@@ -40,7 +40,7 @@ if((defined $query-&gt;param(&quot;fieldname_new&quot;)) &amp;&amp;
   $query-&gt;param(&quot;fieldprimary_new&quot;, &quot;&quot;);
   $query-&gt;param(&quot;fielddefault_new&quot;, &quot;&quot;);
 }
-  $NODE-&gt;update($USER);
+  $NODE-&gt;update($this-&gt;get_user);
   $NODE = $DB-&gt;getNode($$NODE{node_id}, 'force');
   #we need to do this to refresh the field cache
 &quot;&quot;;

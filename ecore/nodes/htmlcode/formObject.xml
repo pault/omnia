@@ -13,7 +13,7 @@ return &quot;&quot; unless($formObject);
 
 # The undef's are the &quot;bindNode&quot; and the field it binds on.  Since
 # we are not binding on anything, just undef there.
-unshift @_, ($query, undef, undef);
+unshift @_, ($this-&gt;get_query, undef, undef);
 
 return $formObject-&gt;genObject(@_); </field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
