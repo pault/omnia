@@ -16,6 +16,7 @@
 #    or modification
 
 my $query = $this-&gt;get_query;
+my $NODE = $this-&gt;get_requested_node;
 my ($redirectNode, $redirectDisplay, $preprocess, $postprocess) = @_;
 my $html;
 

@@ -21,7 +21,7 @@
   [{nodeFormObject: NodetypeMenu, supports_nodetype, supportstype}]&lt;br&gt;
  &lt;/td&gt;
  &lt;td width=50 rowspan=2&gt;
-  &lt;font size=2&gt;[{listNodetypeFields: $$NODE{supports_nodetype}}]&lt;/font&gt;
+  &lt;font size=2&gt;[% $this-&gt;listNodetypeFields( $this-&gt;get_requested_node-&gt;get_supports_nodetype ) %]&lt;/font&gt;
  &lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;

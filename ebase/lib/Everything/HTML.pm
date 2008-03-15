@@ -20,8 +20,6 @@ __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub/);
 
 
-use vars qw( $GNODE );
-
 # This is used for nodes to pass vars back-n-forth
 use vars qw( %GLOBAL );
 
@@ -604,9 +602,6 @@ sub linkNode {
 
     my $tags = "";
 
-    $$PARAMS{lastnode_id} = $GNODE->{node_id}
-      unless exists $$PARAMS{lastnode_id};
-
     separate_params( $PARAMS, \$tags );
 
     my $scripts = handle_scripts($SCRIPTS);
@@ -638,9 +633,6 @@ sub link_node {
     $title ||= $$NODE{title};
 
     my $tags = "";
-
-    $$PARAMS{lastnode_id} = $GNODE->{node_id}
-      unless exists $$PARAMS{lastnode_id};
 
     separate_params( $PARAMS, \$tags );
 
@@ -827,74 +819,6 @@ sub evalXTrapErrors {
 =cut
 
 
-=head2 C<evalX>
-
-This function is a wrapper for the normal eval so that we can trap errors and
-log them.  This is intended to be called only from within this package
-(HTML.pm) as all the globals to this package will be accessable to any code
-that gets evaled.
-
-However, this does not mean that it can't be called from other packages.  Just
-be aware that HTML.pm globals will be in scope.
-
-Note all variables in scope when the eval() is called should be namespaced with
-$EVALX_ -- avoiding  "accidents" involving the same variable names in the
-evalled code.
-
-=over 4
-
-=item * $EVALX_CODE
-
-the string of code that is to be evaled.
-
-=item * $CURRENTNODE
-
-the node in which the code is coming from.  If you are unable to pass this (you
-don't know it or are evaling code that is not associated with a node), you must
-pass undef in its place as the rest of @_ are the parameters that will be in
-scope when the actual eval is done.
-
-=back
-
-Returns whatever the code returns.
-
-=cut
-
-sub evalX {
-    my $EVALX_CODE  = shift @_;
-    my $CURRENTNODE = shift @_;
-    my $EVALX_WARN;
-    my $NODE = $GNODE;
-
-    $CURRENTNODE ||= $NODE;
-
-    local $SIG{__WARN__} = sub {
-        $EVALX_WARN .= $_[0]
-          unless $_[0] =~ /^Use of uninitialized value/;
-    };
-
-    # If the code was ever edited on Windows, the newlines are carriage
-    # return, line feed combos.  We only want \n.  We are removing the \r
-    # (line feed) here.  This should probably be done on the database
-    # insert/update routines so that this Windows crap never even gets
-    # into the database.  Oh well, we will just scrub it clean here...
-    $EVALX_CODE =~ s/\015//gs;
-
-    # If we define any subroutines in our code, this will prevent
-    # us from getting the "subroutine * redefined" warning.
-    local $^W = 0;
-
-    my $result = eval($EVALX_CODE);
-
-    # Log any errors that we get so that we may display them later.
-    logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
-
-    return $result;
-}
-
-=cut
-
-
 =head2 C<AUTOLOAD>
 
 This is to allow htmlcode to be called just like normal functions If an
@@ -1011,7 +935,7 @@ sub execute_coderef {
 
     my ( $code_ref, $field, $CURRENTNODE, $args ) = @_;
     my $warn;
-    my $NODE = $GNODE;
+
     local $SIG{__WARN__} = sub {
         $warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
     };
@@ -1108,9 +1032,73 @@ sub createAnonSub {
     "sub {
 		my \$CURRENTNODE=shift;
                 my \$this = shift;
-		my \$NODE=\$GNODE; 
 		$code 
 	}\n";
+}
+
+=cut
+
+
+=head2 C<evalX>
+
+This function is a wrapper for the normal eval so that we can trap errors and
+log them.  This is intended to be called only from within this package
+(HTML.pm) as all the globals to this package will be accessable to any code
+that gets evaled.
+
+However, this does not mean that it can't be called from other packages.  Just
+be aware that HTML.pm globals will be in scope.
+
+Note all variables in scope when the eval() is called should be namespaced with
+$EVALX_ -- avoiding  "accidents" involving the same variable names in the
+evalled code.
+
+=over 4
+
+=item * $EVALX_CODE
+
+the string of code that is to be evaled.
+
+=item * $CURRENTNODE
+
+the node in which the code is coming from.  If you are unable to pass this (you
+don't know it or are evaling code that is not associated with a node), you must
+pass undef in its place as the rest of @_ are the parameters that will be in
+scope when the actual eval is done.
+
+=back
+
+Returns whatever the code returns.
+
+=cut
+
+sub evalX {
+    my $EVALX_CODE  = shift @_;
+    my $CURRENTNODE = shift @_;
+    my $EVALX_WARN;
+
+    local $SIG{__WARN__} = sub {
+        $EVALX_WARN .= $_[0]
+          unless $_[0] =~ /^Use of uninitialized value/;
+    };
+
+    # If the code was ever edited on Windows, the newlines are carriage
+    # return, line feed combos.  We only want \n.  We are removing the \r
+    # (line feed) here.  This should probably be done on the database
+    # insert/update routines so that this Windows crap never even gets
+    # into the database.  Oh well, we will just scrub it clean here...
+    $EVALX_CODE =~ s/\015//gs;
+
+    # If we define any subroutines in our code, this will prevent
+    # us from getting the "subroutine * redefined" warning.
+    local $^W = 0;
+
+    my $result = eval($EVALX_CODE);
+
+    # Log any errors that we get so that we may display them later.
+    logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
+
+    return $result;
 }
 
 =cut

@@ -22,7 +22,7 @@ $this-&gt;link_node($NODE, &quot;Add '$$NODE{title}'&quot;, $PARAMS);
 %][%
 
 my $query = $this-&gt;get_query;
-
+my $NODE = $this-&gt;get_requested_node;
 
 $query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) .
 $query-&gt;hidden(&quot;displaytype&quot;) .

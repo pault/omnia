@@ -5,6 +5,8 @@
 my $query = $this-&gt;get_query;
 my $USER = $this-&gt;get_user;
 my $DB = $this-&gt;get_nodebase;
+my $NODE = $this-&gt;get_requested_node;
+
 return &quot;&quot; unless($mini);
 
 my $str;
