@@ -10,7 +10,7 @@
 #
 
 my ($varsfield, $N) = @_;
-
+my $THEME = $this-&gt;get_theme || {};
 $varsfield ||= 'vars';
 $N         ||= $this-&gt;get_node;
 

@@ -65,6 +65,7 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( button               => 'a string of html' );
     $mock->set_always( checkbox_group       => 'a string of html' );
     $mock->set_always( start_multipart_form => 'a string of html' );
+    $mock->set_always( h2                   => 'a string of html' );
     $mock->set_true('param');
 
     # mocks for $DB
@@ -86,9 +87,12 @@ sub pretest_setup : Test(setup) {
     $mock->set_list( fetchrow => undef );
     $mock->set_always( getDatabaseHandle => $mock );
     $mock->set_always( sqlSelect         => undef );
+    $mock->mock( getRef => sub { $_[1] = $mock } );
 
     # mocks for $dbh
     $mock->set_always( quote => 'a quoted string' );
+    $mock->set_true(qw/execute/);
+    $mock->set_always( prepare => $mock );
 
     # mocks for $NODE
     $mock->set_always( run           => 'a string of text' );
@@ -99,7 +103,7 @@ sub pretest_setup : Test(setup) {
         'cacheMethod',  'isOfType',
         'toXML',        'addType',
         'sortMenu',     'getDefaultTypePermissions',
-        'genPopupMenu', 'addHash'
+        'genPopupMenu', 'addHash', 'isGuest', 'insert', 'insertIntoGroup'
     );
     $mock->set_always( 'getId', 111 );
     $mock->set_false(qw/isGod isOfType/);

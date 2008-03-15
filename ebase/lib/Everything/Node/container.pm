@@ -67,7 +67,7 @@ sub generate_container {
     # SECURITY!  Right now, only gods can see the containers.  When we get
     # a full featured security model in place, this will change...
     if ( $user->isGod() && ( $containers eq "show" ) ) {
-        $replacetext = $self->show_containers( $replacetext, $request );
+        $replacetext = $self->show_containers( $replacetext, $request, $ehtml );
     }
 
      if ( $self->get_parent_container ) {
@@ -82,7 +82,7 @@ sub generate_container {
 }
 
 sub show_containers {
-    my ( $self, $replacetext, $request ) = @_;
+    my ( $self, $replacetext, $request, $ehtml ) = @_;
     my $start          = "";
     my $middle         = $replacetext;
     my $end            = "";
@@ -107,7 +107,7 @@ sub show_containers {
     {
         $Everything::HTML::GLOBAL{debugContainer} = $self;
 
-        my $debugtext = $debugcontainer->process_contained_data( $request, $middle);
+        my $debugtext = $debugcontainer->process_contained_data( $request, $middle, undef, $ehtml);
         $replacetext = $start . $debugtext . $end;
     }
 

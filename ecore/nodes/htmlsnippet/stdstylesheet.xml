@@ -4,23 +4,23 @@
   <field name="code" type="literal_value">&lt;style type=&quot;text/css&quot;&gt;
 
 body {
-background-color: [% $$THEME{bodyBgcolor} || '#FFFFFF' %];
-color: [% $$THEME{bodyTextcolor} || &quot;#000000&quot; %];
-margin-top: [% $$THEME{bodyTMargin} || 5 %];
-margin-bottom: [% $$THEME{bodyTMargin} || 5 %];
-margin-left: [% $$THEME{bodyLMargin} || 5 %];
-margin-right: [% $$THEME{bodyLMargin} || 5 %];
+background-color: [% $this-&gt;get_theme-&gt;{bodyBgcolor} || '#FFFFFF' %];
+color: [% $this-&gt;get_theme-&gt;{bodyTextcolor} || &quot;#000000&quot; %];
+margin-top: [% $this-&gt;get_theme-&gt;{bodyTMargin} || 5 %];
+margin-bottom: [% $this-&gt;get_theme-&gt;{bodyTMargin} || 5 %];
+margin-left: [% $this-&gt;get_theme-&gt;{bodyLMargin} || 5 %];
+margin-right: [% $this-&gt;get_theme-&gt;{bodyLMargin} || 5 %];
 font-family: verdana, helvetica, arial, sans-serif;
 font-size: small;
 
 }
 
 a:link {
-color: [% $$THEME{bodyLinkcolor} || &quot;#993333&quot; %];
+color: [% $this-&gt;get_theme-&gt;{bodyLinkcolor} || &quot;#993333&quot; %];
 }
 
 a:visited {
-color: [% $$THEME{bodyVlinkcolor} || &quot;#333399&quot; %];
+color: [% $this-&gt;get_theme-&gt;{bodyVlinkcolor} || &quot;#333399&quot; %];
 } 
 
 #header {
@@ -68,7 +68,7 @@ left: 10px;
 
 .nodelettitle {
 color: white;
-background-color: [% $$THEME{nodeletTitleColor} || &quot;#CC99FF&quot; %];
+background-color: [% $this-&gt;get_theme-&gt;{nodeletTitleColor} || &quot;#CC99FF&quot; %];
 font-weight: bold;
 padding-left: 1em;
 
@@ -77,7 +77,7 @@ padding-left: 1em;
 .nodeletbody {
 font-size: 7pt;
 padding-left: 2px;
-background-color: [% $$THEME{nodeletBodyColor} || &quot;#CCCCCC&quot; %];
+background-color: [% $this-&gt;get_theme-&gt;{nodeletBodyColor} || &quot;#CCCCCC&quot; %];
 }
 .nodeletoutline {
 margin-top: 2px;
