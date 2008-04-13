@@ -1,3 +1,10 @@
+
+=head1 Everything::HTTP::Request
+
+A request object for everything.
+
+=cut
+
 package Everything::HTTP::Request;
 
 use Everything ('$DB');
@@ -10,10 +17,54 @@ use strict;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
-    qw/requested_node options initializer nodebase user user_vars cgi node system_vars theme authorisation/
+    qw/options initializer nodebase user user_vars cgi node system_vars theme authorisation response_type message/
 );
 
-=head2 C<set_cgi_standard>
+=head1 Attributes
+
+The object has the following attributes
+
+=over 4
+
+=item * node
+
+The requested node
+
+=item * nodebase
+
+The nodebase to which this request relates
+
+=item * authorisation
+
+An Everything::Auth object
+
+=item * user
+
+The authorised user
+
+=item * cgi
+
+A CGI.pm object that relates to the request
+
+=item * response_type
+
+The type of the response object to be passed to the Response factory object.
+
+=item * message
+
+A message, such as an error, message to be picked up by other modules
+
+=back
+
+
+
+=cut
+
+=head1 METHODS
+
+The object supports the following methods
+
+=head2 set_cgi_standard
 
 This sets up the CGI object, taking data from the environment.
 
@@ -39,19 +90,9 @@ sub set_cgi_standard {
     return $self;
 }
 
-=head2 C<get_cgi>
-
-Returns the CGI object.
-
-Takes no arguments.
-
 =cut
 
-=cut
-
-
-
-=head2 C<setup_standard_system_vars>
+=head2 setup_standard_system_vars
 
 This gets the 'system settings' node and assigns the settings hash to the
 global HTMLVARS for our use during this page load.
@@ -403,7 +444,7 @@ sub searchForNodeByName {
 
         if ( $search_group && @$search_group > 0 ) {
             my $node_id = $e->get_system_vars()->{searchResults_node};
-            $e->{GLOBAL}->{searchgroup} = $search_group;
+            $e->set_message( $search_group );
             return retrieve_node( $nodebase, $node_id );
         }
         else {

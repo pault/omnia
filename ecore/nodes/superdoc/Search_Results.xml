@@ -16,7 +16,12 @@ my $title = $query-&gt;param('node');
 return &quot;&quot; unless $title;
 $str.=&quot;&lt;table border=0 cellpadding=2&gt;&quot;;
 
-foreach (@{ $GLOBAL{searchgroup} }) {
+my $nodes = $this-&gt;get_request-&gt;get_message;
+unless ( ref $nodes &amp;&amp; ref $nodes eq 'ARRAY' ) {
+$nodes = [];
+}
+
+foreach (@{ $nodes }) {
   my $ND = getNode $$_{node_id};
   $str .=&quot;&lt;tr&gt;&quot;;
   $str .= &quot;&lt;td&gt;&quot; . linkNode ($ND) . &quot;&lt;/td&gt;&quot;;

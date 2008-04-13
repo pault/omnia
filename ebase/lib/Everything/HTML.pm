@@ -21,7 +21,6 @@ __PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub/);
 
 
 # This is used for nodes to pass vars back-n-forth
-use vars qw( %GLOBAL );
 
 sub get_requested_node { $_[0]->get_request->get_node }
 sub get_node           { $_[0]->get_requested_node }
@@ -1558,7 +1557,7 @@ sub opNuke {
 
     if ( $$NODE{node_id} == 0 ) {
         $query->param( 'node_id', $HTMLVARS{nodedeleted_node} );
-        $GLOBAL{nodedeleted} = $NODE;
+        $request->set_message( $NODE );
     }
 }
 
@@ -1609,9 +1608,10 @@ sub opNew {
     $query->param( "node",    "" );
 
     if ( $NEWNODE->getId() < 1 ) {
-        $GLOBAL{permissionDenied} = "You do not have permission to create "
-          . "a node of type '$$NEWNODE{type}{title}'.";
-        $query->param( "node_id", $HTMLVARS{permissionDenied_node} );
+        $request->set_message("You do not have permission to create "
+          . "a node of type '$$NEWNODE{type}{title}'.");
+	my $node = $nodebase->get_node(  $HTMLVARS{permissionDenied_node} );
+	$request->set_node( $node );
     }
 }
 
@@ -1681,6 +1681,7 @@ sub opUpdate {
     my @params = $query->param();
     my %UPDATENODES;
     my %UPDATEOBJECT;
+    my %verify_failed = ();
     my $CGIVERIFY = 1;    # Assume that we succeed until we fail
     my @formbind;
     my @sort;
@@ -1720,8 +1721,7 @@ sub opUpdate {
 
         my $verify = $formObject->cgiVerify( $query, $objectName, $USER );
         if ( $$verify{failed} ) {
-            $GLOBAL{VERIFYFAILED} ||= {};
-            $GLOBAL{VERIFYFAILED}{$objectName} = $$verify{failed};
+            $verify_failed{$objectName} = $$verify{failed};
 
             $CGIVERIFY = 0;
         }
@@ -1732,7 +1732,10 @@ sub opUpdate {
     }
 
     # If anything failed a verify, abort the update
-    return unless ($CGIVERIFY);
+    unless ($CGIVERIFY) {
+	$request->set_message( \%verify_failed );
+	return;
+    }
 
     # Ok, all form objects that were bound to something verified that they
     # can be updated.  So, lets do it!  This just modifies the hash objects

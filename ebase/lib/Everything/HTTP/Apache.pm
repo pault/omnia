@@ -55,7 +55,9 @@ sub handler {
 
     $e->execute_opcodes;
 
-    $e->set_node_from_cgi;
+    unless ( $e->get_node ) {
+	$e->set_node_from_cgi;
+    }
 
     if ( !$e->get_node && $r->uri ) {
 
@@ -89,7 +91,7 @@ sub handler {
     ### XXX- set in config file response factory
     ### XXX- response factory should set up the environment that htmlpage needs
 
-    my $response = Everything::HTTP::ResponseFactory->new( 'htmlpage', $e );
+    my $response = Everything::HTTP::ResponseFactory->new( $e->get_response_type || 'htmlpage', $e );
     $response->create_http_body( { ehtml => $ehtml } );
     my $html = $response->get_http_body;
 

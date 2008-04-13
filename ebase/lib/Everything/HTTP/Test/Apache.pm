@@ -75,7 +75,7 @@ sub test_handler : Test(25) {
     $fake_everything_request->set_true(
         qw/setup_standard_system_vars set_cgi_standard authorise_user set_e process get_user set_node_from_cgi set_node setup_everything_html execute_opcodes/
     );
-    $fake_everything_request->set_always( '-get_node', $mock );
+    $fake_everything_request->set_series( '-get_node', undef, $mock, $mock, $mock );
     $fake_everything_request->set_always( 'get_options', { a => 'b' } );
     $fake_everything_request->set_always( '-get_cgi',      $mock );
     $fake_everything_request->set_always( '-get_nodebase', $mock );

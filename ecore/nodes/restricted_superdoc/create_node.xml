@@ -23,7 +23,7 @@ $str;
 %]
 
 Nodetype:&lt;code&gt;
-[{formObject: NodetypeMenu, type, 1, $USER}]&lt;/code&gt;
+[% $this-&gt;formObject( 'NodetypeMenu', 'type', 1, $this-&gt;get_user ) %]&lt;/code&gt;
 
 [%
 my $query = $this-&gt;get_query;

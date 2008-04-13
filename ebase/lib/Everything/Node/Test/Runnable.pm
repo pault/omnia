@@ -6,12 +6,18 @@ use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
 use Test::Exception;
+use Everything::HTML;
 use Scalar::Util 'blessed';
 
 
 
 BEGIN {
-  Test::MockObject->fake_module('Everything::Auth');
+  Test::MockObject->fake_module('Everything::Auth', import => sub {} );
+  Test::MockObject->fake_module('Everything',
+				import => sub {},
+		     flushErrorsToBackside => sub {1},
+
+				getBacksideErrors => sub {1});
 }
 
 
@@ -19,11 +25,9 @@ BEGIN {
 sub startup_runnable : Test(startup => 1) {
     my $self = shift;
   my $mock = Test::MockObject->new;
-  $mock->fake_module('Everything',
-		     flushErrorsToBackside => sub {1},
-		     getBacksideErrors => sub {1});
 
   *Everything::HTTP::Request::DB = \$mock;
+  *Everything::HTML::DB = \$mock;
   $mock->set_always('get_db', $mock);
   $mock->set_always('getNodeById', $mock);
 
@@ -42,14 +46,10 @@ sub startup_runnable : Test(startup => 1) {
 
   $self->{mock} = $mock;
 
-    *Everything::HTML::Code::Environment::flushErrorsToBackside = sub {1};
-    *Everything::HTML::Code::Environment::clearFrontside = sub {1};
-    *Everything::HTML::Code::Environment::getFrontsideErrors = sub {[]};
-
   my $class = $self->module_class();
 
   $self->{class} = $class;
-  use Everything;
+
   use_ok($class) or die;
 
 
@@ -106,9 +106,17 @@ sub test_eval_code : Test(4) {
   *Everything::HTML::logErrors = sub { $errors = "@_" };
 
   my $code = eval "sub {'random text'}";
-  is (ref $code, 'CODE', '...we get a code ref.');
-  is($instance->eval_code($code, 'page', [ $mock ]), 'random text', 'Eval code works');
+
+  my $ehtml = Everything::HTML->new;
+  ## NOTE: the third argument is the args passed to the subroutine,
+  ## the first of these is the Everything::HTML object.
+  is($instance->eval_code($code, 'page', [ $ehtml ] ), 'random text', 'Eval code works');
   is ($errors, '', '...runs without errors.') || diag $errors;
+
+  my $args;
+  $code = sub { $args = "@_" };
+  $instance->eval_code($code, 'page', [ $ehtml, 'an arg' ] );
+  is($args,  "$instance $ehtml an arg", 'Correctly passes arguments.');
 }
 
 1;

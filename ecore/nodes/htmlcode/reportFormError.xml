@@ -4,12 +4,18 @@
   <field name="code" type="literal_value">my ($objectName) = @_;
 my $str;
 
+my $verify_failed = $this-&gt;get_message;
+
+unless ( ref $verify_failed &amp;&amp; ref $verify_failed eq 'HASH' ) {
+$verify_failed = {};
+}
+
 if($objectName)
 {
-  $str = $GLOBAL{VERIFYFAILED}{$objectName}
-     if(exists $GLOBAL{VERIFYFAILED}{$objectName});
+  $str = $verify_failed-&gt;{$objectName}
+     if(exists $verify_failed-&gt;{$objectName});
 }
-elsif(exists $GLOBAL{VERIFYFAILED})
+elsif(%$verify_failed)
 {
   # if no object name was given, we will just report if any verify
   # errors were encountered.

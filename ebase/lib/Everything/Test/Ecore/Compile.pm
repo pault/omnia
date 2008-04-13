@@ -49,6 +49,7 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( get_node        => $mock );
     $mock->set_always( get_node_id     => 111 );
     $mock->set_always( link_node_title => 'a url' );
+    $mock->set_always( get_message  => 'a message' );
 
     # mocks for $query
     $mock->set_always( hidden               => 'a string of html' );
