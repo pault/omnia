@@ -116,7 +116,7 @@ sub test_eval_code : Test(4) {
   my $args;
   $code = sub { $args = "@_" };
   $instance->eval_code($code, 'page', [ $ehtml, 'an arg' ] );
-  is($args,  "$instance $ehtml an arg", 'Correctly passes arguments.');
+  is($args,  "$ehtml an arg", 'Correctly passes arguments.');
 }
 
 1;

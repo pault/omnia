@@ -17,7 +17,7 @@ use CGI::Carp qw(fatalsToBrowser);
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub/);
+__PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub current_node/);
 
 
 # This is used for nodes to pass vars back-n-forth
@@ -942,7 +942,8 @@ sub execute_coderef {
     flushErrorsToBackside();
 
     my ($ehtml) = @$args; #E::H object should be first one on array
-    my $result = eval { $code_ref->( $CURRENTNODE, @$args ) } || '';
+    $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
+    my $result = eval { $code_ref->( @$args ) } || '';
 
     local $SIG{__WARN__} = sub { };
 
@@ -1029,7 +1030,6 @@ sub createAnonSub {
     my ($code) = @_;
 
     "sub {
-		my \$CURRENTNODE=shift;
                 my \$this = shift;
 		$code 
 	}\n";

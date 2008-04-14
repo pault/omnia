@@ -2,15 +2,10 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
+
 my $THEME = $this-&gt;get_theme;
 my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
+my $CURRENTNODE = $this-&gt;get_current_node;
  
  if(defined $$THEME{generalParent_container})
  {
@@ -34,7 +29,7 @@ CONTAINED_STUFF</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="parent_container" type="literal_value">0</field>
+  <field name="parent_container" type="noderef" type_nodetype="container,nodetype">main container</field>
   <field name="title" type="literal_value">general container</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">container</field>
 </NODE>
