@@ -50,9 +50,6 @@ sub handler {
     $options->{query}    = $e->get_cgi;
     $e->authorise_user($options);
 
-    ## VARIABLES
-    $e->setup_everything_html;
-
     $e->execute_opcodes;
 
     unless ( $e->get_node ) {
@@ -85,8 +82,6 @@ sub handler {
     ### obviously are pointing to a non-existent location.
 
     return NOT_FOUND unless ref $e->get_node;
-
-    $e->setup_everything_html;
 
     ### XXX- set in config file response factory
     ### XXX- response factory should set up the environment that htmlpage needs

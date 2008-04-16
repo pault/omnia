@@ -38,8 +38,6 @@ sub handle  {
 
     }
 
-    $e->setup_everything_html;
-
     my $response = Everything::HTTP::ResponseFactory->new( 'htmlpage', $e );
     $response->create_http_body;
     my $html   = $response->get_http_body;

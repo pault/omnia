@@ -3,7 +3,7 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value"> 	my ($field, $nolinks) = @_;
         my $NODE = $this-&gt;get_node;
-	my $text = $NODE-&gt;run( { field =&gt; $field } );
+	my $text = $NODE-&gt;run( { field =&gt; $field, ehtml =&gt; $this } );
 	$text =~ s/\[(.*?)\]/$this-&gt;link_node_title ($1, $NODE)/egs unless $nolinks;
 	$text;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

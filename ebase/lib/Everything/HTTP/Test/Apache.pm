@@ -42,7 +42,7 @@ sub module_class {
     return $name;
 }
 
-sub test_handler : Test(25) {
+sub test_handler : Test(23) {
     my $self                    = shift;
     my $mock                    = $self->{mock};
     my $fake_everything_request = $self->{fake_everything_request};
@@ -73,7 +73,7 @@ sub test_handler : Test(25) {
     $dir_config->set_series( 'get', qw/db user password host/ );
 
     $fake_everything_request->set_true(
-        qw/setup_standard_system_vars set_cgi_standard authorise_user set_e process get_user set_node_from_cgi set_node setup_everything_html execute_opcodes/
+        qw/setup_standard_system_vars set_cgi_standard authorise_user set_e process get_user set_node_from_cgi set_node execute_opcodes/
     );
     $fake_everything_request->set_series( '-get_node', undef, $mock, $mock, $mock );
     $fake_everything_request->set_always( 'get_options', { a => 'b' } );
@@ -81,6 +81,7 @@ sub test_handler : Test(25) {
     $fake_everything_request->set_always( '-get_nodebase', $mock );
     $fake_everything_request->set_always( '-get_user',     $mock );
     $fake_everything_request->set_always( 'http_header',   'header' );
+    $fake_everything_request->set_always( 'get_response_type',   'responsetype' );
     $fake_everything_request->set_always( 'get_system_vars',
         { default_node => 999 } );
     $fake_everything_request->set_always( 'get_user_vars',
@@ -104,17 +105,10 @@ sub test_handler : Test(25) {
     );
 
     ( $method, $args ) = $fake_everything_request->next_call();
-    is( $method, 'setup_everything_html', '...sets up code environment.' );
-
-    ( $method, $args ) = $fake_everything_request->next_call();
     is( $method, 'execute_opcodes', '...excute opcodes.' );
 
     ( $method, $args ) = $fake_everything_request->next_call();
     is( $method, 'set_node_from_cgi', '...sets requested node from cgi.' );
-
-    ( $method, $args ) = $fake_everything_request->next_call();
-    is( $method, 'setup_everything_html',
-        '...sets up code environment again.' );
 
     ## calls to apache request object
 

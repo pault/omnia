@@ -11,7 +11,7 @@ BEGIN {
     Test::MockObject->fake_module('Everything::HTTP::Request');
 }
 
-sub test_handle : Test(17) {
+sub test_handle : Test(16) {
     my $self    = shift;
     my $package = $self->{class};
     my $mock    = Test::MockObject->new;
@@ -61,9 +61,6 @@ sub test_handle : Test(17) {
 
     ( $method, $args ) = $mock->next_call;
     is( $method, 'execute_opcodes', '...runs those things called opcodes.' );
-
-    ( $method, $args ) = $mock->next_call;
-    is( $method, 'setup_everything_html', '...sets up the code environment.' );
 
     ( $method, $args ) = $mock->next_call;
     is( $method, 'create_http_body', '...create_http_body.' );

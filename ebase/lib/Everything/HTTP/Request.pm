@@ -210,23 +210,6 @@ sub execute_opcodes {
 
 }
 
-sub setup_everything_html {
-
-    my $self = shift;
-    $Everything::HTML::query = $self->get_cgi;
-
-    tie $Everything::HTML::USER, "Everything::HTML::Environment::Variable",
-      $self, 'user';
-    tie $Everything::HTML::VARS, "Everything::HTML::Environment::Variable",
-      $self, 'user_vars';
-    tie $Everything::HTML::NODE, "Everything::HTML::Environment::Variable", $self, 'node';
-    $Everything::HTML::GNODE = $Everything::HTML::NODE;
-    *Everything::HTML::HTMLVARS = $self->get_system_vars;
-    *Everything::HTML::GLOBAL   = {};
-    $Everything::HTML::AUTH     = $self->get_authorisation;
-
-}
-
 =head2 C<set_node_from_cgi>
 
  This attempts to set the the node 'attribute' according to cgi rules. Takes the following arguments.
@@ -476,34 +459,6 @@ sub searchForNodeByName {
             { duplicates => \@canread } );
 
     }
-}
-
-package Everything::HTML::Environment::Variable;
-
-sub TIESCALAR {
-    my $class     = shift;
-    my $request   = shift;
-    my $attribute = shift;
-    my $var       = { attribute => $attribute, request => $request };
-    bless $var, $class;
-
-}
-
-sub FETCH {
-
-    my $var       = shift;
-    my $attribute = 'get_' . $var->{attribute};
-    my $request   = $var->{request};
-    return $request->$attribute;
-
-}
-
-sub STORE {
-    my ( $var, $val ) = @_;
-    my $attribute = $var->{attribute};
-    my $request   = $var->{request};
-    $request->{$attribute} = $val;
-
 }
 
 1;

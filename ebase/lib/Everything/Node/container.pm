@@ -58,8 +58,6 @@ sub generate_container {
     # Mark this container as being "visted";
     $container_trap{ $self->get_node_id }++;
 
-    $Everything::HTML::CURRENTNODE = $self; # ugly temporary hack
-
     $replacetext = $self->run( { ehtml => $ehtml, args => $container_args } );
 
     $containers = $cgi->param('containers') || '';
