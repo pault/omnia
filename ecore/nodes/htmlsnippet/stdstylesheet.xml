@@ -6,10 +6,10 @@
 body {
 background-color: [% $this-&gt;get_theme-&gt;{bodyBgcolor} || '#FFFFFF' %];
 color: [% $this-&gt;get_theme-&gt;{bodyTextcolor} || &quot;#000000&quot; %];
-margin-top: [% $this-&gt;get_theme-&gt;{bodyTMargin} || 5 %];
-margin-bottom: [% $this-&gt;get_theme-&gt;{bodyTMargin} || 5 %];
-margin-left: [% $this-&gt;get_theme-&gt;{bodyLMargin} || 5 %];
-margin-right: [% $this-&gt;get_theme-&gt;{bodyLMargin} || 5 %];
+margin-top: [% $this-&gt;get_theme-&gt;{bodyTMargin} || &quot;5px&quot; %];
+margin-bottom: [% $this-&gt;get_theme-&gt;{bodyTMargin} || &quot;5px&quot; %];
+margin-left: [% $this-&gt;get_theme-&gt;{bodyLMargin} || &quot;5px&quot; %];
+margin-right: [% $this-&gt;get_theme-&gt;{bodyLMargin} || &quot;5px&quot; %];
 font-family: verdana, helvetica, arial, sans-serif;
 font-size: small;
 
