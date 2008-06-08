@@ -112,8 +112,10 @@ sub create_nodetype_rule {
     my ( $self, $sub, $typename ) = @_;
     my $select_node = sub {
         my $node = shift;
-        return 1 if $node->isa( 'Everything::Node::' . $typename );
-        return;
+	my $flag;
+        eval { $flag++ if $node->isa( 'Everything::Node::' . $typename ) };
+	warn $@ if $@;
+	return $flag;
     };
     return $self->create_url_rule( $select_node, $sub );
 }

@@ -38,13 +38,12 @@ sub startup : Test(startup=>2) {
 
 }
 
-sub test_http_response : Test(3) {
+sub test_http_response : Test(2) {
     my $self     = shift;
     my $class    = $self->{class};
     my $instance = $self->{instance};
-    can_ok( $class, 'create_http_header' );
     can_ok( $class, 'create_http_body' );
-    can_ok( $class, 'get_mime_type' );
+    can_ok( $class, 'content_type' );
 
 }
 
@@ -179,11 +178,6 @@ sub test_select_htmlpage : Test(8) {
         "get_page_for_type$instance $mock themedisplaytype",
         '...or gets the display type specified by the theme.'
     );
-
-}
-
-sub test_create_http_header : Test(1) {
-    local $TODO = "create http header should return a valid http header???."
 
 }
 

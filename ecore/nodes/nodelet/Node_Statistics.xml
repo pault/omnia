@@ -12,25 +12,25 @@
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics Mini</field>
   <field name="nlcode" type="literal_value">Node ID:[%
 $this-&gt;get_node-&gt;get_node_id; 
-%]&lt;br&gt;
-Created on:&lt;br&gt; [%
+%]&lt;br/&gt;
+Created on:&lt;br/&gt; [%
 $this-&gt;get_node-&gt;get_createtime;
-%]&lt;br&gt;
-Last modified:&lt;br&gt; [%
+%]&lt;br/&gt;
+Last modified:&lt;br/&gt; [%
 my $modified = $this-&gt;get_node-&gt;get_modified;
 
 	return &quot;&lt;i&gt;never&lt;/i&gt;&quot; unless ($modified and
 		$modified =~ /[1-9]/);
 		$modified
 
-%]&lt;br&gt;
+%]&lt;br/&gt;
 Hits: [%
 $this-&gt;get_node-&gt;get_hits;
-%]&lt;br&gt;
+%]&lt;br/&gt;
 Nodetype: [%
  $this-&gt;link_node($this-&gt;get_node-&gt;get_type); 
-%]&lt;br&gt;
-Display page: &lt;br&gt;[%
+%]&lt;br/&gt;
+Display page: &lt;br/&gt;[%
 my $query = $this-&gt;get_query;
 $this-&gt;link_node ($this-&gt;get_htmlpage); 
 %]</field>

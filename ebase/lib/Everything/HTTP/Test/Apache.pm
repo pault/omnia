@@ -22,7 +22,7 @@ sub test_startup : Test(startup => 1) {
     $mock->fake_module('Everything::HTTP::ResponseFactory');
     $mock->fake_new('Everything::HTTP::ResponseFactory');
     $mock->set_true(qw/create_http_body/)
-      ->set_always( get_mime_type => 'a mime type' )
+      ->set_always( content_type => 'a mime type' )
       ->set_always( 'get_http_body', 'the html body' );
 
     $self->{class} = $self->module_class;
@@ -143,7 +143,7 @@ sub test_handler : Test(23) {
     is( $method, 'get_http_body', '...retrieves http body.' );
 
     ( $method, $args ) = $mock->next_call;
-    is( $method, 'get_mime_type', '...returns mime type.' );
+    is( $method, 'content_type', '...returns mime type.' );
 
     ( $method, $args ) = $mock->next_call;
     is( $method, 'set', '...calls set.' );

@@ -163,6 +163,7 @@ sub test_build_nodetypedb_modules :Test( 9 )
 
 	my $result  = $nb->buildNodetypeModules();
 	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
+	no strict 'refs';
 	is_deeply(
 		$result,
 		{ map { 'Everything::Node::' . $_ => 1 } qw( supernode extendednode superextendednode ) },

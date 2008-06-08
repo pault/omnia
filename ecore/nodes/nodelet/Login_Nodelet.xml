@@ -11,122 +11,63 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="literal_value">0</field>
   <field name="nlcode" type="literal_value">[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-
 my $str = &quot;&quot;;
 if ($query-&gt;param('op') eq 'login') { 
-  $str .=&quot;Oops.  You must have the wrong login or password or something:&lt;br&gt;&quot;;
+  $str .=&quot;Oops.  You must have the wrong login or password or something:&lt;br/&gt;&quot;;
 } 
 $str;
 
 %][%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
+my $query = $this-&gt;get_query;
+my $nodebase = $this-&gt;get_nodebase;
+my $NODE = $this-&gt;get_requested_node;
 
 $query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
-$query-&gt;hidden(&quot;node_id&quot;, getId($NODE)) . &quot;\n&quot; .
+'&lt;fieldset&gt;' .
+$query-&gt;hidden(&quot;node_id&quot;, $nodebase-&gt;getId($NODE)) . &quot;\n&quot; .
 $query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&quot;)) . &quot;\n&quot;;
 
 %]
-&lt;input type=&quot;hidden&quot; name=&quot;op&quot; value=&quot;login&quot;&gt;
-&lt;table border=0&gt;
-&lt;tr&gt;
- &lt;td&gt;&lt;font size='2'&gt;Login:&lt;/font&gt;&lt;/td&gt;
- &lt;td&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;op&quot; value=&quot;login&quot; /&gt;
+&lt;label for=&quot;loginnodeletlogin&quot; style=&quot;width: 5em&quot;&gt;Login:&lt;/label&gt;
   [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
- $query-&gt;textfield (-name =&gt; &quot;user&quot;, -size =&gt; 10, -maxlength =&gt; 100); 
+my $query = $this-&gt;get_query;
+
+ $query-&gt;textfield (-name =&gt; &quot;user&quot;, -size =&gt; 10, -maxlength =&gt; 100, -id=&gt;'loginnodeletlogin'); 
 %]
- &lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
- &lt;td&gt;&lt;font size='2'&gt;Password&lt;/font&gt;&lt;/td&gt;
- &lt;td&gt;
+&lt;br/&gt;
+&lt;label for=&quot;loginnodeletpassword&quot; style=&quot;width: 5em&quot;&gt;Password:&lt;/label&gt;
+
   [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
- $query-&gt;password_field(-name =&gt; &quot;passwd&quot;, -size =&gt; 10, -maxlength =&gt; 10); 
+my $query = $this-&gt;get_query;
+
+ $query-&gt;password_field(-name =&gt; &quot;passwd&quot;, -size =&gt; 10, -maxlength =&gt; 10, -id=&gt;'loginnodeletpassword'); 
 %]
- &lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
 
 [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
-
-$query-&gt;span( { -style =&gt; &quot;font-size: 75%&quot;}, 
-$query-&gt;checkbox(&quot;expires&quot;, &quot;&quot;, &quot;+10y&quot;, &quot;save me a cookie&quot;) . &quot;\n&quot; .
-$query-&gt;submit(&quot;login&quot;, &quot;Login&quot;) . &quot;\n&quot;) .
+'&lt;input type=&quot;checkbox&quot; name=&quot;expires&quot; value=&quot;+10y&quot; id=&quot;loginnodeletcookie&quot; style=&quot;float:left&quot;/&gt;&lt;label for=&quot;loginnodeletcookie&quot; style=&quot;width: 10em&quot;&gt;save me a cookie&lt;/label&gt;' . &quot;&lt;br /&gt;\n&quot; .
+$query-&gt;submit( &quot;login&quot;, &quot;Login&quot;) . &quot;\n&quot; . '&lt;/fieldset&gt;' .
 $query-&gt;end_form . &quot;\n&quot;;
 
 %]
 
 &lt;p style=&quot;font-size: 75%&quot;&gt;
-Don't have an account?&lt;br&gt;
+Don't have an account?&lt;br/&gt;
 [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
- linkNodeTitle(&quot;Create a new user&quot;); 
-%]&lt;br&gt;
+ $this-&gt;link_node_title(&quot;Create a new user&quot;); 
+%]&lt;br/&gt;
 [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
- my $N=getNode(&quot;What is my password&quot;,'superdoc'); 
-   linkNode($N,&quot;Forgot your password?&quot;); 
-%]
-&lt;/p&gt;</field>
+my $nodebase = $this-&gt;get_nodebase;
+ my $N=$nodebase-&gt;getNode(&quot;What is my password&quot;,'superdoc'); 
+   $this-&gt;link_node($N,&quot;Forgot your password?&quot;); 
+%]&lt;/p&gt;</field>
   <field name="otheraccess" type="literal_value">-----</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
   <field name="title" type="literal_value">Login Nodelet</field>

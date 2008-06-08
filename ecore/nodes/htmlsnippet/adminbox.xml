@@ -34,12 +34,12 @@ foreach my $type (@displaytypes)
   if ($disp eq $type)
   {
     $GLOBAL{adminboxLinks}{$type} = 
-      &quot;&lt;img src=images/icon_&quot;.$type.&quot;_current.gif alt=&quot;.$type.&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;;
+      qq{&lt;img src=&quot;images/icon_${type}_current.gif&quot; alt=&quot;$type&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;};
   } 
   else
   {
-    $GLOBAL{adminboxLinks}{$type} =  linkNode ($NODE,
-      &quot;&lt;img src=images/icon_&quot;.$type.&quot;.gif  alt=&quot;.$type.&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;, 
+    $GLOBAL{adminboxLinks}{$type} =  $this-&gt;link_node ($NODE,
+      qq{&lt;img src=&quot;images/icon_$type.gif&quot;  alt=&quot;$type&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;}, 
       {displaytype =&gt; $type}) . &quot; &quot;;
   }
 }
@@ -47,34 +47,34 @@ foreach my $type (@displaytypes)
 
 
 
-$str.=&quot;&lt;table width=100% border=0 cellpadding=3 bgcolor=$GLOBAL{adminboxBG} cellspacing=1&gt;
-  &lt;tr bgcolor=$GLOBAL{adminboxBG}&gt; 
-    &lt;td bgcolor=\&quot;$GLOBAL{adminboxLite}\&quot; align=\&quot;center\&quot;&gt;
+$str.=qq{&lt;table width=&quot;100%&quot; cellpadding=&quot;3&quot; style=&quot;background-color: $GLOBAL{adminboxBG}&quot; cellspacing=&quot;1&quot;&gt;
+  &lt;tr style=&quot;background-color: $GLOBAL{adminboxBG}&quot;&gt; 
+    &lt;td align=&quot;center&quot; style=&quot;border-style: none; background-color: $GLOBAL{adminboxLite}&quot;&gt;
 $GLOBAL{adminboxLinks}{display}
-    &lt;/td&gt;&quot;;
+    &lt;/td&gt;};
 
-$str.=qq|    &lt;td bgcolor=&quot;$GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
+$str.=qq|    &lt;td style=&quot;background-color: $GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
 $GLOBAL{adminboxLinks}{edit}
     &lt;/td&gt;|;
-$str.=qq|&lt;td bgcolor=&quot;$GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;
+$str.=qq|&lt;td style=&quot;background-color: $GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;
 $GLOBAL{adminboxLinks}{permissions}
     &lt;/td&gt;
   &lt;/tr&gt;|;
 
 $str.=qq|  &lt;tr&gt;
-    &lt;td bgcolor=&quot;$GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
+    &lt;td style=&quot;background-color: $GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
       &lt;a href=&quot;javascript: cloneNode();&quot;&gt;
-       &lt;img src=images/icon_clone.gif alt=clone border=0 height=&quot;20&quot; width=&quot;48&quot;&gt;&lt;/a&gt;
+       &lt;img src=&quot;images/icon_clone.gif&quot; alt=&quot;clone&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;&lt;/a&gt;
     &lt;/td&gt;
-    &lt;td bgcolor=&quot;$GLOBAL{adminboxLite}&quot; align=center&gt;|;
+    &lt;td style=&quot;background-color: $GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;|;
  $str.= $this-&gt;clonetotype();
 $str.=qq|    &lt;/td&gt;|;
-$str.=qq|   &lt;td bgcolor=&quot;$GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;|;
+$str.=qq|   &lt;td style=&quot;background-color: $GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;|;
 
 if($NODE-&gt;hasAccess($USER, &quot;d&quot;))
 {
-  $str .= &quot;&lt;a href='javascript: confirmDelete();'&gt;&quot;;
-  $str .= &quot;&lt;img src='images/icon_delete.gif' alt='delete' border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&lt;/a&gt;&quot;;
+  $str .= qq{&lt;a href=&quot;javascript: confirmDelete();&quot;&gt;};
+  $str .= qq{&lt;img src=&quot;images/icon_delete.gif&quot; alt=&quot;delete&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;&lt;/a&gt;};
 }
 else
 {
@@ -96,26 +96,26 @@ if ($$NODE{type}{maxrevisions})
 
   if ($undo or $redo)
   {
-    $str.=&quot;&lt;tr&gt;&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center&gt;&quot;;
+    $str.=qq{&lt;tr&gt;&lt;td style=&quot;background-color: $GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;};
     if ($undo) {
-      $str.=linkNode($NODE,
-        &quot;&lt;IMG src=images/icon_undo.gif alt=\&quot;undo\&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;,
+      $str.= $this-&gt;link_node($NODE,
+        qq{&lt;img src=&quot;images/icon_undo.gif&quot; alt=&quot;undo&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;},
         { op =&gt; 'undo', displaytype =&gt; $disp });
     } else {
       $str.=&quot;&amp;nbsp;&quot;;
     }
 
-    $str.=&quot;&lt;/td&gt;&lt;td bgcolor='$GLOBAL{adminboxDark}' align=center&gt;&quot;;
+    $str.=&quot;&lt;/td&gt;&lt;td style=\&quot;background-color: $GLOBAL{adminboxDark}\&quot; align=\&quot;center\&quot;&gt;&quot;;
 
     if ($redo) {
        $str.= $this-&gt;link_node($NODE,
-         &quot;&lt;IMG src=images/icon_redo.gif alt=\&quot;undo\&quot; border=0 height=\&quot;20\&quot; width=\&quot;48\&quot;&gt;&quot;,
+         qq{&lt;img src=&quot;images/icon_redo.gif&quot; alt=&quot;undo&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;},
          { op =&gt; 'redo', displaytype =&gt; $disp });
     } else {
       $str.=&quot;&amp;nbsp;&quot;;
     }
   
-   $str.=&quot;&lt;/td&gt;&lt;td bgcolor='$GLOBAL{adminboxLite}' align=center&gt;&amp;nbsp;&lt;/td&gt;&lt;/tr&gt;&quot;;
+   $str.=&quot;&lt;/td&gt;&lt;td style=\&quot;background-color: $GLOBAL{adminboxLite}\&quot; align=\&quot;center\&quot;&gt;&amp;nbsp;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
   }
 }

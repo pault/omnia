@@ -1,6 +1,7 @@
 package Everything::HTTP::Response::Htmlpage;
 
 use Everything::HTTP::Request;
+use Encode;
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
@@ -20,7 +21,7 @@ sub new {
 sub init {
     my ( $self, $e ) = @_;
     $self->set_request($e);
-    $self->set_htmlpage( $self->select_htmlpage );
+    $self->select_htmlpage;
     return $self;
 
 }
@@ -41,23 +42,36 @@ sub create_http_body {
         my $node =
           $self->get_request->get_nodebase->getNode( $self->get_redirect );
         $self->get_request->set_node($node);
-        $self->getTheme( $self->get_request );
+        $self->select_htmlpage;
 
         die "Incorrect permissions!" unless $self->check_permissions;
 
     }
 
-    return $self->set_http_body(
-        $self->get_htmlpage->make_html( $self->get_request, $ehtml ) );
+    return $self->set_http_body( encode( "utf8",
+        $self->get_htmlpage->make_html( $self->get_request, $ehtml ) ) );
 
 }
 
-sub get_mime_type {
-    $_[0]->get_htmlpage->{MIMEtype};
+sub charset {
+    'utf-8'
 
 }
 
-sub create_http_header {
+sub mime_type {
+
+ $_[0]->get_htmlpage->{MIMEtype};
+
+}
+
+sub content_type {
+    my $self = shift;
+    my $type = $self->mime_type;
+    if (  $type eq 'text/html' || $type eq 'text/xml' ) {
+	return $type .';charset='. $self->charset;
+    }
+
+    return $type;
 
 }
 

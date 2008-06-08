@@ -2,7 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot; xml:lang=&quot;en&quot;&gt;&lt;HTML&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot; xml:lang=&quot;en&quot;&gt;
 &lt;head&gt;
 &lt;title&gt;[%
 $this-&gt;get_node-&gt;get_title;
@@ -12,8 +12,8 @@ $this-&gt;get_node-&gt;get_title;
 &lt;body&gt;
 [&lt;BacksideErrors&gt;]
 CONTAINED_STUFF
-&lt;/BODY&gt;
-&lt;/HTML&gt;</field>
+&lt;/body&gt;
+&lt;/html&gt;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

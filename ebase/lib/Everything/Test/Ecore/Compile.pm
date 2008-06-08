@@ -67,6 +67,7 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( checkbox_group       => 'a string of html' );
     $mock->set_always( start_multipart_form => 'a string of html' );
     $mock->set_always( h2                   => 'a string of html' );
+    $mock->set_always( p                    => 'a string of html' );
     $mock->set_true('param');
 
     # mocks for $DB

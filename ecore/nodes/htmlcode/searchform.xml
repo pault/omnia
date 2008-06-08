@@ -10,12 +10,13 @@ my $query = $this-&gt;get_query;
 return if (($$USER{node_id} == $$HTMLVARS{guest_user}) and 
 		not($$HTMLVARS{GUshowsearchform}) ); 
 my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name) .
+        $query-&gt;p( 
 	$query-&gt;textfield(-name =&gt; &quot;node&quot;,
 		-default =&gt; &quot;&quot;,
 		-size =&gt; 50,
 		-maxlength =&gt; 80) . &quot; &quot; .
 	$query-&gt;hidden(&quot;lastnode_id&quot;, $NODE-&gt;get_node_id ) .
-	$query-&gt;submit(&quot;go_button&quot;, &quot;go&quot;);
+	$query-&gt;submit(&quot;go_button&quot;, &quot;go&quot;) );
  
 $str.= $query-&gt;end_form unless $PARAM eq 'noendform';
 

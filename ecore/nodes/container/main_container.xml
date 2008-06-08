@@ -3,7 +3,7 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="context" type="literal_value">&lt;div id=&quot;header&quot;&gt;
 &lt;div id=&quot;searchform&quot;&gt;
-   [{searchform}]
+[{searchform}]
 &lt;/div&gt;
 &lt;div id=&quot;logoposition&quot;&gt;
 [%
@@ -12,7 +12,7 @@ my $THEME = $this-&gt;get_theme;
 my $HTMLVARS = $this-&gt;get_htmlvars;
 my $default = $DB-&gt;getNode($$HTMLVARS{default_node});
 my $IMG = $DB-&gt;getNode( $$THEME{cornerIcon_image} );
-$this-&gt;link_node($default, &quot;&lt;img border=0 src=$$IMG{src} height=\&quot;48\&quot; width=\&quot;35\&quot; alt=\&quot;Corner Logo\&quot;\&gt;&quot;) if $IMG;
+$this-&gt;link_node($default, &quot;&lt;img src=\&quot;$$IMG{src}\&quot; height=\&quot;48\&quot; width=\&quot;35\&quot; alt=\&quot;Corner Logo\&quot; style=\&quot;border-style: none\&quot; /&gt;&quot;) if $IMG;
 %]
 &lt;/div&gt;
 &lt;/div&gt;
@@ -30,8 +30,7 @@ my $html = &quot;&lt;div id=\&quot;nodelets\&quot;&gt;
 $html .=&quot;&lt;div id=\&quot;containedstuff\&quot;&gt;
 
    &lt;h3&gt;&quot;.$this-&gt;htmlcode('showPath').&quot;$$NODE{title}&lt;/h3&gt;
-   &lt;p&gt;&lt;font size=2&gt;Maintained by &quot;.$this-&gt;link_node($$NODE{author_user}).&quot;&lt;/font&gt;
-   &lt;p&gt;
+   &lt;p style=\&quot;font-size:small\&quot;&gt;Maintained by &quot;.$this-&gt;link_node($$NODE{author_user}).&quot;&lt;/p&gt;
    CONTAINED_STUFF&lt;/div&gt;&quot;;
 
 return $html;

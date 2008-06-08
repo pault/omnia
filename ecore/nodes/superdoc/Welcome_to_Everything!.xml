@@ -1,10 +1,10 @@
 <NODE export_version="0.5" nodetype="superdoc" title="Welcome to Everything!">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">Congratulations!  You have successfully installed the base Everything
-web engine!
+  <field name="doctext" type="literal_value">&lt;p&gt;Congratulations!  You have successfully installed the base Everything
+web engine!&lt;/p&gt;
 
-&lt;p&gt;For more information, you can visit the following sites:
+&lt;p&gt;For more information, you can visit the following sites:&lt;/p&gt;
 &lt;ul&gt;
 
   &lt;li&gt;&lt;a href=&quot;http://www.everydevel.com/&quot;&gt;EveryDevel.com&lt;/a&gt; - The
@@ -28,7 +28,7 @@ web engine!
 clarifications to documentation, or even some new documentation of your
 own, you can &lt;a
 href=&quot;http://www.everydevel.com/index.pl?node=submit+an+everything+document&quot;&gt;
-submit them to the Everything project&lt;/a&gt;.</field>
+submit them to the Everything project&lt;/a&gt;&lt;/p&gt;.</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

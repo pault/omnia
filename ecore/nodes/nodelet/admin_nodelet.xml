@@ -10,58 +10,57 @@
   <field name="guestaccess" type="literal_value">-i-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</field>
-  <field name="nlcode" type="literal_value">&lt;table border=0&gt;
- &lt;tr&gt;
-  &lt;td nowrap&gt;
-    &lt;font size=2&gt;
-[%
-my $query = $this-&gt;get_query;
-my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
-$str .= &quot;node&quot;;
-$str .= $query-&gt;textfield(-name =&gt; &quot;node&quot;, -default =&gt; &quot;&quot;,
-     -override =&gt; 1, -size =&gt; 10, -maxlength =&gt; 240);
-
-%][{closeform}]
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
-  &lt;td nowrap&gt;
-   &lt;font size=2&gt;
-[%
-my $query = $this-&gt;get_query;
-my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
-$str .= &quot;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id&quot;;
-$str .= $query-&gt;textfield(-name =&gt; &quot;node_id&quot;,
-  -default =&gt; &quot;&quot;, -override =&gt; 1, -size =&gt; 10,
-  -maxlength =&gt; 240);
-
-%][{closeform}]
-   &lt;/font&gt;
-  &lt;/td&gt;
- &lt;/tr&gt;
- &lt;tr&gt;
+  <field name="nlcode" type="literal_value">&lt;table&gt;
+ &lt;tr style=&quot;padding: none&quot;&gt;
   &lt;td&gt;
-   &lt;font size=2&gt;
+[%
+my $query = $this-&gt;get_query;
+my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
+$str .= $query-&gt;p( { style =&gt;  'line-height: 1.0' }, &quot;node&quot; . '&amp;nbsp;' .
+        $query-&gt;textfield(-name =&gt; &quot;node&quot;, -default =&gt; &quot;&quot;,
+     -override =&gt; 1, -size =&gt; 10, -maxlength =&gt; 240) .
+     '&amp;nbsp;' .
+     $this-&gt;submit );
+
+$str .= $query-&gt;end_form;
+%]
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td style=&quot;padding: none&quot;&gt;
+[%
+my $query = $this-&gt;get_query;
+my $str = $query-&gt;start_form(&quot;POST&quot;,$query-&gt;script_name);
+$str .= $query-&gt;p( { style =&gt;  'line-height: 1.0' }, &quot;id &amp;nbsp;&quot; . 
+        $query-&gt;textfield(-name =&gt; &quot;node_id&quot;,
+  -default =&gt; &quot;&quot;, -override =&gt; 1, -size =&gt; 10,
+  -maxlength =&gt; 240) . '&amp;nbsp;'.
+  $this-&gt;submit );
+
+$str .= $query-&gt;end_form;
+%]
+  &lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+  &lt;td style=&quot;font-size: 110%&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $query = $this-&gt;get_query;
 my $str = &quot;&lt;a href=&quot;; 
 my $displaytype = $query-&gt;param('displaytype');
 $displaytype ||= 'display';
-$str .= urlGen({ 'node_id' =&gt; getId($NODE),
+$str .= $this-&gt;url_gen({ 'node_id' =&gt; $this-&gt;get_nodebase-&gt;getId($NODE),
  'displaytype' =&gt; $displaytype,
  'containers' =&gt; 'show'}).&quot; &gt;Show containers&lt;/a&gt;&quot;;
 
-%]&lt;br&gt;
+%]&lt;br/&gt;
 
    [%
-linkNode(getNode('create node', 'restricted_superdoc'),
+$this-&gt;link_node($this-&gt;get_nodebase-&gt;getNode('create node', 'restricted_superdoc'),
   'Create new node'); 
-%]&lt;br&gt;
+%]&lt;br/&gt;
    Current node id: [% $this-&gt;get_node-&gt;get_node_id
 %]
-   &lt;/font&gt;
   &lt;/td&gt;
  &lt;/tr&gt;
 &lt;/table&gt;

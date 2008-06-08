@@ -4,7 +4,7 @@
   <field name="code" type="literal_value">my $scripts = $this-&gt;get_nodebase-&gt;getNodeWhere( '', 'javascript' );
 return unless @$scripts;
 
-my $str = &quot;&lt;script language='javascript'&gt;\n&quot;;
+my $str = qq{&lt;script type=&quot;text/javascript&quot;&gt;\n};
 $str .= &quot;&lt;!--\n&quot;;
 foreach my $js ( @$scripts )
 {

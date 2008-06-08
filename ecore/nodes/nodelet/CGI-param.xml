@@ -16,7 +16,7 @@ my $query = $this-&gt;get_query;
 my $str;
 foreach ($query-&gt;param) {
   next if $_ eq &quot;passwd&quot;;
-  $str.=&quot;&lt;b&gt;$_&lt;/b&gt;:&quot; . $query-&gt;param($_) . &quot;&lt;br&gt;\n&quot;
+  $str.=&quot;&lt;b&gt;$_&lt;/b&gt;:&quot; . $query-&gt;param($_) . &quot;&lt;br/&gt;\n&quot;
     unless length ($query-&gt;param($_)) &gt; 30 or not defined $query-&gt;param($_);
 }
 $str;

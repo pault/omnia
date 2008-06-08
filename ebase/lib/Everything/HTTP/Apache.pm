@@ -90,7 +90,7 @@ sub handler {
     $response->create_http_body( { ehtml => $ehtml } );
     my $html = $response->get_http_body;
 
-    $r->content_type( $response->get_mime_type );
+    $r->content_type( $response->content_type );
 
     $r->headers_out->set( 'Set-Cookie' => $e->get_user->{cookie} );
 

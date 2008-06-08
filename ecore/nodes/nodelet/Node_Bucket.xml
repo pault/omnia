@@ -19,12 +19,13 @@ return &quot;&quot; unless($NODE-&gt;hasAccess($USER, &quot;w&quot;));
 my $PARAMS = { op =&gt; 'addBucket', &quot;bnode_&quot; . $$NODE{node_id} =&gt; 1 };
 $this-&gt;link_node($NODE, &quot;Add '$$NODE{title}'&quot;, $PARAMS);
 
-%][%
+%]
+[%
 
 my $query = $this-&gt;get_query;
 my $NODE = $this-&gt;get_requested_node;
 
-$query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) .
+$query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) . '&lt;p&gt;' .
 $query-&gt;hidden(&quot;displaytype&quot;) .
 $query-&gt;hidden(&quot;node_id&quot;, $$NODE{node_id}) .
 $query-&gt;hidden(-name =&gt; &quot;op&quot;, -default =&gt; &quot;bucketOp&quot;, -override =&gt; 1);
@@ -40,22 +41,20 @@ my $isLoc = $NODE-&gt;isOfType(&quot;location&quot;);
 my $isGroup = $NODE-&gt;isGroup();
 my $str;
 
-return &quot;Empty&lt;br&gt;\n&quot; unless(@bnodes);
+return &quot;Empty&lt;br/&gt;\n&quot; unless(@bnodes);
 
 foreach $_ (@bnodes)
 {
   my $node = $DB-&gt;getNode( $_ );
 
   # Can't use CGI::checkbox here because it insists on having a label...
-  $str .= &quot;&lt;INPUT TYPE='checkbox' NAME='bnode_$_' &quot; .
-     &quot;VALUE='ON' UNCHECKED&gt;&quot;;
-  $str .= $this-&gt;link_node($node) . &quot;&lt;br&gt;\n&quot;;
-}
+  $str .= qq{&lt;input type=&quot;checkbox&quot; name=&quot;bnode_$_&quot; value=&quot;ON&quot; /&gt;};
+  $str .= $this-&gt;link_node($node) . &quot;&lt;br/&gt;\n&quot;;
+};
 
-$str .= &quot;&lt;font size=1&gt;\n&quot;;
+$str .= qq{&lt;input type=&quot;checkbox&quot; name=&quot;dropexec&quot; value=&quot;ON&quot; checked=&quot;checked&quot; /&gt;} .
+  &quot;Execute and drop&lt;br/&gt;\n&quot; if($isLoc or $isGroup);
 
-$str .= &quot;&lt;INPUT TYPE='checkbox' NAME='dropexec' VALUE='ON' CHECKED&gt;&quot; .
-  &quot;Execute and drop&lt;br&gt;\n&quot; if($isLoc or $isGroup);
 
 if($isLoc)
 {
@@ -70,7 +69,7 @@ elsif($isGroup)
 $str .= $query-&gt;submit( -name =&gt; &quot;bdrop&quot;, -value =&gt; &quot;Drop&quot; ) . &quot;\n&quot;;
 $str .= $query-&gt;submit( -name =&gt; &quot;bflush&quot;, -value =&gt; &quot;Drop All&quot; ) . &quot;\n&quot;;
 
-$str .= &quot;&lt;/font&gt;\n&quot;;
+$str .= &quot;&lt;/p&gt;\n&quot;;
 
 $str .= $query-&gt;end_form;
 

@@ -10,26 +10,19 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Other Users Mini</field>
-  <field name="nlcode" type="literal_value">Your fellow noders:&lt;br&gt;
+  <field name="nlcode" type="literal_value">Your fellow noders:&lt;br/&gt;
 [%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
+my $DB = $this-&gt;get_nodebase;
 
 my $time = 3 * 60;
 my $limit = 30;
 
-my $USRS = getNodeWhere(&quot;(&quot; . $DB-&gt;timediff( $DB-&gt;now(), 'lasttime' ) . &quot; &lt; $time)&quot;, &quot;user&quot;, &quot;node_id&quot;, $limit);
+my $USRS = $DB-&gt;getNodeWhere(&quot;(&quot; . $DB-&gt;timediff( $DB-&gt;now(), 'lasttime' ) . &quot; &lt; $time)&quot;, &quot;user&quot;, &quot;node_id&quot;, $limit);
 
 my $str;
 foreach (@$USRS) {
-	$str .= linkNode($_) .&quot;&lt;br&gt;&quot;;
+	$str .= $this-&gt;link_node($_) .&quot;&lt;br/&gt;&quot;;
 }
 $str ||= &quot;&lt;i&gt;no users logged in&lt;/i&gt;&quot;;
 

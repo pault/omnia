@@ -15,6 +15,26 @@ font-size: small;
 
 }
 
+fieldset {
+border-style: none;
+}
+
+label {
+width: 4em;
+float: left;
+text-align: right;
+margin-right: 0.5em;
+display: block
+}
+
+input label {
+float:right;
+}
+.submit input
+{
+margin-left: 4.5em;
+}
+
 a:link {
 color: [% $this-&gt;get_theme-&gt;{bodyLinkcolor} || &quot;#993333&quot; %];
 }
@@ -75,7 +95,7 @@ padding-left: 1em;
 }
 
 .nodeletbody {
-font-size: 7pt;
+font-size: 65%;
 padding-left: 2px;
 background-color: [% $this-&gt;get_theme-&gt;{nodeletBodyColor} || &quot;#CCCCCC&quot; %];
 }

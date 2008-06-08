@@ -29,7 +29,7 @@ my %nodetype;
 
 
 
-sub hasTextField {
+my $hasTextField = sub {
 
    my ($NT) = @_;
 
@@ -55,7 +55,7 @@ sub hasTextField {
 
    $textfield;
 
-}
+};
 
 
 
@@ -69,7 +69,7 @@ foreach (@$nodetypes) {
 
     $nodetype{$$_{title}} = $$_{node_id};
 
-    push @nttitles, $$_{title} if $_-&gt;hasTypeAccess($USER, 'r') and hasTextField($_);
+    push @nttitles, $$_{title} if $_-&gt;hasTypeAccess($USER, 'r') and &amp;$hasTextField($_);
 
 }
 
