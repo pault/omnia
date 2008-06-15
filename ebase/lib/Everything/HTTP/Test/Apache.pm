@@ -49,6 +49,11 @@ sub test_handler : Test(23) {
     my $fake_apache_request     = $self->{fake_apache_request};
     can_ok( $self->{class}, 'handler' ) || return "Handler not implemented";
 
+    $mock->fake_module( 'Everything::Config', new => sub { $mock } );
+
+    ## mocks for $config
+    $mock->set_true( qw/ -htmlvars / );
+
     my $fake_parser = Test::MockObject->new;
     my $count       = 0;
     $fake_parser->mock( process =>
@@ -73,7 +78,7 @@ sub test_handler : Test(23) {
     $dir_config->set_series( 'get', qw/db user password host/ );
 
     $fake_everything_request->set_true(
-        qw/setup_standard_system_vars set_cgi_standard authorise_user set_e process get_user set_node_from_cgi set_node execute_opcodes/
+        qw/setup_standard_system_vars set_cgi_standard authorise_user set_e process get_user set_node_from_cgi set_node execute_opcodes set_system_vars/
     );
     $fake_everything_request->set_series( '-get_node', undef, $mock, $mock, $mock );
     $fake_everything_request->set_always( 'get_options', { a => 'b' } );
@@ -91,7 +96,7 @@ sub test_handler : Test(23) {
 
     my $result = $handler->($fake_apache_request);
     my ( $method, $args ) = $fake_everything_request->next_call;
-    is( $method, 'setup_standard_system_vars', '...sets up system from db.' );
+    is( $method, 'set_system_vars', '...sets up system from db.' );
     ( $method, $args ) = $fake_everything_request->next_call;
     is( $method, 'set_cgi_standard', '...setup cgi object.' );
     ( $method, $args ) = $fake_everything_request->next_call;
@@ -111,14 +116,6 @@ sub test_handler : Test(23) {
     is( $method, 'set_node_from_cgi', '...sets requested node from cgi.' );
 
     ## calls to apache request object
-
-    ## these are to dir_config
-    ## XXXX - must be tested
-    $fake_apache_request->next_call;
-    $fake_apache_request->next_call;
-    $fake_apache_request->next_call;
-    $fake_apache_request->next_call;
-    $fake_apache_request->next_call;
 
     ( $method, $args ) = $fake_apache_request->next_call;
     is( $method, 'content_type',

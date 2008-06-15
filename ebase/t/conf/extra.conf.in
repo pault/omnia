@@ -3,10 +3,10 @@ use lib '@SERVERROOT@/../lib';
 </Perl>
 
 SetHandler perl-script
-PerlSetVar everything-database @SERVERROOT@/ecore.db
-PerlSetVar everything-database-options dbtype
-PerlAddVar everything-database-options sqlite
+PerlSetVar everything-config-file @SERVERROOT@/lib/everything.conf
+PerlSetVar everything-database-name @SERVERROOT@/ecore.db
+PerlSetVar everything-database-type sqlite
 PerlResponseHandler +Everything::HTTP::Apache
 
-PerlSetVar everything-url /node/:node_id
-PerlAddVar everything-url node
+#PerlSetVar everything-url /node/:node_id
+#PerlAddVar everything-url node

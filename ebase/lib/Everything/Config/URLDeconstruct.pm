@@ -1,7 +1,7 @@
-package Everything::HTTP::URL::Deconstruct;
+package Everything::Config::URLDeconstruct;
 
 use strict;
-use base 'Class::Accessor::Fast', 'Everything::HTTP::URL';
+use base 'Class::Accessor::Fast', 'Everything::Config::URL';
 use Data::Dumper;
 use List::MoreUtils qw(zip);
 use URI;
@@ -9,7 +9,7 @@ use SUPER;
 
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
-    qw(re path_vars schema rule attributes tokens urlifier requested_node_id requested_node_ref url_gen matches nodebase location)
+    qw(re path_vars schema rule attributes tokens location_creator requested_node_id requested_node_ref url_gen matches nodebase location)
 );
 
 #### DISPATCH TABLE FOR DECODING URLS
@@ -49,7 +49,7 @@ sub make_modify_request {
         return 1;
     };
 
-    $self->register_request_modifier($sub);
+    return $sub;
 
 }
 
@@ -85,11 +85,11 @@ sub set_schema {
     $self->set_rule($schema);
     $self->tokenize;
     $self->make_regex;
-    $self->make_urlifier;
+    $self->location_creator;
 
 }
 
-sub make_urlifier {
+sub location_creator {
     my ($self)   = @_;
     my @tokens   = @{ $self->get_tokens };
     my $location = $self->get_location || '';
@@ -110,85 +110,12 @@ sub make_urlifier {
         my $url = $location . '/' . join '/', @url;
         return $url;
     };
-    $self->set_urlifier($urlifier);
-}
-
-sub make_url_gen {
-    my $self     = shift;
-    my $urlifier = $self->get_urlifier;
-    my $url_gen  = sub {
-        my ( $REF, $noquotes, $node ) = @_;
-        my $base = $urlifier->($node);
-        my $url = URI->new( $base, 'http' );
-        $url->query_form($REF) if $REF && %$REF;
-        my $url_string = $url->as_string;
-        return $url_string if $noquotes;
-        return '"' . $url_string . '"';
-    };
-    return $self->set_url_gen($url_gen);
-}
-
-sub make_link_node {
-    my $self    = shift;
-    my $url_gen = $self->get_url_gen;
-    sub {
-
-        my ( $node, $title, $params, $scripts ) = @_;
-        my $link;
-
-        return "" unless defined($node);
-
-        # We do this instead of calling getRef, because we only need the node
-        # table data to create the link.
-        $Everything::HTML::DB->getNode( $node, 'light' )
-          unless ( ref $node );
-
-        return "" unless ref $node;
-
-        $title ||= $$node{title};
-
-        my $tags = "";
-
-        separate_params( $params, \$tags );
-
-        $scripts = handle_scripts($scripts);
-
-        $link = "<a href=" . $url_gen->( $params, '', $node ) . $tags;
-        $link .= " " . $scripts if ( $scripts ne "" );
-        $link .= ">$title</a>";
-
-        return $link;
-
-      }
-
-}
-
-sub handle_scripts {
-    my ($SCRIPTS) = @_;
-    return '' unless $SCRIPTS && %$SCRIPTS;
-    my @scripts;
-    foreach my $key ( keys %$SCRIPTS ) {
-        push @scripts, $key . "=" . '"' . $$SCRIPTS{$key} . '"';
-    }
-    return '' unless @scripts;
-    return join ' ', @scripts;
-
-}
-
-sub separate_params {
-    my ( $PARAMS, $tags_ref ) = @_;
-    foreach my $key ( keys %$PARAMS ) {
-        next unless ( $key =~ /^-/ );
-        my $pr = substr $key, 1;
-        $$tags_ref .= " $pr=\"$$PARAMS{$key}\"";
-        delete $$PARAMS{$key};
-    }
-
+    $self->set_location_creator($urlifier);
 }
 
 sub make_url {
     my ( $self, $node ) = @_;
-    $self->get_urlifier->($node);
+    $self->get_location_creator->($node);
 
 }
 

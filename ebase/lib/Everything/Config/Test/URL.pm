@@ -1,4 +1,4 @@
-package Everything::HTTP::Test::URL;
+package Everything::Config::Test::URL;
 
 
 use strict;
@@ -37,7 +37,7 @@ sub startup : Test(startup => 3) {
 
 
 
-sub test_create_nodetype_rule : Test(6) {
+sub test_create_nodetype_rule : Test(5) {
     my $self = shift;
     my $instance = Test::MockObject::Extends->new($self->{instance});
     can_ok($self->{class}, 'create_nodetype_rule') || return;
@@ -63,28 +63,6 @@ sub test_create_nodetype_rule : Test(6) {
     is ($nodetype_rule->($obj), 'for real', '...should run the code if our node conforms.');
     $node->{title} = "differentname";
     is ($nodetype_rule->($node), undef, '...and return undef when it does not.');
-    is ($instance->get_node_to_url_subs_ref->[-1], $nodetype_rule, '...and add it to the subs.')
-}
-
-sub test_create_linknode : Test(3) {
-    my $self = shift;
-    my $instance = $self->{instance};
-    can_ok($self->{class}, 'create_linknode') || return;
-    my $sub;
-    ok($sub = $instance->create_linknode, '...should return a true value');
-    is(ref $sub, 'CODE', '...which is a code ref');
-    
-}
-
-sub test_set_default : Test(3) {
-    my ($self) = @_;
-    my $instance = $self->{instance};
-    can_ok($self->{class}, 'set_default_sub') || return;
-    local *Foo::linkNode = sub { "linked node"};
-    ok ($instance->set_default_sub(\&Foo::linkNode));
-    no warnings 'redefine';
-    *Foo::linkNode = sub {"wrong one"};
-    is($instance->get_default_sub->(), "linked node", '...executes the correct linkNode');
 
 }
 

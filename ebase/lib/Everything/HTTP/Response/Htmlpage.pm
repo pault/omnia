@@ -30,8 +30,10 @@ sub create_http_body {
     my ( $self, $args )     = @_;
     my $htmlpage = $self->get_htmlpage;
 
-    my $ehtml = $$args{ ehtml } || Everything::HTML->new;
+    my $config = $$args{ config };
+    my $ehtml = Everything::HTML->new;
 
+    $ehtml->set_node_locators( $config->node_locations );
     $self->getTheme( $self->get_request );
 
     $ehtml->set_request( $self->get_request );

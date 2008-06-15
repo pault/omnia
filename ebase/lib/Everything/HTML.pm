@@ -14,10 +14,11 @@ use Everything::Mail qw/node2mail mail2node/;
 use Everything::Auth;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
+use URI;
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_accessors(qw/htmlpage request theme link_node_sub current_node/);
+__PACKAGE__->mk_accessors(qw/htmlpage request theme node_locators link_node_sub current_node/);
 
 
 # This is used for nodes to pass vars back-n-forth
@@ -540,11 +541,18 @@ sub urlGen {
 
     return $str;
 
+
 }
 
 sub url_gen {
-    my $self = shift;
-    urlGen(@_);
+
+        my ( $self, $REF, $noquotes, $location ) = @_;
+
+        my $url = URI->new( $location, 'http' );
+        $url->query_form_newstyle($REF) if $REF && %$REF;
+        my $url_string = $url->as_string;
+        return $url_string if $noquotes;
+        return '"' . $url_string . '"';
 
 }
 
@@ -637,14 +645,26 @@ sub link_node {
 
     my $scripts = handle_scripts($SCRIPTS);
 
-    $$PARAMS{node_id} = $NODE->{node_id};
+    my $node_location = $self->node_location( $NODE );
+    $$PARAMS{node_id} = $NODE->{node_id} unless $node_location;
 
-    $link = "<a href=" . $self->url_gen($PARAMS) . $tags;
+    $link = "<a href=" . $self->url_gen($PARAMS, undef, $node_location) . $tags;
     $link .= " " . $scripts if ( $scripts ne "" );
     $link .= ">$title</a>";
 
     return $link;
 
+}
+
+sub node_location {
+    my ( $self, $node ) = @_;
+    my @subs = @{ $self->get_node_locators || [] };
+    return unless @subs;
+    foreach ( @subs ) {
+	 my $location = $_->( $node );
+	 return $location if $location;
+    }
+    return;
 }
 
 sub separate_params {
@@ -1790,5 +1810,45 @@ sub opUpdate {
 
     return 1;
 }
+
+# XXXXXXXXXX: temporary and until URI.pm is fixed.
+
+sub URI::_query::query_form_newstyle {
+    my $self = shift;
+    my $old = $self->query;
+    if (@_) {
+        # Try to set query string
+        my @new = @_;
+        if (@new == 1) {
+            my $n = $new[0];
+            if (ref($n) eq "ARRAY") {
+                @new = @$n;
+            }
+            elsif (ref($n) eq "HASH") {
+                @new = %$n;
+            }
+        }
+        my @query;
+        while (my($key,$vals) = splice(@new, 0, 2)) {
+            $key = '' unless defined $key;
+            $key =~ s/([;\/?:@&=+,\$\[\]%])/$URI::Escape::escapes{$1}/g;
+            $key =~ s/ /+/g;
+            $vals = [ref($vals) eq "ARRAY" ? @$vals : $vals];
+            for my $val (@$vals) {
+                $val = '' unless defined $val;
+                $val =~ s/([;\/?:@&=+,\$\[\]%])/$URI::Escape::escapes{$1}/g;
+                $val =~ s/ /+/g;
+                push(@query, "$key=$val");
+            }
+        }
+        $self->query(@query ? join(';', @query) : undef);
+    }
+    return if !defined($old) || !length($old) || !defined(wantarray);
+    return unless $old =~ /=/; # not a form
+    map { s/\+/ /g; uri_unescape($_) }
+         map { /=/ ? split(/=/, $_, 2) : ($_ => '')} split(/;/, $old);
+}
+
+
 
 1;

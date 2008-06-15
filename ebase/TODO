@@ -1,0 +1,51 @@
+* Move parse/run code into separate classes under
+   Everything/HTML/Something-or-other 
+
+* Allow Gigantic Node Lister to order by Maintainer, createtime etc.
+
+* Amend ecore to ensure XHTML 1.0 compliance
+
+* Require Everything::HTML::Response classes to create certain HTTP headers
+
+* Everything::HTML::Response classes to return error values on error -
+   e.g. Forbidden 
+
+* Change default DB (for all DBs) setup so default encoding is utf8
+
+* Documentation - Ecore should be self documenting
+
+* Documentation - allow POD of Everything::HTML to be accessed from
+   Ecore to assist front-end developers
+
+* Write tests for t/TEST to test for:
+** login/logout
+** cookie setting,
+** node editing
+** well-formed XHTML.
+
+* Move Perl out of containers into htmlcode nodes to ease frontend
+   development
+
+* Explore a templating systems to either replace containers or run as
+   another response class - consider Template Toolkit and
+   HTML::Seamstress.
+
+* Export nodeballs in utf-8 rather than latin 1
+
+* DB - normalise node table
+
+* Allow nodeballs to be exported through a web browser
+
+* Allow DB.pm and subclasses to set up DB schema as it sees fit.  This
+   includes:
+
+   ** removing sql tables from nodeballs
+   ** allowing schemae that are optimised for each of the databases
+
+* Add nodebase.pm methods to allow retrieval of links 
+
+* Allow retrieval of objects other than nodes from the DB e.g. links
+
+   This may involve creating objects that are a superclass of nodes,
+   i.e. nodes are an 'object' and links are also 'objects', of making
+   links nodes.  In the latter case, nodes will have to be slimmed down.

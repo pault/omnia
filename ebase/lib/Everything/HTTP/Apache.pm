@@ -3,43 +3,29 @@ package Everything::HTTP::Apache;
 use Apache2::Const ':common';
 use Apache2::RequestRec ();
 use Everything::HTTP::Request;
-use Everything::HTTP::URL::Deconstruct;
-use Everything::HTTP::URL;
 use Everything::HTTP::ResponseFactory;
 use Everything::HTML;
+use Everything::Config;
 use strict;
 use warnings;
 
 use Carp;
 
 #BEGIN { $SIG{__WARN__} = \&Carp::cluck;}
-## initialise
-Everything::HTTP::URL->set_default_sub( \&Everything::HTML::linkNode );
-my $ehtml;
 
 sub handler {
 
     my $r        = shift;
-    my $db       = $r->dir_config->get('everything-database');
-    my $user     = $r->dir_config->get('everything-database-user') || '';
-    my $password = $r->dir_config->get('everything-database-password') || '';
-    my $host     = $r->dir_config->get('everything-database-host') || '';
-    my %options  = $r->dir_config->get('everything-database-options');
 
-    ## scriptname for CGI
+    my $config =  Everything::Config->new( apache_request => $r );
     my $e =
-      Everything::HTTP::Request->new( "$db:$user:$password:$host", \%options );
+      Everything::HTTP::Request->new( $config );
 
     $e->get_nodebase->resetNodeCache;
 
-    unless ($ehtml) {
-        $ehtml = Everything::HTML->new;
-        create_url_parsers( $r, $e, $ehtml );
-    }
-
     ## sets up variables for serving web pages mostly pulled from db
 
-    $e->setup_standard_system_vars();
+    $e->set_system_vars( $config->htmlvars() );
 
     ## get a CGI object
     $e->set_cgi_standard();
@@ -58,7 +44,7 @@ sub handler {
 
     if ( !$e->get_node && $r->uri ) {
 
-        Everything::HTTP::URL->modify_request( $r->uri, $e );
+        modify_request( $config, $r->uri, $e );
 
         my $node = $e->get_node;
 
@@ -87,7 +73,7 @@ sub handler {
     ### XXX- response factory should set up the environment that htmlpage needs
 
     my $response = Everything::HTTP::ResponseFactory->new( $e->get_response_type || 'htmlpage', $e );
-    $response->create_http_body( { ehtml => $ehtml } );
+    $response->create_http_body( { config => $config } );
     my $html = $response->get_http_body;
 
     $r->content_type( $response->content_type );
@@ -103,6 +89,25 @@ sub handler {
     return OK;
 
 }
+
+
+sub modify_request {
+    my ( $config, $url, $e ) = @_;
+
+    my @request_modifiers = @{ $config->request_modifiers };
+    return unless @request_modifiers;
+
+    my $found = 0;
+
+    foreach ( @request_modifiers ) {
+	$found++  if $_->( $url, $e );
+	last if $found;
+    }
+
+    return $found if $found;
+    return;
+}
+
 
 sub create_url_parsers {
     my ( $r, $e, $ehtml ) = @_;

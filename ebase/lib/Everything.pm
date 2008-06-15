@@ -275,6 +275,7 @@ the name of the database type to use (defaults to mysql)
 sub initEverything
 {
 	my ( $db, $options ) = @_;
+
 	$options = {}
 		unless defined $options
 		and (reftype( $options ) || '' ) eq 'HASH';
@@ -283,7 +284,7 @@ sub initEverything
 	clearFrontside();
 	clearBackside();
 
-	return if exists $NODEBASES{$db} and $DB = $NODEBASES{$db};
+	return $DB if exists $NODEBASES{$db} and $DB = $NODEBASES{$db};
 
 	my $dbtype  = $options->{dbtype} || 'mysql';
 	my $package = 'Everything::DB::' . $dbtype;

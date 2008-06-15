@@ -130,7 +130,7 @@ sub test_link_node : Test(5) {
     my $self    = shift;
     my $package = $self->{class};
 
-    local *linkNode = \&Everything::HTML::linkNode;
+    my $inst = $self->{instance};
 
     #linkNode takes for args: $NODE, $title (goes between the opening and
     #closeing enter tags, $params a hashref of stuff to be added to the
@@ -140,24 +140,22 @@ sub test_link_node : Test(5) {
     # returns a well-formed anchor tag
     my $m    = $self->{mock};
     my $mock = Test::MockObject->new;
-    local $ENV{SCRIPT_NAME} = '';
-    my $q = CGI->new();
     $mock->{node_id} = 111;
     $mock->{title}   = "Random node";
 
     $m->set_always( getNode => $mock );
-    is( linkNode(1), '<a href="?node_id=111">Random node</a>', "linkNode" );
+    is( $inst->link_node(1), '<a href="?node_id=111">Random node</a>', "linkNode" );
     $mock->{node_id} = 222;
     $mock->{title}   = "Another Random Node";
-    is( linkNode($mock), '<a href="?node_id=222">Another Random Node</a>',
+    is( $inst->link_node($mock), '<a href="?node_id=222">Another Random Node</a>',
         "linkNode" );
-    is( linkNode( $mock, "Different Title" ),
+    is( $inst->link_node( $mock, "Different Title" ),
         '<a href="?node_id=222">Different Title</a>', "linkNode" );
-    is( linkNode( $mock, "Different Title", { op => 'hello' } ),
+    is( $inst->link_node( $mock, "Different Title", { op => 'hello' } ),
         '<a href="?node_id=222;op=hello">Different Title</a>', "linkNode" );
 
     is(
-        linkNode(
+        $inst->link_node(
             $mock,
             "Different Title",
             { op    => 'hello' },
@@ -166,6 +164,47 @@ sub test_link_node : Test(5) {
         '<a href="?node_id=222;op=hello" style="Foo: bar">Different Title</a>',
         "linkNode"
     );
+
+}
+
+sub test_link_node_with_base : Test(6) {
+    my $self    = shift;
+    my $package = $self->{class};
+
+    my $inst = $self->{instance};
+
+    my $m    = $self->{mock};
+    my $mock = Test::MockObject->new;
+    $mock->{node_id} = 111;
+    $mock->{title}   = "Random node";
+
+    $m->set_always( getNode => $mock );
+    is( $inst->link_node(1), '<a href="?node_id=111">Random node</a>', "...if no location returns node_id as param." );
+
+    $inst->set_node_locators ( [ sub{ '/a/location' } ] );
+    is( $inst->link_node(1), '<a href="/a/location">Random node</a>', "...if location returns location" );
+
+    $mock->{node_id} = 222;
+    $mock->{title}   = "Another Random Node";
+    is( $inst->link_node($mock), '<a href="/a/location">Another Random Node</a>',
+        "...returns location if node changes." );
+
+    is( $inst->link_node( $mock, "Different Title" ),
+        '<a href="/a/location">Different Title</a>', "...also returns location if the link name changes." );
+    is( $inst->link_node( $mock, "Different Title", { op => 'hello' } ),
+        '<a href="/a/location?op=hello">Different Title</a>', "...puts query string after the location." );
+
+    like(
+        $inst->link_node(
+            $mock,
+            "Different Title",
+            { op    => 'hello', displaytype => 'foo' },
+            { style => "Foo: bar" }
+        ),
+        qr{<a href="/a/location\?(?:op=hello;displaytype=foo)|(?:displaytype=foo;op=hello)" style="Foo: bar">Different Title</a>},
+        "...handles multiple queries and attributes to the URL string."
+    );
+
 
 }
 

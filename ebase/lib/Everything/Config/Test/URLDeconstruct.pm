@@ -1,13 +1,9 @@
-package Everything::HTTP::URL::Test::Deconstruct;
-
-
+package Everything::Config::Test::URLDeconstruct;
 
 use strict;
 use Test::Exception;
 use Test::More;
-use base 'Everything::HTTP::Test::URL';
-
-
+use base 'Everything::Config::Test::URL';
 
 ## needs to be rewritten
 sub test_z_process : Test(4) {
@@ -32,7 +28,6 @@ sub test_z_process : Test(4) {
     ok ($instance->process( $fake_request ) );
  
     $instance->set_schema('/node/:type');
-    $instance->get_nodebase->set_always('getType', {node_id => 111});
     $instance->set_always('get_matches', [['type_nodetype'], 222]);
     ok ($instance->process( $fake_request ) );
     my ($method, $args) = $instance->next_call();
@@ -51,7 +46,7 @@ sub test_make_url : Test(5) {
     my $instance = $self->{instance};
     $instance->set_rule('/node/:node_id');
     $instance->tokenize();
-    $instance->make_urlifier();
+    $instance->location_creator();
     is ($instance->make_url($mock), '/node/222');
     is ($instance->make_url($mock), '/node/222');
     is ($instance->make_url($mock), '/node/222');
@@ -63,112 +58,80 @@ sub test_make_url : Test(5) {
 
 }
 
-sub test_make_urlifier : Test(2) {
+sub test_location_creator : Test(2) {
     my $self = shift;
-    can_ok($self->{class}, 'make_urlifier') || return;
-    is (ref $self->{instance}->make_urlifier, 'CODE', '...should return a code ref.');
+    can_ok($self->{class}, 'location_creator') || return;
+    $self->{instance}->set_tokens( [] );
+    is (ref $self->{instance}->location_creator, 'CODE', '...should return a code ref.');
 }
 
 
-sub test_make_url_gen : Test(4) {
+sub test_location_creator :Test(5) {
     my $self    = shift;
     my $class = $self->{class};
     my $instance = $self->{instance};
-    can_ok( $class, 'make_url_gen' );
-    my $code_ref = $instance->make_url_gen;
-    is(ref $code_ref, 'CODE', '...creates a code ref');
-    my $result = $code_ref->( { foo => [ 'bar', 'baz' ] }, );
-    is( $result, '"/node/?foo=bar&foo=baz"',
-        'urlGen() should generate relative URL from params' );
-    is( $code_ref->( { foo => 'bar' }, 1),
-        '/node/?foo=bar', '... without quotes, if noflags is true' );
-
-}
-
-sub test_make_link_node :Test(8) {
-    my $self    = shift;
-    my $class = $self->{class};
-    my $instance = $self->{instance};
-    can_ok( $class, 'make_link_node' ) || return;
+    can_ok( $class, 'location_creator' ) || return;
     $instance->set_schema('/node/:node_id');
-    $instance->make_url_gen;
+
     my $mock = Test::MockObject->new;
 
     *Everything::HTML::DB = \$mock;
 
     $mock->{node_id} = 111;
     $mock->{title}   = "Random node";
-    $instance->set_nodebase($mock);
 
     $mock->set_always('getNode', $mock);
 
-    my $linkNode = $instance->make_link_node;
+    my $linkNode = $instance->location_creator;
 
     is(ref $linkNode, 'CODE', '...creates a code ref');
-    is( $linkNode->($mock), '<a href="/node/111">Random node</a>', "linkNode" );
+    is( $linkNode->($mock), '/node/111', "...follows schema." );
     $mock->{node_id} = 222;
     $mock->{title}   = "Another Random Node";
-    is( $linkNode->($mock), '<a href="/node/222">Another Random Node</a>',
-        "linkNode" );
-    is( $linkNode->( $mock, "Different Title" ),
-        '<a href="/node/222">Different Title</a>', "linkNode" );
-    is( $linkNode->( $mock, "Different Title", { op => 'hello' } ),
-        '<a href="/node/222?op=hello">Different Title</a>', "linkNode" );
-
-    is(
-        $linkNode->(
-            $mock,
-            "Different Title",
-            { op    => 'hello' },
-            { style => "Foo: bar" }
-        ),
-        '<a href="/node/222?op=hello" style="Foo: bar">Different Title</a>',
-        "linkNode"
-    );
+    is( $linkNode->($mock), '/node/222',
+        "...correctly puts in node_id." );
 
     $mock->{node_id}=0;
-    is( $linkNode->($mock), '<a href="/node/0">Another Random Node</a>',
+    is( $linkNode->($mock), '/node/0',
         "...treats node with id = 0 properly." );
 
 }
 
 
-sub test_make_link_node_compulsory_value :Test(5) {
+sub test_location_creator_with_compulsory_value :Test(4) {
     my $self    = shift;
     my $class = $self->{class};
     my $instance = $self->{instance};
-    can_ok( $class, 'make_link_node' ) || return;
+
     $instance->set_schema('/node/:title?foobar');
-    $instance->make_url_gen;
+
     my $mock = Test::MockObject->new;
 
 
     $mock->{node_id} = 111;
     $mock->{title}   = "Random node";
-    $instance->set_nodebase($mock);
 
     $mock->set_always('getNode', $mock);
 
-    my $linkNode = $instance->make_link_node;
+    my $linkNode = $instance->location_creator;
 
     is(ref $linkNode, 'CODE', '...creates a code ref');
-    is( $linkNode->($mock), '<a href="/node/Random%20node">Random node</a>', "...testing node url creation." );
+    is( $linkNode->($mock), '/node/Random node', "...testing node url creation." );
 
     ## testing title
 
     $mock->{node_id} = 222;
     $mock->{title}   = "Another Random Node";
-    is( $linkNode->($mock), '<a href="/node/Another%20Random%20Node">Another Random Node</a>',
+    is( $linkNode->($mock), '/node/Another Random Node',
         "... url creation with compulsory values" );
  
     ## testing type
     $instance->set_schema('/node/:type?location');
-    $instance->make_url_gen;
-    $linkNode = $instance->make_link_node;
+    $linkNode = $instance->location_creator;
     $mock->{type_nodetype} = 3;
     $mock->{DB} = $mock;
     $mock->set_always('getType', { title => 'Nodetype title'});
-    is( $linkNode->($mock), '<a href="/node/Nodetype%20title">Another Random Node</a>',
+    is( $linkNode->($mock), '/node/Nodetype title',
         "linkNode" );
 }
 

@@ -1,5 +1,5 @@
 #! perl
 
-use Everything::HTTP::URL::Test::Deconstruct;
+use Everything::Config::Test::URLDeconstruct;
 
-Everything::HTTP::URL::Test::Deconstruct->runtests;
+Everything::Config::Test::URLDeconstruct->runtests;

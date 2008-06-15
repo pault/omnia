@@ -1,5 +1,5 @@
 #! perl
 
-use Everything::HTTP::Test::URL;
+use Everything::Config::Test::URL;
 
-Everything::HTTP::Test::URL->runtests;
+Everything::Config::Test::URL->runtests;

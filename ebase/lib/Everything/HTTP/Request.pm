@@ -145,10 +145,10 @@ Returns nothing useful
 =cut
 
 sub new {
-    my $class = shift;
+    my ( $class, $config ) = @_;
     my $self = bless {}, $class;
-    if (@_) {
-        $self->setup_nodebase_object(@_);
+    if ( $config ) {
+        $self->set_nodebase( $config->nodebase );
     }
     return $self;
 }
