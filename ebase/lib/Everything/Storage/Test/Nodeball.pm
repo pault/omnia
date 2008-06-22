@@ -8,7 +8,7 @@ use Test::MockObject;
 use File::Temp;
 use File::Path;
 use File::Find;
-use Archive::Tar;
+#use Archive::Tar;
 use IO::File;
 use SQL::Statement;
 use Cwd;
@@ -16,10 +16,12 @@ use strict;
 use warnings;
 
 sub startup : Test(+1) {
+
+    ### use-ing Archive::Tar causes a seg fault.  Bug in perl 5.10??
+    require 'Archive/Tar.pm'; 
     my $self = shift;
     $self->SUPER::startup;
     my $instance = $self->{class}->new;
-
     my ( $test_nodeball_d, $test_nodeball ) = $self->make_test_nodeball;
     $self->{test_nodeball_d} = $test_nodeball_d;
     $self->{test_nodeball}   = $test_nodeball;

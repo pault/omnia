@@ -144,15 +144,15 @@ sub test_link_node : Test(5) {
     $mock->{title}   = "Random node";
 
     $m->set_always( getNode => $mock );
-    is( $inst->link_node(1), '<a href="?node_id=111">Random node</a>', "linkNode" );
+    is( $inst->link_node(1), '<a href="/?node_id=111">Random node</a>', "linkNode" );
     $mock->{node_id} = 222;
     $mock->{title}   = "Another Random Node";
-    is( $inst->link_node($mock), '<a href="?node_id=222">Another Random Node</a>',
+    is( $inst->link_node($mock), '<a href="/?node_id=222">Another Random Node</a>',
         "linkNode" );
     is( $inst->link_node( $mock, "Different Title" ),
-        '<a href="?node_id=222">Different Title</a>', "linkNode" );
+        '<a href="/?node_id=222">Different Title</a>', "linkNode" );
     is( $inst->link_node( $mock, "Different Title", { op => 'hello' } ),
-        '<a href="?node_id=222;op=hello">Different Title</a>', "linkNode" );
+        '<a href="/?node_id=222;op=hello">Different Title</a>', "linkNode" );
 
     is(
         $inst->link_node(
@@ -161,7 +161,7 @@ sub test_link_node : Test(5) {
             { op    => 'hello' },
             { style => "Foo: bar" }
         ),
-        '<a href="?node_id=222;op=hello" style="Foo: bar">Different Title</a>',
+        '<a href="/?node_id=222;op=hello" style="Foo: bar">Different Title</a>',
         "linkNode"
     );
 
@@ -179,7 +179,7 @@ sub test_link_node_with_base : Test(6) {
     $mock->{title}   = "Random node";
 
     $m->set_always( getNode => $mock );
-    is( $inst->link_node(1), '<a href="?node_id=111">Random node</a>', "...if no location returns node_id as param." );
+    is( $inst->link_node(1), '<a href="/?node_id=111">Random node</a>', "...if no location returns node_id as param." );
 
     $inst->set_node_locators ( [ sub{ '/a/location' } ] );
     is( $inst->link_node(1), '<a href="/a/location">Random node</a>', "...if location returns location" );

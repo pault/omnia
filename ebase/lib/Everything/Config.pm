@@ -1,6 +1,8 @@
 package Everything::Config;
 
 use AppConfig qw/ :argcount /;
+use File::Spec;
+use File::Basename;
 use Everything '$DB';
 use Everything::NodeBase;
 use Cwd qw/abs_path/;
@@ -28,7 +30,7 @@ use warnings;
         my $config = AppConfig->new;
 
         foreach (
-            qw/database_name database_user database_password database_host database_type/
+            qw/database_name database_user database_password database_host database_port database_type/
           )
         {
             $config->define( $_, { DEFAULT => '', ARGCOUNT => ARGCOUNT_ONE } );
@@ -58,20 +60,34 @@ use warnings;
 	my $r = $self->get_apache_request;
 
 	if ( ! $file && $r ) {
-	    $file = $r->dir_config->get('everything-config-file');
+	    my $f = $r->dir_config->get('everything-config-file');
+	    my $base = Apache2::ServerUtil::server_root();
+	    $file = File::Spec->rel2abs( $f, $base );
+
 	}
 
         ## first the file
-        $config->file( abs_path( $file ) ) if $file;
+        $config->file( $file ) if $file;
+
+	make_db_path_absolute( $config,  ( fileparse( $file ) )[1] ) if $file;
 
         ## now apache request
-        read_apache_request( $config, $self->get_apache_request )
-          if $self->get_apache_request;
+        read_apache_request( $config, $r ) if $r;
 
         $self->set( \@config, $config );
 
 	$self->handle_location_schemas;
     }
+}
+
+
+sub make_db_path_absolute {
+
+    my ( $config, $base ) = @_;
+    return unless $config->get('database_type') eq 'sqlite';
+    my $db_name = File::Spec->rel2abs( $config->get('database_name'), $base );
+    $config->set('database_name', $db_name );
+
 }
 
 sub read_apache_request {
@@ -80,7 +96,7 @@ sub read_apache_request {
     my $apr_table = $r->dir_config;
 
         foreach (
-            qw/database_name database_user database_password database_host database_type/
+            qw/database_name database_user database_password database_host database_port database_type/
 		) {
 	    my $attribute = $_;
 	    $attribute =~ s/_/\-/;
@@ -88,16 +104,8 @@ sub read_apache_request {
 	    my $value = $apr_table->get( $attribute );
 	    $config->set( $_, $value ) if $value;
 	}
-#     $config->set( 'database_name',
-#         $apr_table->get('everything-database-name') || '' );
-#     $config->set( 'database_user',
-#         $apr_table->get('everything-database-user') || '' );
-#     $config->set( 'database_password',
-#         $apr_table->get('everything-database-password') || '' );
-#     $config->set( 'database_host',
-#         $apr_table->get('everything-database-host') || '' );
-#     $config->set( 'database_type',
-#         $apr_table->get('everything-database-type') || '' );
+
+    make_db_path_absolute( $config, Apache2::ServerUtil::server_root() );
 
 }
 
@@ -261,7 +269,9 @@ The following options may be set in the configuration file:
 
 =item database_name
 
-The name of the database
+The name of the database. In the case of sqlite, this is a file
+name. A relative path may be specified, in which case it is relative
+to the location of the config file.
 
 =item database_user
 
@@ -274,6 +284,10 @@ The database password for the above named user
 =item database_host
 
 The host
+
+=item database_port
+
+The port to which to connect to the database.
 
 =item database_type
 
@@ -316,6 +330,14 @@ location_schema_nodetype = /schema/type nodetypename
 
 Where C< /schema/type > is the schema and C<nodetypename> is the nodetype.
 
+=item location_code
+
+There may be more than one of these.  This is perl code that must be
+able to eval'd as an anonymous subroutine. It will be passed one
+argument, a node object, and should return the local url location of
+that node, say, for example, C</node/nodeid>.
+
+
 =back
 
 
@@ -333,11 +355,12 @@ PerlSetVar variable-name variablevalue
 
 =item everything-config-file
 
-Name of the config file
+Name of the config file. If a relative path, it must be relative to
+value set by Apache's ServerRoot directive.
 
 =item everything-database-name
 
-Database name to connect to
+Database name to connect to. If the database type is 'sqlite', this is a file name which may be relative to the Apache directive C<ServerRoot>.
 
 =item everything-database-user
 
@@ -346,6 +369,14 @@ The user that connects to the database
 =item everything-database-password
 
 The database password for the above mentioned user
+
+=item everything-database-host
+
+The host
+
+=item everything-database-port
+
+The port
 
 =item everything-database-type
 

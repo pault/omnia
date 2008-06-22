@@ -1,5 +1,6 @@
 package Everything::CmdLine;
 
+use Everything::Config;
 use Getopt::Long;
 use Term::ReadKey;
 use Cwd;
@@ -8,7 +9,7 @@ use base 'Exporter';
 use strict;
 use warnings;
 
-our @EXPORT_OK = qw(get_options abs_path usage_options make_nodebase readline_quick confirm_yn);
+our @EXPORT_OK = qw(get_options abs_path usage_options make_nodebase readline_quick confirm_yn config);
 
 Getopt::Long::Configure(qw/bundling/);
 
@@ -104,6 +105,18 @@ sub make_nodebase {
     return $nb;
 }
 
+sub config {
+    my ( $arg ) = @_;
+    my $opts = $arg || get_options;
+    my $c = Everything::Config->new;
+    $c->database_name( $$opts{ database } );
+    $c->database_user( $$opts{ user } );
+    $c->database_password( $$opts{ password } );
+    $c->database_host( $$opts{ host } );
+    $c->database_port( $$opts{ port } );
+    $c->database_type( $$opts{ type } );
+    return $c;
+}
 
 sub readline_quick
 {

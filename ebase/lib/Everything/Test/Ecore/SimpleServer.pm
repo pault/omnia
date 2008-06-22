@@ -12,6 +12,7 @@ sub new {
     my $port = $$args{listenport};
     my $self = $class->SUPER($port);
     $self->{mod_perlInit} = $$args{mod_perlInit};
+    $self->{config} = $$args{config};
 
     ## to deal with unwanted behaviour
     $Everything::commandLine = 0;
@@ -28,9 +29,9 @@ sub handle_request {
     local *Everything::HTML::getCGI;
     *Everything::HTML::getCGI = sub { $cgi };
 
-    my $args = $self->{mod_perlInit};
+    my $args = $self->{config};
 
-    Everything::HTTP::CGI->handle( @$args );
+    Everything::HTTP::CGI->handle( $args );
 
 
 }

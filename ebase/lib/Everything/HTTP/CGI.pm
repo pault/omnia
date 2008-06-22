@@ -41,7 +41,7 @@ sub handle  {
     my $response = Everything::HTTP::ResponseFactory->new( 'htmlpage', $e );
     $response->create_http_body;
     my $html   = $response->get_http_body;
-    my $header = $e->http_header( $response->get_mime_type );
+    my $header = $e->http_header( $response->content_type );
 
     $e->get_cgi->print($header);
     $e->get_cgi->print($html);

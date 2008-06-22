@@ -646,7 +646,11 @@ sub link_node {
     my $scripts = handle_scripts($SCRIPTS);
 
     my $node_location = $self->node_location( $NODE );
-    $$PARAMS{node_id} = $NODE->{node_id} unless $node_location;
+ 
+    if ( ! $node_location ) {
+	$$PARAMS{node_id} = $NODE->{node_id};
+	$node_location = '/';
+    }
 
     $link = "<a href=" . $self->url_gen($PARAMS, undef, $node_location) . $tags;
     $link .= " " . $scripts if ( $scripts ne "" );

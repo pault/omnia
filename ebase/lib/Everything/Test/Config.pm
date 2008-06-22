@@ -4,8 +4,9 @@ use base 'Everything::Test::Abstract';
 use SUPER;
 use Test::More;
 use Test::MockObject;
+use File::Basename;
+use File::Spec;
 use File::Temp qw/:seekable/;
-#use Everything::Config;
 use strict;
 use warnings;
 
@@ -203,6 +204,43 @@ sub test_initial_values : Test(5) {
     is ( $inst->database_password, '', '...database password defaults to empty string.');
     is ( $inst->database_host, '', '...database host defaults to empty string.');
     is ( $inst->database_type, '', '...database type defaults to empty string.');
+}
+
+sub test_sqlite_file_paths : Test(2) {
+
+    my $self = shift;
+    my $fh   = File::Temp->new();
+    print $fh <<HERE;
+database_name = sqlite_db
+database_type = sqlite
+HERE
+
+    $fh->seek( 0, SEEK_SET );
+    my $inst = $self->{class}->new( file => "$fh" );
+    my $path = ( fileparse("$fh") )[1];
+    is(
+        $inst->get_config->get('database_name'),
+        File::Spec->catfile( $path, 'sqlite_db' ),
+        '...makes sqlite file name absolute.'
+    );
+
+    my $mock = Test::MockObject->new;
+    $mock->set_always( dir_config => $mock );
+    $mock->set_series( get => 'apache_sqlite_db', '', '', '', 'sqlite' );
+
+    local *Apache2::ServerUtil::server_root;
+    *Apache2::ServerUtil::server_root =
+      sub { File::Spec->catfile( File::Spec->rootdir, qw/blah blah blah/ ) };
+
+    $fh->seek( 0, SEEK_SET );
+    $inst = $self->{class}->new( file => "$fh", apache_request => $mock );
+    is(
+        $inst->get_config->get('database_name'),
+        File::Spec->catfile(
+            File::Spec->rootdir, qw/blah blah blah apache_sqlite_db/
+        ),
+        '...makes sqlite file name, set in httpd.conf absolute.'
+    );
 }
 
 1;
