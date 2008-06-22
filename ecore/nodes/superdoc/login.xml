@@ -17,16 +17,16 @@ my $str = &quot;&quot;;
 if ($query-&gt;param('op') eq 'login' &amp;&amp; $$USER{node_id} != $HTMLVARS{guest_user}) {
   $str.= &quot;Hey.  Glad you're back.  Would you like to go to your &quot; 
     .linkNode($USER, &quot;home node&quot;)
-    .&quot; or to &quot;.linkNode($HTMLVARS{default_node}).&quot;?&lt;br&gt;&quot;;
+    .&quot; or to &quot;.$this-&gt;link_node($HTMLVARS{default_node}).&quot;?&lt;br&gt;&quot;;
 
   $str.=&quot;...or back to &quot;
-    .linkNode($query-&gt;param(&quot;lastnode_id&quot;))
+    .$this-&gt;link_node($query-&gt;param(&quot;lastnode_id&quot;))
     .&quot;?&lt;br&gt;&quot; if ($query-&gt;param(&quot;lastnode_id&quot;));
   return $str;
 } elsif ($query-&gt;param('op') eq 'login') { 
   $str .=&quot;Oops.  You must have the wrong login or password or something:\n&lt;P&gt;\n&quot;;
 } elsif ($$USER{node_id} != $HTMLVARS{guest_user}) {
-  $str.=&quot;Hey, &quot;.linkNode($USER).&quot;...  this is where you log in:&lt;p&gt;\n&quot;;
+  $str.=&quot;Hey, &quot;. $this-&gt;link_node($USER).&quot;...  this is where you log in:&lt;p&gt;\n&quot;;
 }else {
   $str .=&quot;Welcome to $HTMLVARS{site_name}.  Authenticate yourself:\n&lt;p&gt;\n&quot;;
 }

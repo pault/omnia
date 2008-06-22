@@ -4,6 +4,7 @@
   <field name="code" type="literal_value">my %HTMLVARS = %{ $this-&gt;get_htmlvars };
 my $NODE = $this-&gt;get_node;
 my $DB = $this-&gt;get_nodebase;
+my %HTMLVARS = %{ $this-&gt;get_htmlvars };
 
 return unless $HTMLVARS{showlocations};
 my @path;

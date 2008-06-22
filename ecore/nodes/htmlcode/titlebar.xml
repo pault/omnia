@@ -13,7 +13,7 @@ my @links;
 
 
 push @links, $this-&gt;link_node ($HTMLVARS{default_node}, &quot;Log $$USER{title} out&quot;, {op =&gt; 'logout'});
-push @links, linkNode ($USER, &quot;Edit $$USER{title}'s settings&quot;, { 'displaytype' =&gt; 'edit' });
+push @links, $this-&gt;link_node ($USER, &quot;Edit $$USER{title}'s settings&quot;, { 'displaytype' =&gt; 'edit' });
 
 my $EN = $DB-&gt;getNode('Epicenter Nodes', 'nodegroup');
 

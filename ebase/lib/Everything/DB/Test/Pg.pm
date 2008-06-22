@@ -561,8 +561,7 @@ sub test_gen_table_name : Test(2) {
         '"foo"', 'genTableName() should return first arg' );
 }
 
-sub test_database_exists : Test(0) {
-    local $TODO = "databaseExists unimplemented";
+sub test_database_exists : Test(1) {
     my $self = shift;
 
     can_ok( $self->{class}, 'databaseExists' ) || return;
@@ -651,8 +650,10 @@ sub test_last_value : Test(3) {
 
 }
 
-sub test_timediff : Test(0) {
-    local $TODO = "Unimplemented";
+sub test_timediff : Test(1) {
+    my $self = shift;
+    can_ok( $self->{class}, 'timediff' );
+
 }
 
 

@@ -963,7 +963,7 @@ sub execute_coderef {
         $warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
     };
 
-    flushErrorsToBackside();
+    Everything::flushErrorsToBackside();
 
     my ($ehtml) = @$args; #E::H object should be first one on array
     $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
@@ -971,15 +971,15 @@ sub execute_coderef {
 
     local $SIG{__WARN__} = sub { };
 
-    logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
+    Everything::logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
       if $warn or $@;
 
-    my $errors = getFrontsideErrors();
+    my $errors = Everything::getFrontsideErrors();
 
     if ( int(@$errors) > 0 ) {
         $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
     }
-    clearFrontside();
+    Everything::clearFrontside();
 
     return $result;
 

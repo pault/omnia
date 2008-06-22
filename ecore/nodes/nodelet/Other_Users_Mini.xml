@@ -29,7 +29,7 @@ my $users = $DB-&gt;getNodeWhere(&quot;(&quot; . $DB-&gt;timediff( $DB-&gt;now()
 
 my $str;
 foreach my $U (@$users) {
-	$str .= linkNode($U, &quot;&lt;font size=1 color=#FFFFFF&gt; $$U{title} \;&lt;/font&gt;&quot;);
+	$str .= $this-&gt;link_node($U, &quot;&lt;font size=1 color=#FFFFFF&gt; $$U{title} \;&lt;/font&gt;&quot;);
 }
 
 return $str if $str;

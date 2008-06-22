@@ -130,6 +130,16 @@ sub tableExists
 	return 0;
 }
 
+sub databaseExists {
+    my ( $self, $database ) = @_;
+    my $c = $self->{dbh}->prepare("select count(1) from pg_catalog.pg_database where datname = ?");
+
+    $c->execute( $database );
+    my ( $rv ) = $c->fetchrow;
+    return $rv;
+
+}
+
 #############################################################################
 #       Sub
 #               createNodeTable
@@ -420,6 +430,8 @@ sub list_tables {
 }
 
 sub now { return 'now()' }
+
+sub timediff { "$_[1] - $_[2]" }
 
 sub _quoteData {
 

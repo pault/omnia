@@ -13,15 +13,15 @@ my %GLOBAL;
 
 
  my $str=&quot;&quot;;
- my $arr = getNodeWhere({}, getType('setting'));
+ my $arr = $DB-&gt;getNodeWhere({}, $DB-&gt;getType('setting'));
  my @arrsort = sort {$$a{title} cmp $$b{title}} @$arr;
  foreach (@arrsort)
   { 
-    $str.= linkNode($_).&quot;&lt;br&gt;&quot;;
+    $str.= $this-&gt;link_node($_).&quot;&lt;br&gt;&quot;;
   } 
- if (getNode('hintlaunch settings', 'restricted_superdoc'))
+ if ($DB-&gt;getNode('hintlaunch settings', 'restricted_superdoc'))
  {
-  $str.=linkNode(getNode('hintlaunch settings', 'restricted_superdoc'));
+  $str.=$this-&gt;link_node($DB-&gt;getNode('hintlaunch settings', 'restricted_superdoc'));
  }
 $str;
 
@@ -41,11 +41,11 @@ my %GLOBAL;
 
 
   my $str;
-  my $themes = getNodeWhere({type_nodetype=&gt;[getType('theme'), getType('themesetting')]});
+  my $themes = $DB-&gt;getNodeWhere({type_nodetype=&gt;[$DB-&gt;getType('theme'), $DB-&gt;getType('themesetting')]});
   my @themesort = sort {$$a{title} cmp $$b{title}} @$themes;
 
   foreach (@themesort){
-    $str.=linkNode($_).&quot;&lt;br&gt;&quot;;
+    $str.=$this-&gt;link_node($_).&quot;&lt;br&gt;&quot;;
   }
   $str;
 

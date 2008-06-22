@@ -45,7 +45,7 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 
-my $TYPE = getType($$NODE{extends_nodetype});
+my $TYPE = $DB-&gt;getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultauthoraccess} if($TYPE);
 &quot;&quot;;
 
@@ -66,7 +66,7 @@ my %GLOBAL;
 my $str;
 if($$NODE{defaultgroup_usergroup} &gt; 0)
 { 
-  $str = linkNode($$NODE{defaultgroup_usergroup});
+  $str = $this-&gt;link_node($$NODE{defaultgroup_usergroup});
 }
 else
 {
@@ -99,7 +99,7 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 
-my $TYPE = getType($$NODE{extends_nodetype});
+my $TYPE = $DB-&gt;getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultgroupaccess} if($TYPE);
 &quot;&quot;;
 
@@ -130,7 +130,7 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 
-my $TYPE = getType($$NODE{extends_nodetype});
+my $TYPE = $DB-&gt;getType($$NODE{extends_nodetype});
 return $$TYPE{derived_defaultotheraccess} if($TYPE);
 &quot;&quot;;
 
@@ -161,7 +161,7 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 
-my $TYPE = getType($$NODE{extends_nodetype});
+my $TYPE = $DB-&gt;getType($$NODE{extends_nodetype});
 return $$TYPE{defaultguestaccess} if($TYPE);
 &quot;&quot;;
 
@@ -219,7 +219,7 @@ my %GLOBAL;
 my $tables = $DB-&gt;getNodetypeTables($NODE);
 my $str;
 foreach (@$tables) {
-   my $TABLE = getNode($_, 'dbtable');
+   my $TABLE = $DB-&gt;getNode($_, 'dbtable');
    $str.=&quot;&lt;li&gt;&quot;.linkNode($TABLE);
 }
 return  &quot;&lt;i&gt;none&lt;/i&gt;&quot; unless @$tables;
@@ -237,7 +237,7 @@ my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
- linkNode ($$NODE{extends_nodetype}) 
+ $this-&gt;link_node ($$NODE{extends_nodetype}) 
 	if ($$NODE{extends_nodetype});
 %]
 
@@ -304,14 +304,14 @@ my %GLOBAL;
 
 
 my $str;
-my $pages = getNodeWhere(
-  { pagetype_nodetype =&gt; $$NODE{node_id} }, getType('htmlpage'));
+my $pages = $DB-&gt;getNodeWhere(
+  { pagetype_nodetype =&gt; $$NODE{node_id} }, $DB-&gt;getType('htmlpage'));
 
 return &quot;None&quot; unless($pages);
 
 foreach (@$pages)
 {
-  $str .= &quot;&lt;li&gt;&quot; .linkNode ($_);
+  $str .= &quot;&lt;li&gt;&quot; .$this-&gt;link_node ($_);
 }
 $str;
 

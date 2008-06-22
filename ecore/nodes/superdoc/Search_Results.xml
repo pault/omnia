@@ -22,7 +22,7 @@ $nodes = [];
 }
 
 foreach (@{ $nodes }) {
-  my $ND = getNode $$_{node_id};
+  my $ND = $DB-&gt;getNode( $$_{node_id} );
   $str .=&quot;&lt;tr&gt;&quot;;
   $str .= &quot;&lt;td&gt;&quot; . linkNode ($ND) . &quot;&lt;/td&gt;&quot;;
   $str .= &quot;&lt;td&gt;(&quot;.$$ND{type}{title}.&quot;)&lt;/td&gt;&quot;;
@@ -31,7 +31,7 @@ foreach (@{ $nodes }) {
   foreach (@$keys) {
     $str.=&quot;&lt;td&gt;$_: &quot;;
     $str.= Everything::XML::getFieldType($_) eq 'noderef' 
-        ? linkNode($$ND{$_}) : $$ND{$_};
+        ? $this-&gt;link_node($$ND{$_}) : $$ND{$_};
     $str.=&quot;&lt;/td&gt;&quot;;    
   }
   $str.=&quot;&lt;/tr&gt;&quot;;

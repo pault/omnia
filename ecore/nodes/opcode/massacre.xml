@@ -16,7 +16,7 @@ foreach (@params) {
 return unless @deathrow;
 
 foreach (@deathrow) {
-  my $N = getNodeById($_);
+  my $N = $r-&gt;get_nodebase-&gt;getNodeById($_);
   $N-&gt;nuke($USER);
 }</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>

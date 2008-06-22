@@ -28,7 +28,7 @@ my %GLOBAL;
 
 
 	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
-	linkNode $N;
+	$this-&gt;link_node( $N );
 
 %]&lt;/td&gt;
  &lt;/tr&gt;
@@ -45,7 +45,7 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
  
-return linkNode ($$NODE{parent_container})
+return $this-&gt;link_node ($$NODE{parent_container})
   if $$NODE{parent_container};
 return &quot;&lt;i&gt;none&lt;/i&gt;&quot;;
 
@@ -97,8 +97,8 @@ my %GLOBAL;
 unless ($$NODE{ownedby_theme}) {
   return &quot;&lt;i&gt;this htmlpage does not belong to a theme&lt;/i&gt;&quot;;
 }
-my $THEME = getNode $$NODE{ownedby_theme};
-linkNode($THEME);
+my $THEME = $DB-&gt;getNode( $$NODE{ownedby_theme} );
+$this-&gt;link_node($THEME);
 
 
 %]&lt;/td&gt;

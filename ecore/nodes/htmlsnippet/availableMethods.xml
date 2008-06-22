@@ -15,8 +15,8 @@ my %GLOBAL;
 
   return &quot;&quot; unless $NODE-&gt;{type}{title} eq &quot;nodetype&quot;;
 
-  sub getSymbolsForType
-  {
+  my $getSymbolsForType = 
+  sub {
     my $tier = shift;
     my $symtable;
     my $mod;
@@ -35,19 +35,20 @@ my %GLOBAL;
 
     return $symtable if $tier eq &quot;Everything\:\:Node&quot;;
     if($tier =~ /\:([^\:]*)$/){
-      my $csr = $DB-&gt;sqlSelectMany(&quot;nodemethod_id&quot;, &quot;nodemethod&quot;,&quot;supports_nodetype=&quot;.getId(getType($1)));
+      my $csr = $DB-&gt;sqlSelectMany(&quot;nodemethod_id&quot;,
+      &quot;nodemethod&quot;,&quot;supports_nodetype=&quot;.$DB-&gt;getId($DB-&gt;getType($1)));
       return unless $csr;
 
       while(my $nm = $csr-&gt;fetchrow_hashref)
       {
-           $nm = getNodeById($nm-&gt;{nodemethod_id});
+           $nm = $DB-&gt;getNodeById($nm-&gt;{nodemethod_id});
            my $title = $nm-&gt;{title}; 
            $symtable-&gt;{$title} = (($symtable-&gt;{$title})?(&quot;overriddenmethod&quot;):(&quot;softmethod&quot;)).&quot;\:$$nm{node_id}&quot;;
       }#end while
      }#end if
     return $symtable;
 
-  }
+  };
 
   my @typepile;
   my $currtype = $NODE;
@@ -67,10 +68,10 @@ my %GLOBAL;
 
   foreach my $symtier (@symbols)
   {
-      $table-&gt;{$symtier} = getSymbolsForType($symtier);
+      $table-&gt;{$symtier} = &amp;$getSymbolsForType($symtier);
   }
 
-  my $entable = getSymbolsForType(&quot;Everything::Node&quot;);
+  my $entable = &amp;$getSymbolsForType(&quot;Everything::Node&quot;);
 
   my $str = &quot;&lt;table&gt;&lt;tr&gt;&lt;td valign=\&quot;top\&quot;&gt;\n&lt;table bgcolor=\&quot;\#cccccc\&quot;&gt;&lt;tr&gt;&lt;td align=\&quot;center\&quot;&gt;&lt;strong&gt;Everything\:\:Node&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
   foreach( sort {lc($a) cmp lc($b)} keys %$entable)
@@ -110,7 +111,7 @@ my %GLOBAL;
         if($table-&gt;{$_}-&gt;{$key}){
            if($table-&gt;{$_}-&gt;{$key} =~ /\:(.*)/)
            {
-              $display = linkNode(getNodeById($1));
+              $display = $this-&gt;link_node($DB-&gt;getNodeById($1));
            }else
            {
               #if Gigantic Code Lister ever comes back or we create an evil
