@@ -42,8 +42,6 @@
    ** removing sql tables from nodeballs
    ** allowing schemae that are optimised for each of the databases
 
-* Add nodebase.pm methods to allow retrieval of links 
-
 * Allow retrieval of objects other than nodes from the DB e.g. links
 
    This may involve creating objects that are a superclass of nodes,

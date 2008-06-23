@@ -766,4 +766,220 @@ sub search_node_name {
 
 }
 
+
+=head2 C<retrieve_links>
+
+Retrieves 'links' from the database.  It takes one argument which is a
+hash ref.  This hash ref provides the search criteria to return
+links. It may have the following keys:
+
+=over 4
+
+=item from_node
+
+The node being linked from
+
+
+=item to_node
+
+The node being linked to
+
+=item linktype
+
+The type of link.
+
+=back
+
+Returns an array of hash refs.
+
+=cut
+
+sub retrieve_links {
+
+    my ( $self, $args ) = @_;
+
+    my @column_names = keys %$args;
+    my $where = join ' AND ', map "$_ = ?", @column_names;
+
+    my $cursor = $self->sqlSelectMany( "from_node, to_node, linktype, hits, food", 'links', $where, undef, [ @$args{ @column_names } ] ); 
+
+    my @results = ();
+
+    while (my $link = $cursor->fetchrow_hashref) {
+	push @results, $link;
+    }
+
+    return \@results;
+}
+
+
+=head2 C<retrieve_nodes_linked>
+
+Retrieves 'links' from the database.  It takes two compulsory
+arguments and a third optional one:
+
+=over 4
+
+=item direction
+
+The first argument must be the word 'to' or the word 'from' indicating
+whether we are searching for nodes linking to or nodes linking from.
+
+=item node
+
+This is a node being linked to or from
+
+=item arg_hash
+
+This argument is optional. It must be a hashref containing arguments
+that are passed directly to C<retrieve_links>.
+
+=back
+
+Returns an array ref of node objects.
+
+=cut
+
+sub retrieve_nodes_linked {
+    my ( $self, $direction, $node, $args ) = @_;
+
+    $args ||= {};
+    $$args{ $direction . '_node' } = $node->get_node_id;
+    my $links = $self->retrieve_links( $args );
+
+    my @nodes = ();
+    my $wanted_direction = $direction eq 'to' ? 'from_node' : 'to_node';
+    foreach ( @$links ) {
+	my $node = $self->getNode( $_->{ $wanted_direction } );
+	push @nodes, $node;
+    }
+
+    return \@nodes;
+}
+
+=head2 C<total_links>
+
+Counts the number of 'links' in the database.  It takes one argument which is a
+hash ref.  This hash ref provides the search criteria to return
+links. It may have the following keys:
+
+=over 4
+
+=item from_node
+
+The node being linked from. This may be a node object or a node id.
+
+
+=item to_node
+
+The node being linked to. This may be a node object or a node id.
+
+=item linktype
+
+The type of link.
+
+=back
+
+Returns an integer. May possibly return '0 but true', so you should
+use a numeric test if you want to test for the absence of links.
+
+=cut
+
+sub total_links {
+    my ( $self, $args ) = @_;
+
+    foreach (qw/from_node to_node/) {
+	    $$args{ $_ } = $$args{ $_ }->get_node_id if ref $$args{ $_ };
+    }
+
+    my @column_names = keys %$args;
+    my $where = join ' AND ', map "$_ = ?", @column_names;
+
+    $self->sqlSelect( 'count(1)', 'links', $where, undef,  [ @$args{ @column_names } ] ); 
+
+}
+
+
+=head2 C<insert_link>
+
+Inserts a link into the database.  Takes one argument, a hash ref
+whose keys are the attribute names of the new link. The keys may be:
+
+=over 4
+
+=item from_node
+
+The node being linked from. This may be a node object or a node id.
+
+
+=item to_node
+
+The node being linked to. This may be a node object or a node id.
+
+=item linktype
+
+The type of link.
+
+=back
+
+Returns true on success.
+
+=cut
+
+sub insert_link {
+
+    my ( $self, $args ) = @_;
+
+    foreach (qw/from_node to_node/) {
+	    $$args{ $_ } = $$args{ $_ }->get_node_id if ref $$args{ $_ };
+    }
+
+    $self->sqlInsert( 'links', $args );
+}
+
+
+=head2 C<delete_links>
+
+Deletes one or several links from the database.  It takes one argument
+which is a hash ref.  This hash ref provides the search criteria
+(i.e. the 'where' clause) that governs what link(s) are deleted. The
+hash ref may have the following keys:
+
+=over 4
+
+=item from_node
+
+The node being linked from
+
+
+=item to_node
+
+The node being linked to
+
+=item linktype
+
+The type of link.
+
+=back
+
+Returns true on success.
+
+=cut
+
+sub delete_links {
+
+    my ( $self, $args ) = @_;
+
+    foreach (qw/from_node to_node/) {
+	    $$args{ $_ } = $$args{ $_ }->get_node_id if ref $$args{ $_ };
+    }
+
+    my @column_names = keys %$args;
+    my $where = join ' AND ', map "$_ = ?", @column_names;
+
+    $self->sqlDelete( 'links', $where,  [ @$args{ @column_names } ]  );
+}
+
+
+
 1;

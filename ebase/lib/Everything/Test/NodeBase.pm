@@ -569,4 +569,103 @@ sub test_search_node_name : Test(10) {
     is( join( '', @$found ), '123', '... and should return results' );
 }
 
+sub test_retrieve_links : Test(4) {
+    my $self = shift;
+
+    my $inst = $self->{ nb };
+    my $mock = Test::MockObject->new;
+
+    $inst->set_always( sqlSelectMany => $mock );
+    $mock->set_series( fetchrow_hashref => { qw/key1 value1 key2 value2/ }, undef );
+
+    my %arg_hash =  (to_node => 1, from_node => 2, linktype => 3 );
+    my %hash_arg = reverse %arg_hash;
+
+    ok( my $rv = $inst->retrieve_links( \%arg_hash ), '...retrieve_links works ok');
+
+    my ( $method, $args ) = $inst->next_call;
+    is( $method, 'sqlSelectMany', '...calls DB function.' );
+    my @values = @{ $$args[5] };
+    my $where = join ' AND ', map "$_ = ?", @hash_arg{ @values };
+    is( $$args[3], $where, '... constructs where clause.');
+    is_deeply( $rv, [ { key1 => 'value1', key2 => 'value2' } ], '...returns an array ref of hash refs.');
+}
+
+sub test_retrieve_nodes_linked : Test( 9 ) {
+
+    my $self = shift;
+    my $inst = $self->{ nb };
+    $inst->set_always( retrieve_links => [ {from_node => 'from', to_node => 'to' } ] );
+
+    my $mock = Test::MockObject->new;
+    $mock->set_always( get_node_id => 999 );
+    $inst->set_always( getNode => $mock );
+    my $rv = $inst->retrieve_nodes_linked( 'to', $mock );
+    is_deeply( $rv, [ $mock ], '...returns an array of nodes.');
+    my( $method, $args ) = $inst->next_call;
+    is( $method, 'retrieve_links', '...calls retrieve links.');
+    is_deeply( $$args[1], { to_node => 999 }, '...with to_node arg_hash.');
+    ( $method, $args ) = $inst->next_call;
+    is( $method, 'getNode', '...retrieves nodes.');
+    is( $$args[1], 'from', '...using the from_node value.');
+
+    $inst->retrieve_nodes_linked( 'from', $mock );
+    ( $method, $args ) = $inst->next_call;
+    is( $method, 'retrieve_links', '...calls retrieve links.');
+    is_deeply( $$args[1], { from_node => 999 }, '...with from_node arg_hash.');
+    ( $method, $args ) = $inst->next_call;
+    is( $method, 'getNode', '...retrieves nodes.');
+    is( $$args[1], 'to', '...using the to_node value.');
+
+}
+
+sub test_total_links : Test(2) {
+    my $self = shift;
+
+    my $inst = $self->{ nb };
+    my $mock = Test::MockObject->new;
+
+    $inst->set_always( sqlSelect => 2 );
+
+    my %arg_hash =  (to_node => 1, from_node => 2, linktype => 3 );
+    my %hash_arg = reverse %arg_hash;
+
+    $inst->total_links( \%arg_hash );
+
+    my ( $method, $args ) = $inst->next_call;
+    is( $method, 'sqlSelect', '...calls DB function.' );
+    my @values = @{ $$args[5] };
+    my $where = join ' AND ', map "$_ = ?", @hash_arg{ @values };
+    is( $$args[3], $where, '... constructs where clause.');
+
+}
+
+sub test_delete_links : Test( 2 ) {
+    my $self = shift;
+
+    my $inst = $self->{ nb };
+    my $mock = Test::MockObject->new;
+
+    $inst->set_always( sqlDelete => 2 );
+
+    $mock->set_series( get_node_id => 1, 2 );
+
+    ## setting mocks here and manipulating arg_hash to know that we
+    ## can pass nodes rather than just node_ids
+
+    my %arg_hash =  (to_node => $mock, from_node => $mock, linktype => 3 );
+    $inst->delete_links( \%arg_hash );
+    $arg_hash{to_node} = 2;
+    $arg_hash{from_node} = 1;
+
+    my %hash_arg = reverse %arg_hash;
+
+    my ( $method, $args ) = $inst->next_call;
+    is( $method, 'sqlDelete', '...calls DB function.' );
+    my @values = @{ $$args[3] };
+    my $where = join ' AND ', map "$_ = ?", @hash_arg{ @values };
+    is( $$args[2], $where, '... constructs where clause.');
+
+}
+
 1;
