@@ -51,6 +51,7 @@ my $build = Everything::Build->new(
 		'Test::Simple'              => 0.47,
 	        'Template' => 0,
 	        'Proc::ProcessTable'        => 0,
+	        'File::Temp'                => 0.18,
 	},
 	scripts    => [ File::Spec->catfile( 'bin', 'nbmasta' ) ],
 	test_files => join( ' ', @test_files ),

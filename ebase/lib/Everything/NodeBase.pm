@@ -165,7 +165,7 @@ sub buildNodetypeModules
 
 	my %modules;
 
-	for my $nodetype ( $self->{storage}->fetch_all_nodetype_names() )
+	for my $nodetype ( $self->{storage}->fetch_all_nodetype_names( 'ORDER BY node_id' ) )
 	{
 	    my $module = "Everything::Node::$nodetype";
 	    if ($self->loadNodetypeModule( $module ) ){

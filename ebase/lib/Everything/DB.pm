@@ -25,14 +25,16 @@ sub new
 
 =head2 C<fetch_all_nodetype_names()>
 
-This method returns a list of the names of all nodetypes in the system.
+This method returns a list of the names of all nodetypes in the system. Takes an optional argument, which is text passed to sqlSelectMany.
 
 =cut
 
 sub fetch_all_nodetype_names
 {
-	my $self = shift;
-	my $csr  = $self->sqlSelectMany( 'title', 'node', 'type_nodetype=1' );
+	my ( $self, $order_by )  = @_;
+
+	$order_by ||= 'ORDER BY node_id';
+	my $csr  = $self->sqlSelectMany( 'title', 'node', 'type_nodetype=1', $order_by );
 
 	return unless $csr;
 

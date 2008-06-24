@@ -258,7 +258,7 @@ sub test_fetch_all_nodetype_names : Test(2) {
     my $self   = shift;
     $self->{instance}->{dbh}->clear;
 
-    $self->add_expected_sql('SELECT title FROM node WHERE type_nodetype=1 ') unless $self->isset_expected_sql; 
+    $self->add_expected_sql('SELECT title FROM node WHERE type_nodetype=1 ORDER BY node_id') unless $self->isset_expected_sql; 
     {
         my @a = @lists;
         $self->{instance}->{dbh}->mock( 'fetchrow_array',

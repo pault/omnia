@@ -246,61 +246,52 @@ sub dropFieldFromTable
 #       Returns
 #               1 if successful, 0 if failure.
 #
-sub addFieldToTable
-{
-	my ( $this, $table, $fieldname, $type, $primary, $default ) = @_;
-	my $sql;
+sub addFieldToTable {
+    my ( $this, $table, $fieldname, $type, $primary, $default ) = @_;
+    my $sql;
 
-	return 0 if ( ( $table eq "" ) || ( $fieldname eq "" ) || ( $type eq "" ) );
+    return 0 if ( ( $table eq "" ) || ( $fieldname eq "" ) || ( $type eq "" ) );
 
-	if ( not defined $default )
-	{
-		if ( $type =~ /^int/i )
-		{
-			$default = 0;
-		}
-		else
-		{
-			$default = "";
-		}
-	}
-	elsif ( $type =~ /^text/i )
-	{
+    if (   ( ( not defined($default) ) || ( $default eq '' ) )
+        && ( $type =~ /^int/i || $type =~ /(?:big)|(?:small)int/i ) )
+    {
+        $default = 0;
+    }
 
-		# Text blobs cannot have default strings.  They need to be empty.
-		$default = "";
-	}
+    elsif ( ( not defined($default) ) && $type =~ /^text/i ) {
 
-	$sql = "alter table \"$table\" add $fieldname $type";
-	$sql .= " default \"$default\" not null";
+        # Text blobs cannot have default strings.  They need to be empty.
+        $default = "";
+    }
 
-	$this->{dbh}->do($sql);
+    $sql = "alter table \"$table\" add $fieldname $type";
+    $sql .= " default '$default' not null";
 
-	if ($primary)
-	{
+    $this->{dbh}->do($sql);
 
-		# This requires a little bit of work.  We need to figure out what
-		# primary keys already exist, drop them, and then add them all
-		# back in with the new key.
-		my @fields = $this->getFieldsHash($table);
-		my @prikeys;
-		my $primaries;
-		my $field;
+    if ($primary) {
 
-		foreach $field (@fields)
-		{
-			push @prikeys, $$field{Field} if ( $$field{Key} eq "PRI" );
-		}
+        # This requires a little bit of work.  We need to figure out what
+        # primary keys already exist, drop them, and then add them all
+        # back in with the new key.
+        my @fields = $this->getFieldsHash($table);
+        my @prikeys;
+        my $primaries;
+        my $field;
 
-		$this->{dbh}->do("alter table \"$table\" drop primary key")
-			if ( @prikeys > 0 );
+        foreach $field (@fields) {
+            push @prikeys, $$field{Field} if ( $$field{Key} eq "PRI" );
+        }
 
-		push @prikeys, $fieldname;    # add the new field to the primaries
-		$primaries = join ',', @prikeys;
-		$this->{dbh}->do("alter table \"$table\" add primary key($primaries)");
-	}
+        $this->{dbh}->do("alter table \"$table\" drop primary key")
+          if ( @prikeys > 0 );
 
-	return 1;
+        push @prikeys, $fieldname;    # add the new field to the primaries
+        $primaries = join ',', @prikeys;
+        $this->{dbh}->do("alter table \"$table\" add primary key($primaries)");
+    }
+
+    return 1;
 }
 
 #############################################################################

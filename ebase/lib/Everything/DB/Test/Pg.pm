@@ -37,7 +37,7 @@ sub test_drop_node_table : Test(+0) {
 
 sub test_fetch_all_nodetype_names : Test(+0) {
     my $self = shift;
-    $self->add_expected_sql('SELECT title FROM "node" WHERE type_nodetype=1 ');
+    $self->add_expected_sql('SELECT title FROM "node" WHERE type_nodetype=1 ORDER BY node_id');
     $self->SUPER;
 }
 
@@ -274,7 +274,7 @@ sub test_drop_field_from_table : Test(4) {
 
 }
 
-sub test_add_field_to_table : Test(22) {
+sub test_add_field_to_table : Test(25) {
     my $self = shift;
     $self->{instance}->{dbh}
       ->set_always( 'prepare_cached', $self->{instance}->{dbh} );
@@ -307,22 +307,42 @@ sub test_add_field_to_table : Test(22) {
     );
     like(
         $args->[1],
-        qr/default "" not null/,
+        qr/default '' not null/,
         '... with a blank default for text fields'
     );
+
     $self->{instance}->addFieldToTable( 't', 'f', 'int', 0 );
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     like(
         $args->[1],
-        qr/default "0" not null/,
+        qr/default '0' not null/,
         '... a zero default for int fields'
     );
     $self->{instance}->{dbh}->clear;
+
+    $self->{instance}->addFieldToTable( 't', 'f', 'bigint', 0 );
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    like(
+        $args->[1],
+        qr/default '0' not null/,
+        '... a zero default for bigint fields'
+    );
+    $self->{instance}->{dbh}->clear;
+
+    $self->{instance}->addFieldToTable( 't', 'f', 'smallint', 0 );
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    like(
+        $args->[1],
+        qr/default '0' not null/,
+        '... a zero default for smallint fields'
+    );
+    $self->{instance}->{dbh}->clear;
+
     $self->{instance}->addFieldToTable( 't', 'f', 'something else', 0 );
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     like(
         $args->[1],
-        qr/default "" not null/,
+        qr/default '' not null/,
         '... a blank default for all other fields'
     );
 
@@ -333,8 +353,19 @@ sub test_add_field_to_table : Test(22) {
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
     like(
         $args->[1],
-        qr/default "default" not null/,
+        qr/default 'default' not null/,
         '... and the given default, if given'
+    );
+
+    $self->{instance}->{dbh}->clear;
+    $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
+    $self->{instance}
+      ->addFieldToTable( 't', 'f', 'smallint', 0, '' );
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    like(
+        $args->[1],
+        qr/default '0' not null/,
+        '... default moved to 0 if empty string and type is int.'
     );
 
     $self->{instance}->{dbh}->clear();
@@ -344,7 +375,7 @@ sub test_add_field_to_table : Test(22) {
     is( $method, 'do', '... for table' );
     is(
         $args->[1],
-        'alter table "t" add f something else default "default" not null',
+        q|alter table "t" add f something else default 'default' not null|,
         '... makes some sql to amend a table.'
     );
 
