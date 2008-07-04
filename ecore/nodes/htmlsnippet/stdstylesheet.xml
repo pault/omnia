@@ -27,6 +27,11 @@ margin-right: 0.5em;
 display: block
 }
 
+.loginnode label {
+width: 6em;
+
+}
+
 input label {
 float:right;
 }

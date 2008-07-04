@@ -8,7 +8,7 @@
   if(newname)
   {
     var url = [% 
-        my $CLONER = $DB-&gt;getNode('node cloner', 'restricted_superdoc');
+        my $CLONER = $DB-&gt;getNode('Node Cloner', 'restricted_superdoc');
         $this-&gt;url_gen({'srcnode_id' =&gt; $this-&gt;get_node-&gt;get_node_id, 'newname' =&gt; 'NEWNAME',
           'node_id' =&gt; $$CLONER{node_id} }); %];
     

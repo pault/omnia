@@ -15,35 +15,42 @@ my %GLOBAL;
 my $str = &quot;&quot;;
 
 if ($query-&gt;param('op') eq 'login' &amp;&amp; $$USER{node_id} != $HTMLVARS{guest_user}) {
-  $str.= &quot;Hey.  Glad you're back.  Would you like to go to your &quot; 
-    .linkNode($USER, &quot;home node&quot;)
-    .&quot; or to &quot;.$this-&gt;link_node($HTMLVARS{default_node}).&quot;?&lt;br&gt;&quot;;
+  $str.= &quot;&lt;p&gt;Hey.  Glad you're back.  Would you like to go to your &quot; 
+    .$this-&gt;link_node($USER, &quot;home node&quot;)
+    .&quot; or to &quot;.$this-&gt;link_node($HTMLVARS{default_node}).&quot;?&lt;br /&gt;&quot;;
 
   $str.=&quot;...or back to &quot;
     .$this-&gt;link_node($query-&gt;param(&quot;lastnode_id&quot;))
-    .&quot;?&lt;br&gt;&quot; if ($query-&gt;param(&quot;lastnode_id&quot;));
+    .&quot;?&lt;br /&gt;&lt;/p&gt;&quot; if ($query-&gt;param(&quot;lastnode_id&quot;));
   return $str;
 } elsif ($query-&gt;param('op') eq 'login') { 
-  $str .=&quot;Oops.  You must have the wrong login or password or something:\n&lt;P&gt;\n&quot;;
+  $str .=&quot;&lt;p&gt;Oops.  You must have the wrong login or password or something:\n&lt; /p&gt;\n&quot;;
 } elsif ($$USER{node_id} != $HTMLVARS{guest_user}) {
-  $str.=&quot;Hey, &quot;. $this-&gt;link_node($USER).&quot;...  this is where you log in:&lt;p&gt;\n&quot;;
+  $str.=&quot;&lt;p&gt;Hey, &quot;. $this-&gt;link_node($USER).&quot;...  this is where you log in:&lt;/p&gt;\n&quot;;
 }else {
-  $str .=&quot;Welcome to $HTMLVARS{site_name}.  Authenticate yourself:\n&lt;p&gt;\n&quot;;
+  $str .=&quot;&lt;p&gt;Welcome to $HTMLVARS{site_name}.  Authenticate yourself:\n&lt;/p&gt;\n&quot;;
 }
 
 $str .= $query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
-		&quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;op\&quot; value=\&quot;login\&quot;&gt;&quot;.	
+                q{&lt;fieldset class=&quot;loginnode&quot;&gt;} .
+		&quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;op\&quot; value=\&quot;login\&quot; /&gt;&quot;.	
  		$query-&gt;hidden(&quot;node_id&quot;, $NODE-&gt;get_node_id).&quot;\n&quot;.
 		$query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&quot;)).&quot;\n&quot;.
 
+                q{&lt;label for=&quot;loginnodeuser&quot;&gt;Username:&lt;/label&gt;}.
 		$query-&gt;textfield (-name =&gt; &quot;user&quot;,
 			-size =&gt; 20,
-			-maxlength =&gt; 20) . &quot;&lt;br&gt;&quot; .
+                        -id =&gt; &quot;loginnodeuser&quot;,
+			-maxlength =&gt; 20) . &quot;&lt;br /&gt;&quot; .
+
+                q{&lt;label for=&quot;loginnodepass&quot;&gt;Password:&lt;/label&gt;}.
 		$query-&gt;password_field(-name =&gt; &quot;passwd&quot;,
 			-size =&gt; 10,
-			-maxlength =&gt; 10) .&quot;&lt;br&gt;&quot;.
+                        -id =&gt; 'loginnodepass',
+			-maxlength =&gt; 10) .&quot;&lt;br /&gt;&quot;.
 		$query-&gt;checkbox(&quot;expires&quot;, &quot;&quot;, &quot;+10y&quot;, &quot;save me a permanent cookie, cowboy!&quot;). 
 		$query-&gt;submit(&quot;submit&quot;, &quot;submit&quot;) .
+                q{&lt;/fieldset&gt;} .
 		$query-&gt;end_form;
 	$str;
 
