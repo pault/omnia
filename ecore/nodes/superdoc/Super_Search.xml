@@ -156,28 +156,29 @@ return @st;
 
 $str.= $query-&gt;start_form;
 
-$str.=&quot;&lt;TABLE&gt;&quot;;
+$str.=&quot;&lt;table&gt;&quot;;
 
-$str.=&quot;&lt;TR&gt;&lt;TD&gt;Words in title:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;textfield('wordsintitle').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
+$str.=&quot;&lt;tr&gt;&lt;td&gt;Words in title:&lt;/td&gt;&lt;td&gt;&quot;.$query-&gt;textfield('wordsintitle').&quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
-$str.=&quot;&lt;TR&gt;&lt;TD&gt;Author:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;textfield('author').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
+$str.=&quot;&lt;tr&gt;&lt;td&gt;Author:&lt;/td&gt;&lt;td&gt;&quot;.$query-&gt;textfield('author').&quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
-$str.=&quot;&lt;TR&gt;&lt;TD&gt;Words in text:&lt;/TD&gt;&lt;TD&gt;&quot;.$query-&gt;textfield('wordsintext').&quot;&lt;/TD&gt;&lt;/TR&gt;&quot;;
+$str.=&quot;&lt;tr&gt;&lt;td&gt;Words in text:&lt;/td&gt;&lt;td&gt;&quot;.$query-&gt;textfield('wordsintext').&quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
-$str.=&quot;&lt;/TABLE&gt;&quot;.
+$str.=&quot;&lt;/table&gt;&quot;.
 
-$query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates on search&quot;).&quot;&lt;BR&gt;&quot;.
+&quot;&lt;p&gt;&quot; . $query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates on search&quot;).&quot;&lt;/p&gt;&lt;p&gt;&quot;.
 
-&quot;Between&quot;.makeDateMenu('start','1999-09-01').&quot; and &quot;.makeDateMenu('end').&quot;&lt;BR&gt;&quot;.
+&quot;Between&quot;.makeDateMenu('start','1999-09-01').&quot; and &quot;.makeDateMenu('end').&quot;&lt;/p&gt;&quot;;
 
-&quot;&lt;BR&gt;Choose types to limit results to:&lt;BR&gt;&quot;.
+$str .= &quot;&lt;p&gt;Choose types to limit results to:&lt;/p&gt;&quot;.
 
-$query-&gt;checkbox_group(-name=&gt;'chosentypes',-rows=&gt;4,-values=&gt; \@nttitles);
+$query-&gt;checkbox_group(-name=&gt;'chosentypes', -rows=&gt;4,-cols=&gt;3, -values =&gt; \@nttitles) if @nttitles;
 
-$str.=&quot;&lt;BR&gt;&quot;;
+$str.='&lt;p&gt;';
 
 $str.=$query-&gt;submit('formsubmit','search');
 
+$str.='&lt;/p&gt;';
 $str.=$query-&gt;end_form;
 
 
@@ -346,7 +347,7 @@ push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')
 
           next unless $N-&gt;hasAccess($USER, 'r');
 
-          $searchresults.=&quot;&lt;LI&gt;&quot;.linkNode($N).&quot;\n&quot;;
+          $searchresults.=&quot;&lt;li&gt;&quot;.$this-&gt;link_node($N).&quot;&lt;/li&gt;\n&quot;;
 
           #this could potentially link to a node which the user doesn't have R access to
 
@@ -354,11 +355,11 @@ push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')
 
 
 
-    $searchresults=&quot;&lt;p&gt;&lt;B&gt;Search Results:&lt;/B&gt;&lt;P&gt;$searchresults&quot; if $searchresults;
+    $searchresults=&quot;&lt;p&gt;&lt;b&gt;Search Results:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;$searchresults&lt;/p&gt;&quot; if $searchresults;
 
-    $str=$errormsg.$searchresults.&quot;\n&lt;HR&gt;&lt;P&gt;$str&quot;;
+    $str=$errormsg.$searchresults.&quot;\n&lt;hr /&gt;&lt;p&gt;$str&lt;/p&gt;&quot;;
 
-    $str.=&quot;&lt;BR&gt;$debugstr&quot; if $DEBUG;
+    $str.=&quot;&lt;p&gt;$debugstr&lt;/p&gt;&quot; if $DEBUG;
 
 
 

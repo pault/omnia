@@ -12,7 +12,7 @@
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">image</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="src" type="literal_value">images/esuitlogo.gif</field>
+  <field name="src" type="literal_value">/images/esuitlogo.gif</field>
   <field name="thumbsrc" type="literal_value"></field>
   <field name="title" type="literal_value">esuitlogo</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>

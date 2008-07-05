@@ -1270,7 +1270,8 @@ sub list_code {
         }
     }
 
-    my $text = "<pre>" . join( "\n", @lines ) . "</pre>";
+#    my $text = "<pre>" . join( "\n", @lines ) . "</pre>";
+    my $text = join( "<br />\n", @lines );
     my $TYPE = $DB->getType("htmlsnippet");
     $text =~
       s/(&#91;\&lt;)(.*?)(\&gt;&#93;)/$1 . $self->link_code($2, $TYPE) . $3/egs;
