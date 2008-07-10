@@ -16,18 +16,19 @@ my $str;
 my $execstr = $query-&gt;param(&quot;sqlquery&quot;);
 
 $str = $query-&gt;start_form(&quot;POST&quot;,$ENV{script_name}) . &quot;\n&quot;;
+$str .= '&lt;p&gt;';
 $str .= $query-&gt;hidden(&quot;displaytype&quot;) . &quot;\n&quot;;
 $str .= $query-&gt;hidden(&quot;node_id&quot;, getId($NODE)) . &quot;\n&quot;;
 $str .= &quot;SQL Query:\n&quot;;
 $str .= $query-&gt;textfield(&quot;sqlquery&quot;, $execstr, 60);
-$str .= $query-&gt;submit('execsql', 'Execute') . &quot;\n&quot;;
+$str .= &quot;&lt;/p&gt;&lt;p&gt;&quot;;
+$str .= $query-&gt;submit('execsql', 'Execute') . &quot;&lt;/p&gt;\n&quot;;
 $str .= $query-&gt;end_form;
 
 $str;
 
 %]
 
-&lt;p&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;

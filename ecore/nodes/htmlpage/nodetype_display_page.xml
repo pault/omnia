@@ -13,16 +13,16 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;br&gt;
-&lt;table cellspacing=1 cellpadding=3&gt;
+  <field name="page" type="literal_value">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;/p&gt;
+&lt;table class=&quot;permissionDisplay&quot;&gt;
  &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Class&lt;/b&gt;&lt;/td&gt;
-  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Permissions&lt;/b&gt;&lt;/td&gt;
-  &lt;td bgcolor=#cccccc&gt;&lt;b&gt;Inherited values&lt;/b&gt;&lt;/td&gt;
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;&lt;b&gt;Class&lt;/b&gt;&lt;/td&gt;
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;&lt;b&gt;Permissions&lt;/b&gt;&lt;/td&gt;
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;&lt;b&gt;Inherited values&lt;/b&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Author:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;Author:&lt;/td&gt;
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -34,7 +34,7 @@ my %GLOBAL;
 
 $$NODE{defaultauthoraccess}
 %]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -52,7 +52,7 @@ return $$TYPE{derived_defaultauthoraccess} if($TYPE);
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Group: [%
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;Group: [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -76,7 +76,7 @@ else
 $str;
 
 %]&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -88,7 +88,7 @@ my %GLOBAL;
 
 $$NODE{defaultgroupaccess}
 %]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -106,8 +106,8 @@ return $$TYPE{derived_defaultgroupaccess} if($TYPE);
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Other:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;Other:&lt;/td&gt;
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -119,7 +119,7 @@ my %GLOBAL;
 
 $$NODE{defaultotheraccess}
 %]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -137,8 +137,8 @@ return $$TYPE{derived_defaultotheraccess} if($TYPE);
 %]&lt;/code&gt;&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor=#cccccc&gt;Guest:&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayTitle&quot;&gt;Guest:&lt;/td&gt;
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -150,7 +150,7 @@ my %GLOBAL;
 
 $$NODE{defaultguestaccess}
 %]&lt;/code&gt;&lt;/td&gt;
-  &lt;td bgcolor=#999999&gt;&lt;code&gt;[%
+  &lt;td class=&quot;permissionDisplayBody&quot;&gt;&lt;code&gt;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -187,7 +187,7 @@ if($NODE-&gt;isGroup())
 
 %]
 
-&lt;p&gt;&lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles): 
+&lt;p&gt;&lt;b&gt;Restrict Duplicates&lt;/b&gt; (identical titles):&lt;/p&gt;
 	[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -202,7 +202,7 @@ my %GLOBAL;
 	   else{ $$NODE{restrictdupes}?&quot;Yes&quot;:&quot;No&quot;;} 
 %]
 
-&lt;p&gt; &lt;b&gt;Sql Tables&lt;/b&gt;: 
+&lt;p&gt; &lt;b&gt;Sql Tables:&lt;/b&gt; &lt;/p&gt;
 
 
 [%
@@ -218,15 +218,17 @@ my %GLOBAL;
 
 my $tables = $DB-&gt;getNodetypeTables($NODE);
 my $str;
+$str .=&quot;&lt;ul&gt;\n&quot;;
 foreach (@$tables) {
    my $TABLE = $DB-&gt;getNode($_, 'dbtable');
-   $str.=&quot;&lt;li&gt;&quot;.linkNode($TABLE);
+   $str.=&quot;&lt;li&gt;&quot;. $this-&gt;link_node($TABLE) . &quot;&lt;/li&gt;\n&quot;;
 }
 return  &quot;&lt;i&gt;none&lt;/i&gt;&quot; unless @$tables;
+$str .= '&lt;/ul&gt;';
 $str;
 
 %] 
-&lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; 
+&lt;p&gt; &lt;b&gt;Extends Nodetype:&lt;/b&gt; &lt;/p&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -242,7 +244,7 @@ my %GLOBAL;
 %]
 
 
-&lt;p&gt; &lt;b&gt;Maximum Revisions for undo:&lt;/b&gt; 
+&lt;p&gt; &lt;b&gt;Maximum Revisions for undo:&lt;/b&gt; &lt;/p&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -267,7 +269,7 @@ my %GLOBAL;
 
 
 %]
-&lt;p&gt;  &lt;b&gt;Can be changed in a workspace:&lt;/b&gt;
+&lt;p&gt;  &lt;b&gt;Can be changed in a workspace:&lt;/b&gt;&lt;/p&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -290,7 +292,7 @@ my %GLOBAL;
   }
 
 %]
-&lt;p&gt; &lt;b&gt;Relevant pages:&lt;/b&gt;&lt;br&gt;
+&lt;p&gt; &lt;b&gt;Relevant pages:&lt;/b&gt;&lt;/p&gt;
 
 [%
 my $NODE = $this-&gt;get_node;
@@ -308,15 +310,16 @@ my $pages = $DB-&gt;getNodeWhere(
   { pagetype_nodetype =&gt; $$NODE{node_id} }, $DB-&gt;getType('htmlpage'));
 
 return &quot;None&quot; unless($pages);
-
+$str .=&quot;&lt;ul&gt;\n&quot;;
 foreach (@$pages)
 {
-  $str .= &quot;&lt;li&gt;&quot; .$this-&gt;link_node ($_);
+  $str .= &quot;&lt;li&gt;&quot; .$this-&gt;link_node ($_) . &quot;&lt;/li&gt;&quot;;
 }
+$str .= '&lt;/ul&gt;';
 $str;
 
 %]
-&lt;br&gt;&lt;br&gt;
+&lt;br /&gt;&lt;br /&gt;
 [&lt;availableMethods&gt;]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodetype</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>

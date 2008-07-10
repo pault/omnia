@@ -13,8 +13,9 @@ my %GLOBAL;
 
 
 $query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) .
+$query-&gt;p( 
 $query-&gt;hidden(&quot;displaytype&quot;) .
-$query-&gt;hidden(&quot;node_id&quot;, getId $NODE);
+$query-&gt;hidden(&quot;node_id&quot;, getId $NODE) );
 
 %]
 CONTAINED_STUFF

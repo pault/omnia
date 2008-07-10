@@ -189,6 +189,7 @@ sub test_gen_basic_tag : Test(15) {
     $mock->set_true( 'setAttribute', 'appendChild', '-isOfType', '-getRef' );
     $mock->set_always( 'getIdentifyingFields', ['identifyingfield'] );
     $mock->{type}->{title} = "a_type_title";
+    $mock->{title} = " a node < title > &amp;";
     my (@gn);
 
     $mock->mock(
@@ -198,11 +199,6 @@ sub test_gen_basic_tag : Test(15) {
         }
     );
     no strict 'refs';
-    local *{ $package . '::makeXmlSafe' };
-    *{ $package . '::makeXmlSafe' } = sub {
-        push @gn, [@_];
-        return $_[0];
-    };
 
     local *{ $package . '::getRef' };
     *{ $package . '::getRef' } = sub {

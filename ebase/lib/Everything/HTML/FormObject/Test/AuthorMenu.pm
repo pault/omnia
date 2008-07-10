@@ -108,7 +108,7 @@ sub test_gen_object : Test(18) {
     is( @gpa, 1, 'genObject() should call getParamArray' );
     is(
         $gpa[0][0],
-        'query, bindNode, field, name, default',
+        'query, bindNode, field, name, default, attributes',
         '... requesting the appropriate arguments'
     );
     like( join( ' ', @{ $gpa[0] } ),

@@ -27,16 +27,16 @@ my %GLOBAL;
 	&quot;&lt;i&gt;This nodeball is empty&lt;/i&gt;&quot;;
 } else {
 	my $GROUP = $$NODE{group};
-	my $str;
+	my $str = '&lt;ul&gt;';
 	foreach (@$GROUP) {
 		my $N = $DB-&gt;getNodeById($_, 'light');
 		$str .= &quot;&lt;li&gt;&quot; . linkNode ($N) . &quot;($$N{type}{title})&quot; . &quot;&lt;/li&gt;&quot;;
 	}
-	$str;
+	$str .= '&lt;/ul&gt;';
 }
 
 %]
-&lt;p&gt;[{displayvars}]</field>
+[{displayvars}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodeball</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>

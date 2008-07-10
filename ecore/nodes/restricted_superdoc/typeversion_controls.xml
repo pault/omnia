@@ -1,17 +1,16 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="typeversion controls">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">If nodes of a nodetype aren't
+  <field name="doctext" type="literal_value">&lt;p&gt;If nodes of a nodetype aren't
 updated often, you can save some database resources by only checking
 if any nodes of that type have changed instead of checking each node.  
-&lt;p&gt;Good nodetypes to turn typeversion on: [nodetype], [htmlpage], [nodemethod], [htmlcode], [container]
-or anything else which is rarely updated, but frequently read.
+&lt;/p&gt;&lt;p&gt;Good nodetypes to turn typeversion on: [nodetype], [htmlpage], [nodemethod], [htmlcode], [container]
+or anything else which is rarely updated, but frequently read.&lt;/p&gt;
 &lt;p&gt;Nodetypes which should &lt;b&gt;NOT&lt;/b&gt; have typeversion on: [user], [document] or any nodetypes
 which are frequently updated.
 
-&lt;p&gt;
-[{openform}]
-&lt;INPUT type=hidden name=confirmpage value=1&gt;
+&lt;/p&gt;
+
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -27,7 +26,12 @@ my %GLOBAL;
     my $str;
     my %TVERSIONS;
     my %NEWVERSIONS;
-
+    $str .= $query-&gt;start_form(&quot;POST&quot;, $query-&gt;script_name) .
+'&lt;fieldset&gt;'.
+'&lt;input type=&quot;hidden&quot; name=&quot;confirmpage&quot; value=&quot;1&quot; /&gt;'.
+$query-&gt;hidden(&quot;displaytype&quot;) .
+$query-&gt;hidden(&quot;node_id&quot;, $NODE-&gt;get_node_id);
+$str .= '&lt;/fieldset&gt;';
     if (my $csr = $DB-&gt;sqlSelectMany(&quot;*&quot;,'typeversion')) {
         while (my $N = $csr-&gt;fetchrow_hashref) { $TVERSIONS{$$N{typeversion_id}} = 1 }
         $csr-&gt;finish;
@@ -54,16 +58,18 @@ foreach (@$nodetypes)
 {
     #nodemethods must be typeversioned (because of the methodCache)
     next if ($$_{title} eq 'nodemethod');
-    $str = $query-&gt;checkbox('typeify_'.getId($_),
-       exists($NEWVERSIONS{getId($_)}), 1, $$_{title}) . &quot;&lt;br&gt;&quot;;
+    $str .= $query-&gt;p( $query-&gt;checkbox('typeify_'.getId($_),
+       exists($NEWVERSIONS{$DB-&gt;getId($_)}), 1, $$_{title}) );
 
     push @list, $str;
 }
 
-formatCols(\@list, 3);
+$this-&gt;formatCols(\@list, 3);
 
+$str .= $query-&gt;p( $query-&gt;submit );
 
-%][{closeform}]</field>
+$str .=$query-&gt;end_form;
+%]</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>
