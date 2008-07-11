@@ -6,7 +6,7 @@ use Encode;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
-    qw/http_header http_body request htmlpage theme allowed redirect/);
+    qw/http_header http_body request htmlpage theme allowed redirect config/);
 use strict;
 
 ### because this is called from a Class::Factory object new is not
@@ -19,18 +19,19 @@ sub new {
 }
 
 sub init {
-    my ( $self, $e ) = @_;
-    $self->set_request($e);
+    my ( $self, $args ) = @_;
+    $self->set_request( $args->{request} );
+    $self->set_config( $args->{config} );
     $self->select_htmlpage;
     return $self;
 
 }
 
-sub create_http_body {
+sub content {
     my ( $self, $args )     = @_;
     my $htmlpage = $self->get_htmlpage;
 
-    my $config = $$args{ config };
+    my $config = $self->get_config;
     my $ehtml = Everything::HTML->new;
 
     if ( $config ) {
@@ -58,7 +59,31 @@ sub create_http_body {
 
 }
 
+=head2 headers
+
+The headers other than Content-Type
+
+=cut
+
+sub headers {
+
+    ();
+
+}
+
+=head2 status_code
+
+Returns the HTTP status code of the response.  This is always 'OK', because HTMLPAGES always accept a request.
+
+=cut
+
+sub status_code {
+
+    0; ## Apache prefers this to 200.
+}
+
 sub charset {
+
     'utf-8'
 
 }

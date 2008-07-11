@@ -34,7 +34,7 @@ sub startup : Test(startup=>2) {
     $mock->set_always( 'getType',       $mock );
     $mock->{title} = 'a title';
     $self->{mock}  = $mock;
-    isa_ok( $self->{instance} = $self->{class}->new($mock), $self->{class} );
+    isa_ok( $self->{instance} = $self->{class}->new( { request => $mock } ), $self->{class} );
 
 }
 
@@ -42,7 +42,7 @@ sub test_http_response : Test(2) {
     my $self     = shift;
     my $class    = $self->{class};
     my $instance = $self->{instance};
-    can_ok( $class, 'create_http_body' );
+    can_ok( $class, 'content' );
     can_ok( $class, 'content_type' );
 
 }

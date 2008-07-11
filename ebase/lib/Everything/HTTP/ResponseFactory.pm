@@ -7,6 +7,7 @@ use base 'Class::Factory';
 
 
 __PACKAGE__->add_factory_type('htmlpage' => 'Everything::HTTP::Response::Htmlpage');
+__PACKAGE__->add_factory_type('nodeball' => 'Everything::HTTP::Response::Nodeball');
 
 =head1 Everything::HTTP::ResponseFactory
 
@@ -18,15 +19,11 @@ Everything::HTTP::ResponseFactory->register_factory_type('type' => 'Name::of::pa
 
 Everything::HTTP::ResponseFactory->add_factory_type('anothertype' => 'Name::of::another::package');
 
-my $response = Everything::HTTP::ResponseFactory->new(<response type>, [@args]);
+my $response = Everything::HTTP::ResponseFactory->new(<response type>, { args } );
 
-$response->create_http_body;
+my $html = $response->content;
 
-my $html = $response->get_http_body;
-
-my $mime_type = $response->get_mime_type;
-
-my $header = $response->create_http_header;
+my $content_type = $response->content_type;
 
 
 
@@ -36,39 +33,60 @@ This is a factory class, that is, the constructor returns instances that are ble
 
 This class inherits from C<Class::Factory>, so the rules for adding types and the rules instanciation are the same as they are in C<Class::Factory>. In essense, if you want to customise the way your classes are instanciated you should use the C<init> method.
 
+The objects created by this class must return values that allow a
+response be sent back to the client browser.
+
+=over 4
+
+=item C<new>
+
+This is the constructor. It takes two arguments:
+
+=over
+
+=item
+
+The first is a string that determines the type of object return.
+
+=item
+
+The second is a hash ref that is passed straight to the created objects.  Attributes may include:
+
+=over
+
+=item config
+
+An Everything::Config object.
+
+=item request
+
+An Everything::HTTP::Request object.
+
+=back
+
+=back
+
+=back
+
 In addition, the instances that this class provides must support the following methods:
 
 =over 4
 
-=item get_http_body set_http_body
+=item content_type
 
-Getters and setters for the http_body attribute.
+Returns the data for the Content-Type header.
 
-=item get_http_header set_http_header
+=item headers
 
-Getters and setters for the http_header attribute.
+Returns a hash of headers.  By default does not return the Content-Type header.
 
-=item get_mime_type set_mime_type
+=item content
 
-Getters and setters for the mime_type attribute.
+Returns the message body
 
-=back
+=item status_code
 
-In addition, the followimg methods must be supported:
-
-=over 4
-
-=item create_http_header
-
-Conjures a conforming http header and sets the http_header attribute.
-
-=item create_http_body
-
-Conjures up a conforming http body and sets the http_body attribute.
-
-=item create_mime_type
-
-Conjures up a  mime type (from where is not important) and sets the mime_type attribute.
+Returns the HTTP status code.
 
 =back
 
