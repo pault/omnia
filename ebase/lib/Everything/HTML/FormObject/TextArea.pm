@@ -69,10 +69,11 @@ Returns the generated HTML for this TextArea object.
 sub genObject
 {
 	my $this = shift @_;
-	my ( $query, $bindNode, $field, $name, $default, $cols, $rows, ) =
+	my ( $query, $bindNode, $field, $name, $default, $cols, $rows, $wrap, $attributes ) =
 		$this->getParamArray(
-		"query, bindNode, field, name, default, cols, rows ", @_ );
+		"query, bindNode, field, name, default, cols, rows, wrap, attributes, ",@_ );
 
+	$attributes ||= {};
 	$name    ||= $field;
 	$default ||= 'AUTO';
 	$cols    ||= 80;
@@ -93,6 +94,7 @@ sub genObject
 		-default => $default,
 		-cols    => $cols,
 		-rows    => $rows,
+                %$attributes,
 	);
 
 	return $html;

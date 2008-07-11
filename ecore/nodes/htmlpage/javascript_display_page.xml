@@ -13,11 +13,11 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;b&gt;Comments:&lt;/b&gt;
+  <field name="page" type="literal_value">&lt;h4&gt;Comments:&lt;/h4&gt;
 [{listcode: comment}]
 
-&lt;p&gt;
-&lt;b&gt;Code:&lt;/b&gt;
+&lt;br /&gt;
+&lt;h4&gt;Code:&lt;/h4&gt;
 [{listcode: code}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">javascript</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>

@@ -40,6 +40,7 @@ my $build = Everything::Build->new(
 		'Archive::Tar'		    => 0,
 		'Class::Factory'	    => 0,
 		'SQL::Statement'	    => 1.15,
+	        'Template' => 0,
 
 	},
 	build_requires    =>
@@ -49,7 +50,6 @@ my $build = Everything::Build->new(
 		'Test::Warn'		    => 0.10,
 		'Test::Exception'           => 0.13,
 		'Test::Simple'              => 0.47,
-	        'Template' => 0,
 	        'Proc::ProcessTable'        => 0,
 	        'File::Temp'                => 0.18,
 	},

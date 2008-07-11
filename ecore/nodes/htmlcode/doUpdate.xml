@@ -20,7 +20,8 @@ my $NODE = $this-&gt;get_requested_node;
 my ($redirectNode, $redirectDisplay, $preprocess, $postprocess) = @_;
 my $html;
 
-$html = $query-&gt;hidden(-name =&gt; 'op', -value =&gt; 'update', -override =&gt; 1);
+$html = '&lt;fieldset&gt;';
+$html .= $query-&gt;hidden(-name =&gt; 'op', -value =&gt; 'update', -override =&gt; 1);
 $html .= &quot;\n&quot;;
 $html .= $query-&gt;hidden('node_id', $$NODE{node_id}) . &quot;\n&quot;;
 $html .= $query-&gt;hidden('displaytype') . &quot;\n&quot;;
@@ -50,7 +51,7 @@ if($postprocess)
   $html .= $query-&gt;hidden(-name =&gt; 'opupdate_postprocess', -override =&gt; 1,
                  -value =&gt; $postprocess) . &quot;\n&quot;;
 }
-
+$html .= '&lt;/fieldset&gt;';
 return $html;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>

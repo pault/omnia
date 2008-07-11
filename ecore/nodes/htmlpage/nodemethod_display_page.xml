@@ -16,23 +16,16 @@
   <field name="page" type="literal_value">Supports: 
 [%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
+my $N = $DB-&gt;getNode($$NODE{supports_nodetype}, 'light');
 
-my $N = getNode($$NODE{supports_nodetype}, 'light');
-
-return linkNode($N) if($N);
+return $this-&gt;link_node($N) if($N);
 return &quot;No Nodetype selected\n&quot;;
 
 %]
 
-&lt;p&gt;[{listcode:code}]</field>
+&lt;br /&gt;[{listcode:code}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>

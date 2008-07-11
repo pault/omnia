@@ -36,7 +36,7 @@ sub test_gen_object : Test(13) {
 
     is(
         $params[0],
-        'query, bindNode, field, name, default, cols, rows  ' . $cgi
+        'query, bindNode, field, name, default, cols, rows, wrap, attributes,  ' . $cgi
           . ' bN f n d c r w',
         'genObject() should call getParamArray() with @_'
     );

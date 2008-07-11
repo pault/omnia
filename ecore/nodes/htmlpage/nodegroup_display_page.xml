@@ -27,12 +27,12 @@ my %GLOBAL;
 	&quot;&lt;i&gt;This nodegroup is empty&lt;/i&gt;&quot;;
 } else {
   my $GROUP = $$NODE{group};
-  my $str;
+  my $str = '&lt;ul&gt;';
   foreach my $n  (@$GROUP) {
     my $N = $DB-&gt;getNode($n, 'light');
-    $str .= &quot;&lt;li&gt;&quot; . linkNode ($N) . &quot;($$N{type}{title})&quot;;
+    $str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node ($N) . &quot;($$N{type}{title}) &lt;/li&gt;&quot;;
   }
-  $str;
+  $str .='&lt;/ul&gt;';
 }
 
 %]</field>

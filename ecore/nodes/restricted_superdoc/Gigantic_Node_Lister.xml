@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="Gigantic Node Lister">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="doctext" type="literal_value">&lt;center&gt;&lt;h3&gt;Gigantic Node Lister&lt;/h3&gt;&lt;/center&gt;
+  <field name="doctext" type="literal_value">&lt;h3 style=&quot;text-align: center&quot;&gt;Gigantic Node Lister&lt;/h3&gt;
 
 [{openform}][%
 my $USER = $this-&gt;get_user;
@@ -12,6 +12,7 @@ my $type = $query-&gt;param('whichtype');
 my $group = $query-&gt;param('whichgroup');
 my $str;
 
+$str .= '&lt;fieldset class=&quot;giganticNodeSelector&quot;&gt;';
 $type ||= &quot;alltypes&quot;;
 $group ||= &quot;nogroup&quot;;
 
@@ -26,9 +27,8 @@ $menu-&gt;addType('nodeball', $USER, 'r', 'labels');
 
 $str .= $menu-&gt;genPopupMenu($query, &quot;whichgroup&quot;, $group);
 $str .= $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
-$str;
 
-%][{submit}][%
+%]&lt;p&gt;[{submit}]&lt;/p&gt;[%
 my $query = $this-&gt;get_query;
 $query-&gt;hidden(-name =&gt; 'op', -default =&gt; 'nodelistcheck', -override =&gt; 1) .
 $query-&gt;hidden(-name =&gt; 'next', -default =&gt; 0);
@@ -89,7 +89,7 @@ return &quot;&lt;p&gt;&lt;b&gt;No Nodes of the selected type&lt;/b&gt;\n&quot;
 
 #generate the prev...count...next row
 my $nav;
-$nav .= &quot;&lt;tr&gt;&lt;td align=left&gt;&quot;;
+$nav .= &quot;&lt;tr&gt;&lt;td&gt;&quot;;
 
 $next = ($totalRows &gt; $offset + $limit ? $offset + $limit : $totalRows);	
 $prev = ($offset &lt; $limit ? 0 : $offset - $limit);
@@ -105,18 +105,18 @@ $nav .= &quot;&lt;a href=&quot; . $this-&gt;url_gen ($link) .
   &quot;&gt;Previous &quot; . ($offset-$prev) . &quot; entries...&lt;/a&gt;&quot;
   if ($offset &gt; 0);
 
-$nav .= &quot;&lt;/td&gt;&lt;td align=center&gt;($offset-&quot; . ($offset+int(@$ref)) .
-  &quot;) of $totalRows&lt;/td&gt;&lt;td align=right&gt;&quot;;
+$nav .= &quot;&lt;/td&gt;&lt;td&gt;($offset-&quot; . ($offset+int(@$ref)) .
+  &quot;) of $totalRows&lt;/td&gt;&lt;td style=\&quot;text-align: right\&quot;&gt;&quot;;
 
 $link-&gt;{next} = $next;
-$nav .= &quot;&lt;a href=&quot; . urlGen ($link) . 
+$nav .= &quot;&lt;a href=&quot; . $this-&gt;url_gen ($link) . 
   &quot;&gt;Next &quot; . ($totalRows - $next &gt; $limit ?  $limit : $totalRows - $next ) .
   &quot; entries...&lt;/a&gt;&quot; if ($next &lt; $totalRows);
 
 $nav .= &quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
 #construct the table
-my $str = &quot;&lt;TABLE width=100% border=0&gt;&quot;;
+my $str = &quot;&lt;table&gt;&quot;;
 my $ngroup = $query-&gt;param('whichgroup') || '';
 my $NODEGROUP = $DB-&gt;getNode($ngroup);
 my $colfields = { 
@@ -128,9 +128,9 @@ my $gnlcolor = $$THEME{gnlcolor};
 $gnlcolor ||= &quot;#DDCCCC&quot;;
 
 $str .= $nav;
-$str .= &quot;&lt;tr&gt;&lt;TH&gt;NODE ID&lt;/TH&gt;&lt;TH&gt;TITLE&lt;/TH&gt;&lt;TH&gt;&lt;TYPE&gt;&lt;/TH&gt;&quot;;
+$str .= &quot;&lt;tr&gt;&lt;th&gt;NODE ID&lt;/th&gt;&lt;th&gt;TITLE&lt;/th&gt;&lt;th&gt;TYPE&lt;/th&gt;&quot;;
 foreach (@columns) {
-  $str.=&quot;&lt;TH&gt;$_&lt;/TH&gt;&quot;;
+  $str.=&quot;&lt;th&gt;$_&lt;/th&gt;&quot;;
 }
 $str.=&quot;&lt;/tr&gt;\n&quot;;
 
@@ -138,21 +138,20 @@ for (my $i=0; $i &lt; @$ref; $i++)
 {
   my $N = $DB-&gt;getNode($$ref[$i], 'light');
 
-  $str .= &quot;&lt;tr&gt;&lt;td&gt;&lt;font size=-2&gt;&quot;;
-  $str .= &quot;&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' UNCHECKED&gt;&quot;;
-  $str .= &quot;&lt;/font&gt;&quot;; 
-  $str .= getId($N);
+  $str .= &quot;&lt;tr&gt;&lt;td&gt;&quot;;
+  $str .= &quot;&lt;input type='checkbox' name='bnode_$$N{node_id}' value='ON' /&gt;&quot;;
+  $str .= $DB-&gt;getId($N);
   if ($NODEGROUP &amp;&amp; ($NODEGROUP-&gt;inGroupFast($N)))
   {
     $str .= &quot; is in '$$NODEGROUP{title}'&quot;;
   }
 
-  $str .= &quot;&lt;/td&gt;&lt;td bgcolor=$gnlcolor&gt;&quot; . $this-&gt;link_node ($N) .
-     &quot;&lt;/td&gt;&lt;td bgcolor=&quot; . 
+  $str .= &quot;&lt;/td&gt;&lt;td style=\&quot;background-color: $gnlcolor\&quot;&gt;&quot; . $this-&gt;link_node ($N) .
+     &quot;&lt;/td&gt;&lt;td style=\&quot;background-color: &quot; . 
      ($CLR{$$N{type}{title}} || $CLR{default}) . 
-     &quot;&gt;$$N{type}{title}&lt;/td&gt;&quot; if (ref $$N{type});
+     &quot;\&quot; &gt;$$N{type}{title}&lt;/td&gt;&quot; if (ref $$N{type});
   foreach (@columns) {
-    $str.=&quot;&lt;td bgcolor=$gnlcolor&gt;&quot;;
+    $str.=&quot;&lt;td style=\&quot;background-color: $gnlcolor\&quot;&gt;&quot;;
     if (exists($$linkcols{$_})) {
        $str.= $this-&gt;link_node($$N{$$colfields{$_}})
     } else { $str.= $$N{$$colfields{$_}}; }
@@ -162,10 +161,11 @@ for (my $i=0; $i &lt; @$ref; $i++)
 }
 $str .= $nav;
 	
-$str .= &quot;&lt;/TABLE&gt;&quot;;
+$str .= &quot;&lt;/table&gt;&quot;;
+$str .='&lt;/fieldset&gt;';
 $str;
 
-%][{submit:addtonb,Add checked to Node Bucket}][{submit:massacre,Send to the killing floor}][%
+%]&lt;p&gt;[{submit:addtonb,Add checked to Node Bucket}][{submit:massacre,Send to the killing floor}]&lt;/p&gt;[%
 my $query = $this-&gt;get_query;
 $query-&gt;endform;
 

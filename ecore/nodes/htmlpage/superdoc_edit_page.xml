@@ -14,10 +14,11 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editTitleOwner&gt;][{listcode:doctext}]
-&lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the document text:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
+&lt;p&gt;&lt;b&gt;Edit the document text:&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;
 [{nodeFormObject: TextArea, doctext}]
-
-&lt;p&gt;[{submit}]</field>
+&lt;/p&gt;
+&lt;p&gt;[{submit}]&lt;/p&gt;</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">superdoc</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

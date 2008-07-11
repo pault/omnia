@@ -30,7 +30,7 @@ my $str;
 my $ref = $DB-&gt;getNodeWhere({}, &quot;&quot;, &quot;createtime DESC&quot;, $limit);
 
 foreach my $N (@$ref) {
-	$str .= $this-&gt;link_node($N) . &quot;&lt;BR&gt;\n&quot; if $N-&gt;hasAccess($USER, 'r');	
+	$str .= $this-&gt;link_node($N) . &quot;&lt;br /&gt;\n&quot; if $N-&gt;hasAccess($USER, 'r');	
 }
 
 $str;

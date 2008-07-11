@@ -13,8 +13,7 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;ul&gt;
-[%
+  <field name="page" type="literal_value">[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -42,17 +41,17 @@ foreach my $node (@$nodes)
 
   undef %params;
 
-  $params{onMouseOver} = &quot;window.status='&quot;.$this-&gt;jsescape($$node{title}).
+  $params{onmouseover} = &quot;window.status='&quot;.$this-&gt;jsescape($$node{title}).
      &quot; ($$node{node_id}) - &quot;.$this-&gt;jsescape($$node{type}{title}).&quot;'; return true;&quot;;
 
-  $str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node($node, $title, undef, \%params) . &quot;\n&quot;;
+  $str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node($node, $title, undef, \%params) . &quot;&lt;/li&gt;\n&quot;;
   
 }
-
+$str = &quot;&lt;ul&gt;$str&lt;/ul&gt;&quot; if $str;
 return $str;
 
 %]
-&lt;/ul&gt;</field>
+</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">location</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>
   <field name="permissionneeded" type="literal_value">r</field>

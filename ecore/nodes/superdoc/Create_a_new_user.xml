@@ -16,16 +16,18 @@ my $str;
 
 local *generateLogin = sub {
  $query-&gt;start_form
-    .'&lt;INPUT TYPE=&quot;hidden&quot; NAME=&quot;op&quot; VALUE=&quot;newuser&quot;&gt;'
+    .'&lt;fieldset&gt;'
+    .'&lt;input type=&quot;hidden&quot; name=&quot;op&quot; value=&quot;newuser&quot; /&gt;'
     .$query-&gt;hidden('node_id', $NODE-&gt;get_node_id)
-    .'Preferred User Name:
-      &lt;INPUT TYPE=&quot;text&quot; NAME=&quot;nu_name&quot; VALUE=&quot;&quot; MAXLENGTH=&quot;22&quot;&gt;&lt;br&gt;
-      Real&amp;#153; Name:'
+    .'&lt;p&gt;Preferred User Name:
+      &lt;input type=&quot;text&quot; name=&quot;nu_name&quot; value=&quot;&quot; maxlength=&quot;22&quot; /&gt;&lt;/p&gt;
+      &lt;p&gt;Real&amp;#153; Name:'
     .$query-&gt;textfield(&quot;nu_realname&quot;, &quot;&quot;, 30)
-    .'&lt;br&gt;Email Address:'
+    .'&lt;/p&gt;&lt;p&gt;Email Address:'
     .$query-&gt;textfield(&quot;nu_email&quot;, &quot;&quot;, 20)
-    .'&lt;br&gt;'
+    .'&lt;/p&gt;&lt;p&gt;'
     .$query-&gt;submit(&quot;formsubmit&quot;, &quot;submit&quot;)
+    .'&lt;/p&gt;&lt;/fieldset&gt;'
     .$query-&gt;end_form;
  };
 
@@ -38,9 +40,9 @@ if ($$USER{node_id} != $HTMLVARS{guest_user}) {
 
 
 unless ($query-&gt;param(&quot;op&quot;) eq &quot;newuser&quot;) {
-  $str.=&quot;
+  $str.=&quot;&lt;p&gt;
 To create a new user on Everything, we need a smattering of information:
-&lt;p&gt;&quot;;  
+&lt;/p&gt;&quot;;  
 
 
 $str .=generateLogin();
@@ -53,9 +55,9 @@ address to spammers, or display your email address for people to see.
 This email exists so that you can recieve your password, and/or retrieve
 it if you forget.  There may be future email functionality, which
 you will have the option to turn on from your user settings page.  
-&lt;/i&gt;
+&lt;/i&gt;&lt;/p&gt;
 
-&lt;p&gt;Forgot your username or password? Click [What is my password|HERE].';
+&lt;p&gt;Forgot your username or password? Click [What is my password|HERE].&lt;/p&gt;';
 return $str;
 }
 
@@ -112,13 +114,13 @@ else
 }
 
 $str.=&quot;Your new user account (&quot;
-  .linkNode($NEWUSER)
+  .$this-&gt;link_node($NEWUSER)
   .&quot;) has been created.  You ($email) should be getting an email soon
 telling you your generated password.&quot;;
 
 #send some email;
 my ($n) = getNode('New User Mail', 'mail');
-getRef $n;
+$DB-&gt;getRef( $n );
 $$n{doctext} =~ s/\&lt;name\&gt;/$$NEWUSER{realname}/g;
 $$n{doctext} =~ s/\&lt;user\&gt;/$$NEWUSER{title}/g;
 $$n{doctext} =~ s/\&lt;passwd\&gt;/$$NEWUSER{passwd}/g;

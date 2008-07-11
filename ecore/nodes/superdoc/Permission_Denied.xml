@@ -14,7 +14,7 @@ my %GLOBAL;
 
 my $deniedMsg = $GLOBAL{permissionDenied};
 
-$deniedMsg ||= &quot;You do not have access to that node. &lt;p&gt;Tough beans.&quot;;
+$deniedMsg ||= &quot;&lt;p&gt;You do not have access to that node.&lt;/p&gt;&lt;p&gt;Tough beans&lt;/p&gt;.&quot;;
 
 return $deniedMsg;
 
