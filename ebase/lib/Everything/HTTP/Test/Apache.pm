@@ -21,10 +21,11 @@ sub test_startup : Test(startup => 1) {
 
     $mock->fake_module('Everything::HTTP::ResponseFactory');
     $mock->fake_new('Everything::HTTP::ResponseFactory');
-    $mock->set_true(qw/create_http_body/)
+    $mock->set_true(qw/content/)
       ->set_always( content_type => 'a mime type' )
-      ->set_always( 'get_http_body', 'the html body' );
+      ->set_always( 'content', 'the html body' );
 
+    $mock->set_always( status_code => 0 );
     $self->{class} = $self->module_class;
 
     use_ok( $self->{class} );
@@ -42,7 +43,7 @@ sub module_class {
     return $name;
 }
 
-sub test_handler : Test(23) {
+sub test_handler : Test(22) {
     my $self                    = shift;
     my $mock                    = $self->{mock};
     my $fake_everything_request = $self->{fake_everything_request};
@@ -128,16 +129,13 @@ sub test_handler : Test(23) {
 
     ( $method, $args ) = $fake_apache_request->next_call;
     is( $method, 'print',
-        '...currently do our own cookies until Auth.pm rewrite.' );
+        '...prints response.' );
     is( $args->[1], 'the html body', '...prints http header.' );
 
     is( $result, 0, '...should return correct result' );
 
     ( $method, $args ) = $mock->next_call;
-    is( $method, 'create_http_body', '...factory creates http body.' );
-
-    ( $method, $args ) = $mock->next_call;
-    is( $method, 'get_http_body', '...retrieves http body.' );
+    is( $method, 'content', '...factory creates http body.' );
 
     ( $method, $args ) = $mock->next_call;
     is( $method, 'content_type', '...returns mime type.' );

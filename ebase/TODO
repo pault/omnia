@@ -5,6 +5,9 @@
 
 * Amend ecore to ensure XHTML 1.0 compliance
 
+* Amend FromObject.pm so that form objects return labels with a 'for'
+   attribute and id in the input tag.
+
 * Require Everything::HTML::Response classes to create certain HTTP headers
 
 * Everything::HTML::Response classes to return error values on error -

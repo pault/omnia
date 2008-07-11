@@ -202,11 +202,22 @@ my %standard_modifiers = (
     javascript => sub {
         my ( $url, $e ) = @_;
         return unless $url =~ /\/javascript\/([0-9]+)\.js$/;
-        my $js_node = $e->get_nodebase->get_node($1);
+        my $js_node = $e->get_nodebase->getNode($1);
         $e->set_response_type('javascript');
         $e->set_node($js_node);
         1;
     },
+
+    nodeball_download => sub {
+	my ( $url, $e ) = @_;
+	return unless $url =~ m{^/repositories/nodeballs/(\d+)};
+	my $node = $e->get_nodebase->getNode( $1 );
+	return unless ref $node;
+	return unless $node->isa( 'Everything::Node::nodeball' );
+	$e->set_node( $node );
+	$e->set_response_type( 'nodeball' );
+	return 1;
+    }
 );
 
 sub get_standard_modifier { $standard_modifiers{ $_[1] } }

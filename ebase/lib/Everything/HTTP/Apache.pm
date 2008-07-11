@@ -72,21 +72,34 @@ sub handler {
     ### XXX- set in config file response factory
     ### XXX- response factory should set up the environment that htmlpage needs
 
-    my $response = Everything::HTTP::ResponseFactory->new( $e->get_response_type || 'htmlpage', $e );
-    $response->create_http_body( { config => $config } );
-    my $html = $response->get_http_body;
+    my $response = Everything::HTTP::ResponseFactory->new( $e->get_response_type || 'htmlpage',  { config => $config, request => $e } );
+
+    ### new actually creates the response - so get rid of 'create http body'
+    ### check response code
+    ### check headers
+    ### check content
+    ### return status_code
+    
+    my $html = $response->content();
 
     $r->content_type( $response->content_type );
 
     $r->headers_out->set( 'Set-Cookie' => $e->get_user->{cookie} );
 
+    my %headers = $response->headers;
+
+    foreach ( keys %headers ) {
+	$r->headers_out->set( $_ => $headers{ $_ } );
+    }
+
     $r->print($html);
 
-    # To ensure any changes in VARS are saved to the db
+    # XXX: These should be set in the Response object
+    # NB: These lines ensure any changes in VARS are saved to the db
     $e->get_user->setVars( $e->get_user_vars, $e->get_user );
     $e->get_user->update( $e->get_user );
 
-    return OK;
+    return $response->status_code;
 
 }
 
