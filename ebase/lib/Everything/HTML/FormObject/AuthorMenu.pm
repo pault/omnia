@@ -68,10 +68,11 @@ Returns the generated HTML for this AuthorMenu object.
 sub genObject
 {
 	my $this = shift @_;
-	my ( $query, $bindNode, $field, $name, $default ) =
-		$this->getParamArray( "query, bindNode, field, name, default", @_ );
+	my ( $query, $bindNode, $field, $name, $default, $attributes ) =
+		$this->getParamArray( "query, bindNode, field, name, default, attributes", @_ );
 
 	$name ||= $field;
+	$attributes ||= {};
 
 	my $html =
 		$this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
@@ -94,7 +95,8 @@ sub genObject
 		-default   => $default,
 		-size      => 15,
 		-maxlength => 255,
-		-override  => 1
+		-override  => 1,
+                %$attributes,
 		)
 		. "\n";
 

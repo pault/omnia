@@ -248,23 +248,22 @@ sub test_get_bind_field : Test(3) {
 }
 
 
-sub test_getParamArray : Test(5) {
+sub test_getParamArray : Test(4) {
     my $self = shift;
     my $instance = $self->{instance};
 
     my $order   = 'red, blue, one , two';
     my @results = $instance->getParamArray( $order, qw( one two red blue ) );
     my @args    = ( -one => 1, -two => 2, -red => 'red', -blue => 'blue' );
-    is( @results, 4, 'getParamArray() should return array params unchanged' );
+    is( "@results", "one two red blue", 'getParamArray() should return array params unchanged' );
 
     @results = $instance->getParamArray( $order, @args );
-    is( @results, 4, '... and the right number of args in hash mode' );
+    is( "@results", 'red blue 1 2', '... and the right number of args, in the right order, in hash mode' );
 
     # now ask for a repeated parameter
     @results = $instance->getParamArray( $order . ', one', @args );
-    is( @results, 5, '... (even when being tricky)' );
-    is( join( '', @results ), 'redblue121', '... the values in hash mode' );
-
+    is( "@results", 'red blue 1 2 1', '... (even when being tricky)' );
+ 
     # and leave out some parameters
     is( join( '', $instance->getParamArray( 'red,blue', @args ) ),
         'redblue', '... and only the requested values' );

@@ -13,21 +13,13 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;table border=0&gt;
+  <field name="page" type="literal_value">&lt;table&gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;pagetype&lt;/b&gt;:&lt;/td&gt;
   &lt;td&gt;[%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-
-	my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
+my $N = $DB-&gt;getNodeById($$NODE{pagetype_nodetype}, 'light');
 	$this-&gt;link_node( $N );
 
 %]&lt;/td&gt;
@@ -36,15 +28,7 @@ my %GLOBAL;
   &lt;td&gt;&lt;b&gt;parent container&lt;/b&gt;:&lt;/td&gt;
   &lt;td&gt;[%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
 
- 
 return $this-&gt;link_node ($$NODE{parent_container})
   if $$NODE{parent_container};
 return &quot;&lt;i&gt;none&lt;/i&gt;&quot;;
@@ -55,14 +39,6 @@ return &quot;&lt;i&gt;none&lt;/i&gt;&quot;;
   &lt;td&gt;&lt;b&gt;displaytype&lt;/b&gt;:&lt;/td&gt;
   &lt;td&gt;[%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
 $$NODE{displaytype}
 %]&lt;/td&gt;
  &lt;/tr&gt;
@@ -70,14 +46,6 @@ $$NODE{displaytype}
   &lt;td&gt;&lt;b&gt;MIME type&lt;/b&gt;:&lt;/td&gt;
   &lt;td&gt;[%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
 $$NODE{MIMEtype}
 %]&lt;/td&gt;
  &lt;/tr&gt;
@@ -85,15 +53,7 @@ $$NODE{MIMEtype}
   &lt;td&gt;&lt;b&gt;theme&lt;/b&gt;:&lt;/td&gt;
   &lt;td&gt;[%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-
 unless ($$NODE{ownedby_theme}) {
   return &quot;&lt;i&gt;this htmlpage does not belong to a theme&lt;/i&gt;&quot;;
 }
@@ -107,14 +67,6 @@ $this-&gt;link_node($THEME);
   &lt;td&gt;&lt;b&gt;Permission needed&lt;/b&gt;:&lt;/td&gt;
   &lt;td&gt;[%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
 
 my $trans = { 'r' =&gt; &quot;read&quot;, 'w' =&gt; &quot;write&quot;,
   'x' =&gt; &quot;execute&quot;, 'd' =&gt; &quot;delete&quot;, 'c' =&gt; &quot;create&quot; };
@@ -125,7 +77,7 @@ $$trans{$$NODE{permissionneeded}};
  &lt;/tr&gt;
 &lt;/table&gt;
  
-&lt;p&gt;&lt;b&gt;Code:&lt;/b&gt;&lt;br&gt;
+&lt;p&gt;&lt;b&gt;Code:&lt;/b&gt;&lt;/p&gt;
 [{listcode:page}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>

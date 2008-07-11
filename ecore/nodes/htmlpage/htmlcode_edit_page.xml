@@ -14,12 +14,21 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
-&lt;p&gt;
+
 [{listcode:code}]
-&lt;p&gt;&lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
-[{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]&lt;br&gt;
-&lt;p&gt;
-[{submit}]</field>
+&lt;fieldset class=&quot;editTextArea&quot;&gt;
+[%
+my $node = $this-&gt;get_requested_node;
+
+my $str = '&lt;label for=&quot;editCode' . $node-&gt;get_node_id . '&quot;&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/label&gt;';
+my $o = $this-&gt;new_form_object( 'TextArea' );
+
+$str .= $o-&gt;genObject( -query=&gt; $this-&gt;get_query, -bindNode =&gt; $node, -field =&gt; 'code', -name =&gt; 'code', -default =&gt; 'AUTO', -cols =&gt; 80, -rows =&gt; 20, -wrap =&gt; 'off', -attributes =&gt;{ -id =&gt; 'editCode' . $node-&gt;get_node_id } );
+$str;
+%]
+[{submit}]
+
+&lt;/fieldset&gt;</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlcode</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

@@ -15,6 +15,52 @@ font-size: small;
 
 }
 
+table.displayTable {
+border-collapse: collapse;
+}
+
+.displayTable td{
+border-style: groove;
+
+}
+
+.displayMail tr {
+background-color: #CCCCCC;
+}
+
+.displayMail td,th {
+padding-left: 2em;
+padding-right: 2em;
+text-algin: left;
+
+}
+
+.displayVars {
+width: 80%;
+}
+
+td.displayVarsKey {
+background-color: #CC99CC
+}
+
+td.displayVarsValue {
+background-color: #CC99FF;
+}
+
+
+.permissionDisplay td {
+
+padding: 3px;
+
+}
+td.permissionDisplayTitle {
+background-color: #CCCCCC;
+
+}
+td.permissionDisplayBody {
+background-color: #999999;
+
+}
 fieldset {
 border-style: none;
 }
@@ -24,11 +70,33 @@ width: 4em;
 float: left;
 text-align: right;
 margin-right: 0.5em;
-display: block
+display: block;
+font-weight: bold;
 }
 
 .loginnode label {
+
 width: 6em;
+
+}
+
+.whatismypassword label {
+
+width: 20em;
+font-weight: normal;
+
+}
+
+.editTitleOwner label {
+font-weight: bold;
+
+}
+
+.editTextArea label {
+text-align: left;
+width: 20em;
+padding-top: 2ex;
+padding-bottom: 1ex;
 
 }
 

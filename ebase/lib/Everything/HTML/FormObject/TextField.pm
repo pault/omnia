@@ -64,14 +64,15 @@ Returns the generated HTML for this TextField object.
 sub genObject
 {
 	my $this = shift @_;
-	my ( $query, $bindNode, $field, $name, $default, $size, $maxlen ) =
-		$this->getParamArray( "query, bindNode, field, name, default, size, maxlen",
+	my ( $query, $bindNode, $field, $name, $default, $size, $maxlen, $attributes ) =
+		$this->getParamArray( "query, bindNode, field, name, default, size, maxlen, attributes",
 		@_ );
 
 	$name    ||= $field;
 	$default ||= 'AUTO';
 	$size    ||= 20;
 	$maxlen  ||= 255;
+        $attributes ||= {};
 
 	my $html =
 		$this->SUPER::genObject( $query, $bindNode, $field, $name ) . "\n";
@@ -87,7 +88,8 @@ sub genObject
 		-default   => $default,
 		-size      => $size,
 		-maxlength => $maxlen,
-		-override  => 1
+		-override  => 1,
+ %$attributes,
 	);
 
 	return $html;
