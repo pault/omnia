@@ -25,11 +25,11 @@ my %GLOBAL;
 
 
 if ($$NODE{parent_theme}) {
-  return &quot;replacement settings for &quot;.linkNode($$NODE{parent_theme}); 
+  return &quot;replacement settings for &quot;. $this-&gt;link_node($$NODE{parent_theme}); 
 }
 &quot;&lt;i&gt;these settings don't have a theme yet&lt;/i&gt;&quot;;
 
-%]&lt;br&gt;
+%]&lt;br /&gt;
 [{displayvars}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">themesetting</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general container</field>

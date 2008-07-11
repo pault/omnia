@@ -64,29 +64,34 @@ if(defined $newname)
   {
     if($SRCNODE-&gt;nuke($USER))
     {
-       $str.=&quot;&lt;br&gt;Original node ($$SRCNODE{title}) removed.&quot;;
+       $str.=&quot;&lt;br /&gt;Original node ($$SRCNODE{title}) removed.&quot;;
     }
     else
     {
-       $str.=&quot;&lt;br&gt;You do not have permission to remove the original (&quot;.linkNode($SRCNODE).&quot;).&quot;;
+       $str.=&quot;&lt;br /&gt;You do not have permission to remove the original (&quot;.$this-&gt;link_node($SRCNODE).&quot;).&quot;;
     }
   }
   else
   {
-    $str.=&quot;&lt;br&gt;Originial node (&quot;.linkNode($SRCNODE).&quot;) preserved.&quot;;
+    $str.=&quot;&lt;br&gt;Originial node (&quot;.$this-&gt;link_node($SRCNODE).&quot;) preserved.&quot;;
   }
 
   $CLONE;  # CLONE is the cloned node. 
-  return &quot;Cloned node at: &quot;.linkNode($CLONE).&quot;&lt;BR&gt;$str&quot;;
+  return &quot;Cloned node at: &quot;.$this-&gt;link_node($CLONE).&quot;&lt;br /&gt;$str&quot;;
 }
 else
 {
   # Then you have some HTML form stuff...
-  $str.=&quot;Cloning node &quot;.linkNode($SRCNODE).&quot; of type: &quot;.linkNode($$SRCNODE{type}).&quot;&lt;BR&gt;&quot;;
-     $str.=$this-&gt;htmlcode('openform');
-     $str.=&quot;&lt;INPUT TYPE=\&quot;hidden\&quot; name=\&quot;srcnode_id\&quot; value=\&quot;$src_id\&quot;&gt;&quot;;
-     $str.=&quot;To node with:&lt;BR&gt;&quot;;
-     $str.=&quot;Title: &quot;.$query-&gt;textfield('newname',$$SRCNODE{title},50,240).&quot;&lt;BR&gt;&quot;;
+  $str.=&quot;Cloning node &quot;. $this-&gt;link_node($SRCNODE).&quot; of type: &quot;.$this-&gt;link_node($$SRCNODE{type}).&quot;&lt;br /&gt;&quot;;
+
+     $str.=$query-&gt;start_form(&quot;POST&quot;, $query-&gt;script_name) .
+     '&lt;fieldset&gt;'.
+      $query-&gt;hidden(&quot;displaytype&quot;) .
+      $query-&gt;hidden(&quot;node_id&quot;, $NODE-&gt;get_node_id);
+
+     $str.=&quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;srcnode_id\&quot; value=\&quot;$src_id\&quot; /&gt;&quot;;
+     $str.=&quot;&lt;p&gt;To node with:&quot;;
+     $str.=&quot;Title: &quot;.$query-&gt;textfield('newname',$$SRCNODE{title},50,240).&quot;&lt;/p&gt;&quot;;
 
 
      my @idlist;
@@ -95,7 +100,7 @@ else
      my @allTypes = $DB-&gt;getAllTypes();
      foreach my $N (@allTypes)
       {
-       $id = getId $N;
+       $id = $DB-&gt;getId( $N );
        $items{$id} = $$N{title};
       }
 
@@ -105,9 +110,11 @@ else
       }
 
      @idlist=sort{lc($items{$a}) cmp lc($items{$b})} @idlist;
-     $str.=&quot;and type of &quot;.$query-&gt;popup_menu(&quot;newtype&quot;, \@idlist, &quot;&quot;, \%items).&quot;&lt;BR&gt;&quot;;
+     $str.=&quot;&lt;p&gt;and type of &quot;.$query-&gt;popup_menu(&quot;newtype&quot;, \@idlist, &quot;&quot;, \%items).&quot;&lt;/p&gt;&quot;;
      $str.=$query-&gt;checkbox('deleteorig',&quot;&quot;,&quot;on&quot;,&quot;Delete original node:&quot;);
-     $str.=$this-&gt;htmlcode('closeform');
+     $str .=$this-&gt;submit(); 
+    $str.='&lt;/fieldset&gt;';
+     $str.=$query-&gt;end_form;
 } 
 
 %]</field>

@@ -117,6 +117,8 @@ sub pretest_setup : Test(setup) {
     $mock->set_false( 'hasAccess', 'isGroup' );
     $mock->set_always( 'getHash', {} );
     $mock->set_always( 'genObject', $mock );
+    $mock->set_always( 'get_doctext', 'text' );
+    $mock->set_always( 'get_from_address', 'from@address' );
 
     # others
     $mock->set_always( toXML => 'some xml' );

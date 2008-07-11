@@ -9,7 +9,7 @@
 my ($array, $numcols, $vert, $tableprops) = @_;
 $vert = 1 unless(defined $vert);
 $numcols ||= 3;
-$tableprops ||= &quot;border=0&quot;;
+$tableprops ||= &quot;&quot;;
 
 my $num = int(@$array);
 my @stuff;

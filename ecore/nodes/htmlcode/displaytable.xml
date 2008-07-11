@@ -11,70 +11,54 @@ my @fields = $DB-&gt;getFieldsHash($table);
 my $field;
 my $fieldname;
 my $value;
-my $str = &quot;&quot;;
+my $str;
 
-$edit = 0 if(not defined $edit);
+use Template;
+my $t = Template-&gt;new  || die $Template::Error;
 
-$str .= &quot;&lt;table border=1 width=400&gt;\n&quot;;
+my $template=q{&lt;table class=&quot;displayTable&quot; width=&quot;400&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;background-color: #cccccc&quot;&gt;Field name&lt;/td&gt;
+[% IF edit %]
+&lt;td  style=&quot;background-color: #cccccc&quot;&gt;Remove Field?&lt;/td&gt;
+[% END %]
+&lt;/tr&gt;
+[% FOREACH field IN fields %]
+&lt;tr&gt;&lt;td&gt;[% field %]&lt;/td&gt;
+[% IF edit %]
+&lt;td&gt;&lt;input type=&quot;checkbox&quot; name=&quot;[% field %]REMOVE&quot; value=&quot;REMOVE&quot;
+	   /&gt;&lt;/td&gt;
+[% END %]
+&lt;/tr&gt;
+[% END %]
+&lt;/table&gt;
 
-$field = $fields[0];
+[% IF edit %]
+&lt;p&gt;Add new field:&lt;/p&gt;
+&lt;fieldset class=&quot;addNewField&quot;&gt;
+&lt;label for=&quot;fieldname_new&quot;&gt;Field Name: &lt;/label&gt;
+&lt;input type=&quot;text&quot; name=&quot;fieldname_new&quot; value=&quot;&quot; size=&quot;30&quot;
+       maxlength=&quot;50&quot; id=&quot;fieldname_new&quot; /&gt;
 
-  $str .= &quot; &lt;tr&gt;\n&quot;;
-foreach $fieldname (keys %$field)
-{
-  $str .= &quot;  &lt;td bgcolor=\&quot;#cccccc\&quot;&gt;$fieldname&lt;/td&gt;\n&quot;;
-}
+&lt;label for=&quot;fieldtype_new&quot;&gt;Field type: &lt;/label&gt;
+&lt;input type=&quot;text&quot; name=&quot;fieldtype_new&quot; value=&quot;&quot; size=&quot;10&quot;
+       maxlength=&quot;10&quot; id=&quot;fieldtype_new&quot; /&gt; (i.e. int(11), char(32), text, etc.)
+&lt;label for=&quot;fielddefault_new&quot;&gt; Default value: &lt;/label&gt;
+&lt;input type=&quot;text&quot; name=&quot;fielddefault_new&quot; value=&quot;&quot; size=&quot;50&quot;
+       maxlength=&quot;50&quot; id=&quot;fielddefault_new&quot; /&gt;
 
-$str .= &quot;  &lt;td bgcolor=\&quot;#cccccc\&quot;&gt;Remove Field?&lt;/td&gt;\n&quot; if($edit);
-$str .= &quot; &lt;/tr&gt;\n&quot;;
+&lt;label&gt;&lt;input type=&quot;checkbox&quot; name=&quot;fieldprimary_new&quot; value=&quot;primary&quot;
+/&gt;Primary Key?&lt;/label&gt;
+&lt;/fieldset&gt;
+[% END %]
+};
 
-foreach $field (@fields)
-{
-  $str .= &quot; &lt;tr&gt;\n&quot;;
-  foreach $value (values %$field)
-  {
-    $value = &quot;&amp;nbsp;&quot; if (!(defined $value) or ($value eq &quot;&quot;)); # fill in the blanks
-    $str .= &quot;  &lt;td&gt;$value&lt;/td&gt;\n&quot;;
-  }
-  $str .= &quot;  &lt;td&gt;&quot; .
-    $query-&gt;checkbox(-name =&gt; $$field{Field} . &quot;REMOVE&quot;,
-        -value =&gt; 'REMOVE',
-        -label =&gt; 'Remove?') .
-    &quot;  &lt;/td&gt;\n&quot; if($edit);
-  $str .= &quot; &lt;/tr&gt;\n&quot;;
-}
+my @entries =  map { $$_{Field} } @fields;
 
-$str .= &quot;&lt;/table&gt;\n&quot;;
+my %data = ( edit =&gt; $edit, fields =&gt; \@entries );
 
-if($edit)
-{
-  $str .= &quot;&lt;br&gt;\n&quot;;
-  $str .= &quot;Add new field:&lt;br&gt;&quot;;
-  $str .= &quot;Field Name: &quot;;
-  $str .= $query-&gt;textfield( -name =&gt; &quot;fieldname_new&quot;,
-      -default =&gt; &quot;&quot;,
-      -size =&gt; 30,
-      -maxlength =&gt; 50);
-  $str .= &quot;&lt;br&gt;Field type: &quot;;
-  $str .= $query-&gt;textfield( -name =&gt; &quot;fieldtype_new&quot;,
-      -default =&gt; &quot;&quot;,
-      -size =&gt; 10,
-      -maxlength =&gt; 10);
-  $str .= &quot; (i.e. int(11), char(32), text, etc.)&quot;;
-  $str .= &quot;&lt;br&gt;Default value: &quot;;
-  $str .= $query-&gt;textfield( -name =&gt; &quot;fielddefault_new&quot;,
-      -default =&gt; &quot;&quot;,
-      -size =&gt; 50,
-      -maxlength =&gt; 50);
-  $str .= &quot;&lt;br&gt;\n&quot;;
-  $str .= $query-&gt;checkbox(-name =&gt; &quot;fieldprimary_new&quot;,
-      -value =&gt; &quot;primary&quot;,
-      -label =&gt; &quot;Primary Key?&quot;);
-  $str .= &quot;&lt;br&gt;\n&quot;;
-}
+$t-&gt;process( \$template, \%data, \$str) || die $t-&gt;error;
 
-$str;
-</field>
+$str;</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

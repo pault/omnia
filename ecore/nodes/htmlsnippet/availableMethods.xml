@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlsnippet" title="availableMethods">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">&lt;strong&gt;Available methods:&lt;/strong&gt;&lt;br&gt;
+  <field name="code" type="literal_value">&lt;h3&gt;Available methods:&lt;/h3&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -73,7 +73,7 @@ my %GLOBAL;
 
   my $entable = &amp;$getSymbolsForType(&quot;Everything::Node&quot;);
 
-  my $str = &quot;&lt;table&gt;&lt;tr&gt;&lt;td valign=\&quot;top\&quot;&gt;\n&lt;table bgcolor=\&quot;\#cccccc\&quot;&gt;&lt;tr&gt;&lt;td align=\&quot;center\&quot;&gt;&lt;strong&gt;Everything\:\:Node&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
+  my $str = &quot;&lt;table&gt;&lt;tr&gt;&lt;td valign=\&quot;top\&quot;&gt;\n&lt;table style=\&quot;background-color: #CCCCCC\&quot;&gt;&lt;tr&gt;&lt;td align=\&quot;center\&quot;&gt;&lt;strong&gt;Everything\:\:Node&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
   foreach( sort {lc($a) cmp lc($b)} keys %$entable)
   {
     $str.=&quot;&lt;tr&gt;&lt;td&gt;&lt;small&gt;&lt;small&gt;$_&lt;/small&gt;&lt;/small&gt;&lt;/td&gt;&lt;/tr&gt;\n&quot;;

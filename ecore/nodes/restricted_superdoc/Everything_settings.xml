@@ -17,7 +17,7 @@ my %GLOBAL;
  my @arrsort = sort {$$a{title} cmp $$b{title}} @$arr;
  foreach (@arrsort)
   { 
-    $str.= $this-&gt;link_node($_).&quot;&lt;br&gt;&quot;;
+    $str.= $this-&gt;link_node($_).&quot;&lt;br /&gt;&quot;;
   } 
  if ($DB-&gt;getNode('hintlaunch settings', 'restricted_superdoc'))
  {
@@ -26,8 +26,8 @@ my %GLOBAL;
 $str;
 
 %][typeversion controls]
-&lt;p&gt;
-&lt;hr width=90% align=center&gt;
+&lt;br /&gt;
+&lt;hr /&gt;
 &lt;h3&gt;Theme Nodes:&lt;/h3&gt;
 [%
 my $NODE = $this-&gt;get_node;
@@ -45,19 +45,17 @@ my %GLOBAL;
   my @themesort = sort {$$a{title} cmp $$b{title}} @$themes;
 
   foreach (@themesort){
-    $str.=$this-&gt;link_node($_).&quot;&lt;br&gt;&quot;;
+    $str.=$this-&gt;link_node($_).&quot;&lt;br /&gt;&quot;;
   }
   $str;
 
 %]
-&lt;p&gt;
 [{openform}]
-
-&lt;b&gt;Warning!&lt;/b&gt; If you turn off these things for the guest user you
+&lt;p&gt;&lt;b&gt;Warning!&lt;/b&gt; If you turn off these things for the guest user you
 will have to type &quot;&lt;code&gt;index.pl?node=login&lt;/code&gt;&quot; in the URL to 
-get to the login screen!&lt;p&gt;
+get to the login screen!&lt;/p&gt;
 
-&lt;table border=0&gt;
+&lt;table&gt;
 &lt;tr&gt;
  &lt;td&gt;Guest user sees nodelets:&lt;/td&gt;
  &lt;td&gt;[{settingradio:system settings,GUshownodelets}]&lt;/td&gt;

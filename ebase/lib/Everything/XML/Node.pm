@@ -317,7 +317,7 @@ sub genBasicTag
 	}
 
 	# And insert the content into our tag
-	$tag->appendChild($contents);
+	$tag->appendChild( $contents );
 
 	return $tag;
 }

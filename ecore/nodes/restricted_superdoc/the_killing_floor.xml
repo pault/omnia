@@ -15,30 +15,30 @@ my %GLOBAL;
 
 return unless $query-&gt;param('op', 'nodelistcheck');
 my (@param) = $query-&gt;param;
-my $str =&quot;Are you sure you want to delete the following nodes?
-&lt;p&gt;
-&lt;ol&gt;&quot;;
-my $GNL = getNode('gigantic node lister', 'restricted_superdoc');
+return unless grep /bnode_\d+/, @param;
+my $str =&quot;&lt;p&gt;Are you sure you want to delete the following nodes?
+&lt;/p&gt;&quot;;
+my $GNL = $DB-&gt;getNode('Gigantic Node Lister', 'restricted_superdoc');
 
 $str.= $query-&gt;start_form(&quot;POST&quot;, $ENV{script_name}) .
-&quot;&lt;INPUT TYPE=hidden NAME=node_id VALUE=$$GNL{node_id}&gt;&quot;;
-
+$query-&gt;p( &quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;node_id\&quot; value=\&quot;$$GNL{node_id}\&quot; /&gt;&quot; );
+$str.=&quot;&lt;ol&gt;\n&quot;;
 foreach (@param) {
   next unless /bnode_(\d+)/;
-  my $N = getNodeById($1);
+  my $N = $DB-&gt;getNodeById($1);
 
-  $str.=&quot;&lt;input type=hidden name=$_ value=1&gt;&quot;;
-  $str.=&quot;&lt;li&gt;&quot;.linkNode($N).&quot; by &quot;.linkNode($$N{author_user});
+  $str.=&quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;$_\&quot; value=\&quot;1\&quot; /&gt;&quot;;
+  $str.=&quot;&lt;li&gt;&quot;.$this-&gt;link_node($N).&quot; by &quot;.$this-&gt;link_node($$N{author_user}) .&quot;&lt;/li&gt;&quot;;
  
 }
-
-$str.=&quot;&lt;p align=right&gt;&quot;.$query-&gt;submit(&quot;op&quot;,&quot;massacre&quot;);
-$str.=&quot;&lt;p&gt;&quot;.linkNode($GNL, &quot;Changed my mind.&quot;);
+$str.=&quot;&lt;/ol&gt;&quot;;
+$str.=&quot;&lt;p style=\&quot;text-align: right\&quot;&gt;&quot;.$query-&gt;submit(&quot;op&quot;,&quot;massacre&quot;);
+$str.=&quot;&lt;/p&gt;&lt;p&gt;&quot;.$this-&gt;link_node($GNL, &quot;Changed my mind.&quot;);
+$str.=&quot;&lt;/p&gt;&quot;;
 $str.=$query-&gt;end_form;
 
 %]
-
-&lt;/ol&gt;</field>
+</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
   <field name="dynamicgroup_permission" type="literal_value">-1</field>
   <field name="dynamicguest_permission" type="literal_value">-1</field>

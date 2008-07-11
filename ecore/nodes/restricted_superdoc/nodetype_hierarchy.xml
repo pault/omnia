@@ -16,13 +16,13 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 
-my $nodetypes = getNodeWhere({type_nodetype =&gt; 1},
-  getType('nodetype'));
+my $nodetypes = $DB-&gt;getNodeWhere({type_nodetype =&gt; 1},
+  $DB-&gt;getType('nodetype'));
 my $table;
 
-$table = createTree($nodetypes, 0);
+my $createTree;
 
-sub createTree
+$createTree = sub
 {
   my ($types, $current) = @_;
   my $type;
@@ -32,14 +32,18 @@ sub createTree
   {
     next if($$type{extends_nodetype} ne $current);
 
-    $str .= &quot;&lt;li&gt;&quot; . linkNode($type) . &quot;&lt;/li&gt;\n&quot;; 
-    $str .= createTree($types, $$type{node_id});
+    $str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node($type); 
+    $str .= $createTree-&gt;($types, $$type{node_id});
+    $str .= &quot;&lt;/li&gt;\n&quot;
   }
 
   $str = &quot;&lt;ul&gt;\n&quot; . $str . &quot;&lt;/ul&gt;&quot; if($str ne &quot;&quot;);
 
   return $str;
-}
+};
+
+
+$table = $createTree-&gt;($nodetypes, 0);
 
 $table;
 

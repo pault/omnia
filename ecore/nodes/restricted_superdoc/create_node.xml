@@ -9,15 +9,15 @@ $query-&gt;param(&quot;node&quot;, &quot;&quot;);
 $query-&gt;startform; 
 %][%
 my $query = $this-&gt;get_query;
-
-my $str = &quot;Node name: &quot;;
+my $str = '&lt;fieldset&gt;';
+$str .= &quot;Node name: &quot;;
 my %types;
 
 $str .= $query-&gt;textfield(-name =&gt; &quot;node&quot;,
                           -default =&gt; &quot;&quot;,
                           -size =&gt; 50,
                           -maxlength =&gt; 100);
-$str .= &quot;&lt;br&gt;\n&quot;;
+$str .= &quot;&lt;br /&gt;\n&quot;;
 $str;
 
 %]
@@ -28,8 +28,9 @@ Nodetype:&lt;code&gt;
 [%
 my $query = $this-&gt;get_query;
 
-my $str = &quot;&lt;input TYPE=\&quot;hidden\&quot; NAME=\&quot;op\&quot; VALUE=\&quot;new\&quot;&gt;\n&quot;;
-$str .= $query-&gt;submit(&quot;createit&quot;, &quot;Create It!&quot;) . &quot;\n&quot;;
+my $str = $query-&gt;p( &quot;&lt;input type=\&quot;hidden\&quot; name=\&quot;op\&quot; value=\&quot;new\&quot; /&gt; \n&quot;);
+$str .= $query-&gt;p( $query-&gt;submit(&quot;createit&quot;, &quot;Create It!&quot;) ). &quot;\n&quot;;
+$str .= '&lt;/fieldset&gt;';
 $str .= $query-&gt;endform;
 $str;
 
