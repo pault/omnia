@@ -11,7 +11,7 @@
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Other Users</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">New Nodes</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Links</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">personal nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Personal Nodelet</member>
   </group>
   <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

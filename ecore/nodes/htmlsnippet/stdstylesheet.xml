@@ -180,7 +180,7 @@ border-width: thin;
 }
 
 .listcode {
-font-family: fixed;
+font-family: monospace;
 font-size:12pt;
 width: 90%;
 border-width: 3px;

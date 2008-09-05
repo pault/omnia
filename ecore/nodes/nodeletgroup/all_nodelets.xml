@@ -6,7 +6,7 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Admin Nodelet</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">CGI::param</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Server Statistics</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Other Users</member>
