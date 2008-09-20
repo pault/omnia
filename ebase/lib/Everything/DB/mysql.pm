@@ -81,14 +81,22 @@ sub getFieldsHash
 
 	unless ( exists $$DBTABLE{Fields} )
 	{
-		my $cursor = $this->{dbh}->prepare_cached("show columns from $table");
-		$cursor->execute();
 
-		while ( my $field = $cursor->fetchrow_hashref )
-		{
-			push @{ $DBTABLE->{Fields} }, $field;
-		}
-	}
+ 	    my $cursor = $this->{dbh}->column_info( undef, undef, $table, '%' );
+
+ 	    die $cursor->err if $cursor->err;
+ 	    $cursor->execute();
+
+ 	    die $DBI::errstr if $DBI::errstr;
+
+	    while ( my $field = $cursor->fetchrow_hashref )
+	      {
+		  # for backwards compatibility
+		  $$field{Field} = $$field{COLUMN_NAME};
+
+		  push @{ $DBTABLE->{Fields} }, $field;
+	      }
+  	}
 
 	return @{ $$DBTABLE{Fields} } if $getHash;
 	return map { $$_{Field} } @{ $$DBTABLE{Fields} };
@@ -183,15 +191,19 @@ sub createGroupTable
 
 	my $sql = <<"	SQLEND";
 	create table $table (
-		$tableid int4 DEFAULT '0' NOT NULL auto_increment,
+		$tableid int4,
 		rank int4 DEFAULT '0' NOT NULL,
-		node_id int4 DEFAULT '0' NOT NULL,
+		node_id int4,
 		orderby int4 DEFAULT '0' NOT NULL,
+                FOREIGN KEY (node_id) REFERENCES node(node_id) ON DELETE CASCADE,
+                FOREIGN KEY ($tableid) REFERENCES node(node_id) ON DELETE CASCADE,
+
 		PRIMARY KEY($tableid,rank)
-	)
+	) ENGINE=INNODB
 	SQLEND
 
-	return $dbh->do($sql);
+	return 1 if $dbh->do($sql);
+        return 0;
 }
 
 =head2 C<dropFieldFromTable>
@@ -306,7 +318,8 @@ Returns 0 if a transaction is already in progress, 1 otherwise.
 
 sub startTransaction
 {
-	return 1;
+	my $self = shift;
+	$self->getDatabaseHandle->begin_work;
 }
 
 =head2 commitTransaction
@@ -319,7 +332,9 @@ Returns 1 if a transaction isn't already in progress, 0 otherwise.
 
 sub commitTransaction
 {
-	return 1;
+	my $self = shift;
+	$self->getDatabaseHandle->commit;
+
 }
 
 =head2 C<rollbackTransaction>
@@ -333,7 +348,8 @@ Returns 1 if a transaction isn't already in progress, 0 otherwise.
 
 sub rollbackTransaction
 {
-	return 1;
+	my $self = shift;
+	$self->getDatabaseHandle->rollback;
 }
 
 sub genLimitString
@@ -472,6 +488,29 @@ sub create_database {
 
 }
 
+=head2 drop_database
+
+Drops the database.  Takes the following arguments: the database name, user, password, host and port.
+
+=cut
+
+sub drop_database {
+    my ( $this, $dbname, $user, $password, $host, $port ) = @_;
+
+    my $dbh;
+    if ( $dbname ) {
+	$dbh = DBI->connect( "DBI:mysql:$dbname:$host", $user, $password )
+		or die "Unable to get database connection!";
+    } else {
+	$dbh = $this->getDatabaseHandle;
+    }
+
+    $dbh->do( "drop database $dbname" );
+    die $DBI::errstr if $DBI::errstr;
+    return 1;
+
+}
+
 sub grant_privileges {
     my ( $self, $dbname, $user, $password, $host ) = @_;
 
@@ -482,6 +521,7 @@ sub grant_privileges {
     die ( $DBI::errstr ) if $DBI::errstr;
 
 }
+
 
 sub base_tables {
 
@@ -511,7 +551,7 @@ sub base_tables {
   KEY title (title,type_nodetype),
   KEY author (author_user),
   KEY type (type_nodetype)
-)},
+) ENGINE=INNODB},
         q{CREATE TABLE nodetype (
   nodetype_id int(11) DEFAULT '0' NOT NULL,
   restrict_nodetype int(11) DEFAULT '0',
@@ -531,17 +571,17 @@ sub base_tables {
   maxrevisions int(11) DEFAULT '-1' NOT NULL,
   canworkspace int(11) DEFAULT '-1' NOT NULL,
   PRIMARY KEY (nodetype_id)
-)},
+) ENGINE=INNODB },
         q{CREATE TABLE setting (
   setting_id int(11) DEFAULT '0' NOT NULL,
   vars text NOT NULL,
   PRIMARY KEY (setting_id)
-)},
+) ENGINE=INNODB },
         q{CREATE TABLE version (
   version_id int(11) DEFAULT '0' NOT NULL,
   version int(11) DEFAULT '1' NOT NULL,
   PRIMARY KEY (version_id)
-)}
+) ENGINE=INNODB}
       )
 
 }

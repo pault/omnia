@@ -82,34 +82,36 @@ sub test_get_fields_hash : Test(11) {
     $self->{instance}->{nb}->clear;
     $self->{instance}->{dbh}->clear;
     my $fields = [ { Field => 'foo', foo => 1 }, { Field => 'bar', bar => 2 } ];
-    $self->{instance}->{dbh}->mock( 'prepare_cached', sub { shift; } );
+    $self->{instance}->{dbh}->mock( 'column_info', sub { shift; } );
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
+    $self->{instance}->{dbh}->set_false( 'err' );
 
     my @result = $self->{instance}->getFieldsHash('table');
+
     my ( $method, $args ) = $self->{instance}->{nb}->next_call();
     is( $method, 'getNode', 'getFieldsHash() should fetch node' );
     is( join( '-', @$args[ 1, 2 ] ),
         'table-dbtable', '... by name, of dbtable type' );
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
 
-    is( $method, 'prepare_cached', '... displaying the table columns' );
+    is( $method, 'column_info', '... displaying the table columns' );
     is(
-        $args->[1],
-"SELECT a.attname AS \"Field\" FROM pg_class c, pg_attribute a, pg_type t WHERE c.relname = 'table' AND a.attnum > 0 AND a.attrelid = c.oid AND a.atttypid = t.oid ORDER BY a.attnum",
-        '... for the appropriate table'
-    );
+        $args->[3], 'table', '... for the appropriate table.' );
 
     is_deeply( \@result, $fields,
         '... defaulting to return complete hashrefs' );
 
     $self->{instance}->{nb}->clear();
     $self->{instance}->{dbh}->clear();
+    $self->{instance}->{nb}->set_always('getNode', { Fields => [ { Field => 'foo'}, { Field => 'bar' } ] } );
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
     @result = $self->{instance}->getFieldsHash( '', 0 );
-    is( $self->{instance}->{nb}->call_pos(-1),
-        'getNode', 'getFieldsHash() should respect fields cached in node' );
     ( $method, $args ) = $self->{instance}->{nb}->next_call();
+    is( $method,
+        'getNode', 'getFieldsHash() should respect fields cached in node' );
+
     is( $args->[1], 'node', '... using the node table by default' );
+
     is_deeply(
         \@result,
         [ 'foo', 'bar' ],
@@ -118,6 +120,7 @@ sub test_get_fields_hash : Test(11) {
 
     # If getNode does not return a valid dbtable
 	$self->{instance}->{nb}->set_always('getNode', undef);
+        $self->{instance}->{dbh}->set_always('fetchrow_hashref', undef );
 	@result = $self->{instance}->getFieldsHash( 'table');
     is_deeply(
         \@result,
@@ -277,15 +280,17 @@ sub test_drop_field_from_table : Test(4) {
 sub test_add_field_to_table : Test(25) {
     my $self = shift;
     $self->{instance}->{dbh}
-      ->set_always( 'prepare_cached', $self->{instance}->{dbh} );
+      ->set_always( 'column_info', $self->{instance}->{dbh} );
     my $fields = [
-        { Field => 'foo', Key => 'PRI' },
-        { Field => 'bar', Key => '' },
-        { Field => 'baz', Key => 'PRI' }
+        { COLUMN_NAME => 'foo', Key => 'PRI' },
+        { COLUMN_NAME => 'bar', Key => '' },
+        { COLUMN_NAME => 'baz', Key => 'PRI' }
     ];
+
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
 
     $self->{instance}->{dbh}->clear();
+    $self->{instance}->{dbh}->set_false('err');
     can_ok( $self->{class}, 'addFieldToTable' );
     ok( !$self->{instance}->addFieldToTable(''),
         'addFieldToTable() should return false if table is blank' );
@@ -433,12 +438,11 @@ sub test_construct_node : Test(+0) {
     $self->SUPER;
 }
 
-sub test_start_transaction : Test(5) {
+sub test_start_transaction : Test(4) {
     my $self = shift;
     can_ok( $self->{class}, 'startTransaction' );
     $self->{instance}->{transaction} = 0;
     ok( $self->{instance}->startTransaction, '...should return true' );
-    is ( $self->{instance}->{dbh}->{AutoCommit}, 0, '...sets the AutoCommit variable to false.' );
     $self->{instance}->{transaction} = 1;
     my $ac =  $self->{instance}->{dbh}->{AutoCommit};
     ok(! $self->{instance}->startTransaction, '...should return false, if we are already in a transaction.' );
@@ -536,7 +540,7 @@ sub test_commit_transaction : Test(6) {
     $self->{instance}->{dbh}->set_true('commit');    
 
     $self->{instance}->{transaction} = 0;
-    ok( $self->{instance}->commitTransaction, '...returns true if we are not in a transaction.' );
+    ok( ! $self->{instance}->commitTransaction, '...returns false if we are not in a transaction.' );
 
     $self->{instance}->{transaction} = 1;
     my $return = $self->{instance}->commitTransaction;
@@ -544,7 +548,7 @@ sub test_commit_transaction : Test(6) {
     is ($method, 'commit', '... calls commit on the DBI object if we are in a transaction.');
     is ( $self->{instance}->{dbh}->{AutoCommit}, 1, '...sets the AutoCommit variable to true.' );
     is ( $self->{instance}->{transaction}, 0, '...sets the transaction variable to false.' );
-    is ($return, 0, '...returns false.');
+    ok ($return,'...returns true.');
 
 }
 
@@ -558,7 +562,7 @@ sub test_rollback_transaction : Test(6) {
     $self->{instance}->{dbh}->set_true('rollback');    
 
     $self->{instance}->{transaction} = 0;
-    ok( $self->{instance}->rollbackTransaction, '...returns true if we are not in a transaction.' );
+    ok( ! $self->{instance}->rollbackTransaction, '...returns false if we are not in a transaction.' );
 
 
     $self->{instance}->{transaction} = 1;
@@ -567,7 +571,7 @@ sub test_rollback_transaction : Test(6) {
     is ($method, 'rollback', '... calls rollback on the DBI object if we are in a transaction.');
     is ( $self->{instance}->{dbh}->{AutoCommit}, 1, '...sets the AutoCommit variable to true.' );
     is ( $self->{instance}->{transaction}, 0, '...sets the transaction variable to false.' );
-    is ($return, 0, '...returns false.');
+    ok ($return,  '...returns true.');
 
 
 

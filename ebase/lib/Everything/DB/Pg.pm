@@ -67,21 +67,27 @@ sub getFieldsHash
 
 	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' );
 	$DBTABLE ||= {};
+
 	unless ( exists $$DBTABLE{Fields} )
 	{
-		my $cursor =
-			$this->{dbh}->prepare_cached(
-"SELECT a.attname AS \"Field\" FROM pg_class c, pg_attribute a, pg_type t WHERE c.relname = '$table' AND a.attnum > 0 AND a.attrelid = c.oid AND a.atttypid = t.oid ORDER BY a.attnum"
-			);
 
-		$cursor->execute;
-		while ( $field = $cursor->fetchrow_hashref )
-		{
-			push @fields, $field;
-		}
-		$cursor->finish();
-		$$DBTABLE{Fields} = \@fields;
-	}
+ 	    my $cursor = $this->{dbh}->column_info( undef, undef, $table, '%' );
+
+ 	    die $cursor->err if $cursor->err;
+ 	    $cursor->execute();
+
+ 	    die $DBI::errstr if $DBI::errstr;
+
+	    while ( my $field = $cursor->fetchrow_hashref )
+	      {
+		  # for backwards compatibility
+		  $$field{Field} = $$field{COLUMN_NAME};
+
+		  push @{ $DBTABLE->{Fields} }, $field;
+	      }
+  	}
+
+	$$DBTABLE{Fields} ||= [];
 
 	if ( not $getHash )
 	{
@@ -194,15 +200,16 @@ sub createGroupTable
 	my $sql;
 	$sql = <<SQLEND;
                 create table \"$table\" (
-                        $tableid int4 DEFAULT '0' NOT NULL auto_increment,
+                        $tableid int4 REFERENCES node(node_id) ON DELETE CASCADE,
                         rank int4 DEFAULT '0' NOT NULL,
-                        node_id int4 DEFAULT '0' NOT NULL,
+                        node_id int4 REFERENCES node(node_id) ON DELETE CASCADE,
                         orderby int4 DEFAULT '0' NOT NULL,
                         PRIMARY KEY($tableid,rank)
                 )
 SQLEND
 
-	return $dbh->do($sql);
+	return 1 if $dbh->do($sql);
+	return 0;
 }
 
 #############################################################################
@@ -331,8 +338,8 @@ sub startTransaction
 {
 	my ($this) = @_;
 	return 0 if ( $$this{transaction} );
-	$$this{dbh}->{AutoCommit} = 0;
-	$$this{transaction} = 1;
+	$$this{dbh}->begin_work;
+	return $$this{transaction} = 1;
 }
 
 #############################################################################
@@ -346,15 +353,17 @@ sub startTransaction
 #               None.
 #
 #       Returns
-#               1 if a transaction isn't already in progress, 0 otherwise.
+#               0 on error i.e. if a transaction isn't already in progress, 1 otherwise.
 #
 sub commitTransaction
 {
 	my ($this) = @_;
-	return 1 unless ( $$this{transaction} );
+	return 0 unless ( $$this{transaction} );
+	$$this{dbh}->{RaiseError} = 1;
 	$$this{dbh}->commit;
 	$$this{dbh}->{AutoCommit} = 1;
 	$$this{transaction} = 0;
+	return 1;
 }
 
 #############################################################################
@@ -369,15 +378,16 @@ sub commitTransaction
 #               None.
 #
 #       Returns
-#               1 if a transaction isn't already in progress, 0 otherwise.
+#               0 on error, no transaction to rollback.  1 on success.
 #
 sub rollbackTransaction
 {
 	my ($this) = @_;
-	return 1 unless ( $$this{transaction} );
+	return 0 unless ( $$this{transaction} );
 	$$this{dbh}->rollback;
 	$$this{dbh}->{AutoCommit} = 1;
 	$$this{transaction} = 0;
+	return 1;
 }
 
 sub genLimitString
@@ -641,6 +651,36 @@ sub create_database {
 
 }
 
+
+=head2 drop_database
+
+Drops the database.  Takes the database name, user, password, host and port as arguments.
+
+=cut
+
+sub drop_database {
+    my ( $this, $dbname, $user, $password, $host, $port ) = @_;
+
+    $port ||= 5432;
+
+    $host ||=  'localhost';
+
+    my $dbh;
+    if ( $dbname ) {
+	undef $this->{dbh};
+	undef $this->{nb};
+	$dbh = DBI->connect(  "DBI:Pg:dbname=postgres;host=$host;port=$port",
+        $user, $password  )
+		or die "Unable to get database connection!";
+    } else {
+	$dbh = $this->getDatabaseHandle;
+    }
+
+    $dbh->do( "drop database $dbname" );
+    die $DBI::errstr if $DBI::errstr;
+    return 1;
+
+}
 
 sub grant_privileges {
     my ( $self, $dbname, $user, $password, $host, $port ) = @_;

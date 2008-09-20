@@ -2,6 +2,7 @@ package Everything::DB::Test::sqlite;
 
 use Test::More;
 use Test::Exception;
+use File::Temp;
 use Scalar::Util qw/blessed/;
 use SUPER;
 use base 'Everything::Test::DB';
@@ -369,12 +370,12 @@ sub test_gen_table_name : Test(2) {
 sub test_database_exists : Test(3) {
     my $self = shift;
     can_ok( $self->{class}, 'databaseExists' ) || return;
-    is(
-        $self->{instance}->databaseExists( $self->{instance}->{dbname} ),
-        $self->{instance}->{dbname},
+    my $file = File::Temp->new;
+    ok(
+        $self->{instance}->databaseExists( "$file" ),
         '...returns true if it exists'
     );
-    isnt( 'hades', $self->{instance}->{dbname},
+    ok ( ! $self->{instance}->databaseExists( "$file" . "KKK"),
         '...and false if it does not.' );
 }
 

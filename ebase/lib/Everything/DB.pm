@@ -209,7 +209,7 @@ selected rows.  undef if error.
 
 sub sqlSelectJoined
 {
-	my ( $this, $select, $table, $joins, $where, $other, @bound ) = @_;
+	my ( $this, $select, $table, $joins, $where, $other, $bound ) = @_;
 
 	my $sql = "SELECT $select ";
 	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
@@ -222,9 +222,12 @@ sub sqlSelectJoined
 	$sql .= "WHERE $where " if $where;
 	$sql .= $other          if $other;
 
-	my $cursor = $this->{dbh}->prepare($sql) or return;
+	my $cursor = $this->{dbh}->prepare($sql);
+	die "$DBI::errstr, $sql" if $DBI::errstr;
 
-	$cursor->execute(@bound) or return;
+	$cursor->execute(@$bound);
+	die "$DBI::errstr, $sql, @$bound" if $DBI::errstr;
+
 	return $cursor;
 }
 
@@ -398,7 +401,7 @@ sub sqlInsert
 		. join( ', ', @$values ) . ")";
 
         my $rv = $this->sqlExecute( $sql, $bound );
-	die "$sql $DBI::errstr @$bound" if $DBI::errstr;
+	Everything::logErrors( "$sql $DBI::errstr @$bound" )if $DBI::errstr;
 	return $rv;
 }
 
@@ -479,8 +482,10 @@ sub sqlExecute
 	{
 		local $" = '][';
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+		return;
 	};
 }
+
 
 sub getNodeByIdNew
 {
@@ -1078,7 +1083,7 @@ sub genWhereString
 	}
 	else
 	{
-		$wherestr .= $WHERE;
+		$wherestr .= $WHERE || '';
 
 		#note that there is no protection when you use a string
 		#play it safe and use $dbh->quote, kids.
@@ -1092,6 +1097,7 @@ sub genWhereString
 
 	return $wherestr;
 }
+
 
 # override this to fix odd column names
 sub fix_node_keys {}
@@ -1185,6 +1191,16 @@ q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,
 q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,-1,-1)},
 
       )
+
+}
+
+sub retrieve_column_info {
+
+    my ( $self, $table_name, $column_name ) = @_;
+    my $sth = $self->{dbh}->column_info( '', '', $table_name, $column_name );
+    my $data = $sth->fetchrow_hashref;
+    return $data;
+
 
 }
 

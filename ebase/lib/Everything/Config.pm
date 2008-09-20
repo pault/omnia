@@ -30,7 +30,7 @@ use warnings;
         my $config = AppConfig->new;
 
         foreach (
-            qw/database_name database_user database_password database_host database_port database_type/
+            qw/database_name|d database_user|u database_password|p database_host|h database_port|p database_type|t database_superuser database_superpassword/
           )
         {
             $config->define( $_, { DEFAULT => '', ARGCOUNT => ARGCOUNT_ONE } );

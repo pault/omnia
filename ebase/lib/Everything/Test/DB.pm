@@ -94,7 +94,7 @@ sub fake_dbh {
     $self->{instance}->{dbh}->set_always( 'execute', $self->{instance}->{dbh});
     $self->{instance}->{dbh}->mock( 'fetchrow', sub { qw/a list/ } );
 
-    $self->{instance}->{dbh}->set_true('finish',  'do');
+    $self->{instance}->{dbh}->set_true('finish',  'do', '-begin_work', '-rollback', '-commit');
 
 }
 

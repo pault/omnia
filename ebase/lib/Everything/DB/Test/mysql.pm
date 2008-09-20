@@ -66,9 +66,12 @@ sub test_get_fields_hash : Test(9) {
     can_ok( $self->{class}, 'getFieldsHash' ) || return;
     $self->{instance}->{nb}->clear;
     $self->{instance}->{dbh}->clear;
-    my $fields = [ { Field => 'foo', foo => 1 }, { Field => 'bar', bar => 2 } ];
+    my $fields = [ { COLUMN_NAME => 'foo', foo => 1 }, { COLUMN_NAME => 'bar', bar => 2 } ];
+    $self->{instance}->{dbh}
+      ->set_always( 'column_info', $self->{instance}->{dbh} );
     $self->{instance}->{dbh}->mock( 'prepare_cached', sub { shift; } );
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
+    $self->{instance}->{dbh}->set_false(qw/err/ );
 
     my @result = $self->{instance}->getFieldsHash('table');
     my ( $method, $args ) = $self->{instance}->{nb}->next_call();
@@ -77,9 +80,9 @@ sub test_get_fields_hash : Test(9) {
         'table-dbtable', '... by name, of dbtable type' );
     ( $method, $args ) = $self->{instance}->{dbh}->next_call();
 
-    is( $method, 'prepare_cached', '... displaying the table columns' );
-    is( $args->[1], 'show columns from table',
-        '... for the appropriate table' );
+    is( $method, 'column_info', '... displaying the table columns' );
+    is( join( ' ', @$args[ 3, 4 ] ),
+        'table %', '... for the appropriate table' );
 
     is_deeply( \@result, $fields,
         '... defaulting to return complete hashrefs' );
@@ -215,11 +218,12 @@ sub test_drop_field_from_table : Test(4) {
 sub test_add_field_to_table : Test(16) {
     my $self = shift;
     $self->{instance}->{dbh}
-      ->set_always( 'prepare_cached', $self->{instance}->{dbh} );
+      ->set_always( 'column_info', $self->{instance}->{dbh} );
+
     my $fields = [
-        { Field => 'foo', Key => 'PRI' },
-        { Field => 'bar', Key => '' },
-        { Field => 'baz', Key => 'PRI' }
+        { COLUMN_NAME => 'foo', Key => 'PRI' },
+        { COLUMN_NAME => 'bar', Key => '' },
+        { COLUMN_NAME => 'baz', Key => 'PRI' }
     ];
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
 

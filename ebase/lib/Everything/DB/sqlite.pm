@@ -158,7 +158,7 @@ sub createNodeTable
 	return -1 if $this->tableExists($table);
 
 	return $this->{dbh}->do(
-		"create table $table ($tableid int4 DEFAULT '0' NOT NULL PRIMARY KEY");
+		"create table $table ($tableid int4 PRIMARY KEY)");
 }
 
 =head2 C<createGroupTable>
@@ -185,16 +185,62 @@ sub createGroupTable
 	my $dbh     = $this->getDatabaseHandle();
 	my $tableid = $table . "_id";
 
-	my $sql = <<"	SQLEND";
+	my @sql = ();
+	## sqlite doesn't implement foreign keys but we have it here for good form!
+	$sql[0] = <<"	SQLEND";
 	create table $table (
-		$tableid int4 DEFAULT '0' NOT NULL PRIMARY KEY,
-		rank int4 DEFAULT '0' NOT NULL PRIMARY KEY,
-		node_id int4 DEFAULT '0' NOT NULL,
-		orderby int4 DEFAULT '0' NOT NULL,
+		$tableid int4 NOT NULL,
+		rank int4 DEFAULT 0,
+		node_id int4 NOT NULL REFERENCES node( node_id ) ON DELETE CASCADE,
+		orderby int4,
+                PRIMARY KEY( $tableid , rank )
 	)
 	SQLEND
 
-	return $dbh->do($sql);
+### Currently sqlite seg faults when it raises an abort.  Also the
+### installation model can't code with referential integrity.  Until
+### the installation model is fixed these must remain commented out.
+
+
+#   	$sql[1] =<<SQLEND;
+#   	CREATE TRIGGER fki_${table}_node_id
+#   	  BEFORE INSERT ON $table
+#   	  FOR EACH ROW BEGIN 
+#   	    SELECT CASE
+#   	      WHEN ((SELECT node.node_id FROM node WHERE  node.node_id = NEW.node_id) IS NULL)
+#                THEN RAISE(ABORT, 'Insert violates foreign key constraint')
+#   	     END;
+#   	END;
+# SQLEND
+
+
+#  	$sql[2] =<<"	SQLEND";
+#  	CREATE TRIGGER fku_${table}_node_id
+#  	  BEFORE UPDATE ON $table
+#  	  FOR EACH ROW BEGIN 
+#  	    SELECT CASE
+#  	      WHEN ((SELECT node_id FROM node WHERE  node.node_id = NEW.node_id) IS NULL)
+#  	      THEN RAISE(ABORT, 'update on table "$table" violates foreign key constraint "fki_${table}"')
+#  	     END;
+#  	END;
+#  	SQLEND
+ 
+#  	$sql[3] =<<"	SQLEND";
+#  	CREATE TRIGGER fkd_${table}_node_id
+#  	  BEFORE DELETE ON node
+#  	    FOR EACH ROW BEGIN 
+#  	      DELETE from $table WHERE ${table}.node_id = OLD.node_id;
+#  	END;
+
+#  	SQLEND
+
+	eval {
+	  foreach ( @sql ) {
+	      return unless $dbh->do( $_ );
+	  }
+      };
+	  return 0 if $@;
+	return 1;
 }
 
 =head2 C<dropFieldFromTable>
@@ -369,7 +415,7 @@ sub databaseExists
 {
 	my ( $this, $database ) = @_;
 
-	return $this->{dbname} eq $database;
+	return -e $database;
 }
 
 sub list_tables
@@ -437,6 +483,12 @@ sub create_database {
 
 }
 
+sub drop_database {
+    my ( $this, $dbname ) = @_;
+
+    unlink $dbname;
+
+}
 
 =head2 C<grant_privileges>
 
