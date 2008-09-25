@@ -9,15 +9,6 @@ use Module::Build;
 use vars '@ISA';
 @ISA = 'Module::Build';
 
-sub ACTION_test
-{
-	my $self = shift;
-	my @files;
-
-	find( sub { /\.t\z/ and push @files, $File::Find::name }, 't' );
-	$self->SUPER::ACTION_test( 'test_files=' . join( ' ', @files ) );
-}
-
 sub ACTION_install
 {
 	my $self       = shift;

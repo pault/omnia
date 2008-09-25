@@ -174,6 +174,7 @@ sub test_execute_htmlcode_nodes : Tests {
 
     my $error_code = sub {
         my ( $warn, $error, $text, $node ) = @_;
+	return unless $error; # error contains reasons for  'die-ing'
         $err .= join "\n", $warn, $error, $text, $$node{title};
         $err .= "\n" . '#' x 30;
         $err .= "\n\n";

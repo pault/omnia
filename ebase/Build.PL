@@ -54,7 +54,7 @@ my $build = Everything::Build->new(
 	        'File::Temp'                => 0.18,
 	},
 	scripts    => [ File::Spec->catfile( 'bin', 'nbmasta' ) ],
-	test_files => join( ' ', @test_files ),
+	test_files => join( ' ', sort @test_files ),
 );
 
 my $httpconf   = '';
