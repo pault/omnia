@@ -80,6 +80,11 @@ sub getFieldsHash
 
 	    while ( my $field = $cursor->fetchrow_hashref )
 	      {
+
+		  # DBD::Pg seems to automatically quote some (but not
+		  # all) column names.  This is a workaround.
+		  $$field{COLUMN_NAME} =~ s/^"?(.*?)"?$/$1/;
+
 		  # for backwards compatibility
 		  $$field{Field} = $$field{COLUMN_NAME};
 
@@ -137,8 +142,23 @@ sub tableExists
 }
 
 sub databaseExists {
-    my ( $self, $database ) = @_;
-    my $c = $self->{dbh}->prepare("select count(1) from pg_catalog.pg_database where datname = ?");
+
+    my ( $self, $database, $user, $password, $host, $port ) = @_;
+
+    $host ||= 'localhost';
+    $port ||= 5432;
+
+    my $dbh;
+
+    if ( ! ref $self || ! $self->{dbh} ) {
+	$dbh = DBI->connect( "DBI:Pg:dbname=postgres;host=$host;port=$port", $user, $password );
+	} else {
+
+	    $dbh = $self->getDatabaseHandle
+
+	}
+
+    my $c = $dbh->prepare("select count(1) from pg_catalog.pg_database where datname = ?");
 
     $c->execute( $database );
     my ( $rv ) = $c->fetchrow;
@@ -666,14 +686,13 @@ sub drop_database {
     $host ||=  'localhost';
 
     my $dbh;
-    if ( $dbname ) {
-	undef $this->{dbh};
-	undef $this->{nb};
-	$dbh = DBI->connect(  "DBI:Pg:dbname=postgres;host=$host;port=$port",
+    $dbh = DBI->connect(  "DBI:Pg:dbname=postgres;host=$host;port=$port",
         $user, $password  )
 		or die "Unable to get database connection!";
-    } else {
-	$dbh = $this->getDatabaseHandle;
+
+    if ( ref $this ) {
+	undef $this->{nb};
+	undef $this->{dbh};
     }
 
     $dbh->do( "drop database $dbname" );

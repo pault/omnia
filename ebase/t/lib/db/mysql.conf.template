@@ -1,0 +1,19 @@
+## Copy this file to t/lib/db/mysql.conf  and edit it as require
+## to run mysql database tetss
+
+# The database superuser should have privileges to create databases,
+# users and grant privileges
+database_superuser = 
+database_superpassword =
+
+## The name of the database and user that will be created, change it
+## if it doesn't work with your setup
+database_name = ecoretest
+
+## The database user and password, change it if it doesn't work for your setup
+database_user = ecoretester
+database_password = ecoretester
+
+## You probably won't need to amend this
+database_type = mysql
+

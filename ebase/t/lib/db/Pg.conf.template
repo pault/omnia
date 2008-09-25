@@ -1,0 +1,21 @@
+## To run postgres tests copy this to t/lib/db/Pg.conf and
+## edit the following fields as required for your setup
+
+# The database superuser should have create role, grant privileges and
+# create database privileges
+database_superuser = 
+database_superpassword =
+
+## The name of the database we create to run the tests, you can change
+## it if you need to
+database_name = ecoretest
+
+## The name of the user that will be created by these tests
+database_user = ecoretester
+database_password = ecoretester
+
+## You shouldn't need to change this
+database_type = Pg
+
+
+

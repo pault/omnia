@@ -383,8 +383,19 @@ Returns:
 
 sub databaseExists
 {
-	my ( $this, $database ) = @_;
-	my $sth = $this->{dbh}->prepare('show databases');
+	my ( $this, $database, $user, $password, $host, $port ) = @_;
+
+	my $dbh;
+
+	if ( ! ref $this || ! $this->{dbh} ) {
+	    $dbh = DBI->connect( "DBI:mysql:database=mysql;host=$host;port=$port", $user, $password );
+	} else {
+
+	    $dbh = $this->getDatabaseHandle
+
+	}
+
+	my $sth = $dbh->prepare('show databases');
 	$sth->execute();
 
 	while ( my ($dbname) = $sth->fetchrow() )
@@ -497,8 +508,11 @@ Drops the database.  Takes the following arguments: the database name, user, pas
 sub drop_database {
     my ( $this, $dbname, $user, $password, $host, $port ) = @_;
 
+    $host ||= '';
+    $port ||= '';
+
     my $dbh;
-    if ( $dbname ) {
+    if ( ! ref $this || ! $this->{dbh} ) {
 	$dbh = DBI->connect( "DBI:mysql:$dbname:$host", $user, $password )
 		or die "Unable to get database connection!";
     } else {
@@ -506,7 +520,12 @@ sub drop_database {
     }
 
     $dbh->do( "drop database $dbname" );
-    die $DBI::errstr if $DBI::errstr;
+
+    if ( $DBI::errstr ) {
+	die $DBI::errstr;
+	return 0;
+    }
+
     return 1;
 
 }

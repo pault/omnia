@@ -2,13 +2,70 @@
 package Everything::Test::Ecore::Install;
 
 use Everything::NodeBase;
+use Everything::Install;
 use Everything::Storage::Nodeball;
+use Everything::DB::mysql;
+use Everything::DB::Pg;
+use Everything::DB::sqlite;
 use Carp qw/confess cluck croak/;
 use Test::More;
 use base 'Test::Class';
 
 use strict;
 use warnings;
+
+sub SKIP_CLASS {
+    my $self = shift;
+    my $class = ref $self ? ref $self : $self;
+    $class->SUPER( @_ );
+
+
+}
+
+sub startup :Test(startup) {
+    my $self = shift;
+
+    my $config = $self->{ config };
+
+    my $ball = $self->{ nodeball };
+
+    my $opts = $self->{ opts } || {};
+
+    my $installer = Everything::Install->new;
+
+    $installer->set_nodeball( Everything::Storage::Nodeball->new( nodeball => $ball  ) );
+
+    if ( $config ) {
+
+	$$opts{ type } = $config->database_type;
+	$$opts{ user } = $config->database_user;
+	$$opts{ database } = $config->database_name;
+	$$opts{ password } = $config->database_password;
+	$$opts{ db_rootuser } = $config->database_superuser;
+	$$opts{ db_rootpass } = $config->database_superpassword;
+
+    }
+
+
+    if ( "Everything::DB::$$opts{ type }"->databaseExists( map { defined $_ ? $_ : '' } @$opts{ qw/database  db_rootuser db_rootpass host port/ } ) ) {
+	diag "Database $$opts{ database } exists will try to drop....";
+	if (!  "Everything::DB::$$opts{ type }"->drop_database( map { defined $_ ? $_ : '' } @$opts{ qw/database db_rootuser db_rootpass host port/ } ) ) {
+	    $self->BAILOUT( "... drop database failed, bailing.");
+	} else {
+	    diag "...drop database succeeded. Continuing.";
+	}
+    }
+
+
+    $installer->create_storage( $opts );
+
+    my $nb = $installer->get_nodebase;
+
+    $self->{nb}           = $nb;
+    $self->{db_type}      = $$opts{ type };
+    $self->{installer} = $installer;
+
+}
 
 sub test_10_sql_tables : Test(1) {
     my $self = shift;
