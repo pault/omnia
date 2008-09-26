@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="nodelet" title="admin Nodelet Mini">
+<NODE export_version="0.5" nodetype="nodelet" title="Admin Nodelet Mini">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">ii-i</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
@@ -9,11 +9,11 @@
   <field name="groupaccess" type="literal_value">ii-i-</field>
   <field name="guestaccess" type="literal_value">ii-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
-  <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</field>
+  <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Admin Nodelet</field>
   <field name="nlcode" type="literal_value">[&lt;adminbox&gt;]</field>
   <field name="otheraccess" type="literal_value">ii-i-</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
-  <field name="title" type="literal_value">admin Nodelet Mini</field>
+  <field name="title" type="literal_value">Admin Nodelet Mini</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="updateinterval" type="literal_value">0</field>
 </NODE>
