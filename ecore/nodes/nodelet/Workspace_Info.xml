@@ -1,4 +1,4 @@
-<NODE export_version="0.5" nodetype="nodelet" title="workspace info">
+<NODE export_version="0.5" nodetype="nodelet" title="Workspace Info">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="dynamicauthor_permission" type="literal_value">-1</field>
@@ -69,7 +69,7 @@ $str;
 %]</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">general nodelet container</field>
-  <field name="title" type="literal_value">workspace info</field>
+  <field name="title" type="literal_value">Workspace Info</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="updateinterval" type="literal_value">0</field>
 </NODE>

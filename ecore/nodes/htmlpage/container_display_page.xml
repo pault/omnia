@@ -24,7 +24,7 @@ my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
-return $this-&gt;link_node-&gt;($$NODE{parent_container}) if $$NODE{parent_container};
+return $this-&gt;link_node($$NODE{parent_container}) if $$NODE{parent_container};
 &quot;&lt;i&gt;none&lt;/i&gt;&quot;;
 %]
 

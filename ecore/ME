@@ -88,10 +88,10 @@
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Other Users Mini</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Server Statistics</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Tick tock</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin Nodelet Mini</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">personal nodelet</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">workspace info</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Admin Nodelet Mini</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Admin Nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Personal Nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Workspace Info</member>
     <member name="group_node" type="noderef" type_nodetype="mail,nodetype">New User Mail</member>
     <member name="group_node" type="noderef" type_nodetype="mail,nodetype">Password Mail</member>
     <member name="group_node" type="noderef" type_nodetype="location,nodetype">container</member>

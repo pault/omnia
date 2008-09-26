@@ -6,8 +6,8 @@
   <field name="dynamicguest_permission" type="literal_value">-1</field>
   <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">workspace info</member>
-    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">admin nodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Workspace Info</member>
+    <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Admin Nodelet</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Node Bucket</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Epicenter</member>
     <member name="group_node" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics</member>
