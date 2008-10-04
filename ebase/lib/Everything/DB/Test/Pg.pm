@@ -81,7 +81,7 @@ sub test_get_fields_hash : Test(11) {
     can_ok( $self->{class}, 'getFieldsHash' ) || return;
     $self->{instance}->{nb}->clear;
     $self->{instance}->{dbh}->clear;
-    my $fields = [ { Field => 'foo', foo => 1 }, { Field => 'bar', bar => 2 } ];
+    my $fields = [ { COLUMN_NAME => 'foo', foo => 1 }, { COLUMN_NAME => 'bar', bar => 2 } ];
     $self->{instance}->{dbh}->mock( 'column_info', sub { shift; } );
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
     $self->{instance}->{dbh}->set_false( 'err' );
@@ -404,9 +404,9 @@ sub test_add_field_to_table : Test(25) {
 
 #### if the new field is a primary key but there is no current primary key
    $fields = [
-        { Field => 'foo', Key => '' },
-        { Field => 'bar', Key => '' },
-        { Field => 'baz', Key => '' }
+        { COLUMN_NAME => 'foo', Key => '' },
+        { COLUMN_NAME => 'bar', Key => '' },
+        { COLUMN_NAME => 'baz', Key => '' }
     ];
 
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields )->clear;

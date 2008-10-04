@@ -18,8 +18,6 @@ sub SKIP_CLASS {
     my $self = shift;
     my $class = ref $self ? ref $self : $self;
     $class->SUPER( @_ );
-
-
 }
 
 sub startup :Test(startup) {

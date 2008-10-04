@@ -3,6 +3,7 @@ package Everything::Test::Ecore::Compile;
 
 use base 'Test::Class';
 use Everything::HTML ();
+use Everything ();
 use HTML::Lint;
 use Test::More;
 use Test::MockObject;
@@ -11,11 +12,45 @@ use Carp;
 use strict;
 use warnings;
 
+## error handling - until error handling is made more flexible
+
+my $err;
+no warnings 'redefine';
+*Everything::getFrontsideErrors =sub {
+
+    my @temp = @Everything::fsErrors;
+    $err = \@temp;
+    return \@Everything::fsErrors;
+};
+use warnings 'redefine';
+
+sub report_error {
+
+    diag join( "\n", map { join "\n", $_->{context}->get_title, $_->{context}->get_node_id, $_->{error}  } @$err);
+
+}
+
+
+sub test_node_error {
+    my $node = shift;
+
+    my $error = join "\n", map { $_->{error} } @$err;
+    is( $error, '',
+"...execute node $$node{title}, type $$node{type}{title}, id, $$node{node_id}"
+	     ) || report_error();
+
+}
+
+sub SKIP_CLASS {
+    my $self = shift;
+    my $class = ref $self ? ref $self : $self;
+    $class->SUPER( @_ );
+}
+
 sub startup : Test( startup ) {
     my $self = shift;
 
-    my $nb = $self->{nodebase}
-      || croak "Must have a nodebase object to continue, $!.";
+    my $nb = $self->{nodebase} || croak "No nodebase. Need a nodebase to run tests.";
 
     my @nodes_under_test = ();
     foreach (
@@ -33,7 +68,7 @@ sub startup : Test( startup ) {
     $self->{mock} = $mock;
 
 }
-
+ 
 sub pretest_setup : Test(setup) {
 
     my $self = shift;
@@ -130,11 +165,6 @@ sub test_compile_nodes : Tests {
     my @nodes = @{ $self->{nodes_under_test} };
     $self->num_tests( scalar @nodes );
 
-    local *Everything::HTML::logErrors;
-    local *Everything::logErrors;
-    my $err = '';
-    *Everything::HTML::logErrors = sub { $err .= "@_"; };
-    *Everything::logErrors       = sub { $err .= "@_"; };
     my %successful_nodes;
 
     foreach (@nodes) {
@@ -167,32 +197,16 @@ sub test_execute_htmlcode_nodes : Tests {
     my @nodes_to_test = grep { $$compilable{ $_->{node_id} } } @$test_nodes;
     $self->num_tests( scalar(@nodes_to_test) * 2 );
 
-    local *Everything::HTML::logErrors;
-    local *Everything::logErrors;
-
-    my $err;
-
-    my $error_code = sub {
-        my ( $warn, $error, $text, $node ) = @_;
-	return unless $error; # error contains reasons for  'die-ing'
-        $err .= join "\n", $warn, $error, $text, $$node{title};
-        $err .= "\n" . '#' x 30;
-        $err .= "\n\n";
-    };
-
-    *Everything::HTML::logErrors = $error_code;
-    *Everything::logErrors       = $error_code;
-
     $mock->{node_id} = 123;
     $mock->{to_node} = 456;
     my @args;
 
     foreach (@nodes_to_test) {
-        $err = '';
 
         my $node = $self->{nodebase}->getNode($_);
 
-        diag "\nNow testing htmlcode named '$$node{title}'.\n\n";
+	$err =  [];
+
         my @args = ();
 
         if ( $$node{title} eq 'formatCols' ) {
@@ -201,9 +215,8 @@ sub test_execute_htmlcode_nodes : Tests {
 
         my $ehtml = Everything::HTML->new( { request => $mock } );
         my $rv = $node->run( { args => \@args, ehtml => $ehtml } );
-        ok( !$err,
-"...execute node $$node{title}, type $$node{type}{title}, id, $$node{node_id}"
-        ) || diag $err;
+
+	test_node_error( $node );
 
         my $linter = HTML::Lint->new;
         $linter->only_types( 'HTML::Lint::Error::HELPER',
@@ -234,35 +247,20 @@ sub test_execute_opcode_nodes : Tests {
     my @nodes_to_test = grep { $$compilable{ $_->{node_id} } } @$test_nodes;
     $self->num_tests( scalar(@nodes_to_test) );
 
-    local *Everything::HTML::logErrors;
-    local *Everything::logErrors;
-
-    my $err;
-
-    my $error_code = sub {
-        my ( $warn, $error, $text, $node ) = @_;
-        $err .= join "\n", $warn, $error, $text, $$node{title};
-        $err .= "\n" . '#' x 30;
-        $err .= "\n\n";
-    };
-
-    *Everything::HTML::logErrors = $error_code;
-    *Everything::logErrors       = $error_code;
-
     $mock->{group} = [];
 
     foreach (@nodes_to_test) {
         $err                     = '';
         $Everything::HTML::GNODE = $mock;
         my $node = $self->{nodebase}->getNode($_);
-        diag "\nNow testing 'opcode' named '$$node{title}'.\n\n";
+
         my @args = ();
 
         # opcodes are only passed the request object as the only argument
         my $rv = $node->run( { args => [$mock] } );
-        ok( !$err,
-"...execute node $$node{title}, type $$node{type}{title}, id, $$node{node_id}"
-        ) || diag $err;
+
+	test_node_error( $node );
+
     }
 }
 
@@ -352,31 +350,16 @@ sub test_parse_eval_nodes {
     my @nodes_to_test = grep { $$compilable{ $_->{node_id} } } @$test_nodes;
     $self->num_tests( scalar(@nodes_to_test) * 10 );
 
-    local *Everything::HTML::logErrors;
-    local *Everything::logErrors;
-
-    my $err;
-
-    my $error_code = sub {
-        my ( $warn, $error, $text, $node ) = @_;
-        $err .= join "\n", $warn, $error, $text, $$node{title};
-        $err .= "\n" . '#' x 30;
-        $err .= "\n\n";
-    };
-
-    *Everything::HTML::logErrors = $error_code;
-    *Everything::logErrors       = $error_code;
-
     my $setup_parser = setup_parser();
 
     foreach (@nodes_to_test) {
-        $err = '';
+
 
         my $node = $self->{nodebase}->getNode($_);
 
-        diag "\nNow testing $nodetype named '$$node{title}'.\n\n";
-
         foreach my $parsetype (qw/TEXT PERL HTMLCODE HTMLSNIPPET ALL/) {
+
+	    $err = [];
 
             $setup_parser->( $parsetype, $node );
 
@@ -384,9 +367,8 @@ sub test_parse_eval_nodes {
 
             my $ehtml = Everything::HTML->new( { request => $mock } );
             my $rv = $node->run( { args => \@args, ehtml => $ehtml } );
-            ok( !$err,
-"...execute node $$node{title}, type $$node{type}{title}, id, $$node{node_id}"
-            ) || diag $err;
+
+	    test_node_error( $node );
 
             my $linter = HTML::Lint->new;
             $filterlinter_cb->( $linter, $node ) if $filterlinter_cb;
