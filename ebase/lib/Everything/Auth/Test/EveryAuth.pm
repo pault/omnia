@@ -165,7 +165,7 @@ sub test_confirm_user : Test(3) {
       { title => $name, passwd => $pw, lasttime => 'timestamp' };
     my $crypted = crypt( $pw, $name );
     $mock->set_series( 'getNode', undef, $expected_rv );
-    $mock->set_true('getType');
+    $mock->set_true('getType', 'now');
     $mock->set_always( 'sqlSelect', 'timestamp' );
 
     my $confirmUser = \&{ $class . '::confirmUser' };

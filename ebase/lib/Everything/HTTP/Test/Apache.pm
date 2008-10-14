@@ -24,6 +24,7 @@ sub test_startup : Test(startup => 1) {
     $mock->set_true(qw/content/)
       ->set_always( content_type => 'a mime type' )
       ->set_always( 'content', 'the html body' );
+    $mock->set_list('-headers', ()  );
 
     $mock->set_always( status_code => 0 );
     $self->{class} = $self->module_class;

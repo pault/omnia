@@ -26,7 +26,7 @@ sub test_handle : Test(16) {
         'setup_standard_system_vars', '-get_initializer',
         'set_cgi_standard',           'set_node_from_cgi',
         'setup_everything_html',      'authorise_user',
-        'execute_opcodes',            'print'
+        'execute_opcodes',            'print', '-content_type'
     );
     $mock->set_series( 'isOfType', 0, 0, 1, 1, 0, 1, 1, 0 );
 

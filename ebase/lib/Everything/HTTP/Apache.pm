@@ -73,12 +73,6 @@ sub handler {
     ### XXX- response factory should set up the environment that htmlpage needs
 
     my $response = Everything::HTTP::ResponseFactory->new( $e->get_response_type || 'htmlpage',  { config => $config, request => $e } );
-
-    ### new actually creates the response - so get rid of 'create http body'
-    ### check response code
-    ### check headers
-    ### check content
-    ### return status_code
     
     my $html = $response->content();
 

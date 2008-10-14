@@ -12,11 +12,15 @@ my $ball = '../ecore';
 
 my $config_file = config_file();
 
+my @config_args;
+
+push @config_args, file => $config_file if -e $config_file;
+
 my $skip = skip_cond();
 
 Everything::Test::Ecore::Install->SKIP_CLASS( $skip ) if $skip;
 
-my $config = Everything::Config->new( file => $config_file );
+my $config = Everything::Config->new( @config_args );
 
 my $tests = Everything::Test::Ecore::Install->new( nodeball => abs_path( $ball ), config => $config );
 

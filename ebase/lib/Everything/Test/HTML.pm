@@ -32,6 +32,8 @@ sub startup : Test(startup => 1) {
     $mock->fake_module('Everything::Auth');
     $mock->fake_module( 'Everything', logErrors => sub { push @le, [@_] } );
 
+    $mock->set_true( qw/get_user set_message/ );
+
     $self->{mock}  = $mock;
     $self->{class} = $class;
     use_ok($class) or die;
@@ -565,7 +567,7 @@ sub mock_everything_request {
      my $package = $self->{class};
      my $mock    = $self->mock_everything_request;
 
-
+     $mock->set_true('set_message');
      $mock->{node_id} = 999; #prevents warning;
      $mock->set_always( -isGod => 'randomdata' );
     my $list_flag = 0;

@@ -96,6 +96,7 @@ sub fake_dbh {
 
     $self->{instance}->{dbh}->set_true('finish',  'do', '-begin_work', '-rollback', '-commit');
 
+    $self->{instance}->{dbh}->set_false(qw/-err/);
 }
 
 

@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+use lib 't/lib';
+use DBTestUtil qw/config_file skip_cond/;
 use Everything::DB::Test::Live;
 use strict;
 use warnings;
@@ -10,7 +12,13 @@ my $RUN_TESTS = -e 't/lib/db/run-tests';
 
 my $msg;
 
-my $config = Everything::Config->new( file => 't/lib/db/mysql.conf' );
+my $config_file = config_file();
+
+my @config_args;
+
+push @config_args, file => $config_file if -e $config_file;
+
+my $config = Everything::Config->new( @config_args );
 
 if ( ! $RUN_TESTS ) {
 

@@ -1072,7 +1072,7 @@ sub cleanUpDir {
 
     #don't let this bite you in the ass
 
-    return unless ( -e $dir and -d $dir and !( -l $dir ) );
+    return unless ( defined $dir and -e $dir and -d $dir and !( -l $dir ) );
     use File::Path;
     rmtree($dir);
 }

@@ -8,6 +8,7 @@ use base 'Test::Class';
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
+use Test::Warn;
 
 use Scalar::Util 'blessed';
 
@@ -124,7 +125,7 @@ sub test_join_workspace :Test( 6 )
 		'... reblessing into workspace package' );
 }
 
-sub test_build_nodetype_modules :Test( 2 )
+sub test_build_nodetype_modules :Test( 3 )
 {
 	my $self    = shift;
 	my $nb      = $self->{nb};
@@ -137,7 +138,9 @@ sub test_build_nodetype_modules :Test( 2 )
 	);
 	$storage->set_always( getFieldsHash => '' );
 
-	my $result  = $nb->buildNodetypeModules();
+	my $result;
+
+	warning_like { $result = $nb->buildNodetypeModules() } qr/no such nodetype/i;
 	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
 	is_deeply(
 		$result,

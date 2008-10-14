@@ -289,6 +289,8 @@ sub addFieldToTable {
 
         # Text blobs cannot have default strings.  They need to be empty.
         $default = "";
+    } elsif ( not defined $default ) {
+	$default = '';
     }
 
     $sql = "alter table \"$table\" add $fieldname $type";
