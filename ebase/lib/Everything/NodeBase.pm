@@ -357,6 +357,106 @@ sub newNode
 	return $this->getNode( $title, $type, 'create force' );
 }
 
+=head2 store_new_node
+
+Stores/saves the node in nodebase for later retrieval.
+
+Takes a blessed node object as its first argument, and a node user object as its second.
+
+Returns the node identifier on success false otherwise.
+
+=cut
+
+sub store_new_node {
+
+        my ( $this, $node, $user ) = @_;
+
+	my $node_id = $node->get_node_id;
+
+	my ( $user_id, %tableData );
+
+	$user_id = $user->getId() if eval { $user->isa( 'Everything::Node' ) };
+
+	$user_id ||= $user;
+
+	return 0 unless $node->hasAccess( $user, 'c' ) and $node->restrictTitle();
+
+	# If the node_id greater than zero, this has already been inserted and
+	# we are not forcing it.
+	return $node_id if $node_id > 0;
+
+	if ( $node->get_type->{restrictdupes} )
+	{
+		# Check to see if we already have a node of this title.
+		my $id = $node->get_type->getId();
+
+		my $DUPELIST =
+			$this
+			->sqlSelect( 'count(*)', 'node', 'title = ? AND type_nodetype = ?',
+			'', [ $node->get_title, $id ] );
+
+		# A node of this name already exists and restrict dupes is
+		# on for this nodetype.  Don't do anything
+		return 0 if $DUPELIST;
+	}
+
+	# First, we need to insert the node table row.  This will give us
+	# the node id that we need to use.  We need to set up the data
+	# that is going to be inserted into the node table.
+	foreach ( $this->getFields('node') )
+	{
+		$tableData{$_} = $node->{$_} if exists $node->{$_};
+	}
+	delete $tableData{node_id};
+	$tableData{-createtime} = $this->now();
+
+	# Assign the author_user to whoever is trying to insert this.
+	# Unless, an author has already been specified.
+	$tableData{author_user} ||= $user_id;
+	$tableData{hits} = 0;
+
+	# Fix location hell
+	my $loc = $this->getNode( $node->get_type->get_title, "location" );
+	$tableData{loc_location} = $loc->getId() if $loc;
+
+	$this->sqlInsert( 'node', \%tableData );
+
+	# Get the id of the node that we just inserted!
+	$node_id = $this->lastValue( 'node', 'node_id' );
+
+	# Now go and insert the appropriate rows in the other tables that
+	# make up this nodetype;
+	my $tableArray = $node->get_type->getTableArray();
+	foreach my $table (@$tableArray)
+	{
+		my @fields = $this->getFields($table);
+
+		my %tableData;
+		$tableData{ $table . "_id" } = $node_id;
+		foreach (@fields)
+		{
+			$tableData{$_} = $node->{$_} if exists $node->{$_};
+		}
+
+		$this->sqlInsert( $table, \%tableData );
+	}
+
+	# Now that it is inserted, we need to force get it.  This way we
+	# get all the fields.  We then clear the $this hash and copy in
+	# the info from the newly inserted node.  This way, the user of
+	# the API just calls $NODE->insert() and their node gets filled
+	# out for them.  Woo hoo!
+	my $newNode = $this->getNode( $node_id, 'force' );
+	undef %$node;
+	@$node{ keys %$newNode } = values %$newNode;
+
+	# Cache this node since it has been inserted.  This way the cached
+	# version will be the same as the node in the db.
+	$node->cache();
+
+	return $node_id;
+}
+
 =head2 C<getNode>
 
 This is the one and only function needed to get a single node.  If any function
