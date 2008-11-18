@@ -457,6 +457,83 @@ sub store_new_node {
 	return $node_id;
 }
 
+=head2 update_stored_node
+
+Updates a node that has been stored in the nodebase database.
+
+It takes three arguments:
+
+=over
+
+=item node
+
+The node object that is being updated
+
+=item user
+
+The user object against which permissions are checked
+
+=item options
+
+A hash reference of options.  Currently the allowed options are:
+
+=over
+
+=item NOMODIFIED
+
+If set to true then does not update the 'modified' attribute.
+
+=back
+
+=back
+
+=cut
+sub update_stored_node {
+
+        my ( $this, $node, $USER, $options ) = @_;
+
+	my $nomodified = $$options{ NOMODIFIED };
+
+	return 0 unless $node->hasAccess( $USER, 'w' );
+
+	if (    exists $this->{workspace}
+		and $node->canWorkspace()
+		and $this->{workspace}{nodes}{ $node->{node_id} } ne 'commit' )
+	{
+		my $id = $node->updateWorkspaced($USER);
+		return $id if $id;
+	}
+
+	# Cache this node since it has been updated.  This way the cached
+	# version will be the same as the node in the db.
+	$this->{cache}->incrementGlobalVersion($node);
+	$node->cache();
+	$node->{modified} = $this->sqlSelect( $this->now() )
+		unless $nomodified;
+
+	# We extract the values from the node for each table that it joins
+	# on and update each table individually.
+	my $tableArray = $node->{type}->getTableArray(1);
+	foreach my $table (@$tableArray)
+	{
+		my %VALUES;
+
+		my @fields = $this->getFields($table);
+		foreach my $field (@fields)
+		{
+			$VALUES{$field} = $node->{$field} if exists $node->{$field};
+		}
+
+		$this->sqlUpdate(
+			$table, \%VALUES,
+			"${table}_id = ?",
+			[ $node->{node_id} ]
+		);
+	}
+
+	return $node->{node_id};
+}
+
 =head2 C<getNode>
 
 This is the one and only function needed to get a single node.  If any function

@@ -78,44 +78,7 @@ sub update
 {
 	my ( $this, $USER, $nomodified ) = @_;
 
-	return 0 unless $this->hasAccess( $USER, 'w' );
-
-	if (    exists $this->{DB}->{workspace}
-		and $this->canWorkspace()
-		and $this->{DB}->{workspace}{nodes}{ $this->{node_id} } ne 'commit' )
-	{
-		my $id = $this->updateWorkspaced($USER);
-		return $id if $id;
-	}
-
-	# Cache this node since it has been updated.  This way the cached
-	# version will be the same as the node in the db.
-	$this->{DB}->{cache}->incrementGlobalVersion($this);
-	$this->cache();
-	$this->{modified} = $this->{DB}->sqlSelect( $this->{DB}->now() )
-		unless $nomodified;
-
-	# We extract the values from the node for each table that it joins
-	# on and update each table individually.
-	my $tableArray = $this->{type}->getTableArray(1);
-	foreach my $table (@$tableArray)
-	{
-		my %VALUES;
-
-		my @fields = $this->{DB}->getFields($table);
-		foreach my $field (@fields)
-		{
-			$VALUES{$field} = $this->{$field} if exists $this->{$field};
-		}
-
-		$this->{DB}->sqlUpdate(
-			$table, \%VALUES,
-			"${table}_id = ?",
-			[ $this->{node_id} ]
-		);
-	}
-
-	return $this->{node_id};
+	$this->get_nodebase->update_stored_node( $this, $USER, { NOMODIFIED => $nomodified } );
 }
 
 =head2 C<nuke>

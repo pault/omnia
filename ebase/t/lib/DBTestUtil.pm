@@ -2,8 +2,9 @@ package DBTestUtil;
 
 use base 'Exporter';
 use Everything::Config;
+use Test::More;
 
-our @EXPORT_OK = qw/config_file drop_database skip_cond nodebase/;
+our @EXPORT_OK = qw/config_file drop_database skip_cond nodebase update_node_tests/;
 
 
 sub config_file {
@@ -70,3 +71,48 @@ sub nodebase {
 
 
 }
+
+sub update_node_tests {
+
+    my $skip = skip_cond();
+    my ( $nodebase, $count );
+
+    if ($skip) {
+        plan skip_all => $skip;
+    }
+    else {
+
+        $nodebase = nodebase();
+        $count = $nodebase->countNodeMatches( {} );
+        plan tests => $count * 2;
+
+    }
+
+## For more sophisticated tests later.
+    # my %test_fields = (
+    # 		 container => 'context',
+    # 		 htmlcode => 'code',
+    # 		 htmlpage => 'page',
+    # 		 htmlsnippet => 'code',
+    # 		 image => 'src',
+    # 		 javascript => 'code',
+    # 		 mail => 'doctext',
+    # 		 nodelet => 'nlcode',
+    # 		 nodemethod => 'code',
+    # 		 opcode => 'code',
+    # 		 restricted_supercode => 'doctext',
+    # 		 superdoc => 'doctext',
+    #);
+
+    my $user = $nodebase->getNode( 'root', 'user' );
+
+    for ( 1 .. $count ) {
+        my $node = $nodebase->getNode($_);
+        $node->set_hits($_);
+        ok( $node->update($user), '..updates ok.' );
+        is( $node->get_hits, $_, '..the updated field is set value.' );
+    }
+
+}
+
+1;
