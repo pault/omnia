@@ -534,6 +534,112 @@ sub update_stored_node {
 	return $node->{node_id};
 }
 
+=head2 delete_stored_node
+
+Deletes a persistent node and all references to it in the nodebase.
+
+This method takes two arguments:
+
+=over
+
+=item node
+
+The node to be delete
+
+=item user
+
+The user node object that is attempting to carry out the deletion
+
+=back
+
+=cut
+
+sub delete_stored_node {
+
+        my ( $this, $node, $USER ) = @_;
+	my $result = 0;
+
+	$this->getRef($USER) unless $USER eq '-1';
+
+	return 0 unless $node->hasAccess( $USER, 'd' );
+
+	my $id = $node->getId();
+
+	# Remove all links that go from or to this node that we are deleting
+	$this->sqlDelete( 'links', 'to_node=? OR from_node=?', [ $id, $id ] );
+
+	# Remove all revisions of this node
+	$this->sqlDelete( 'revision', 'node_id = ?', [ $node->{node_id} ] );
+
+	# Now lets remove this node from all nodegroups that contain it.  This
+	# is a bit more complicated than removing the links as nodegroup types
+	# can specify their own group table if desired.  This needs to find
+	# all used group tables and check for the existance of this node in
+	# any of those groups.
+	foreach my $TYPE ( $this->getAllTypes() )
+	{
+		my $table = $TYPE->isGroupType();
+		next unless $table;
+
+		# This nodetype is a group.  See if this node exists in any of its
+		# tables.
+		my $csr =
+			$this
+			->sqlSelectMany( "${table}_id", $table, 'node_id = ?', undef,
+			[ $node->{node_id} ] );
+
+		if ($csr)
+		{
+			my %GROUPS;
+			while ( my $group = $csr->fetchrow() )
+			{
+
+				# For each entry, mark each group that this node belongs
+				# to.  A node may be in a the same group more than once.
+				# This prevents us from working with the same group node
+				# more than once.
+				$GROUPS{$group} = 1;
+			}
+			$csr->finish();
+
+			# Now that we have a list of which group nodes that contains
+			# this node, we are free to delete all rows from the node
+			# table that reference this node.
+			$this
+				->sqlDelete( $table, 'node_id = ?', [ $node->{node_id} ] );
+
+			foreach ( keys %GROUPS )
+			{
+
+				# Lastly, for each group that contains this node in its
+				# group, we need to increment its global version such
+				# that it will get reloaded from the database the next
+				# time it is used.
+				my $GROUP = $this->getNode($_);
+				$this->{cache}->incrementGlobalVersion($GROUP);
+			}
+		}
+	}
+
+	# Actually remove this node from the database.
+	my $tableArray = $node->{type}->getTableArray(1);
+	foreach my $table (@$tableArray)
+	{
+		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
+	}
+
+	# Now we can remove the nuked node from the cache so we don't get
+	# stale data.
+	$this->{cache}->incrementGlobalVersion($node);
+	$this->{cache}->removeNode($node);
+
+	# Clear out the node id so that we can tell this is a "non-existant" node.
+	$node->{node_id} = 0;
+
+	return $result;
+
+}
+
 =head2 C<getNode>
 
 This is the one and only function needed to get a single node.  If any function
