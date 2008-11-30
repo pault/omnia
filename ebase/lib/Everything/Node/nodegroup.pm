@@ -322,7 +322,7 @@ sub nuke
 	my $sql;
 	my $table = $this->isGroup();
 
-	$this->{DB}->getRef($USER);
+	$this->{DB}->getRef($USER) unless $USER eq '-1';
 	return 0 unless $this->hasAccess( $USER, 'd' );
 
 	$$this{DB}->sqlDelete( $table, $table . "_id=$this->{node_id}" );
