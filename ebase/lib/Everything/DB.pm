@@ -607,12 +607,6 @@ sub constructNode
 
 	@$NODE{ keys %$DATA } = values %$DATA;
 
-	# Make sure each field is at least defined to be nothing.
-	foreach ( keys %$NODE )
-	{
-		$$NODE{$_} = "" unless defined( $$NODE{$_} );
-	}
-
 	$this->fix_node_keys($NODE);
 	return 1;
 }
