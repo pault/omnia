@@ -204,10 +204,7 @@ sub test_50_verify_nodes_attributes : Tests {
 
             if ( $att_type eq 'literal_value' ) {
 
-                ## the line below makes undef an empty string to deal
-                ## with the way database tables are created at the
-                ## moment.
-                my $content = defined $_->get_content ? $_->get_content : '';
+                my $content = $_->get_content;
 
                 is( $node->{$att_name}, $content,
 "...test node: '$node_title' of type '$node_type', attribute '$att_name'."

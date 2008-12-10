@@ -10,11 +10,6 @@ $color;
  $this-&gt;link_node($_[0]); 
 %]&amp;gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 CONTAINED_STUFF</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>

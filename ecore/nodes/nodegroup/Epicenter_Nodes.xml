@@ -1,16 +1,11 @@
 <NODE export_version="0.5" nodetype="nodegroup" title="Epicenter Nodes">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Everything settings</member>
     <member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Gigantic Node Lister</member>
     <member name="group_node" type="noderef" type_nodetype="superdoc,nodetype">Super Search</member>
   </group>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodegroup</field>

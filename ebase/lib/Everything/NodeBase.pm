@@ -733,11 +733,6 @@ sub getNode
 				groupaccess              => 'iiiii',
 				otheraccess              => 'iiiii',
 				guestaccess              => 'iiiii',
-				group_usergroup          => -1,
-				dynamicauthor_permission => -1,
-				dynamicgroup_permission  => -1,
-				dynamicother_permission  => -1,
-				dynamicguest_permission  => -1,
 			};
 
 			# We do not want to cache dummy nodes

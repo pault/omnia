@@ -2,12 +2,7 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">Guest User</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value"></field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="email" type="literal_value">Nobody@nobody.com</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="inside_workspace" type="literal_value">0</field>

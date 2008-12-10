@@ -553,10 +553,15 @@ sub parseBasicTag
 	my $ATTRS = $TAG->getAttributes();
 	my $type  = $ATTRS->{type}->getValue();
 	my $name  = $ATTRS->{name}->getValue();
+	my $isNull;
+	$isNull++ if $ATTRS->{null};
 
 	$PARSEDTAG{name} = $name;
 
-	if ( $type eq 'noderef' )
+	if ( $isNull) {
+	    $PARSEDTAG{$name} = undef;
+	}
+	elsif ( $type eq 'noderef' )
 	{
 		my %WHERE;
 

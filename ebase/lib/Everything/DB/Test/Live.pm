@@ -211,7 +211,6 @@ sub test_sql_execute :Test(1) {
 my @nodes = (
 	     { title => 'nodetype',
 	       type_nodetype => 1,
-	       author_user => -1,
 #	       modified => undef,
 	       authoraccess => 'iiii',
 	       groupaccess => 'rwxdc',
@@ -236,21 +235,15 @@ my @nodes = (
 	       defaultgroup_permission => 0,
 	       defaultother_permission => 0,
 	       defaultguest_permission => 0,
-	       maxrevisions => -1,
 	       canworkspace => 0
 	     },
 	     { title => 'node',
 	       type_nodetype => 1,
-	       author_user => -1,
 #	       modified => undef, temporarily disabled
 	       authoraccess => 'rwxd',
 	       groupaccess => '-----',
 	       otheraccess => '-----',
 	       guestaccess => '-----',
-	       dynamicauthor_permission => -1,
-	       dynamicgroup_permission => -1,
-	       dynamicother_permission => -1,
-	       dynamicguest_permission => -1,
 	       group_usergroup => 0,
 	       restrict_nodetype => 0,
 	       extends_nodetype => 0,
@@ -271,7 +264,6 @@ my @nodes = (
 	     },
 	     { title => 'setting',
 	       type_nodetype => 1,
-	       author_user => -1,
 #	       modified => undef, temporarily disabled
 	       authoraccess => 'rwxd',
 	       groupaccess => '-----',
@@ -296,8 +288,6 @@ my @nodes = (
 	       defaultgroup_permission => 0,
 	       defaultother_permission => 0,
 	       defaultguest_permission => 0,
-	       maxrevisions => -1,
-	       canworkspace => -1
 	     }
 );
 
