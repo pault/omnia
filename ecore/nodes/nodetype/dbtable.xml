@@ -11,17 +11,12 @@
   <field name="defaultguestaccess" type="literal_value">-----</field>
   <field name="defaultother_permission" type="literal_value">0</field>
   <field name="defaultotheraccess" type="literal_value">-----</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
   <field name="extends_nodetype" type="noderef" type_nodetype="nodetype,nodetype">node</field>
   <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="grouptable" type="literal_value"></field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodetype</field>
-  <field name="maxrevisions" type="literal_value">-1</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="restrict_nodetype" type="literal_value">0</field>
   <field name="restrictdupes" type="literal_value">1</field>

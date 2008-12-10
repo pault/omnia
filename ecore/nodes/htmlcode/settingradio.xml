@@ -34,11 +34,6 @@ if (defined $query-&gt;param($param)) {
 
 $query-&gt;radio_group($param, [0,1], $$V{$field}, '', {0 =&gt; $labeloff, 1 =&gt; $labelon});
 </field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>

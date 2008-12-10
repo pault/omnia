@@ -336,7 +336,7 @@ sub test_select_nodegroup_flat :Test( 10 )
 	( $method, $args ) = $group_node->next_call();
 	is( $method, 'selectNodegroupFlat', '... fetching group nodes' );
 	is( $args->[1], $traversed, '... passing traversed hash' );
-	is( join( ' ', @$result ), '4 5', '... returning list of contained nodes' );
+	is( join( ' ', @$result ), "$group_node 4 5", '... returning list of contained nodes' );
 	is( $node->{flatgroup}, $result, '... and caching group' );
 }
 

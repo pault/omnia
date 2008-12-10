@@ -446,7 +446,7 @@ sub selectNodegroupFlat
 		if ( $NODE->isGroup() )
 		{
 			my $group = $NODE->selectNodegroupFlat($groupsTraversed);
-			push @nodes, @$group if defined $group;
+			push @nodes, $NODE, @$group if defined $group;
 		}
 		else
 		{

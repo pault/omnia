@@ -7,11 +7,6 @@ $query-&gt;start_form(&quot;POST&quot;, $query-&gt;script_name) .
 $query-&gt;p(
 $query-&gt;hidden(&quot;displaytype&quot;) .
 $query-&gt;hidden(&quot;node_id&quot;, $NODE-&gt;get_node_id) );</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>
