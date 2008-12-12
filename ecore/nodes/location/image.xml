@@ -3,7 +3,7 @@
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
-  <field name="loc_location" type="literal_value">0</field>
+  <field name="loc_location" type="noderef" type_nodetype="location,nodetype">location</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="title" type="literal_value">image</field>
   <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">location</field>

@@ -751,6 +751,7 @@ sub install_base_nodes {
 
 }
 
+# XXXXXXXXXXXXXXXx - need to create view 'node'
 sub base_tables {
     return (
         q{CREATE TABLE "setting" (
@@ -758,7 +759,190 @@ sub base_tables {
   "vars" text default '',
   PRIMARY KEY ("setting_id")
 )},
-        q{CREATE TABLE "node" (
+        q{CREATE TABLE "nodetype" (
+  "nodetype_id" serial NOT NULL,
+  "restrict_nodetype" bigint,
+  "extends_nodetype" bigint,
+  "restrictdupes" bigint,
+  "sqltable" character(255),
+  "grouptable" character(40),
+  "defaultauthoraccess" character(4) DEFAULT 'iiii' NOT NULL,
+  "defaultgroupaccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "defaultotheraccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "defaultguestaccess" character(5) DEFAULT 'iiiii' NOT NULL,
+  "defaultgroup_usergroup" bigint,
+  "defaultauthor_permission" bigint,
+  "defaultgroup_permission" bigint,
+  "defaultother_permission" bigint,
+  "defaultguest_permission" bigint,
+  "maxrevisions" bigint,
+  "canworkspace" bigint,
+  PRIMARY KEY ("nodetype_id")
+)},
+
+q{
+
+CREATE TABLE "node_basic" (
+node_id  bigserial UNIQUE NOT NULL,
+type_nodetype bigint,
+createtime timestamp NOT NULL,
+PRIMARY KEY (node_id)
+)
+},
+q{
+CREATE TABLE "node_author" (
+author_user bigint REFERENCES node_basic(node_id) ON DELETE RESTRICT,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY("node_id")
+)
+},
+q{
+
+CREATE TABLE "node_modified" (
+modified timestamp,
+node_id bigint NOT NULL REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (node_id)
+)
+
+},
+
+q{
+
+CREATE TABLE "node_title" (
+title varchar(240),
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (node_id)
+)
+
+},
+
+q{
+
+CREATE TABLE "node_hits" (
+hits bigint NOT NULL DEFAULT 0,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (node_id)
+
+)
+
+},
+
+q{
+
+CREATE TABLE "node_location" (
+loc_location bigint REFERENCES node_basic(node_id) ON DELETE RESTRICT,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (node_id)
+)
+
+},
+q{
+
+CREATE TABLE "node_reputation" (
+reputation bigint NOT NULL DEFAULT 0,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (node_id)
+)
+
+},
+
+q{ CREATE TABLE "node_lock" (
+locktime timestamp NOT NULL,
+lockby_user bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (node_id)
+)
+},
+q{
+CREATE TABLE "node_access" (
+usertype varchar(10) NOT NULL,
+permissiontype char(1) NOT NULL,
+permission boolean NOT NULL,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (usertype, permissiontype, node_id)
+)
+},
+q{
+CREATE TABLE "node_dynamicpermission" (
+usertype varchar(10) NOT NULL,
+permission bigint REFERENCES node_basic(node_id) ON DELETE RESTRICT,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY (usertype, node_id)
+)
+},
+
+q{
+CREATE FUNCTION dynamicpermission ( bigint, text ) RETURNS bigint AS $$
+
+SELECT permission FROM node_dynamicpermission WHERE usertype = $2 and node_id = $1; 
+
+$$ LANGUAGE SQL;
+},
+
+q{
+CREATE TABLE "node_usergroup" (
+group_usergroup bigint REFERENCES node_basic(node_id) ON DELETE RESTRICT,
+node_id bigint REFERENCES node_basic(node_id) ON DELETE CASCADE,
+PRIMARY KEY("node_id")
+)
+},
+q{
+CREATE OR REPLACE FUNCTION nodepermissions(bigint, varchar) RETURNS text AS $$
+
+SELECT CASE ( SELECT permission from node_access where permissiontype = 'r' and node_id = $1 and usertype = $2 ) WHEN TRUE THEN 'r' WHEN FALSE THEN '-' ELSE 'i' END
+||
+CASE ( SELECT permission from node_access where permissiontype = 'w' and node_id = $1 and usertype = $2 ) WHEN TRUE THEN 'w' WHEN FALSE THEN '-' ELSE 'i' END
+||
+CASE ( SELECT permission from node_access where permissiontype = 'x' and node_id = $1 and usertype = $2 ) WHEN TRUE THEN 'x' WHEN FALSE THEN '-' ELSE 'i' END
+||
+CASE ( SELECT permission from node_access where permissiontype = 'd' and node_id = $1 and usertype = $2 ) WHEN TRUE THEN 'd' WHEN FALSE THEN '-' ELSE 'i' END
+||
+CASE WHEN $2 = 'author' THEN '' ELSE ( CASE ( SELECT permission from node_access where permissiontype = 'c' and node_id = $1 and usertype = $2 ) WHEN TRUE THEN 'c' WHEN FALSE THEN '-' ELSE 'i' END)
+END;
+
+$$ LANGUAGE SQL;
+},
+
+q{
+CREATE VIEW "node" AS
+  SELECT node_basic.node_id AS node_id, node_basic.type_nodetype, node_basic.createtime,
+         node_author.author_user,
+         node_title.title,
+         node_modified.modified,
+         node_hits.hits,
+         node_location.loc_location,
+         node_reputation.reputation,
+         node_lock.locktime,
+         node_lock.lockby_user,
+         nodepermissions( node_basic.node_id, 'author') AS authoraccess,
+         nodepermissions( node_basic.node_id, 'group') AS groupaccess,
+         nodepermissions( node_basic.node_id, 'other') AS otheraccess,
+         nodepermissions( node_basic.node_id, 'guest') AS guestaccess,
+         dynamicpermission( node_basic.node_id, 'author' ) as dynamicauthor_permission,
+         dynamicpermission( node_basic.node_id, 'group' ) as dynamicgroup_permission,
+         dynamicpermission( node_basic.node_id, 'other' ) as dynamicother_permission,
+         dynamicpermission( node_basic.node_id, 'guest' ) as dynamicguest_permission,
+         node_usergroup.group_usergroup
+  FROM
+    node_basic
+  LEFT JOIN
+    node_author ON node_basic.node_id = node_author.node_id
+  LEFT JOIN
+    node_modified ON node_modified.node_id = node_basic.node_id
+  LEFT JOIN
+    node_title ON node_basic.node_id = node_title.node_id
+  LEFT JOIN
+    node_hits ON node_basic.node_id = node_hits.node_id
+  LEFT JOIN
+    node_location ON node_basic.node_id = node_location.node_id
+  LEFT JOIN
+    node_reputation ON node_basic.node_id = node_reputation.node_id
+  LEFT JOIN
+    node_lock ON node_basic.node_id = node_lock.node_id
+  LEFT JOIN
+    node_usergroup ON node_basic.node_id = node_usergroup.node_id;
+},
+        q{CREATE TABLE "node2" (
   "node_id" serial UNIQUE NOT NULL,
   "type_nodetype" bigint,
   "title" character(240),
@@ -781,29 +965,80 @@ sub base_tables {
   "group_usergroup" bigint,
   PRIMARY KEY ("node_id")
 )},
+q{
+CREATE OR REPLACE FUNCTION insert_permissions (bigint, text, text) RETURNS VOID AS $$
+
+INSERT INTO node_access ( node_id, usertype, permissiontype, permission )
+SELECT
+$1,
+$2,
+'r',
+CASE substring( $3 from 1 for 1 ) WHEN 'r' THEN TRUE ELSE FALSE END 
+WHERE substring( $3 from 1 for 1 ) <> 'i';
+
+INSERT INTO node_access ( node_id, usertype, permissiontype, permission )
+SELECT
+$1,
+$2,
+'w',
+CASE substring( $3 from 2 for 1 ) WHEN 'w' THEN TRUE ELSE FALSE END 
+WHERE substring( $3 from 2 for 1 ) <> 'i';
+
+INSERT INTO node_access ( node_id, usertype, permissiontype, permission )
+SELECT
+$1,
+$2,
+'x',
+CASE substring( $3 from 3 for 1 ) WHEN 'x' THEN TRUE ELSE FALSE END 
+WHERE substring( $3 from 3 for 1 ) <> 'i';
+
+INSERT INTO node_access ( node_id, usertype, permissiontype, permission )
+SELECT
+$1,
+$2,
+'d',
+CASE substring( $3 from 4 for 1 ) WHEN 'd' THEN TRUE ELSE FALSE END 
+WHERE substring( $3 from 4 for 1 ) <> 'i';
+
+INSERT INTO node_access ( node_id, usertype, permissiontype, permission )
+SELECT
+$1,
+$2,
+'c',
+CASE substring( $3 from 5 for 1 ) WHEN 'c' THEN TRUE ELSE FALSE END 
+WHERE substring( $3 from 5 for 1 ) <> '' AND substring( $3 from 5 for 1 ) <> 'i';
+
+
+$$ LANGUAGE SQL;
+
+}
+,
+q{
+CREATE RULE _insert_node AS ON INSERT TO node
+DO INSTEAD (
+INSERT INTO node_basic ( type_nodetype, createtime ) VALUES ( NEW.type_nodetype, now() );
+INSERT INTO node_author (author_user, node_id ) SELECT NEW.author_user, currval('node_basic_node_id_seq') WHERE NEW.author_user IS NOT NULL;
+INSERT INTO node_title (title, node_id ) SELECT NEW.title, currval('node_basic_node_id_seq') WHERE NEW.title IS NOT NULL;
+INSERT INTO node_hits (hits, node_id )  SELECT NEW.hits, currval('node_basic_node_id_seq') WHERE NEW.hits IS NOT NULL;
+INSERT INTO node_location (loc_location, node_id ) SELECT NEW.loc_location, currval('node_basic_node_id_seq') WHERE NEW.loc_location IS NOT NULL;
+INSERT INTO node_reputation (reputation, node_id ) SELECT NEW.reputation, currval('node_basic_node_id_seq') WHERE NEW.reputation IS NOT NULL;
+INSERT INTO node_lock (locktime, lockby_user, node_id ) SELECT NEW.locktime, NEW.lockby_user, currval('node_basic_node_id_seq') WHERE NEW.locktime IS NOT NULL;
+INSERT INTO node_usergroup (group_usergroup, node_id ) SELECT NEW.group_usergroup, currval('node_basic_node_id_seq') WHERE NEW.group_usergroup IS NOT NULL;
+SELECT insert_permissions(  currval('node_basic_node_id_seq'), 'author', NEW.authoraccess );
+SELECT insert_permissions(  currval('node_basic_node_id_seq'), 'group', NEW.groupaccess );
+SELECT insert_permissions(  currval('node_basic_node_id_seq'), 'other', NEW.otheraccess );
+SELECT insert_permissions(  currval('node_basic_node_id_seq'), 'guest', NEW.guestaccess );
+INSERT INTO node_dynamicpermission (usertype, permission, node_id ) SELECT 'author', NEW.dynamicauthor_permission, currval('node_basic_node_id_seq') WHERE NEW.dynamicauthor_permission IS NOT NULL;
+INSERT INTO node_dynamicpermission (usertype, permission, node_id ) SELECT 'group', NEW.dynamicgroup_permission, currval('node_basic_node_id_seq') WHERE NEW.dynamicgroup_permission IS NOT NULL;
+INSERT INTO node_dynamicpermission (usertype, permission, node_id ) SELECT 'other', NEW.dynamicother_permission, currval('node_basic_node_id_seq') WHERE NEW.dynamicother_permission IS NOT NULL;
+INSERT INTO node_dynamicpermission (usertype, permission, node_id ) SELECT 'guest', NEW.dynamicguest_permission, currval('node_basic_node_id_seq') WHERE NEW.dynamicguest_permission IS NOT NULL;
+)
+},
+
         q{CREATE INDEX "title" on node ("title", "type_nodetype")},
         q{CREATE INDEX "author" on node ("author_user")},
         q{CREATE INDEX "type" on node ("type_nodetype")},
-        q{CREATE TABLE "nodetype" (
-  "nodetype_id" serial NOT NULL,
-  "restrict_nodetype" bigint,
-  "extends_nodetype" bigint,
-  "restrictdupes" bigint,
-  "sqltable" character(255),
-  "grouptable" character(40),
-  "defaultauthoraccess" character(4) DEFAULT 'iiii' NOT NULL,
-  "defaultgroupaccess" character(5) DEFAULT 'iiiii' NOT NULL,
-  "defaultotheraccess" character(5) DEFAULT 'iiiii' NOT NULL,
-  "defaultguestaccess" character(5) DEFAULT 'iiiii' NOT NULL,
-  "defaultgroup_usergroup" bigint,
-  "defaultauthor_permission" bigint,
-  "defaultgroup_permission" bigint,
-  "defaultother_permission" bigint,
-  "defaultguest_permission" bigint,
-  "maxrevisions" bigint,
-  "canworkspace" bigint,
-  PRIMARY KEY ("nodetype_id")
-)},
+
         q{CREATE TABLE version (
   version_id INTEGER  PRIMARY KEY DEFAULT '0' NOT NULL,
   version INTEGER DEFAULT '1' NOT NULL
@@ -814,9 +1049,9 @@ sub base_tables {
 sub base_nodes {
 
     return (
-q{INSERT INTO node VALUES (1,1,'nodetype',-1,'-infinity','-infinity',0,0,0,0, '-infinity','iiii','rwxdc','-----','-----',0,0,0,0,0)},
-q{INSERT INTO node VALUES (2,1,'node',-1,'-infinity','-infinity',0,0,0,0,'-infinity','rwxd','-----','-----','-----',-1,-1,-1,-1,0)},
-q{INSERT INTO node VALUES (3,1,'setting',-1,'-infinity','-infinity',0,0,0,0,'-infinity','rwxd','-----','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node (node_id, type_nodetype, title, createtime, authoraccess, groupaccess, otheraccess, guestaccess ) VALUES (1,1,'nodetype',now(), 'iiii','rwxdc','-----','-----' )},
+q{INSERT INTO node (node_id, type_nodetype, title, createtime, authoraccess, groupaccess, otheraccess, guestaccess ) VALUES (2,1,'node',now(),'rwxd','-----','-----','-----')},
+q{INSERT INTO node (node_id, type_nodetype, title, createtime, authoraccess, groupaccess, otheraccess, guestaccess ) VALUES (3,1,'setting', now(),'rwxd','-----','-----','-----')},
 q{INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','rwxdc','-----','-----',0,0,0,0,0,-1,0)},
 q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,0,0,0,1000,1)},
 q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,-1,-1)},

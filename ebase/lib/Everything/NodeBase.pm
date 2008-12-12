@@ -413,11 +413,6 @@ sub store_new_node {
 	# Assign the author_user to whoever is trying to insert this.
 	# Unless, an author has already been specified.
 	$tableData{author_user} ||= $user_id;
-	$tableData{hits} = 0;
-
-	# Fix location hell
-	my $loc = $this->getNode( $node->get_type->get_title, "location" );
-	$tableData{loc_location} = $loc->getId() if $loc;
 
 	$this->sqlInsert( 'node', \%tableData );
 

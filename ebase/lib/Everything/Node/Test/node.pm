@@ -202,7 +202,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 	$db->set_series( sqlSelect => 1, 0 )
 	   ->set_always( -getFields => 'none' )
 	   ->set_always( -now => '' )
-	   ->set_series( -getNode => undef, { DB => $db } )
+	   ->set_series( -getNode => { DB => $db } )
 	   ->set_true( 'sqlInsert' )
 	   ->set_always( -lastValue => 100 );
 

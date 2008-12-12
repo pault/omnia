@@ -481,7 +481,8 @@ sub sqlExecute
 	$sth->execute(@$bound) or do
 	{
 		local $" = '][';
-		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+		my @bound = map { defined $_ ? $_ : 'NULL' } @$bound;
+		Everything::logErrors( '', "SQL failed: $sql [@bound]\n" );
 		return;
 	};
 }
@@ -1144,7 +1145,7 @@ sub install_base_tables {
     
     foreach ( $self->base_tables() ) {
         $self->{dbh}->do($_);
-        die($DBI::errstr) if $DBI::errstr;
+    #    die($DBI::errstr) if $DBI::errstr;
     }
 
 
