@@ -78,7 +78,8 @@ sub update
 {
 	my ( $this, $USER, $nomodified ) = @_;
 
-	$this->get_nodebase->update_stored_node( $this, $USER, { NOMODIFIED => $nomodified } );
+	return $this->get_nodebase->update_stored_node( $this, $USER, { NOMODIFIED => $nomodified } );
+
 }
 
 =head2 C<nuke>

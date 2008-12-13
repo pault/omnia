@@ -519,10 +519,13 @@ sub update_stored_node {
 			$VALUES{$field} = $node->{$field} if exists $node->{$field};
 		}
 
-		$this->sqlUpdate(
-			$table, \%VALUES,
-			"${table}_id = ?",
-			[ $node->{node_id} ]
+		$this->{storage}->update_or_insert( {
+			table => $table,
+			data => \%VALUES,
+			where => "${table}_id = ?",
+			bound => [ $node->{node_id} ],
+			node_id => $node->getId
+                }
 		);
 	}
 

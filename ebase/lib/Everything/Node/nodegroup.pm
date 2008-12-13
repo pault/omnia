@@ -39,6 +39,7 @@ sub selectGroupArray
 	my ($this)     = @_;
 	my $groupTable = $this->isGroup();
 
+	return unless $groupTable;
 	# Make sure the table exists first
 	$this->{DB}->createGroupTable($groupTable);
 

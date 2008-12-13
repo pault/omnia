@@ -86,9 +86,6 @@ sub install_nodetypes {
     my $self = shift;
     my $ball = $self->get_nodeball;
     $ball->install_xml_nodetype_nodes;
-    print "Fixing references...\n";
-    $ball->fix_node_references(1);
-    print "   - Done.\n";
 
 }
 
@@ -150,7 +147,7 @@ sub install_nodes {
 
     my $ball = $self->get_nodeball;
 
-    $ball->install_xml_nodes(
+    $ball->install_xml_nodes_basic(
         sub {
             my $xmlnode = shift;
             return 1 unless $xmlnode->get_nodetype eq 'nodetype';
@@ -158,9 +155,26 @@ sub install_nodes {
         }
     );
 
+    $self->get_nodebase->{cache}->flushCache;
+    $ball->install_xml_nodes_final(        sub {
+            my $xmlnode = shift;
+            return 1 if $xmlnode->get_nodetype eq 'nodetype';
+            return;
+        }
+);
+
+    $self->get_nodebase->rebuildNodetypeModules;
+
+    $ball->install_xml_nodes_final(        sub {
+            my $xmlnode = shift;
+            return 1 unless $xmlnode->get_nodetype eq 'nodetype';
+            return;
+        }
+);
+
     ## the nodeball isn't part of itself.
     $ball->install_nodeball_description;
-    $ball->fix_node_references(1);
+
 
 }
 

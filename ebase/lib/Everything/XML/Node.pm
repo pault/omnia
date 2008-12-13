@@ -445,9 +445,9 @@ sub parse_xml {
 	    ## should be only one childNode that is a text node
 	    my @contents = $field->getChildNodes;
 
-	    my $text;
-	    $text = '' unless $atts->{null};
+	    my $text = '';
 	    $text .= $_->getData foreach @contents;
+	    undef $text if $atts->getNamedItem('null');
 
 
 	    my $node_attribute = Everything::XML::Node::Attribute->new;

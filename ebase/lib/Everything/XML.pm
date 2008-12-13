@@ -706,6 +706,66 @@ sub getFieldType
 	return "literal_value";
 }
 
+my $installed_nodes = {};
+
+sub xmlnode2node_basic {
+    my ( $nodebase, $xmlnode) = @_;
+    # $xmlnode should already be parsed and have attributes
+    my $title =  $xmlnode->get_title;
+    my $nodetype = $xmlnode->get_nodetype;
+    my $node = $nodebase->getNode($title, $nodetype, 'create force' );
+    my $id = $node->insert( -1 );
+    $installed_nodes->{ $nodetype }->{ $title } = $id;
+
+    return;
+}
+
+sub xmlnode2node_complete {
+    my ( $nodebase, $xmlnode ) = @_;
+    my $title =  $xmlnode->get_title;
+    my $nodetype = $xmlnode->get_nodetype;
+    my $node = $nodebase->getNode( $title, $nodetype );
+
+    foreach ( @{ $xmlnode->get_attributes }) {
+	if ( $_->get_type eq 'literal_value' ) {
+	    $node->{ $_->get_name } = $_->get_content;
+	} else {
+	    my ( $att_nodetype ) = split /,/, $_->get_type_nodetype;
+	    my $noderef = $nodebase->getNode( $_->get_content, $att_nodetype );
+	    warn "For '$title' of '$nodetype' couldn't get " . $_->get_content . "of type '$att_nodetype'" unless $noderef;
+	    $node->{ $_->get_name } = $noderef->getId;
+	}
+
+    }
+
+    my %vars = ();
+    foreach ( @{ $xmlnode->get_vars }) {
+	if ( $_->get_type eq 'literal_value' ) {
+	    $vars{ $_->get_name } = $_->get_content;
+	} else {
+	    my ( $nodetype ) = split /,/, $_->get_type_nodetype;
+	    my $noderef = $nodebase->getNode( $_->get_content, $nodetype );
+	    $vars{ $_->get_name } = $noderef->getId;
+	}
+
+    }
+
+    $node->setVars( \%vars ) if %vars;
+
+
+    my @group = ();
+    foreach ( @{ $xmlnode->get_group_members }) {
+
+	    my ( $nodetype ) = split /,/, $_->get_type_nodetype;
+	    my $noderef = $nodebase->getNode( $_->get_name, $nodetype );
+	    push @group, $noderef->getId;
+ 
+    }
+    $node->{group} = \@group if @group;
+    $node->update(-1, 'nomodified');
+
+}
+
 ###########################################################################
 # End of Package
 ###########################################################################

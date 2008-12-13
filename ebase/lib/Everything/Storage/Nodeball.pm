@@ -507,6 +507,36 @@ sub install_xml_nodes {
 
 }
 
+sub install_xml_nodes_basic {
+
+    my ( $self, $select_cb ) = @_;
+
+    $select_cb ||= sub { 1 };
+    my $iterator = $self->make_node_iterator($select_cb);
+
+    while ( my $xmlnode = $iterator->() ) {
+	Everything::XML::xmlnode2node_basic( $self->get_nodebase, $xmlnode );
+    }
+
+    return;
+
+}
+
+sub install_xml_nodes_final {
+
+    my ( $self, $select_cb ) = @_;
+
+    $select_cb ||= sub { 1 };
+
+    my $iterator = $self->make_node_iterator($select_cb);
+
+    while ( my $xmlnode = $iterator->() ) {
+	Everything::XML::xmlnode2node_complete( $self->get_nodebase, $xmlnode );
+    }
+
+
+}
+
 =head2 C<install_xml_node>
 
 It installs a node stored as XML into the the current nodebase.
@@ -547,7 +577,8 @@ sub install_nodeball_description {
     $fh->close;
     my $xmlnode = Everything::XML::Node->new;
     $xmlnode->parse_xml( $xml );
-    $self->install_xml_node( $xmlnode );
+    Everything::XML::xmlnode2node_basic( $self->get_nodebase, $xmlnode );
+    Everything::XML::xmlnode2node_complete( $self->get_nodebase, $xmlnode );
 
 }
 
@@ -568,7 +599,7 @@ sub install_xml_nodetype_nodes {
 
     my $select_cb = sub { my $xmlnode = shift; return 1 if $xmlnode->get_nodetype eq 'nodetype'; return; };
 
-    $self->install_xml_nodes( $select_cb );
+    $self->install_xml_nodes_basic( $select_cb );
 
     $self->get_nodebase->{cache}->flushCache();
 
@@ -753,9 +784,9 @@ Returns a list.
 
 sub build_new_nodes {
 
-    my ( $self ) = @_;
+    my ( $self, $select_cb ) = @_;
 
-    my $select_cb ||= sub { 1 };
+    $select_cb ||= sub { 1 };
     my $iterator = $self->make_node_iterator( $select_cb );
 
     my @nodes;

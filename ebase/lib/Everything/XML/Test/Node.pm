@@ -290,13 +290,13 @@ sub test_make_xml_safe : Test(2) {
     );
 }
 
-sub test_a_parse_xml : Test( 12 ) {
+sub test_a_parse_xml : Test( 16 ) {
     my $self = shift;
     can_ok( $self->{class}, 'parse_xml' ) || return;
     my $instance = $self->{instance};
     my $mock = Test::MockObject->new;
 
-    my $xml = '<NODE title="a test node" nodetype="supertype" export_version="1000"><field name="a field name" type="literal_value">blah</field><vars><var name="default_theme" type="noderef" type_nodetype="theme,nodetype">default theme</var></vars><group><member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Everything settings</member></group></NODE>';
+    my $xml = '<NODE title="a test node" nodetype="supertype" export_version="1000"><field name="a field name" type="literal_value">blah</field><field name="a null field" type="literal_value" null="yes"></field><field name="an empty string field" type="literal_value"></field><vars><var name="default_theme" type="noderef" type_nodetype="theme,nodetype">default theme</var></vars><group><member name="group_node" type="noderef" type_nodetype="restricted_superdoc,nodetype">Everything settings</member></group></NODE>';
 
     ok( $instance->parse_xml($xml), '...parses the XML');
     my $fields = $instance->get_attributes;
@@ -307,13 +307,15 @@ sub test_a_parse_xml : Test( 12 ) {
     is ($instance->get_nodetype, 'supertype', '...with a node type.');
     is ($instance->get_export_version, 1000, '...with an export version.');
 
-    foreach (@$fields) {
+    my $expected_content = [ ['a field name', 'blah'],['a null field', undef ], ['an empty string field', ''] ];
+    my $index = 0;
+    foreach (sort { $a->get_name cmp $b->get_name } @$fields) {
 	my $field_name = $_->get_name;
 	my $field_content = $_->get_content;
 	my $field_type = $_->get_type;
 	my $field_type_nodetype = $_->get_type_nodetype;
-	is($field_name, 'a field name', '...one field with field name.');
-	is ($field_content, 'blah', '...with the correct content');
+	is($field_name, $expected_content->[$index]->[0], '...one field with field name.');
+	is ($field_content, $expected_content->[$index++]->[1], '...with the correct content');
     }
 
     foreach (@$vars) {

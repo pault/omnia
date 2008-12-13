@@ -296,12 +296,13 @@ sub test_update :Test( 11 )
 	$node->{boom} = 88;
 	$node->{foom} = 99;
 	$db->{cache}  = $db;
+	$db->{storage} = $db;
 
 	$node->set_true( -hasAccess )
 		 ->set_always( getTableArray => [ 'table', 'table2' ] )
 		 ->set_true( 'cache' );
 
-	$db->set_true(qw( incrementGlobalVersion sqlUpdate now sqlSelect ))
+	$db->set_true(qw( incrementGlobalVersion sqlUpdate now sqlSelect update_or_insert))
 	   ->set_series( getFields => 'boom', 'foom' );
 
 	$node->update( 'user' );
@@ -320,11 +321,12 @@ sub test_update :Test( 11 )
 	is( $args->[1], 'table',  '... of each table' );
 
 	( $method, $args ) = $db->next_call();
-	is( "$method $args->[1]", 'sqlUpdate table', '... updating each table' );
-	is( keys %{ $args->[2] }, 1,
+	is( "$method $$args[1]{table}", 'update_or_insert table', '... updating each table' );
+
+	is( keys %{ $args->[1]->{data} }, 1,
 		'... with only allowed fields' );
-	is( $args->[3],           'table_id = ?',    '... for table' );
-	is_deeply( $args->[4], [ $node->{node_id} ], '... with node id' );
+	is( $args->[1]->{where},           'table_id = ?',    '... for table' );
+	is_deeply( $args->[1]->{bound}, [ $node->{node_id} ], '... with node id' );
 }
 
 sub test_is_group :Test( 1 )
