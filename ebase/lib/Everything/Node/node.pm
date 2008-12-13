@@ -179,6 +179,7 @@ sub update
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
 	my $tableArray = $this->{type}->getTableArray(1);
+
 	foreach my $table (@$tableArray)
 	{
 		my %VALUES;
@@ -189,10 +190,13 @@ sub update
 			$VALUES{$field} = $this->{$field} if exists $this->{$field};
 		}
 
-		$this->{DB}->sqlUpdate(
-			$table, \%VALUES,
-			"${table}_id = ?",
-			[ $this->{node_id} ]
+		$this->{DB}->{storage}->update_or_insert( {
+			table => $table,
+			data => \%VALUES,
+			where => "${table}_id = ?",
+			bound => [ $this->{node_id} ],
+			node_id => $this->getId
+                }
 		);
 	}
 

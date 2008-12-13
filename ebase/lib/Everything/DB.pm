@@ -405,9 +405,63 @@ sub sqlInsert
 	return $rv;
 }
 
+
+=head2 C<update_or_insert>
+
+This updates a row in a table if it doesn't exist, else inserts it.
+
+It takes one argument a hash ref, that may have the following key/value pairs:
+
+=over 4
+
+=item * table
+
+the sql table to udpate
+
+=item * data
+
+a hash reference that contains the fields and their values that will be
+changed.
+
+=item * where
+
+the string that contains the constraints as to which rows will be updated.
+
+=item * bound
+
+an array reference of the values to be bound to what's in the where clause
+
+=item * node_id
+
+the unique identifier of the node object to which this query relates
+
+=back
+
+Returns number of rows affected (true if something happened, false if nothing
+was changed).
+
 =cut
 
-C<_quoteData>
+sub update_or_insert {
+
+        my ( $this, $args ) = @_;
+	my ( $table, $data, $where, $prebound, $node_id ) = ( $$args{table}, $$args{data}, $$args{ where }, $$args{ bound }, $$args{ node_id} );
+
+	my $exists = $this->sqlSelect( 'count(1)', $table, $where, undef, $prebound );
+
+	if ( $exists ) {
+	    $this->sqlUpdate( $table, $data, $where, $prebound );
+	} else {
+
+	    $data->{$table . '_id'} = $node_id;
+	    $this->sqlInsert( $table, $data );
+	}
+
+}
+
+
+
+=head2 C<_quoteData>
 
 Private method
 

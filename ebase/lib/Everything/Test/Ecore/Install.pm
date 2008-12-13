@@ -173,7 +173,7 @@ sub test_40_verify_nodes : Tests {
 sub test_50_verify_nodes_attributes : Tests {
     my $self = shift;
     my $nb   = $self->{installer}->get_nodebase;
-
+    $nb->{cache}->flushCache;
     my $ball          = $self->{installer}->get_nodeball;
     my $node_iterator = $ball->make_node_iterator;
 
