@@ -436,9 +436,13 @@ sub make_node_iterator {
 
     my $dir = File::Spec->catfile( $self->get_nodeball_dir, 'nodes' );
 
-    my @queue = ($dir);
+    my @queue;
 
-    my $iterator = sub {
+    @queue  = ($dir);
+
+    my $iterator;
+
+    $iterator = sub {
 
         while (@queue) {
 
@@ -467,6 +471,7 @@ sub make_node_iterator {
 
     };
 
+    return $iterator;
 }
 
 =head2 C<fix_node_references>
@@ -512,7 +517,9 @@ sub install_xml_nodes_basic {
     my ( $self, $select_cb ) = @_;
 
     $select_cb ||= sub { 1 };
-    my $iterator = $self->make_node_iterator($select_cb);
+    my $iterator;
+
+    $iterator = $self->make_node_iterator($select_cb);
 
     while ( my $xmlnode = $iterator->() ) {
 	Everything::XML::xmlnode2node_basic( $self->get_nodebase, $xmlnode );
@@ -528,9 +535,12 @@ sub install_xml_nodes_final {
 
     $select_cb ||= sub { 1 };
 
-    my $iterator = $self->make_node_iterator($select_cb);
+    my $iterator;
+
+    $iterator = $self->make_node_iterator($select_cb);
 
     while ( my $xmlnode = $iterator->() ) {
+
 	Everything::XML::xmlnode2node_complete( $self->get_nodebase, $xmlnode );
     }
 

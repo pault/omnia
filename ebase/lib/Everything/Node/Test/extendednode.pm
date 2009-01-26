@@ -119,12 +119,14 @@ sub test_insert :Test( 3 )
 	delete $node->{type}{restrictdupes};
 
 	my $time = time();
-	$db->set_always( -now => $time );
+
+	$db->{storage} = Test::MockObject::Extends->new( $db->{storage} );
+	$db->{storage}->set_always( -now => $time );
 
 	$node->set_true( 'cache' );
 	$node->{node_id} = 0;
 
-	my $result = $node->insert( 'user' );
+	my $result = $node->insert( 999 );
 
 	ok( defined $result, 'insert() should return a node_id if no dupes exist' );
 	is( $result, 6, '... with the proper sequence' );
@@ -138,7 +140,7 @@ sub test_insert :Test( 3 )
 	is_deeply( $node_ref,
 		{
 			createtime  => $time,
-			author_user => 'user',
+			author_user => 999,
 			hits        => 0,
 		},
 		'... with the proper fields'

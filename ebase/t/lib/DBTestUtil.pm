@@ -129,18 +129,37 @@ sub delete_node_tests {
 
         ## get all nodes that aren't nodetypes
 
-        my @exclude = qw/nodetype dbtable/;
+	my @nodetypes = ( container,
+htmlcode,
+htmlpage,
+htmlsnippet,
+image,
+javascript,
+mail,
+nodegroup,
+nodelet,
+nodeletgroup,
+nodemethod,
+opcode,
+restricted_superdoc,
+setting,
+superdoc,
+theme,
+themesetting,
+usergroup,
+location,
 
-        my @exclude_ids =
-          map { $_->get_node_id }
-          map { $nodebase->getNode( $_, 'nodetype' ) } @exclude;
+); #excluding nodetype, dbtable & user
 
-        my $where_clause = join ' AND ',
-          map ( "type_nodetype != $_", @exclude_ids );
+	$nodes = [];
 
-        $nodes = $nodebase->getNodeWhere($where_clause);
+	foreach ( @nodetypes ) {
+	    push @$nodes, @{ $nodebase->getNodeWhere( {}, $_ ) || [] };
+	}
+
 
         my $count = 0;
+
         foreach (@$nodes) {
             my @tables = $_->dbtables;
             $count += 1 + scalar(@tables);
@@ -159,7 +178,7 @@ sub delete_node_tests {
         my @tables    = $node->dbtables;
         my ( $node_name, $type_name ) = ( $node->get_title, $node->get_type->get_title );
 
-        ok( $node->nuke(-1), ".. deleted '$node_name' of type '$type_name'." );
+        ok( $node->nuke(-1), ".. deleted '$node_name' of type '$type_name'." ) || diag $DBI::errstr;
 
         foreach my $table (@tables) {
             ok(

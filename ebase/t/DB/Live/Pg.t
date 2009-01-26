@@ -12,7 +12,7 @@ my $RUN_TESTS = -e 't/lib/db/run-tests';
 
 my $msg;
 
-my $config_file = config_file();
+my $config_file = 't/lib/db/Pg.conf';
 
 my @config_args;
 

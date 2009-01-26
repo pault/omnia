@@ -606,4 +606,26 @@ sub base_tables {
 
 }
 
+
+=head2 C<base_tables>
+
+Returns a list of SQL statements necessary to insert the base nodes into a databse.
+
+=cut
+
+sub base_nodes {
+
+    return (
+q{INSERT INTO node (node_id, type_nodetype, title, authoraccess, groupaccess, otheraccess, guestaccess, createtime ) VALUES (1,1,'nodetype','iiii','rwxdc','-----','-----', now() )},
+q{INSERT INTO node (node_id, type_nodetype, title, authoraccess, groupaccess, otheraccess, guestaccess, createtime ) VALUES (2,1,'node','rwxd','-----','-----','-----', now() )},
+q{INSERT INTO node (node_id, type_nodetype, title, authoraccess, groupaccess, otheraccess, guestaccess, createtime ) VALUES (3,1,'setting','rwxd','-----','-----','-----', now() )},
+q{INSERT INTO nodetype VALUES (1,NULL,2,1,'nodetype','','rwxd','rwxdc','-----','-----',NULL,NULL,NULL,NULL,NULL,NULL,0)},
+q{INSERT INTO nodetype VALUES (2,NULL,0,1,'','','rwxd','r----','-----','-----',NULL,NULL,NULL,NULL,NULL,1000,1)},
+q{INSERT INTO nodetype VALUES (3,NULL,2,1,'setting','','rwxd','-----','-----','-----',NULL,NULL,NULL,NULL,NULL,NULL,0)},
+
+      )
+
+}
+
+
 1;

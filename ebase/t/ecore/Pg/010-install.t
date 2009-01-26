@@ -24,4 +24,7 @@ my $config = Everything::Config->new( @config_args );
 
 my $tests = Everything::Test::Ecore::Install->new( nodeball => abs_path( $ball ), config => $config );
 
+local *Everything::logErrors;
+*Everything::logErrors = sub { warn "@_" };
+
 $tests->runtests;

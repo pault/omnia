@@ -194,6 +194,11 @@ sub test_insert_restrict_dupes :Test( 4 )
 	my $self               = shift;
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
+
+	my $storage = Test::MockObject::Extends->new( $db->{storage} );
+
+	$db->{storage} = $storage;
+
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
@@ -205,6 +210,8 @@ sub test_insert_restrict_dupes :Test( 4 )
 	   ->set_series( -getNode => { DB => $db } )
 	   ->set_true( 'sqlInsert' )
 	   ->set_always( -lastValue => 100 );
+
+	$storage->set_always( -lastValue => 100 );
 
 	is( $node->insert( '' ), 0,
 		'insert() should return 0 if dupes are restricted and exist' );
@@ -225,7 +232,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 
 	$node->{restrictdupes} = 0;
 
-	is( $node->insert( '' ), 100,
+	is( $node->insert( 1 ), 100,
 		'... or should return the inserted node_id otherwise' );
 }
 
@@ -246,12 +253,14 @@ sub test_insert :Test( 3 )
 	delete $node->{type}{restrictdupes};
 
 	my $time = time();
-	$db->set_always( -now => $time );
+
+	$db->{storage} = Test::MockObject::Extends->new( $db->{storage} );
+	$db->{storage}->set_always( -now => $time );
 
 	$node->set_true( 'cache' );
 	$node->{node_id} = 0;
 
-	my $result = $node->insert( 'user' );
+	my $result = $node->insert( 999 );
 
 	ok( defined $result, 'insert() should return a node_id if no dupes exist' );
 	is( $result, 4, '... with the proper sequence' );
@@ -265,7 +274,7 @@ sub test_insert :Test( 3 )
 	is_deeply( $node_ref,
 		{
 			createtime  => $time,
-			author_user => 'user',
+			author_user => 999,
 			hits        => 0,
 		},
 		'... with the proper fields'

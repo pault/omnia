@@ -204,7 +204,6 @@ if($inherit &amp;&amp; $inherit &gt; 0)
    my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
-$this-&gt;nodeFormObject('TypeMenu', 'dynamicauthor_permission', 'authorperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 
 %]
@@ -334,7 +333,6 @@ if($inherit &amp;&amp; $inherit &gt; 0)
    my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
-$this-&gt;nodeFormObject('TypeMenu', 'dynamicgroup_permission', 'groupperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 
 %]
@@ -448,7 +446,6 @@ if($inherit &amp;&amp; $inherit &gt; 0)
    my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
-$this-&gt;nodeFormObject('TypeMenu', 'dynamicother_permission', 'otherperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 
 %]
@@ -561,7 +558,6 @@ if($inherit &amp;&amp; $inherit &gt; 0)
    my $N = $DB-&gt;getNode($inherit);
    $inherittxt = $$N{title};
 }
-$this-&gt;nodeFormObject('TypeMenu', 'dynamicguest_permission', 'guestperm',
   'permission', 'AUTO', $USER, 'r', 0, -1, $inherittxt);
 
 %]

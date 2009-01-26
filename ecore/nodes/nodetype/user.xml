@@ -2,14 +2,10 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="canworkspace" type="literal_value">0</field>
-  <field name="defaultauthor_permission" type="literal_value">0</field>
   <field name="defaultauthoraccess" type="literal_value">rw--</field>
-  <field name="defaultgroup_permission" type="literal_value">0</field>
   <field name="defaultgroup_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
   <field name="defaultgroupaccess" type="literal_value">r----</field>
-  <field name="defaultguest_permission" type="literal_value">0</field>
   <field name="defaultguestaccess" type="literal_value">r----</field>
-  <field name="defaultother_permission" type="literal_value">0</field>
   <field name="defaultotheraccess" type="literal_value">r----</field>
   <field name="extends_nodetype" type="noderef" type_nodetype="nodetype,nodetype">setting</field>
   <field name="group_usergroup" type="noderef" type_nodetype="usergroup,nodetype">gods</field>
@@ -19,7 +15,6 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodetype</field>
   <field name="maxrevisions" type="literal_value">0</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
-  <field name="restrict_nodetype" type="literal_value">0</field>
   <field name="restrictdupes" type="literal_value">1</field>
   <field name="sqltable" type="literal_value">user,document</field>
   <field name="title" type="literal_value">user</field>

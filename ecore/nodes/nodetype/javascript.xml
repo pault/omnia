@@ -11,7 +11,6 @@
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodetype</field>
   <field name="otheraccess" type="literal_value">iiiii</field>
-  <field name="restrict_nodetype" type="literal_value">0</field>
   <field name="restrictdupes" type="literal_value">0</field>
   <field name="sqltable" type="literal_value">javascript</field>
   <field name="title" type="literal_value">javascript</field>

@@ -117,7 +117,7 @@ sub construct
 				$this->{$field} = $PARENT->{$field};
 			}
 			elsif ( $field =~ /default.*access/ and $PARENT->{$field} ne '' )
-			{
+			{next unless $this->{$field}; ## try to get install working
 				$this->{$field} =
 					Everything::Security::inheritPermissions( $this->{$field},
 					$PARENT->{$field} );

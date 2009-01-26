@@ -6,7 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
-
+use Carp; $SIG{__WARN__} = \&Carp::cluck;
 sub test_construct :Test( 1 )
 {
 	my $self = shift;

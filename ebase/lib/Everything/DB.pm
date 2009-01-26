@@ -361,6 +361,7 @@ sub sqlUpdate
 		. join( ",\n", map { "$_ = " . shift @$values } @$names );
 
 	$sql .= "\nWHERE $where\n" if $where;
+
 	push @$bound, @$prebound if $prebound and @$prebound;
 
 	return $this->sqlExecute( $sql, $bound );
@@ -449,7 +450,8 @@ sub update_or_insert {
 
 	my $exists = $this->sqlSelect( 'count(1)', $table, $where, undef, $prebound );
 
-	if ( $exists ) {
+	if ( ( $table eq 'node' ) or $exists ) {
+            delete $$data{ $table .'_id' };
 	    $this->sqlUpdate( $table, $data, $where, $prebound );
 	} else {
 
@@ -526,6 +528,11 @@ sub sqlExecute
 	my ( $this, $sql, $bound ) = @_;
 	my $sth;
 
+	{
+            local $" = '][';
+	    my @bound = map { defined $_ ? $_ : 'NULL' } @$bound;
+
+	}
 	unless ( $sth = $this->{dbh}->prepare($sql) )
 	{
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
@@ -536,11 +543,124 @@ sub sqlExecute
 	{
 		local $" = '][';
 		my @bound = map { defined $_ ? $_ : 'NULL' } @$bound;
+
 		Everything::logErrors( '', "SQL failed: $sql [@bound]\n" );
 		return;
 	};
 }
 
+=head2 insert_basic_node_data 
+
+This is a private method.  You should not need to call it.
+
+Inserts into the database node data that is considered part of the
+"basic" set. What is basic may change over time as the database schema
+changes.
+
+It takes two arguments:
+
+
+=over
+
+=item
+
+the node object to be inserted.
+
+=item
+
+the id of the user node that is inserting it
+
+=back
+
+On success returns the id of the inserted node.
+
+=cut
+
+sub insert_basic_node_data {
+    my ( $this, $node, $user_id ) = @_;
+
+    my %tableData = ();
+	# First, we need to insert the node table row.  This will give us
+	# the node id that we need to use.  We need to set up the data
+	# that is going to be inserted into the node table.
+	foreach ( $this->{nb}->getFields('node') )
+	{
+		$tableData{$_} = $node->{$_} if exists $node->{$_};
+	}
+	delete $tableData{node_id};
+	$tableData{-createtime} = $this->now();
+
+	# Assign the author_user to whoever is trying to insert this.
+	# Unless, an author has already been specified.
+	$tableData{author_user} ||= $user_id if $user_id != -1;
+
+	$this->sqlInsert( 'node', \%tableData );
+
+	# Get the id of the node that we just inserted!
+	return  $this->lastValue( 'node', 'node_id' );
+}
+
+=head2 insert_node
+
+Inserts a node into the database.
+
+Takes two arguments:
+
+=over
+
+=item
+
+the node object to be inserted.
+
+=item
+
+the id of the user node that is inserting it
+
+=back
+  
+Returns true on success, false otherwise.
+
+=cut
+
+sub insert_node {
+    my ( $this, $node, $user_id ) = @_;
+
+    my $node_id = $this->insert_basic_node_data ( $node, $user_id );
+
+	# Now go and insert the appropriate rows in the other tables that
+	# make up this nodetype;
+
+#    if ( my $code = $this->custom_sql( $node, 'insert' ) ) {
+#	$code->( $this, $node, $node_id );
+#	return $node_id;
+#    } else {
+ 
+
+	my $tableArray = $node->get_type->getTableArray();
+
+	foreach my $table (@$tableArray)
+	  {
+	      my @fields = $this->{nb}->getFields($table);
+
+	      my %tableData;
+	      $tableData{ $table . "_id" } = $node_id;
+	      foreach (@fields) {
+		    $tableData{$_} = $node->{$_} if exists $node->{$_};
+	      $this->update_or_insert( { table => $table, data => \%tableData, where => "${table}_id = ? ", bound => [ $node_id ], node_id => $node_id } );
+#	      $this->sqlInsert( $table, \%tableData );
+
+		}
+	  }
+    return $node_id;
+
+}
+
+# XXX: there's a better way of doing this using meta classes
+sub custom_sql {
+
+
+    return;
+}
 
 sub getNodeByIdNew
 {
@@ -1199,7 +1319,7 @@ sub install_base_tables {
     
     foreach ( $self->base_tables() ) {
         $self->{dbh}->do($_);
-    #    die($DBI::errstr) if $DBI::errstr;
+        die($DBI::errstr . "   $_  " ) if $DBI::errstr;
     }
 
 
@@ -1232,12 +1352,12 @@ Returns a list of SQL statements necessary to insert the base nodes into a datab
 sub base_nodes {
 
     return (
-q{INSERT INTO node VALUES (1,1,'nodetype',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','iiii','rwxdc','-----','-----',0,0,0,0,0)},
-q{INSERT INTO node VALUES (2,1,'node',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',NULL,NULL,NULL,NULL,0)},
-q{INSERT INTO node VALUES (3,1,'setting',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0)},
-q{INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','rwxdc','-----','-----',0,0,0,0,0,NULL,0)},
-q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,0,0,0,1000,1)},
-q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,NULL,NULL)},
+q{INSERT INTO node (node_id, type_nodetype, title, authoraccess, groupaccess, otheraccess, guestaccess, createtime ) VALUES (1,1,'nodetype','iiii','rwxdc','-----','-----', datetime('NOW') )},
+q{INSERT INTO node (node_id, type_nodetype, title, authoraccess, groupaccess, otheraccess, guestaccess, createtime ) VALUES (2,1,'node','rwxd','-----','-----','-----', datetime('NOW') )},
+q{INSERT INTO node (node_id, type_nodetype, title, authoraccess, groupaccess, otheraccess, guestaccess, createtime ) VALUES (3,1,'setting','rwxd','-----','-----','-----', datetime('NOW') )},
+q{INSERT INTO nodetype VALUES (1,NULL,2,1,'nodetype','','rwxd','rwxdc','-----','-----',NULL,NULL,NULL,NULL,NULL,NULL,0)},
+q{INSERT INTO nodetype VALUES (2,NULL,0,1,'','','rwxd','r----','-----','-----',NULL,NULL,NULL,NULL,NULL,1000,1)},
+q{INSERT INTO nodetype VALUES (3,NULL,2,1,'setting','','rwxd','-----','-----','-----',NULL,NULL,NULL,NULL,NULL,NULL,0)},
 
       )
 

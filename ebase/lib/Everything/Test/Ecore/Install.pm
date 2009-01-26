@@ -206,9 +206,20 @@ sub test_50_verify_nodes_attributes : Tests {
 
                 my $content = $_->get_content;
 
-                is( $node->{$att_name}, $content,
-"...test node: '$node_title' of type '$node_type', attribute '$att_name'."
-                );
+		if ( $att_name eq 'sqltable' ) {
+		    my %expected = map { $_ => 1 } split ( ',', $content );
+		    my %got =  map { $_ => 1 } split ( ',', $node->{$att_name} );
+		    is_deeply ( \%got, \%expected, 
+			"...test node: '$node_title' of type '$node_type', attribute '$att_name'."
+		      );
+		} else {
+
+		    is( $node->{$att_name}, $content,
+			"...test node: '$node_title' of type '$node_type', attribute '$att_name'."
+		      );
+
+		}
+
             }
             else {
 

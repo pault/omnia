@@ -162,7 +162,7 @@ sub test_table_exists : Test(6) {
     is( $method, 'prepare', 'tableExists should check with the database' );
     is(
         $args->[1],
-"SELECT c.relname as \"Name\" FROM pg_class c WHERE c.relkind IN ('r', '') AND c.relname !~ '^pg_' ORDER BY 1",
+"SELECT c.relname as \"Name\" FROM pg_class c WHERE c.relkind IN ('r', 'v', '') AND c.relname !~ '^pg_' ORDER BY 1",
         '... fetching available table names'
     );
     ok( $result, '... returning true if table exists' );
@@ -191,7 +191,7 @@ sub test_create_node_table : Test(10) {
     is( $method, 'prepare', 'createNodeTable() should check if table exists' );
     is(
         $args->[1],
-"SELECT c.relname as \"Name\" FROM pg_class c WHERE c.relkind IN ('r', '') AND c.relname !~ '^pg_' ORDER BY 1",
+"SELECT c.relname as \"Name\" FROM pg_class c WHERE c.relkind IN ('r', 'v', '') AND c.relname !~ '^pg_' ORDER BY 1",
         '... creates some SQL.'
     );
     is( $result, -1, '... returning -1 if so' );

@@ -130,7 +130,7 @@ sub update_existing_nodes {
                 my ($ref_name) = split /,/, $_->get_type_nodetype;
                 my $ref_node = $nb->getNode( $_->get_content, $ref_name );
 
-                $$node{ $_->get_name } = $ref_node ? $ref_node->{node_id} : -1;
+                $$node{ $_->get_name } = $ref_node->{node_id} if $ref_node;
             }
         }
 
@@ -156,6 +156,7 @@ sub install_nodes {
     );
 
     $self->get_nodebase->{cache}->flushCache;
+
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
             return 1 if $xmlnode->get_nodetype eq 'nodetype';

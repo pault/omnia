@@ -357,6 +357,38 @@ sub newNode
 	return $this->getNode( $title, $type, 'create force' );
 }
 
+=head2 duplicate_title
+
+Checks whether a node not yet stored in the nodebase, duplicates a
+title and whether that nodetype restricts duplicate titles.
+
+It takes one argument which is the node object to be inserted.
+
+Returns 'true' on success. 'False' if a node may not be inserted.
+
+=cut
+
+sub duplicate_title {
+
+    my ( $this, $node ) = @_;
+
+    return 1 unless $node->get_type->{restrictdupes};
+
+    # Check to see if we already have a node of this title.
+    my $id = $node->get_type->getId();
+
+    my $DUPELIST =
+      $this
+	->sqlSelect( 'count(*)', 'node', 'title = ? AND type_nodetype = ?',
+		     '', [ $node->get_title, $id ] );
+
+    # A node of this name already exists and restrict dupes is
+    # on for this nodetype.  Don't do anything
+    return 0 if $DUPELIST;
+
+    return 1;
+}
+
 =head2 store_new_node
 
 Stores/saves the node in nodebase for later retrieval.
@@ -385,56 +417,9 @@ sub store_new_node {
 	# we are not forcing it.
 	return $node_id if $node_id > 0;
 
-	if ( $node->get_type->{restrictdupes} )
-	{
-		# Check to see if we already have a node of this title.
-		my $id = $node->get_type->getId();
+	return 0 unless $this->duplicate_title( $node );
 
-		my $DUPELIST =
-			$this
-			->sqlSelect( 'count(*)', 'node', 'title = ? AND type_nodetype = ?',
-			'', [ $node->get_title, $id ] );
-
-		# A node of this name already exists and restrict dupes is
-		# on for this nodetype.  Don't do anything
-		return 0 if $DUPELIST;
-	}
-
-	# First, we need to insert the node table row.  This will give us
-	# the node id that we need to use.  We need to set up the data
-	# that is going to be inserted into the node table.
-	foreach ( $this->getFields('node') )
-	{
-		$tableData{$_} = $node->{$_} if exists $node->{$_};
-	}
-	delete $tableData{node_id};
-	$tableData{-createtime} = $this->now();
-
-	# Assign the author_user to whoever is trying to insert this.
-	# Unless, an author has already been specified.
-	$tableData{author_user} ||= $user_id;
-
-	$this->sqlInsert( 'node', \%tableData );
-
-	# Get the id of the node that we just inserted!
-	$node_id = $this->lastValue( 'node', 'node_id' );
-
-	# Now go and insert the appropriate rows in the other tables that
-	# make up this nodetype;
-	my $tableArray = $node->get_type->getTableArray();
-	foreach my $table (@$tableArray)
-	{
-		my @fields = $this->getFields($table);
-
-		my %tableData;
-		$tableData{ $table . "_id" } = $node_id;
-		foreach (@fields)
-		{
-			$tableData{$_} = $node->{$_} if exists $node->{$_};
-		}
-
-		$this->sqlInsert( $table, \%tableData );
-	}
+	$node_id = $this->get_storage->insert_node( $node, $user_id );
 
 	# Now that it is inserted, we need to force get it.  This way we
 	# get all the fields.  We then clear the $this hash and copy in
@@ -442,8 +427,10 @@ sub store_new_node {
 	# the API just calls $NODE->insert() and their node gets filled
 	# out for them.  Woo hoo!
 	my $newNode = $this->getNode( $node_id, 'force' );
+
 	undef %$node;
 	@$node{ keys %$newNode } = values %$newNode;
+	$$node{node_id}= $node_id;
 
 	# Cache this node since it has been inserted.  This way the cached
 	# version will be the same as the node in the db.
@@ -509,11 +496,13 @@ sub update_stored_node {
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
 	my $tableArray = $node->{type}->getTableArray(1);
+
 	foreach my $table (@$tableArray)
 	{
 		my %VALUES;
 
 		my @fields = $this->getFields($table);
+
 		foreach my $field (@fields)
 		{
 			$VALUES{$field} = $node->{$field} if exists $node->{$field};
@@ -715,6 +704,7 @@ sub getNode
 		if ( $ext2 ne "create force" )
 		{
 			$NODE = $this->getNodeByName( $node, $ext );
+
 		}
 
 		if (   ( $ext2 eq "create force" )
@@ -739,6 +729,7 @@ sub getNode
 	}
 
 	return unless $NODE;
+
 	return Everything::Node->new( $NODE, $this, $cache );
 }
 

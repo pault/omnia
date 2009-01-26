@@ -722,8 +722,10 @@ sub xmlnode2node_basic {
 
 sub xmlnode2node_complete {
     my ( $nodebase, $xmlnode ) = @_;
+
     my $title =  $xmlnode->get_title;
     my $nodetype = $xmlnode->get_nodetype;
+
     my $node = $nodebase->getNode( $title, $nodetype );
 
     foreach ( @{ $xmlnode->get_attributes }) {
@@ -732,7 +734,6 @@ sub xmlnode2node_complete {
 	} else {
 	    my ( $att_nodetype ) = split /,/, $_->get_type_nodetype;
 	    my $noderef = $nodebase->getNode( $_->get_content, $att_nodetype );
-	    warn "For '$title' of '$nodetype' couldn't get " . $_->get_content . "of type '$att_nodetype'" unless $noderef;
 	    $node->{ $_->get_name } = $noderef->getId;
 	}
 
@@ -762,6 +763,7 @@ sub xmlnode2node_complete {
  
     }
     $node->{group} = \@group if @group;
+
     $node->update(-1, 'nomodified');
 
 }

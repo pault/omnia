@@ -1,3 +1,22 @@
+* The following nodetype attributes are not related to nodes and
+   should be removed:
+     - maxrevision
+     - canworkspace
+  Consequently, the following methods should be moved out of node.pm
+   into an appropriate location:
+     -canWorkspace
+     -updateWorkspaced
+     -getWorkspaced
+
+   The following should be moved from Node.pm for the same reason
+     -logRevision
+
+   Rationale:  nodes don't know whether the system can handle
+   workspacing of itself.  Only the system can know whether it can
+   manage multiple revisions of a node.  Hence, this should be moved
+   at least into NodeBase.pm, but more properly into a workspace
+   object that 'knows' about the intricacies of workspacing.
+
 * Move parse/run code into separate classes under
    Everything/HTML/Something-or-other 
 
