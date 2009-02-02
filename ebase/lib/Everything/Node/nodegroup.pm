@@ -10,8 +10,11 @@ package Everything::Node::nodegroup;
 
 use strict;
 use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::node';
 
-use base 'Everything::Node::node';
+has group => ( is => 'rw' );
 
 use Scalar::Util 'reftype';
 
@@ -60,19 +63,17 @@ sub selectGroupArray
 	return \@group;
 }
 
-sub destruct
+after destruct => sub
 {
 	my ($this) = @_;
-
-	$this->SUPER();
 
 	delete $this->{group};
 	delete $this->{flatgroup};
 
 	1;
-}
+};
 
-sub insert
+override insert => sub
 {
 	my ( $this, $USER ) = @_;
 
@@ -82,7 +83,7 @@ sub insert
 	# node has not been inserted yet, so we don't have a node id to
 	# insert them with.  So, we hold onto the group array for now.
 	my $group  = $this->{group};
-	my $return = $this->SUPER( $USER );
+	my $return = $this->super( $USER );
 
 	# Now that the node has been inserted, we need to reassign our group
 	# array.
@@ -91,25 +92,25 @@ sub insert
 	$this->updateGroup($USER);
 
 	return $return;
-}
+};
 
-sub update
+override update => sub
 {
 	my ( $this, $USER ) = @_;
 
 	$this->updateGroup($USER);
-	return $this->SUPER( $USER );
-}
+	return $this->super( $USER );
+};
 
-sub updateFromImport
+override updateFromImport => sub
 {
 	my ( $this, $NEW, $USER ) = @_;
 
 	$this->{group} = $NEW->{group};
 	$this->updateGroup($USER);
 
-	return $this->SUPER( $NEW, $USER );
-}
+	$this->super( $USER );
+};
 
 =head2 C<updateGroup>
 
@@ -317,7 +318,7 @@ then call SUPER to delete the node
 
 =cut
 
-sub nuke
+override nuke => sub
 {
 	my ( $this, $USER ) = @_;
 	my $sql;
@@ -329,8 +330,8 @@ sub nuke
 	$$this{DB}->sqlDelete( $table, $table . "_id=$this->{node_id}" );
 
 	# Now go delete the node!
-	$this->SUPER( $USER );
-}
+	$this->super( $USER );
+};
 
 sub isGroup
 {

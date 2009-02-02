@@ -3,12 +3,8 @@ package Everything::Node::Runnable;
 use Everything ();
 use Everything::HTML;
 
-use base 'Class::Accessor';
-__PACKAGE__->follow_best_practice;
-
-use strict;
-use warnings;
-
+use Moose;
+extends 'Everything::Object';
 
 =head2 C<run>
 
@@ -40,7 +36,7 @@ Returns whatever the output of the code in the node outputs.
 
 =cut
 
-
+use Carp; $SIG{__DIE__} = \&Carp::confess;
 sub run {
     my ( $self, $arg_hash ) = @_;
 
@@ -69,7 +65,7 @@ sub cache_code {
     my ($self, $field, $code_ref) = @_;
     $field ||= $self->get_compilable_field;
 
-    return 1 if $self->{DB}->{cache}->cacheMethod($self, $field, $code_ref);
+    return 1 if $self->get_nodebase->{cache}->cacheMethod($self, $field, $code_ref);
 
 
 }

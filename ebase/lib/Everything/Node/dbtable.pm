@@ -8,10 +8,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::dbtable;
 
-use strict;
-use warnings;
-
-use base 'Everything::Node::node';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::node';
 
 =head2 C<insert>
 
@@ -23,16 +22,16 @@ conventions.
 
 =cut
 
-sub insert
+override insert => sub
 {
 	my ( $this, $USER ) = @_;
 
-	my $result = $this->SUPER( $USER );
+	my $result = $this->super( $USER );
 
 	$this->{DB}->createNodeTable( $this->{title} ) if $result > 0;
 
 	return $result;
-}
+};
 
 # MySQL reserved words as of 4.0.2-alpha
 
@@ -116,14 +115,13 @@ Overrides the base node::nuke so we can drop the database table
 
 =cut
 
-sub nuke
+override nuke => sub
 {
-	my ( $this, $USER ) = @_;
-	my $result = $this->SUPER( $USER );
-
+	my $this = shift;
+	my $result = $this->super( shift );
 	$this->{DB}->dropNodeTable( $this->{title} ) if $result > 0;
 
 	return $result;
-}
+};
 
 1;

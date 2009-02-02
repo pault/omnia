@@ -45,7 +45,7 @@ my $build = Everything::Build->new(
 	},
 	build_requires    =>
 	{
-		'Test::Class'               => 0.11,
+		'Test::Class'               => 0.31,
 		'Test::MockObject'          => 1.05,
 		'Test::Warn'		    => 0.10,
 		'Test::Exception'           => 0.13,

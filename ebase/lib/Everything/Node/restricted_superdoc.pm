@@ -8,9 +8,8 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::restricted_superdoc;
 
-use strict;
-use warnings;
-
-use base 'Everything::Node::superdoc';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::superdoc';
 
 1;

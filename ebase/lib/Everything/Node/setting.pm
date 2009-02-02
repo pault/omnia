@@ -8,13 +8,15 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::setting;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
 
-use base 'Everything::Node::node';
+extends 'Everything::Node::node';
 
 use Everything::Security;
 use Scalar::Util 'reftype';
+
+has vars => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -22,11 +24,11 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override  dbtables => sub
 {
 	my $self = shift;
-	return 'setting', $self->SUPER( @_ );
-}
+	return 'setting', $self->super( @_ );
+};
 
 =head2 C<getVars>
 
@@ -73,15 +75,15 @@ sub setVars
 
 sub hasVars { 1 }
 
-sub getNodeKeepKeys
+override getNodeKeepKeys => sub
 {
 	my ($this) = @_;
 
-	my $nodekeys      = $this->SUPER();
+	my $nodekeys      = $this->super();
 	$nodekeys->{vars} = 1;
 
 	return $nodekeys;
-}
+};
 
 # vars are preserved upon import
 sub updateFromImport

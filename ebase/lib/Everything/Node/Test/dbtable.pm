@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
+use SUPER;
 
 sub test_insert :Test( 8 )
 {
@@ -14,7 +15,7 @@ sub test_insert :Test( 8 )
 	my $db   = $self->{mock_db};
 
 	$node->{title} = 'foo';
-	$node->set_series( SUPER => -1, 0, 1 );
+	$node->set_series( super => -1, 0, 1 );
 	$db->set_true( 'createNodeTable' );
 	
 	my $result = $node->insert( 'user' );
@@ -23,7 +24,7 @@ sub test_insert :Test( 8 )
 	isnt( $db->next_call(), 'createNodeTable',
 		'insert() should not create node table unless SUPER() succeeds' );
 	is( $result, -1, '... and should return result of SUPER() call' );
-	is( $method, 'SUPER', '... so should call SUPER()' );
+	is( $method, 'super', '... so should call SUPER()' );
 	is( $args->[1], 'user', '... passing user argument' );
 
 	$result = $node->insert();
@@ -69,7 +70,7 @@ sub test_nuke :Test( 8 )
 	my $db   = $self->{mock_db};
 
 	$node->{title} = 'foo';
-	$node->set_series( SUPER => -1, 0, 1 );
+	$node->set_series( super => -1, 0, 1 );
 	$db->set_true( 'dropNodeTable' );
 	
 	my $result = $node->nuke( 'user' );
@@ -78,7 +79,7 @@ sub test_nuke :Test( 8 )
 	isnt( $db->next_call(), 'dropNodeTable',
 		'nuke() should not drop node table unless SUPER() succeeds' );
 	is( $result, -1, '... and should return result of SUPER() call' );
-	is( $method, 'SUPER', '... so should call SUPER()' );
+	is( $method, 'super', '... so should call super()' );
 	is( $args->[1], 'user', '... passing user argument' );
 
 	$result = $node->nuke();

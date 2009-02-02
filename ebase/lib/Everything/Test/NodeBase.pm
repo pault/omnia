@@ -161,7 +161,9 @@ sub test_build_nodetypedb_modules :Test( 9 )
 		fetch_all_nodetype_names => sub { qw( supernode extendednode superextendednode ) }
 	);
 	$nb->set_series('getNode', {extends_nodetype => 1},  {extends_nodetype => 2},  {extends_nodetype => 3} );
-	$nb->set_series('getType', {title => 'node'},  {title => 'supernode'},  {title => 'extendednode'} );
+	$nb->set_always( getType => $nb );
+	$nb->set_always( get_sqltable => '' );
+	$nb->set_series('get_title', 'node', 'supernode',  'extendednode' );
 
 
 	my $result  = $nb->buildNodetypeModules();

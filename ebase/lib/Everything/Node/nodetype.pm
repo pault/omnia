@@ -8,12 +8,13 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::nodetype;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::node';
+
+has $_ => ( is => 'rw' ) foreach (qw/nodetype_id restrict_nodetype extends_nodetype restrictdupes sqltable grouptable defaultauthoraccess defaultgroupaccess defaultotheraccess defaultguestaccess defaultgroup_usergroup defaultauthor_permission defaultgroup_permission defaultother_permission defaultguest_permission maxrevisions canworkspace/);
 
 use Everything::Security;
-
-use base 'Everything::Node::node';
 
 =head2 C<dbtables()>
 
@@ -21,11 +22,11 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'nodetype', $self->SUPER::dbtables();
-}
+	return 'nodetype', super;
+};
 
 =head2 C<construct>
 
@@ -35,19 +36,16 @@ flushed so that the nodetype gets re-constructed with the new data.
 
 =cut
 
-sub construct
+sub BUILD
 {
 	my ($this) = @_;
-
-	# We are not physically derived from node (would cause inf loop),
-	# but we want its functionality...
-	$this->SUPER();
 
 	# Now we need to derive ourselves and assign the derived values
 	my $PARENT;
 
 	$this->{extends_nodetype} = 0 unless defined $this->{extends_nodetype};
 
+	return unless defined $this->{node_id};
 	# Special case where this is the 'nodetype' nodetype
 	if ( $this->{node_id} == 1 )
 	{
@@ -149,7 +147,7 @@ sub construct
 	$this->{tableArray} = [ split ',', $this->{derived_sqltable} ];
 
 	return 1;
-}
+};
 
 sub destruct
 {
@@ -171,7 +169,7 @@ Returns the inserted node id
 
 =cut
 
-sub insert
+before insert => sub
 {
 	my $this = shift;
 
@@ -182,8 +180,7 @@ sub insert
 		$this->{extends_nodetype} = $this->{DB}->getType('node')->{node_id};
 	}
 
-	return $this->SUPER( @_ );
-}
+};
 
 =head2 C<update>
 
@@ -194,17 +191,16 @@ would need to be reloaded and reinitialized, otherwise we may get weird data.
 
 =cut
 
-sub update
+override update => sub
 {
 	my $this   = shift;
-	my $result = $this->SUPER( @_ );
-
+	my $result = $this->super;
 	# If the nodetype was successfully updated, we need to flush the
 	# cache to make sure all the nodetypes get reloaded.
 	$this->{DB}{cache}->flushCacheGlobal() if $result;
 
 	return $result;
-}
+};
 
 =head2 C<nuke>
 
@@ -213,7 +209,7 @@ exist.
 
 =cut
 
-sub nuke
+override nuke => sub
 {
 	my ( $this, $USER ) = @_;
 
@@ -223,8 +219,8 @@ sub nuke
 		return 0;
 	}
 
-	return $this->SUPER($USER);
-}
+	return super;
+};
 
 =head2 C<getTableArray>
 

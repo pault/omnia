@@ -6,7 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
-
+use SUPER;
 
 sub test_extends :Test( +1 )
 {

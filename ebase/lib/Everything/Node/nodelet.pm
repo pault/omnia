@@ -8,10 +8,11 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::nodelet;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::Parseable', 'Everything::Node::node';
 
-use base 'Everything::Node::Parseable', 'Everything::Node::node';
+has $_ => ( is => 'rw' ) foreach qw/mini_nodelet nlcode parent_container updateinterval nltext/;
 
 =head2 C<dbtables()>
 
@@ -19,11 +20,11 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'nodelet', $self->SUPER::dbtables();
-}
+	return 'nodelet', $self->super;
+};
 
 =head2 C<insert>
 
@@ -31,7 +32,7 @@ We need to set up some default settings when a nodelet is inserted.
 
 =cut
 
-sub insert
+override insert => sub
 {
 	my ( $this, $USER ) = @_;
 
@@ -40,8 +41,8 @@ sub insert
 	# If this gets set to something inappropriate, we can have some
 	# infinite container loops.
 	$this->{parent_container} = $GNC ? $GNC->{node_id} : 0;
-	$this->SUPER( $USER );
-}
+	$this->super( $USER );
+};
 
 =head2 C<getNodeKeys>
 
@@ -50,15 +51,15 @@ when moving to another system or nodeball
 
 =cut
 
-sub getNodeKeys
+override getNodeKeys => sub
 {
 	my ( $this, $forExport ) = @_;
 
-	my $keys = $this->SUPER($forExport);
+	my $keys = $this->super($forExport);
 	delete $keys->{nltext} if $forExport;
 
 	return $keys;
-}
+};
 
 sub get_compilable_field {
     'nlcode';

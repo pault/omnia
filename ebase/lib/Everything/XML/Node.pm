@@ -6,60 +6,21 @@ A package to turn nodes into XML for exporting to Nodeballs and revisions.
 
 package Everything::XML::Node;
 
-{
-    use Object::InsideOut;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
 
-
-    my @raw_xml
-      :Field
-      :Standard(raw_xml)
-      :Arg(raw_xml);
-
-    my @title
-      :Field
-      :Standard(title)
-      :Arg(title);
-
-    my @nodetype
-      :Field
-      :Standard(nodetype)
-      :Arg(nodetype);
-
-    my @export_version
-      :Field
-      :Standard(export_version)
-      :Arg(export_version);
-
-    my @node
-      :Field
-      :Standard(node)
-      :Arg(node);
-
-    my @attributes
-      :Field
-      :Standard(attributes)
-      :Arg(attributes);
-
-    my @vars
-      :Field
-      :Standard(vars)
-      :Arg(vars);
-
-    my @group_members
-      :Field
-      :Standard(group_members)
-      :Arg(group_members);
-
-    my @nodebase
-      :Field
-      :Standard(nodebase)
-      :Arg(nodebase);
-
-}
+has raw_xml => ( is => 'rw' );
+has title => ( is => 'rw' );
+has nodetype => ( is => 'rw' );
+has export_version => ( is => 'rw' );
+has node => ( is => 'rw' );
+has attributes => ( is => 'rw' );
+has vars => ( is => 'rw' );
+has group_members => ( is => 'rw' );
+has nodebase => ( is => 'rw' );
 
 use XML::DOM;
-use strict;
-use warnings;
 
 =head2 C<fieldToXML_vars>
 
@@ -551,26 +512,14 @@ sub get_var {
 
 package Everything::XML::Node::Attribute;
 
-{
-    use Object::InsideOut;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
 
-    my @name
-      :Field
-      :Standard(name);
-
-    my @content
-      :Field
-      :Standard(content);
-
-    my @type_nodetype
-      :Field
-      :Standard(type_nodetype);
-
-    my @type
-      :Field
-      :Standard(type);
-
-}
+has name => ( is => 'rw' );
+has content => ( is => 'rw' );
+has type_nodetype => ( is => 'rw' );
+has type => ( is => 'rw' );
 
 
 =head2 C<parse_xml>

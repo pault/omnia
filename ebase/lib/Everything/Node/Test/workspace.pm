@@ -24,12 +24,12 @@ sub test_nuke :Test( 7 )
 	my $node = $self->{node};
 	my $db   = $self->{mock_db};
 
-	$node->set_series( SUPER => 0, 1 );
+	$node->set_series( super => 0, 1 );
 	$db->set_true( 'sqlDelete' );
 
 	my $result = $node->nuke( 'user' );
 	my ($method, $args)    = $node->next_call();
-	is( $method, 'SUPER',    'nuke() should call SUPER()' );
+	is( $method, 'super',    'nuke() should call super()' );
 	is( $args->[1], 'user', '... with the user' );
 
 	ok( ! $result, '... returning false if it fails' );

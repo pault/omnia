@@ -959,9 +959,9 @@ sub execute_coderef {
     my ( $code_ref, $field, $CURRENTNODE, $args ) = @_;
     my $warn;
 
-    local $SIG{__WARN__} = sub {
-        $warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
-    };
+     local $SIG{__WARN__} = sub {
+         $warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
+     };
 
     Everything::flushErrorsToBackside();
 

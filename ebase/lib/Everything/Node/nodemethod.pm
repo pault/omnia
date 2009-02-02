@@ -11,8 +11,13 @@ package Everything::Node::nodemethod;
 use strict;
 use warnings;
 
-use Everything::Node;
-use base 'Everything::Node::node';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+
+extends 'Everything::Node::node';
+
+has code => ( is => 'rw' );
+has supports_nodetype => ( is => 'rw' );
 
 =head2 C<dbtables()>
 

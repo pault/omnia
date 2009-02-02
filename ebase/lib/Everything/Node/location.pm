@@ -8,10 +8,10 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::location;
 
-use strict;
-use warnings;
 
-use base 'Everything::Node::node';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::node';
 
 =head2 C<nuke>
 
@@ -20,12 +20,12 @@ location to the parent location.
 
 =cut
 
-sub nuke
+override nuke => sub
 {
 	my ( $this, $USER ) = @_;
 	my $id              = $this->{node_id};
 	my $parentLoc       = $this->{loc_location};
-	my $result          = $this->SUPER( $USER );
+	my $result          = $this->super( $USER );
 
 	if ( $result > 0 )
 	{
@@ -38,7 +38,7 @@ sub nuke
 	}
 
 	return $result;
-}
+};
 
 =head2 C<listNodes>
 

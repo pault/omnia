@@ -8,20 +8,19 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::workspace;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::setting';
 
-use base 'Everything::Node::setting';
-
-sub nuke
+override nuke => sub
 {
 	my ( $this, $USER ) = @_;
 
-	return unless $this->SUPER( $USER );
+	return unless $this->super( $USER );
 
 	$this->{DB}->sqlDelete( 'revision', "inside_workspace=$this->{node_id}" );
 
 	return 1;
-}
+};
 
 1;

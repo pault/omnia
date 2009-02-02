@@ -1,9 +1,7 @@
 package Everything::Node::Parseable;
 
-use SUPER;
-use base 'Everything::Node::Runnable';
-use strict;
-use warnings;
+use Moose;
+extends 'Everything::Node::Runnable';
 
 
 =head1 <tokens_to_perl>
@@ -50,9 +48,9 @@ the parser before being compiled.
 sub compile {
     my ( $self, $text ) = @_;
 
-    my $code = $self->parse($text);
-    return $self->SUPER($code);
-}
+    my $code = $self->parse( $text );
+    return $self->SUPER::compile( $code);
+};
 
 sub basic_handler {
     my ($specific_cb) = @_;

@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
+use SUPER;
 
 sub test_construct :Test( 1 )
 {
@@ -74,7 +75,7 @@ sub test_insert :Test( +4 )
 	my $self = shift;
 	my $node = $self->{node};
 	$node->set_true( 'updateGroup' )
-		 ->set_always( -SUPER => 101 );
+		 ->set_always( -super => 101 );
 
 	$node->{group} = 'foo';
 
@@ -87,7 +88,7 @@ sub test_insert :Test( +4 )
 	is( $method, 'updateGroup', '... calling updateGroup()' );
 	is( $args->[1], 'user2',    '... with user' );
 
-	$node->unmock( 'SUPER' )
+	$node->unmock( 'super' )
 		 ->set_true( -updateGroup );
 	$self->SUPER();
 }
@@ -97,7 +98,7 @@ sub test_update :Test( +3 )
 	my $self = shift;
 	my $node = $self->{node};
 
-	$node->set_always( -SUPER => 4 )
+	$node->set_always( -super => 4 )
 		 ->set_true( 'updateGroup' );
 
 	is( $node->update( 8 ), 4,
@@ -107,7 +108,7 @@ sub test_update :Test( +3 )
 	is( $method, 'updateGroup', '... updating the group' );
 	is( $args->[1], 8, '... with the provided user' );
 
-	$node->unmock( 'SUPER' )
+	$node->unmock( 'super' )
 		 ->set_true( -updateGroup );
 
 	$self->SUPER();
@@ -118,7 +119,7 @@ sub test_update_from_import :Test( +4 )
 	my $self = shift;
 	my $node = $self->{node};
 
-	$node->set_always( -SUPER => 6 )
+	$node->set_always( -super => 6 )
 		 ->set_true( 'updateGroup' );
 
 	is( $node->updateFromImport( { group => 7 }, 'user' ), 6,
@@ -130,7 +131,7 @@ sub test_update_from_import :Test( +4 )
 	is( $method,            'updateGroup', '... and updating group' );
 	is( $args->[1],         'user',        '... with the user' );
 
-	$node->unmock( 'SUPER' )
+	$node->unmock( 'super' )
 		 ->set_true( -updateGroup );
 	$self->SUPER();
 }
@@ -213,7 +214,7 @@ sub test_nuke :Test( 7 )
 	
 	$node->{node_id} = 7;
 
-	$node->set_always( SUPER => 12 )
+	$node->set_always( super => 12 )
 	     ->set_always( isGroup => 'table' )
 		 ->set_true( -hasAccess );
 	$db->set_true(qw( getRef sqlDelete ));
@@ -230,7 +231,7 @@ sub test_nuke :Test( 7 )
 		'... with the proper id' );
 
 	( $method, $args )    = $node->next_call();
-	is( $method, 'SUPER', '... calling SUPER' );
+	is( $method, 'super', '... calling super' );
 	is( $args->[1], 'user', '... passing $USER' );
 }
 

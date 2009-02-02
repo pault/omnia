@@ -8,10 +8,9 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::superdoc;
 
-use strict;
-use warnings;
-
-use base 'Everything::Node::Parseable', 'Everything::Node::document';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::Parseable', 'Everything::Node::document';
 
 sub get_compilable_field { 'doctext' }
 

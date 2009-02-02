@@ -8,10 +8,11 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::document;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::node';
 
-use base 'Everything::Node::node';
+has doctext => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -19,10 +20,10 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'document', $self->SUPER();
-}
+	return 'document', $self->super;
+};
 
 1;

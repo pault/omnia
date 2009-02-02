@@ -8,10 +8,12 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::nodeball;
 
-use strict;
-use warnings;
 
-use base 'Everything::Node::nodegroup';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::nodegroup';
+
+has vars => ( is => 'rw' );
 
 use Everything::Node::setting;
 
@@ -21,11 +23,11 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'setting', $self->SUPER::dbtables();
-}
+	return 'setting', $self->super();
+};
 
 =head2 C<insert>
 
@@ -33,7 +35,7 @@ Override the default insert to have the nodeball created with some defaults.
 
 =cut
 
-sub insert
+override insert => sub
 {
 	my ( $this, $USER ) = @_;
 	$this->{vars}     ||= '';
@@ -57,12 +59,12 @@ sub insert
 		$this->setVars( $VARS, $USER );
 	}
 
-	my $insert_id = $this->SUPER( $USER );
+	my $insert_id = $this->super( $USER );
 	return $insert_id if $insert_id;
 
 	Everything::logErrors("Got bad insert id: $insert_id!");
 	return 0;
-}
+};
 
 sub getVars
 {

@@ -24,6 +24,7 @@ sub node_class {
     $name =~ s/Test:://;
     return $name;
 }
+use Everything::Node::nodetype;
 
 sub startup : Test( startup => 3 ) {
     my $self = shift;
@@ -54,7 +55,7 @@ sub startup : Test( startup => 3 ) {
         $mock->fake_module( $mod, import => $mockimport );
     }
 
-    use_ok($module) or exit;
+    use_ok($module);
 
     $self->{imports} = \%import;
 

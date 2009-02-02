@@ -8,10 +8,15 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::image;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
 
-use base 'Everything::Node::node';
+extends 'Everything::Node::node';
+
+has alt => ( is => 'rw' );
+has description => ( is => 'rw' );
+has src => ( is => 'rw' );
+has thumbsrc => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -19,10 +24,10 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'image', $self->SUPER();
-}
+	return 'image', $self->super();
+};
 
 1;

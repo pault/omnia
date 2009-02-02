@@ -8,10 +8,12 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::htmlcode;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
 
-use base 'Everything::Node::node', 'Everything::Node::Runnable';
+extends 'Everything::Node::node', 'Everything::Node::Runnable';
+
+has code => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -19,11 +21,11 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'htmlcode', $self->SUPER::dbtables();
-}
+	return 'htmlcode', $self->super();
+};
 
 =head2 C<restrictTitle>
 

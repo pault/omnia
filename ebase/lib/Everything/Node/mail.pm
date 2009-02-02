@@ -11,7 +11,11 @@ package Everything::Node::mail;
 use strict;
 use warnings;
 
-use base 'Everything::Node::document';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::document';
+
+has from_address => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -19,9 +23,9 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'mail', $self->SUPER();
-}
+	return 'mail', $self->super();
+};
 1;

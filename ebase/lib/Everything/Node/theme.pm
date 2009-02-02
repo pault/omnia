@@ -8,9 +8,8 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::theme;
 
-use strict;
-use warnings;
-
-use base 'Everything::Node::nodeball';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::nodeball';
 
 1;

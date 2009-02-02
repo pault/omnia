@@ -22,7 +22,7 @@ use base 'Class::Accessor';
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(qw/storage/);
 
-use Scalar::Util 'reftype';
+use Scalar::Util 'reftype', 'blessed';
 
 BEGIN
 {
@@ -96,7 +96,6 @@ sub new
 
 	$this->{storage}  = $storage_class->new(
 		nb    => $this,
-		cache => $this->{cache}
 	);
 
 	$this->{storage}->databaseConnect( $dbname, $host, $user, $pass );
@@ -178,47 +177,42 @@ sub buildNodetypeModules
 		    warn "No such nodetype $nodetype.";
 		    next;
 		}
+
 		my $baseclass_id = $typenode->{extends_nodetype};
 		my $baseclass = $self->getType($baseclass_id);
+		my $baseclass_title = $baseclass->get_title;
 
+		## Even though we don't 'use' the policy here it's implemented.
 		eval qq|package $module;
-                        use base 'Everything::Node::$$baseclass{title}';
+                        use Moose;
+                        extends 'Everything::Node::$baseclass_title';
                 |;
 		if ($@) {
 		    warn "Error loading $nodetype as $module, $@";
 		} else {
 		    $modules{ $module } = 1;
 		}
+		$self->make_node_accessor( $nodetype );
 	    }
 
 	}
-	$self->make_node_accessors(\%modules);
 	$self->load_nodemethods(\%modules);
 	return \%modules;
 }
 
-sub make_node_accessors {
-    my ( $self, $modules ) = @_;
-    foreach (keys %$modules) {
-	/::(\w+)$/;
-	my $type_name = $1;
-	my $nodetype_node = $self->getNode( $type_name, 'nodetype' );
+sub make_node_accessor {
 
-	my $dbtable;
-	if ($type_name eq 'node' ) {
-	    $dbtable = 'node';
-	    require Everything::Node::node;
-	} else {
-	    $dbtable = $nodetype_node->{sqltable};
+    my ( $self, $nodetype_name ) = @_;
+
+    my $type = $self->getType( $nodetype_name );
+
+    my $tables = $type->get_sqltable;
+    foreach my $table ( split /,/, $tables ) {
+	foreach my $field ( $self->getFields( $table ) ) {
+	    eval "Everything::Node::$nodetype_name::has( $field, 'is', 'rw' )";
+	    die $@ if $@;
 	}
-	next unless $dbtable;
-	my @tables = split /,/, $dbtable;
-	my @fields;
-	push @fields, $self->getFields( $_ ) foreach @tables;
-	$_->mk_accessors( @fields );
     }
-
-
 }
 
 sub load_nodemethods {
@@ -239,7 +233,7 @@ sub load_nodemethods {
 	next unless $methods;
 	foreach my $method (@$methods) {
 
-	    my $code = "package $fullname;\n use SUPER;" . "\n\n sub " .  $method->{title} . " {\n $$method{code} \n}";
+	    my $code = "package $fullname;" . "\n\n sub " .  $method->{title} . " {\n $$method{code} \n}";
 	    eval $code;
 	    warn "Having trouble putting nodemethod $$method{title} into symbol table, $@" if $@;
 	}
@@ -423,7 +417,15 @@ sub getNode
 	}
 	elsif ( $node =~ /^\d+$/ )
 	{
+
+	    if ( ! $ext or $ext ne "force" )
+	      {
+		  $NODE = $this->{cache}->getCachedNodeById($node);
+	      }
+
+	    if ( not defined $NODE ) {
 		$NODE = $this->getNodeByIdNew( $node, $ext );
+	    }
 		$cache = "nocache" if ( defined $ext && $ext eq 'light' );
 	}
 	else
@@ -433,7 +435,9 @@ sub getNode
 		$ext2 ||= "";
 		if ( $ext2 ne "create force" )
 		{
-			$NODE = $this->getNodeByName( $node, $ext );
+		    	$NODE = $this->{cache}->getCachedNodeByName( $node, $ext );
+
+			$NODE = $this->getNodeByName( $node, $ext ) if not defined $NODE;
 		}
 
 		if (   ( $ext2 eq "create force" )
@@ -463,7 +467,22 @@ sub getNode
 	}
 
 	return unless $NODE;
-	return Everything::Node->new( $NODE, $this, $cache );
+
+	return $NODE if blessed( $NODE );
+
+	my $type_name;
+
+	$$NODE{DB} = $this;
+	if ( $NODE->{node_id} == 1) {
+	    $type_name = 'Everything::Node::nodetype';
+	} else {
+	    Everything::Node::assignType( $NODE );
+	    $type_name = "Everything::Node::" . $NODE->{type}->get_title;
+	}
+
+	my $blessed_node = $type_name->new( { %$NODE, nodebase => $this, DB => $this, nocache => $cache } );
+	$blessed_node->cache unless $cache eq 'nocache';
+	return $blessed_node;
 }
 
 =head2 C<getNodeZero>

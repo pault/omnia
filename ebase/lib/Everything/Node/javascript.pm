@@ -11,7 +11,14 @@ package Everything::Node::javascript;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node', 'Everything::Node::Parseable';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+
+extends 'Everything::Node::node', 'Everything::Node::Parseable';
+
+has code => ( is => 'rw' );
+has dynamic => ( is => 'rw' );
+has comment => ( is => 'rw' );
 
 =head2 C<dbtables()>
 

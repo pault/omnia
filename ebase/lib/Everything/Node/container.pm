@@ -8,10 +8,12 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::container;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends  'Everything::Node::Parseable', 'Everything::Node::node';
 
-use base  'Everything::Node::Parseable', 'Everything::Node::node';
+has context => ( is => 'rw' );
+has parent_container => ( is => 'rw' );
 
 =head2 C<dbtables()>
 

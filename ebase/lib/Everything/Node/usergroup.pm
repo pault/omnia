@@ -8,10 +8,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::usergroup;
 
-use strict;
-use warnings;
-
-use base 'Everything::Node::nodegroup';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::nodegroup';
 
 sub conflictsWith { 0 }
 

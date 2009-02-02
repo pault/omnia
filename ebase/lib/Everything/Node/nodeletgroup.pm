@@ -11,6 +11,8 @@ package Everything::Node::nodeletgroup;
 use strict;
 use warnings;
 
-use base 'Everything::Node::nodegroup';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::nodegroup';
 
 1;

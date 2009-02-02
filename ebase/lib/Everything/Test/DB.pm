@@ -506,7 +506,7 @@ sub test_sql_execute : Test(2) {
 
 }
 
-sub test_get_node_by_id_new : Test(6) {
+sub test_get_node_by_id_new : Test(5) {
     my $self = shift;
 
     $self->fake_nodecache_reset();
@@ -516,8 +516,6 @@ sub test_get_node_by_id_new : Test(6) {
     $self->{instance}->{dbh}->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
     my $rv = $self->{instance}->getNodeByIdNew(0);
     is( $rv->{title}, '/', 'getNodeByIdNew can return the zero node' );
-    $rv = $self->{instance}->getNodeByIdNew(1);
-    is( $rv->{title}, 'cached node', '... can return a cached node' );
 
     $self->{instance}->{dbh}->clear;
     $rv = $self->{instance}->getNodeByIdNew(2);
@@ -568,7 +566,7 @@ sub test_construct_node : Test(5) {
         '...and completes construction of the node object' );
 }
 
-sub test_get_node_by_name : Test(5) {
+sub test_get_node_by_name : Test(4) {
     my $self = shift;
 
     $self->add_expected_sql(q|SELECT * FROM node WHERE title='agamemnon' AND type_nodetype=9999 |,)  unless $self->isset_expected_sql;
@@ -581,13 +579,6 @@ sub test_get_node_by_name : Test(5) {
 
     is( $self->{instance}->getNodeByName('icarus'),
         undef, 'getNodeByName returns undef if we forgot to include a type' );
-
-    # we get in from the cache
-    is(
-        $self->{instance}->getNodeByName( 'icarus', 'pegasus' )->{title},
-        'cached node',
-        'getNodeByName returns undef if we forgot to include a type'
-    );
 
     ## Now we don't
     $self->{instance}->{dbh}->clear;

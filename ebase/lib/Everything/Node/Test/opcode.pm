@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::htmlcode';
 
 use Test::More;
+use SUPER;
 
 sub test_extends :Test( +1 )
 {

@@ -6,7 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::nodegroup';
 
 use Test::More;
-
+use SUPER;
 
 sub setup_imports {
 
@@ -43,7 +43,7 @@ sub test_insert :Test( 10 )
 	my $db   = $self->{mock_db};
 
 	$node->set_true( 'setVars' )
-	     ->set_series( SUPER => 0, 1, 0 )
+	     ->set_series( super => 0, 1, 0 )
 		 ->set_series( getVars => 1 );
 
 	$node->{title} = 'title!';
@@ -60,7 +60,7 @@ sub test_insert :Test( 10 )
 	is( $node->next_call(), 'getVars', '... and calling getVars() on node' );
 
 	my ($method, $args) = $node->next_call();
-	is( $method, 'SUPER',   '... calling super method' );
+	is( $method, 'super',   '... calling super method' );
 	is( $args->[1], 'user', '... and passing user' );
 
 	is( $node->insert( 2 ), 1, '... returning node_id if insert succeeds' );

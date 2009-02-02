@@ -309,7 +309,7 @@ sub test_get_node_by_id_new :Test(6) {
     my %nodes = ( 1 => 'nodetype', 2 => 'node', 3 => 'setting' );
 
     foreach ( keys %nodes ) {
-	is( $s->getNodeByIdNew( $_ )->get_title, $nodes{ $_ }, '..retrieves installed node.' );
+	is( $s->getNodeByIdNew( $_ )->{ title }, $nodes{ $_ }, '..retrieves installed node.' );
     }
 
     for ( 1.. 3 ) {
@@ -326,8 +326,8 @@ sub test_get_node_by_name :Test(2) {
     my $s = $self->{ storage };
 
     my $type = $self->{ nodebase }->getType( 'nodetype' );
-    isa_ok( my $node = $s->getNodeByName( 'setting', $type ), 'Everything::Node::node', '...returns a node object');
-    is ( $node->get_title . $node->get_type, 'setting'. $type, '..of the correct title and type.');
+    isa_ok( my $node = $s->getNodeByName( 'setting', $type ), 'HASH', '...returns hash ref.');
+    is ( $node->{ title } . $node->{ type_nodetype }, 'setting1', '..of the correct title and type.');
 }
 
 sub test_select_node_where :Test(3) {

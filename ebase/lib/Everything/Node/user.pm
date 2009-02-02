@@ -8,10 +8,18 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::user;
 
-use strict;
-use warnings;
 
-use base 'Everything::Node::setting';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+
+extends 'Everything::Node::setting';
+
+has doctext => ( is => 'rw' );
+has email => ( is => 'rw' );
+has inside_workspace => ( is => 'rw' );
+has karma => ( is => 'rw' );
+has nick => ( is => 'rw' );
+has realname => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -19,11 +27,11 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return qw( user document ), $self->SUPER();
-}
+	return qw( user document ), $self->super();
+};
 
 =head2 C<insert>
 

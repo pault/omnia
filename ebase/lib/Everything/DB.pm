@@ -1,7 +1,7 @@
 
 =head1 Everything::DB
 
-Wrapper for the Everything database and cache.  
+Wrapper for the Everything database.
 
 Copyright 2006 Everything Development Inc.
 
@@ -552,31 +552,25 @@ sub getNodeByIdNew
 	return $this->{nb}->getNodeZero() if ( $node_id == 0 );
 	return unless $node_id;
 
-	if ( $selectop ne "force" )
-	{
-		$NODE = $this->{cache}->getCachedNodeById($node_id);
-	}
 
-	if ( not defined $NODE )
-	{
-		$cursor = $this->sqlSelectMany( "*", "node", "node_id=$node_id" );
+	$cursor = $this->sqlSelectMany( "*", "node", "node_id=$node_id" );
 
-		return unless $cursor;
+	return unless $cursor;
 
-		$NODE = $cursor->fetchrow_hashref();
-		$cursor->finish();
+	$NODE = $cursor->fetchrow_hashref();
+	$cursor->finish();
 
-		if ( $selectop ne "light" )
-		{
+	if ( $selectop ne "light" )
+	  {
 
-			# OK, we have the hash from the 'node' table.  Now we need to
-			# construct the rest of the node.
-			$this->constructNode($NODE);
-		}
-	}
+	      # OK, we have the hash from the 'node' table.  Now we need to
+	      # construct the rest of the node.
+	      $this->constructNode($NODE);
+	  }
 
 	return $NODE;
 }
+
 
 sub getNodeByName
 {
@@ -588,8 +582,6 @@ sub getNodeByName
 
 	$this->{nb}->getRef($TYPE);
 
-	$NODE = $this->{cache}->getCachedNodeByName( $node, $$TYPE{title} );
-	return $NODE if ( defined $NODE );
 	$cursor = $this->sqlSelectMany( "*", "node",
 		      "title="
 			. $this->quote($node)

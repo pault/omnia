@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::document';
 
 use Test::More;
+use SUPER;
 
 sub test_dbtables :Test( 2 )
 {

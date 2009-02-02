@@ -11,7 +11,13 @@ package Everything::Node::htmlpage;
 use strict;
 use warnings;
 
-use base 'Everything::Node::node', 'Everything::Node::Parseable';
+
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+
+extends 'Everything::Node::node', 'Everything::Node::Parseable';
+
+has $_ => ( is => 'rw' ) foreach qw/MIMEtype displaytype ownedby_theme page pagetype_nodetype parent_container permissionneeded/;
 
 =head2 C<dbtables()>
 

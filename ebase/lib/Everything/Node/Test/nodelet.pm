@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
+use SUPER;
 
 sub test_dbtables :Test( 2 )
 {
@@ -23,7 +24,7 @@ sub test_insert :Test( 4 )
 	my $node = $self->{node};
 	my $db   = $self->{mock_db};
 
-	$node->set_always( SUPER => 'super' );
+	$node->set_always( super => 'super' );
 	$db->set_series( getNode => { node_id => 1 }, undef );
 	$node->{parent_container} = 8;
 
@@ -71,7 +72,7 @@ sub test_get_node_keys :Test( +2 )
 
 	$self->SUPER();
 
-	$node->set_always( SUPER => { node_id => 10, nltext => 'nltext' } );
+	$node->set_always( super => { node_id => 10, nltext => 'nltext' } );
 
 	my $result = $node->getNodeKeys( 0 );
 	is( $result->{nltext}, 'nltext',

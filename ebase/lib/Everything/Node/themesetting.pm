@@ -8,10 +8,12 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::themesetting;
 
-use strict;
-use warnings;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
 
-use base 'Everything::Node::setting';
+extends 'Everything::Node::setting';
+
+has parent_theme => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -19,9 +21,10 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
+override dbtables => sub
 {
 	my $self = shift;
-	return 'themesetting', $self->SUPER::dbtables();
-}
+	return 'themesetting', $self->super;
+};
+
 1;

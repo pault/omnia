@@ -71,7 +71,6 @@ sub reset_mock_node
 
 	my $type = $db->getType('node');
 	my $newtype = $db->getNode( 'extendednode', 'nodetype', 'create force');
-
 	$newtype->insert(-1);
 
 	## reset nb and force it to do another 'new'

@@ -8,10 +8,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::node;
 
-use strict;
-use warnings;
-
-use base 'Everything::Node';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node';
 
 use DBI;
 use Everything::XML 'xml2node';
@@ -20,11 +19,7 @@ use Everything::XML::Node;
 
 use Scalar::Util 'reftype';
 
-sub new
-{
-	my $class = shift;
-	bless {}, $class;
-}
+has $_ => ( is => 'rw' ) foreach qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
 
 sub construct { 1 }
 sub destruct  { 1 }

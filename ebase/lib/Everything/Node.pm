@@ -22,11 +22,15 @@ use strict;
 use Everything ();
 use Everything::Util ();
 use XML::DOM;
-use SUPER;
 
-use base 'Class::Accessor';
-__PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_accessors(qw/type/);
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
+
+has type => ( is => 'rw' );
+has nodebase => ( is => 'rw' );
+has DB => ( is => 'rw' );
+has nocache => ( is => 'rw' );
 
 =cut
 
@@ -57,39 +61,24 @@ implement these methods, we can access the basic sql functions.
 
 =cut
 
-sub new
-{
-	my ( $className, $NODE, $DB, $nocache ) = @_;
+sub BUILD
+ {
+ 	my ( $this ) = @_;
 
-	return $NODE if ( exists $$NODE{CREATED_NODE_OBJECT} );
+	my $nodebase = $this->get_nodebase || $this->get_DB;
+	### set the type variable
+	if ( $this->get_type_nodetype and not $this->get_type ) {
 
-	# Mark this object as created so we don't go trying to create it again.
-	$$NODE{CREATED_NODE_OBJECT} = 1;
+	    if ( $this->get_node_id == 1 ) {
+		$this->set_type ( $this );
+	    } else {
+		my $type = $nodebase->getNode( $this->get_type_nodetype );
+		$this->set_type ( $type );
+	    }
+	}
 
-	# Store the database handle;
-	$$NODE{DB} = $DB;
-
-	# We do not use the bless(obj, class) version of bless.  Why?  Nobody
-	# is allowed to derive from Everything::Node because we implement our
-	# own inheritance model.  Some or all of an object implementation may
-	# be in the database.  Therefore, we are required to find the correct
-	# implementation on our own.  Perl assumes all packages are located
-	# in the file system somewhere (@INC).  In Everything, this may not
-	# be true.  If we did the bless(obj, class) stuff, perl would try to
-	# do stuff for us, and it would probably break.
-	bless $NODE;
-
-	$NODE->assignType();
-
-	# Cache it.  If we don't do this, 'nodetype' will get stuck in an
-	# infinite loop when creating itself.
-	$NODE->cache() unless ( $nocache && $nocache ne "" );
-
-	# Let the nodetype do whatever it needs to make this node complete.
-	$NODE->construct();
-
-	return $NODE;
-}
+ 	return $this;
+ };
 
 =cut
 
@@ -312,16 +301,17 @@ sub assignType
 {
 	my ($this) = @_;
 
+	my $nodebase = $$this{DB} || $$this{nodebase};
+
 	if ( $$this{node_id} == 1 )
 	{
 		$$this{type} = $this;
 	}
 	else
 	{
-		$$this{type} = $$this{DB}->getType( $$this{type_nodetype} );
+		$$this{type} = $nodebase->getType( $$this{type_nodetype} );
 	}
 
-	bless $this, 'Everything::Node::'. $this->{type}->{title};
 }
 
 =cut

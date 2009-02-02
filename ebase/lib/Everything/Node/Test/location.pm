@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
+use SUPER;
 
 sub test_nuke :Test( +8 )
 {
@@ -16,7 +17,7 @@ sub test_nuke :Test( +8 )
 	$db->set_true( 'sqlUpdate' );
 	$self->SUPER();
 
-	$node->set_series( SUPER => -1, 0, 1 );
+	$node->set_series( super => -1, 0, 1 );
 	$db->clear();
 
 	$node->{node_id}      = 'node_id';

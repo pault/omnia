@@ -6,6 +6,7 @@ use warnings;
 use base 'Everything::Node::Test::node';
 
 use Test::More;
+use SUPER;
 
 sub startup :Test( +1 )
 {
@@ -30,7 +31,7 @@ sub test_construct :Test( 16 )
 	my $node = $self->{node};
 	my $db   = $self->{mock_db};
 
-	$node->set_true(qw( SUPER ));
+	$node->set_true(qw( super ));
 	$db->set_true( 'finish' );
 
 	$node->{node_id}  = $node->{extends_nodetype} = 0;
@@ -39,7 +40,7 @@ sub test_construct :Test( 16 )
 	ok( $node->construct(),
 		'construct() should always succeed (unless it dies)' );
 
-	is( $node->next_call(), 'SUPER', '... should call SUPER()' );
+	is( $node->next_call(), 'super', '... should call SUPER()' );
 	isa_ok( $node->{tableArray}, 'ARRAY',
 		'... storing necessary tables in "tableArray" field as something that' );
 
@@ -202,11 +203,11 @@ sub test_update :Test( +3 )
 	$self->SUPER::test_update( @_ );
 
 	$db->{cache} = $node;
-	$node->set_series( SUPER => undef, 47 );
+	$node->set_series( super => undef, 47 );
 	$node->set_true( 'flushCacheGlobal' )->clear();
 
 	$node->update();
-	is( $node->next_call(), 'SUPER', 'update() should call SUPER()' );
+	is( $node->next_call(), 'super', 'update() should call SUPER()' );
 
 	$node->{cache} = $node;
 	is( $node->update(), 47, '... and return the results' );
@@ -223,7 +224,7 @@ sub test_nuke_access :Test( +0 )
 	$self->SUPER();
 }
 
-sub test_nuke :Test( 4 )
+sub test_nuke :Test( 3 )
 {
 	my $self   = shift;
 	my $node   = $self->{node};
@@ -238,11 +239,11 @@ sub test_nuke :Test( 4 )
 	like( $self->{errors}[0][0], qr/Can't delete.+still exist/,
 		'... giving an appropriate error message' );
 
-	$node->set_always( ('SUPER') x 2 );
+	local *Everything::Node::nodetype::super;
+	*Everything::Node::nodetype::super = sub { 'SUPER' };
 	$result = $node->nuke( 'user' );
-	is( $node->next_call(), 'SUPER',
-		'... otherwise calling parent implementation' );
-	is( $result, 'SUPER', '... and returning result' );
+
+	is( $result, 'SUPER', '... otherwise calls parent and returns result' );
 }
 
 sub test_get_table_array :Test( 4 )
