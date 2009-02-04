@@ -25,7 +25,7 @@ sub test_dbtables :Test( 2 )
 		'dbtables() should return node tables' );
 }
 
-sub test_construct :Test( 16 )
+sub test_construct :Test( 15 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -37,10 +37,9 @@ sub test_construct :Test( 16 )
 	$node->{node_id}  = $node->{extends_nodetype} = 0;
 	$node->{sqltable} = 'foo,bar,baz';
 
-	ok( $node->construct(),
+	ok( $node->BUILD(),
 		'construct() should always succeed (unless it dies)' );
 
-	is( $node->next_call(), 'super', '... should call SUPER()' );
 	isa_ok( $node->{tableArray}, 'ARRAY',
 		'... storing necessary tables in "tableArray" field as something that' );
 
@@ -59,7 +58,7 @@ sub test_construct :Test( 16 )
 		}
 		= ('') x 12;
 
-	$node->construct();
+	$node->BUILD();
 	is( $node->{type}, $node, '... should set node number 1 type to itself' );
 
 	my ( $method, $args ) = $db->next_call();
@@ -102,7 +101,7 @@ sub test_construct :Test( 16 )
 			$ip = join( ' ', @_ );
 		};
 
-		$node->construct();
+		$node->BUILD();
 	}
 
 	( $method, $args ) = $db->next_call(2);

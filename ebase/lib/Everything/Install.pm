@@ -3,46 +3,15 @@ package Everything::Install;
 use Everything::CmdLine qw/abs_path/;
 use Everything::NodeBase;
 use Template;
-use warnings;
-use strict;
 
-{
-    use Object::InsideOut;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
 
-    my @nodebase : Field : Standard(nodebase);
-
-    my @nodeball : Field : Arg(nodeball) : Standard(nodeball);
-
-    my @db_name : Field : Arg(db_name) : Standard(db_name);
-
-    my @db_rootuser : Field : Arg(db_rootuser) : Standard(db_rootuser);
-    my @db_rootpass : Field : Arg(db_rootpass) : Standard(db_rootpass);
-
-    my @db_user : Field : Arg(db_user) : Standard(db_user);
-    my @db_pass : Field : Arg(db_pass) : Standard(db_pass);
-
-    my @db_host : Field : Arg(db_host) : Standard(db_host);
-
-    my @db_port : Field : Arg(db_port) : Standard(db_port);
-
-    my @apache_user : Field : Arg(apache_user) : Standard(apache_user);
-    my @STORAGETYPE : Field : Accessor(STORAGETYPE);
-
-    my @data_dir : Field : Arg(data_dir) : Standard(data_dir);
-    my @web_dir : Field : Arg(web_dir) : Standard(web_dir);
-
-    my @web_user : Field : Arg(web_user) : Standard(web_user);
-    my @web_group : Field : Arg(web_group) : Standard(web_group);
-
-    my @install_core :Field :Arg(install_core) :Accessor(install_core);
-    my @modify_apache_conf :Field :Arg(modify_apache_conf) :Accessor(modify_apache_conf);
-
-
-}
+has $_ => ( is => 'rw' ) foreach qw/nodebase nodeball db_name db_rootuser db_rootpass db_user db_pass db_host db_port apache_user data_dir web_dir web_user web_group install_core modify_apache_conf/;
 
 sub create_storage {
     my ( $self, $opts ) = @_;
-    $$opts{type} ||= $self->STORAGETYPE;
 
     my $storage_class = 'Everything::DB::' . $$opts{type};
 

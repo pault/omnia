@@ -7,115 +7,82 @@ A module that manages the import and export of nodeballs to/from a nodebase.
 
 package Everything::Storage::Nodeball;
 
-{
-use Object::InsideOut;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
 
+has $_ => ( is => 'rw' ) foreach qw/nodebase file nodeball_dir all_files/;
 
-    my @nodebase
-      :Field
-      :Standard(nodebase)
-      :Arg(nodebase);
+has FORCE => ( accessor => 'FORCE' );
+has cleanup => ( accessor => 'cleanup' );
 
-    my @file
-      :Field
-      :Standard(file)
-      :Arg(file);
-
-    my @nodeball_dir
-      :Field
-      :Standard(nodeball_dir)
-      :Arg(nodeball_dir);
-
-    my @all_files
-      :Field
-      :Standard(all_files);
-
-    my @cleanup
-      :Field
-      :Accessor(cleanup);
-
-    my @FORCE
-      :Field
-      :Accessor(FORCE);
-
-    my @db_name
-      :Field
-      :Standard(db_name)
-      :Arg(dbname);
-
-    my @db_user
-      :Field
-      :Standard(db_user)
-      :Arg(dbuser);
-
-    my @db_host
-      :Field
-      :Standard(db_host)
-      :Arg(dbhost);
-
-    my @db_password
-      :Field
-      :Standard(db_password)
-      :Arg(dbpassword);
-
-    my @db_type
-      :Field
-      :Standard(db_type)
-      :Arg(dbtype);
-
-    my %init_args :InitArgs = (
-      nodeball => '',
-      db_name => '',
-      db_host => '',
-      db_user => '',
-      db_password => '',
-      db_type => ''
-    );
-
+has $_ => ( is => 'rw' ) foreach qw/db_name db_user db_host db_type db_password/;
 
 ## special handling for the nodeball and db arguments to the constructor.
 
-sub _init : Init {
-    my ( $self, $args ) = @_;
-    $self->set_nodeball( $args->{nodeball} ) if defined $args->{nodeball};
+sub BUILDARGS {
+    my ( $self, @args ) = @_;
 
-    if ( defined $args->{db_name} ) {
-        my $db_name     = $args->{db_name};
-        my $db_user     = $args->{db_user} || 'root';
-        my $db_password = $args->{db_password} || '';
-        my $db_type     = $args->{db_type} || 'mysql';
-        my $db_host     = $args->{db_host} || 'localhost';
-        $self->set( \@db_name,     $db_name );
-        $self->set( \@db_user,     $db_user );
-        $self->set( \@db_password, $db_password );
-        $self->set( \@db_type,     $db_type );
-        $self->set( \@db_host,     $db_host );
+    my $args;
+    if ( ref $args[0] eq 'HASH' ) {
+	$args = $args[0];
+    } else {
+	$args = { @args };
+    }
+
+    my $ball = $$args{ nodeball };
+
+    return $args unless $ball;
+
+    if ( -d $ball) {
+	$$args{ nodeball_dir } = $ball;
+    } else {
+	$$args{ file } = $ball;
+    }
+
+    return $args;
+}
+
+sub BUILD {
+    my ( $self, ) = @_;
+
+    if ( defined $self->get_db_name ) {
+        my $db_name     = $self->get_db_name;
+        my $db_user     = $self->get_db_user || 'root';
+        my $db_password = $self->get_db_password || '';
+        my $db_type     = $self->get_db_type || 'mysql';
+        my $db_host     = $self->get_db_host || 'localhost';
         my $nb =
           Everything::NodeBase->new( "$db_name:$db_user:$db_password:$db_host",
             1, $db_type )
           || Everything::Exception::NoNodeBase->throw(
 "Can't open a nodebase of type $db_type, called $db_name. User: $db_user, Password: $db_password"
-          );
-        $self->set_nodebase($nb);
+						     );
+    $self->set_nodebase($nb);
+
     }
 
+    if ( $self->get_file ) {
+	$self->expand_nodeball( $self->get_file );
+	$self->cleanup( 1 );
+    }
 }
 
-}
+
 
 use Exception::Class (
-    Everything::Exception::CorruptNodeball => {
+    'Everything::Exception::CorruptNodeball' => {
         fields      => [qw/nodeball_path file_path/],
         description => "Exceptions thrown when a nodeball is corrupt."
     },
 
-    Everything::Exception::NodeballExists => {
+    'Everything::Exception::NodeballExists' => {
         fields      => [qw/nodeball/],
         description =>
 "Exceptions thrown when attempting to insert a nodeball when a ball of the same name already exists in a given nodebase.",
     },
 
-    Everything::Exception::NoNodeBase => {
+    'Everything::Exception::NoNodeBase' => {
         descripton =>
           "Thrown when a nodebase is necessary but has not been set."
     }
@@ -134,7 +101,11 @@ use warnings;
 
 =head2 C<set_nodeball>
 
-Sets the nodeball attribute. The argument may be a file or directory. If it is a file, the file is expanded and the nodeball_dir attribute is set to the directory of the expanded nodeball.
+Sets the nodeball attribute. The argument may be a file or
+directory.
+
+If it is a file, the file is expanded and the nodeball_dir attribute
+is set to the directory of the expanded nodeball.
 
 If the argument is a directory, the nodeball_dir is set to it.
 
@@ -1108,7 +1079,7 @@ sub cleanUpDir {
     rmtree($dir);
 }
 
-sub _destroy : Destroy {
+sub DESTROY {
     my $self = shift;
     cleanUpDir( $self->get_nodeball_dir ) if $self->cleanup;
 
@@ -1450,45 +1421,45 @@ sub CREATE {
 
 package Everything::Storage::Nodeball::Diff;
 
-{
 
-use Object::InsideOut;
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
 
-my @nodebase :Field :Arg(nodebase) :Std(nodebase);
+has nodebase => ( is => 'rw' );
 
-my @name :Field :Arg(name) :Std(name); # for attributes and vars
+has name => ( is => 'rw' ); # for attributes and vars
 
-my @is_noderef :Field :Default(0) :Acc(is_noderef);
+has is_noderef => ( accessor => 'is_noderef', default => 0 );
 
-my @is_var :Field :Default(0) :Acc(is_var);
+has is_var  => ( accessor => 'is_var', default => 0 );
 
-my @is_attribute :Field :Default(0) :Acc(is_attribute);
+has is_attribute  => ( accessor => 'is_attribute', default => 0 );
 
-my @is_groupmember :Field :Default(0) :Acc(is_groupmember);
+has is_groupmember  => ( accessor => 'is_groupmember', default => 0 );
 
-my @xmlnode :Field :Arg(xmlnode) :Std(xmlnode);
+has xmlnode  => ( is => 'rw' );
 
-my @nb_node :Field :Arg(nb_node) :Std(nb_node);
+has nb_node  => ( is => 'rw' );
 
-my @xmlnode_attribute :Field :Std(xmlnode_attribute) :Type(Everything::XML::Node::Attribute);
+has xmlnode_attribute  => ( is => 'rw', isa => 'Everything::XML::Node::Attribute');
 
-my @xmlnode_content :Field :Std(xmlnode_content); #for literal content
+has xmlnode_content  => ( is => 'rw' ); #for literal content
 
-my @nb_node_content :Field :Std(nb_node_content); #for literal content
+has nb_node_content  => ( is => 'rw' ); #for literal content
 
-my @xmlnode_ref_name :Field :Std(xmlnode_ref_name); #for noderefs
+has xmlnode_ref_name  => ( is => 'rw' ); #for noderefs
 
-my @nb_node_ref_name :Field :Std(nb_node_ref_name); #for noderefs
+has nb_node_ref_name  => ( is => 'rw' ); #for noderefs
 
-my @xmlnode_ref_type :Field :Std(xmlnode_ref_type); #for noderefs
+has xmlnode_ref_type  => ( is => 'rw' ); #for noderefs
 
-my @nb_node_ref_type :Field :Std(nb_node_ref_type); #for noderefs
+has nb_node_ref_type  => ( is => 'rw' ); #for noderefs
 
-my @xmlnode_additional :Field :Std(xmlnode_additional) :Type(list); # for group members
+has xmlnode_additional  => ( is => 'rw', isa => 'ArrayRef' ); # for group members
 
-my @nb_node_additional :Field :Std(nb_node_additional) :Type(list); # for group members
+has nb_node_additional  => ( is => 'rw', isa => 'ArrayRef' ); # for group members
 
-}
 
 sub check_attribute {
 
@@ -1619,8 +1590,8 @@ sub check_members {
     return if !@in_nodebase && !@in_nodeball;
 
     $self->is_groupmember(1);
-    $self->set_xmlnode_additional( @in_nodeball ) if @in_nodeball;
-    $self->set_nb_node_additional( @in_nodebase ) if @in_nodebase;
+    $self->set_xmlnode_additional( [ @in_nodeball ] ) if @in_nodeball;
+    $self->set_nb_node_additional( [ @in_nodebase ] ) if @in_nodebase;
 
     return $self;
 }

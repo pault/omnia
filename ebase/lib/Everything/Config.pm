@@ -10,22 +10,20 @@ use Everything::Config::URLDeconstruct;
 use strict;
 use warnings;
 
-{
-    use Object::InsideOut;
-    my @config : Field : Standard(config);
-    my @file : Field : Standard(file) : Arg(file);
-    my @settings_node : Field : Standard(settings_node) : Arg(settings_node);
-    my @apache_request : Field : Standard(apache_request) : Arg(apache_request);
-    my @deconstruct_modifiers : Field : Standard(deconstruct_modifiers);
-    my @deconstruct_locations : Field : Standard(deconstruct_locations);
-    my @nb : Field : Standard(nb);
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Object';
 
-    sub _init : Init {
-        my ( $self, $args ) = @_;
+has $_ => ( is => 'rw' ) foreach qw/config file settings_node apache_request deconstruct_modifiers deconstruct_locations nb/;
+
+our $AUTOLOAD;
+
+sub BUILD {
+    my $self = shift;
 
 	## initialise some attributes
-	$deconstruct_modifiers[$$self] = [];
-	$deconstruct_locations[$$self] = [];
+	$self->set_deconstruct_modifiers( [] );
+	$self->set_deconstruct_locations( [] );
 
         my $config = AppConfig->new;
 
@@ -74,11 +72,11 @@ use warnings;
         ## now apache request
         read_apache_request( $config, $r ) if $r;
 
-        $self->set( \@config, $config );
+        $self->set_config( $config );
 
 	$self->handle_location_schemas;
-    }
 }
+
 
 
 sub make_db_path_absolute {
@@ -171,14 +169,14 @@ sub nodebase {
     return $nb;
 }
 
-sub automethod : Automethod {
+sub AUTOLOAD {
     my ( $self, @args ) = @_;
 
-    my $func = $_;
+    my $func = $AUTOLOAD;
     if ( $func =~ /(database_.*)$/ ) {
         my $attribute_name = $1;
         my $arg_value      = $args[0];
-        return sub { $self->db_data( $attribute_name, $arg_value ) };
+        return $self->db_data( $attribute_name, $arg_value );
     }
 
     return;
@@ -187,7 +185,7 @@ sub automethod : Automethod {
 sub db_data {
     my ( $self, $data_name, $data ) = @_;
     return $self->get_config->set( $data_name, $data ) if $data;
-    $self->get_config->get($data_name);
+    return $self->get_config->get($data_name);
 }
 
 my %standard_modifiers = (
