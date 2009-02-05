@@ -531,7 +531,7 @@ sub sqlExecute
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
 		return;
 	}
-
+	local *Everything::logErrors; *Everything::logErrors = sub { warn @_ };
 	$sth->execute(@$bound) or do
 	{
 		local $" = '][';

@@ -660,7 +660,7 @@ sub deriveUsergroup
 {
 	my ($this) = @_;
 
-	if ( $$this{group_usergroup} != -1 )
+	if ( defined $$this{group_usergroup} and $$this{group_usergroup} != -1 )
 	{
 		return $$this{group_usergroup};
 	}

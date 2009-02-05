@@ -39,11 +39,11 @@ We want all users to default to be owned by themselves.
 
 =cut
 
-sub insert
+override insert => sub
 {
 	my ( $this, $USER ) = @_;
 
-	return 0 unless my $id = $this->SUPER($USER);
+	return 0 unless my $id = $this->super($USER);
 
 	# Make all new users default to owning themselves.
 	$this->{author_user} = $id;
@@ -51,7 +51,7 @@ sub insert
 	$this->update($USER);
 
 	return $id;
-}
+};
 
 =head2 C<isGod>
 

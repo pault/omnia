@@ -207,6 +207,7 @@ sub make_node_accessor {
     my $type = $self->getType( $nodetype_name );
 
     my $tables = $type->get_sqltable;
+    return unless $tables;
     foreach my $table ( split /,/, $tables ) {
 	foreach my $field ( $self->getFields( $table ) ) {
 	    eval "Everything::Node::$nodetype_name::has( $field, 'is', 'rw' )";
@@ -518,10 +519,14 @@ sub update_stored_node {
 			$VALUES{$field} = $node->{$field} if exists $node->{$field};
 		}
 
-		$this->sqlUpdate(
-			$table, \%VALUES,
-			"${table}_id = ?",
-			[ $node->{node_id} ]
+		$this->{storage}->update_or_insert(
+						   {
+			table => $table,
+                        data => \%VALUES,
+			where => "${table}_id = ?",
+			bound => [ $node->{node_id} ],
+			node_id => $node->getId,
+						   }
 		);
 	}
 

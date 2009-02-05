@@ -31,7 +31,7 @@ sub test_insert :Test( 7 )
 	my $self = shift;
 	my $node = $self->{node};
 
-	$node->set_always( SUPER => 0 )
+	$node->set_always( super => 0 )
 		 ->set_true( 'update' );
 
 	$node->{title} = 'foo';
@@ -40,10 +40,10 @@ sub test_insert :Test( 7 )
 		'insert() should return false if SUPER call fails' );
 
 	my ( $method, $args ) = $node->next_call();
-	is ($method, 'SUPER', '...should call SUPER.');
+	is ($method, 'super', '...should call SUPER.');
 	is_deeply ( $args, [ $node, 'user'], '...with same args as self.');
 
-	$node->set_always( -SUPER => 10 );
+	$node->set_always( -super => 10 );
 
 	is( $node->insert( 'user' ), 10,
 		'... should return inserted node_id on success' );

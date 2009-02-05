@@ -8,9 +8,10 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::opcode;
 
-use strict;
-use warnings;
 
-use base 'Everything::Node::htmlcode';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+
+extends 'Everything::Node::htmlcode';
 
 1;

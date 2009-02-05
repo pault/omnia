@@ -96,6 +96,7 @@ sub reset_mock_node
 	isa_ok($newnewnode, 'Everything::Node::moreextendednode');
 
 	$newnewnode = Test::MockObject::Extends::NoCheck->new($newnewnode);
+	$newnewnode->set_nodebase ( $self->{mock_db} );
 	$self->{node} = $newnewnode;
 
 }
@@ -118,6 +119,7 @@ sub test_insert :Test( 3 )
 	delete $node->{type}{restrictdupes};
 
 	my $time = time();
+
 	$db->set_always( -now => $time );
 
 	$node->set_true( 'cache' );

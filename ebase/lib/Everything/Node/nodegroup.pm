@@ -18,7 +18,7 @@ has group => ( is => 'rw' );
 
 use Scalar::Util 'reftype';
 
-sub construct
+sub BUILD
 {
 	my ($this)    = @_;
 	$$this{group} = $this->selectGroupArray();

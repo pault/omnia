@@ -21,7 +21,6 @@ use Scalar::Util 'reftype';
 
 has $_ => ( is => 'rw' ) foreach qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
 
-sub construct { 1 }
 sub destruct  { 1 }
 
 =head2 C<dbtables()>
@@ -75,9 +74,6 @@ sub update
 
 	$this->get_nodebase->update_stored_node( $this, $USER, { NOMODIFIED => $nomodified } );
 
-			bound => [ $this->{node_id} ],
-			node_id => $this->getId
-                }
 }
 
 =head2 C<nuke>

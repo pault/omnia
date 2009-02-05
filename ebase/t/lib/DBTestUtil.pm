@@ -109,7 +109,7 @@ sub update_node_tests {
     for ( 1 .. $count ) {
         my $node = $nodebase->getNode($_);
         $node->set_hits($_);
-        ok( $node->update($user), '..updates ok.' );
+        ok( $node->update($user), $node->get_title . ' id: '. $node->getId . ' updates ok.' );
         is( $node->get_hits, $_, '..the updated field is set value.' );
     }
 

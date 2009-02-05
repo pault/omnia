@@ -15,7 +15,7 @@ sub test_construct :Test( 1 )
 
 	$node->set_always( selectGroupArray => 'group' );
 
-	$node->construct();
+	$node->BUILD();
 	is( $node->{group}, 'group',
 		'construct() should set "group" field to group array' );
 }

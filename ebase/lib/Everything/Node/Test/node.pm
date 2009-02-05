@@ -122,6 +122,7 @@ sub make_fixture :Test(setup)
 	*Everything::Node::node::DB = \$db;
 	$self->{mock_db}            = $db;
 	$self->{node}{DB}           = $db;
+	$self->{node}->set_nodebase( $db );
 	$self->{errors}             = [];
 }
 
@@ -145,12 +146,6 @@ sub reset_mock_node
 	my $self      = shift;
 	my $node      = $self->node_class()->new();
 	$self->{node} = Test::MockObject::Extends->new( $node );
-}
-
-sub test_construct :Test( 1 )
-{
-	my $self = shift;
-	ok( $self->{node}->construct(), 'construct() should return true' );
 }
 
 sub test_destruct :Test( 1 )

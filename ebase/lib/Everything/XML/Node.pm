@@ -407,9 +407,8 @@ sub parse_xml {
 	    my @contents = $field->getChildNodes;
 
 	    my $text = '';
-	    $text = '' unless $atts->{null};
 	    $text .= $_->getData foreach @contents;
-
+	    undef $text if $atts->getNamedItem('null');
 
 	    my $node_attribute = Everything::XML::Node::Attribute->new;
 	    $node_attribute->set_name( $name );
