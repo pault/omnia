@@ -27,11 +27,6 @@ return &quot;&quot; unless($DB-&gt;getNodeById($$mini{mini_nodelet})-&gt;hasAcce
 my $link = $this-&gt;link_node($NODE, $str, { 'op' =&gt; 'insertMini','nodelet' =&gt; $$mini{node_id}, 'displaytype' =&gt; $display } ); 
 
 $link;</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>

@@ -7,11 +7,6 @@ my $CLONER=$DB-&gt;getNode('clone to type','restricted_superdoc');
 my $PARAMS={ &quot;srcnode_id&quot; =&gt; $$NODE{node_id},node_id=&gt;$$CLONER{node_id}};
 my $url=$this-&gt;url_gen($PARAMS);
 return qq{ &lt;a href=$url&gt; &lt;img src=&quot;images/icon_cloneto.gif&quot; alt=&quot;clone to type&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt; &lt;/a&gt;};</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>

@@ -45,89 +45,8 @@ Returns the node id of the node in the database.  Zero if failure.
 sub insert
 {
 	my ( $this, $USER ) = @_;
-	my $node_id = $this->{node_id};
-	my ( $user_id, %tableData );
 
-	$user_id = $USER->getId() if eval { $USER->isa( 'Everything::Node' ) };
-
-	$user_id ||= $USER;
-
-	return 0 unless $this->hasAccess( $USER, 'c' ) and $this->restrictTitle();
-
-	# If the node_id greater than zero, this has already been inserted and
-	# we are not forcing it.
-	return $node_id if $node_id > 0;
-
-	if ( $this->{type}{restrictdupes} )
-	{
-		# Check to see if we already have a node of this title.
-		my $id = $this->{type}->getId();
-
-		my $DUPELIST =
-			$this->{DB}
-			->sqlSelect( 'count(*)', 'node', 'title = ? AND type_nodetype = ?',
-			'', [ $this->{title}, $id ] );
-
-		# A node of this name already exists and restrict dupes is
-		# on for this nodetype.  Don't do anything
-		return 0 if $DUPELIST;
-	}
-
-	# First, we need to insert the node table row.  This will give us
-	# the node id that we need to use.  We need to set up the data
-	# that is going to be inserted into the node table.
-	foreach ( $this->{DB}->getFields('node') )
-	{
-		$tableData{$_} = $this->{$_} if exists $this->{$_};
-	}
-	delete $tableData{node_id};
-	$tableData{-createtime} = $this->{DB}->now();
-
-	# Assign the author_user to whoever is trying to insert this.
-	# Unless, an author has already been specified.
-	$tableData{author_user} ||= $user_id;
-	$tableData{hits} = 0;
-
-	# Fix location hell
-	my $loc = $this->{DB}->getNode( $this->{type}{title}, "location" );
-	$tableData{loc_location} = $loc->getId() if $loc;
-
-	$this->{DB}->sqlInsert( 'node', \%tableData );
-
-	# Get the id of the node that we just inserted!
-	$node_id = $this->{DB}->lastValue( 'node', 'node_id' );
-
-	# Now go and insert the appropriate rows in the other tables that
-	# make up this nodetype;
-	my $tableArray = $this->{type}->getTableArray();
-	foreach my $table (@$tableArray)
-	{
-		my @fields = $this->{DB}->getFields($table);
-
-		my %tableData;
-		$tableData{ $table . "_id" } = $node_id;
-		foreach (@fields)
-		{
-			$tableData{$_} = $this->{$_} if exists $this->{$_};
-		}
-
-		$this->{DB}->sqlInsert( $table, \%tableData );
-	}
-
-	# Now that it is inserted, we need to force get it.  This way we
-	# get all the fields.  We then clear the $this hash and copy in
-	# the info from the newly inserted node.  This way, the user of
-	# the API just calls $NODE->insert() and their node gets filled
-	# out for them.  Woo hoo!
-	my $newNode = $this->{DB}->getNode( $node_id, 'force' );
-	undef %$this;
-	@$this{ keys %$newNode } = values %$newNode;
-
-	# Cache this node since it has been inserted.  This way the cached
-	# version will be the same as the node in the db.
-	$this->cache();
-
-	return $node_id;
+	$this->get_nodebase->store_new_node( $this, $USER );
 }
 
 =head2 C<update>
@@ -154,48 +73,11 @@ sub update
 {
 	my ( $this, $USER, $nomodified ) = @_;
 
-	return 0 unless $this->hasAccess( $USER, 'w' );
+	$this->get_nodebase->update_stored_node( $this, $USER, { NOMODIFIED => $nomodified } );
 
-	if (    exists $this->{DB}->{workspace}
-		and $this->canWorkspace()
-		and $this->{DB}->{workspace}{nodes}{ $this->{node_id} } ne 'commit' )
-	{
-		my $id = $this->updateWorkspaced($USER);
-		return $id if $id;
-	}
-
-	# Cache this node since it has been updated.  This way the cached
-	# version will be the same as the node in the db.
-	$this->{DB}->{cache}->incrementGlobalVersion($this);
-	$this->cache();
-	$this->{modified} = $this->{DB}->sqlSelect( $this->{DB}->now() )
-		unless $nomodified;
-
-	# We extract the values from the node for each table that it joins
-	# on and update each table individually.
-	my $tableArray = $this->{type}->getTableArray(1);
-
-	foreach my $table (@$tableArray)
-	{
-		my %VALUES;
-
-		my @fields = $this->{DB}->getFields($table);
-		foreach my $field (@fields)
-		{
-			$VALUES{$field} = $this->{$field} if exists $this->{$field};
-		}
-
-		$this->{DB}->{storage}->update_or_insert( {
-			table => $table,
-			data => \%VALUES,
-			where => "${table}_id = ?",
 			bound => [ $this->{node_id} ],
 			node_id => $this->getId
                 }
-		);
-	}
-
-	return $this->{node_id};
 }
 
 =head2 C<nuke>
@@ -232,86 +114,8 @@ if the nuke failed, true if it succeeded.
 sub nuke
 {
 	my ( $this, $USER ) = @_;
-	my $result = 0;
 
-	$this->{DB}->getRef($USER) unless $USER eq '-1';
-
-	return 0 unless $this->hasAccess( $USER, 'd' );
-
-	my $id = $this->getId();
-
-	# Remove all links that go from or to this node that we are deleting
-	$this->{DB}->sqlDelete( 'links', 'to_node=? OR from_node=?', [ $id, $id ] );
-
-	# Remove all revisions of this node
-	$this->{DB}->sqlDelete( 'revision', 'node_id = ?', [ $this->{node_id} ] );
-
-	# Now lets remove this node from all nodegroups that contain it.  This
-	# is a bit more complicated than removing the links as nodegroup types
-	# can specify their own group table if desired.  This needs to find
-	# all used group tables and check for the existance of this node in
-	# any of those groups.
-	foreach my $TYPE ( $this->{DB}->getAllTypes() )
-	{
-		my $table = $TYPE->isGroupType();
-		next unless $table;
-
-		# This nodetype is a group.  See if this node exists in any of its
-		# tables.
-		my $csr =
-			$this->{DB}
-			->sqlSelectMany( "${table}_id", $table, 'node_id = ?', undef,
-			[ $this->{node_id} ] );
-
-		if ($csr)
-		{
-			my %GROUPS;
-			while ( my $group = $csr->fetchrow() )
-			{
-
-				# For each entry, mark each group that this node belongs
-				# to.  A node may be in a the same group more than once.
-				# This prevents us from working with the same group node
-				# more than once.
-				$GROUPS{$group} = 1;
-			}
-			$csr->finish();
-
-			# Now that we have a list of which group nodes that contains
-			# this node, we are free to delete all rows from the node
-			# table that reference this node.
-			$this->{DB}
-				->sqlDelete( $table, 'node_id = ?', [ $this->{node_id} ] );
-
-			foreach ( keys %GROUPS )
-			{
-
-				# Lastly, for each group that contains this node in its
-				# group, we need to increment its global version such
-				# that it will get reloaded from the database the next
-				# time it is used.
-				my $GROUP = $this->{DB}->getNode($_);
-				$this->{DB}->{cache}->incrementGlobalVersion($GROUP);
-			}
-		}
-	}
-
-	# Actually remove this node from the database.
-	my $tableArray = $this->{type}->getTableArray(1);
-	foreach my $table (@$tableArray)
-	{
-		$result += $this->{DB}->sqlDelete( $table, "${table}_id = ?", [$id] );
-	}
-
-	# Now we can remove the nuked node from the cache so we don't get
-	# stale data.
-	$this->{DB}->{cache}->incrementGlobalVersion($this);
-	$this->{DB}->{cache}->removeNode($this);
-
-	# Clear out the node id so that we can tell this is a "non-existant" node.
-	$this->{node_id} = 0;
-
-	return $result;
+	return $this->get_nodebase->delete_stored_node( $this, $USER );
 }
 
 =head2 C<getNodeKeys>

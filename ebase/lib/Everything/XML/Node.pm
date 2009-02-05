@@ -210,6 +210,10 @@ sub genBasicTag
 	my $PARAMS = { name => $fieldname };
 	my $data;
 
+	if ( not defined $content ) {
+	    $$PARAMS{null} = 'yes';
+	}
+
 	# Check to see if the field name ends with a "_typename"
 	if ( $fieldname =~ /_(\w+)$/ )
 	{
@@ -217,7 +221,7 @@ sub genBasicTag
 
 		# if the numeric value is not greater than zero, it is a literal value.
 		# Nodes cannot have an id of less than 1.
-		$isRef = 1 if $content !~ /\D/ && $content > 0 && $db->getRef($content);
+		$isRef = 1 if defined( $content) && $content !~ /\D/ && $content > 0 && $db->getRef($content);
 	}
 
 	if ($isRef)
@@ -403,8 +407,9 @@ sub parse_xml {
 	    my @contents = $field->getChildNodes;
 
 	    my $text = '';
+	    $text = '' unless $atts->{null};
 	    $text .= $_->getData foreach @contents;
-	    undef $text if $atts->getNamedItem('null');
+
 
 	    my $node_attribute = Everything::XML::Node::Attribute->new;
 	    $node_attribute->set_name( $name );

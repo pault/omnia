@@ -324,7 +324,7 @@ override nuke => sub
 	my $sql;
 	my $table = $this->isGroup();
 
-	$this->{DB}->getRef($USER);
+	$this->{DB}->getRef($USER) unless $USER eq '-1';
 	return 0 unless $this->hasAccess( $USER, 'd' );
 
 	$$this{DB}->sqlDelete( $table, $table . "_id=$this->{node_id}" );
@@ -448,7 +448,7 @@ sub selectNodegroupFlat
 		if ( $NODE->isGroup() )
 		{
 			my $group = $NODE->selectNodegroupFlat($groupsTraversed);
-			push @nodes, @$group if defined $group;
+			push @nodes, $NODE, @$group if defined $group;
 		}
 		else
 		{

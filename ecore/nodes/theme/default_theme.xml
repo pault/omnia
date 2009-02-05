@@ -1,10 +1,6 @@
 <NODE export_version="0.5" nodetype="theme" title="default theme">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iixi</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
   <group>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">main container</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">stdcontainer</member>
@@ -12,7 +8,6 @@
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">userbody</member>
     <member name="group_node" type="noderef" type_nodetype="container,nodetype">general container</member>
   </group>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iixi-</field>
   <field name="guestaccess" type="literal_value">ii-i-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">theme</field>

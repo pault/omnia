@@ -2,8 +2,9 @@ package DBTestUtil;
 
 use base 'Exporter';
 use Everything::Config;
+use Test::More;
 
-our @EXPORT_OK = qw/config_file drop_database skip_cond nodebase/;
+our @EXPORT_OK = qw/config_file drop_database skip_cond nodebase update_node_tests delete_node_tests/;
 
 
 sub config_file {
@@ -70,3 +71,120 @@ sub nodebase {
 
 
 }
+
+sub update_node_tests {
+
+    my $skip = skip_cond();
+    my ( $nodebase, $count );
+
+    if ($skip) {
+        plan skip_all => $skip;
+    }
+    else {
+
+        $nodebase = nodebase();
+        $count = $nodebase->countNodeMatches( {} );
+        plan tests => $count * 2;
+
+    }
+
+## For more sophisticated tests later.
+    # my %test_fields = (
+    # 		 container => 'context',
+    # 		 htmlcode => 'code',
+    # 		 htmlpage => 'page',
+    # 		 htmlsnippet => 'code',
+    # 		 image => 'src',
+    # 		 javascript => 'code',
+    # 		 mail => 'doctext',
+    # 		 nodelet => 'nlcode',
+    # 		 nodemethod => 'code',
+    # 		 opcode => 'code',
+    # 		 restricted_supercode => 'doctext',
+    # 		 superdoc => 'doctext',
+    #);
+
+    my $user = $nodebase->getNode( 'root', 'user' );
+
+    for ( 1 .. $count ) {
+        my $node = $nodebase->getNode($_);
+        $node->set_hits($_);
+        ok( $node->update($user), '..updates ok.' );
+        is( $node->get_hits, $_, '..the updated field is set value.' );
+    }
+
+}
+
+sub delete_node_tests {
+
+    my $skip = skip_cond();
+    my ( $nodebase, $count, $nodes );
+
+    if ($skip) {
+        plan skip_all => $skip;
+    }
+    else {
+
+        $nodebase = nodebase();
+
+        ## get all nodes that aren't nodetypes
+
+        my @exclude = qw/nodetype dbtable/;
+
+        my @exclude_ids =
+          map { $_->get_node_id }
+          map { $nodebase->getNode( $_, 'nodetype' ) } @exclude;
+
+        my $where_clause = join ' AND ',
+          map ( "type_nodetype != $_", @exclude_ids );
+
+        $nodes = $nodebase->getNodeWhere($where_clause);
+
+        my $count = 0;
+        foreach (@$nodes) {
+            my @tables = $_->dbtables;
+            $count += 1 + scalar(@tables);
+            $count++ if $_->isGroup;
+        }
+
+        plan tests => $count;
+
+    }
+
+    local *Everything::logErrors;
+    *Everything::logErrors = sub { diag "@_"; };
+
+    for my $node (@$nodes) {
+
+        my @tables    = $node->dbtables;
+        my ( $node_name, $type_name ) = ( $node->get_title, $node->get_type->get_title );
+
+        ok( $node->nuke(-1), ".. deleted '$node_name' of type '$type_name'." );
+
+        foreach my $table (@tables) {
+            ok(
+                !$nodebase->sqlSelectHashref(
+                    '*', $table, "${table}_id = " . $node->get_node_id()
+                ),
+                "...no entry in table $table"
+            );
+
+        }
+
+        if ( my $grouptable = $node->isGroup ) {
+
+            ok(
+                !$nodebase->sqlSelectHashref(
+                    '*', $grouptable,
+                    "${grouptable}_id = " . $node->get_node_id()
+                ),
+                "...no group entry in table $grouptable"
+            );
+
+        }
+
+    }
+
+}
+
+1;

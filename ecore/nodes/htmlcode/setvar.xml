@@ -11,11 +11,6 @@ $var&quot;)){
         $$VARS{$var}=&quot;&quot;;
 }
 $query-&gt;textfield(&quot;set$var&quot;, $$VARS{$var}, $len);</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>

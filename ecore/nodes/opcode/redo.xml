@@ -8,11 +8,6 @@ my $USER = $r-&gt;get_user;
 my $N = $query-&gt;param('node_id');
 $N = $r-&gt;get_nodebase-&gt;getNode( $N );
 $N-&gt;undo($USER, 1);</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">opcode</field>

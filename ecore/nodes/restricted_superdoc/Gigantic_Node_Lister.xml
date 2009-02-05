@@ -1,6 +1,5 @@
 <NODE export_version="0.5" nodetype="restricted_superdoc" title="Gigantic Node Lister">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
-  <field name="authoraccess" type="literal_value">iiii</field>
   <field name="doctext" type="literal_value">&lt;h3 style=&quot;text-align: center&quot;&gt;Gigantic Node Lister&lt;/h3&gt;
 
 [{openform}][%
@@ -170,11 +169,6 @@ my $query = $this-&gt;get_query;
 $query-&gt;endform;
 
 %]</field>
-  <field name="dynamicauthor_permission" type="literal_value">-1</field>
-  <field name="dynamicgroup_permission" type="literal_value">-1</field>
-  <field name="dynamicguest_permission" type="literal_value">-1</field>
-  <field name="dynamicother_permission" type="literal_value">-1</field>
-  <field name="group_usergroup" type="literal_value">-1</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</field>
