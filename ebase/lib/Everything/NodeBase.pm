@@ -210,7 +210,7 @@ sub make_node_accessor {
     return unless $tables;
     foreach my $table ( split /,/, $tables ) {
 	foreach my $field ( $self->getFields( $table ) ) {
-	    eval "Everything::Node::$nodetype_name::has( $field, 'is', 'rw' )";
+	    eval "Everything::Node::${nodetype_name}::has( '$field', 'reader', 'get_$field', 'writer', 'set_$field')";
 	    die $@ if $@;
 	}
     }

@@ -3,6 +3,7 @@ package Everything::Node::Test::extendednode;
 use strict;
 use warnings;
 use Test::More;
+use Scalar::Util qw/blessed/;
 
 use base 'Everything::Node::Test::node';
 
@@ -71,6 +72,10 @@ sub reset_mock_node
 
 	my $type = $db->getType('node');
 	my $newtype = $db->getNode( 'extendednode', 'nodetype', 'create force');
+	## dbtable
+	$db->createNodeTable( 'extendednodetable' );
+	$db->addFieldToTable( 'extendednodetable', 'afield', 'char(32)' );
+	$newtype->set_sqltable('extendednodetable');
 	$newtype->insert(-1);
 
 	## reset nb and force it to do another 'new'
@@ -147,6 +152,28 @@ sub test_insert :Test( 3 )
 	$sth->finish();
 }
 
+sub test_check_accessors : Test(2) {
+
+    my $self = shift;
+    my $node = $self->{node};
+
+
+    my $meta = $node->meta;
+    my @methods = $meta->get_all_methods;
+    ## accessors set in setup
+
+    can_ok( blessed( $node ), 'get_extendednodetable_id', 'get_afield' ) || do { diag $_->name foreach @methods };
+
+    $node->set_afield('some random text');
+    $node->update( -1 );
+
+    my $dbh = $self->{mock_db}->getDatabaseHandle;
+    my $sth = $dbh->prepare( "select afield from extendednodetable where extendednodetable_id = $$node{node_id}");
+    $sth->execute;
+    my ( $value ) = $sth->fetchrow_array;
+
+    is( $value, 'some random text', '...can update virtual attributes.');
+}
 
 package Test::MockObject::Extends::NoCheck;
 
