@@ -215,14 +215,16 @@ sub addType
 {
 	my ( $this, $type, $USER, $perm, $sortby ) = @_;
 	my $TYPE   = $this->{nodebase}->getType($type);
-	my $typeid = $$TYPE{node_id} if ( defined $TYPE );
+
+	my $typeid;
+	$typeid = $$TYPE{node_id} if ( defined $TYPE );
+
 	my $NODES  = $this->{nodebase}->getNodeWhere( { type_nodetype => $typeid } );
-	my $NODE;
 	my $gValues = $this->getValuesArray();
 	my $gLabels = $this->getLabelsHash();
 	my @values;
 
-	foreach $NODE (@$NODES)
+	foreach my $NODE (@$NODES)
 	{
 		next unless ( ( not $USER ) or ( $NODE->hasAccess( $USER, $perm ) ) );
 		$$gLabels{ $$NODE{node_id} } = $$NODE{title};
@@ -279,7 +281,6 @@ Returns true if successful, false otherwise.
 sub addGroup
 {
 	my ( $this, $GROUP, $showType, $USER, $perm, $sortby ) = @_;
-	my $groupnode;
 	my $NODE;
 	my $GROUPNODES;
 	my $gValues = $this->getValuesArray();
@@ -287,7 +288,7 @@ sub addGroup
 	my @values;
 
 	$GROUPNODES = $$GROUP{group};
-	foreach $groupnode (@$GROUPNODES)
+	foreach my $groupnode (@$GROUPNODES)
 	{
 		$NODE = $this->{nodebase}->getNode($groupnode);
 		next unless ( ( not $USER ) or ( $NODE->hasAccess( $USER, $perm ) ) );
@@ -353,12 +354,11 @@ Returns true if successful, false otherwise.
 sub addHash
 {
 	my ( $this, $hashref, $keysAreLabels, $sortby ) = @_;
-	my $key;
 	my $gValues = $this->getValuesArray();
 	my $gLabels = $this->getLabelsHash();
 	my @values;
 
-	foreach $key ( keys %$hashref )
+	foreach my $key ( keys %$hashref )
 	{
 		if ($keysAreLabels)
 		{

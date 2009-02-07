@@ -2,12 +2,13 @@ package Everything::HTTP::Response::Htmlpage;
 
 use Everything::HTTP::Request;
 use Encode;
+use strict;
+use warnings;
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
     qw/http_header http_body request htmlpage theme allowed redirect config/);
-use strict;
 
 ### because this is called from a Class::Factory object new is not
 ### called except by us.
@@ -288,7 +289,7 @@ sub getTheme {
         my $REPLACEMENTVARS;
         my $TEMPTHEME;
 
-        return undef unless ($BASETHEME);
+        return unless ($BASETHEME);
 
         $TEMPTHEME       = $BASETHEME->getVars();
         $REPLACEMENTVARS = $TS->getVars();

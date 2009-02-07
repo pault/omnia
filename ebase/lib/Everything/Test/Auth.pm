@@ -46,12 +46,12 @@ sub test_load_module : Test(2) {
     my $mod;
     if ( -d $path or mkpath $path) {
         $mod = File::Spec->catfile( $path, 'Plugin.pm' );
-        if ( open( OUT, ">$mod" ) ) {
-            print OUT "package Everything::Auth::Plugin;\n"
+        if ( open( my $OUT, '>', "$mod" ) ) {
+            print $OUT "package Everything::Auth::Plugin;\n"
               . 'sub new { bless {}, $_[0] }'
               . "\n1;\n";
 
-            $success = close OUT;
+            $success = close $OUT;
         }
     }
 

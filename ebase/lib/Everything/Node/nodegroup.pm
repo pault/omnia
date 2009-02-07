@@ -496,7 +496,8 @@ sub insertIntoGroup
 	return 0 unless $USER and $insert and $this->hasAccess( $USER, 'w' );
 
 	# converts to a list reference w/ 1 element if we get a scalar
-	my $insertref = [$insert] unless ( reftype( $insert ) || '' eq 'ARRAY' );
+	my $insertref;
+	$insertref = [$insert] unless ( reftype( $insert ) || '' eq 'ARRAY' );
 
 	$insertref = $this->restrict_type($insertref);
 

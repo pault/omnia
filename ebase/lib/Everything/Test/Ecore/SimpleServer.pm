@@ -1,6 +1,9 @@
 
 package Everything::Test::Ecore::SimpleServer;
 
+use strict;
+use warnings;
+
 use SUPER;
 use Everything::HTTP::CGI;
 

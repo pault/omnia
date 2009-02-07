@@ -27,6 +27,7 @@ my $build = Everything::Build->new(
 		'Archive::Tar'              => 1.0,
 		'File::NCopy'               => 0.32,
 		'IO::Zlib'                  => 1.0,
+		'IO::Interactive'           => 0,
 		'XML::DOM'                  => 1.27,
 		'XML::LibXML'               => 0,
 		'XML::Parser'               => 2.26,

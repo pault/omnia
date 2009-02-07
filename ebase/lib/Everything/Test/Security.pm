@@ -2,6 +2,8 @@ package Everything::Test::Security;
 
 use base 'Everything::Test::Abstract';
 use Test::More;
+use strict;
+use warnings;
 
 
 sub test_inherit_permissions :Test(6) {
@@ -32,7 +34,7 @@ sub test_check_permissions :Test(7) {
     my $package = $self->{class};
     can_ok( $package, 'checkPermissions' );
 
-    @le = ();
+    my @le = ();
     ok( !Everything::Security::checkPermissions('rwx-'),
 	'check() should return false unless modes are passed' );
     is( @le, 0, '... and should not warn' );

@@ -61,6 +61,7 @@ sub reset_mock_nb
 	$self->{nb} = Test::MockObject::Extends->new( $nb );
 }
 
+## no critic
 BEGIN
 {
 	for my $method (qw(
@@ -90,6 +91,7 @@ BEGIN
 		END_SUB
 	}
 }
+## use critic
 
 sub test_new
 {
@@ -132,11 +134,14 @@ sub test_build_nodetype_modules :Test( 3 )
 	my $storage = $self->{storage};
 
 	$nb->set_series( loadNodetypeModule => 1, 1, 0, 1 );
-	$nb->set_false( 'getNode');
+
+	$nb->set_always( getType => $nb );
+	$nb->set_always( getNodeWhere => undef ); # to stop load_node_methods
 	$storage->mock(
 		fetch_all_nodetype_names => sub { qw( node nodetype cow dbtable ) }
 	);
 	$storage->set_always( getFieldsHash => '' );
+	$storage->set_false( 'getNodeByName');
 
 	my $result;
 
@@ -156,13 +161,16 @@ sub test_build_nodetypedb_modules :Test( 9 )
 	my $nb      = $self->{nb};
 	my $storage = $self->{storage};
 
+	require Everything::Node::node; # so Moose can create sub-classes
+
 	$nb->set_false( 'loadNodetypeModule');
 	$storage->mock(
 		fetch_all_nodetype_names => sub { qw( supernode extendednode superextendednode ) }
 	);
-	$nb->set_series('getNode', {extends_nodetype => 1},  {extends_nodetype => 2},  {extends_nodetype => 3} );
+	$storage->set_series('getNodeByName', {extends_nodetype => 1},  {extends_nodetype => 2},  {extends_nodetype => 3} );
 	$nb->set_always( getType => $nb );
 	$nb->set_always( get_sqltable => '' );
+	$nb->set_true( 'load_nodemethods' );
 	$nb->set_series('get_title', 'node', 'supernode',  'extendednode' );
 
 
@@ -192,8 +200,21 @@ sub test_load_nodemethods : Test(5) {
     my $self = shift;
     my $nb = $self->{nb};
     can_ok($self->module_class, "load_nodemethods") or return;
+
+    require Moose::Meta::Class;
     my %modules = ( "Everything::Node::foo" => 1, "Everything::Node::bar" => 1);
-    $nb->set_always('getNodeWhere', [ {code => 'return "hhhh"', title => 'vulcan'}, {code => 'my $x = 10', title => "hephaistos"} ]);
+
+    foreach ( keys %modules ) {
+	Moose::Meta::Class->create( $_ );
+    }
+
+    my $mock_method = Test::MockObject->new;
+
+    $nb->set_always('getNodeWhere', [ $mock_method ,  $mock_method ]);
+
+    $mock_method->set_series( get_code => 'return "hhhh"', 'my $x = 10',  'return "hhhh"', 'my $x = 10' );
+    $mock_method->set_series( get_title => 'vulcan', 'hephaistos',  'vulcan', 'hephaistos' );
+
     $nb->set_always('getType', { node_id => 1111} );
     $nb->load_nodemethods(\%modules);
 

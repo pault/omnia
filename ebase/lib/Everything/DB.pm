@@ -629,7 +629,6 @@ sub constructNode
 	my $cursor;
 	my $DATA;
 	my $tables = $this->getNodetypeTables( $$NODE{type_nodetype} );
-	my $table;
 	my $firstTable;
 	my $tablehash;
 
@@ -637,7 +636,7 @@ sub constructNode
 
 	$firstTable = pop @$tables;
 
-	foreach $table (@$tables)
+	foreach my $table (@$tables)
 	{
 		$$tablehash{$table} = $firstTable . "_id=$table" . "_id";
 	}
@@ -810,11 +809,10 @@ sub getNodeCursor
 	if ( not $nodeTableOnly && defined $TYPE )
 	{
 		my $tableArray = $this->getNodetypeTables($TYPE);
-		my $table;
 
 		if ($tableArray)
 		{
-			foreach $table (@$tableArray)
+			foreach my $table (@$tableArray)
 			{
 				$$tablehash{$table} = "node_id=" . $table . "_id";
 			}

@@ -306,9 +306,8 @@ sub addFieldToTable {
         my @fields = $this->getFieldsHash($table);
         my @prikeys;
         my $primaries;
-        my $field;
 
-        foreach $field (@fields) {
+        foreach my $field (@fields) {
             push @prikeys, $$field{Field} if ( $$field{Key} eq "PRI" );
         }
 

@@ -69,7 +69,7 @@ sub new
 	my ( $packageName, $nodeBase, $maxSize ) = @_;
 	my $this = {};
 
-	bless $this;    # oh, my lord
+	bless $this, $packageName;    # oh, my lord
 
 	$this->{maxSize}  = $maxSize;
 	$this->{nodeBase} = $nodeBase;
@@ -168,7 +168,7 @@ sub getCachedNodeByName
 	my $data;
 	my $NODE;
 
-	return undef if ( not defined $typename );
+	return if ( not defined $typename );
 
 	if ( defined $this->{typeCache}{$typename}{$title} )
 	{
@@ -178,12 +178,12 @@ sub getCachedNodeByName
 		if ( $$NODE{title} ne $title )
 		{
 			delete $this->{typeCache}{$typename}{$title};
-			return undef;
+			return;
 		}
 		return $NODE if ( $this->isSameVersion($NODE) );
 	}
 
-	return undef;
+	return;
 }
 
 =cut
@@ -219,7 +219,7 @@ sub getCachedNodeById
 		return $NODE if ( $this->isSameVersion($NODE) );
 	}
 
-	return undef;
+	return;
 }
 
 =cut
@@ -467,7 +467,7 @@ sub removeNodeFromHash
 		return $data;
 	}
 
-	return undef;
+	return;
 }
 
 =cut

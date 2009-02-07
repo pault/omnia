@@ -18,7 +18,7 @@ use warnings;
 sub startup : Test(+1) {
 
     ### use-ing Archive::Tar causes a seg fault.  Bug in perl 5.10??
-    require 'Archive/Tar.pm'; 
+    require Archive::Tar;
     my $self = shift;
     $self->SUPER::startup;
     my $instance = $self->{class}->new;
@@ -46,22 +46,23 @@ sub make_test_nodeball {
     push @files, 'nodes';
     mkdir "nodes/nodetype";
     push @files, 'nodes/nodetype';
-    local *FH;
-    open FH, ">", "nodes/anode.xml" || die "Can't open file, $!";
-    print FH "node xml\n";
-    close FH;
+
+    my $FH;
+    open  $FH, ">", "nodes/anode.xml" || die "Can't open file, $!";
+    print $FH "node xml\n";
+    close $FH;
     push @files, 'nodes/anode.xml';
-    open FH, ">", "nodes/bnode.xml" || die "Can't open file, $!";
-    print FH "some node xml\n";
-    close FH;
+    open  $FH, ">", "nodes/bnode.xml" || die "Can't open file, $!";
+    print $FH "some node xml\n";
+    close $FH;
     push @files, 'nodes/bnode.xml';
-    open FH, ">", "nodes/nodetype/typeone.xml" || die "Can't open file, $!";
-    print FH "some xml\n";
-    close FH;
+    open  $FH, ">", "nodes/nodetype/typeone.xml" || die "Can't open file, $!";
+    print $FH "some xml\n";
+    close $FH;
     push @files, 'nodes/nodetype/typeone.xml';
-    open FH, ">", "nodes/nodetype/typetwo.xml" || die "Can't open file, $!";
-    print FH "some xml\n";
-    close FH;
+    open  $FH, ">", "nodes/nodetype/typetwo.xml" || die "Can't open file, $!";
+    print $FH "some xml\n";
+    close $FH;
     push @files, 'nodes/nodetype/typetwo.xml';
 
     my ( $fh, $fn ) = File::Temp::tempfile( SUFFIX => '.nbz' );
@@ -420,9 +421,9 @@ sub test_get_pmdir : Test(3) {
     {
         local *INC;
         @INC = qw/one two three/;
-        push @results, $test_code->();
+        $results[0] = $test_code->();
         @INC = ( 'one', "$tempdir" );
-        push @results, $test_code->();
+        $results[1] = $test_code->();
     }
 
     is( $results[0], undef, '..returns undef if cannot find Everything dir.' );
@@ -1205,10 +1206,12 @@ sub gen_package {
     my ( $class, $parent ) = @_;
     my $package = $class->SUPER($parent);
 
+    ## no critic
     eval qq|package $package;
 use overload 
   '\${}' => sub { return shift()->{_oio} },
 |;
+    ## use critic
 
     die "Can't overload scalar dereferencing, $@" if $@;
     no strict 'refs';

@@ -319,7 +319,7 @@ sub getBindNode
 
 	my $value =
 		$query->param( 'formbind_' . $this->{objectName} . '_' . $name );
-	return undef unless ($value);
+	return unless ($value);
 
 	if ( $value =~ /^\d\d:(.*?):(?!:)/ )
 	{
@@ -361,7 +361,7 @@ sub getBindField
 
 	my $param = 'formbind_' . $this->{objectName} . '_' . $name;
 	my $value = $query->param($param);
-	return undef unless $value;
+	return unless $value;
 
 	my $field;
 	if ( $value =~ /^\d\d:.*?:((?!:).*)/ )

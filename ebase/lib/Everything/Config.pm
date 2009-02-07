@@ -230,7 +230,7 @@ sub request_modifiers {
     }
 
     foreach ( @{ $self->get_config->get('request_modifier_code') } ) {
-        my $code = eval $_;
+        my $code = eval $_; ## no critic
 	die "Error in request_modifier_code, $@:\n $_" if $@;
         push @modifiers, $code;
     }
@@ -245,7 +245,7 @@ sub node_locations {
     my @locators = ();
 
     foreach ( @{ $self->get_config->get('location_code') } ) {
-        my $code = eval $_;
+        my $code = eval $_;	## no critic
         push @locators, $code;
     }
 

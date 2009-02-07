@@ -279,9 +279,9 @@ sub getClone
 
 	# if the id is not zero, the getNode found a node that already exists
 	# and the type does not allow duplicate names.
-	return undef if ( $$CLONE{node_id} > 0 );
+	return if ( $$CLONE{node_id} > 0 );
 
-	return undef unless $CLONE->clone( $this, $USER );
+	return unless $CLONE->clone( $this, $USER );
 
 	return $CLONE;
 
@@ -748,7 +748,10 @@ sub getDynamicPermissions
 	my $PERM = $this->{DB}->getNode($permission);
 	return unless $PERM;
 
+	## no critic
 	my $perms = eval $PERM->{code};
+	## use critic
+
 	Everything::logErrors( '', $@, $PERM->{code}, $PERM ) if $@;
 	return $perms;
 }
@@ -1083,7 +1086,7 @@ sub setHash
 	# Put the serialized hash into the field var
 	$$this{$field} = $str;
 
-	return undef;
+	return;
 }
 
 =cut
@@ -1103,12 +1106,11 @@ sub getNodeDatabaseHash
 {
 	my ($this) = @_;
 	my $tableArray;
-	my $table;
 	my @fields;
 	my %keys;
 
 	$tableArray = $$this{type}->getTableArray(1);
-	foreach $table (@$tableArray)
+	foreach my $table (@$tableArray)
 	{
 
 		# Get the fields for the table.

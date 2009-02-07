@@ -7,12 +7,14 @@ A request object for everything.
 
 package Everything::HTTP::Request;
 
+use strict;
+use warnings;
+
 use Everything ('$DB');
 use Everything::Auth;
 use Everything::HTTP::ResponseFactory;
 
 use CGI;
-use strict;
 
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
@@ -331,7 +333,10 @@ sub http_header {
 
 sub retrieve_node {
     my ( $nodebase, $node_id, $arg ) = @_;
-    my $duplicates = $arg->{duplicates} if defined $arg->{duplicates};
+
+    my $duplicates;
+    $duplicates = $arg->{duplicates} if defined $arg->{duplicates};
+
     my $node = $nodebase->getNode($node_id);
     $node->{group} = $duplicates if $duplicates;
     return $node;
@@ -394,7 +399,9 @@ sub searchForNodeByName {
     my $types    = $arg->{types};                   # array ref
     my $e        = $arg->{e};
 
-    my @selecttypes = map { $nodebase->getId( $nodebase->getType($_) ) } @$types
+    my @selecttypes = ();
+
+    @selecttypes = map { $nodebase->getId( $nodebase->getType($_) ) } @$types
       if @$types;
 
     my %selecthash = ( title => $name );

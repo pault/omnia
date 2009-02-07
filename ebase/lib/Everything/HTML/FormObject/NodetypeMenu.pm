@@ -10,6 +10,7 @@ Package that implements the base NodetypeMenu functionality.
 package Everything::HTML::FormObject::NodetypeMenu;
 
 use strict;
+use warnings;
 
 use Everything::HTML::FormObject::TypeMenu;
 use vars qw(@ISA);
@@ -170,12 +171,11 @@ into the menu.
 sub createTree
 {
 	my ( $this, $types, $current ) = @_;
-	my $type;
 	my @list;
 
 	$current ||= 0;
 
-	foreach $type (@$types)
+	foreach my $type (@$types)
 	{
 		next if ( $$type{extends_nodetype} ne $current );
 

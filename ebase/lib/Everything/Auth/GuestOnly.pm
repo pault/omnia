@@ -30,17 +30,17 @@ sub new
 
 sub loginUser
 {
-	return undef;
+	return;
 }
 
 sub logoutUser
 {
-	return undef;
+	return;
 }
 
 sub authUser
 {
-	return undef;
+	return;
 }
 
 1;

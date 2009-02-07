@@ -1,5 +1,8 @@
 package Everything::Test::Abstract;
 
+use strict;
+use warnings;
+
 use Scalar::Util 'blessed';
 use SUPER;
 use Test::More;

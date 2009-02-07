@@ -482,11 +482,10 @@ sub xmlfile2node
 {
 	my ( $filename, $nofinal ) = @_;
 
-	local *MYXML;
-	open MYXML, $filename or die "could not access file $filename";
+	open my $MYXML, '<', $filename or die "could not access file $filename";
 
-	my $file = do { local $/; <MYXML> };
-	close MYXML;
+	my $file = do { local $/; <$MYXML> };
+	close $MYXML;
 
 	my $result = eval { xml2node( $file, $nofinal ) };
 	Everything::logErrors( '', "Node XML error in '$filename':\n'$@'" ) if $@;

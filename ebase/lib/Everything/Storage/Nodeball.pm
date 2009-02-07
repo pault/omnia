@@ -1019,15 +1019,13 @@ undef if we couldn't find it.
 =cut
 
 sub getPMDir {
-    my $includeDir;
-    my $edir;
 
-    foreach $includeDir (@INC) {
-        $edir = $includeDir . "/Everything";
+    foreach my $includeDir (@INC) {
+        my $edir = $includeDir . "/Everything";
         return $includeDir if ( -e $edir );
     }
 
-    return undef;
+    return;
 }
 
 =head2 C<get_temp_dir>
@@ -1052,7 +1050,7 @@ Create a new directory, if you can, else barf.
 sub createDir {
     my ( $self, $dir ) = @_;
     unless ( -e $dir ) {
-        my $mode = 0777;
+        my $mode = oct(777);
         my $result = mkdir $dir, $mode;
         croak "error creating $dir: $!"
           if ( !$result and !$self->FORCE );
@@ -1280,7 +1278,7 @@ sub buildNodeballMembers {
 
 =head2 C<check_nodeball_integrity>
 
-Checks the internal structure of a nodeball. Return undef if everything is OK.
+Checks the internal structure of a nodeball. return if everything is OK.
 
 Otherwise, it returns a list of two array refs of hash refs.  The hash refs have two keys 'title' and 'type'. The first hashref lists the nodes present in the nodeball but not listed in the ME file.  The second lists those listed in the ME file, but not present in the nodeball.
 
@@ -1373,7 +1371,7 @@ sub CREATE {
     elsif ( $stmt =~ /^CREATE TABLE (\S+) AS (.*)$/si ) {
         $table_name = $1;
         my $subquery = $2;
-        return undef unless $self->TABLE_NAME($table_name);
+        return unless $self->TABLE_NAME($table_name);
         $self->{"struct"}->{"table_names"} = [$table_name];
         $self->{"struct"}->{"subquery"}    = $subquery;
         return 1;
@@ -1381,7 +1379,7 @@ sub CREATE {
     else {
         return $self->do_err("Can't find column definitions!");
     }
-    return undef unless $self->TABLE_NAME($table_name);
+    return unless $self->TABLE_NAME($table_name);
     my $length;
     $table_element_def =~ s/\s+\(/(/g;
     my $primary_defined;
@@ -1400,7 +1398,7 @@ sub CREATE {
 "Column definition, $name $type $constraints, is missing a data type!"
             );
         }
-        return undef if !( $self->IDENTIFIER($name) );
+        return if !( $self->IDENTIFIER($name) );
         $name = $self->replace_quoted_ids($name);
 
         $self->{"struct"}->{"column_defs"}->{"$name"}->{"data_type"}   = $type;

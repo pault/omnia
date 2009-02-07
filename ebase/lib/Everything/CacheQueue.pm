@@ -193,7 +193,7 @@ sub removeItem
 {
 	my ( $this, $data ) = @_;
 
-	return undef if ( not defined $data );
+	return if ( not defined $data );
 
 	$this->removeData($data);
 	return $$data{item};

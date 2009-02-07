@@ -876,7 +876,7 @@ sub AUTOLOAD {
     die("No function or htmlcode named '$subname' exists.") unless ($CODE);
 
     # We can only execute this if the logged in user has execute permissions.
-    return undef unless ( $CODE->hasAccess( $user, 'x' ) );
+    return unless ( $CODE->hasAccess( $user, 'x' ) );
 
     return $CODE->run(
         { no_cache => $$HTMLVARS{noCompile}, args => \@_, ehtml => $self } );
@@ -1116,7 +1116,7 @@ sub evalX {
     # us from getting the "subroutine * redefined" warning.
     local $^W = 0;
 
-    my $result = eval($EVALX_CODE);
+    my $result = eval($EVALX_CODE);    ## no critic
 
     # Log any errors that we get so that we may display them later.
     logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
@@ -1850,7 +1850,7 @@ sub URI::_query::query_form_newstyle {
     }
     return if !defined($old) || !length($old) || !defined(wantarray);
     return unless $old =~ /=/; # not a form
-    map { s/\+/ /g; uri_unescape($_) }
+    map { my $url = $_; $url =~ s/\+/ /g; uri_unescape($url) }
          map { /=/ ? split(/=/, $_, 2) : ($_ => '')} split(/;/, $old);
 }
 

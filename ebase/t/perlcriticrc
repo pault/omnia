@@ -1,0 +1,4 @@
+severity = 5
+[TestingAndDebugging::ProhibitNoStrict]
+allow = vars subs refs
+

@@ -105,7 +105,9 @@ sub test_eval_code : Test(4) {
   local *Everything::HTML::logErrors;
   *Everything::HTML::logErrors = sub { $errors = "@_" };
 
+  ## no critic
   my $code = eval "sub {'random text'}";
+  ## use critic
 
   my $ehtml = Everything::HTML->new;
   ## NOTE: the third argument is the args passed to the subroutine,

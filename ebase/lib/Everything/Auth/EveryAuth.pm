@@ -157,7 +157,7 @@ sub confirmUser
 	my $user = $DB->getNode( $nick, $DB->getType('user') );
 	my $genCrypt;
 
-	return undef unless ($user);
+	return unless ($user);
 
 	$genCrypt = crypt( $$user{passwd}, $$user{title} );
 
@@ -167,7 +167,7 @@ sub confirmUser
 		return $user;
 	}
 
-	return undef;
+	return;
 }
 
 1;

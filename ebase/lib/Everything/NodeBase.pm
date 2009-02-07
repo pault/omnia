@@ -171,28 +171,29 @@ sub buildNodetypeModules
 		$modules{ $module } = 1;
 
 	    } else {
-		my $module = "Everything::Node::$nodetype"; 
-		my $typenode = $self->getNode($nodetype, 'nodetype');
-		unless ($typenode) {
+		my $module = "Everything::Node::$nodetype";
+		my $nodetype_node = $self->getType('nodetype');
+		## returns an unblessed hash ref
+
+	my $typenode_data = $self->get_storage->getNodeByName($nodetype, $nodetype_node );
+		unless ($typenode_data) {
 		    warn "No such nodetype $nodetype.";
 		    next;
 		}
 
-		my $baseclass_id = $typenode->{extends_nodetype};
+		my $baseclass_id = $typenode_data->{extends_nodetype};
+
+		## XXXX - what if baseclass has not yet been loaded
+		## into the symbol table???
 		my $baseclass = $self->getType($baseclass_id);
 		my $baseclass_title = $baseclass->get_title;
 
 		## Even though we don't 'use' the policy here it's implemented.
-		eval qq|package $module;
-                        use Moose;
-                        extends 'Everything::Node::$baseclass_title';
-                |;
-		if ($@) {
-		    warn "Error loading $nodetype as $module, $@";
-		} else {
-		    $modules{ $module } = 1;
-		}
-		$self->make_node_accessor( $nodetype );
+		my $metaclass = Moose::Meta::Class->create( $module, superclasses => [ "Everything::Node::$baseclass_title" ] );
+
+		$self->make_node_accessor( $metaclass, $typenode_data );
+
+		$modules{ $module } = 1;
 	    }
 
 	}
@@ -202,16 +203,14 @@ sub buildNodetypeModules
 
 sub make_node_accessor {
 
-    my ( $self, $nodetype_name ) = @_;
+    my ( $self, $metaclass, $typenode_data ) = @_;
 
-    my $type = $self->getType( $nodetype_name );
+    my $tables = $typenode_data->{sqltable};
 
-    my $tables = $type->get_sqltable;
     return unless $tables;
     foreach my $table ( split /,/, $tables ) {
 	foreach my $field ( $self->getFields( $table ) ) {
-	    eval "Everything::Node::${nodetype_name}::has( '$field', 'reader', 'get_$field', 'writer', 'set_$field')";
-	    die $@ if $@;
+	    $metaclass->add_attribute( $field, 'reader' => "get_$field", 'writer' => "set_$field");
 	}
     }
 }
@@ -232,11 +231,22 @@ sub load_nodemethods {
 					  'nodemethod'
 					 );
 	next unless $methods;
+
 	foreach my $method (@$methods) {
 
-	    my $code = "package $fullname;" . "\n\n sub " .  $method->{title} . " {\n $$method{code} \n}";
-	    eval $code;
+	    my $meta_class = $fullname->meta;
+
+	    my $code = $method->get_code;
+
+	    ## XXX: this needs to be moved out so all eval occurs in
+	    ## same place - say in Runnable.pm
+
+	    ## no critic
+	    my $code_ref = eval 'sub { ' . $code . ' }';
+	    ## use critic
+
 	    warn "Having trouble putting nodemethod $$method{title} into symbol table, $@" if $@;
+	    $meta_class->add_method ( $method->get_title , $code_ref );
 	}
     }
     
@@ -1006,7 +1016,9 @@ sub hasPermission
 
 	return 0 unless $PERM;
 
+	## no critic
 	my $perms = eval $PERM->{code};
+	## use critic
 
 	return Everything::Security::checkPermissions( $perms, $modes );
 }

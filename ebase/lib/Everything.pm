@@ -18,6 +18,7 @@ use strict;
 use DBI;
 use Scalar::Util 'reftype';
 use Everything::NodeBase;
+use IO::Interactive qw/is_interactive/;
 
 use vars qw($DB $VERSION);
 
@@ -75,7 +76,7 @@ our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 	# This will be true if we are being run from a command line, in which
 	# case all errors should be printed to STDOUT
-	$commandLine = ( -t STDIN && -t STDOUT ) ? 1 : 0;
+	$commandLine = is_interactive() ? 1 : 0;
 
 #############################################################################
 #
@@ -156,10 +157,9 @@ sub printLog
 	# prefix the date and time on the log entry
 	my $message = getTime() . ": $entry\n";
 
-	local *ELOG;
-	if ( open( ELOG, ">> $everythingLog" ) )
+	if ( open( my $ELOG, '>>', "$everythingLog" ) )
 	{
-		print ELOG $message;
+		print $ELOG $message;
 	}
 	else
 	{
@@ -181,10 +181,9 @@ sub clearLog
 {
 	my $time = getTime();
 
-	local *ELOG;
-	if ( open( ELOG, "> $everythingLog" ) )
+	if ( open( my $ELOG, '>', "$everythingLog" ) )
 	{
-		print ELOG "$time: Everything log cleared";
+		print $ELOG "$time: Everything log cleared";
 	}
 	else
 	{

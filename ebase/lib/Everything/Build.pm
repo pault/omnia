@@ -3,6 +3,8 @@ package Everything::Build;
 use File::Find;
 use File::Path;
 use File::NCopy;
+use strict;
+use warnings;
 
 use Module::Build;
 
@@ -30,10 +32,9 @@ sub ACTION_install
 
 	if ( my $httpconf = $self->{args}{httpconf} )
 	{
-		local *CONF;
-		if ( open( CONF, '>> ' . $httpconf ) )
+		if ( open( my $CONF, '>>', $httpconf ) )
 		{
-			print CONF $self->{args}{includestr};
+			print $CONF $self->{args}{includestr};
 		}
 		else
 		{
