@@ -193,6 +193,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
+	$node->set_always( get_nodebase => $db );
 	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache))
 		 ->set_always( -getTableArray => [] );
 	$db->set_series( sqlSelect => 1, 0 )
@@ -220,6 +221,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 		 );
 
 	$node->{restrictdupes} = 0;
+	$node->{nodebase} = $db;
 
 	is( $node->insert( '' ), 100,
 		'... or should return the inserted node_id otherwise' );
@@ -231,7 +233,7 @@ sub test_insert :Test( 3 )
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
 	my $type               = $db->getType( 'nodetype' );
-
+    use Carp; local $SIG{__DIE__} = \&Carp::confess; local $SIG{__WARN__} = \&Carp::cluck;
 	$node->{node_id}       = 0;
 	$node->{type}          = $type;
 	$node->{type_nodetype} = 1;

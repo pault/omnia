@@ -94,6 +94,7 @@ sub reset_mock_node
 	## teardown $db again.
 
 	$db        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
+
 	### can we create a moreextendednode instance?
 	my $newnewnode  = $db->getNode('blahblahblah', 'moreextendednode', 'create force');
 	isa_ok($newnewnode, 'Everything::Node::node');
@@ -152,11 +153,18 @@ sub test_insert :Test( 3 )
 	$sth->finish();
 }
 
-sub test_check_accessors : Test(2) {
+sub test_check_accessors : Test(5) {
 
     my $self = shift;
     my $node = $self->{node};
 
+
+    ## XXX: we need to mock the cache whihch is called from
+    ## NodeBase.pm- caching should be only turned on when we ask for
+    ## it explicitly, so this mocking in temporary
+    $self->{mock_db}->{cache} = Test::MockObject->new;
+    $self->{mock_db}->{cache}->set_true( 'incrementGlobalVersion', 'cacheNode' );
+    $self->{mock_db}->{cache}->set_false( 'getCachedNodeByName', 'getCachedNodeById' );
 
     my $meta = $node->meta;
     my @methods = $meta->get_all_methods;
@@ -173,6 +181,23 @@ sub test_check_accessors : Test(2) {
     my ( $value ) = $sth->fetchrow_array;
 
     is( $value, 'some random text', '...can update virtual attributes.');
+    is( $node->get_afield, 'some random text', '...can be accessed using accessor.');
+
+    ### create an instance of superextendednode
+
+    my $new;
+
+    isa_ok ($new = $self->{mock_db}->getNode( 'test node', 'moreextendednode', 'create force' ), 'Everything::Node::moreextendednode' );
+
+    $new->insert( -1 );
+
+    $new->set_afield( '777' );
+
+    $new->update( -1 );
+
+    $new = $self->{mock_db}->getNode( 'test node', 'moreextendednode' );
+
+    is ( $new->get_afield, 777 );
 }
 
 package Test::MockObject::Extends::NoCheck;

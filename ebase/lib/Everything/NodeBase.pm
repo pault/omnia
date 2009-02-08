@@ -10,6 +10,7 @@ package Everything::NodeBase;
 
 use strict;
 use warnings;
+use Carp qw/cluck/;
 
 use File::Spec;
 use Everything ();
@@ -420,10 +421,6 @@ sub store_new_node {
 	$tableData{author_user} ||= $user_id;
 	$tableData{hits} = 0;
 
-	# Fix location hell
-	my $loc = $this->getNode( $node->get_type->get_title, "location" );
-	$tableData{loc_location} = $loc->getId() if $loc;
-
 	$this->sqlInsert( 'node', \%tableData );
 
 	# Get the id of the node that we just inserted!
@@ -728,14 +725,15 @@ sub getNode
 	}
 	else
 	{
-		$ext = $this->getType($ext);
+		my $typenode = $this->getType($ext);
+		cluck "Can't retrieve nodetype $ext" unless $typenode; # for debugging
 
 		$ext2 ||= "";
 		if ( $ext2 ne "create force" )
 		{
 		    	$NODE = $this->{cache}->getCachedNodeByName( $node, $ext );
 
-			$NODE = $this->getNodeByName( $node, $ext ) if not defined $NODE;
+			$NODE = $this->getNodeByName( $node, $typenode ) if not defined $NODE;
 		}
 
 		if (   ( $ext2 eq "create force" )
@@ -747,7 +745,7 @@ sub getNode
 			$NODE = {
 				node_id                  => -1,
 				title                    => $node,
-				type_nodetype            => $this->getId($ext),
+				type_nodetype            => $this->getId($typenode),
 				authoraccess             => 'iiii',
 				groupaccess              => 'iiiii',
 				otheraccess              => 'iiiii',

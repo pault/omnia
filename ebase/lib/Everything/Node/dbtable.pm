@@ -27,8 +27,7 @@ override insert => sub
 	my ( $this, $USER ) = @_;
 
 	my $result = $this->super( $USER );
-
-	$this->{DB}->createNodeTable( $this->{title} ) if $result > 0;
+	$this->get_nodebase->createNodeTable( $this->{title} ) if $result > 0;
 
 	return $result;
 };
