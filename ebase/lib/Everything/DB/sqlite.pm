@@ -79,19 +79,16 @@ sub getFieldsHash
 	$getHash = 1 unless defined $getHash;
 	$table ||= "node";
 
-	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' ) || {};
+	my $DBTABLE = {};
+	$DBTABLE->{Fields} = [];
 
-	unless ( exists $DBTABLE->{Fields} )
-	{
-		my $sth = $this->{dbh}->prepare( "PRAGMA table_info($table)" );
-		$sth->execute();
+	my $sth = $this->{dbh}->prepare( "PRAGMA table_info($table)" );
+	$sth->execute();
 
-		while ( my $table_desc = $sth->fetchrow_arrayref()) {
-		    push @{ $DBTABLE->{Fields} }, { Field => $$table_desc[1] };
-		}
-		$sth->finish();
-
+	while ( my $table_desc = $sth->fetchrow_arrayref()) {
+	    push @{ $DBTABLE->{Fields} }, { Field => $$table_desc[1] };
 	}
+	$sth->finish();
 
 	return @{ $DBTABLE->{Fields} } if $getHash;
 	return map { $_->{Field} } @{ $DBTABLE->{Fields} };

@@ -65,32 +65,27 @@ sub getFieldsHash
 	$getHash = 1 if ( not defined $getHash );
 	$table ||= "node";
 
-	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' );
-	$DBTABLE ||= {};
+	my $DBTABLE ||= {};
 
-	unless ( exists $$DBTABLE{Fields} )
-	{
+	my $cursor = $this->{dbh}->column_info( undef, undef, $table, '%' );
 
- 	    my $cursor = $this->{dbh}->column_info( undef, undef, $table, '%' );
+	die $cursor->err if $cursor->err;
+	$cursor->execute();
 
- 	    die $cursor->err if $cursor->err;
- 	    $cursor->execute();
+	die $DBI::errstr if $DBI::errstr;
 
- 	    die $DBI::errstr if $DBI::errstr;
+	while ( my $field = $cursor->fetchrow_hashref )
+	  {
 
-	    while ( my $field = $cursor->fetchrow_hashref )
-	      {
+	      # DBD::Pg seems to automatically quote some (but not
+	      # all) column names.  This is a workaround.
+	      $$field{COLUMN_NAME} =~ s/^"?(.*?)"?$/$1/;
 
-		  # DBD::Pg seems to automatically quote some (but not
-		  # all) column names.  This is a workaround.
-		  $$field{COLUMN_NAME} =~ s/^"?(.*?)"?$/$1/;
+	      # for backwards compatibility
+	      $$field{Field} = $$field{COLUMN_NAME};
 
-		  # for backwards compatibility
-		  $$field{Field} = $$field{COLUMN_NAME};
-
-		  push @{ $DBTABLE->{Fields} }, $field;
-	      }
-  	}
+	      push @{ $DBTABLE->{Fields} }, $field;
+	  }
 
 	$$DBTABLE{Fields} ||= [];
 

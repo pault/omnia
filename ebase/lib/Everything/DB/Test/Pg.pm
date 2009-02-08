@@ -75,7 +75,7 @@ sub test_get_all_types : Test(+0) {
 
 }
 
-sub test_get_fields_hash : Test(11) {
+sub test_get_fields_hash : Test(7) {
     my $self = shift;
 
     can_ok( $self->{class}, 'getFieldsHash' ) || return;
@@ -88,11 +88,7 @@ sub test_get_fields_hash : Test(11) {
 
     my @result = $self->{instance}->getFieldsHash('table');
 
-    my ( $method, $args ) = $self->{instance}->{nb}->next_call();
-    is( $method, 'getNode', 'getFieldsHash() should fetch node' );
-    is( join( '-', @$args[ 1, 2 ] ),
-        'table-dbtable', '... by name, of dbtable type' );
-    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
 
     is( $method, 'column_info', '... displaying the table columns' );
     is(
@@ -106,11 +102,6 @@ sub test_get_fields_hash : Test(11) {
     $self->{instance}->{nb}->set_always('getNode', { Fields => [ { Field => 'foo'}, { Field => 'bar' } ] } );
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
     @result = $self->{instance}->getFieldsHash( '', 0 );
-    ( $method, $args ) = $self->{instance}->{nb}->next_call();
-    is( $method,
-        'getNode', 'getFieldsHash() should respect fields cached in node' );
-
-    is( $args->[1], 'node', '... using the node table by default' );
 
     is_deeply(
         \@result,

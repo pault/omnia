@@ -60,7 +60,7 @@ sub test_database_connect : Test(5) {
 
 }
 
-sub test_get_fields_hash : Test(9) {
+sub test_get_fields_hash : Test(7) {
     my $self = shift;
 
     can_ok( $self->{class}, 'getFieldsHash' ) || return;
@@ -74,11 +74,7 @@ sub test_get_fields_hash : Test(9) {
     $self->{instance}->{dbh}->set_false(qw/err/ );
 
     my @result = $self->{instance}->getFieldsHash('table');
-    my ( $method, $args ) = $self->{instance}->{nb}->next_call();
-    is( $method, 'getNode', 'getFieldsHash() should fetch node' );
-    is( join( '-', @$args[ 1, 2 ] ),
-        'table-dbtable', '... by name, of dbtable type' );
-    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    my ( $method, $args ) = $self->{instance}->{dbh}->next_call();
 
     is( $method, 'column_info', '... displaying the table columns' );
     is( join( ' ', @$args[ 3, 4 ] ),
@@ -91,10 +87,10 @@ sub test_get_fields_hash : Test(9) {
     $self->{instance}->{dbh}->clear();
     $self->{instance}->{dbh}->set_series( 'fetchrow_hashref', @$fields );
     @result = $self->{instance}->getFieldsHash( '', 0 );
-    is( $self->{instance}->{nb}->call_pos(-1),
-        'getNode', 'getFieldsHash() should respect fields cached in node' );
-    ( $method, $args ) = $self->{instance}->{nb}->next_call();
-    is( $args->[1], 'node', '... using the node table by default' );
+
+    ( $method, $args ) = $self->{instance}->{dbh}->next_call();
+    is ( $method, 'column_info', '...calls mysql\'s info method.' );
+    is( $args->[3], 'node', '... using the node table by default' );
     is_deeply(
         \@result,
         [ 'foo', 'bar' ],

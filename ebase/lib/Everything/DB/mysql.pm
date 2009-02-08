@@ -77,26 +77,22 @@ sub getFieldsHash
 	$getHash = 1 unless defined $getHash;
 	$table ||= "node";
 
-	my $DBTABLE = $this->{nb}->getNode( $table, 'dbtable' ) || {};
+	my $DBTABLE = {};
 
-	unless ( exists $$DBTABLE{Fields} )
-	{
+	my $cursor = $this->{dbh}->column_info( undef, undef, $table, '%' );
+	
+	die $cursor->err if $cursor->err;
+	$cursor->execute();
 
- 	    my $cursor = $this->{dbh}->column_info( undef, undef, $table, '%' );
+	die $DBI::errstr if $DBI::errstr;
 
- 	    die $cursor->err if $cursor->err;
- 	    $cursor->execute();
+	while ( my $field = $cursor->fetchrow_hashref )
+	  {
+	      # for backwards compatibility
+	      $$field{Field} = $$field{COLUMN_NAME};
 
- 	    die $DBI::errstr if $DBI::errstr;
-
-	    while ( my $field = $cursor->fetchrow_hashref )
-	      {
-		  # for backwards compatibility
-		  $$field{Field} = $$field{COLUMN_NAME};
-
-		  push @{ $DBTABLE->{Fields} }, $field;
-	      }
-  	}
+	      push @{ $DBTABLE->{Fields} }, $field;
+	  }
 
 	return @{ $$DBTABLE{Fields} } if $getHash;
 	return map { $$_{Field} } @{ $$DBTABLE{Fields} };
