@@ -78,7 +78,8 @@ sub handler {
 
     $r->content_type( $response->content_type );
 
-    $r->headers_out->set( 'Set-Cookie' => $e->get_user->{cookie} );
+    my $cookie = $e->get_user->{cookie};
+    $r->headers_out->set( 'Set-Cookie' => $cookie ) if $cookie;
 
     my %headers = $response->headers;
 

@@ -20,6 +20,7 @@ has inside_workspace => ( is => 'rw' );
 has karma => ( is => 'rw' );
 has nick => ( is => 'rw' );
 has realname => ( is => 'rw' );
+has passwd => ( is => 'rw' );
 
 =head2 C<dbtables()>
 

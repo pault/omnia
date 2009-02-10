@@ -88,7 +88,7 @@ sub test_10_sql_tables : Test(1) {
        ok( $self->{installer}->update_existing_nodes );
    }
 
-sub test_20_nodetypes : Test(1) {
+sub test_20_nodetypes : Test(29) {
 
     my $self = shift;
 
@@ -119,6 +119,10 @@ sub test_20_nodetypes : Test(1) {
     }
     is_deeply( \%all_types, \%xml_types, '...28 nodetypes are installed.' );
 
+    foreach ( 1..28 ) {
+	my $nodetype = $nb->getType( $_ );
+	isa_ok( $nodetype, 'Everything::Node::nodetype' );
+    }
 }
 
 sub test_30_install_nodes : Test(1) {
