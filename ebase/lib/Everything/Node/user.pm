@@ -8,11 +8,13 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::user;
 
-
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 extends 'Everything::Node::setting';
+
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
 
 has doctext => ( is => 'rw' );
 has email => ( is => 'rw' );

@@ -211,6 +211,7 @@ sub sqlSelectJoined
 {
 	my ( $this, $select, $table, $joins, $where, $other, $bound ) = @_;
 
+	$bound ||= [];
 	my $sql = "SELECT $select ";
 	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
 
@@ -451,8 +452,8 @@ sub update_or_insert {
 
 	if ( $exists ) {
 	    $this->sqlUpdate( $table, $data, $where, $prebound );
-	} else {
 
+	} else {
 	    $data->{$table . '_id'} = $node_id;
 	    $this->sqlInsert( $table, $data );
 	}

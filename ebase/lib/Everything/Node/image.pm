@@ -13,6 +13,9 @@ use Moose;
 
 extends 'Everything::Node::node';
 
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
 has alt => ( is => 'rw' );
 has description => ( is => 'rw' );
 has src => ( is => 'rw' );

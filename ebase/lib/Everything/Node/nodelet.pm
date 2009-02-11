@@ -12,6 +12,9 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 extends 'Everything::Node::Parseable', 'Everything::Node::node';
 
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
 has $_ => ( is => 'rw' ) foreach qw/mini_nodelet nlcode parent_container updateinterval nltext/;
 
 =head2 C<dbtables()>

@@ -12,6 +12,9 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 extends 'Everything::Node::setting';
 
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
 override nuke => sub
 {
 	my ( $this, $USER ) = @_;

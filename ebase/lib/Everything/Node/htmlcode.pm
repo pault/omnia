@@ -11,6 +11,9 @@ package Everything::Node::htmlcode;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
 extends 'Everything::Node::node', 'Everything::Node::Runnable';
 
 has code => ( is => 'rw' );

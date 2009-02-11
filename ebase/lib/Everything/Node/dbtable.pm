@@ -12,6 +12,9 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 extends 'Everything::Node::node';
 
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
 =head2 C<insert>
 
 We need to create the table in the database.  This gets the node inserted into

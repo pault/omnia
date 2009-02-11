@@ -22,6 +22,7 @@ use strict;
 use Everything ();
 use Everything::Util ();
 use XML::DOM;
+use Scalar::Util qw/blessed/;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -1199,6 +1200,20 @@ sub existingNodeMatches
 
 sub get_nodebase {
     $_[0]->{DB};
+}
+
+sub type {
+
+    my $self = shift;
+    my $class = blessed( $self );
+    my $nodetype =  $class->get_class_nodetype;
+
+    if ( not $nodetype ) {
+	my ($name) = $class =~ /::(\w+)$/;
+	my $nodetype = $self->get_nodebase->getNode( $name, 'nodetype' );
+	$class->set_class_nodetype;
+    }
+    return $nodetype;
 }
 
 #############################################################################

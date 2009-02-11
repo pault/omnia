@@ -8,10 +8,13 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::symlink;
 
-use strict;
-use warnings;
 
-use base 'Everything::Node::node';
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+extends 'Everything::Node::node';
+
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
 
 =head2 C<dbtables()>
 

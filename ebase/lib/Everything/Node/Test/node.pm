@@ -194,6 +194,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
 	$node->set_always( get_nodebase => $db );
+	$node->set_always( type => $node );
 	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache))
 		 ->set_always( -getTableArray => [] );
 	$db->set_series( sqlSelect => 1, 0 )
@@ -233,15 +234,16 @@ sub test_insert :Test( 3 )
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
 	my $type               = $db->getType( 'nodetype' );
-    use Carp; local $SIG{__DIE__} = \&Carp::confess; local $SIG{__WARN__} = \&Carp::cluck;
+
 	$node->{node_id}       = 0;
-	$node->{type}          = $type;
+	$node->set_always ( type => $node );
+	$node->set_always ( getTableArray => [] );
 	$node->{type_nodetype} = 1;
 
 	$node->set_true(qw( -hasAccess -restrictTitle -getId ));
 	$node->{foo}  = 11;
 
-	delete $node->{type}{restrictdupes};
+	delete $node->{restrictdupes};
 
 	my $time = time();
 	$db->set_always( -now => $time );
@@ -298,6 +300,7 @@ sub test_update :Test( 11 )
 
 	$node->set_true( -hasAccess )
 		 ->set_always( getTableArray => [ 'table', 'table2' ] )
+		 ->set_always( -type => $node )
 		 ->set_true( 'cache' );
 
 	$db->set_true(qw( incrementGlobalVersion sqlUpdate now sqlSelect update_or_insert))

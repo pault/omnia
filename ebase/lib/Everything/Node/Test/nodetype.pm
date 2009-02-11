@@ -137,7 +137,7 @@ sub test_insert :Test( +4 )
 	my $node = $self->{node};
 	my $db   = $self->{mock_db};
 
-	$node->{extends_nodetype} = 100;
+	$node->{extends_nodetype} = 2;
 	$node->{type_nodetype}    = 200;
 	$self->SUPER::test_insert();
 	delete $node->{extends_nodetype};

@@ -16,6 +16,9 @@ use Moose;
 
 extends 'Everything::Node::node', 'Everything::Node::Parseable';
 
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
 has code => ( is => 'rw' );
 has dynamic => ( is => 'rw' );
 has comment => ( is => 'rw' );

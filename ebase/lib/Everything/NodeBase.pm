@@ -159,47 +159,76 @@ memory
 
 =cut
 
-sub buildNodetypeModules
-{
-	my $self = shift;
+sub buildNodetypeModules {
+    my $self = shift;
 
-	my %modules;
+    my %modules;
 
-	for my $nodetype ( $self->{storage}->fetch_all_nodetype_names( 'ORDER BY node_id' ) )
-	{
-	    my $module = "Everything::Node::$nodetype";
-	    if ($self->loadNodetypeModule( $module ) ){
-		$modules{ $module } = 1;
+    for my $nodetype (
+        $self->{storage}->fetch_all_nodetype_names('ORDER BY node_id') )
+    {
+        my $module = "Everything::Node::$nodetype";
+        if ( $self->loadNodetypeModule($module) ) {
+            $modules{$module} = 1;
 
-	    } else {
-		my $module = "Everything::Node::$nodetype";
-		my $nodetype_node = $self->getType('nodetype');
-		## returns an unblessed hash ref
+        }
+        else {
+            my $module        = "Everything::Node::$nodetype";
+            my $nodetype_node = $self->getType('nodetype');
+            ## returns an unblessed hash ref
 
-	my $typenode_data = $self->get_storage->getNodeByName($nodetype, $nodetype_node );
-		unless ($typenode_data) {
-		    warn "No such nodetype $nodetype.";
-		    next;
-		}
+            my $typenode_data =
+              $self->get_storage->getNodeByName( $nodetype, $nodetype_node );
+            unless ($typenode_data) {
+                warn "No such nodetype $nodetype.";
+                next;
+            }
 
-		my $baseclass_id = $typenode_data->{extends_nodetype};
+            my $baseclass_id = $typenode_data->{extends_nodetype};
 
-		## XXXX - what if baseclass has not yet been loaded
-		## into the symbol table???
-		my $baseclass = $self->getType($baseclass_id);
-		my $baseclass_title = $baseclass->get_title;
+            ## XXXX - what if baseclass has not yet been loaded
+            ## into the symbol table???
+            my $baseclass       = $self->getType($baseclass_id);
+            my $baseclass_title = $baseclass->get_title;
 
-		## Even though we don't 'use' the policy here it's implemented.
-		my $metaclass = Moose::Meta::Class->create( $module, superclasses => [ "Everything::Node::$baseclass_title" ] );
+            use Moose::Util::MetaRole                     ();
+            use MooseX::ClassAttribute::Role::Meta::Class ();
 
-		$self->make_node_accessor( $metaclass, $typenode_data );
+            ## Even though we don't 'use' the policy here it's implemented.
+            my $metaclass =
+              Moose::Meta::Class->create( $module,
+                superclasses => ["Everything::Node::$baseclass_title"] );
 
-		$modules{ $module } = 1;
-	    }
+            Moose::Util::MetaRole::apply_metaclass_roles(
+                for_class => $module,
+                metaclass_roles =>
+                  ['MooseX::ClassAttribute::Role::Meta::Class'],
+            );
+            $metaclass =
+              Moose::Meta::Class->initialize( $module,
+                superclasses => ["Everything::Node::$baseclass_title"] );
 
-	}
-	$self->load_nodemethods(\%modules);
-	return \%modules;
+            $metaclass->add_class_attribute(
+                'class_nodetype',     'reader',
+                'get_class_nodetype', 'writer',
+                'set_class_nodetype', 'isa',
+                'Everything::Node::nodetype'
+            );
+
+            $self->make_node_accessor( $metaclass, $typenode_data );
+
+            $modules{$module} = 1;
+        }
+
+    }
+    $self->load_nodemethods( \%modules );
+    foreach ( sort keys %modules ) {
+        my ($name) = $_ =~ /::(\w+)$/;
+        my $typenode = $self->getType($name);
+        $_->set_class_nodetype($typenode);
+
+    }
+    return \%modules;
 }
 
 sub make_node_accessor {
@@ -391,10 +420,10 @@ sub store_new_node {
 	# we are not forcing it.
 	return $node_id if $node_id > 0;
 
-	if ( $node->get_type->{restrictdupes} )
+	if ( $node->type->{restrictdupes} )
 	{
 		# Check to see if we already have a node of this title.
-		my $id = $node->get_type->getId();
+		my $id = $node->type->getId();
 
 		my $DUPELIST =
 			$this
@@ -428,7 +457,7 @@ sub store_new_node {
 
 	# Now go and insert the appropriate rows in the other tables that
 	# make up this nodetype;
-	my $tableArray = $node->get_type->getTableArray();
+	my $tableArray = $node->type->getTableArray();
 	foreach my $table (@$tableArray)
 	{
 		my @fields = $this->getFields($table);
@@ -448,6 +477,7 @@ sub store_new_node {
 	# the info from the newly inserted node.  This way, the user of
 	# the API just calls $NODE->insert() and their node gets filled
 	# out for them.  Woo hoo!
+
 	my $newNode = $this->getNode( $node_id, 'force' );
 	undef %$node;
 	@$node{ keys %$newNode } = values %$newNode;
@@ -515,7 +545,7 @@ sub update_stored_node {
 
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
-	my $tableArray = $node->{type}->getTableArray(1);
+	my $tableArray = $node->type->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
 		my %VALUES;
@@ -702,6 +732,7 @@ sub getNode
 
 	my $NODE;
 	my $cache = "";
+	my $typenode;
 
 	if ( ref $node eq 'HASH' )
 	{
@@ -719,14 +750,36 @@ sub getNode
 	      }
 
 	    if ( not defined $NODE ) {
+
 		$NODE = $this->getNodeByIdNew( $node, $ext );
+
+		if ( $$NODE{node_id} == 1 ) {
+
+		    undef $typenode;
+
+		} else {
+
+		    $typenode = $this->getNode( $$NODE{type_nodetype} );
+
+		}
+
 	    }
 		$cache = "nocache" if ( defined $ext && $ext eq 'light' );
 	}
 	else
 	{
-		my $typenode = $this->getType($ext);
-		cluck "Can't retrieve nodetype $ext" unless $typenode; # for debugging
+	        my $class;
+
+	        if ( blessed $ext ) {
+		    $typenode = $ext;
+		} elsif ( $ext =~ /^\d+$/ ) {
+		    $typenode = $this->getNode( $ext );
+		} else {
+
+		    $class = 'Everything::Node::'. $ext;
+		    $typenode = $class->get_class_nodetype;
+
+		}
 
 		$ext2 ||= "";
 		if ( $ext2 ne "create force" )
@@ -759,20 +812,25 @@ sub getNode
 
 	return unless $NODE;
 
-	return $NODE if blessed( $NODE );
+	return $NODE if blessed( $NODE ); ## in case we got one from cache
 
 	my $type_name;
 
 	$$NODE{DB} = $this;
+
 	if ( $NODE->{node_id} == 1) {
 	    $type_name = 'Everything::Node::nodetype';
 	} else {
-	    Everything::Node::assignType( $NODE );
-	    $type_name = "Everything::Node::" . $NODE->{type}->get_title;
+	    $type_name = "Everything::Node::" . $typenode->get_title;
+	    $$NODE{type} = $typenode;
 	}
 
 	my $blessed_node = $type_name->new( { %$NODE, nodebase => $this, DB => $this, nocache => $cache } );
+
+	$blessed_node->{type} = $blessed_node if $blessed_node->{node_id} ==1;
+
 	$blessed_node->cache unless $cache eq 'nocache';
+
 	return $blessed_node;
 }
 

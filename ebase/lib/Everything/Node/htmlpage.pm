@@ -8,14 +8,13 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::htmlpage;
 
-use strict;
-use warnings;
-
-
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 extends 'Everything::Node::node', 'Everything::Node::Parseable';
+
+use MooseX::ClassAttribute;
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
 
 has $_ => ( is => 'rw' ) foreach qw/MIMEtype displaytype ownedby_theme page pagetype_nodetype parent_container permissionneeded/;
 

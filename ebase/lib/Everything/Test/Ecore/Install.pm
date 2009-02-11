@@ -81,7 +81,7 @@ sub test_10_sql_tables : Test(1) {
 
 }
 
-   sub test_11_base_nodes : Test(1) {
+   sub test_35_base_nodes : Test(1) {
 
        my $self = shift;
 

@@ -57,7 +57,11 @@ sub reset_mock_nb
 			->set_true(qw( databaseConnect buildNodetypeModules ))
 			->fake_module( 'Everything::DB::fake_db', 'new', sub { $mock_db });
 
+	local *Everything::NodeBase::getType;
+	*Everything::NodeBase::getType = sub {}; # so we don't load settings
+
 	my $nb      = $module->new( '', 0, 'fake_db' );
+
 	$self->{nb} = Test::MockObject::Extends->new( $nb );
 }
 
@@ -134,12 +138,18 @@ sub test_build_nodetype_modules :Test( 3 )
 	my $storage = $self->{storage};
 
 	$nb->set_series( loadNodetypeModule => 1, 1, 0, 1 );
+	my @types =  qw( node nodetype cow dbtable );
+
+	local *Everything::Node::dbtable::set_class_nodetype = sub { 1 };
+	local *Everything::Node::node::set_class_nodetype = sub { 1 };
+	local *Everything::Node::nodetype::set_class_nodetype = sub { 1 };
 
 	$nb->set_always( getType => $nb );
 	$nb->set_always( getNodeWhere => undef ); # to stop load_node_methods
 	$storage->mock(
-		fetch_all_nodetype_names => sub { qw( node nodetype cow dbtable ) }
+		fetch_all_nodetype_names => sub { @types }
 	);
+
 	$storage->set_always( getFieldsHash => '' );
 	$storage->set_false( 'getNodeByName');
 
@@ -169,6 +179,7 @@ sub test_build_nodetypedb_modules :Test( 9 )
 	);
 	$storage->set_series('getNodeByName', {extends_nodetype => 1},  {extends_nodetype => 2},  {extends_nodetype => 3} );
 	$nb->set_always( getType => $nb );
+	$nb->set_true( 'isa' ); # to get around attribute class constraints
 	$nb->set_always( get_sqltable => '' );
 	$nb->set_true( 'load_nodemethods' );
 	$nb->set_series('get_title', 'node', 'supernode',  'extendednode' );

@@ -41,7 +41,7 @@ sub test_imports :Test(startup => 0) {
     return "Doesn't import symbols";
 }
 
-sub make_fixture :Test(setup => 6)
+sub make_fixture :Test(setup => 7)
 {
 	my $self      = shift;
 	$self->make_test_db();
@@ -72,6 +72,7 @@ sub reset_mock_node
 
 	my $type = $db->getType('node');
 	my $newtype = $db->getNode( 'extendednode', 'nodetype', 'create force');
+
 	## dbtable
 	$db->createNodeTable( 'extendednodetable' );
 	$db->addFieldToTable( 'extendednodetable', 'afield', 'char(32)' );
@@ -100,6 +101,8 @@ sub reset_mock_node
 	isa_ok($newnewnode, 'Everything::Node::node');
 	isa_ok($newnewnode, 'Everything::Node::extendednode');
 	isa_ok($newnewnode, 'Everything::Node::moreextendednode');
+
+	can_ok( 'Everything::Node::moreextendednode', 'get_afield', 'set_afield' );
 
 	$newnewnode = Test::MockObject::Extends::NoCheck->new($newnewnode);
 	$newnewnode->set_nodebase ( $self->{mock_db} );
@@ -153,7 +156,7 @@ sub test_insert :Test( 3 )
 	$sth->finish();
 }
 
-sub test_check_accessors : Test(5) {
+sub test_check_accessors : Test(8) {
 
     my $self = shift;
     my $node = $self->{node};
@@ -189,14 +192,19 @@ sub test_check_accessors : Test(5) {
 
     isa_ok ($new = $self->{mock_db}->getNode( 'test node', 'moreextendednode', 'create force' ), 'Everything::Node::moreextendednode' );
 
-    $new->insert( -1 );
+    my $id =  $new->insert( -1 );
+    ok($id > 0, '... inserts new node.' );
 
     $new->set_afield( '777' );
 
-    $new->update( -1 );
+    ok ($new->update( -1 ), '...updates it.');
 
-    $new = $self->{mock_db}->getNode( 'test node', 'moreextendednode' );
+    $new = $self->{mock_db}->getNode( 'test node', 'moreextendednode', 'force' );
+    $sth = $dbh->prepare( "select afield from extendednodetable where extendednodetable_id = $$new{node_id}");
+    $sth->execute;
+    ( $value ) = $sth->fetchrow_array;
 
+    is ( $value, 777, '...the updated field is in the table.'); 
     is ( $new->get_afield, 777 );
 }
 
