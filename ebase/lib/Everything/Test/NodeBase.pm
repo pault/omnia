@@ -145,6 +145,7 @@ sub test_build_nodetype_modules :Test( 3 )
 	local *Everything::Node::nodetype::set_class_nodetype = sub { 1 };
 
 	$nb->set_always( getType => $nb );
+	$nb->set_always( getId => 1 );
 	$nb->set_always( getNodeWhere => undef ); # to stop load_node_methods
 	$storage->mock(
 		fetch_all_nodetype_names => sub { @types }
@@ -226,7 +227,8 @@ sub test_load_nodemethods : Test(5) {
     $mock_method->set_series( get_code => 'return "hhhh"', 'my $x = 10',  'return "hhhh"', 'my $x = 10' );
     $mock_method->set_series( get_title => 'vulcan', 'hephaistos',  'vulcan', 'hephaistos' );
 
-    $nb->set_always('getType', { node_id => 1111} );
+    $nb->set_always('getType', $nb );
+    $nb->set_always( getId => 1111 );
     $nb->load_nodemethods(\%modules);
 
     ok ( defined *{Everything::Node::foo::vulcan}{CODE}, '...should create relevant symbol table entry.');
@@ -331,7 +333,7 @@ sub test_new_node :Test( 6 )
 		'... using a dummy title without one provided' );
 }
 
-sub test_get_node :Test( 3 )
+sub test_get_node :Test( 6 )
 {
 	my $self = shift;
 	my $nb   = $self->{nb};
@@ -343,6 +345,38 @@ sub test_get_node :Test( 3 )
 	my $node = bless {}, 'Everything::Node';
 	is( $nb->getNode( $node ), $node,
 		'... and should return node if it is a node already' );
+
+	my $s =  Test::MockObject->new;
+	$nb->set_storage( $s );
+
+	$nb->{cache} = $nb;
+
+	$nb->set_false( qw/getCachedNodeById getCachedNodeByName/ );
+	$nb->{cache} = $nb;
+
+	$nb->set_true(qw/cacheNode/);
+
+	$s->mock( getNodeByIdNew => sub {} );
+	require Everything::Node::nodetype;
+	$s->mock( getNodeByName => sub {} );
+
+	is ( $nb->getNode( 77 ), undef, "...if passed a non existent ID returns undef.");
+
+	$s->mock( getNodeByIdNew => sub { +{node_id => 1, type_nodetype => 2 } } );
+	$s->set_always( sqlSelect => 'node' );
+	$nb->set_always( getType => $nb );
+	$nb->set_always( get_title => 'a title' );
+
+	is ( $nb->getNode( 'non-existent', 'nodetype' ), undef, "...if passed a non existent name returns undef.");
+
+	$nb->set_true( qw/isa/ );
+	$nb->set_always( get_title => 'node');
+
+	Everything::Node::node->set_class_nodetype( $nb );
+
+	$s->clear;
+	$s->set_always( getNodeByName => { node => 1, node_id => 77 } );
+	is ( $nb->getNode( 'a node' ), undef, '...returns undef if nodetype not defined.');
 
 	# XXX: improve coverage here
 }

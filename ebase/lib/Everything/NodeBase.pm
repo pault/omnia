@@ -226,7 +226,6 @@ sub buildNodetypeModules {
         my ($name) = $_ =~ /::(\w+)$/;
         my $typenode = $self->getType($name);
         $_->set_class_nodetype($typenode);
-
     }
     return \%modules;
 }
@@ -253,10 +252,9 @@ sub load_nodemethods {
 
 	my ($name) = $fullname =~ /::(\w+)$/;
 	my $nodetype_node = $self->getType($name);
-
 	my $methods = $self->getNodeWhere(
 					  {
-					   'supports_nodetype' => $nodetype_node->{node_id}
+					   'supports_nodetype' => $nodetype_node->getId
 					  },
 					  'nodemethod'
 					 );
@@ -676,6 +674,61 @@ sub delete_stored_node {
 
 }
 
+sub retrieve_node_using_id_with_cache {
+
+    my ( $this, $node_id ) = @_;
+
+    my $node;
+
+    $node = $this->{cache}->getCachedNodeById($node_id);
+
+    return $node if $node;
+
+    $node = $this->retrieve_node_using_id( $node_id  );
+
+    return unless $node;
+
+    return $node;
+}
+
+sub retrieve_node_using_id {
+
+    my ( $this, $node_id, $ext ) = @_;
+
+    my $node_data = $this->get_storage->getNodeByIdNew( $node_id );
+
+    return unless $node_data;
+
+    ## get nodetype
+    my $nodetype_name = $this->get_storage->sqlSelect( 'title', 'node', 'node_id = ?', undef, [ $$node_data{ type_nodetype } ] );
+
+    my $class = 'Everything::Node::' . $nodetype_name; 
+    return  $class->new( %$node_data, DB => $this, nodebase => $this );
+
+}
+
+sub retrieve_node_using_name_type_cache {
+
+    my ( $this, $name, $typenode ) = @_;
+
+    my $node;
+
+    $node = $this->{cache}->getCachedNodeByName( $name, $typenode->get_title );
+
+    return $node if $node;
+
+    my $node_data = $this->get_storage->getNodeByName( $name, $typenode );
+
+    return unless $node_data;
+
+    my $class = "Everything::Node::" . $typenode->get_title;
+
+    $node= $class->new( %$node_data, DB => $this, nodebase => $this );
+
+    return $node;
+
+}
+
 =head2 C<getNode>
 
 This is the one and only function needed to get a single node.  If any function
@@ -699,7 +752,9 @@ way of doing a getNodeWhere())
 =item * $ext
 
 extra info.  If $node is a string title, this must be either a hashref to a
-nodetype node, or a nodetype id.  If $node is an id, $ext is optional and can
+nodetype node, or a nodetype id. If $node is a string title and $ext is not defined, undef will be returned.
+
+If $node is an id, $ext is optional and can
 be either 'light' or 'force'.  If 'light' it will retrieve only the information
 from the node table (faster).  If 'force', it will reload the node even if it
 is cached.
@@ -731,8 +786,10 @@ sub getNode
 	return $node if eval { $node->isa( 'Everything::Node' ) };
 
 	my $NODE;
-	my $cache = "";
-	my $typenode;
+
+	$ext2 ||= q{};
+	my $cache = q{};
+	$cache = "nocache" if ( defined $ext && $ext eq 'light' );
 
 	if ( ref $node eq 'HASH' )
 	{
@@ -743,95 +800,73 @@ sub getNode
 	}
 	elsif ( $node =~ /^\d+$/ )
 	{
-
 	    if ( ! $ext or $ext ne "force" )
 	      {
-		  $NODE = $this->{cache}->getCachedNodeById($node);
+		  $NODE = $this->retrieve_node_using_id_with_cache( $node );
+	      } else {
+		  $NODE = $this->retrieve_node_using_id( $node );
 	      }
 
-	    if ( not defined $NODE ) {
-
-		$NODE = $this->getNodeByIdNew( $node, $ext );
-
-		if ( $$NODE{node_id} == 1 ) {
-
-		    undef $typenode;
-
-		} else {
-
-		    $typenode = $this->getNode( $$NODE{type_nodetype} );
-
-		}
-
-	    }
-		$cache = "nocache" if ( defined $ext && $ext eq 'light' );
 	}
 	else
 	{
-	        my $class;
+	    my $type_name;
+	    my $type_node;
 
-	        if ( blessed $ext ) {
-		    $typenode = $ext;
-		} elsif ( $ext =~ /^\d+$/ ) {
-		    $typenode = $this->getNode( $ext );
-		} else {
+	    if ( not $ext ) {
+		return;
+	    } elsif ( blessed $ext ) {
+		$type_name = $ext->get_title;
+		$type_node = $ext;
+	    } elsif ( $ext =~ /^\d+$/ ) {
+		$type_node = $this->getNode( $ext );
+		$type_name = $type_node->get_title;
+	    } else {
 
-		    $class = 'Everything::Node::'. $ext;
-		    $typenode = $class->get_class_nodetype;
+		$type_name = $ext;
+		$type_node = $this->getType( $ext );
+	    }
 
-		}
 
-		$ext2 ||= "";
-		if ( $ext2 ne "create force" )
-		{
-		    	$NODE = $this->{cache}->getCachedNodeByName( $node, $ext );
+	    if ( $ext2 ne 'create force' ) {
 
-			$NODE = $this->getNodeByName( $node, $typenode ) if not defined $NODE;
-		}
+		$NODE = $this->retrieve_node_using_name_type_cache( $node, $type_node );
+	    }
 
-		if (   ( $ext2 eq "create force" )
-			or ( $ext2 eq "create" && ( not defined $NODE ) ) )
-		{
 
-			# We need to create a dummy node for possible insertion!
-			# Give the dummy node pemssions to inherit everything
-			$NODE = {
-				node_id                  => -1,
-				title                    => $node,
-				type_nodetype            => $this->getId($typenode),
-				authoraccess             => 'iiii',
-				groupaccess              => 'iiiii',
-				otheraccess              => 'iiiii',
-				guestaccess              => 'iiiii',
-			};
+	    if (   ( $ext2 eq "create force" )
+		   or ( $ext2 eq "create" && ( not defined $NODE ) ) )
+	      {
 
-			# We do not want to cache dummy nodes
-			$cache = "nocache";
-		}
+		  my $class = "Everything::Node::$type_name";
+		  # We need to create a dummy node for possible insertion!
+		  # Give the dummy node pemssions to inherit everything
+		  my $data = {
+			   node_id                  => -1,
+			   title                    => $node,
+			   type_nodetype            => $class->get_class_nodetype->getId,
+			   authoraccess             => 'iiii',
+			   groupaccess              => 'iiiii',
+			   otheraccess              => 'iiiii',
+			   guestaccess              => 'iiiii',
+			  };
+
+		  # We do not want to cache dummy nodes
+		  $NODE = $class->new( %$data, DB => $this, nodebase => $this );
+
+		  $cache = "nocache";
+	      }
+
 	}
 
 	return unless $NODE;
 
-	return $NODE if blessed( $NODE ); ## in case we got one from cache
-
-	my $type_name;
-
-	$$NODE{DB} = $this;
-
-	if ( $NODE->{node_id} == 1) {
-	    $type_name = 'Everything::Node::nodetype';
-	} else {
-	    $type_name = "Everything::Node::" . $typenode->get_title;
-	    $$NODE{type} = $typenode;
+	if ( blessed( $NODE ) ) {
+	    $NODE->cache unless $cache;
+	    return $NODE;
 	}
 
-	my $blessed_node = $type_name->new( { %$NODE, nodebase => $this, DB => $this, nocache => $cache } );
-
-	$blessed_node->{type} = $blessed_node if $blessed_node->{node_id} ==1;
-
-	$blessed_node->cache unless $cache eq 'nocache';
-
-	return $blessed_node;
+	return;
 }
 
 =head2 C<getNodeZero>
