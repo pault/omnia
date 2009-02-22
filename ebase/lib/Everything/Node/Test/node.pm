@@ -18,13 +18,19 @@ use Scalar::Util qw( reftype blessed );
 use Everything::NodeBase;
 use Everything::DB::sqlite;
 
-sub node_class {
-    my $self = shift;
-    my $name = blessed($self);
-    $name =~ s/Test:://;
-    return $name;
+BEGIN {
+
+    sub node_class {
+        my $self = shift;
+        my $name = blessed($self) || $self;
+        $name =~ s/Test:://;
+        return $name;
+    }
+
+    my $module = __PACKAGE__->node_class;
+    my ($file) = $module =~ s/::/\//g;
+    require "$module.pm";
 }
-use Everything::Node::nodetype;
 
 sub startup : Test( startup => 3 ) {
     my $self = shift;
@@ -55,14 +61,15 @@ sub startup : Test( startup => 3 ) {
         $mock->fake_module( $mod, import => $mockimport );
     }
 
-    use_ok($module);
-
     $self->{imports} = \%import;
+
+    use_ok( $module );
 
     # now test that C<new()> works
     can_ok( $module, 'new' );
     isa_ok( $module->new(), $module );
 }
+
 
 sub setup_imports {
 
@@ -193,6 +200,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
+	$node->{type_nodetype} = 2;
 	$node->set_always( get_nodebase => $db );
 	$node->set_always( type => $node );
 	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache))
@@ -247,6 +255,7 @@ sub test_insert :Test( 3 )
 
 	my $time = time();
 	$db->set_always( -now => $time );
+	$db->set_true( 'rebuildNodetypeModules' );
 
 	$node->set_true( 'cache' );
 	$node->{node_id} = 0;

@@ -10,7 +10,7 @@ package Everything::NodeBase;
 
 use strict;
 use warnings;
-use Carp qw/cluck/;
+use Carp qw/cluck carp/;
 
 use File::Spec;
 use Everything ();
@@ -167,34 +167,94 @@ sub buildNodetypeModules {
     for my $nodetype (
         $self->{storage}->fetch_all_nodetype_names('ORDER BY node_id') )
     {
-        my $module = "Everything::Node::$nodetype";
+	next if $modules{ 'Everything::Node::'.$nodetype};
+	my $module = $self->setup_module( $nodetype, \%modules );
+    }
+    $self->load_nodemethods( \%modules );
+
+    return \%modules;
+}
+
+sub setup_module {
+
+    my ( $self, $nodetype, $modules_loaded ) = @_;
+
+    my $storage = $self->get_storage;
+    my $module        = "Everything::Node::$nodetype";
+
+    ## returns an unblessed hash ref
+    my $typenode_data =
+      $self->get_storage->nodetype_data_by_name( $nodetype );
+
+   unless ($typenode_data) {
+	warn "No such nodetype $nodetype.";
+	return;
+    }
+
+    my $baseclass_id = $typenode_data->{extends_nodetype};
+    my $baseclass = $self->get_storage->nodetype_data_by_id($baseclass_id); # returns unblessed hash ref
+
+    my $baseclass_title;
+    if ( $baseclass ) {
+	$baseclass_title = $baseclass->{ title };
+	$self->setup_module( $baseclass_title, $modules_loaded ); # recurse
+
+    }
+
         if ( $self->loadNodetypeModule($module) ) {
-            $modules{$module} = 1;
+	    $self->set_module_nodetype( $module );
+	    $module->import;
+	    $modules_loaded->{ $module } = 1;
+	    return $module;
 
         }
         else {
-            my $module        = "Everything::Node::$nodetype";
-            my $nodetype_node = $self->getType('nodetype');
-            ## returns an unblessed hash ref
+	    return $self->create_module( $module, $typenode_data, $baseclass_title, $modules_loaded );
 
-            my $typenode_data =
-              $self->get_storage->getNodeByName( $nodetype, $nodetype_node );
-            unless ($typenode_data) {
-                warn "No such nodetype $nodetype.";
-                next;
-            }
+        }
+    return;
+}
 
-            my $baseclass_id = $typenode_data->{extends_nodetype};
+=head2 create_module
 
-            ## XXXX - what if baseclass has not yet been loaded
-            ## into the symbol table???
-            my $baseclass       = $self->getType($baseclass_id);
-            my $baseclass_title = $baseclass->get_title;
+Creates a 'package' of a nodetype class by inserting into the symbol table. It takes the following arguments:
+
+=over
+
+=item module
+
+the full name of the module being created - a string
+
+=item nodetype data
+
+a hashref of the data that would be used to create the nodetype
+
+=item baseclass_name
+
+The name, i.e. title of the node type of the base nodetype
+
+=item modules_loaded
+
+A hashref of all the modules loaded.  On success modifies this in place.
+
+=back
+
+Returns the module name created on success false otherwise.
+
+=cut
+
+sub create_module {
+
+    my( $self, $module, $typenode_data, $baseclass_title, $modules_loaded ) = @_;
 
             use Moose::Util::MetaRole                     ();
             use MooseX::ClassAttribute::Role::Meta::Class ();
 
-            ## Even though we don't 'use' the policy here it's implemented.
+	    if ( not $baseclass_title ) {
+		Carp::cluck "Can't load a virtual node $$typenode_data{ title }, because there is no baseclass.";
+		return;
+	    }
+
             my $metaclass =
               Moose::Meta::Class->create( $module,
                 superclasses => ["Everything::Node::$baseclass_title"] );
@@ -215,19 +275,34 @@ sub buildNodetypeModules {
                 'Everything::Node::nodetype'
             );
 
+	    $self->set_module_nodetype( $module );
             $self->make_node_accessor( $metaclass, $typenode_data );
+#	    $module->load_class_data( $self );
+    $modules_loaded->{ $module } = 1;
+    return $module;
+}
 
-            $modules{$module} = 1;
-        }
+sub set_module_nodetype {
 
+    my ( $self, $package ) = @_;
+    my ($name) = $package =~ /::(\w+)$/;
+
+    my $data;
+    my $typenode;
+    if ( $name eq 'nodetype' ) {
+	$data = $self->get_storage->nodetype_data_by_name( 'node' );
+	$$data{ DB } = $self;
+	$$data{ node_id } = 1;
+	$$data{ extends_nodetype } = 0;
+	$typenode = Everything::NodetypeMetaData->new( %$data );
+    } else {
+	$data = $self->get_storage->nodetype_data_by_name( $name );
+	$$data{ DB } = $self;
+	$typenode = Everything::Node::nodetype->new( %$data );
     }
-    $self->load_nodemethods( \%modules );
-    foreach ( sort keys %modules ) {
-        my ($name) = $_ =~ /::(\w+)$/;
-        my $typenode = $self->getType($name);
-        $_->set_class_nodetype($typenode);
-    }
-    return \%modules;
+
+    return $package->set_class_nodetype($typenode);
+
 }
 
 sub make_node_accessor {
@@ -301,13 +376,20 @@ sub loadNodetypeModule
 	my ( $self, $modname ) = @_;
 	( my $modpath = $modname . '.pm' ) =~ s!::!/!g;
 
-	return 1 if exists $INC{$modpath};
+	if ( exists $INC{$modpath} ) {
+		    $modname->load_class_data( $self );
+		    return 1;
+
+	}
 
 	for my $path (@INC)
 	{
 		next unless -e File::Spec->canonpath(
 			File::Spec->catfile( $path, $modpath ) );
-		last if eval { require $modpath };
+		if ( eval { require $modpath } ) {
+		    $modname->load_class_data( $self );
+		    last;
+		}
 	}
 
 	Everything::logErrors( '', "Using '$modname' gave errors: '$@'" )
@@ -456,6 +538,7 @@ sub store_new_node {
 	# Now go and insert the appropriate rows in the other tables that
 	# make up this nodetype;
 	my $tableArray = $node->type->getTableArray();
+
 	foreach my $table (@$tableArray)
 	{
 		my @fields = $this->getFields($table);
@@ -475,6 +558,8 @@ sub store_new_node {
 	# the info from the newly inserted node.  This way, the user of
 	# the API just calls $NODE->insert() and their node gets filled
 	# out for them.  Woo hoo!
+
+	$this->rebuildNodetypeModules if $$node{ type_nodetype } == 1;
 
 	my $newNode = $this->getNode( $node_id, 'force' );
 	undef %$node;
@@ -544,6 +629,7 @@ sub update_stored_node {
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
 	my $tableArray = $node->type->getTableArray(1);
+warn "Trying to update '$$node{title}' '" . $node->type->{title} . "' [ @$tableArray ]";
 	foreach my $table (@$tableArray)
 	{
 		my %VALUES;
@@ -564,7 +650,11 @@ sub update_stored_node {
 						   }
 		);
 	}
-
+	if ( blessed( $node ) eq 'Everything::Node::nodetype' ) {
+	    $this->rebuildNodetypeModules;
+#my $class = 'Everything::Node::' . $node->get_title;
+#	    $class->set_class_nodetype( $node );
+	}
 	return $node->{node_id};
 }
 
@@ -833,7 +923,6 @@ sub getNode
 		$NODE = $this->retrieve_node_using_name_type_cache( $node, $type_node );
 	    }
 
-
 	    if (   ( $ext2 eq "create force" )
 		   or ( $ext2 eq "create" && ( not defined $NODE ) ) )
 	      {
@@ -887,13 +976,13 @@ sub getNodeZero
 
 	unless ( exists $this->{nodezero} )
 	{
-		$this->{nodezero} = $this->getNode( '/', 'location', 'create force' );
+		$this->{nodezero} = $this->getNode( '/', 'nodetype', 'create force' );
 
 		$this->{nodezero}{node_id}     = 0;
 		$this->{nodezero}{guestaccess} = "-----";
 		$this->{nodezero}{otheraccess} = "-----";
 		$this->{nodezero}{groupaccess} = "-----";
-		$this->{nodezero}{author_user} = $this->getNode( 'root', 'user' );
+#		$this->{nodezero}{author_user} = $this->getNode( 'root', 'user' );
 	}
 
 	return $this->{nodezero};
@@ -982,6 +1071,7 @@ sub getType
 	return $idOrName if eval { $idOrName->isa( 'Everything::Node' ) };
 
 	return $this->getNode( $idOrName, 1 ) if $idOrName =~ /\D/;
+
 	return $this->getNode($idOrName) if $idOrName > 0;
 	return;
 }
@@ -1386,5 +1476,33 @@ sub delete_links {
 }
 
 
+package Everything::NodetypeMetaData;
+
+sub new {
+
+    my ( $class, @args ) = @_;
+    my $args = { @args };
+
+    return bless $args, $class;
+
+}
+
+sub getId {
+
+    1;
+}
+
+## XXX: implement this as a Moose::Role
+sub getTableArray {
+
+    if ( $_[1] ) {
+	return [ 'node', 'nodetype' ];
+    }
+
+    return ['nodetype']
+
+};
+
+sub get_title { 'nodetype' };
 
 1;

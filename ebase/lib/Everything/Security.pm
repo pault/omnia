@@ -42,6 +42,13 @@ sub inheritPermissions
 {
 	my ( $child, $parent ) = @_;
 
+	if ( $parent =~ /i/ ) {
+	    Everything::logErrors( "parent permissions, $parent, can't contain 'i'");
+	    use Carp;
+return $parent;
+	    Carp::confess ("Parent permissions may not contain 'i', $parent.");
+	}
+
 	unless ( length $child == length $parent )
 	{
 		Everything::logErrors("Permission length mismatch!");

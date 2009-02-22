@@ -55,7 +55,6 @@ sub install_nodetypes {
     my $self = shift;
     my $ball = $self->get_nodeball;
     $ball->install_xml_nodetype_nodes;
-
 }
 
 sub update_existing_nodes {
@@ -127,13 +126,19 @@ sub install_nodes {
     $self->get_nodebase->{cache}->flushCache;
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
-            return 1 if $xmlnode->get_nodetype eq 'nodetype';
+            if ( $xmlnode->get_nodetype eq 'nodetype' ) {
+		warn  "YYYYYYYYY updating nodetype " . $xmlnode->get_title;
+		return 1;
+	    }
             return;
         }
 );
 
     $self->get_nodebase->rebuildNodetypeModules;
-
+my $nb = $self->get_nodebase;
+my $nodes = $nb->getNodeWhere(undef, 'nodetype' );
+my $text = " TABLES " . join "\n", map { " $$_{title}   .... $$_{derived_sqltable} .... $$_{derived_defaultotheraccess} and $$_{defaultotheraccess}" } @$nodes;
+warn $text;
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
             return 1 unless $xmlnode->get_nodetype eq 'nodetype';

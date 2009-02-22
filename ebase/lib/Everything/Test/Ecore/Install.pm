@@ -19,7 +19,8 @@ sub SKIP_CLASS {
     my $class = ref $self ? ref $self : $self;
     $class->SUPER( @_ );
 }
-
+use Everything::Node::nodetype;
+use Carp; $SIG{__DIE__} = \&Carp::confess;
 sub startup :Test(startup) {
     my $self = shift;
 
@@ -88,7 +89,7 @@ sub test_10_sql_tables : Test(1) {
        ok( $self->{installer}->update_existing_nodes );
    }
 
-sub test_20_nodetypes : Test(29) {
+sub test_20_nodetypes : Test(85) {
 
     my $self = shift;
 
@@ -121,8 +122,16 @@ sub test_20_nodetypes : Test(29) {
 
     foreach ( 1..28 ) {
 	my $nodetype = $nb->getType( $_ );
-	isa_ok( $nodetype, 'Everything::Node::nodetype' );
+	isa_ok( $nodetype, 'Everything::Node::nodetype', "... node $$nodetype{title}" );
     }
+
+    foreach ( keys %all_types ) {
+	my $class = 'Everything::Node::' . $_;
+	ok ( my $type = $class->get_class_nodetype, "...there is a nodetype for class $class.");
+	ok ( eval { $type->get_title } eq $_, "...nodetype name is same as class name for $_ .") || diag $type->get_title;
+    }
+
+    $nb->rebuildNodetypeModules;
 }
 
 sub test_30_install_nodes : Test(1) {
@@ -131,7 +140,7 @@ sub test_30_install_nodes : Test(1) {
     my $errors = '';
 
     local *Everything::logErrors;
-    *Everything::logErrors = sub { confess("@_") };
+    *Everything::logErrors = sub { cluck("@_") };
 
     my $node_iterator = $self->{installer}->get_nodeball->make_node_iterator;
 

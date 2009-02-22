@@ -14,14 +14,16 @@ use warnings;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Everything::Node::node', 'Everything::Node::Parseable';
-
 use MooseX::ClassAttribute;
 class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
+extends 'Everything::Node::node';
 
 has code => ( is => 'rw' );
 has dynamic => ( is => 'rw' );
 has comment => ( is => 'rw' );
+
+with 'Everything::Node::Parseable';
 
 =head2 C<dbtables()>
 

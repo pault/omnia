@@ -13,7 +13,7 @@ use Moose;
 extends 'Everything::Node::node';
 
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::node' );
+class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype' );
 
 has $_ => ( is => 'rw' ) foreach (qw/nodetype_id restrict_nodetype extends_nodetype restrictdupes sqltable grouptable defaultauthoraccess defaultgroupaccess defaultotheraccess defaultguestaccess defaultgroup_usergroup defaultauthor_permission defaultgroup_permission defaultother_permission defaultguest_permission maxrevisions canworkspace/);
 
@@ -38,7 +38,7 @@ it is constructed.  If a nodetype up the chain changes, the cache needs to be
 flushed so that the nodetype gets re-constructed with the new data.
 
 =cut
-
+use Carp; BEGIN { $SIG{__DIE__} = \&Carp::confess }
 sub BUILD
 {
 	my ($this) = @_;
@@ -57,28 +57,40 @@ sub BUILD
 		# This is the nodetype nodetype.  We don't want to "load" the
 		# node nodetype (would cause infinite loop).  So, we need to
 		# kinda fake it.
-		my $nodeid =
-			$this->{DB}->sqlSelect( 'node_id', 'node',
-			"title='node' AND type_nodetype=1" );
+#use Carp; Carp::cluck( "I'm HEREEEEEEEEEEEEEEEEEEEE" );
+		$PARENT = Everything::Node::nodetype->get_class_nodetype;
 
-		my $cursor =
-			$this->{DB}->sqlSelectJoined( '*', 'nodetype',
-			{ node => 'nodetype_id=node_id' },
-			"nodetype_id=$nodeid" );
+#   		my $nodeid =
+#   			$this->{DB}->sqlSelect( 'node_id', 'node',
+#   			"title='node' AND type_nodetype=1" );
 
-		if ($cursor)
-		{
-			$PARENT = $cursor->fetchrow_hashref();
-			$cursor->finish();
-		}
+#   		my $cursor =
+#   			$this->{DB}->sqlSelectJoined( '*', 'nodetype',
+#   			{ node => 'nodetype_id=node_id' },
+#   			"nodetype_id=$nodeid" );
+
+#   		if ($cursor)
+#   		{
+#   			$PARENT = $cursor->fetchrow_hashref();
+#   			$cursor->finish();
+#  		}
+
 	}
 
 	# Zero is a dummy location thing
 	elsif ( $this->{extends_nodetype} > 0 )
 	{
-		$PARENT = $this->{DB}->getNode( $this->{extends_nodetype} );
-	}
 
+	    my $this_class = 'Everything::Node::' . $this->get_title;
+	    my $meta =  $this_class->meta;
+	    my @sc = $meta->superclasses;
+
+	    my $super = $sc[0];
+	    $PARENT = $super->get_class_nodetype;
+
+#	    $PARENT = $this->{DB}->getNode( $this->{extends_nodetype} );
+	}
+#Carp::cluck "$$this{title} $$this{node_id}  $$PARENT{ title} $$PARENT{ node_id } $$PARENT{ sqltable } $$PARENT{ derived_sqltable }";
 	# We need to derive the following fields:
 	my $derive = {
 		map { $_ => 1 }
@@ -97,7 +109,9 @@ sub BUILD
 	{
 		$this->{"derived_$field"} = $this->{$field} || '';
 	}
-
+#my $class =  'Everything::Node::'.$this->get_title;
+#my @classes = $class->meta->class_precedence_list;
+#Carp::cluck "nodetype is $$this{title} parent is $$PARENT{title} @classes";
 	if ($PARENT)
 	{
 		foreach my $field ( keys %$derive )
@@ -119,13 +133,11 @@ sub BUILD
 			}
 			elsif ( $field =~ /default.*access/ and $PARENT->{$field} ne '' )
 			{
-				$this->{$field} =
 					Everything::Security::inheritPermissions( $this->{$field},
 					$PARENT->{$field} );
 			}
 			elsif ( $field =~ /sqltable$/ and $PARENT->{$field} ne '' )
 			{
-
 				# Inherited sqltables are added onto the list.  Derived
 				# nodetypes "extend" parent nodetypes.
 				$this->{$field} .= "," if $this->{$field} ne '';
@@ -151,6 +163,7 @@ sub BUILD
 
 	return 1;
 };
+
 
 sub destruct
 {
@@ -251,7 +264,7 @@ sub getTableArray
 
 	push @tables, @{ $this->{tableArray} } if defined $this->{tableArray};
 	push @tables, 'node' if $nodeTable;
-
+warn "BBB Before update [[ @tables ]]";
 	return \@tables;
 }
 

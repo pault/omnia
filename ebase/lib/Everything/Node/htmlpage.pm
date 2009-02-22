@@ -11,12 +11,14 @@ package Everything::Node::htmlpage;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Everything::Node::node', 'Everything::Node::Parseable';
-
 use MooseX::ClassAttribute;
 class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
 
+extends 'Everything::Node::node';
+
 has $_ => ( is => 'rw' ) foreach qw/MIMEtype displaytype ownedby_theme page pagetype_nodetype parent_container permissionneeded/;
+
+with 'Everything::Node::Parseable';
 
 =head2 C<dbtables()>
 

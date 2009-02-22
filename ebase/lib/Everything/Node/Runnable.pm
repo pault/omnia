@@ -3,8 +3,7 @@ package Everything::Node::Runnable;
 use Everything ();
 use Everything::HTML;
 
-use Moose;
-extends 'Everything::Object';
+use Moose::Role;
 
 =head2 C<run>
 

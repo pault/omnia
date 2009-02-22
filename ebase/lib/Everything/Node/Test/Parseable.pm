@@ -1,7 +1,7 @@
 package Everything::Node::Test::Parseable;
 
 
-use base 'Everything::Node::Test::Runnable';
+use base 'Test::Class';
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
@@ -11,14 +11,18 @@ use SUPER;
 
 use strict;
 
+{
+    package Node::Parseable;
+
+    use Moose;
+    with 'Everything::Node::Parseable';
+}
 
 
-sub startup_parseable : Test(startup => +0) {
+sub startup_parseable : Test(startup) {
     my $self = shift;
-    $self->SUPER;
-    require  Everything::Node::Parseable;
-
-
+    $self->{class} = 'Node::Parseable';
+    $self->{instance} = $self->{class}->new;
 }
 
 

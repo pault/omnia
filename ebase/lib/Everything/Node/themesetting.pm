@@ -11,10 +11,10 @@ package Everything::Node::themesetting;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Everything::Node::setting';
-
 use MooseX::ClassAttribute;
 class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+
+extends 'Everything::Node::setting';
 
 has parent_theme => ( is => 'rw' );
 

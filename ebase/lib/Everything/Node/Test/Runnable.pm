@@ -20,9 +20,16 @@ BEGIN {
 				getBacksideErrors => sub {1});
 }
 
+{
+    package Node::Runnable;
+
+    use Moose;
+    with 'Everything::Node::Runnable';
+
+}
 
 
-sub startup_runnable : Test(startup => 1) {
+sub startup_runnable : Test(startup) {
     my $self = shift;
   my $mock = Test::MockObject->new;
 
@@ -46,12 +53,9 @@ sub startup_runnable : Test(startup => 1) {
 
   $self->{mock} = $mock;
 
-  my $class = $self->module_class();
+  my $class = 'Node::Runnable';
 
   $self->{class} = $class;
-
-  use_ok($class) or die;
-
 
 }
 

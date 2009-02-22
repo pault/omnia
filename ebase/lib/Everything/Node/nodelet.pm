@@ -10,12 +10,16 @@ package Everything::Node::nodelet;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
-extends 'Everything::Node::Parseable', 'Everything::Node::node';
 
 use MooseX::ClassAttribute;
 class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
 
+extends 'Everything::Node::node';
+
 has $_ => ( is => 'rw' ) foreach qw/mini_nodelet nlcode parent_container updateinterval nltext/;
+
+with 'Everything::Node::Parseable';
+
 
 =head2 C<dbtables()>
 

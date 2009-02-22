@@ -8,6 +8,8 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::nodeball;
 
+use Carp;
+use Scalar::Util qw/blessed/;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -41,12 +43,14 @@ Override the default insert to have the nodeball created with some defaults.
 override insert => sub
 {
 	my ( $this, $USER ) = @_;
+
 	$this->{vars}     ||= '';
 	my $VARS            = $this->getVars();
 
 	# If the node was not inserted with some vars, we need to set some.
 	unless ($VARS)
 	{
+	        # XXX: this must change nodes don't remember the nodebase
 		my $user  = $this->{DB}->getNode($USER);
 		my $title = 'ROOT';
 

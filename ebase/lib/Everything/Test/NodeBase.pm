@@ -9,6 +9,7 @@ use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
 use Test::Warn;
+use Everything::Node::nodetype;
 
 use Scalar::Util 'blessed';
 
@@ -131,32 +132,80 @@ sub test_join_workspace :Test( 6 )
 		'... reblessing into workspace package' );
 }
 
-sub test_build_nodetype_modules :Test( 3 )
+sub test_build_nodetype_modules :Test( 11 )
 {
 	my $self    = shift;
 	my $nb      = $self->{nb};
 	my $storage = $self->{storage};
 
-	$nb->set_series( loadNodetypeModule => 1, 1, 0, 1 );
+	## if we have no nodes
+
+	$nb->set_always( create_module => undef );
+	$nb->set_true( 'load_nodemethods', 'set_module_nodetype' );
+	$storage->set_list( fetch_all_nodetype_names => 'anodetypename' );
+	$storage->mock( nodetype_data_by_id => sub {} );
+	$storage->mock( nodetype_data_by_name => sub {} );
+
+	my $result;
+	warning_like { $result = $nb->buildNodetypeModules() } qr/no such nodetype anodetypename/i;
+	is_deeply(  $result, {}, '...returns an empty hash if no nodetypes exist');
+
+	## one node type with no super types
+
+	$nb->clear;
+	$nb->set_always( -getType => $nb );
+	$nb->set_true( 'loadNodetypeModule' );
+	$storage->mock( nodetype_data_by_name => sub { +{ extends_nodetype=> 111 } } );
+	$storage->mock( nodetype_data_by_id => sub { } );
+
+	$result =  $nb->buildNodetypeModules();
+	my ( $method, $args ) = $storage->next_call(5);
+
+	is( "$method @$args", "nodetype_data_by_id $storage 111", '...grabs super nodetype.' );
+
+	( $method, $args ) = $nb->next_call;
+	is( "$method @$args", "loadNodetypeModule $nb Everything::Node::anodetypename", '...calls loadNodetypeModules');
+
+	is_deeply ( $result, { 'Everything::Node::anodetypename' => 1 }, '...returns a hash with that info.');
+
+	## load one node type with one super class
+
+	$nb->clear;
+	$nb->set_always( -getType => $nb );
+	$storage->set_series( nodetype_data_by_id => { title => 'supernodetype', node_id => 222 } );
+	$result = $nb->buildNodetypeModules;
+
+	( $method, $args ) = $storage->next_call(3);
+	is ( "$method @$args", "nodetype_data_by_id $storage 111", '...retrieves superclass nodetype.');
+
+	( $method, $args ) = $storage->next_call();
+	is ( "$method @$args", "nodetype_data_by_name $storage supernodetype", '...retrieves superclass nodetype.');
+
+	is_deeply( $result,  { 'Everything::Node::anodetypename' => 1, 'Everything::Node::supernodetype' => 1 }, '...loads class and superclass.');
+
+
+	$nb->set_true( 'loadNodetypeModule');
+
+	$storage->set_series( getNodeByName =>  {extends_nodetype => 1},  {extends_nodetype => 2}, undef, {extends_nodetype => 3} );
+	$storage->set_always( nodetype_data_by_name => { title => 'a nodetype' } );
+
 	my @types =  qw( node nodetype cow dbtable );
 
+	no warnings 'redefine';
 	local *Everything::Node::dbtable::set_class_nodetype = sub { 1 };
 	local *Everything::Node::node::set_class_nodetype = sub { 1 };
 	local *Everything::Node::nodetype::set_class_nodetype = sub { 1 };
 
-	$nb->set_always( getType => $nb );
 	$nb->set_always( getId => 1 );
 	$nb->set_always( getNodeWhere => undef ); # to stop load_node_methods
 	$storage->mock(
 		fetch_all_nodetype_names => sub { @types }
 	);
 
+	$storage->mock( nodetype_data_by_name => sub { return if $_[1] eq 'cow'; return +{ title => $_[1]} } );
 	$storage->set_always( getFieldsHash => '' );
-	$storage->set_false( 'getNodeByName');
 
-	my $result;
-
-	warning_like { $result = $nb->buildNodetypeModules() } qr/no such nodetype/i;
+	warning_like { $result = $nb->buildNodetypeModules() } qr/no such nodetype cow/i;
 	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
 	is_deeply(
 		$result,
@@ -166,46 +215,80 @@ sub test_build_nodetype_modules :Test( 3 )
 }
 
 
-sub test_build_nodetypedb_modules :Test( 9 )
-{
-	my $self    = shift;
-	my $nb      = $self->{nb};
-	my $storage = $self->{storage};
+sub test_build_nodetypedb_modules : Test( 10 ) {
+    my $self    = shift;
+    my $nb      = $self->{nb};
+    my $storage = $self->{storage};
 
-	require Everything::Node::node; # so Moose can create sub-classes
+    my $modules = {};
 
-	$nb->set_false( 'loadNodetypeModule');
-	$storage->mock(
-		fetch_all_nodetype_names => sub { qw( supernode extendednode superextendednode ) }
-	);
-	$storage->set_series('getNodeByName', {extends_nodetype => 1},  {extends_nodetype => 2},  {extends_nodetype => 3} );
-	$nb->set_always( getType => $nb );
-	$nb->set_true( 'isa' ); # to get around attribute class constraints
-	$nb->set_always( get_sqltable => '' );
-	$nb->set_true( 'load_nodemethods' );
-	$nb->set_series('get_title', 'node', 'supernode',  'extendednode' );
+    local *Everything::NodeBase::loadNodetypeModule;
+    *Everything::NodeBase::loadNodetypeModule =
+      sub { return 1 if $_[1] eq 'Everything::Node::node'; return };
+    $nb->set_true('set_module_nodetype');
+    my %node_list = (
+        'node', undef,
+        qw(supernode node extendednode supernode superextendednode extendednode )
+    );
 
+    $storage->mock( -fetch_all_nodetype_names => sub { keys %node_list } );
 
-	my $result  = $nb->buildNodetypeModules();
-	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
-	no strict 'refs';
-	is_deeply(
-		$result,
-		{ map { 'Everything::Node::' . $_ => 1 } qw( supernode extendednode superextendednode ) },
-		'... for all loadable nodes fetched from storage engine'
-	);
+    ## in the code under test this only returns the superclass node data
+    $storage->mock(
+        nodetype_data_by_id => sub {
+            my $name = $_[1];
+            return unless $name;
+            if ( $name eq 'node' ) {
+                return;
+            }
+            return { title => $node_list{$name}, node_id => 1 };
+        }
+    );
 
-	# ensure that each of these are in the symbol table
-	foreach my $type (qw/ supernode extendednode superextendednode /) {
-	    ok (defined %{ "Everything::Node::" . $type . "::"}, "... \%Everything::Node::${type}:: should be in the symbol table.")
-	}
+    $storage->mock(
+        'nodetype_data_by_name' => sub {
+            my $name = $_[1];
+            return { title => $name, extends_nodetype => $name };
+        }
+    );
+    $nb->set_true('isa');    # to get around attribute class constraints
+    $nb->set_always( get_sqltable => '' );
+    $nb->set_true('load_nodemethods');
 
-	## check that the nodes are properly blessed.
-	my $node = bless {}, 'Everything::Node::superextendednode';
-	isa_ok ($node, 'Everything::Node::node');
-	isa_ok ($node, 'Everything::Node::supernode');
-	isa_ok ($node, 'Everything::Node::extendednode');
-	isa_ok ($node, 'Everything::Node::superextendednode');
+    my $result = $nb->buildNodetypeModules();
+    my ( $method, $args ) = $storage->next_call;
+    is(
+        "$method @$args",
+        "nodetype_data_by_name $storage supernode",
+        '.... retrieves nodetype'
+    );
+    is( keys %$result, 4, 'buildNodetypeModules() should return a hash ref' );
+
+    is_deeply(
+        $result,
+        {
+            map { 'Everything::Node::' . $_ => 1 }
+              qw( node supernode extendednode superextendednode )
+        },
+        '... for all loadable nodes fetched from storage engine'
+    );
+
+    no strict 'refs';
+
+    # ensure that each of these are in the symbol table
+    foreach my $type (qw/ supernode extendednode superextendednode /) {
+        ok(
+            defined %{ "Everything::Node::" . $type . "::" },
+            "... \%Everything::Node::${type}:: should be in the symbol table."
+        );
+    }
+
+    ## check that the nodes are properly blessed.
+    my $node = bless {}, 'Everything::Node::superextendednode';
+    isa_ok( $node, 'Everything::Node::node' );
+    isa_ok( $node, 'Everything::Node::supernode' );
+    isa_ok( $node, 'Everything::Node::extendednode' );
+    isa_ok( $node, 'Everything::Node::superextendednode' );
 }
 
 sub test_load_nodemethods : Test(5) {
@@ -258,7 +341,10 @@ sub test_load_nodetype_module :Test( 3 )
 	my $self = shift;
 	my $nb   = $self->{nb};
 
-	ok( $nb->loadNodetypeModule( 'Everything::NodeBase' ),
+	local *Everything::Node::node::load_class_data;
+	*Everything::Node::node::load_class_data = sub { 1 };
+
+	ok( $nb->loadNodetypeModule( 'Everything::Node::node' ),
 		'loadNodetypeModule() should return true if module is loaded' );
 
 	ok( $nb->loadNodetypeModule( 'Everything::Node::user' ),
@@ -357,7 +443,7 @@ sub test_get_node :Test( 6 )
 	$nb->set_true(qw/cacheNode/);
 
 	$s->mock( getNodeByIdNew => sub {} );
-	require Everything::Node::nodetype;
+	use Everything::Node::nodetype;
 	$s->mock( getNodeByName => sub {} );
 
 	is ( $nb->getNode( 77 ), undef, "...if passed a non existent ID returns undef.");
@@ -372,6 +458,7 @@ sub test_get_node :Test( 6 )
 	$nb->set_true( qw/isa/ );
 	$nb->set_always( get_title => 'node');
 
+	use Everything::Node::node;
 	Everything::Node::node->set_class_nodetype( $nb );
 
 	$s->clear;

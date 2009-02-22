@@ -1,7 +1,8 @@
 package Everything::Node::Parseable;
 
-use Moose;
-extends 'Everything::Node::Runnable';
+use Moose::Role;
+
+with 'Everything::Node::Runnable' => { alias => { compile => '_super_compile' } };
 
 
 =head1 <tokens_to_perl>
@@ -49,7 +50,7 @@ sub compile {
     my ( $self, $text ) = @_;
 
     my $code = $self->parse( $text );
-    return $self->SUPER::compile( $code);
+    return $self->_super_compile( $code);
 };
 
 sub basic_handler {

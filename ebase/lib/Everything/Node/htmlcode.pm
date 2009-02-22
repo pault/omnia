@@ -14,9 +14,10 @@ use Moose;
 use MooseX::ClassAttribute;
 class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
 
-extends 'Everything::Node::node', 'Everything::Node::Runnable';
-
+extends 'Everything::Node::node';
 has code => ( is => 'rw' );
+
+with 'Everything::Node::Runnable';
 
 =head2 C<dbtables()>
 

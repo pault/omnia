@@ -16,6 +16,7 @@ use DBI;
 use Everything::XML 'xml2node';
 use Everything::NodeBase;
 use Everything::XML::Node;
+require Everything::Node::nodetype; # must happen at run time not compile time
 
 use Scalar::Util 'reftype';
 
@@ -33,6 +34,19 @@ Returns a list of tables this node uses in the database, most specific first.
 =cut
 
 sub dbtables { 'node' }
+
+sub load_class_data {
+
+    my( $class, $nb ) = @_;
+    $class =~ /::(\w+)$/;
+
+    my $modname = $1;
+
+    my $typenode = $nb->getNode( $modname, 'nodetype', 'force' );
+
+    $class->set_class_nodetype( $typenode );
+
+}
 
 =head2 C<insert>
 
