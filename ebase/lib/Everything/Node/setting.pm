@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::setting
 
 Class representing the setting node.
@@ -11,10 +12,14 @@ package Everything::Node::setting;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Everything::Node::node';
-
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+class_has class_nodetype => (
+    reader => 'get_class_nodetype',
+    writer => 'set_class_nodetype',
+    isa    => 'Everything::Node::nodetype'
+);
+
+extends 'Everything::Node::node';
 
 use Everything::Security;
 use Scalar::Util 'reftype';
@@ -27,10 +32,9 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-override  dbtables => sub
-{
-	my $self = shift;
-	return 'setting', $self->super( @_ );
+override dbtables => sub {
+    my $self = shift;
+    return 'setting', $self->super(@_);
 };
 
 =head2 C<getVars>
@@ -41,11 +45,10 @@ string and construct a perl hash out of it.
 
 =cut
 
-sub getVars
-{
-	my ($this) = @_;
+sub getVars {
+    my ($this) = @_;
 
-	return $this->getHash("vars");
+    return $this->getHash("vars");
 }
 
 =head2 C<setVars>
@@ -67,39 +70,36 @@ Returns nothing.
 
 =cut
 
-sub setVars
-{
-	my ( $this, $vars ) = @_;
+sub setVars {
+    my ( $this, $vars ) = @_;
 
-	$this->setHash( $vars, "vars" );
+    $this->setHash( $vars, "vars" );
 
-	return;
+    return;
 }
 
 sub hasVars { 1 }
 
-override getNodeKeepKeys => sub
-{
-	my ($this) = @_;
+override getNodeKeepKeys => sub {
+    my ($this) = @_;
 
-	my $nodekeys      = $this->super();
-	$nodekeys->{vars} = 1;
+    my $nodekeys = $this->super();
+    $nodekeys->{vars} = 1;
 
-	return $nodekeys;
+    return $nodekeys;
 };
 
 # vars are preserved upon import
-sub updateFromImport
-{
-	my ( $this, $NEWNODE, $USER ) = @_;
+sub updateFromImport {
+    my ( $this, $NEWNODE, $USER ) = @_;
 
-	my $V    = $this->getVars();
-	my $NEWV = $NEWNODE->getVars();
+    my $V    = $this->getVars();
+    my $NEWV = $NEWNODE->getVars();
 
-	@$NEWV{ keys %$V } = values %$V;
+    @$NEWV{ keys %$V } = values %$V;
 
-	$this->setVars($NEWV);
-	$this->SUPER( $NEWNODE, $USER );
+    $this->setVars($NEWV);
+    $this->SUPER( $NEWNODE, $USER );
 }
 
 1;

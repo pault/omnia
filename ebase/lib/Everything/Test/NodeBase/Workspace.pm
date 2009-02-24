@@ -42,6 +42,12 @@ sub test_get_node_workspace :Test( 5 )
 	my $nb      = $self->{nb};
 	my $storage = $self->{storage};
 
+	my $node = Test::MockObject->new;
+	my $type = Test::MockObject->new;
+	$node->set_always( type => $type );
+	$type->set_series( getId => 1, 1, 2 );
+	$node->set_series ( getId => 2, 3, 4 );
+	$node->set_series ( get_title => qw/foo bar baz/ );
 	my $nodes   =
 	{
 		2 => { node_id => 2, title => 'foo', type => { node_id => 1 } },
@@ -50,22 +56,28 @@ sub test_get_node_workspace :Test( 5 )
 	};
 
 	$nb->{workspace}{nodes} = $nodes;
-	$nb->mock( getType => sub { return { node_id => $_[1] } } )
-	   ->mock( getNode => sub { return $nodes->{$_[1]} } );
+	my $other_type = Test::MockObject->new;
+	$other_type->set_always( getId => 1 );
+	$nb->mock( getType => sub { return $other_type } )
+	   ->mock( getNode => sub { return $node } );
 
 	my $result = [ sort @{ $nb->getNodeWorkspace() } ];
-	is_deeply( $result, [ map { $nodes->{$_} } 2 .. 4 ],
+	is_deeply( $result, [ map { $node } 2 .. 4 ],
 		'getNodeWorkspace() should return all nodes without criteria' );
 
+
 	$result   = [ sort @{ $nb->getNodeWorkspace( {}, 1 ) } ];
-	is_deeply( $result, [ map { $nodes->{$_} } 2, 3 ],
+	is_deeply( $result, [ map { $node } 2, 3 ],
 		'... or only nodes of the specific type' );
 
 	$nodes->{5} = { node_id => 5, title => 'foo', type => { node_id => 2 } };
+	my @keys = sort keys %$nodes;
+	$nb->mock( getNode => sub { return $$nodes{ shift @keys } } );
 	$result   = [ sort @{ $nb->getNodeWorkspace( { title => 'foo' } ) } ];
 	is_deeply( $result, [ map { $nodes->{$_} } 2, 5 ],
 		'... or only nodes matching a single criterion' );
 
+	@keys = sort keys %$nodes; # reset keys
 	$result   = [sort @{ $nb->getNodeWorkspace({ title => [qw( bar baz )]} )} ];
 	is_deeply( $result, [ map { $nodes->{$_} } 3, 4 ],
 		'... or only nodes matching a multi-value criterion' );

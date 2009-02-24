@@ -169,7 +169,7 @@ sub xmlTag
 
 	Everything::logErrors( '',
 			       "node.pm does not know how to handle XML tag '$tagname' "
-			       . "for type '$$node{type}{title}'" );
+			       . "for type '" . $node->type->{title} . "'" );
 	return;
 
 }
@@ -713,6 +713,17 @@ sub xmlnode2node_basic {
     my $title =  $xmlnode->get_title;
     my $nodetype = $xmlnode->get_nodetype;
     my $node = $nodebase->getNode($title, $nodetype, 'create force' );
+
+    ## ingenious (NOT!) hack to get around nodetype issues
+#     foreach ( @{ $xmlnode->get_attributes }) {
+# 	next unless $_->get_name eq 'extends_nodetype';
+# 	my ( $att_nodetype ) = split /,/, $_->get_type_nodetype;
+# 	my $noderef = $nodebase->getNode( $_->get_content, $att_nodetype );
+# 	warn "For '$title' of '$nodetype' couldn't get " . $_->get_content . "of type '$att_nodetype'" unless $noderef;
+# 	    $node->{ $_->get_name } = $noderef->getId;
+#     }
+
+
     my $id = $node->insert( -1 );
     $installed_nodes->{ $nodetype }->{ $title } = $id;
 

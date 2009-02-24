@@ -85,7 +85,7 @@ sub getNodeWorkspace
 	for my $node ( keys %{ $this->{workspace}{nodes} } )
 	{
 		my $N = $this->getNode($node);
-		next if $TYPE and $N->{type}{node_id} != $TYPE->{node_id};
+		next if $TYPE and $N->type->getId != $TYPE->getId;
 
 		my $match = 1;
 

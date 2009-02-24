@@ -125,12 +125,11 @@ sub test_is_same_version : Test(9)
     $mock->{verified}{11}     = 1;
     $mock->{typeVerified}{10} = 1;
 
-    my $node = {
-		type    => { node_id => 10 },
-		node_id => 11,
-	       };
+    my $node = Test::MockObject->new;
+    $node->{node_id} = 11;
+    $node->set_always( type => $mock );
 
-    $node->{type}{node_id} = 11;
+    $mock->set_always( getId => 11 );
     ok( Everything::NodeCache::isSameVersion( $mock, $node ), '... true if node type is verified' );
 
     $node->{node_id} = 11;

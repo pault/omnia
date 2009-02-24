@@ -36,7 +36,7 @@ sub test_node_error {
 
     my $error = join "\n", map { $_->{error} } @$err;
     is( $error, '',
-"...execute node $$node{title}, type $$node{type}{title}, id, $$node{node_id}"
+"...execute node $$node{title}, type" . $node->type->get_title .", id, $$node{node_id}"
 	     ) || report_error();
 
 }
@@ -154,6 +154,7 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( 'genObject', $mock );
     $mock->set_always( 'get_doctext', 'text' );
     $mock->set_always( 'get_from_address', 'from@address' );
+    $mock->set_always( 'type', $mock );
 
     # others
     $mock->set_always( toXML => 'some xml' );
@@ -173,7 +174,7 @@ sub test_compile_nodes : Tests {
         my $rv = $_->compile( $_->{ $_->get_compilable_field } );
         (
             ok( !$err,
-"...'$$_{title}' of type '$$_{type}{title}', $$_{node_id} compiles without error."
+"...'$$_{title}' of type '" . $_->type->get_title."', $$_{node_id} compiles without error."
               )
               && ( $successful_nodes{ $$_{node_id} } = 1 )
 
@@ -227,7 +228,7 @@ sub test_execute_htmlcode_nodes : Tests {
         is(
             scalar $linter->errors,
             0,
-"...the HTML produced for node '$$node{title}' of type '$$node{type}{title}' has no errors."
+"...the HTML produced for node '$$node{title}' of type '".$node->type->get_title."' has no errors."
           )
           || do {
             diag $_->as_string . "\n" . $rv foreach $linter->errors;
@@ -376,7 +377,7 @@ sub test_parse_eval_nodes {
             is(
                 scalar $linter->errors,
                 0,
-"...the HTML produced for node '$$node{title}' of type '$$node{type}{title}' has no errors for parse type $parsetype."
+"...the HTML produced for node '$$node{title}' of type '" . $node->type->get_title ."' has no errors for parse type $parsetype."
               )
               || do {
                 diag $_->as_string . "\n" . $rv foreach $linter->errors;

@@ -23,7 +23,7 @@ Hits: [%
 $this-&gt;get_node-&gt;get_hits;
 %]&lt;br/&gt;
 Nodetype: [%
- $this-&gt;link_node($this-&gt;get_node-&gt;get_type); 
+ $this-&gt;link_node($this-&gt;get_node-&gt;type); 
 %]&lt;br/&gt;
 Display page: &lt;br/&gt;[%
 my $query = $this-&gt;get_query;

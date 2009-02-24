@@ -88,7 +88,8 @@ sub reset_mock_node
 	isa_ok($nodeinstance, 'Everything::Node::extendednode');
 
 	my $newnewtype = $db->getNode('moreextendednode', 'nodetype', 'create force');
-	$newtype = $db->getType('extendednode');
+	$newtype = Everything::Node::extendednode->get_class_nodetype;
+
 	$newnewtype->{extends_nodetype} = $newtype->{node_id};
 	$newnewtype->insert(-1);
 
@@ -121,6 +122,7 @@ sub test_insert :Test( 3 )
 	$node->{node_id}       = 0;
 	$node->{type}          = $type;
 	$node->{type_nodetype} = 1;
+	$node->{title} = 'mock title';
 
 	$node->set_true(qw( -hasAccess -restrictTitle -getId ));
 	$node->{foo}  = 11;
@@ -186,7 +188,7 @@ sub test_check_accessors : Test(8) {
     is( $value, 'some random text', '...can update virtual attributes.');
     is( $node->get_afield, 'some random text', '...can be accessed using accessor.');
 
-    ### create an instance of superextendednode
+    ### create an instance of moreextendednode
 
     my $new;
 
@@ -206,6 +208,26 @@ sub test_check_accessors : Test(8) {
 
     is ( $value, 777, '...the updated field is in the table.'); 
     is ( $new->get_afield, 777 );
+}
+
+sub test_nodetype_metadata :Test(25) {
+
+    my $self = shift;
+    my $db = $self->{mock_db};
+
+    my @type_names = $db->{storage}->fetch_all_nodetype_names;
+
+    foreach my $name ( @type_names ) {
+	my $class = "Everything::Node::$name";
+	my $typenode = $class->get_class_nodetype;
+	is ( $name, $typenode->get_title, "...name of class $name corresponds to typenode.");
+	foreach my $access (qw/derived_defaultauthoraccess derived_defaultgroupaccess derived_defaultotheraccess derived_defaultguestaccess/) {
+	    my $access_string = $$typenode{ $access };
+	    unlike ( $access_string, qr/i/, "... $access, $access_string for  $name is properly constructed." );
+	}
+    }
+
+
 }
 
 package Test::MockObject::Extends::NoCheck;

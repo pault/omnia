@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::user
 
 Class representing the user node.
@@ -14,15 +15,23 @@ use Moose;
 extends 'Everything::Node::setting';
 
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+class_has class_nodetype => (
+    reader  => 'get_class_nodetype',
+    writer  => 'set_class_nodetype',
+    isa     => 'Everything::Node::nodetype',
+    default => sub {
+        Everything::Node::nodetype->new(
+            Everything::NodetypeMetaData->default_data );
+    }
+);
 
-has doctext => ( is => 'rw' );
-has email => ( is => 'rw' );
+has doctext          => ( is => 'rw' );
+has email            => ( is => 'rw' );
 has inside_workspace => ( is => 'rw' );
-has karma => ( is => 'rw' );
-has nick => ( is => 'rw' );
-has realname => ( is => 'rw' );
-has passwd => ( is => 'rw' );
+has karma            => ( is => 'rw' );
+has nick             => ( is => 'rw' );
+has realname         => ( is => 'rw' );
+has passwd           => ( is => 'rw' );
 
 =head2 C<dbtables()>
 
@@ -30,10 +39,9 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-override dbtables => sub
-{
-	my $self = shift;
-	return qw( user document ), $self->super();
+override dbtables => sub {
+    my $self = shift;
+    return qw( user document ), $self->super();
 };
 
 =head2 C<insert>
@@ -42,18 +50,17 @@ We want all users to default to be owned by themselves.
 
 =cut
 
-override insert => sub
-{
-	my ( $this, $USER ) = @_;
+override insert => sub {
+    my ( $this, $USER ) = @_;
 
-	return 0 unless my $id = $this->super($USER);
+    return 0 unless my $id = $this->super($USER);
 
-	# Make all new users default to owning themselves.
-	$this->{author_user} = $id;
+    # Make all new users default to owning themselves.
+    $this->{author_user} = $id;
 
-	$this->update($USER);
+    $this->update($USER);
 
-	return $id;
+    return $id;
 };
 
 =head2 C<isGod>
@@ -75,15 +82,14 @@ Returns true if the given user is a "god".  False otherwise.
 
 =cut
 
-sub isGod
-{
-	my ( $this, $recurse ) = @_;
-	my $GODS = $this->{DB}->getNode( 'gods', 'usergroup' );
+sub isGod {
+    my ( $this, $recurse ) = @_;
+    my $GODS = $this->{DB}->getNode( 'gods', 'usergroup' );
 
-	return 0 unless $GODS;
+    return 0 unless $GODS;
 
-	return $GODS->inGroup($this) if $recurse;
-	return $GODS->inGroupFast($this);
+    return $GODS->inGroup($this) if $recurse;
+    return $GODS->inGroupFast($this);
 }
 
 =head2 C<isGuest>
@@ -96,25 +102,23 @@ Returns true if the user is the guest user, false otherwise.
 
 =cut
 
-sub isGuest
-{
-	my ($this) = @_;
+sub isGuest {
+    my ($this) = @_;
 
-	my $SYS = $this->{DB}->getNode( 'system settings', 'setting' ) or return 1;
-	my $VARS = $SYS->getVars() or return 1;
+    my $SYS = $this->{DB}->getNode( 'system settings', 'setting' ) or return 1;
+    my $VARS = $SYS->getVars() or return 1;
 
-	return ( $VARS->{guest_user} == $this->{node_id} );
+    return ( $VARS->{guest_user} == $this->{node_id} );
 }
 
-sub getNodeKeys
-{
-	my ( $this, $forExport ) = @_;
-	my $keys                 = $this->SUPER( $forExport );
+sub getNodeKeys {
+    my ( $this, $forExport ) = @_;
+    my $keys = $this->SUPER($forExport);
 
-	# Remove these fields if we are exporting user nodes.
-	delete @$keys{qw( passwd lasttime )} if $forExport;
+    # Remove these fields if we are exporting user nodes.
+    delete @$keys{qw( passwd lasttime )} if $forExport;
 
-	return $keys;
+    return $keys;
 }
 
 =head2 C<verifyFieldUpdate>
@@ -123,19 +127,17 @@ See Everything::Node::node::verifyFieldUpdate() for info.
 
 =cut
 
-sub verifyFieldUpdate
-{
-	my ( $this, $field ) = @_;
+sub verifyFieldUpdate {
+    my ( $this, $field ) = @_;
 
-	my $restrictedFields =
-	{
-		title    => 1,
-		karma    => 1,
-		lasttime => 1,
-	};
+    my $restrictedFields = {
+        title    => 1,
+        karma    => 1,
+        lasttime => 1,
+    };
 
-	my $verify = not exists $restrictedFields->{$field};
-	return $verify && $this->SUPER();
+    my $verify = not exists $restrictedFields->{$field};
+    return $verify && $this->SUPER();
 }
 
 # no conflicts if the user exists
@@ -160,12 +162,11 @@ Returns true, if the title is allowable, false otherwise.
 
 =cut
 
-sub restrictTitle
-{
-	my ($this) = @_;
-	my $title = $this->{title} or return;
+sub restrictTitle {
+    my ($this) = @_;
+    my $title = $this->{title} or return;
 
-	return $title =~ tr/-<> !a-zA-Z0-9_//c ? 0 : 1;
+    return $title =~ tr/-<> !a-zA-Z0-9_//c ? 0 : 1;
 }
 
 =head2 C<getNodelets>
@@ -184,28 +185,27 @@ Returns a reference to a list of nodelets to display.
 
 =cut
 
-sub getNodelets
-{
-	my ( $this, $defaultGroup ) = @_;
-	my $VARS = $this->getVars();
+sub getNodelets {
+    my ( $this, $defaultGroup ) = @_;
+    my $VARS = $this->getVars();
 
-	my @nodelets;
-	@nodelets = split( /,/, $VARS->{nodelets} ) if exists $VARS->{nodelets};
+    my @nodelets;
+    @nodelets = split( /,/, $VARS->{nodelets} ) if exists $VARS->{nodelets};
 
-	return \@nodelets if @nodelets;
+    return \@nodelets if @nodelets;
 
-	my $NODELETGROUP;
-	$NODELETGROUP = $this->{DB}->getNode( $VARS->{nodelet_group} )
-		if exists $VARS->{nodelet_group};
+    my $NODELETGROUP;
+    $NODELETGROUP = $this->{DB}->getNode( $VARS->{nodelet_group} )
+      if exists $VARS->{nodelet_group};
 
-	push @nodelets, @{ $NODELETGROUP->{group} }
-		if $NODELETGROUP
-		and $NODELETGROUP->isOfType('nodeletgroup');
+    push @nodelets, @{ $NODELETGROUP->{group} }
+      if $NODELETGROUP
+          and $NODELETGROUP->isOfType('nodeletgroup');
 
-	return \@nodelets if @nodelets;
+    return \@nodelets if @nodelets;
 
-	# push default nodelets on
-	return $this->{DB}->getNode($defaultGroup)->{group};
+    # push default nodelets on
+    return $this->{DB}->getNode($defaultGroup)->{group};
 }
 
 1;

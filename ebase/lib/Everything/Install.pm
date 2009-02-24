@@ -55,7 +55,6 @@ sub install_nodetypes {
     my $self = shift;
     my $ball = $self->get_nodeball;
     $ball->install_xml_nodetype_nodes;
-
 }
 
 sub update_existing_nodes {
@@ -67,7 +66,7 @@ sub update_existing_nodes {
     my $nodes = $nb->getNodeWhere( '', 'nodetype', 'node_id' );
 
     my @get_these = ();
-    push @get_these, [ $$_{title}, $$_{type}{title} ] foreach @$nodes;
+    push @get_these, [ $_->get_title, $_->type->get_title ] foreach @$nodes;
 
     my $select = sub {
         my $xmlnode  = shift;
@@ -127,7 +126,9 @@ sub install_nodes {
     $self->get_nodebase->{cache}->flushCache;
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
-            return 1 if $xmlnode->get_nodetype eq 'nodetype';
+            if ( $xmlnode->get_nodetype eq 'nodetype' ) {
+		return 1;
+	    }
             return;
         }
 );

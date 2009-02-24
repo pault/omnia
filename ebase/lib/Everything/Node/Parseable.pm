@@ -1,8 +1,9 @@
 package Everything::Node::Parseable;
 
-use Moose;
-extends 'Everything::Node::Runnable';
+use Moose::Role;
 
+with 'Everything::Node::Runnable' =>
+  { alias => { compile => '_super_compile' } };
 
 =head1 <tokens_to_perl>
 
@@ -35,7 +36,6 @@ sub tokens_to_perl {
 
 }
 
-
 =head1 C<compile>
 
 Overrides the super class compile.
@@ -48,9 +48,9 @@ the parser before being compiled.
 sub compile {
     my ( $self, $text ) = @_;
 
-    my $code = $self->parse( $text );
-    return $self->SUPER::compile( $code);
-};
+    my $code = $self->parse($text);
+    return $self->_super_compile($code);
+}
 
 sub basic_handler {
     my ($specific_cb) = @_;
@@ -59,7 +59,7 @@ sub basic_handler {
         my ($text) = @_;
         $text =~ s!"!\"!g;
         $text = $specific_cb->($text);
-	my $wrapped = " eval {$text} || '';\n";
+        my $wrapped = " eval {$text} || '';\n";
         return $wrapped;
     };
 
@@ -74,7 +74,7 @@ sub set_default_handlers {
             sub {
                 my ( $func, $args ) = split( /\s*:\s*/, $_[0] );
 
-                my $rv = '$this->'."$func(";
+                my $rv = '$this->' . "$func(";
                 if ( defined $args ) {
                     my @args = do_args($args);
                     $rv .= join( ", ", @args ) if (@args);
@@ -160,7 +160,6 @@ sub tokenise {
     return \@tokens;
 }
 
-
 sub add_error_text {
     my ($CURRENTNODE) = @_;
 
@@ -202,9 +201,9 @@ Everything else is text or html.
 =cut
 
 sub parse {
-    my $self           = shift;
-    my $data           = shift;
-    my $tokens         = tokenise($data);
+    my $self   = shift;
+    my $data   = shift;
+    my $tokens = tokenise($data);
     my $encoded_tokens =
       tokens_to_perl( $tokens, sub { add_error_text($self) } );
 

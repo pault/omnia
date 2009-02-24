@@ -7,6 +7,7 @@ use Everything::Storage::Nodeball;
 use Everything::DB::mysql;
 use Everything::DB::Pg;
 use Everything::DB::sqlite;
+use Scalar::Util qw/blessed/;
 use Carp qw/confess cluck croak/;
 use Test::More;
 use base 'Test::Class';
@@ -19,8 +20,9 @@ sub SKIP_CLASS {
     my $class = ref $self ? ref $self : $self;
     $class->SUPER( @_ );
 }
-
-sub startup :Test(startup) {
+use Everything::Node::nodetype;
+use Carp; $SIG{__DIE__} = \&Carp::confess;
+sub startup :Test(startup => 5) {
     my $self = shift;
 
     my $config = $self->{ config };
@@ -59,6 +61,14 @@ sub startup :Test(startup) {
 
     my $nb = $installer->get_nodebase;
 
+    ## is our nodebase correctly setup;
+    my $nodes = $nb->getNodeWhere( {} );
+    is ( @$nodes, 3, '...there should be three nodes.');
+    is_deeply( { map { $_->get_title => 1 } @$nodes },{ map { $_ => 1 } qw/node nodetype setting/ }, '...they should be a node, nodetype and setting nodetypes.');
+    my @s = sort { $a->get_title cmp $b->get_title  } @$nodes;
+    is ( join( ' ', $s[0]->get_title, blessed( $s[0]->get_class_nodetype ), $s[0]->get_class_nodetype->get_title), 'node Everything::Node::nodetype nodetype', '...node meta data is contained in a Everything::Node::Nodetype object.');
+    is ( join( ' ', $s[1]->get_title, blessed( $s[1]->type ), $s[1]->type->get_title), 'nodetype Everything::Node::nodetype nodetype', '...nodetype meta data is contained in a Everything::Node::nodetype object.');
+    is ( join( ' ', $s[2]->get_title, blessed( $s[2]->type ), $s[2]->type->get_title), 'setting Everything::Node::nodetype nodetype', '...setting meta data is contained in a Everything::Node::nodetype object.');
     $self->{nb}           = $nb;
     $self->{db_type}      = $$opts{ type };
     $self->{installer} = $installer;
@@ -88,7 +98,7 @@ sub test_10_sql_tables : Test(1) {
        ok( $self->{installer}->update_existing_nodes );
    }
 
-sub test_20_nodetypes : Test(29) {
+sub test_20_nodetypes : Test(85) {
 
     my $self = shift;
 
@@ -121,8 +131,16 @@ sub test_20_nodetypes : Test(29) {
 
     foreach ( 1..28 ) {
 	my $nodetype = $nb->getType( $_ );
-	isa_ok( $nodetype, 'Everything::Node::nodetype' );
+	isa_ok( $nodetype, 'Everything::Node::nodetype', "... node $$nodetype{title}" );
     }
+
+    foreach ( keys %all_types ) {
+	my $class = 'Everything::Node::' . $_;
+	ok ( my $type = $class->get_class_nodetype, "...there is a nodetype for class $class.");
+	ok ( eval { $type->get_title } eq $_, "...nodetype name is same as class name for $_ .") || diag $type->get_title;
+    }
+
+    $nb->rebuildNodetypeModules;
 }
 
 sub test_30_install_nodes : Test(1) {
@@ -131,7 +149,7 @@ sub test_30_install_nodes : Test(1) {
     my $errors = '';
 
     local *Everything::logErrors;
-    *Everything::logErrors = sub { confess("@_") };
+    *Everything::logErrors = sub { cluck("@_") };
 
     my $node_iterator = $self->{installer}->get_nodeball->make_node_iterator;
 

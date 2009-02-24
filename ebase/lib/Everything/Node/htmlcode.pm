@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::htmlcode
 
 Class representing the htmlcode node.
@@ -12,11 +13,20 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+class_has class_nodetype => (
+    reader  => 'get_class_nodetype',
+    writer  => 'set_class_nodetype',
+    isa     => 'Everything::Node::nodetype',
+    default => sub {
+        Everything::Node::nodetype->new(
+            Everything::NodetypeMetaData->default_data );
+    }
+);
 
-extends 'Everything::Node::node', 'Everything::Node::Runnable';
-
+extends 'Everything::Node::node';
 has code => ( is => 'rw' );
+
+with 'Everything::Node::Runnable';
 
 =head2 C<dbtables()>
 
@@ -24,10 +34,9 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-override dbtables => sub
-{
-	my $self = shift;
-	return 'htmlcode', $self->super();
+override dbtables => sub {
+    my $self = shift;
+    return 'htmlcode', $self->super();
 };
 
 =head2 C<restrictTitle>
@@ -46,22 +55,20 @@ Returns true, if the title is allowable, false otherwise.
 
 =cut
 
-sub restrictTitle
-{
-	my ($this) = @_;
-	my $title = $$this{title} or return;
+sub restrictTitle {
+    my ($this) = @_;
+    my $title = $$this{title} or return;
 
-	if ( $title =~ tr/A-Za-z0-9_//c )
-	{
-		Everything::logErrors(
-			'htmlcode name contains invalid characters.
+    if ( $title =~ tr/A-Za-z0-9_//c ) {
+        Everything::logErrors(
+            'htmlcode name contains invalid characters.
 		 	 Only alphanumerics and the underscore are allowed.  No spaces!',
-			'', '', ''
-		);
-		return;
-	}
+            '', '', ''
+        );
+        return;
+    }
 
-	return 1;
+    return 1;
 }
 
 sub get_compilable_field {

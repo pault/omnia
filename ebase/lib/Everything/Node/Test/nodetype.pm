@@ -15,6 +15,22 @@ sub startup :Test( +1 )
 	isa_ok( $self->node_class()->new(), 'Everything::Node::node' );
 }
 
+sub test_type_metadata :Test(4) {
+    my $self = shift;
+    my $class = $self->node_class;
+
+    my $db = $self->{mock_db};
+
+    my $node = $db->getNode( 'nodetype', 'nodetype' );
+    my $typenode = $class->get_class_nodetype;
+    foreach ( qw/derived_defaultauthoraccess derived_defaultgroupaccess derived_defaultotheraccess derived_defaultguestaccess/ ) {
+	is( $$node{ $_ }, $$typenode{ $_ }, "...derived permission '$_' is ok.");
+    }
+
+
+
+}
+
 sub test_dbtables :Test( 2 )
 {
 	my $self   = shift;
@@ -25,7 +41,7 @@ sub test_dbtables :Test( 2 )
 		'dbtables() should return node tables' );
 }
 
-sub test_construct :Test( 15 )
+sub test_construct :Test( 9 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -44,8 +60,7 @@ sub test_construct :Test( 15 )
 		'... storing necessary tables in "tableArray" field as something that' );
 
 	$node->{node_id} = 1;
-	$db->set_always( sqlSelect => 1 )
-	   ->set_always( sqlSelectJoined => $db )
+	$db->set_always( sqlSelectJoined => $db )
 	   ->set_always( fetchrow_hashref => $node );
 
 	@$node{
@@ -58,21 +73,18 @@ sub test_construct :Test( 15 )
 		}
 		= ('') x 12;
 
+	my $get_class_nodetype_flag;
+
+	local *Everything::Node::node::get_class_nodetype;
+	*Everything::Node::node::get_class_nodetype  = sub { $get_class_nodetype_flag++ };
+
+
+	$node->{title} = 'nodetype';
+	$node->{extends_nodetype} = 1;
 	$node->BUILD();
-	is( $node->{type}, $node, '... should set node number 1 type to itself' );
 
 	my ( $method, $args ) = $db->next_call();
-	is( $method, 'sqlSelect', '... fetching a node if the node_id is 1' );
-	is( join( '-', @$args ),
-		"$db-node_id-node-title='node' AND type_nodetype=1",
-		'... with the appropriate parameters' );
-
-	( $method, $args ) = $db->next_call();
-	is( $method, 'sqlSelectJoined', '... fetching its nodetype data' );
-	like( join( ' ', @$args ), qr/\* nodetype.+nodetype_id=/,
-		'... with the appropriate arguments' );
-	is( $db->next_call(), 'fetchrow_hashref',
-		'... populating nodetype node with nodetype data' );
+	ok( $get_class_nodetype_flag, '... retrieves the nodetype meta data.' );
 
 	my @fields =
 		qw( sqltable maxrevisions canworkspace grouptable defaultgroup_usergroup );
@@ -91,8 +103,13 @@ sub test_construct :Test( 15 )
 	$parent->{derived_defaultguestaccess} = 100;
 	$node->{defaultguestaccess}           = 1;
 	$parent->{derived_sqltable}           = 'boo,far';
+	$node->set_always( get_title => 'somenodetype' );
 
 	$db->set_always( getNode => $parent );
+
+	my $meta = Test::MockObject->new;
+	$meta->set_list( superclasses => $meta );
+	$meta->set_always(get_class_nodetype => $parent);
 
 	my $ip;
 	{
@@ -101,12 +118,19 @@ sub test_construct :Test( 15 )
 			$ip = join( ' ', @_ );
 		};
 
+		$get_class_nodetype_flag = 0;
+
+		no strict 'refs';
+		local *{ 'Everything::Node::' . $node->get_title . '::get_class_nodetype' };
+		*{  'Everything::Node::' . $node->get_title . '::get_class_nodetype' } = sub { $get_class_nodetype_flag++; return $parent };
+
+		local *{ 'Everything::Node::' . $node->get_title . '::meta' };
+		*{  'Everything::Node::' . $node->get_title . '::meta' } = sub { $get_class_nodetype_flag++; return $meta };
+
 		$node->BUILD();
 	}
 
-	( $method, $args ) = $db->next_call(2);
-	is( $method, 'getNode', '... fetching nodetype data, if necessary' );
-	is( $args->[1], 6, '... for parent' );
+	is( $get_class_nodetype_flag, 1, '... fetching nodetype data.' );
 	is( $node->{derived_grouptable},
 		'grouptable', '... should copy derived fields if they are inherited' );
 
@@ -146,6 +170,7 @@ sub test_insert :Test( +4 )
 
 	$db->set_series( getType => map { { node_id => $_ } } ( 11, 12, 11 ) );
 
+	$db->clear;
 	$node->insert( 'user' );
 	my ( $method, $args ) = $db->next_call();
 	is( $method, 'getType', 'insert() with no parent should extend a type' );

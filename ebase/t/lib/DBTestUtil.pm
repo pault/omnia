@@ -17,6 +17,8 @@ sub config_file {
 sub db_type {
 
    $0 =~ m|t/ecore/(.*?)/\d{3}\-[\w-]+\.t$|;
+   return $1 if $1;
+   $0 =~ m|(\w+)\.t$|;
    return $1;
 
 }
@@ -157,7 +159,7 @@ sub delete_node_tests {
     for my $node (@$nodes) {
 
         my @tables    = $node->dbtables;
-        my ( $node_name, $type_name ) = ( $node->get_title, $node->get_type->get_title );
+        my ( $node_name, $type_name ) = ( $node->get_title, $node->type->get_title );
 
         ok( $node->nuke(-1), ".. deleted '$node_name' of type '$type_name'." );
 

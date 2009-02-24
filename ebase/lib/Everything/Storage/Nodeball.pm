@@ -401,16 +401,18 @@ This is a method. It returns an iterator sub-ref.  On each call returns a new Ev
 =cut
 
 sub make_node_iterator {
-    my ( $self, $node_selection_cb ) = @_;
+    my ( $self, $node_selection_cb, $push_cb ) = @_;
 
     $node_selection_cb ||= sub { 1 };
+
+    $push_cb ||= sub {};
 
     my $dir = File::Spec->catfile( $self->get_nodeball_dir, 'nodes' );
 
     my @queue = ($dir);
 
     my $iterator = sub {
-
+      ITEM:
         while (@queue) {
 
             my $file = shift @queue;
@@ -421,14 +423,19 @@ sub make_node_iterator {
                 push @queue, map { File::Spec->catfile( $file, $_ ) } @newfiles;
             }
 
-            next unless $file =~ /\.xml$/;
+            next ITEM unless $file =~ /\.xml$/;
 
             my $fh = IO::File->new( $file, 'r' );
             local $/;
             my $xmlnode = Everything::XML::Node->new;
             $xmlnode->parse_xml(<$fh>);
 
-            next unless $node_selection_cb->($xmlnode);
+	    if ( $push_cb->( $xmlnode ) ) {
+		push @queue, $file;
+		next ITEM;
+	    }
+
+            next ITEM unless $node_selection_cb->($xmlnode);
 
             return $xmlnode;
 
@@ -480,10 +487,10 @@ sub install_xml_nodes {
 
 sub install_xml_nodes_basic {
 
-    my ( $self, $select_cb ) = @_;
+    my ( $self, $select_cb, $push_cb ) = @_;
 
     $select_cb ||= sub { 1 };
-    my $iterator = $self->make_node_iterator($select_cb);
+    my $iterator = $self->make_node_iterator($select_cb, $push_cb);
 
     while ( my $xmlnode = $iterator->() ) {
 	Everything::XML::xmlnode2node_basic( $self->get_nodebase, $xmlnode );
@@ -568,7 +575,9 @@ sub install_xml_nodetype_nodes {
 
     my ( $self ) = @_;
 
-    my $select_cb = sub { my $xmlnode = shift; return 1 if $xmlnode->get_nodetype eq 'nodetype'; return; };
+    my $nb = $self->get_nodebase;
+
+    my $select_cb = sub { my $xmlnode = shift; if ( $xmlnode->get_nodetype eq 'nodetype' )  { $nb->loadNodetypeModule( 'Everything::Node::' . $xmlnode->get_title ); return 1}; return; };
 
     $self->install_xml_nodes_basic( $select_cb );
 

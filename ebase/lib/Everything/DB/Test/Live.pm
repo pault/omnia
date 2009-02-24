@@ -2,6 +2,7 @@ package Everything::DB::Test::Live;
 
 use base 'Test::Class';
 use Everything::Config;
+use Data::Dumper;
 use Test::More;
 use Test::Warn;
 use Test::Exception;
@@ -359,8 +360,10 @@ sub test_get_nodetype_tables :Test(2) {
     my $self = shift;
     my $s = $self->{ storage };
     my $type = $self->{ nodebase }->getType( 'setting' );
-    is_deeply ( $s->getNodetypeTables( $type ), [ qw/setting/ ], '...fetches table names. ' );
-    is_deeply ( $s->getNodetypeTables( $type, 1 ), [ qw/setting node/ ], '... and adds node if ask to do so. ' );
+
+    my $rv;
+    is_deeply ( $rv = $s->getNodetypeTables( $type ), [ qw/setting/ ], '...fetches table names. ' ) || diag Dumper $rv;
+    is_deeply ( $s->getNodetypeTables( $type, 1 ), [ qw/setting node/ ], '... and adds node if ask to do so. ' )  || diag Dumper $rv . $type->dump(1);
 
 }
 
@@ -458,7 +461,7 @@ sub test_start_commit_transaction :Test(4) {
 
 ## After this test, the node is still unblessed
 ## Joins on all tables and returns a more 'filled out' hash.
-sub test_contstruct_node :Test(1) {
+sub test_construct_node :Test(1) {
 
 
 }

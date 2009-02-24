@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::location
 
 Class representing the location node.
@@ -13,7 +14,15 @@ use Moose;
 extends 'Everything::Node::node';
 
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype' );
+class_has class_nodetype => (
+    reader  => 'get_class_nodetype',
+    writer  => 'set_class_nodetype',
+    isa     => 'Everything::Node::nodetype',
+    default => sub {
+        Everything::Node::nodetype->new(
+            Everything::NodetypeMetaData->default_data );
+    }
+);
 
 =head2 C<nuke>
 
@@ -22,24 +31,22 @@ location to the parent location.
 
 =cut
 
-override nuke => sub
-{
-	my ( $this, $USER ) = @_;
-	my $id              = $this->{node_id};
-	my $parentLoc       = $this->{loc_location};
-	my $result          = $this->super( $USER );
+override nuke => sub {
+    my ( $this, $USER ) = @_;
+    my $id        = $this->{node_id};
+    my $parentLoc = $this->{loc_location};
+    my $result    = $this->super($USER);
 
-	if ( $result > 0 )
-	{
+    if ( $result > 0 ) {
 
-		# Set all the nodes that were in this location to be in the
-		# parent location... deleting a location does not delete all
-		# the nodes inside of it.
-		$this->{DB}->sqlUpdate( "node", { loc_location => $parentLoc },
-			"loc_location=$id" );
-	}
+        # Set all the nodes that were in this location to be in the
+        # parent location... deleting a location does not delete all
+        # the nodes inside of it.
+        $this->{DB}->sqlUpdate( "node", { loc_location => $parentLoc },
+            "loc_location=$id" );
+    }
 
-	return $result;
+    return $result;
 };
 
 =head2 C<listNodes>
@@ -60,11 +67,10 @@ Returns an array ref to an array that contains the nodes.
 
 =cut
 
-sub listNodes
-{
-	my ( $this, $full ) = @_;
+sub listNodes {
+    my ( $this, $full ) = @_;
 
-	return $this->listNodesWhere( '', '', $full );
+    return $this->listNodesWhere( '', '', $full );
 }
 
 =head2 C<listNodesWhere>
@@ -94,28 +100,26 @@ Returns an array ref to an array that contains the nodes.
 
 =cut
 
-sub listNodesWhere
-{
-	my ( $this, $where, $order, $full ) = @_;
-	$where ||= '';
-	$order ||= "order by title";
-	$where .= " loc_location='$this->{node_id}'";
+sub listNodesWhere {
+    my ( $this, $where, $order, $full ) = @_;
+    $where ||= '';
+    $order ||= "order by title";
+    $where .= " loc_location='$this->{node_id}'";
 
-	my @nodes;
+    my @nodes;
 
-	if ( my $csr =
-	        $this->{DB}->sqlSelectMany( "node_id", "node", $where, $order ) )
-	{
-		while ( my $id = $csr->fetchrow() )
-		{
-			$this->{DB}->getRef($id) if ($full);
-			push @nodes, $id;
-		}
+    if ( my $csr =
+        $this->{DB}->sqlSelectMany( "node_id", "node", $where, $order ) )
+    {
+        while ( my $id = $csr->fetchrow() ) {
+            $this->{DB}->getRef($id) if ($full);
+            push @nodes, $id;
+        }
 
-		$csr->finish();
-	}
+        $csr->finish();
+    }
 
-	return \@nodes;
+    return \@nodes;
 }
 
 1;

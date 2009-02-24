@@ -449,7 +449,8 @@ sub update_or_insert {
 	my ( $table, $data, $where, $prebound, $node_id ) = ( $$args{table}, $$args{data}, $$args{ where }, $$args{ bound }, $$args{ node_id} );
 
 	my $exists = $this->sqlSelect( 'count(1)', $table, $where, undef, $prebound );
-
+#my $d = [ %$data ];
+#warn " Trying to update $table, @$d, $where @$prebound ";
 	if ( $exists ) {
 	    $this->sqlUpdate( $table, $data, $where, $prebound );
 
@@ -526,13 +527,13 @@ sub sqlExecute
 {
 	my ( $this, $sql, $bound ) = @_;
 	my $sth;
-
+use Carp;
+	local *Everything::logErrors; *Everything::logErrors = sub { Carp::cluck "FAILED SQL @_  $DBI::errstr"};
 	unless ( $sth = $this->{dbh}->prepare($sql) )
 	{
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
 		return;
 	}
-	local *Everything::logErrors; *Everything::logErrors = sub { warn @_ };
 	$sth->execute(@$bound) or do
 	{
 		local $" = '][';
@@ -601,6 +602,38 @@ sub getNodeByName
 	$this->constructNode($NODE);
 
 	return $NODE;
+}
+
+sub nodetype_data_by_name {
+
+    my ( $self, $typename ) = @_;
+
+    my $dbh = $self->getDatabaseHandle;
+
+    my $sth = $dbh->prepare( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.title = ? ' );
+
+    $sth->execute( $typename );
+
+    my $data = $sth->fetchrow_hashref;
+
+    return $data;
+
+}
+
+sub nodetype_data_by_id {
+
+    my ( $self, $id ) = @_;
+
+    my $dbh = $self->getDatabaseHandle;
+
+    my $sth = $dbh->prepare( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
+
+    $sth->execute( $id );
+
+    my $data = $sth->fetchrow_hashref;
+
+    return $data;
+
 }
 
 =head2 C<constructNode>
