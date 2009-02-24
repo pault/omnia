@@ -169,6 +169,7 @@ sub buildNodetypeModules {
     {
 	next if $modules{ 'Everything::Node::'.$nodetype};
 	my $module = $self->setup_module( $nodetype, \%modules );
+
     }
     $self->load_nodemethods( \%modules );
 
@@ -192,16 +193,20 @@ sub setup_module {
     }
 
     my $baseclass_id = $typenode_data->{extends_nodetype};
-    my $baseclass = $self->get_storage->nodetype_data_by_id($baseclass_id); # returns unblessed hash ref
+    my $baseclass;
+
+    $baseclass  = $self->get_storage->nodetype_data_by_id($baseclass_id); # returns unblessed hash ref
+
 
     my $baseclass_title;
     if ( $baseclass ) {
 	$baseclass_title = $baseclass->{ title };
 	$self->setup_module( $baseclass_title, $modules_loaded ); # recurse
 
+
     }
 
-        if ( $self->loadNodetypeModule($module) ) {
+    if ( $self->loadNodetypeModule($module) ) {
 	    $self->set_module_nodetype( $module );
 	    $module->import;
 	    $modules_loaded->{ $module } = 1;
@@ -293,6 +298,12 @@ sub set_module_nodetype {
 	$data = $self->get_storage->nodetype_data_by_name( 'node' );
 	$$data{ DB } = $self;
 	$$data{ node_id } = 1;
+	$$data{ sqltable } = 'nodetype';
+	$$data{ title } = 'nodetype';
+	$typenode = Everything::Node::nodetype->new( %$data );
+    } elsif ( $name eq 'node' ) {
+	$data = $self->get_storage->nodetype_data_by_name( 'nodetype' );
+	$$data{ title } = 'node';
 	$$data{ extends_nodetype } = 0;
 	$typenode = Everything::NodetypeMetaData->new( %$data );
     } else {
@@ -377,7 +388,6 @@ sub loadNodetypeModule
 	( my $modpath = $modname . '.pm' ) =~ s!::!/!g;
 
 	if ( exists $INC{$modpath} ) {
-		    $modname->load_class_data( $self );
 		    return 1;
 
 	}
@@ -386,8 +396,8 @@ sub loadNodetypeModule
 	{
 		next unless -e File::Spec->canonpath(
 			File::Spec->catfile( $path, $modpath ) );
+
 		if ( eval { require $modpath } ) {
-		    $modname->load_class_data( $self );
 		    last;
 		}
 	}
@@ -629,7 +639,7 @@ sub update_stored_node {
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
 	my $tableArray = $node->type->getTableArray(1);
-warn "Trying to update '$$node{title}' '" . $node->type->{title} . "' [ @$tableArray ]";
+
 	foreach my $table (@$tableArray)
 	{
 		my %VALUES;
@@ -1478,19 +1488,27 @@ sub delete_links {
 
 package Everything::NodetypeMetaData;
 
-sub new {
+use Moose;
 
-    my ( $class, @args ) = @_;
-    my $args = { @args };
+has $_ => ( is => 'rw' )
+  foreach qw( sqltable grouptable defaultgroup_usergroup
+  defaultauthor_permission defaultgroup_permission
+  defaultother_permission defaultguest_permission maxrevisions
+  canworkspace restrictdupess
+);
 
-    return bless $args, $class;
+has  derived_defaultauthoraccess => ( is => 'rw' );
+has $_ => ( is => 'rw', ) foreach map "derived_$_", qw( defaultgroupaccess
+  defaultotheraccess defaultguestaccess);
 
-}
+has grouptable => ( is => 'rw' );
+has derived_grouptable => ( is => 'rw', default => '' );
 
 sub getId {
 
     1;
 }
+
 
 ## XXX: implement this as a Moose::Role
 sub getTableArray {
@@ -1503,6 +1521,6 @@ sub getTableArray {
 
 };
 
-sub get_title { 'nodetype' };
+sub get_title { 'node' };
 
 1;

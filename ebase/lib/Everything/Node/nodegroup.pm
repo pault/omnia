@@ -338,7 +338,7 @@ override nuke => sub
 sub isGroup
 {
 	my ($this) = @_;
-	return $this->{type}{derived_grouptable};
+	return $this->type->{derived_grouptable};
 }
 
 =head2 C<inGroupFast>

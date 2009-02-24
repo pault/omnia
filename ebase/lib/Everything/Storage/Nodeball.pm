@@ -575,23 +575,9 @@ sub install_xml_nodetype_nodes {
 
     my ( $self ) = @_;
 
-    my $select_cb = sub { my $xmlnode = shift; if ( $xmlnode->get_nodetype eq 'nodetype' ) { warn "XXXXXXX installing " . $xmlnode->get_title; return 1}; return; };
     my $nb = $self->get_nodebase;
 
-#     my $push_cb = sub { my $xmlnode = shift;
-# 			return unless  $xmlnode->get_nodetype eq 'nodetype';
-# 			my $attributes = $xmlnode->get_attributes;
-
-# 			my $supernode;
-# 			foreach ( @$attributes ) {
-# 			    next unless $_->get_name eq 'extends_nodetype';
-# 			    $supernode = $nb->getNode( $_->get_content, 'nodetype' );			    warn "testing node " . $xmlnode->get_title . "  $supernode";
-
-# 			    last;
-# 			}
-# 			return 1 unless $supernode;
-# 			return;
-# 		    };
+    my $select_cb = sub { my $xmlnode = shift; if ( $xmlnode->get_nodetype eq 'nodetype' )  { $nb->loadNodetypeModule( 'Everything::Node::' . $xmlnode->get_title ); return 1}; return; };
 
     $self->install_xml_nodes_basic( $select_cb );
 

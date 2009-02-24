@@ -66,7 +66,7 @@ sub update_existing_nodes {
     my $nodes = $nb->getNodeWhere( '', 'nodetype', 'node_id' );
 
     my @get_these = ();
-    push @get_these, [ $$_{title}, $$_{type}{title} ] foreach @$nodes;
+    push @get_these, [ $_->get_title, $_->type->get_title ] foreach @$nodes;
 
     my $select = sub {
         my $xmlnode  = shift;
@@ -127,7 +127,6 @@ sub install_nodes {
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
             if ( $xmlnode->get_nodetype eq 'nodetype' ) {
-		warn  "YYYYYYYYY updating nodetype " . $xmlnode->get_title;
 		return 1;
 	    }
             return;
@@ -135,10 +134,7 @@ sub install_nodes {
 );
 
     $self->get_nodebase->rebuildNodetypeModules;
-my $nb = $self->get_nodebase;
-my $nodes = $nb->getNodeWhere(undef, 'nodetype' );
-my $text = " TABLES " . join "\n", map { " $$_{title}   .... $$_{derived_sqltable} .... $$_{derived_defaultotheraccess} and $$_{defaultotheraccess}" } @$nodes;
-warn $text;
+
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
             return 1 unless $xmlnode->get_nodetype eq 'nodetype';

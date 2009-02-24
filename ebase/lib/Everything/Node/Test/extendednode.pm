@@ -82,7 +82,7 @@ sub reset_mock_node
 	## reset nb and force it to do another 'new'
 
 	$db        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
-
+	$self->test_nodetype_metadata;
 	ok (my $nodeinstance =  $db->getNode('dbnode', 'extendednode', 'create force'));
 	isa_ok($nodeinstance, 'Everything::Node::node');
 	isa_ok($nodeinstance, 'Everything::Node::extendednode');
@@ -208,6 +208,26 @@ sub test_check_accessors : Test(8) {
 
     is ( $value, 777, '...the updated field is in the table.'); 
     is ( $new->get_afield, 777 );
+}
+
+sub test_nodetype_metadata {
+
+    my $self = shift;
+    my $db = $self->{mock_db};
+
+    my @type_names = $db->{storage}->fetch_all_nodetype_names;
+
+    foreach my $name ( @type_names ) {
+	my $class = "Everything::Node::$name";
+	my $typenode = $class->get_class_nodetype;
+	is ( $name, $typenode->get_title, "...name of class $name corresponds to typenode.");
+	foreach my $access (qw/derived_defaultauthoraccess derived_defaultgroupaccess derived_defaultotheraccess derived_defaultguestaccess/) {
+	    my $access_string = $$typenode{ $access };
+	    unlike ( $access_string, qr/i/, "... $access, $access_string for  $name is properly constructed." );
+	}
+    }
+
+
 }
 
 package Test::MockObject::Extends::NoCheck;

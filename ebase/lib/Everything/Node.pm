@@ -28,7 +28,7 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 extends 'Everything::Object';
 
-has type => ( is => 'rw' );
+#has type => ( is => 'rw' );
 has nodebase => ( is => 'rw' );
 has DB => ( is => 'rw' );
 has nocache => ( is => 'rw' );
@@ -61,28 +61,6 @@ implement these methods, we can access the basic sql functions.
 =back
 
 =cut
-
-sub BUILD
- {
- 	my ( $this ) = @_;
-
-	my $nodebase = $this->get_nodebase || $this->get_DB;
-	### set the type variable
-	if ( $this->get_type_nodetype and not $this->get_type ) {
-
-	    if ( $this->get_node_id == 1 ) {
-		$this->set_type ( $this );
-	    } else {
-		my $type = $nodebase->getNode( $this->get_type_nodetype );
-		$this->set_type ( $type );
-	    }
-	}
-
- 	return $this;
- };
-
-=cut
-
 
 =head2 C<DESTROY>
 
@@ -1205,13 +1183,13 @@ sub get_nodebase {
 sub type {
 
     my $self = shift;
-    my $class = blessed( $self );
+    my $class = blessed( $self ) || $self;
     my $nodetype =  $class->get_class_nodetype;
 
     if ( not $nodetype ) {
 	my ($name) = $class =~ /::(\w+)$/;
 	my $nodetype = $self->get_nodebase->getNode( $name, 'nodetype' );
-	$class->set_class_nodetype;
+	$class->set_class_nodetype( $nodetype );
     }
     return $nodetype;
 }
