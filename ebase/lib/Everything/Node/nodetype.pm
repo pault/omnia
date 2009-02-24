@@ -71,6 +71,7 @@ sub BUILD
 	}
 #use Carp; Carp::cluck "parent is $PARENT";
 	# We need to derive the following fields:
+
 	my $derive = {
 		map { $_ => 1 }
 			qw( sqltable grouptable defaultauthoraccess defaultgroupaccess
@@ -110,8 +111,7 @@ sub BUILD
 			}
 			elsif ( $field =~ /default.*access/ and $PARENT->{$field} ne '' )
 			{
-#confess "Wrong permissions $field $$this{$field} $$this{title} $PARENT $$PARENT{title} " . $PARENT->dump(1) if $$PARENT{$field} =~ /i/;
-					Everything::Security::inheritPermissions( $this->{$field},
+					$$this{ $field } = Everything::Security::inheritPermissions( $this->{$field},
 					$PARENT->{$field} ) if $$PARENT{ $field } !~ /i/;
 			}
 			elsif ( $field =~ /sqltable$/ and $PARENT->{$field} ne '' )

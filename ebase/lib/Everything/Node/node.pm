@@ -504,8 +504,8 @@ sub logRevision
 		if ( exists $this->{DB}->{workspace} && $this->canWorkspace() );
 	$workspace ||= 0;
 
-	my $maxrevisions = $this->{type}{maxrevisions};
-	$maxrevisions = $this->{type}{derived_maxrevisions} if $maxrevisions == -1;
+	my $maxrevisions = $this->type->{maxrevisions};
+	$maxrevisions = $this->type->{derived_maxrevisions} if $maxrevisions == -1;
 	$maxrevisions ||= 0;
 
 	# We should never revise a node, even if we are in a workspace.

@@ -478,7 +478,7 @@ sub test_xml_tag :Test( 6 ) {
 
     $node->set_always( getTagName => 'badtag' );
 
-    $node->{type}  = $node;
+    $node->set_always( type => $node );
     $node->{title} = 'thistype';
     my $result = xmlTag($node,  $node );
     is( $node->next_call(), 'getTagName', 'xmlTag() should fetch tag name' );

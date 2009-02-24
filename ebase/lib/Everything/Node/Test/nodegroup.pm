@@ -239,8 +239,9 @@ sub test_is_group :Test( 1 )
 {
 	my $self = shift;
 	my $node = $self->{node};
-	$node->{type}{derived_grouptable} = 77;
+	$node->type->{derived_grouptable} = 77;
 	is( $node->isGroup(), 77, 'isGroup() should return derived group table' );
+	$node->type->{derived_grouptable} = 0;
 }
 
 sub test_in_group_fast :Test( 4 )

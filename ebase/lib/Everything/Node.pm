@@ -251,10 +251,10 @@ sub getClone
 	my $CLONE;
 	my $create;
 
-	$create = "create" if ( $$this{type}{restrictdupes} );
+	$create = "create" if ( $this->type->{restrictdupes} );
 	$create ||= "create force";
 
-	$CLONE = $this->{DB}->getNode( $title, $$this{type}, $create );
+	$CLONE = $this->{DB}->getNode( $title, $this->type, $create );
 
 	# if the id is not zero, the getNode found a node that already exists
 	# and the type does not allow duplicate names.
@@ -394,9 +394,9 @@ sub isOfType
 
 	return 0 unless ($TYPE);
 	my $typeid = $TYPE->getId();
-	return 1 if ( $typeid == $$this{type}{node_id} );
+	return 1 if ( $typeid == $this->type->getId );
 
-	return $$this{type}->derivesFrom($TYPE) if ($recurse);
+	return $this->type->derivesFrom($TYPE) if ($recurse);
 	return 0;
 }
 
@@ -645,7 +645,7 @@ sub deriveUsergroup
 	}
 	else
 	{
-		return $$this{type}{defaultgroup_usergroup};
+		return $this->type->{defaultgroup_usergroup};
 	}
 }
 
@@ -678,7 +678,7 @@ contain any of these characters "rwxdc-".
 sub getDefaultPermissions
 {
 	my ( $this, $class ) = @_;
-	my $TYPE = $$this{type};
+	my $TYPE = $this->type;
 	my $perms;
 	my $parentPerms;
 	my $field = $class . "access";
@@ -718,7 +718,7 @@ sub getDynamicPermissions
 
 	my $permission = $this->{"dynamic${class}_permission"};
 
-	$permission = $this->{type}{"derived_default${class}_permission"}
+	$permission = $this->type->{"derived_default${class}_permission"}
 		if $permission
 		and $permission == -1;
 
@@ -950,7 +950,7 @@ sub getTables
 {
 	my ( $this, $nodetable ) = @_;
 
-	return $$this{type}->getTableArray($nodetable);
+	return $this->type->getTableArray($nodetable);
 }
 
 =cut
@@ -1088,7 +1088,7 @@ sub getNodeDatabaseHash
 	my @fields;
 	my %keys;
 
-	$tableArray = $$this{type}->getTableArray(1);
+	$tableArray = $this->type->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
 
@@ -1171,7 +1171,7 @@ sub existingNodeMatches
 	my %WHERE;
 
 	@WHERE{@ID} = @$this{@ID};
-	my $NODE = $$this{DB}->getNode( \%WHERE, $$this{type} );
+	my $NODE = $$this{DB}->getNode( \%WHERE, $this->type );
 
 	return $NODE;
 }

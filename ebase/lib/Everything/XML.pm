@@ -169,7 +169,7 @@ sub xmlTag
 
 	Everything::logErrors( '',
 			       "node.pm does not know how to handle XML tag '$tagname' "
-			       . "for type '$$node{type}{title}'" );
+			       . "for type '" . $node->type->{title} . "'" );
 	return;
 
 }

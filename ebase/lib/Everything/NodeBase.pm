@@ -305,6 +305,7 @@ sub set_module_nodetype {
 	$data = $self->get_storage->nodetype_data_by_name( 'nodetype' );
 	$$data{ title } = 'node';
 	$$data{ extends_nodetype } = 0;
+	$$data{ sqltable } = '';
 	$typenode = Everything::NodetypeMetaData->new( %$data );
     } else {
 	$data = $self->get_storage->nodetype_data_by_name( $name );
@@ -756,7 +757,7 @@ sub delete_stored_node {
 	}
 
 	# Actually remove this node from the database.
-	my $tableArray = $node->{type}->getTableArray(1);
+	my $tableArray = $node->type->getTableArray(1);
 	foreach my $table (@$tableArray)
 	{
 		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
@@ -1497,8 +1498,12 @@ has $_ => ( is => 'rw' )
   canworkspace restrictdupess
 );
 
+has defaultauthoraccess => ( is => 'rw' );
 has  derived_defaultauthoraccess => ( is => 'rw' );
-has $_ => ( is => 'rw', ) foreach map "derived_$_", qw( defaultgroupaccess
+
+has $_ => ( is => 'rw' ) foreach  qw( defaultgroupaccess
+  defaultotheraccess defaultguestaccess);
+has $_ => ( is => 'rw' ) foreach map "derived_$_", qw( defaultgroupaccess
   defaultotheraccess defaultguestaccess);
 
 has grouptable => ( is => 'rw' );
@@ -1509,6 +1514,23 @@ sub getId {
     1;
 }
 
+sub BUILD {
+
+    my $self = shift;
+
+    foreach (
+        qw/ sqltable grouptable defaultauthoraccess defaultgroupaccess
+        defaultotheraccess defaultguestaccess defaultgroup_usergroup
+        defaultauthor_permission defaultgroup_permission
+        defaultother_permission defaultguest_permission maxrevisions
+        canworkspace
+        /
+      )
+    {
+      $self->{ "derived_$_"} = $self->{ $_ };
+
+    }
+}
 
 ## XXX: implement this as a Moose::Role
 sub getTableArray {
@@ -1522,5 +1544,22 @@ sub getTableArray {
 };
 
 sub get_title { 'node' };
+
+sub default_data {
+
+    my %data = ( title => 'default metadata' );
+
+    $data{$_} = '' foreach qw{ sqltable grouptable  defaultgroup_usergroup
+        defaultauthor_permission defaultgroup_permission
+        defaultother_permission defaultguest_permission
+        };
+
+    $data{ $_ } = 0 foreach qw{maxrevisions canworkspace};
+    $data{ defaultauthoraccess } = 'iiii';
+
+    $data{$_} = 'iiiii' foreach qw {defaultgroupaccess
+				    defaultotheraccess defaultguestaccess};
+    return \%data;
+}
 
 1;

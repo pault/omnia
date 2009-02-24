@@ -7,7 +7,7 @@ my $query = $this-&gt;get_query;
 
 my $val = int($$NODE{$field});
 
-$val . $query-&gt;radio_group(&quot;$$NODE{type}{title}_$field&quot;, ['1', '0'], 
+$val . $query-&gt;radio_group( $NODE->type->get_title . &quot;_$field&quot;, ['1', '0'], 
 	$val, 0, { '0' =&gt; 'no', '1'=&gt; 'yes'});</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>

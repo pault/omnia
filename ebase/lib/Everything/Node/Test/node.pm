@@ -619,7 +619,7 @@ sub test_log_revision :Test( 13 )
 	   ->set_series( sqlSelect => 0, [ 2, 1, 4 ], 0, [ 0 ] )
 	   ->set_true(qw( sqlDelete sqlInsert ));
 
-	$node->{type}{maxrevisions} = 0;
+	$node->type->{maxrevisions} = 0;
 
 	$node->fake_module('Everything::XML::Node', new => sub { $node });
 	$node->set_true('toXML');
@@ -630,8 +630,8 @@ sub test_log_revision :Test( 13 )
 	$node->set_true( 'toXML' )
 		 ->set_always( -getId => 1 );
 
-	$node->{type}{maxrevisions}         = -1;
-	$node->{type}{derived_maxrevisions} = 1;
+	$node->type->{maxrevisions}         = -1;
+	$node->type->{derived_maxrevisions} = 1;
 
 	$result = $node->logRevision( 'user' );
 	my ( $method, $args ) = $db->next_call( 2 );
@@ -920,7 +920,8 @@ sub test_nuke :Test( 27 )
 	$node->set_true( 'hasAccess' )
 		->set_series( isGroupType => 0, 'table1', 'table2' )
 	    ->set_always( getTableArray => [ 'deltable' ] )
-		->set_always( -getId => 'id' );
+		->set_always( -getId => 'id' )
+		->set_always( -type => $node );
 	$db->set_true(qw( getRef finish removeNode incrementGlobalVersion ))
 	   ->set_always( getNode => $db )
 	   ->set_series( sqlSelectMany => 0, $db )

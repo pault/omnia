@@ -82,7 +82,7 @@ sub reset_mock_node
 	## reset nb and force it to do another 'new'
 
 	$db        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
-	$self->test_nodetype_metadata;
+
 	ok (my $nodeinstance =  $db->getNode('dbnode', 'extendednode', 'create force'));
 	isa_ok($nodeinstance, 'Everything::Node::node');
 	isa_ok($nodeinstance, 'Everything::Node::extendednode');
@@ -210,7 +210,7 @@ sub test_check_accessors : Test(8) {
     is ( $new->get_afield, 777 );
 }
 
-sub test_nodetype_metadata {
+sub test_nodetype_metadata :Test(25) {
 
     my $self = shift;
     my $db = $self->{mock_db};

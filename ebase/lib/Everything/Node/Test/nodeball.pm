@@ -77,7 +77,7 @@ sub test_insert :Test( 10 )
 	$node->clear();
 	$node->insert();
 
-	( $method, $args ) = $node->next_call(2); diag $method;
+	( $method, $args ) = $node->next_call(2);
 	is( $args->[1]->{author}, 'title!',
 		'... respecting given title when creating default vars' );
 }

@@ -15,16 +15,14 @@ sub startup :Test( +1 )
 	isa_ok( $self->node_class()->new(), 'Everything::Node::node' );
 }
 
-sub test_type_metadata :Test(1) {
+sub test_type_metadata :Test(4) {
     my $self = shift;
     my $class = $self->node_class;
 
-#    my $node = $self->{node};
     my $db = $self->{mock_db};
 
     my $node = $db->getNode( 'nodetype', 'nodetype' );
     my $typenode = $class->get_class_nodetype;
-    diag $typenode . "  " . $typenode->dump(1);
     foreach ( qw/derived_defaultauthoraccess derived_defaultgroupaccess derived_defaultotheraccess derived_defaultguestaccess/ ) {
 	is( $$node{ $_ }, $$typenode{ $_ }, "...derived permission '$_' is ok.");
     }
@@ -43,7 +41,7 @@ sub test_dbtables :Test( 2 )
 		'dbtables() should return node tables' );
 }
 
-sub test_construct :Test( 10 )
+sub test_construct :Test( 9 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -76,13 +74,15 @@ sub test_construct :Test( 10 )
 		= ('') x 12;
 
 	my $get_class_nodetype_flag;
-	no strict 'refs';
-	local *{ $self->node_class . '::get_class_nodetype' };
-	*{ $self->node_class . '::get_class_nodetype' } = sub { $get_class_nodetype_flag++ };
-	use strict 'refs';
 
+	local *Everything::Node::node::get_class_nodetype;
+	*Everything::Node::node::get_class_nodetype  = sub { $get_class_nodetype_flag++ };
+
+
+	$node->{title} = 'nodetype';
+	$node->{extends_nodetype} = 1;
 	$node->BUILD();
-	is( $node->{type}, $node, '... should set node number 1 type to itself' );
+
 	my ( $method, $args ) = $db->next_call();
 	ok( $get_class_nodetype_flag, '... retrieves the nodetype meta data.' );
 

@@ -246,7 +246,7 @@ True if this node is to never be removed from the cache when purging.
 sub cacheNode
 {
 	my ( $this, $NODE, $permanent ) = @_;
-	my ( $type, $title ) = ( $$NODE{type}{title}, $$NODE{title} );
+	my ( $type, $title ) = ( $NODE->type->get_title, $NODE->get_title );
 	my $data;
 
 	if ( defined( $this->{idCache}{ $$NODE{node_id} } ) )
@@ -452,7 +452,7 @@ Returns the node data, if it was removed.  Undef otherwise.
 sub removeNodeFromHash
 {
 	my ( $this, $NODE )  = @_;
-	my ( $type, $title ) = ( $$NODE{type}{title}, $$NODE{title} );
+	my ( $type, $title ) = ( $NODE->type->get_title, $NODE->get_title );
 
 	if ( defined $this->{idCache}{ $$NODE{node_id} } )
 	{
@@ -513,7 +513,7 @@ sub getGlobalVersion
 =cut
 
 
-C<isSameVersion>
+=head2 C<isSameVersion>
 
 Check to see that this node has the same version number as the other httpd
 processes (that is, check the version db table).
@@ -535,7 +535,7 @@ sub isSameVersion
 	my ( $this, $NODE ) = @_;
 	return unless defined $NODE;
 
-	return 1 if exists $this->{typeVerified}{ $NODE->{type}{node_id} };
+	return 1 if exists $this->{typeVerified}{ $NODE->type->getId };
 	return 1 if exists $this->{verified}{ $NODE->{node_id} };
 	return 0 unless exists $this->{version}{ $NODE->{node_id} };
 
@@ -589,10 +589,10 @@ sub incrementGlobalVersion
 	$this->{nodeBase}->sqlUpdate(
 		'typeversion',
 		{ -version => 'version+1' },
-		"typeversion_id=" . $$NODE{type}{node_id}
+		"typeversion_id=" . $NODE->type->getId
 		)
 		if $this->{nodeBase}->sqlSelect( "version", "typeversion",
-		"typeversion_id=" . $$NODE{type}{node_id} );
+		"typeversion_id=" . $NODE->type->getId );
 }
 
 =cut
@@ -725,7 +725,7 @@ Returns 1 on success, 0 on failure ($NODE probably isn't cached)
 sub cacheMethod
 {
 	my ( $this, $NODE, $field, $sub_ref ) = @_;
-	my ( $type, $title ) = ( $$NODE{type}{title}, $$NODE{title} );
+	my ( $type, $title ) = ( $NODE->type->get_title, $NODE->get_title );
 	my $data = $this->{typeCache}{$type}{$title};
 	if ( defined( $data->{item} ) )
 	{
