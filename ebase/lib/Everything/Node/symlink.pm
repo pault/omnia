@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::symlink
 
 Class representing the symlink node.
@@ -7,7 +8,6 @@ Copyright 2006 Everything Development Inc.
 =cut
 
 package Everything::Node::symlink;
-
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -31,9 +31,8 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
-{
-	my $self = shift;
-	return 'symlink', $self->SUPER::dbtables();
+sub dbtables {
+    my $self = shift;
+    return 'symlink', $self->SUPER::dbtables();
 }
 1;

@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::container
 
 Class representing the container node.
@@ -12,18 +13,22 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype',
+class_has class_nodetype => (
+    reader  => 'get_class_nodetype',
+    writer  => 'set_class_nodetype',
+    isa     => 'Everything::Node::nodetype',
     default => sub {
         Everything::Node::nodetype->new(
             Everything::NodetypeMetaData->default_data );
-    } );
+    }
+);
 
 extends 'Everything::Node::node';
 
-has context => ( is => 'rw' );
+has context          => ( is => 'rw' );
 has parent_container => ( is => 'rw' );
 
-with  'Everything::Node::Parseable';
+with 'Everything::Node::Parseable';
 
 =head2 C<dbtables()>
 
@@ -31,20 +36,19 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-sub dbtables
-{
-	my $self = shift;
-	return 'container', $self->SUPER::dbtables();
+sub dbtables {
+    my $self = shift;
+    return 'container', $self->SUPER::dbtables();
 }
 
 sub get_compilable_field {
     'context';
 }
 
-
 sub process_contained_data {
     my ( $self, $request, $data, $no_clear, $ehtml, $container_args ) = @_;
-    my $html = $self->generate_container( $no_clear, $request, $ehtml, $container_args );
+    my $html =
+      $self->generate_container( $no_clear, $request, $ehtml, $container_args );
     $html =~ s/CONTAINED_STUFF/$data/s;
     return $html;
 }
@@ -80,22 +84,23 @@ sub generate_container {
         $replacetext = $self->show_containers( $replacetext, $request, $ehtml );
     }
 
-     if ( $self->get_parent_container ) {
+    if ( $self->get_parent_container ) {
 
-         my $parentcontainer = $nodebase->getNode( $self->get_parent_container );
-         $replacetext =
-           $parentcontainer->process_contained_data( $request, $replacetext, 1, $ehtml );
+        my $parentcontainer = $nodebase->getNode( $self->get_parent_container );
+        $replacetext =
+          $parentcontainer->process_contained_data( $request, $replacetext, 1,
+            $ehtml );
 
-     }
+    }
 
     return $replacetext;
 }
 
 sub show_containers {
     my ( $self, $replacetext, $request, $ehtml ) = @_;
-    my $start          = "";
-    my $middle         = $replacetext;
-    my $end            = "";
+    my $start  = "";
+    my $middle = $replacetext;
+    my $end    = "";
     my $debugcontainer =
       $self->get_nodebase->getNode( 'show container', 'container' );
 
@@ -116,8 +121,9 @@ sub show_containers {
         && ( $debugcontainer->get_node_id ne $self->get_node_id ) )
     {
 
-
-        my $debugtext = $debugcontainer->process_contained_data( $request, $middle, undef, $ehtml, [ $self ] );
+        my $debugtext =
+          $debugcontainer->process_contained_data( $request, $middle, undef,
+            $ehtml, [$self] );
         $replacetext = $start . $debugtext . $end;
     }
 

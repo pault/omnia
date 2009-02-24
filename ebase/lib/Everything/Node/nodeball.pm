@@ -1,3 +1,4 @@
+
 =head1 Everything::Node::nodeball
 
 Class representing the nodeball node.
@@ -16,11 +17,15 @@ use Moose;
 extends 'Everything::Node::nodegroup';
 
 use MooseX::ClassAttribute;
-class_has class_nodetype => ( reader => 'get_class_nodetype', writer => 'set_class_nodetype', isa => 'Everything::Node::nodetype',
+class_has class_nodetype => (
+    reader  => 'get_class_nodetype',
+    writer  => 'set_class_nodetype',
+    isa     => 'Everything::Node::nodetype',
     default => sub {
         Everything::Node::nodetype->new(
             Everything::NodetypeMetaData->default_data );
-    } );
+    }
+);
 
 has vars => ( is => 'rw' );
 
@@ -32,10 +37,9 @@ Returns a list of tables this node uses in the database, most specific first.
 
 =cut
 
-override dbtables => sub
-{
-	my $self = shift;
-	return 'setting', $self->super();
+override dbtables => sub {
+    my $self = shift;
+    return 'setting', $self->super();
 };
 
 =head2 C<insert>
@@ -44,51 +48,48 @@ Override the default insert to have the nodeball created with some defaults.
 
 =cut
 
-override insert => sub
-{
-	my ( $this, $USER ) = @_;
+override insert => sub {
+    my ( $this, $USER ) = @_;
 
-	$this->{vars}     ||= '';
-	my $VARS            = $this->getVars();
+    $this->{vars} ||= '';
+    my $VARS = $this->getVars();
 
-	# If the node was not inserted with some vars, we need to set some.
-	unless ($VARS)
-	{
-	        # XXX: this must change nodes don't remember the nodebase
-		my $user  = $this->{DB}->getNode($USER);
-		my $title = 'ROOT';
+    # If the node was not inserted with some vars, we need to set some.
+    unless ($VARS) {
 
-		$title = $user->{title}
-			if $user && $user->isa( 'Everything::Node' );
+        # XXX: this must change nodes don't remember the nodebase
+        my $user  = $this->{DB}->getNode($USER);
+        my $title = 'ROOT';
 
-		$VARS = {
-			author      => $title,
-			version     => '0.1.1',
-			description => 'No description'
-		};
+        $title = $user->{title}
+          if $user && $user->isa('Everything::Node');
 
-		$this->setVars( $VARS, $USER );
-	}
+        $VARS = {
+            author      => $title,
+            version     => '0.1.1',
+            description => 'No description'
+        };
 
-	my $insert_id = $this->super( $USER );
-	return $insert_id if $insert_id;
+        $this->setVars( $VARS, $USER );
+    }
 
-	Everything::logErrors("Got bad insert id: $insert_id!");
-	return 0;
+    my $insert_id = $this->super($USER);
+    return $insert_id if $insert_id;
+
+    Everything::logErrors("Got bad insert id: $insert_id!");
+    return 0;
 };
 
-sub getVars
-{
-	my ($this) = @_;
+sub getVars {
+    my ($this) = @_;
 
-	return $this->getHash('vars');
+    return $this->getHash('vars');
 }
 
-sub setVars
-{
-	my ( $this, $vars ) = @_;
+sub setVars {
+    my ( $this, $vars ) = @_;
 
-	$this->setHash( $vars, 'vars' );
+    $this->setHash( $vars, 'vars' );
 }
 
 sub hasVars { 1 }
