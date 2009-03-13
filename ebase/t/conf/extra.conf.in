@@ -1,7 +1,0 @@
-<Perl>
-use lib '@SERVERROOT@/../lib';
-</Perl>
-
-SetHandler perl-script
-PerlSetVar everything-config-file lib/everything.conf
-PerlResponseHandler +Everything::HTTP::Apache

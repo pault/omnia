@@ -1787,7 +1787,7 @@ sub opUpdate {
     foreach my $node ( keys %UPDATENODES ) {
 
         # Log a revision (for undo/redo) on each of the updated nodes.
-        $UPDATENODES{$node}->logRevision($USER);
+        $nodebase->log_node_revision( $UPDATENODES{$node}, $USER);
         $UPDATENODES{$node}->update($USER);
 
         # This is the case where the user is modifying their own user

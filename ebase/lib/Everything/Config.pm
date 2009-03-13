@@ -131,7 +131,7 @@ sub handle_location_schemas {
 
 sub htmlvars {
     my ($self) = @_;
-    my $nb = $self->get_nb || $self->nodebase;;
+    my $nb = $self->get_nb || $self->nodebase;
 
     my $config = $self->get_config;
 

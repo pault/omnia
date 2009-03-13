@@ -30,7 +30,9 @@ BEGIN {
     my $module = __PACKAGE__->node_class;
     my ($file) = $module =~ s/::/\//g;
     require "$module.pm";
+
 }
+
 
 sub startup : Test( startup => 3 ) {
     my $self = shift;
@@ -197,20 +199,27 @@ sub test_insert_restrict_dupes :Test( 4 )
 	my $self               = shift;
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
+
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
 	$node->{type_nodetype} = 2;
 	$node->set_always( get_nodebase => $db );
 	$node->set_always( type => $node );
-	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache))
-		 ->set_always( -getTableArray => [] );
+	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache));
+
 	$db->set_series( sqlSelect => 1, 0 )
 	   ->set_always( -getFields => 'none' )
 	   ->set_always( -now => '' )
 	   ->set_series( -getNode => undef, { DB => $db } )
 	   ->set_true( 'sqlInsert' )
-	   ->set_always( -lastValue => 100 );
+	   ->set_always( -lastValue => 100 )
+	   ->set_always( -nodetype => $node )
+	   ->set_always( -get_storage => $db )
+           ->set_always( retrieve_nodetype_tables => [] )
+           ->set_list ( fetch_all_nodetype_names => 'node', 'nodetype' )
+	   ->set_always( -nodetype_hierarchy_by_id => [ {restrictdupes => -1 }, {restrictdupes => 1 } ] );
+	## mock blessed because our node is T::MO::E
 
 	is( $node->insert( '' ), 0,
 		'insert() should return 0 if dupes are restricted and exist' );
@@ -224,7 +233,7 @@ sub test_insert_restrict_dupes :Test( 4 )
 		  [
 		   $db,    'count(*)',
 		   'node', 'title = ? AND type_nodetype = ?',
-		   '', [ $node->{title}, 1 ]
+		   '', [ $node->{title}, 2 ]
 		  ],
 		  '...with the right title and id arguments.'
 		 );
@@ -242,6 +251,9 @@ sub test_insert :Test( 3 )
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
 	my $type               = $db->getType( 'nodetype' );
+
+	local *Everything::NodeBase::blessed;
+	*Everything::NodeBase::blessed = sub { $self->node_class };
 
 	$node->{node_id}       = 0;
 	$node->set_always ( type => $node );
@@ -295,7 +307,7 @@ sub test_update_access :Test( 3 )
 	is( join( '-', @$args ), "$node-user-w", '... write access for user'  );
 }
 
-sub test_update :Test( 11 )
+sub test_update :Test( 10 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -308,12 +320,12 @@ sub test_update :Test( 11 )
 	$db->{storage} = $db;
 
 	$node->set_true( -hasAccess )
-		 ->set_always( getTableArray => [ 'table', 'table2' ] )
 		 ->set_always( -type => $node )
 		 ->set_true( 'cache' );
 
 	$db->set_true(qw( incrementGlobalVersion sqlUpdate now sqlSelect update_or_insert))
-	   ->set_series( getFields => 'boom', 'foom' );
+	   ->set_series( getFields => 'boom', 'foom' )
+           ->set_always( -retrieve_nodetype_tables  => [ 'table', 'table2' ] );
 
 	$node->update( 'user' );
 	is( $db->next_call(), 'incrementGlobalVersion',
@@ -324,7 +336,6 @@ sub test_update :Test( 11 )
 	is( $db->next_call(), 'sqlSelect',
 		'... updating modified field without flag' );
 	is( $method, 'now', '... with current time' );
-	is( $node->next_call(), 'getTableArray', '... fetching type tables' );
 
 	( $method, my $args ) = $db->next_call();
 	is( $method, 'getFields', '... fetching the fields' );
@@ -595,81 +606,6 @@ sub test_get_revision :Test( 9 )
 		'... and should copy node_id, createtime, and reputation fields' );
 }
 
-sub test_log_revision_access :Test( 1 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	$node->set_false( 'hasAccess' );
-	is( $node->logRevision( 'user' ), 0,
-		'logRevision() should return 0 if user lacks write access' );
-}
-
-sub test_log_revision :Test( 13 )
-{
-	my $self         = shift;
-	my $node         = $self->{node};
-	my $db           = $self->{mock_db};
-	$node->{node_id} = 99;
-	
-	$node->set_series( -hasAccess => (1) x 3 )
-		 ->set_series( getId => 'id' )
-		 ->set_true( 'canWorkspace' );
-
-	$db->set_always( -getNode   => $node )
-	   ->set_series( sqlSelect => 0, [ 2, 1, 4 ], 0, [ 0 ] )
-	   ->set_true(qw( sqlDelete sqlInsert ));
-
-	$node->type->{maxrevisions} = 0;
-
-	$node->fake_module('Everything::XML::Node', new => sub { $node });
-	$node->set_true('toXML');
-
-	my $result = $node->logRevision( 'user' );
-	is( $result, 0, 'logRevisions() should return 0 if lacking max revisons' );
-
-	$node->set_true( 'toXML' )
-		 ->set_always( -getId => 1 );
-
-	$node->type->{maxrevisions}         = -1;
-	$node->type->{derived_maxrevisions} = 1;
-
-	$result = $node->logRevision( 'user' );
-	my ( $method, $args ) = $db->next_call( 2 );
-	is( $method, 'sqlSelect', '... should fetch data' );
-	is( join( '-', @$args[ 1 .. 4 ] ),
-		'max(revision_id)+1-revision-node_id = ? and inside_workspace = ?-',
-		'... max revision from revision table'
-	);
-	is( join( '-', @{ $args->[5] } ), '99-0', '... for node_id and workspace' );
-
-	( $method, $args ) = $db->next_call();
-	is( "$method $args->[1]", 'sqlInsert revision',
-		'... inserting new revision' );
-	is( $args->[2]{revision_id}, 1, '... using revision id of 1 if necessary' );
-
-	( $method, $args ) = $db->next_call();
-	like( "$method @$args", qr/sqlSelect.+count.+min.+max.+revision/,
-		'... should fetch max, min, and total revisions' );
-	( $method, $args ) = $db->next_call();
-	like( "$method @$args", qr/sqlDelete.+revision.+revision_id = /,
-		'... should delete oldest revision if in workspace and at max limit' );
-
-	is( $result, 4, '... should return id of newest revision' );
-
-	$db->{workspace}{node_id}   = $node->{node_id} = 44;
-	$db->{workspace}{nodes}{44} = 'R';
-
-	$db->clear();
-	$node->logRevision( 'user' );
-	( $method, $args ) = $db->next_call();
-	is( $method, 'sqlDelete', '... undoing a later revision if in workspace' );
-	is( join( '-', @$args[ 1, 2 ] ),
-		'revision-node_id = ? and revision_id > ? and inside_workspace = ?',
-		'... by node, revision, and workspace' );
-	is_deeply( $args->[3], [ 44, 'R', 44 ], '... with the correct values' );
-	is( $node->next_call(), 'toXML', '... XMLifying node for workspace' );
-}
-
 sub test_undo_access :Test()
 {
 	my $self = shift;
@@ -853,41 +789,6 @@ sub test_get_workspaced :Test( 6 )
 	ok( !$node->getWorkspaced(), '... or false otherwise' );
 }
 
-sub test_update_workspaced :Test( 8 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	my $db   = $self->{mock_db};
-
-	$node->set_series( -canWorkspace => 0, 1 )
-		 ->set_series( logRevision  => 17 )
-		 ->set_true(qw( setVars update removeNode ));
-
-	ok( ! $node->updateWorkspaced(),
-		'updateWorkspaced() should return false unless node can workspace' );
-
-	$db->{workspace} = $node;
-	$db->{cache}     = $node;
-	$node->{node_id} = 41;
-	my $result       = $node->updateWorkspaced( 'user' );
-
-	my ( $method, $args ) = $node->next_call();
-	is( $method, 'logRevision', '... should log revision' );
-	is( $args->[1], 'user', '... for user' );
-	is( $db->{workspace}{nodes}{41}, 17, '... logging revision in workspace');
-
-	( $method, $args ) = $node->next_call();
-	is( "$method $args->[1]", "setVars $db->{workspace}{nodes}",
-		'... updating variables for workspace' );
-	( $method, $args ) = $node->next_call();
-	is( "$method $args->[1]", 'update user', '... updating workspace node' );
-
-	( $method, $args ) = $node->next_call();
-	is( "$method $args->[1]", "removeNode $node",
-		'... removing node from cache' );
-	is( $result, 41, '... and should return node_id' );
-}
-
 sub test_nuke_access :Test( 4 )
 {
 	my $self    = shift;
@@ -908,7 +809,7 @@ sub test_nuke_access :Test( 4 )
 	is( join( '-', @$args ), "$node-user-d", '... delete access for user' );
 }
 
-sub test_nuke :Test( 27 )
+sub test_nuke :Test( 26 )
 {
 	my $self         = shift;
 	my $node         = $self->{node};
@@ -918,7 +819,8 @@ sub test_nuke :Test( 27 )
 	$node->{node_id} = 89;
 
 	$node->set_true( 'hasAccess' )
-		->set_series( isGroupType => 0, 'table1', 'table2' )
+		->set_series( -isa => 0, 'table1', 'table2' )
+		->set_series( -get_grouptable => 'table1', 'table2')
 	    ->set_always( getTableArray => [ 'deltable' ] )
 		->set_always( -getId => 'id' )
 		->set_always( -type => $node );
@@ -951,8 +853,8 @@ sub test_nuke :Test( 27 )
 		'... by id from revision' );
 	is_deeply( $args->[3], [89], '... with node_id' );
 
-	is( $node->next_call(), 'isGroupType',
-		'... should check each type is a group node' );
+#	is( $node->next_call(), 'isGroupType',
+#		'... should check each type is a group node' );
 
 	( $method, $args ) = $db->next_call(2);
 	is( $method, 'sqlSelectMany', '... should check for node' );
@@ -974,7 +876,7 @@ sub test_nuke :Test( 27 )
 
 	is( $db->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
 
-	( $method, $args ) = $node->next_call( 3 );
+	( $method, $args ) = $node->next_call( );
 	is( "$method @$args", "getTableArray $node 1",
 		'... should fetch all tables for node' );
 

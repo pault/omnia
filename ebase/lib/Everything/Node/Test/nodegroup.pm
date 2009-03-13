@@ -8,17 +8,17 @@ use base 'Everything::Node::Test::node';
 use Test::More;
 use SUPER;
 
-sub test_construct :Test( 1 )
-{
-	my $self = shift;
-	my $node = $self->{node};
+# sub test_construct :Test( 1 )
+# {
+# 	my $self = shift;
+# 	my $node = $self->{node};
 
-	$node->set_always( selectGroupArray => 'group' );
+# 	$node->set_always( selectGroupArray => 'group' );
 
-	$node->BUILD();
-	is( $node->{group}, 'group',
-		'construct() should set "group" field to group array' );
-}
+# 	$node->BUILD();
+# 	is( $node->{group}, 'group',	
+# 	'construct() should set "group" field to group array' );
+# }
 
 sub test_select_group_array :Test( 8 )
 {
@@ -235,31 +235,32 @@ sub test_nuke :Test( 7 )
 	is( $args->[1], 'user', '... passing $USER' );
 }
 
-sub test_is_group :Test( 1 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	$node->type->{derived_grouptable} = 77;
-	is( $node->isGroup(), 77, 'isGroup() should return derived group table' );
-	$node->type->{derived_grouptable} = 0;
-}
+# sub test_is_group :Test( 1 )
+# {
+# 	my $self = shift;
+# 	my $node = $self->{node};
+# 	$node->type->{derived_grouptable} = 77;
+# 	is( $node->isGroup(), 77, 'isGroup() should return derived group table' );
+# 	$node->type->{derived_grouptable} = 0;
+# }
 
-sub test_in_group_fast :Test( 4 )
+sub test_in_group_fast :Test( 3 )
 {
 	my $self = shift;
 	my $node = $self->{node};
 	my $db   = $self->{mock_db};
 
 	$node->{group} = [ 1, 3, 5, 7, 17, 43 ];
-	$db->set_series( getId => 17, 44 );
 	$node->set_true('groupCache')
 		 ->set_always( 'existsInGroupCache', 'cached?' );
 
-	my $result = $node->inGroupFast( 'node!' );
+	my $mock = Test::MockObject->new;
+	$mock->set_series( getId => 17, 44 );
+	my $result = $node->inGroupFast( $mock );
 
-	my ( $method, $args ) = $db->next_call();
+	my ( $method, $args ) = $mock->next_call();
 	is( $method,            'getId',   'inGroupFast() should find node_id' );
-	is( $args->[1],         'node!',   '... of node' );
+	( $method, $args ) = $db->next_call();
 	is( $node->next_call(), 'groupCache', '... populating cache' );
 	is( $result,            'cached?', '... returning result of cache lookup' );
 }

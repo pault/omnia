@@ -15,6 +15,7 @@ use warnings;
 use Everything::Node;
 use DBI;
 use Scalar::Util 'weaken';
+use Everything::DB::Node;
 
 sub new
 {
@@ -551,7 +552,20 @@ sub getNodeByIdNew
 
 	$selectop ||= "";
 
-	return $this->{nb}->getNodeZero() if ( $node_id == 0 );
+	if ( $node_id == 0 ) {
+
+	    return +{
+		     node_id                  => 0,
+		     title                    => '/',
+		     type_nodetype            => 2,
+		     authoraccess             => 'iiii',
+		     groupaccess              => '-----',
+		     otheraccess              => '-----',
+		     guestaccess              => '-----',
+		    };
+
+
+	}
 	return unless $node_id;
 
 
@@ -576,19 +590,19 @@ sub getNodeByIdNew
 
 sub getNodeByName
 {
-	my ( $this, $node, $TYPE ) = @_;
+	my ( $this, $node, $nodetype_title ) = @_;
 	my $NODE;
 	my $cursor;
 
-	return unless ($TYPE);
+	return unless ($nodetype_title);
 
-	$this->{nb}->getRef($TYPE);
+	my $type_data = $this->nodetype_data_by_name( $nodetype_title );
 
 	$cursor = $this->sqlSelectMany( "*", "node",
 		      "title="
 			. $this->quote($node)
 			. " AND type_nodetype="
-			. $$TYPE{node_id} );
+			. $$type_data{node_id} );
 
 	return unless $cursor;
 
@@ -610,11 +624,13 @@ sub nodetype_data_by_name {
 
     my $dbh = $self->getDatabaseHandle;
 
-    my $sth = $dbh->prepare( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.title = ? ' );
+    my $sth = $dbh->prepare_cached( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.title = ? ' );
 
     $sth->execute( $typename );
 
     my $data = $sth->fetchrow_hashref;
+
+    $sth->finish;
 
     return $data;
 
@@ -626,14 +642,43 @@ sub nodetype_data_by_id {
 
     my $dbh = $self->getDatabaseHandle;
 
-    my $sth = $dbh->prepare( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
+    my $sth = $dbh->prepare_cached( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
 
     $sth->execute( $id );
 
     my $data = $sth->fetchrow_hashref;
 
+    $sth->finish;
+
     return $data;
 
+}
+
+=head2 nodetype_hierarchy_by_id
+
+Returns a array ref of hash refs of a nodetype hierarchy.  The first
+item in the array pointed to by the return value will be the nodetype
+identified by the single argument.
+
+Takes one argument, the identifier of the nodetype for which a
+hierarchy is required.
+
+=cut
+
+sub nodetype_hierarchy_by_id {
+
+    my ( $self, $id ) = @_;
+
+    my @nodetypes = ();
+    my $type;
+
+    while ( $id && ( $type = $self->nodetype_data_by_id($id)) ) {
+	$id = $type->{extends_nodetype};
+	push @nodetypes, $type;
+    }
+
+    return \@nodetypes if @nodetypes;
+    return;
 }
 
 =head2 C<constructNode>
@@ -659,35 +704,13 @@ passed in will now be a complete node.
 
 sub constructNode
 {
-	my ( $this, $NODE ) = @_;
-	my $cursor;
-	my $DATA;
-	my $tables = $this->getNodetypeTables( $$NODE{type_nodetype} );
-	my $firstTable;
-	my $tablehash;
+    my ( $this, $NODE ) = @_;
+    my $constructor;
 
-	return unless ( $tables && @$tables > 0 );
+    $constructor = Everything::DB::Node->instantiate( db => $this, data =>  $NODE );
 
-	$firstTable = pop @$tables;
+    $constructor->construct_node_data_from_hash( $NODE );
 
-	foreach my $table (@$tables)
-	{
-		$$tablehash{$table} = $firstTable . "_id=$table" . "_id";
-	}
-
-	$cursor =
-		$this->sqlSelectJoined( "*", $firstTable, $tablehash,
-		$firstTable . "_id=" . $$NODE{node_id} );
-
-	return 0 unless ( defined $cursor );
-
-	$DATA = $cursor->fetchrow_hashref();
-	$cursor->finish();
-
-	@$NODE{ keys %$DATA } = values %$DATA;
-
-	$this->fix_node_keys($NODE);
-	return 1;
 }
 
 =head2 C<selectNodeWhere>
@@ -946,7 +969,7 @@ sub getAllTypes
 	return @allTypes;
 }
 
-=head2 C<getNodetypeTables>
+=head2 C<retrieve_nodetype_tables>
 
 Returns an array of all the tables that a given nodetype joins on.
 This will create the array, if it has not already created it.
@@ -967,6 +990,44 @@ Returns a reference to an array that contains the names of the tables to join
 on.  If the nodetype does not join on any tables, the array is empty.
 
 =cut
+
+sub retrieve_nodetype_tables {
+
+    my ( $self, $type_id, $add_node ) = @_;
+
+    my $types = $self->nodetype_hierarchy_by_id ( $type_id );
+
+    my @tables = ();
+
+    push @tables, split ',',  $_->{sqltable} || '' foreach @$types;
+
+    push @tables, 'node' if $add_node;
+
+    return \@tables;
+
+}
+
+=head2 retrieve_group_table
+
+Takes one argument: the id of the nodetype for which a group table is required.
+
+Returns a string which is the name of the group table.
+
+=cut
+
+sub retrieve_group_table {
+
+    my ( $self, $type_id ) = @_;
+
+    my $types = $self->nodetype_hierarchy_by_id ( $type_id );
+
+    my $table;
+    foreach ( @$types ) {
+	last if $table  = $_->{grouptable};
+    }
+
+    return $table;
+}
 
 sub getNodetypeTables
 {

@@ -6,6 +6,7 @@ use warnings;
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
+use Data::Dumper;
 use Scalar::Util qw/blessed/;
 use base 'Test::Class';
 
@@ -73,7 +74,13 @@ sub redefine_subs {
 
 sub fixture_reset_stuff :Test(setup) {
   my $self = shift;
+
+  $self->{instance} = $self->{class}->new;
   $self->nuke_expected_sql;
+  $self->fake_nodebase;
+  $self->fake_dbh;
+  $self->fake_nodecache;
+  $self->redefine_subs;
 
   $self->{instance}->{nb}->mock(
         'getNode',
@@ -513,12 +520,16 @@ sub test_get_node_by_id_new : Test(5) {
 
     $self->add_expected_sql('SELECT * FROM node WHERE node_id=2 ')  unless $self->isset_expected_sql;
 
-    $self->{instance}->{dbh}->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
-    my $rv = $self->{instance}->getNodeByIdNew(0);
+    my $db = Test::MockObject::Extends->new( $self->{instance} );
+    my $dbh = $self->{instance}->{dbh};
+    $dbh->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
+    $db->set_always( nodetype_hierarchy_by_id => [{ title => 'node' }] );
+    $dbh->set_true( 'finish' );
+    my $rv = $db->getNodeByIdNew(0);
     is( $rv->{title}, '/', 'getNodeByIdNew can return the zero node' );
 
     $self->{instance}->{dbh}->clear;
-    $rv = $self->{instance}->getNodeByIdNew(2);
+    $rv = $db->getNodeByIdNew(2);
     my ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is( $method, 'prepare', '...otherwise calls prepare on DBI' );
     is(
@@ -543,16 +554,21 @@ sub test_construct_node : Test(5) {
     
     $self->add_expected_sql('SELECT * FROM table2 LEFT JOIN table1 ON table2_id=table1_id WHERE table2_id=100 ')  unless $self->isset_expected_sql;
 
+    my $db = Test::MockObject::Extends->new( $self->{instance} );
+    $db->set_always( retrieve_nodetype_tables => \@tablearray );
+    $db->set_always( nodetype_hierarchy_by_id => [{ title => 'node' }] );
+
     my $node = { type_nodetype => 99, node_id => 100 };
     @tablearray = ();
-    is( $self->{instance}->constructNode($node),
+    is( $db->constructNode($node),
         undef, 'constructNode returns undef if no tables are available' );
     $self->{instance}->{dbh}->clear;
     @tablearray = (qw/table1 table2/);
     $self->{instance}->{dbh}
       ->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
 
-    is( $self->{instance}->constructNode($node),
+    $db->set_always( nodetype_hierarchy_by_id => [{ title => 'node' }] );
+    is( $db->constructNode($node),
         1, '...and returns true if there are.' );
 
    my ($method, $args) =  $self->{instance}->{dbh}->next_call; 
@@ -564,6 +580,8 @@ sub test_construct_node : Test(5) {
     );
     is( $node->{bright}, 'sky',
         '...and completes construction of the node object' );
+
+    $db->unmock( 'retrieve_nodetype_tables' );
 }
 
 sub test_get_node_by_name : Test(4) {
@@ -580,11 +598,16 @@ sub test_get_node_by_name : Test(4) {
     is( $self->{instance}->getNodeByName('icarus'),
         undef, 'getNodeByName returns undef if we forgot to include a type' );
 
-    ## Now we don't
-    $self->{instance}->{dbh}->clear;
+    my $db = Test::MockObject::Extends->new( $self->{instance} );
+    $db->set_always( nodetype_hierarchy_by_id => [{ title => 'node' }] );
+    $db->set_always( nodetype_data_by_name => {node_id => 9999 } );
+    my $dbh = $self->{instance}->{dbh};
+    $dbh->clear;
+    $dbh->set_series( fetchrow_hashref => +{ title => 'a node' } );
+
     is(
         ref $self->{instance}->getNodeByName(
-            'agamemnon', { title => 'menelaos', node_id => 333 }
+            'agamemnon',  'menelaos'
         ),
         'HASH',
         '...but returns a node if we specify both arguments'
@@ -692,6 +715,8 @@ sub test_get_all_types : Test(10) {
 
     $self->add_expected_sql (q|SELECT node_id FROM node WHERE type_nodetype=1 |)  unless $self->isset_expected_sql;
 
+    my $nb = $self->{instance}->{nb};
+    $nb->set_always( getNode => $self->fake_node );
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
     $self->{instance}->{dbh}->set_series( 'fetchrow', 1, 2, 3, 5, 8, 11 )
@@ -770,6 +795,37 @@ sub test_fix_node_keys : Test(1) {
 
 }
 
+sub test_nodetype_hierarchy_by_id : Test(1) {
+    my $self = shift;
+    my $db = Test::MockObject::Extends->new( $self->{instance} );
+
+    my @ids = ( 1, 33, 45, undef, 3 );
+    my $index = 0;
+
+    $db->mock( nodetype_data_by_id => sub { return unless $ids[$index]; return +{ node_id => $ids[ $index ], extends_nodetype  =>  $ids[ ++$index ] } } );
+
+    my $result = $db->nodetype_hierarchy_by_id ( 1 );
+    is_deeply ( $result , [ {node_id => 1, extends_nodetype => 33}, {node_id => 33, extends_nodetype => 45}, {node_id => 45, extends_nodetype => undef}], '...returns a hierarchy of hashes.') || diag Dumper $result;
+}
+
+sub test_retrieve_nodetype_tables : Test(2) {
+    my $self = shift;
+    my $db = Test::MockObject::Extends->new( $self->{instance} );
+
+
+    $db->set_always( nodetype_hierarchy_by_id =>  [ map { +{ sqltable => $_ } } 'firsttable', undef, 'secondtable,thirdtable', undef, 'fourthtable' ] );
+
+    my $result = $db->retrieve_nodetype_tables( 1 );
+
+    is_deeply ( $result, [qw/firsttable secondtable thirdtable fourthtable/], '...an array of tables to join on.');
+
+    $db->set_always( nodetype_hierarchy_by_id => [ map { +{} } 'firsttable', undef, 'secondtable,thirdtable', undef, 'fourthtable' ] );
+
+    $result = $db->retrieve_nodetype_tables( 1 );
+
+    is_deeply ( $result, [], '...returns an empty array if no tables.');
+}
+
 sub test_get_nodetype_tables : Test( 7 ) {
 
     my $self     = shift;
@@ -792,6 +848,12 @@ sub test_get_nodetype_tables : Test( 7 ) {
     );
 
     @tablearray = qw( foo bar );
+
+    
+    my $nb = $instance->{nb};
+    $nb->mock('getRef' => sub { $_[1] = $nb } );
+    $nb->mock( getTableArray => sub { [ @tablearray ] });
+
     is_deeply( $instance->getNodetypeTables('bar'),
         [qw( foo bar )], '... or calling getTableArray() on promoted node' );
     @tablearray = ();

@@ -18,10 +18,12 @@ use Everything::DB;
 use Everything::Node;
 use Everything::NodeCache;
 use Everything::NodeBase::Workspace;
+use Everything::NodeAccess;
 
-use base 'Class::Accessor';
-__PACKAGE__->follow_best_practice;
-__PACKAGE__->mk_accessors(qw/storage/);
+use Moose::Policy 'Moose::Policy::FollowPBP';
+use Moose;
+
+has storage => ( is => 'rw' );
 
 use Scalar::Util 'reftype', 'blessed';
 
@@ -100,7 +102,7 @@ sub new
 	);
 
 	$this->{storage}->databaseConnect( $dbname, $host, $user, $pass );
-	$this->{nodetypeModules} = $this->buildNodetypeModules();
+	$this->buildNodetypeModules();
 
 	if ( $this->getType('setting') )
 	{
@@ -118,6 +120,153 @@ sub new
 	}
 
 	return $this;
+}
+
+
+=head2 update_workspaced_node
+
+This method is called by $this-E<gt>update() to handle the insertion of the
+workspace into the revision table.  This also exists so that it could be
+overloaded by tricky nodetypes.
+
+=over 4
+
+=item * $node
+
+the node being updated
+
+=item * $USER
+
+the user who is updating
+
+=back
+
+Returns the node_id of the node, if successful otherwise null.
+
+=cut
+
+sub update_workspaced_node {
+    my ( $this, $node, $USER ) = @_;
+
+    return unless $node->canWorkspace();
+
+    my $revision = $this->log_node_revision($node, $USER);
+    $this->{workspace}{nodes}{ $node->{node_id} } = $revision;
+    $this->{workspace}->setVars( $this->{workspace}{nodes} );
+    $this->{workspace}->update($node, $USER);
+
+    # however, this does pollute the cache
+    $this->{cache}->removeNode($node);
+
+    return $node->{node_id};
+}
+
+=head2 log_node_revision
+
+A node is about to be updated.  Load its old settings from the database,
+convert to XML, and save in the "revision" table The revision can be
+re-instated with undo()  
+
+=over 4
+
+=item * $USER
+
+same as update, the user who is making this revision
+
+=back
+
+Returns 0 if failed for any reason, otherwise the latest revision_id.
+
+=cut
+
+sub log_node_revision {
+
+    my ( $this, $node, $USER ) = @_;
+    return 0 unless $node->hasAccess( $USER, 'w' );
+
+    my $workspace;
+    $workspace = $this->{workspace}{node_id}
+      if ( exists $this->{workspace} && $node->canWorkspace() );
+    $workspace ||= 0;
+
+    my $node_class = blessed $node;
+
+    my $maxrevisions = $this->nodetype( $node_class )->{maxrevisions};
+    $maxrevisions = $this->nodetype( $node_class )->{derived_maxrevisions} if $maxrevisions == -1;
+    $maxrevisions ||= 0;
+
+    # We should never revise a node, even if we are in a workspace.
+    return 0 unless $maxrevisions;
+
+    # we are updating the node -- remove any "redo" revisions
+
+    if ( not $workspace ) {
+        $this->get_storage->sqlDelete(
+            'revision',
+            'node_id = ? and revision_id < 0 and inside_workspace = ?',
+            [ $node->{node_id}, $workspace ]
+        );
+    }
+    else {
+        if ( exists $this->{workspace}{nodes}{ $node->getId } ) {
+            my $rev = $this->{workspace}{nodes}{ $node->getId };
+            $this->get_storage->sqlDelete(
+                'revision',
+                'node_id = ? and revision_id > ? and inside_workspace = ?',
+                [ $node->getId, $rev, $workspace ]
+            );
+        }
+    }
+
+    my $data =
+      $workspace
+      ? Everything::XML::Node->new( node => $node, nodebase => $this )
+      ->toXML
+      : Everything::XML::Node->new(
+        node     => $this->getNode( $node->getId, 'force' ),
+        nodebase => $this
+      )->toXML();
+
+    my $rev_id =
+      $this->get_storage->sqlSelect( 'max(revision_id)+1', 'revision',
+        'node_id = ? and inside_workspace = ?',
+        '', [ $node->{node_id}, $workspace ] )
+      || 1;
+
+    # insert the node as a revision
+    $this->get_storage->sqlInsert(
+        'revision',
+        {
+            xml              => $data,
+            node_id          => $node->getId,
+            revision_id      => $rev_id,
+            inside_workspace => $workspace,
+        }
+    );
+
+    # remove the oldest revision, if it's greater than the set maxrevisions
+    # only if we're not in a workspace
+
+    my ( $numrevisions, $oldest, $newest ) = @{
+        $this->get_storage->sqlSelect(
+            'count(*), min(revision_id), max(revision_id)',
+            'revision',
+            'inside_workspace = ? and node_id = ?',
+            '',
+            [ $workspace, $node->{node_id} ]
+        )
+      };
+
+    if ( not $workspace and $maxrevisions < $numrevisions ) {
+        $this->get_storage->sqlDelete(
+            'revision',
+            'node_id = ? and revision_id = ? and inside_workspace = ?',
+            [ $node->{node_id}, $oldest, $workspace ]
+        );
+    }
+
+    return $newest;
+
 }
 
 =head2 C<joinWorkspace>
@@ -162,24 +311,21 @@ memory
 sub buildNodetypeModules {
     my $self = shift;
 
-    my %modules;
-
     for my $nodetype (
-        $self->{storage}->fetch_all_nodetype_names('ORDER BY node_id') )
+        $self->get_storage->fetch_all_nodetype_names('ORDER BY node_id') )
     {
-	next if $modules{ 'Everything::Node::'.$nodetype};
-	my $module = $self->setup_module( $nodetype, \%modules );
+	next if $self->nodetype( 'Everything::Node::'.$nodetype);
+	my $module = $self->setup_module( $nodetype );
 
-    }
-    $self->load_nodemethods( \%modules );
+     }
+    $self->load_nodemethods();
 
-    return \%modules;
+    return $$self{nodetypeModules};
 }
 
 sub setup_module {
 
-    my ( $self, $nodetype, $modules_loaded ) = @_;
-
+    my ( $self, $nodetype ) = @_;
     my $storage = $self->get_storage;
     my $module        = "Everything::Node::$nodetype";
 
@@ -201,21 +347,21 @@ sub setup_module {
     my $baseclass_title;
     if ( $baseclass ) {
 	$baseclass_title = $baseclass->{ title };
-	$self->setup_module( $baseclass_title, $modules_loaded ); # recurse
+	$self->setup_module( $baseclass_title );# unless $self->nodetype( "Everything::Node::$baseclass_title" ); # recurse
 
 
     }
 
     if ( $self->loadNodetypeModule($module) ) {
-	    $self->set_module_nodetype( $module );
+	    my $type_node = $self->set_module_nodetype( $module );
 	    $module->import;
-	    $modules_loaded->{ $module } = 1;
+	    $self->register_type_module( $module => $type_node );
 	    return $module;
 
         }
         else {
-	    return $self->create_module( $module, $typenode_data, $baseclass_title, $modules_loaded );
-
+	    return $self->create_module( $module, $typenode_data, $baseclass_title );
+	    
         }
     return;
 }
@@ -280,10 +426,10 @@ sub create_module {
                 'Everything::Node::nodetype'
             );
 
-	    $self->set_module_nodetype( $module );
+	    my $type_node = $self->set_module_nodetype( $module );
             $self->make_node_accessor( $metaclass, $typenode_data );
 #	    $module->load_class_data( $self );
-    $modules_loaded->{ $module } = 1;
+    $self->register_type_module(  $module => $type_node );
     return $module;
 }
 
@@ -313,7 +459,9 @@ sub set_module_nodetype {
 	$typenode = Everything::Node::nodetype->new( %$data );
     }
 
-    return $package->set_class_nodetype($typenode);
+    $package->set_class_nodetype($typenode);
+
+    return $typenode;
 
 }
 
@@ -511,10 +659,10 @@ sub store_new_node {
 	# we are not forcing it.
 	return $node_id if $node_id > 0;
 
-	if ( $node->type->{restrictdupes} )
+	if ( $this->storage_settings( $node )->{restrictdupes} )
 	{
 		# Check to see if we already have a node of this title.
-		my $id = $node->type->getId();
+		my $id = $node->get_type_nodetype;
 
 		my $DUPELIST =
 			$this
@@ -548,7 +696,7 @@ sub store_new_node {
 
 	# Now go and insert the appropriate rows in the other tables that
 	# make up this nodetype;
-	my $tableArray = $node->type->getTableArray();
+	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype);
 
 	foreach my $table (@$tableArray)
 	{
@@ -570,7 +718,7 @@ sub store_new_node {
 	# the API just calls $NODE->insert() and their node gets filled
 	# out for them.  Woo hoo!
 
-	$this->rebuildNodetypeModules if $$node{ type_nodetype } == 1;
+	$this->rebuildNodetypeModules if $node->isa( 'Everything::Node::nodetype' );
 
 	my $newNode = $this->getNode( $node_id, 'force' );
 	undef %$node;
@@ -639,7 +787,7 @@ sub update_stored_node {
 
 	# We extract the values from the node for each table that it joins
 	# on and update each table individually.
-	my $tableArray = $node->type->getTableArray(1);
+	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
 
 	foreach my $table (@$tableArray)
 	{
@@ -711,11 +859,36 @@ sub delete_stored_node {
 	# can specify their own group table if desired.  This needs to find
 	# all used group tables and check for the existance of this node in
 	# any of those groups.
+
+	$this->remove_from_groups( $node );
+
+	# Actually remove this node from the database.
+	my $tableArray = $node->type->getTableArray(1);
+	foreach my $table (@$tableArray)
+	{
+		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
+	}
+
+	# Now we can remove the nuked node from the cache so we don't get
+	# stale data.
+	$this->{cache}->incrementGlobalVersion($node);
+	$this->{cache}->removeNode($node);
+
+	# Clear out the node id so that we can tell this is a "non-existant" node.
+	$node->{node_id} = 0;
+
+	return $result;
+
+}
+
+sub remove_from_groups {
+
+    my ( $this, $node ) = @_;
 	foreach my $TYPE ( $this->getAllTypes() )
 	{
-		my $table = $TYPE->isGroupType();
-		next unless $table;
+	    next unless $TYPE->isa( 'Everything::Node::nodegroup' );
 
+	    my $table = $TYPE->get_grouptable;
 		# This nodetype is a group.  See if this node exists in any of its
 		# tables.
 		my $csr =
@@ -756,22 +929,6 @@ sub delete_stored_node {
 		}
 	}
 
-	# Actually remove this node from the database.
-	my $tableArray = $node->type->getTableArray(1);
-	foreach my $table (@$tableArray)
-	{
-		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
-	}
-
-	# Now we can remove the nuked node from the cache so we don't get
-	# stale data.
-	$this->{cache}->incrementGlobalVersion($node);
-	$this->{cache}->removeNode($node);
-
-	# Clear out the node id so that we can tell this is a "non-existant" node.
-	$node->{node_id} = 0;
-
-	return $result;
 
 }
 
@@ -803,30 +960,142 @@ sub retrieve_node_using_id {
     ## get nodetype
     my $nodetype_name = $this->get_storage->sqlSelect( 'title', 'node', 'node_id = ?', undef, [ $$node_data{ type_nodetype } ] );
 
-    my $class = 'Everything::Node::' . $nodetype_name; 
-    return  $class->new( %$node_data, DB => $this, nodebase => $this );
+    return  $this->make_node( $node_data, $nodetype_name );
 
 }
 
 sub retrieve_node_using_name_type_cache {
 
-    my ( $this, $name, $typenode ) = @_;
+    my ( $this, $name, $nodetype_title ) = @_;
 
     my $node;
 
-    $node = $this->{cache}->getCachedNodeByName( $name, $typenode->get_title );
+    $node = $this->{cache}->getCachedNodeByName( $name, $nodetype_title );
 
     return $node if $node;
 
-    my $node_data = $this->get_storage->getNodeByName( $name, $typenode );
+    my $node_data = $this->get_storage->getNodeByName( $name, $nodetype_title );
 
     return unless $node_data;
 
-    my $class = "Everything::Node::" . $typenode->get_title;
+    return $this->make_node( $node_data, $nodetype_title );
 
-    $node= $class->new( %$node_data, DB => $this, nodebase => $this );
+}
 
+sub make_node {
+    my ( $self, $node_data, $nodetype_title ) = @_;
+
+    my $class = "Everything::Node::" . $nodetype_title;
+
+    my $node= $class->new( %$node_data, DB => $self, nodebase => $self, _type => $self->nodetype( $class ) );
+    my $access = $self->make_access( $node );
+
+    $node->set_access ( $access );
     return $node;
+}
+
+=head2 make_access
+
+Returns an access object against which hasAccess can be called.
+
+Takes a blessed node object as its argument.
+
+=cut
+
+sub make_access {
+    my ( $self, $node ) = @_;
+
+    my $storage = $self->get_storage;
+
+    my $type_hierarchy = $self->get_storage->nodetype_hierarchy_by_id( $node->get_type_nodetype );
+
+    my $default_accesses = $self->default_type_access( $type_hierarchy );
+
+    my $default_permissions = $self->default_type_permissions( $type_hierarchy );
+
+    my $usergroup = $self->default_type_usergroup( $type_hierarchy );
+    my $access = Everything::NodeAccess->new( node => $node, nb => $self, default_accesses => $default_accesses, usergroup => $usergroup, default_permissions => $default_permissions );
+
+    return $access;
+}
+
+=head2 default_type_usergroup
+
+Takes an array ref of type data and returns the default usergroup.
+
+=cut
+
+sub default_type_usergroup {
+    my ( $self, $hierarchy ) = @_;
+
+    my $attribute = 'defaultgroup_usergroup';
+    foreach my $type ( @$hierarchy ) {
+	if ( ( not defined $$type{ $attribute } ) || ( $$type{ $attribute } == -1) ) {
+	    next;
+	}
+	return $$type{ $attribute };
+    }
+}
+
+=head2 default_type_permissions
+
+Takes an array ref of default permissions as its argument and returns
+a hashref of strings.
+
+=cut
+
+sub default_type_permissions {
+
+
+   shift;
+   my $type_hierarchy = shift;
+
+   my %default_permissions = ();
+    foreach my $usertype (qw/author group other guest/) {
+	my $userperm = "default${usertype}_permission";
+
+      TYPE:
+	foreach my $type (@$type_hierarchy) {
+	    if ( ( not defined $$type{ $userperm } ) || ( $$type{ $userperm } == -1) ) {
+		next TYPE
+	    }
+	    $default_permissions{ $usertype } = $$type{ $userperm } ;
+	    last TYPE
+	}
+
+    }
+
+   return \%default_permissions;
+
+
+}
+
+=head2 default_type_access
+
+Takes an array ref of default accesses as its argument and returns
+a hashref of strings.
+
+=cut
+
+sub default_type_access {
+
+   shift;
+   my $type_hierarchy = shift;
+
+   my %default_permissions = ();
+    foreach my $usertype (qw/author group other guest/) {
+	my $userperm = "default${usertype}access";
+	my $index = $#$type_hierarchy;
+	while ( $index > 0 ) {
+	    my $perms = Everything::Security::inheritPermissions( $$type_hierarchy[$index-1]{$userperm},  $$type_hierarchy[$index]{$userperm} );
+
+	    $$type_hierarchy[$index-1]{$userperm} = $perms;
+	    $index--;
+	}
+	$default_permissions{ $usertype } = $$type_hierarchy[0]{$userperm};
+    }
+
+   return \%default_permissions;
 
 }
 
@@ -931,7 +1200,7 @@ sub getNode
 
 	    if ( $ext2 ne 'create force' ) {
 
-		$NODE = $this->retrieve_node_using_name_type_cache( $node, $type_node );
+		$NODE = $this->retrieve_node_using_name_type_cache( $node, $type_name );
 	    }
 
 	    if (   ( $ext2 eq "create force" )
@@ -939,12 +1208,14 @@ sub getNode
 	      {
 
 		  my $class = "Everything::Node::$type_name";
+		  my $type_hash = $this->get_storage->nodetype_data_by_name( $type_name );
+		  my $type_id = $type_hash->{ node_id };
 		  # We need to create a dummy node for possible insertion!
 		  # Give the dummy node pemssions to inherit everything
 		  my $data = {
 			   node_id                  => -1,
 			   title                    => $node,
-			   type_nodetype            => $class->get_class_nodetype->getId,
+			   type_nodetype            => $type_id,
 			   authoraccess             => 'iiii',
 			   groupaccess              => 'iiiii',
 			   otheraccess              => 'iiiii',
@@ -953,7 +1224,7 @@ sub getNode
 
 		  # We do not want to cache dummy nodes
 		  $NODE = $class->new( %$data, DB => $this, nodebase => $this );
-
+		  $NODE->set_access( $this->make_access( $NODE ) );
 		  $cache = "nocache";
 	      }
 
@@ -961,7 +1232,9 @@ sub getNode
 
 	return unless $NODE;
 
-	if ( blessed( $NODE ) ) {
+	if ( my $class = blessed( $NODE ) ) {
+	    my $nodetype_for_class =  $this->nodetype( $class );
+#	    $NODE->_type( $nodetype_for_class);
 	    $NODE->cache unless $cache;
 	    return $NODE;
 	}
@@ -987,7 +1260,7 @@ sub getNodeZero
 
 	unless ( exists $this->{nodezero} )
 	{
-		$this->{nodezero} = $this->getNode( '/', 'nodetype', 'create force' );
+		$this->{nodezero} = $this->getNode( '/', 'node', 'create force' );
 
 		$this->{nodezero}{node_id}     = 0;
 		$this->{nodezero}{guestaccess} = "-----";
@@ -1272,6 +1545,43 @@ sub search_node_name {
 
 }
 
+sub nodetype {
+
+    my ( $self, $class ) = @_;
+
+    return $self->{nodetypeModules}->{$class};
+
+}
+
+=head2 storage_settings
+
+Returns a hash reference of settings for the database.
+
+Takes one argument, the node for whichsettings are required
+
+=cut
+
+sub storage_settings {
+
+    my ( $self, $node ) = @_;
+
+    my $hierarchy = $self->get_storage->nodetype_hierarchy_by_id( $node->get_type_nodetype );
+    my $settings = {};
+
+  SETTING:
+    foreach my $setting ( qw/restrictdupes / ) {
+      TYPE:
+	foreach my $type ( @$hierarchy ) {
+	    if ( ( not defined $$type{ $setting} ) || ( $$type{ $setting } == -1) ) {
+		next TYPE
+	    }
+	    $$settings{ $setting } = $$type{ $setting };
+	    last TYPE
+	}
+    }
+
+    return $settings;
+}
 
 =head2 C<retrieve_links>
 
@@ -1486,6 +1796,18 @@ sub delete_links {
     $self->sqlDelete( 'links', $where,  [ @$args{ @column_names } ]  );
 }
 
+
+sub register_type_module {
+
+    my ( $self, $key, $node ) = @_;
+
+    if ( not exists $$self{nodetypeModules} ) {
+	$$self{nodetypeModules} = {};
+    }
+
+    return $self->{nodetypeModules}->{ $key } = $node;
+
+}
 
 package Everything::NodetypeMetaData;
 

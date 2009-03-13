@@ -52,6 +52,7 @@ sub test_construct :Test( 9 )
 
 	$node->{node_id}  = $node->{extends_nodetype} = 0;
 	$node->{sqltable} = 'foo,bar,baz';
+	$node->set_always ( -get_title => 'node' );
 
 	ok( $node->BUILD(),
 		'construct() should always succeed (unless it dies)' );
@@ -163,6 +164,11 @@ sub test_insert :Test( +4 )
 
 	$node->{extends_nodetype} = 2;
 	$node->{type_nodetype}    = 200;
+	$node->{ title } = 'testnodetype';
+
+	Test::MockObject->fake_module( 'Everything::Node::testnodetype', meta => sub { $node } );
+
+	$node->set_list ( superclasses => 'Everything::Node::node' );
 	$self->SUPER::test_insert();
 	delete $node->{extends_nodetype};
 	$node->{DB} = $db;

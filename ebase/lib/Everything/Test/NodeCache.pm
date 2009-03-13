@@ -2,6 +2,7 @@ package Everything::Test::NodeCache;
 
 use Test::More;
 use Test::MockObject;
+use Test::MockObject::Extends;
 use Scalar::Util qw/blessed/;
 use base 'Everything::Test::Abstract';
 use strict;
@@ -22,6 +23,13 @@ sub startup :Test(startup => +0) {
     $self->{mock} = Test::MockObject->new;
 }
 
+
+sub test_fixture :Test(setup) {
+
+    my $self = shift;
+    my $instance = $self->{class}->new;
+    $self->{instance} = $instance;
+}
 
 sub test_set_cache_size : Test(1)
 {
@@ -116,9 +124,9 @@ sub test_is_same_version : Test(9)
 {
     my $self = shift;
     my $package = $self->{class};
-    my $mock = $self->{mock};
+    my $mock = Test::MockObject::Extends->new( $self->{instance} );
     can_ok( $package, 'isSameVersion' );
-    is( Everything::NodeCache::isSameVersion(), undef,
+    is( $mock->isSameVersion(), undef,
     'isSameVersion() should return undef without node' );
 
     $mock->{version}{12}      = 1;
@@ -128,23 +136,23 @@ sub test_is_same_version : Test(9)
     my $node = Test::MockObject->new;
     $node->{node_id} = 11;
     $node->set_always( type => $mock );
+    $node->set_series( -get_type_nodetype => 10, 12, 13, 14, 15, 15 );
 
-    $mock->set_always( getId => 11 );
-    ok( Everything::NodeCache::isSameVersion( $mock, $node ), '... true if node type is verified' );
+    ok( $mock->isSameVersion( $node ), '... true if node type is verified' );
 
     $node->{node_id} = 11;
-    ok( Everything::NodeCache::isSameVersion( $mock, $node ), '... true if node id is verified' );
+    ok( $mock->isSameVersion( $node ), '... true if node id is verified' );
 
     $node->{node_id} = 13;
-    ok( ! Everything::NodeCache::isSameVersion( $mock, $node ),
+    ok( ! $mock->isSameVersion( $node ),
 	'... false unless node version is verified' );
 
     $node->{node_id} = 12;
     $mock->set_series( getGlobalVersion => undef, 2, 1 );
-    ok( ! Everything::NodeCache::isSameVersion( $mock, $node ),
+    ok( ! $mock->isSameVersion( $node ),
 	'... false unless node has global version' );
-    ok( ! Everything::NodeCache::isSameVersion( $mock, $node ), '... false unless global version matches' );
-    ok( Everything::NodeCache::isSameVersion( $mock, $node ), '... true if global version matches' );
+    ok( ! $mock->isSameVersion( $node ), '... false unless global version matches' );
+    ok( $mock->isSameVersion( $node ), '... true if global version matches' );
     ok( $mock->{verified}{12}, '... setting verified flag' );
 
 

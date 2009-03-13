@@ -29,15 +29,15 @@ has group => ( is => 'rw' );
 
 use Scalar::Util 'reftype';
 
-sub BUILD {
-    my ($this) = @_;
-    $$this{group} = $this->selectGroupArray();
+# sub BUILD {
+#     my ($this) = @_;
+#     $$this{group} = $this->selectGroupArray();
 
-    # We could call selectNodegroupFlat() here to have that info ready.
-    # However, since that info may not be needed all the time, we will
-    # save the CPU time and memory space and not call it.  If you need
-    # to have the entire group, call selectNodegroupFlat() at that time.
-}
+#     # We could call selectNodegroupFlat() here to have that info ready.
+#     # However, since that info may not be needed all the time, we will
+#     # save the CPU time and memory space and not call it.  If you need
+#     # to have the entire group, call selectNodegroupFlat() at that time.
+# }
 
 =head2 C<selectGroupArray>
 
@@ -330,7 +330,9 @@ override nuke => sub {
 
 sub isGroup {
     my ($this) = @_;
-    return $this->type->{derived_grouptable};
+
+    my $db = Everything::DB::Node::nodegroup->new( storage => $this->get_nodebase->get_storage, node => $this );
+    return $db->group_table;
 }
 
 =head2 C<inGroupFast>
@@ -362,7 +364,7 @@ Returns 1 (true) if the given node is in the group, 0 (false) otherwise.
 
 sub inGroupFast {
     my ( $this, $NODE ) = @_;
-    my $nodeId = $this->{DB}->getId($NODE);
+    my $nodeId = $NODE->getId;
 
     $this->groupCache();
     return $this->existsInGroupCache($nodeId);
@@ -775,6 +777,7 @@ sub groupUncache {
 sub existsInGroupCache {
 
     my ( $this, $nid ) = @_;
+
     return
       exists $this->{DB}->{cache}->{groupCache}->{ $this->{node_id} }->{$nid};
 }

@@ -39,6 +39,7 @@ package Everything::NodeCache;
 
 use strict;
 use Everything::CacheQueue;
+use Scalar::Util qw/blessed/;
 
 =cut
 
@@ -246,7 +247,7 @@ True if this node is to never be removed from the cache when purging.
 sub cacheNode
 {
 	my ( $this, $NODE, $permanent ) = @_;
-	my ( $type, $title ) = ( $NODE->type->get_title, $NODE->get_title );
+	my ( $type, $title ) = ( $NODE->type_title, $NODE->get_title );
 	my $data;
 
 	if ( defined( $this->{idCache}{ $$NODE{node_id} } ) )
@@ -452,7 +453,7 @@ Returns the node data, if it was removed.  Undef otherwise.
 sub removeNodeFromHash
 {
 	my ( $this, $NODE )  = @_;
-	my ( $type, $title ) = ( $NODE->type->get_title, $NODE->get_title );
+	my ( $type, $title ) = ( $NODE->type_title, $NODE->get_title );
 
 	if ( defined $this->{idCache}{ $$NODE{node_id} } )
 	{
@@ -535,7 +536,7 @@ sub isSameVersion
 	my ( $this, $NODE ) = @_;
 	return unless defined $NODE;
 
-	return 1 if exists $this->{typeVerified}{ $NODE->type->getId };
+	return 1 if exists $this->{typeVerified}{ $NODE->get_type_nodetype };
 	return 1 if exists $this->{verified}{ $NODE->{node_id} };
 	return 0 unless exists $this->{version}{ $NODE->{node_id} };
 
@@ -589,10 +590,10 @@ sub incrementGlobalVersion
 	$this->{nodeBase}->sqlUpdate(
 		'typeversion',
 		{ -version => 'version+1' },
-		"typeversion_id=" . $NODE->type->getId
+		"typeversion_id=" . $NODE->get_type_nodetype
 		)
 		if $this->{nodeBase}->sqlSelect( "version", "typeversion",
-		"typeversion_id=" . $NODE->type->getId );
+		"typeversion_id=" . $NODE->get_type_nodetype );
 }
 
 =cut
@@ -725,7 +726,7 @@ Returns 1 on success, 0 on failure ($NODE probably isn't cached)
 sub cacheMethod
 {
 	my ( $this, $NODE, $field, $sub_ref ) = @_;
-	my ( $type, $title ) = ( $NODE->type->get_title, $NODE->get_title );
+	my ( $type, $title ) = ( $NODE->type_title, $NODE->get_title );
 	my $data = $this->{typeCache}{$type}{$title};
 	if ( defined( $data->{item} ) )
 	{

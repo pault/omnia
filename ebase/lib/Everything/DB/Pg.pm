@@ -688,7 +688,7 @@ sub drop_database {
 
     if ( ref $this ) {
 	undef $this->{nb};
-	undef $this->{dbh};
+	$this->{dbh}->disconnect;
     }
 
     $dbh->do( "drop database $dbname" );

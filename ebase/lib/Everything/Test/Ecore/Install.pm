@@ -22,7 +22,7 @@ sub SKIP_CLASS {
 }
 use Everything::Node::nodetype;
 use Carp; $SIG{__DIE__} = \&Carp::confess;
-sub startup :Test(startup => 5) {
+sub startup :Test(startup => 2) {
     my $self = shift;
 
     my $config = $self->{ config };
@@ -65,10 +65,6 @@ sub startup :Test(startup => 5) {
     my $nodes = $nb->getNodeWhere( {} );
     is ( @$nodes, 3, '...there should be three nodes.');
     is_deeply( { map { $_->get_title => 1 } @$nodes },{ map { $_ => 1 } qw/node nodetype setting/ }, '...they should be a node, nodetype and setting nodetypes.');
-    my @s = sort { $a->get_title cmp $b->get_title  } @$nodes;
-    is ( join( ' ', $s[0]->get_title, blessed( $s[0]->get_class_nodetype ), $s[0]->get_class_nodetype->get_title), 'node Everything::Node::nodetype nodetype', '...node meta data is contained in a Everything::Node::Nodetype object.');
-    is ( join( ' ', $s[1]->get_title, blessed( $s[1]->type ), $s[1]->type->get_title), 'nodetype Everything::Node::nodetype nodetype', '...nodetype meta data is contained in a Everything::Node::nodetype object.');
-    is ( join( ' ', $s[2]->get_title, blessed( $s[2]->type ), $s[2]->type->get_title), 'setting Everything::Node::nodetype nodetype', '...setting meta data is contained in a Everything::Node::nodetype object.');
     $self->{nb}           = $nb;
     $self->{db_type}      = $$opts{ type };
     $self->{installer} = $installer;

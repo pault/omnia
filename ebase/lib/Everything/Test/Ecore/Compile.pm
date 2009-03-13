@@ -36,7 +36,7 @@ sub test_node_error {
 
     my $error = join "\n", map { $_->{error} } @$err;
     is( $error, '',
-"...execute node $$node{title}, type" . $node->type->get_title .", id, $$node{node_id}"
+"...execute node $$node{title}, type" . $node->type_title .", id, $$node{node_id}"
 	     ) || report_error();
 
 }
@@ -228,7 +228,7 @@ sub test_execute_htmlcode_nodes : Tests {
         is(
             scalar $linter->errors,
             0,
-"...the HTML produced for node '$$node{title}' of type '".$node->type->get_title."' has no errors."
+"...the HTML produced for node '$$node{title}' of type '".$node->type_title."' has no errors."
           )
           || do {
             diag $_->as_string . "\n" . $rv foreach $linter->errors;
@@ -377,7 +377,7 @@ sub test_parse_eval_nodes {
             is(
                 scalar $linter->errors,
                 0,
-"...the HTML produced for node '$$node{title}' of type '" . $node->type->get_title ."' has no errors for parse type $parsetype."
+"...the HTML produced for node '$$node{title}' of type '" . $node->type_title ."' has no errors for parse type $parsetype."
               )
               || do {
                 diag $_->as_string . "\n" . $rv foreach $linter->errors;

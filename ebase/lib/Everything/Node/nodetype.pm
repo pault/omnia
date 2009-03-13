@@ -60,7 +60,7 @@ sub BUILD {
     return unless defined $this->{node_id};
 
     # Special case where this is the 'nodetype' nodetype
-    if ( $this->{title} eq 'node' ) {
+    if ( $this->get_title eq 'node' ) {
 
         $PARENT = Everything::Node::node->get_class_nodetype;
 

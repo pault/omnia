@@ -10,7 +10,7 @@ use Test::MockObject;
 use Test::MockObject::Extends;
 use Test::Warn;
 use Everything::Node::nodetype;
-
+use Data::Dumper;
 use Scalar::Util 'blessed';
 
 sub module_class
@@ -132,7 +132,7 @@ sub test_join_workspace :Test( 6 )
 		'... reblessing into workspace package' );
 }
 
-sub test_build_nodetype_modules :Test( 11 )
+sub test_build_nodetype_modules :Test( 15 )
 {
 	my $self    = shift;
 	my $nb      = $self->{nb};
@@ -155,33 +155,48 @@ sub test_build_nodetype_modules :Test( 11 )
 	$nb->clear;
 	$nb->set_always( -getType => $nb );
 	$nb->set_true( 'loadNodetypeModule' );
+
+	$storage->clear;
 	$storage->mock( nodetype_data_by_name => sub { +{ extends_nodetype=> 111 } } );
+
 	$storage->mock( nodetype_data_by_id => sub { } );
 
 	$result =  $nb->buildNodetypeModules();
-	my ( $method, $args ) = $storage->next_call(5);
+	my ( $method, $args ) = $storage->next_call();
 
-	is( "$method @$args", "nodetype_data_by_id $storage 111", '...grabs super nodetype.' );
+	is( $method, 'fetch_all_nodetype_names', '...gets all nodetypes first for supertype test.');
+
+	( $method, $args ) = $storage->next_call();
+	is( $method, 'nodetype_data_by_name', '...gets data for current nodetype with supertype.');
+	( $method, $args ) = $storage->next_call();
+	is( "$method @$args", "nodetype_data_by_id $storage 111", '...grabs super nodetype for this nodetype with supertype.' );
 
 	( $method, $args ) = $nb->next_call;
 	is( "$method @$args", "loadNodetypeModule $nb Everything::Node::anodetypename", '...calls loadNodetypeModules');
 
-	is_deeply ( $result, { 'Everything::Node::anodetypename' => 1 }, '...returns a hash with that info.');
+	is_deeply ( $nb->{nodetypeModules}, { 'Everything::Node::anodetypename' => 1 }, '...sets the nodetypeModules attribute.');
 
 	## load one node type with one super class
 
 	$nb->clear;
+	$storage->clear;
 	$nb->set_always( -getType => $nb );
 	$storage->set_series( nodetype_data_by_id => { title => 'supernodetype', node_id => 222 } );
+	$nb->{nodetypeModules}={};
 	$result = $nb->buildNodetypeModules;
+	( $method, $args ) = $storage->next_call();
 
-	( $method, $args ) = $storage->next_call(3);
+	is( $method, 'fetch_all_nodetype_names', '...gets all nodetypes first.');
+	( $method, $args ) = $storage->next_call();
+
+	is( $method, 'nodetype_data_by_name', '...gets data for current nodetype with superclass.');
+	( $method, $args ) = $storage->next_call();
+	is( "$method @$args", "nodetype_data_by_id $storage 111", '...grabs super nodetype for this nodetype.' );
+
+	( $method, $args ) = $storage->next_call(2);
 	is ( "$method @$args", "nodetype_data_by_id $storage 111", '...retrieves superclass nodetype.');
 
-	( $method, $args ) = $storage->next_call();
-	is ( "$method @$args", "nodetype_data_by_name $storage supernodetype", '...retrieves superclass nodetype.');
-
-	is_deeply( $result,  { 'Everything::Node::anodetypename' => 1, 'Everything::Node::supernodetype' => 1 }, '...loads class and superclass.');
+	is_deeply( $nb->{nodetypeModules},  { 'Everything::Node::anodetypename' => 1, 'Everything::Node::supernodetype' => 1 }, '...loads class and superclass.');
 
 
 	$nb->set_true( 'loadNodetypeModule');
@@ -190,11 +205,6 @@ sub test_build_nodetype_modules :Test( 11 )
 	$storage->set_always( nodetype_data_by_name => { title => 'a nodetype' } );
 
 	my @types =  qw( node nodetype cow dbtable );
-
-	no warnings 'redefine';
-	local *Everything::Node::dbtable::set_class_nodetype = sub { 1 };
-	local *Everything::Node::node::set_class_nodetype = sub { 1 };
-	local *Everything::Node::nodetype::set_class_nodetype = sub { 1 };
 
 	$nb->set_always( getId => 1 );
 	$nb->set_always( getNodeWhere => undef ); # to stop load_node_methods
@@ -205,13 +215,14 @@ sub test_build_nodetype_modules :Test( 11 )
 	$storage->mock( nodetype_data_by_name => sub { return if $_[1] eq 'cow'; return +{ title => $_[1]} } );
 	$storage->set_always( getFieldsHash => '' );
 
+	$nb->{nodetypeModules} = {};
 	warning_like { $result = $nb->buildNodetypeModules() } qr/no such nodetype cow/i;
 	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
 	is_deeply(
 		$result,
 		{ map { 'Everything::Node::' . $_ => 1 } qw( node nodetype dbtable ) },
 		'... for all loadable nodes fetched from storage engine'
-	);
+	) || diag Dumper $nb->{nodetypeModules};
 }
 
 
@@ -664,6 +675,110 @@ sub test_has_permission :Test( 5 )
 	is( $result, 'cp', '... and returning results' );
 }
 
+sub test_storage_settings : Test(2) {
+    my $self = shift;
+
+    my $nb = $self->{nb};
+
+    my $s = $nb->{storage};
+    $s->set_always( nodetype_hierarchy_by_id => [ {restrictdupes => undef}, {restrictdupes => -1}, {restrictdupes => 1}  ] );
+
+    my $node = Test::MockObject->new;
+    $node->set_always( get_type_nodetype => 4 );
+    is_deeply ( $nb->storage_settings( $node ),{ restrictdupes => 1 }, '...sets restrict dupes to restricted.' );
+
+    $s->set_always( nodetype_hierarchy_by_id => [ {restrictdupes => undef}, {restrictdupes => -1}, {restrictdupes => 0}  ] );
+
+    is_deeply ( $nb->storage_settings( $node ),{ restrictdupes => 0 }, '...sets restrictdupes to non-restricted.' );
+}
+
+sub test_default_type_permissions : Test(1) {
+    my $self = shift;
+
+    my $nb = $self->{nb};
+
+    
+    my $hierarchy = [
+        {
+            defaultauthor_permission => undef,
+            defaultgroup_permission  => 1,
+            defaultother_permission  => -1,
+            defaultguest_permission  => undef
+        },
+        {
+            defaultauthor_permission => 0,
+            defaultgroup_permssion  =>  7,
+            defaultother_permission  => undef,
+            defaultguest_permission  => undef
+        },
+        {
+            defaultauthor_permission => 8,
+            defaultgroup_permission  => 7,
+            defaultother_permission  => 2,
+            defaultguest_permission  => 3
+        }
+    ];
+
+
+    my $r = $nb->default_type_permissions( $hierarchy );
+
+    is_deeply( $r, { author => 0, group => 1, other => 2, guest => 3 }, '...inherits permissions.');
+
+}
+
+sub test_default_type_usergroup : Test(1) {
+
+    my $self = shift;
+    my $nb = $self->{nb};
+
+        my $hierarchy = [
+        {
+            defaultgroup_usergroup => -1,
+        },
+        {
+            defaultgroup_usergroup => undef,
+        },
+        {
+            defaultgroup_usergroup => 3,
+        }
+    ];
+
+    my $r = $nb->default_type_usergroup( $hierarchy );
+    is ( $r, 3, '...returns the usergroup id.' );
+}
+
+sub test_default_type_access : Test(1) {
+
+    my $self = shift;
+
+    my $nb = $self->{nb};
+
+    my $hierarchy = [
+        {
+            defaultauthoraccess => 'iiii',
+            defaultgroupaccess  => '-----',
+            defaultotheraccess  => 'iiiii',
+            defaultguestaccess  => 'iiiii'
+        },
+        {
+            defaultauthoraccess => 'rwii',
+            defaultgroupaccess  => 'rwxdc',
+            defaultotheraccess  => '--iii',
+            defaultguestaccess  => 'rwxdc'
+        },
+        {
+            defaultauthoraccess => '----',
+            defaultgroupaccess  => 'rwxdc',
+            defaultotheraccess  => 'rwxdc',
+            defaultguestaccess  => '-----'
+        }
+    ];
+
+    my $r = $nb->default_type_access( $hierarchy );
+
+    is_deeply( $r, { author => 'rw--', group => '-----', other => '--xdc', guest => 'rwxdc' }, '...inherits permissions.');
+}
+
 sub test_search_node_name : Test(10) {
     my $self = shift;
 
@@ -825,5 +940,125 @@ sub test_delete_links : Test( 2 ) {
     is( $$args[2], $where, '... constructs where clause.');
 
 }
+
+
+sub test_log_revision :Test( 13 )
+{
+	my $self         = shift;
+	my $db           = $self->{nb};
+
+	my $node = Test::MockObject->new;
+	$node->{node_id} = 99;
+	
+	$node->set_series( -hasAccess => (1) x 3 )
+		 ->set_series( getId => 'id' )
+		 ->set_always( type => $node )
+		 ->set_true( 'canWorkspace' );
+
+	$db->set_always (-get_storage => $db );
+
+	$db->set_always( -getNode   => $node )
+	   ->set_series( sqlSelect => 0, [ 2, 1, 4 ], 0, [ 0 ] )
+	   ->set_true(qw( sqlDelete sqlInsert ));
+
+	$db->register_type_module( blessed( $node ), { maxrevisions => 0 } );
+#	$node->type->{maxrevisions} = 0;
+
+	$node->fake_module('Everything::XML::Node', new => sub { $node });
+	$node->set_true('toXML');
+
+	my $result = $db->log_node_revision( $node, 'user' );
+	is( $result, 0, 'logRevisions() should return 0 if lacking max revisons' );
+
+	$node->set_true( 'toXML' )
+		 ->set_always( -getId => 1 );
+
+	$db->register_type_module( blessed( $node ), { maxrevisions => -1, derived_maxrevisions => 1 } );
+
+	delete $db->{workspace};
+	$result = $db->log_node_revision( $node, 'user' );
+	my ( $method, $args ) = $db->next_call( 2 );
+	is( $method, 'sqlSelect', '... should fetch data' );
+	is( join( '-', @$args[ 1 .. 4 ] ),
+		'max(revision_id)+1-revision-node_id = ? and inside_workspace = ?-',
+		'... max revision from revision table'
+	);
+	is( join( '-', @{ $args->[5] } ), '99-0', '... for node_id and workspace' );
+
+	( $method, $args ) = $db->next_call();
+	is( "$method $args->[1]", 'sqlInsert revision',
+		'... inserting new revision' );
+	is( $args->[2]{revision_id}, 1, '... using revision id of 1 if necessary' );
+
+	( $method, $args ) = $db->next_call();
+	like( "$method @$args", qr/sqlSelect.+count.+min.+max.+revision/,
+		'... should fetch max, min, and total revisions' );
+	( $method, $args ) = $db->next_call();
+	like( "$method @$args", qr/sqlDelete.+revision.+revision_id = /,
+		'... should delete oldest revision if in workspace and at max limit' );
+
+	is( $result, 4, '... should return id of newest revision' );
+
+	$node->set_always( getId => 44 );
+	$db->{workspace}{node_id}   = $node->{node_id} = 44;
+	$db->{workspace}{nodes}{44} = 'R';
+
+	$db->clear();
+	$db->log_node_revision( $node, 'user' );
+	( $method, $args ) = $db->next_call();
+	is( $method, 'sqlDelete', '... undoing a later revision if in workspace' );
+	is( join( '-', @$args[ 1, 2 ] ),
+		'revision-node_id = ? and revision_id > ? and inside_workspace = ?',
+		'... by node, revision, and workspace' );
+	is_deeply( $args->[3], [ 44, 'R', 44 ], '... with the correct values' );
+	is( $node->next_call(), 'toXML', '... XMLifying node for workspace' );
+}
+
+sub test_update_workspaced :Test( 8 )
+{
+	my $self = shift;
+	my $node = Test::MockObject->new;
+	my $db   = $self->{nb};
+
+	$node->set_series( -canWorkspace => 0, 1 )
+		 ->set_true(qw( setVars update removeNode ));
+
+	$db->set_series( log_node_revision  => 17 );
+
+	ok( ! $db->update_workspaced_node( $node ),
+		'update_workspaced_node() should return false unless node can workspace' );
+
+	$db->{workspace} = $node;
+	$db->{cache}     = $node;
+	$node->{node_id} = 41;
+	my $result       = $db->update_workspaced_node( $node, 'user' );
+
+	my ( $method, $args ) = $db->next_call();
+	is( $method, 'log_node_revision', '... should log revision' );
+	is( "@$args", "$db $node user", '... for node and user' );
+	is( $db->{workspace}{nodes}{41}, 17, '... logging revision in workspace');
+
+	( $method, $args ) = $node->next_call();
+	is( "$method $args->[1]", "setVars $db->{workspace}{nodes}",
+		'... updating variables for workspace' );
+	( $method, $args ) = $node->next_call();
+	is( "$method @$args", "update $node $node user", '... updating workspace node' );
+
+	( $method, $args ) = $node->next_call();
+	is( "$method $args->[1]", "removeNode $node",
+		'... removing node from cache' );
+	is( $result, 41, '... and should return node_id' );
+}
+
+
+sub test_log_revision_access :Test( 1 )
+{
+	my $self = shift;
+	my $node = Test::MockObject->new;
+	$node->set_false( 'hasAccess' );
+	is( $self->{nb}->log_node_revision( $node, 'user' ), 0,
+		'log_node_revision() should return 0 if user lacks write access' );
+}
+
 
 1;

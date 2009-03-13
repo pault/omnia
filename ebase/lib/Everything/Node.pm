@@ -28,7 +28,8 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 extends 'Everything::Object';
 
-#has type => ( is => 'rw' );
+has _type => ( accessor => '_type' );
+has access => ( is => 'rw', isa => 'Everything::NodeAccess', handles => { hasAccess => 'has_access' });
 has nodebase => ( is => 'rw' );
 has DB => ( is => 'rw' );
 has nocache => ( is => 'rw' );
@@ -390,13 +391,11 @@ Returns true if the node is of the specified type.  False otherwise.
 sub isOfType
 {
 	my ( $this, $type, $recurse ) = @_;
-	my $TYPE = $$this{DB}->getType($type);
 
-	return 0 unless ($TYPE);
-	my $typeid = $TYPE->getId();
-	return 1 if ( $typeid == $this->type->getId );
+	return 0 unless '$type';
 
-	return $this->type->derivesFrom($TYPE) if ($recurse);
+	return 1 if ( $this->isa( "Everything::Node::$type" ) );
+
 	return 0;
 }
 
@@ -437,7 +436,7 @@ modes passed were "wrx", the return would be 0 since the user does not have the
 
 =cut
 
-sub hasAccess
+sub hasAccess1
 {
 	my ( $this, $USER, $modes ) = @_;
 
@@ -678,7 +677,7 @@ contain any of these characters "rwxdc-".
 sub getDefaultPermissions
 {
 	my ( $this, $class ) = @_;
-	my $TYPE = $this->type;
+	my $TYPE = $this->_type;
 	my $perms;
 	my $parentPerms;
 	my $field = $class . "access";
@@ -1083,6 +1082,8 @@ Returns hashref of the node with only the keys that exist in the database
 
 sub getNodeDatabaseHash
 {
+
+        Everything->deprecate;
 	my ($this) = @_;
 	my $tableArray;
 	my @fields;
@@ -1118,7 +1119,7 @@ Returns true if this node is a nodetype, false otherwise.
 sub isNodetype
 {
 	my ($this) = @_;
-
+        Everything->deprecate;
 	return $this->isOfType(1);
 }
 
@@ -1134,7 +1135,7 @@ Get the parent location of this node.
 sub getParentLocation
 {
 	my ($this) = @_;
-
+        Everything->deprecate;
 	return $$this{DB}->getNode( $$this{loc_location} );
 }
 
@@ -1181,17 +1182,17 @@ sub get_nodebase {
 }
 
 sub type {
+ my $self = shift;
+ return $self->_type;
+}
 
+sub type_title {
     my $self = shift;
-    my $class = blessed( $self ) || $self;
-    my $nodetype =  $class->get_class_nodetype;
 
-    if ( not $nodetype ) {
-	my ($name) = $class =~ /::(\w+)$/;
-	my $nodetype = $self->get_nodebase->getNode( $name, 'nodetype' );
-	$class->set_class_nodetype( $nodetype );
-    }
-    return $nodetype;
+    ( my $type_name = blessed( $self ) ) =~ /::(\w+)$/;
+
+    return $type_name;
+
 }
 
 #############################################################################

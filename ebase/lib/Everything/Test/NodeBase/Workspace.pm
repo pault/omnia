@@ -43,16 +43,14 @@ sub test_get_node_workspace :Test( 5 )
 	my $storage = $self->{storage};
 
 	my $node = Test::MockObject->new;
-	my $type = Test::MockObject->new;
-	$node->set_always( type => $type );
-	$type->set_series( getId => 1, 1, 2 );
 	$node->set_series ( getId => 2, 3, 4 );
 	$node->set_series ( get_title => qw/foo bar baz/ );
+	$node->set_series( get_type_nodetype => 1, 1, 2);
 	my $nodes   =
 	{
-		2 => { node_id => 2, title => 'foo', type => { node_id => 1 } },
-		3 => { node_id => 3, title => 'bar', type => { node_id => 1 } },
-		4 => { node_id => 4, title => 'baz', type => { node_id => 2 } },
+		2 => { node_id => 2, title => 'foo', type_nodetype => 1 },
+		3 => { node_id => 3, title => 'bar', type_nodetype => 1 },
+		4 => { node_id => 4, title => 'baz', type_nodetype => 2 },
 	};
 
 	$nb->{workspace}{nodes} = $nodes;
@@ -70,10 +68,11 @@ sub test_get_node_workspace :Test( 5 )
 	is_deeply( $result, [ map { $node } 2, 3 ],
 		'... or only nodes of the specific type' );
 
-	$nodes->{5} = { node_id => 5, title => 'foo', type => { node_id => 2 } };
+	$nodes->{5} = { node_id => 5, title => 'foo', type_nodetype => 1 };
 	my @keys = sort keys %$nodes;
 	$nb->mock( getNode => sub { return $$nodes{ shift @keys } } );
-	$result   = [ sort @{ $nb->getNodeWorkspace( { title => 'foo' } ) } ];
+	$result   = [ sort { $a->{node_id} <=> $b->{node_id}  } @{ $nb->getNodeWorkspace( { title => 'foo' } ) } ];
+	use Data::Dumper; diag Dumper $result;
 	is_deeply( $result, [ map { $nodes->{$_} } 2, 5 ],
 		'... or only nodes matching a single criterion' );
 

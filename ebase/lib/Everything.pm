@@ -19,6 +19,7 @@ use DBI;
 use Scalar::Util 'reftype';
 use Everything::NodeBase;
 use IO::Interactive qw/is_interactive/;
+use Carp;
 
 use vars qw($DB $VERSION);
 
@@ -511,6 +512,20 @@ sub logHash
 	}
 
 	printLog($str);
+}
+
+=head2 deprecate 
+
+=cut
+
+sub deprecate {
+
+    shift;
+    my $message = shift;
+    $message ||= '';
+    my ( $file, $line, $sub ) = ( caller(1) )[1,2,3];
+    carp $message . "Deprecated function $sub called at $file line $line ";
+
 }
 
 #############################################################################

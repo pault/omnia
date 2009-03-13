@@ -66,7 +66,7 @@ sub update_existing_nodes {
     my $nodes = $nb->getNodeWhere( '', 'nodetype', 'node_id' );
 
     my @get_these = ();
-    push @get_these, [ $_->get_title, $_->type->get_title ] foreach @$nodes;
+    push @get_these, [ $_->get_title, $_->type_title ] foreach @$nodes;
 
     my $select = sub {
         my $xmlnode  = shift;
