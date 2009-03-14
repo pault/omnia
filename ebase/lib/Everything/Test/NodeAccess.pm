@@ -47,4 +47,35 @@ sub test_permission: Test(3) {
 
 }
 
+
+sub test_user_permissions : Test(1) {
+    my $self = shift;
+    can_ok( $self->{class}, 'user_permissions' ) or return;
+
+}
+
+sub test_get_user_relation : Test(1) {
+    my $self = shift;
+    can_ok( $self->{class}, 'getUserRelation' ) or return;
+
+}
+
+sub test_derive_usergroup : Test(1) {
+    my $self = shift;
+    can_ok( $self->{class}, 'deriveUsergroup' ) or return;
+
+}
+
+sub test_default_accesses : Test(1) {
+    my $self = shift;
+    can_ok( $self->{class}, 'default_accesses' ) or return;
+
+}
+
+sub test_dynamic_permissions : Test(1) {
+    my $self = shift;
+    can_ok( $self->{class}, 'dynamic_permissions' ) or return;
+
+}
+
 1;

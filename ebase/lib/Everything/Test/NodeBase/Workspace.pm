@@ -72,7 +72,7 @@ sub test_get_node_workspace :Test( 5 )
 	my @keys = sort keys %$nodes;
 	$nb->mock( getNode => sub { return $$nodes{ shift @keys } } );
 	$result   = [ sort { $a->{node_id} <=> $b->{node_id}  } @{ $nb->getNodeWorkspace( { title => 'foo' } ) } ];
-	use Data::Dumper; diag Dumper $result;
+
 	is_deeply( $result, [ map { $nodes->{$_} } 2, 5 ],
 		'... or only nodes matching a single criterion' );
 

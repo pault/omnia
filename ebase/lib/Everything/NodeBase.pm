@@ -341,7 +341,7 @@ sub setup_module {
     my $baseclass_id = $typenode_data->{extends_nodetype};
     my $baseclass;
 
-    $baseclass  = $self->get_storage->nodetype_data_by_id($baseclass_id); # returns unblessed hash ref
+    $baseclass  = $storage->nodetype_data_by_id($baseclass_id); # returns unblessed hash ref
 
 
     my $baseclass_title;

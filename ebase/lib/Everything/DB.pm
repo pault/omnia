@@ -450,8 +450,6 @@ sub update_or_insert {
 	my ( $table, $data, $where, $prebound, $node_id ) = ( $$args{table}, $$args{data}, $$args{ where }, $$args{ bound }, $$args{ node_id} );
 
 	my $exists = $this->sqlSelect( 'count(1)', $table, $where, undef, $prebound );
-#my $d = [ %$data ];
-#warn " Trying to update $table, @$d, $where @$prebound ";
 	if ( $exists ) {
 	    $this->sqlUpdate( $table, $data, $where, $prebound );
 

@@ -147,8 +147,8 @@ for (my $i=0; $i &lt; @$ref; $i++)
 
   $str .= &quot;&lt;/td&gt;&lt;td style=\&quot;background-color: $gnlcolor\&quot;&gt;&quot; . $this-&gt;link_node ($N) .
      &quot;&lt;/td&gt;&lt;td style=\&quot;background-color: &quot; . 
-     ($CLR{$$N{type}{title}} || $CLR{default}) . 
-     &quot;\&quot; &gt;$$N{type}{title}&lt;/td&gt;&quot; if (ref $$N{type});
+     ($CLR{$N->type_title} || $CLR{default}) . 
+     &quot;\&quot; &gt;&quot; . $N->type_title . &quot; &lt;/td&gt;&quot; ;
   foreach (@columns) {
     $str.=&quot;&lt;td style=\&quot;background-color: $gnlcolor\&quot;&gt;&quot;;
     if (exists($$linkcols{$_})) {

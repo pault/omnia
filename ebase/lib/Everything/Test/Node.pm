@@ -47,6 +47,16 @@ sub make_fixture : Test(setup) {
 
 }
 
+sub test_type_title :Test(1) {
+    my $self = shift;
+
+    local *Everything::Node::blessed;
+    *Everything::Node::blessed = sub { 'Everything::Node::specialtype' };
+
+    is ($self->{instance}->type_title, 'specialtype', '...returns the type name of the node. ' );
+}
+
+
 sub test_new : Test(1) {
     my $self = shift;
     can_ok( $self->{class}, 'new' ) or return;
@@ -110,36 +120,6 @@ sub test_is_of_type : Test(1) {
 sub test_has_access : Test(1) {
     my $self = shift;
     can_ok( $self->{class}, 'hasAccess' ) or return;
-
-}
-
-sub test_get_user_permissions : Test(1) {
-    my $self = shift;
-    can_ok( $self->{class}, 'getUserPermissions' ) or return;
-
-}
-
-sub test_get_user_relation : Test(1) {
-    my $self = shift;
-    can_ok( $self->{class}, 'getUserRelation' ) or return;
-
-}
-
-sub test_derive_usergroup : Test(1) {
-    my $self = shift;
-    can_ok( $self->{class}, 'deriveUsergroup' ) or return;
-
-}
-
-sub test_get_default_permissions : Test(1) {
-    my $self = shift;
-    can_ok( $self->{class}, 'getDefaultPermissions' ) or return;
-
-}
-
-sub test_get_dynamic_permissions : Test(1) {
-    my $self = shift;
-    can_ok( $self->{class}, 'getDynamicPermissions' ) or return;
 
 }
 
