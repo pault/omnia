@@ -18,18 +18,18 @@ use Scalar::Util qw( reftype blessed );
 use Everything::NodeBase;
 use Everything::DB::sqlite;
 
-BEGIN {
+sub node_class {
+    my $self = shift;
+    my $name = blessed($self) || $self;
+    $name =~ s/Test:://;
+    return $name;
+}
 
-    sub node_class {
-        my $self = shift;
-        my $name = blessed($self) || $self;
-        $name =~ s/Test:://;
-        return $name;
-    }
+BEGIN {
 
     my $module = __PACKAGE__->node_class;
     my ($file) = $module =~ s/::/\//g;
-    require "$module.pm";
+    require $module . '.pm';
 
 }
 

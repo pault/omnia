@@ -10,8 +10,10 @@ BEGIN {
     my $module_base = File::Spec->catfile(  qw/Everything DB Node/ );
     my @dirs = grep { -e $_ } map { File::Spec->catfile ( $_, $module_base ) } @INC;
 
-    find ( sub { return unless /\.pm$/; my $mod = File::Spec->catfile( $module_base, $_ ); require $mod; import $mod; }, @dirs );
+    my @mods;
+    find ( sub { return unless /\.pm$/; my $mod = File::Spec->catfile( $module_base, $_ ); push @mods, $mod }, @dirs );
 
+    require $_ foreach @mods;
 }
 
 has node => ( is => 'rw', isa => 'Everything::Node::node' );

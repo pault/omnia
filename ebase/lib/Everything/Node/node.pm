@@ -25,8 +25,6 @@ has $_ => ( is => 'rw' )
   foreach
   qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
 
-use MooseX::ClassAttribute;
-
 sub destruct { 1 }
 
 =head2 C<dbtables()>
