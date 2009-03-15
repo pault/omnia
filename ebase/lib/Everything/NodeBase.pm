@@ -398,9 +398,6 @@ sub create_module {
 
     my( $self, $module, $typenode_data, $baseclass_title, $modules_loaded ) = @_;
 
-            use Moose::Util::MetaRole                     ();
-            use MooseX::ClassAttribute::Role::Meta::Class ();
-
 	    if ( not $baseclass_title ) {
 		Carp::cluck "Can't load a virtual node $$typenode_data{ title }, because there is no baseclass.";
 		return;
@@ -409,22 +406,6 @@ sub create_module {
             my $metaclass =
               Moose::Meta::Class->create( $module,
                 superclasses => ["Everything::Node::$baseclass_title"] );
-
-            Moose::Util::MetaRole::apply_metaclass_roles(
-                for_class => $module,
-                metaclass_roles =>
-                  ['MooseX::ClassAttribute::Role::Meta::Class'],
-            );
-            $metaclass =
-              Moose::Meta::Class->initialize( $module,
-                superclasses => ["Everything::Node::$baseclass_title"] );
-
-            $metaclass->add_class_attribute(
-                'class_nodetype',     'reader',
-                'get_class_nodetype', 'writer',
-                'set_class_nodetype', 'isa',
-                'Everything::Node::nodetype'
-            );
 
 	    my $type_node = $self->set_module_nodetype( $module );
             $self->make_node_accessor( $metaclass, $typenode_data );
@@ -458,8 +439,6 @@ sub set_module_nodetype {
 	$$data{ DB } = $self;
 	$typenode = Everything::Node::nodetype->new( %$data );
     }
-
-    $package->set_class_nodetype($typenode);
 
     return $typenode;
 
@@ -1566,10 +1545,19 @@ sub storage_settings {
     my ( $self, $node ) = @_;
 
     my $hierarchy = $self->get_storage->nodetype_hierarchy_by_id( $node->get_type_nodetype );
+
+    return $self->derive_storage_settings( $hierarchy );
+}
+
+sub derive_storage_settings {
+
+    shift;
+    my $hierarchy = shift;
+
     my $settings = {};
 
   SETTING:
-    foreach my $setting ( qw/restrictdupes / ) {
+    foreach my $setting ( qw/restrictdupes maxrevisions canworkspace/ ) {
       TYPE:
 	foreach my $type ( @$hierarchy ) {
 	    if ( ( not defined $$type{ $setting} ) || ( $$type{ $setting } == -1) ) {

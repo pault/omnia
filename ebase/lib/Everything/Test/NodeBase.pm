@@ -469,9 +469,6 @@ sub test_get_node :Test( 6 )
 	$nb->set_true( qw/isa/ );
 	$nb->set_always( get_title => 'node');
 
-	use Everything::Node::node;
-	Everything::Node::node->set_class_nodetype( $nb );
-
 	$s->clear;
 	$s->set_always( getNodeByName => { node => 1, node_id => 77 } );
 	is ( $nb->getNode( 'a node' ), undef, '...returns undef if nodetype not defined.');

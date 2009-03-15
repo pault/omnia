@@ -12,19 +12,14 @@ package Everything::Node::nodetype;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use MooseX::ClassAttribute;
-class_has class_nodetype => (
-    reader => 'get_class_nodetype',
-    writer => 'set_class_nodetype',
-    isa    => 'Everything::Node::nodetype'
-);
-
 extends 'Everything::Node::node';
 
 has $_ => ( is => 'rw' )
   foreach (
     qw/nodetype_id restrict_nodetype extends_nodetype restrictdupes sqltable grouptable defaultauthoraccess defaultgroupaccess defaultotheraccess defaultguestaccess defaultgroup_usergroup defaultauthor_permission defaultgroup_permission defaultother_permission defaultguest_permission maxrevisions canworkspace/
   );
+
+has nodetype_hierarchy => ( is => 'rw' );
 
 use Everything::Security;
 
@@ -47,10 +42,11 @@ flushed so that the nodetype gets re-constructed with the new data.
 
 =cut
 
-BEGIN { use Carp; $SIG{__DIE__} = \&Carp::confess; }
-
 sub BUILD {
     my ($this) = @_;
+
+    my $hierarchy;
+    return unless $hierarchy = $this->get_nodetype_hierarchy;
 
     # Now we need to derive ourselves and assign the derived values
     my $PARENT;
@@ -59,33 +55,9 @@ sub BUILD {
 
     return unless defined $this->{node_id};
 
-    # Special case where this is the 'nodetype' nodetype
-    if ( $this->get_title eq 'node' ) {
-
-        $PARENT = Everything::Node::node->get_class_nodetype;
-
-    }
-
-    elsif ( $this->{extends_nodetype} > 0 ) {
-
-        my $this_class = 'Everything::Node::' . $this->get_title;
-        my $meta       = $this_class->meta;
-        my @sc         = $meta->superclasses;
-
-        my $super = $sc[0];
-        $PARENT = $super->get_class_nodetype;
-
-    }
-
-    #use Carp; Carp::cluck "parent is $PARENT";
-    # We need to derive the following fields:
-
     my $derive = {
         map { $_ => 1 }
-          qw( sqltable grouptable defaultauthoraccess defaultgroupaccess
-          defaultotheraccess defaultguestaccess defaultgroup_usergroup
-          defaultauthor_permission defaultgroup_permission
-          defaultother_permission defaultguest_permission maxrevisions
+          qw( sqltable maxrevisions
           canworkspace
           )
     };
@@ -93,56 +65,27 @@ sub BUILD {
     # Copy the fields that are to be derived into new hash entries.  This
     # way we can keep the actual "node" data clean.  That way if/when we
     # update this node, we don't corrupt the database.
-    foreach my $field ( keys %$derive ) {
-        $this->{"derived_$field"} = $this->{$field} || '';
+
+    my @user_classes = qw/author group other guest/;
+
+    my $accesses = Everything::NodeBase->default_type_access( $hierarchy );
+
+    map { $this->{ 'derived_default' . $_ . 'access' } = $$accesses{ $_ } } @user_classes;
+
+    my $permissions = Everything::NodeBase->default_type_permissions( $hierarchy );
+    map { $this->{ 'derived_default' . $_ . '_permissions' } = $$permissions{ $_ } } @user_classes;
+
+    $this->{ 'derived_defaultgroup_usergroup' } = Everything::NodeBase->default_type_usergroup( $hierarchy );
+
+    $this->{derived_grouptable} = Everything::DB->derive_grouptable( $hierarchy );
+
+    my $db_settings = Everything::NodeBase->derive_storage_settings( $hierarchy );
+
+    foreach ( qw/maxrevisions canworkspace / ) {
+	$this->{"derived_$_"}= $$db_settings{ $_ };
     }
 
-    if ($PARENT) {
-        foreach my $field ( keys %$derive ) {
-
-            # We are only modifying the derived fields.  We want to
-            # leave the real fields alone
-            $field = "derived_" . $field;
-
-            # If a field in a nodetype is '-1', this field is derived from
-            # its parent.
-            Everything::logErrors("Missing '$field'")
-              unless defined $this->{$field};
-
-            $PARENT->{$field} ||= '';
-            if ( $this->{$field} eq '-1' ) {
-                $this->{$field} = $PARENT->{$field};
-            }
-            elsif ( $field =~ /default.*access/ and $PARENT->{$field} ne '' ) {
-                $$this{$field} =
-                  Everything::Security::inheritPermissions( $this->{$field},
-                    $PARENT->{$field} )
-                  if $$PARENT{$field} !~ /i/;
-            }
-            elsif ( $field =~ /sqltable$/ and $PARENT->{$field} ne '' ) {
-
-                # Inherited sqltables are added onto the list.  Derived
-                # nodetypes "extend" parent nodetypes.
-                $this->{$field} .= "," if $this->{$field} ne '';
-                $this->{$field} .= $PARENT->{$field};
-            }
-            elsif ( $field =~ /grouptable$/
-                and $PARENT->{$field} ne ''
-                and $this->{$field} eq '' )
-            {
-
-                # We are inheriting from a group nodetype and we have not
-                # specified a grouptable, so we will use the same table
-                # as our parent nodetype.
-                $this->{$field} = $PARENT->{$field};
-            }
-        }
-    }
-
-    # Store an array of all the table names that nodes of this type
-    # need to join on.  If there are no tables that this joins on, this
-    # will just be an empty array.
-    $this->{tableArray} = [ split ',', $this->{derived_sqltable} ];
+    $this->{tableArray} = Everything::DB->derive_sqltables( $hierarchy );
 
     return 1;
 }

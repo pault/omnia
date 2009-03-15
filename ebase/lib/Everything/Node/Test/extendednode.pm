@@ -88,7 +88,7 @@ sub reset_mock_node
 	isa_ok($nodeinstance, 'Everything::Node::extendednode');
 
 	my $newnewtype = $db->getNode('moreextendednode', 'nodetype', 'create force');
-	$newtype = Everything::Node::extendednode->get_class_nodetype;
+	$newtype = $db->getType( 'extendednode' );
 
 	$newnewtype->{extends_nodetype} = $newtype->{node_id};
 	$newnewtype->insert(-1);
@@ -218,8 +218,7 @@ sub test_nodetype_metadata :Test(25) {
     my @type_names = $db->{storage}->fetch_all_nodetype_names;
 
     foreach my $name ( @type_names ) {
-	my $class = "Everything::Node::$name";
-	my $typenode = $class->get_class_nodetype;
+	my $typenode = $db->getType( $name );
 	is ( $name, $typenode->get_title, "...name of class $name corresponds to typenode.");
 	foreach my $access (qw/derived_defaultauthoraccess derived_defaultgroupaccess derived_defaultotheraccess derived_defaultguestaccess/) {
 	    my $access_string = $$typenode{ $access };

@@ -526,8 +526,7 @@ sub sqlExecute
 {
 	my ( $this, $sql, $bound ) = @_;
 	my $sth;
-use Carp;
-	local *Everything::logErrors; *Everything::logErrors = sub { Carp::cluck "FAILED SQL @_  $DBI::errstr"};
+
 	unless ( $sth = $this->{dbh}->prepare($sql) )
 	{
 		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
@@ -995,6 +994,14 @@ sub retrieve_nodetype_tables {
 
     my $types = $self->nodetype_hierarchy_by_id ( $type_id );
 
+    return $self->derive_sqltables( $types, $add_node );
+}
+
+sub derive_sqltables {
+
+    shift;
+    my ( $types, $add_node ) = @_;
+
     my @tables = ();
 
     push @tables, split ',',  $_->{sqltable} || '' foreach @$types;
@@ -1002,6 +1009,7 @@ sub retrieve_nodetype_tables {
     push @tables, 'node' if $add_node;
 
     return \@tables;
+
 
 }
 
@@ -1019,12 +1027,21 @@ sub retrieve_group_table {
 
     my $types = $self->nodetype_hierarchy_by_id ( $type_id );
 
+    return $self->derive_grouptable ( $types );
+
+}
+
+sub derive_grouptable {
+
+    shift;
+    my $types = shift;
     my $table;
     foreach ( @$types ) {
 	last if $table  = $_->{grouptable};
     }
 
     return $table;
+
 }
 
 sub getNodetypeTables

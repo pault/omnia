@@ -94,7 +94,7 @@ sub test_10_sql_tables : Test(1) {
        ok( $self->{installer}->update_existing_nodes );
    }
 
-sub test_20_nodetypes : Test(85) {
+sub test_20_nodetypes : Test(29) {
 
     my $self = shift;
 
@@ -128,12 +128,6 @@ sub test_20_nodetypes : Test(85) {
     foreach ( 1..28 ) {
 	my $nodetype = $nb->getType( $_ );
 	isa_ok( $nodetype, 'Everything::Node::nodetype', "... node $$nodetype{title}" );
-    }
-
-    foreach ( keys %all_types ) {
-	my $class = 'Everything::Node::' . $_;
-	ok ( my $type = $class->get_class_nodetype, "...there is a nodetype for class $class.");
-	ok ( eval { $type->get_title } eq $_, "...nodetype name is same as class name for $_ .") || diag $type->get_title;
     }
 
     $nb->rebuildNodetypeModules;

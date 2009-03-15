@@ -15,22 +15,6 @@ sub startup :Test( +1 )
 	isa_ok( $self->node_class()->new(), 'Everything::Node::node' );
 }
 
-sub test_type_metadata :Test(4) {
-    my $self = shift;
-    my $class = $self->node_class;
-
-    my $db = $self->{mock_db};
-
-    my $node = $db->getNode( 'nodetype', 'nodetype' );
-    my $typenode = $class->get_class_nodetype;
-    foreach ( qw/derived_defaultauthoraccess derived_defaultgroupaccess derived_defaultotheraccess derived_defaultguestaccess/ ) {
-	is( $$node{ $_ }, $$typenode{ $_ }, "...derived permission '$_' is ok.");
-    }
-
-
-
-}
-
 sub test_dbtables :Test( 2 )
 {
 	my $self   = shift;
@@ -41,7 +25,7 @@ sub test_dbtables :Test( 2 )
 		'dbtables() should return node tables' );
 }
 
-sub test_construct :Test( 9 )
+sub test_construct :Test( 6 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -52,6 +36,7 @@ sub test_construct :Test( 9 )
 
 	$node->{node_id}  = $node->{extends_nodetype} = 0;
 	$node->{sqltable} = 'foo,bar,baz';
+	$node->{nodetype_hierarchy} = [{grouptable => 'grouptable', defaultauthoraccess => 'iiii', defaultgroupaccess => 'iiiii', defaultotheraccess => 'iiiii', defaultguestaccess => 'iiiii'}, { defaultauthoraccess => '----', defaultgroupaccess => '-----', defaultotheraccess => '-----', defaultguestaccess => '-----'} ];
 	$node->set_always ( -get_title => 'node' );
 
 	ok( $node->BUILD(),
@@ -61,8 +46,6 @@ sub test_construct :Test( 9 )
 		'... storing necessary tables in "tableArray" field as something that' );
 
 	$node->{node_id} = 1;
-	$db->set_always( sqlSelectJoined => $db )
-	   ->set_always( fetchrow_hashref => $node );
 
 	@$node{
 		qw(
@@ -74,18 +57,11 @@ sub test_construct :Test( 9 )
 		}
 		= ('') x 12;
 
-	my $get_class_nodetype_flag;
-
-	local *Everything::Node::node::get_class_nodetype;
-	*Everything::Node::node::get_class_nodetype  = sub { $get_class_nodetype_flag++ };
-
-
 	$node->{title} = 'nodetype';
 	$node->{extends_nodetype} = 1;
 	$node->BUILD();
 
 	my ( $method, $args ) = $db->next_call();
-	ok( $get_class_nodetype_flag, '... retrieves the nodetype meta data.' );
 
 	my @fields =
 		qw( sqltable maxrevisions canworkspace grouptable defaultgroup_usergroup );
@@ -108,10 +84,6 @@ sub test_construct :Test( 9 )
 
 	$db->set_always( getNode => $parent );
 
-	my $meta = Test::MockObject->new;
-	$meta->set_list( superclasses => $meta );
-	$meta->set_always(get_class_nodetype => $parent);
-
 	my $ip;
 	{
 		local *Everything::Security::inheritPermissions;
@@ -119,28 +91,16 @@ sub test_construct :Test( 9 )
 			$ip = join( ' ', @_ );
 		};
 
-		$get_class_nodetype_flag = 0;
-
-		no strict 'refs';
-		local *{ 'Everything::Node::' . $node->get_title . '::get_class_nodetype' };
-		*{  'Everything::Node::' . $node->get_title . '::get_class_nodetype' } = sub { $get_class_nodetype_flag++; return $parent };
-
-		local *{ 'Everything::Node::' . $node->get_title . '::meta' };
-		*{  'Everything::Node::' . $node->get_title . '::meta' } = sub { $get_class_nodetype_flag++; return $meta };
-
 		$node->BUILD();
 	}
 
-	is( $get_class_nodetype_flag, 1, '... fetching nodetype data.' );
 	is( $node->{derived_grouptable},
 		'grouptable', '... should copy derived fields if they are inherited' );
 
 	# misleading, I know...
 	is( $node->{defaultgroupaccess}, -1, '... but should not copy other fields' );
-	is( $ip, '1 100',
+	is( $ip, '----- -----',
 		'... should call inheritPermissions() for permission fields' );
-	is( $node->{derived_sqltable},
-		'boo,far', '... should add sqltable fields to the list' );
 	is( $node->{derived_grouptable},
 		'grouptable',
 		'... should use parent grouptable if none more specific exists' );

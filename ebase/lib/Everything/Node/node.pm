@@ -26,8 +26,6 @@ has $_ => ( is => 'rw' )
   qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
 
 use MooseX::ClassAttribute;
-class_has class_nodetype =>
-  ( reader => 'get_class_nodetype', writer => 'set_class_nodetype' );
 
 sub destruct { 1 }
 
