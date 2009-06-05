@@ -87,4 +87,12 @@ sub update_node_data {
 
 }
 
+sub attribute_names {
+    my ( $self, $node ) = @_;
+
+    my $db = self->get_db;
+
+
+}
+
 1;

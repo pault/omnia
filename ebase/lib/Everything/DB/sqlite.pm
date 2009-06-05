@@ -522,7 +522,7 @@ sub base_tables {
   hits integer(20),
   loc_location integer(20),
   reputation integer(20),
-  lockedby_user integer(20) NOT NULL DEFAULT '0',
+  lockedby_user integer(20),
   locktime timestamp,
   authoraccess char(4) NOT NULL DEFAULT 'iiii',
   groupaccess char(5) NOT NULL DEFAULT 'iiiii',

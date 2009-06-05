@@ -83,6 +83,7 @@ BEGIN
 			my \$self    = shift;
 			my \$nb      = \$self->{nb};
 			my \$storage = \$self->{storage};
+                        \$storage->clear;
 
 			\$storage->set_always( $method => 'proxied_$method' );
 			can_ok( \$nb, '$method' );

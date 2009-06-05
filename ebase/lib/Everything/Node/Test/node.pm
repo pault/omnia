@@ -485,11 +485,12 @@ sub test_update_from_import :Test( 4 )
 {
 	my $self = shift;
 	my $node = $self->{node};
+	$node->set_always( '-get_storage' => $node );
 	$node->set_true( 'update' )
-		 ->set_series( -getNodeKeys => { foo => 1, bar => 2, baz => 3 } )
+		 ->set_series( -getNodeByIdNew => { foo => 1, bar => 2, baz => 3 } )
 		 ->set_series( -getNodeKeepKeys => { bar => 1 } );
 
-	$node->updateFromImport( { foo => 1, bar => 2, baz => 3 }, 'user' );
+	$node->updateFromImport( { foo => 1, bar => 2, baz => 3 }, 'user', $node );
 
 	is( $node->{foo} + $node->{baz}, 4,
 		'updateFromImport() should merge node keys' );
@@ -498,7 +499,7 @@ sub test_update_from_import :Test( 4 )
 	my ( $method, $args ) = $node->next_call();
 	is( "$method @$args", "update $node user nomodify",
 		'... and should update node' );
-	is( $node->{modified}, 0, '... setting "modified" to 0' );
+	is( $node->{modified}, undef, '... unsetting "modified"' );
 }
 
 sub test_conflicts_with :Test( 4 )
@@ -506,6 +507,9 @@ sub test_conflicts_with :Test( 4 )
 	my $self          = shift;
 	my $node          = $self->{node};
 	$node->{modified} = '';
+
+	$node->set_always( get_storage => $node );
+	$node->set_series( getNodeByIdNew => $node, $node );
 
 	ok( ! $node->conflictsWith(),
 		'conflictsWith() should return false with no digit in "modified"' );
@@ -515,22 +519,21 @@ sub test_conflicts_with :Test( 4 )
 	my $keep     = { foo => 1 };
 	my $conflict = { foo => 1, bar => 2 };
 
-	$node->set_series( getNodeKeys => $node, $node )
-		->set_series( getNodeKeepKeys => $keep, {} );
+	$node->set_series( getNodeKeepKeys => $keep, {} );
 
 	$node->{foo} = 1;
 	$node->{bar} = 3;
 
-	my $result = $node->conflictsWith( $conflict );
+	my $result = $node->conflictsWith( $conflict, $node );
 	my ( $method, $args ) = $node->next_call();
 
 	ok( $result, '... but should return true if any node field conflicts' );
 
 	$node->{bar} = 2;
-	ok( ! $node->conflictsWith( $conflict ), '... false otherwise' );
+	ok( ! $node->conflictsWith( $conflict, $node ), '... false otherwise' );
 
 	$node->{foo} = 2;
-	ok( ! $node->conflictsWith( $conflict ),
+	ok( ! $node->conflictsWith( $conflict, $node ),
 		'... and should ignore keepable keys' );
 }
 

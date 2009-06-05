@@ -99,7 +99,7 @@ override update => sub {
 };
 
 override updateFromImport => sub {
-    my ( $this, $NEW, $USER ) = @_;
+    my ( $this, $NEW, $USER, $nodebase ) = @_;
 
     $this->{group} = $NEW->{group};
     $this->updateGroup($USER);
@@ -469,7 +469,7 @@ selectNodegroupFlat(), you will need to do so again to refresh the list.  False
 
 sub insertIntoGroup {
     my ( $this, $USER, $insert, $orderby ) = @_;
-    my $group = $this->{group};
+    my $group = $this->{group} || [];
 
     return 0 unless $USER and $insert and $this->hasAccess( $USER, 'w' );
 

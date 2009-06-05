@@ -835,7 +835,7 @@ sub test_write_node_to_nodeball :Test(3) {
     $mock->set_always( 'toXML' => 'some xml' );
 
     $mock->{ title } = 'a node title';
-    $mock->{ type } = { title  => 'a node type title' };
+    $mock->set_always( type_title  => 'a node type title' );
 
     $instance->set_nodeball_dir( get_temp_dir() );
 
@@ -843,7 +843,7 @@ sub test_write_node_to_nodeball :Test(3) {
     my $rv = $instance->write_node_to_nodeball( $mock );
 
     ( my $title = $$mock{title} ) =~ s/\s/_/g;
-    my $dir = $$mock{type}{title};
+    my $dir = $mock->type_title;
     $dir =~ s/\s/_/g;
     $title .= '.xml';
     my $file =  File::Spec->catfile( $instance->get_nodeball_dir , 'nodes', $dir, $title );
@@ -1003,9 +1003,10 @@ sub test_verify_nodes : Test(3) {
         $mock, $mock
     );
     $mock->set_always( get_nodetype => 'anodetype' );
+    $mock->set_always( type_title => 'node title' );
     $mock->set_series( get_title => qw/title1 title2 title3 title4/ );
     $mock->{title} = 'node title';
-    $mock->{type}  = $mock;
+
 
     my ( $in_nodeball, $in_nodebase, $diffs ) = $instance->verify_nodes;
 

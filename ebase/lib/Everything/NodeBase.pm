@@ -75,7 +75,7 @@ the change to take.
 Returns a new NodeBase object
 
 =cut
-
+my $cache;
 sub new
 {
 	my ( $class, $db, $staticNodetypes, $storage ) = @_;
@@ -87,7 +87,11 @@ sub new
 
 	my $this                 = bless {}, $class;
 
-	$this->{cache}           = Everything::NodeCache->new( $this, 300 );
+	if ( ! $cache ) {
+	    $cache = Everything::NodeCache->new( $this, 300 );
+	}
+
+	$this->{cache}           = $cache;
 	$this->{dbname}          = $dbname;
 	$this->{staticNodetypes} = $staticNodetypes ? 1 : 0;
 
@@ -98,6 +102,7 @@ sub new
 	require $file;
 
 	$this->{storage}  = $storage_class->new(
+		dbname => $dbname,
 		nb    => $this,
 	);
 
@@ -744,6 +749,8 @@ If set to true then does not update the 'modified' attribute.
 sub update_stored_node {
 
         my ( $this, $node, $USER, $options ) = @_;
+
+	$options ||= {};
 
 	my $nomodified = $$options{ NOMODIFIED };
 

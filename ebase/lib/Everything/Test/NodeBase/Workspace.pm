@@ -77,7 +77,7 @@ sub test_get_node_workspace :Test( 5 )
 		'... or only nodes matching a single criterion' );
 
 	@keys = sort keys %$nodes; # reset keys
-	$result   = [sort @{ $nb->getNodeWorkspace({ title => [qw( bar baz )]} )} ];
+	$result   = [sort {  $a->{title} cmp $b->{title} }  @{ $nb->getNodeWorkspace({ title => [qw( bar baz )]} )} ];
 	is_deeply( $result, [ map { $nodes->{$_} } 3, 4 ],
 		'... or only nodes matching a multi-value criterion' );
 

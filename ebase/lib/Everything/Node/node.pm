@@ -73,10 +73,7 @@ Returns the node id of the node updated if successful, 0 (false) otherwise.
 
 sub update {
     my ( $this, $USER, $nomodified ) = @_;
-
-    $this->get_nodebase->update_stored_node( $this, $USER,
-        { NOMODIFIED => $nomodified } );
-
+    $this->get_nodebase->update_stored_node( $this, $USER, { NOMODIFIED => $nomodified } );
 }
 
 =head2 C<nuke>
@@ -289,18 +286,23 @@ overwrite the existing data.
 =cut
 
 sub updateFromImport {
-    my ( $this, $IMPORT, $USER ) = @_;
+    my ( $this, $IMPORT, $USER, $nodebase ) = @_;
 
     # We use the export keys
-    my $keys     = $this->getNodeKeys(1);
-    my $keepkeys = $this->getNodeKeepKeys();
+    my $keys     = $nodebase->get_storage->getNodeByIdNew ( $this->getId); #$this->getNodeKeys(1);  ## this just gets all the node attributes as a hash
 
+    foreach my $k (keys %$keys ) {
+
+	delete $$keys{ $k } if $k =~ /_id$/;
+    }
+
+    my $keepkeys = $this->getNodeKeepKeys();
     foreach my $key ( keys %$keys ) {
         $this->{$key} = $IMPORT->{$key} unless exists $keepkeys->{$key};
     }
 
-    $this->{modified} = '0';
-    $this->update( $USER, 'nomodify' );
+    $this->{modified} = undef;
+    $this->update( $USER, 'nomodify');
 }
 
 =head2 C<conflictsWith>
@@ -322,12 +324,26 @@ Returns false if ok, true if a conflict has been found.
 =cut
 
 sub conflictsWith {
-    my ( $this, $NEWNODE ) = @_;
+    my ( $this, $NEWNODE, $nodebase ) = @_;
 
     # if the node hasn't been modified since update, it should be ok
-    return 0 unless $this->{modified} =~ /[1-9]/;
+    return 0 unless $this->{modified} && $this->{modified} =~ /[1-9]/;
 
-    my $keys    = $this->getNodeKeys(1);
+    # We use the export keys
+    my $keys     = $nodebase->get_storage->getNodeByIdNew ( $this->getId); #$this->getNodeKeys(1);  ## this just gets all the node attributes as a hash
+
+    delete @$keys{
+		  qw(
+			createtime modified hits reputation lockedby_user locktime
+			lastupdate
+		   )
+		 };
+
+    foreach my $k (keys %$keys ) {
+
+	delete $$keys{ $k } if $k =~ /_id$/;
+    }
+
     my $keypers = $this->getNodeKeepKeys();
 
     for my $keep ( keys %$keypers ) {
@@ -359,7 +375,7 @@ sub getNodeKeepKeys {
           qw( authoraccess groupaccess otheraccess guestaccess
           dynamicguest_permission dynamicauthor_permission
           dynamicgroup_permission dynamicother_permission loc_location
-          )
+          createtime )
     };
 }
 

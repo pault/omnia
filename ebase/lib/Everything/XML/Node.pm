@@ -234,12 +234,12 @@ sub genBasicTag
 		{
 			Everything::logErrors( "$doc Field '$fieldname' needs a node of type "
 					. "'$type',\nbut it is pointing to a node of type "
-					. "'$REF->{type}{title}'!" );
+					. $REF->type_title . '!' );
 		}
 
 		$data = makeXmlSafe( $$REF{title} );
 		@$PARAMS{qw( type type_nodetype )} =
-			( 'noderef', "$REF->{type}{title},nodetype" );
+			( 'noderef', $REF->type_title . ",nodetype" );
 
 		# Merge the standard title/type with any unique identifiers given
 		# by the node.
@@ -250,7 +250,7 @@ sub genBasicTag
 			if ( $id =~ /_(\w*)$/ )
 			{
 				my $N = $db->getNode( $REF->{$id} );
-				$PARAMS->{$id} = "$N->{title},$N->{type}{title}";
+				$PARAMS->{$id} = $N->{title} . ',' . $N->type_title;
 			}
 			else
 			{
@@ -329,11 +329,27 @@ Returns the XML string.
 
 sub toXML
 {
-	my ($this) = @_;
+	my ($this, $nodebase ) = @_;
 	my $DOC = new XML::DOM::Document();
 	my $NODE;
 	my $enode = $this->get_node;
-	my $exportFields = $enode->getNodeKeys(1);
+
+	$nodebase ||= $this->get_nodebase;
+	# We use the export keys
+	my $exportFields    = $nodebase->get_storage->getNodeByIdNew ( $enode->getId);
+
+	delete @$exportFields{
+		      qw(
+			    createtime modified hits reputation lockedby_user locktime
+			    lastupdate
+		       )
+		     };
+	
+	foreach my $k (keys %$exportFields ) {
+
+	    delete $$exportFields{ $k } if $k =~ /_id$/;
+	}
+
 	my $tag;
 	my @fields;
 	my @rawFields;
@@ -349,7 +365,7 @@ sub toXML
 	$NODE = new XML::DOM::Element( $DOC, "NODE" );
 
 	$NODE->setAttribute( "export_version", $XMLVERSION );
-	$NODE->setAttribute( "nodetype",       $$enode{type}{title} );
+	$NODE->setAttribute( "nodetype",       $enode->type_title );
 	$NODE->setAttribute( "title",          $$enode{title} );
 
 	# Sort them so that the exported XML has some order to it.

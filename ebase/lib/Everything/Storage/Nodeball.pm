@@ -782,17 +782,19 @@ sub build_new_nodes {
 sub update_node_to_nodebase {
     my ( $self, $node, $handle_conflict_cb ) = @_;
 
-    my $oldnode = $node->existingNodeMatches();
+    my $nb = $self->get_nodebase;
+
+    my $oldnode = $node->existingNodeMatches( $nb );
 
     ## default behaviour is to clobber nodes
-    $handle_conflict_cb ||= sub { $oldnode->updateFromImport( $node, -1 ) };
+    $handle_conflict_cb ||= sub { $oldnode->updateFromImport( $node, -1, $nb ) };
     if ($oldnode) {
 
-        if ( $oldnode->conflictsWith($node) ) {
+        if ( $oldnode->conflictsWith($node, $nb) ) {
             $handle_conflict_cb->( $self, $node );
         }
         else {
-            $oldnode->updateFromImport( $node, -1 );
+            $oldnode->updateFromImport( $node, -1, $nb );
         }
 
     }
@@ -836,7 +838,7 @@ sub verify_nodes {
 
     my %nodebase_group = map {
         my $n = $nb->getNode($_);
-        ( "$$n{title},$$n{type}{title}" => 1 );
+        +( $$n{title} .',' . $n->type_title => 1 );
     } @$nodebase_nodeball_group;
 
     my @diffs;
@@ -1005,7 +1007,7 @@ sub update_nodebase_from_nodeball {
     #insert the new nodeball
     my $nodelist = xml2node( $NEWBALLXML, 'nofinal' );
 
-    $OLDBALL->updateFromImport( $$nodelist[0], -1 );
+    $OLDBALL->updateFromImport( $$nodelist[0], -1, $DB );
 
     $self->fix_node_references(1);
 
@@ -1140,13 +1142,13 @@ sub write_node_to_nodeball {
     my $save_dir;
 
 
-    if ( $$node{type}{title} eq 'dbtable' ) {
+    if ( $node->type_title eq 'dbtable' ) {
 	$self->write_sql_table_to_nodeball( $$node{title} );
     }
 
     if ( ! $filepath ) {
 	$save_title = $$node{title};
-	$save_dir =  $$node{type}{title};
+	$save_dir =  $node->type_title;
 	$save_dir =~ tr/ /_/;
 	$save_dir = File::Spec->catfile ('nodes', $save_dir);
 	$save_title =~ tr/ /_/;

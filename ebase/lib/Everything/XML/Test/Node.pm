@@ -188,7 +188,7 @@ sub test_gen_basic_tag : Test(15) {
 
     $mock->set_true( 'setAttribute', 'appendChild', '-isOfType', '-getRef' );
     $mock->set_always( 'getIdentifyingFields', ['identifyingfield'] );
-    $mock->{type}->{title} = "a_type_title";
+    $mock->set_always( -type_title => "a_type_title");
     $mock->{title} = " a node < title > &amp;";
     my (@gn);
 
@@ -254,7 +254,7 @@ sub test_gen_basic_tag : Test(15) {
     @gn                        = ();
     $mock->{_identifyingfield} = 222;
     $mock->{title}             = 'a random title';
-    $mock->{type}->{title}     = 'a type name';
+    $mock->set_always( -type_title  => 'a type name' );
     $mock->set_always( 'getIdentifyingFields', ['_identifyingfield'] );
     $result = $instance->genBasicTag( $mock, "amazing tag name",
         "_nodefieldname", "112" );
@@ -346,6 +346,7 @@ sub test_to_xml : Test(4) {
     my $mock = Test::MockObject->new;
 
     $instance->set_node($mock);
+    $instance->set_nodebase( $mock );
 
     my @fieldtoxml_args = ();
     no strict 'refs';
@@ -357,7 +358,10 @@ sub test_to_xml : Test(4) {
       };
     use strict 'refs';
 
-    $mock->set_always(getNodeKeys => { key1 => 'value1', key2 => 'value2'} );
+    $mock->set_always ( -get_storage => $mock );
+    $mock->set_always ( -getId => 1 );
+    $mock->set_always ( -type_title => 'a_type' );
+    $mock->set_always(getNodeByIdNew => { key1 => 'value1', key2 => 'value2'} );
     $mock->fake_new('XML::DOM::Document');
     $mock->fake_new('XML::DOM::Text');
     $mock->fake_new('XML::DOM::Element');
@@ -370,7 +374,7 @@ sub test_to_xml : Test(4) {
 
     my ($method, $args) = $mock->next_call( );
 
-    is($method, 'getNodeKeys', '...should get exportable keys from node object.');
+    is($method, 'getNodeByIdNew', '...should get exportable keys from node object.');
 
     is_deeply ( $fieldtoxml_args[0], [$instance, $mock, 'key1', '  '], '...calls fieldToXML with arguments.');
 

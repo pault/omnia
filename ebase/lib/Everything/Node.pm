@@ -822,7 +822,7 @@ is based on the getIdentifyingFields() method) undef if no match was found.
 
 sub existingNodeMatches
 {
-	my ($this) = @_;
+	my ($this, $nodebase ) = @_;
 
 	# if this already exists in the database, just return it...
 	# It should be noted that if you are hitting this case, you are
@@ -837,7 +837,7 @@ sub existingNodeMatches
 	my %WHERE;
 
 	@WHERE{@ID} = @$this{@ID};
-	my $NODE = $$this{DB}->getNode( \%WHERE, $this->type );
+	my $NODE = $nodebase->getNode( \%WHERE, $this->type );
 
 	return $NODE;
 }

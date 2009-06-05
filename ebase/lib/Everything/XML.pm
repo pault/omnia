@@ -772,7 +772,8 @@ sub xmlnode2node_complete {
  
     }
     $node->{group} = \@group if @group;
-    $node->update(-1, 'nomodified');
+    $node->update( -1, 'nomodified' );
+#    $nodebase->update_stored_node( $node, -1, { NOMODIFIED => 'nomodified' } );
 
 }
 

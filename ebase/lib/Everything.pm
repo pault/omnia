@@ -524,7 +524,7 @@ sub deprecate {
     my $message = shift;
     $message ||= '';
     my ( $file, $line, $sub ) = ( caller(1) )[1,2,3];
-    carp $message . "Deprecated function $sub called at $file line $line ";
+    Carp::cluck "Deprecated function $sub called at $file line $line. " . $message;
 
 }
 
