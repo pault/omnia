@@ -17,5 +17,5 @@ database_password = ecoretester
 ## You shouldn't need to change this
 database_type = Pg
 
-
-
+## to test url schemae
+location_schema_nodetype = /node/:node_id node

@@ -17,3 +17,5 @@ database_password = ecoretester
 ## You probably won't need to amend this
 database_type = mysql
 
+## to test url schemae
+location_schema_nodetype = /node/:node_id node

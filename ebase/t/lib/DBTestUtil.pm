@@ -276,7 +276,9 @@ NODEBALL
         '-t', $db_type, $ball_dir
     );
 
-    system( 'perl', 'bin/insert_nodeball.pl', @args );
+    my @script = ( 'perl', '-Ilib', 'bin/insert_nodeball.pl' );
+
+    system(  @script, @args );
     ok( $? == 0, '...install script runs.' );
 
     my $nodeball_node = $nodebase->getNode( 'test nodeball', 'nodeball' );
@@ -295,7 +297,7 @@ NODEBALL
     );
 
 # XXX: use open3 to capture the STDERR or the system call to ensure it is warning correctly.
-    system( 'perl', 'bin/insert_nodeball.pl', @args );
+    system( @script, @args );
     ok(
         $? != 0,
 'The install script refuses to install if the the nodeball is already installed.'
@@ -327,7 +329,10 @@ NODE
 
     $fh->close;
 
-    system( 'perl', 'bin/update_nodeball.pl', @args );
+    pop @script;
+    push @script, 'bin/update_nodeball.pl';
+
+    system( @script, @args );
     ok( $? == 0, 'The update script runs.' )
       || diag "System call return value is " . ( $? >> 8 );
 
@@ -372,7 +377,7 @@ NODE
 
     $fh->close;
 
-    system( 'perl', 'bin/update_nodeball.pl', @args );
+    system( @script, @args );
     ok( $? == 0, 'The update script runs.' )
       || diag "System call return value is " . ( $? >> 8 );
 
@@ -391,7 +396,10 @@ NODE
 
     push @args, 'test nodeball', $export_dir;
 
-    system( 'perl', 'bin/export_nodeball.pl', @args );
+    pop @script;
+    push @script, 'bin/export_nodeball.pl';
+
+    system( @script, @args );
     ok( $? == 0, 'The export script runs.' )
       || diag "System call return value is " . ( $? >> 8 );
 

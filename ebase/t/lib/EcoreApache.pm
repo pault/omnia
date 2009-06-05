@@ -11,7 +11,7 @@ use File::Temp;
 use File::Copy;
 use Apache2::Const ':common';
 use IO::File;
-use DBTestUtil qw(config_file nodebase);
+use DBTestUtil qw(config_file nodebase skip_cond);
 use Proc::ProcessTable;
 
 use strict;
@@ -24,6 +24,13 @@ sub apache_tests {
 ### write t/conf/extra.conf.in
 
     my $config_file = '../' . config_file();
+
+    if (  my $skip = skip_cond ) {
+
+	plan skip_all => $skip;
+	return;
+
+    }
 
     my $nb = nodebase();
 
