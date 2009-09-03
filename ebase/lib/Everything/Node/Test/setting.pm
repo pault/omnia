@@ -70,19 +70,31 @@ sub test_get_node_keep_keys :Test( +1 )
 	$self->SUPER();
 }
 
-sub test_update_from_import :Test( 3 )
+sub test_update_from_import :Test( +2 )
 {
 	my $self = shift;
 	my $node = $self->{node};
 
 	$node->set_always( -SUPER   => 10 )
 	     ->set_series( -getVars => { a => 1, b => 2 }, $node )
-		 ->set_true( 'setVars' );
+		 ->set_true( '-setVars' );
 
-	is( $node->updateFromImport( $node ), 10,
-		'updateFromImport() should call SUPER()' );
+	my $newnode = Test::MockObject->new( { foo => 1, bar => 2, baz => 3 } );
+
+	$newnode->set_series( -getVars => { a => 1, b => 2 }, $node );
+	$self->{newnode} = $newnode;
+
+	$self->SUPER;
+
+	$newnode->set_series( -getVars => { a => 100, b => 200 }, $node );
+	$node->set_true( 'setVars' );
+	$node->set_always( -getVars => { a => 1, b => 2 } );
+
+	$node->updateFromImport( $newnode, $node, $node );
+
 	is( $node->next_call(), 'setVars', '... and should call setVars()' );
-	is( join( '', @$node{ 'a', 'b' } ), '12',
+	my $vars = $node->getVars;
+	is( join( '', @$vars{ 'a', 'b' } ), '12',
 		'... and merging keys from new node' );
 }
 

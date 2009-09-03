@@ -83,7 +83,7 @@ override getNodeKeepKeys => sub {
 };
 
 # vars are preserved upon import
-sub updateFromImport {
+before updateFromImport => sub {
     my ( $this, $NEWNODE, $USER ) = @_;
 
     my $V    = $this->getVars();
@@ -92,7 +92,7 @@ sub updateFromImport {
     @$NEWV{ keys %$V } = values %$V;
 
     $this->setVars($NEWV);
-    $this->SUPER( $NEWNODE, $USER );
-}
+
+};
 
 1;

@@ -485,12 +485,14 @@ sub test_update_from_import :Test( 4 )
 {
 	my $self = shift;
 	my $node = $self->{node};
+
+	my $newnode = $self->{newnode} || { foo => 1, bar => 2, baz => 3 };
 	$node->set_always( '-get_storage' => $node );
 	$node->set_true( 'update' )
 		 ->set_series( -getNodeByIdNew => { foo => 1, bar => 2, baz => 3 } )
 		 ->set_series( -getNodeKeepKeys => { bar => 1 } );
 
-	$node->updateFromImport( { foo => 1, bar => 2, baz => 3 }, 'user', $node );
+	$node->updateFromImport( $newnode , 'user', $node );
 
 	is( $node->{foo} + $node->{baz}, 4,
 		'updateFromImport() should merge node keys' );
