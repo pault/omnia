@@ -704,19 +704,19 @@ sub getNodeKeepKeys {
     return $nodekeys;
 }
 
-sub conflictsWith {
+override conflictsWith => sub {
     my ( $this, $NEWNODE ) = @_;
 
-    return 0 unless $this->{modified} =~ /[1-9]/;
-    my ( $old, $new ) = ( $this->{group}, $NEWNODE->{group} );
+    return 0 unless $this->{modified} && $this->{modified} =~ /[1-9]/;
+    my ( $old, $new ) = ( $this->{group}, $NEWNODE->{group} || [] );
     return 1 unless @$new == @$old;
 
     for my $pos ( 0 .. $#{$new} ) {
         return 1 unless $new->[$pos] == $old->[$pos];
     }
 
-    return $this->SUPER($NEWNODE);
-}
+    super;
+};
 
 #############################################################################
 # PRIVATE: Group caching functions

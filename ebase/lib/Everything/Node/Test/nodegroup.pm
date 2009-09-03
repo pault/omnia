@@ -560,7 +560,7 @@ sub test_get_node_keep_keys :Test( +4 )
 	ok( $result->{group}, '... and one key should be "group"' );
 }
 
-sub test_conflicts_with :Test( 6 )
+sub test_conflicts_with :Test( +3 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -573,21 +573,19 @@ sub test_conflicts_with :Test( 6 )
 	$node->{group}    = [ 1, 4, 6, 8 ];
 
 	$node->set_always( SUPER => 11 );
+	$node->set_always( get_storage => $node );
 
 	my $group = { group => [ 1, 4, 6 ] };
-	is( $node->conflictsWith( $group ), 1,
+	is( $node->conflictsWith( $group, $node ), 1,
 		'... returing true if groups are different sizes' );
 
 	push @{ $group->{group} }, 9;
-	is( $node->conflictsWith( $group ), 1,
+	is( $node->conflictsWith( $group, $node ), 1,
 		'... returning true if a node conflicts between the two nodes' );
+	$node->{group}=[]; # don't interfere with superclass tests
 
-	my $result = $node->conflictsWith( $node );
-	my ($method, $args) = $node->next_call();
-	is( $method, 'SUPER',  '... calling SUPER() if that succeeds' );
-	is( $args->[1], $node, '... passing new node' );
+	$self->SUPER;
 
-	is( $result, 11, '... returning the result' );
 }
 
 1;
