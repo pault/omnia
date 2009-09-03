@@ -11,6 +11,5 @@ CREATE TABLE javascript (
   javascript_id int(11) DEFAULT '0' NOT NULL,
   code text NOT NULL,
   comment text NOT NULL,
-  dynamic int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (javascript_id)
 );

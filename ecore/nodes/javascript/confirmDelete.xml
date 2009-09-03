@@ -1,13 +1,17 @@
 <NODE export_version="0.5" nodetype="javascript" title="confirmDelete">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">function confirmDelete()
+  <field name="code" type="literal_value">function confirmDelete(nodeTitle,deleteURL)
 {
-  if(confirm(&quot;Delete '[% $this-&gt;jsescape($this-&gt;get_node-&gt;get_title) %]'?&quot;))
-      parent.location = [% $this-&gt;url_gen({node_id =&gt; $this-&gt;get_node-&gt;get_node_id, op =&gt; &quot;nuke&quot;});%]
+  if(confirm(&quot;Delete '&quot;+nodeTitle+&quot;'?&quot;))
+      parent.location = deleteURL;
 }</field>
   <field name="comment" type="literal_value"></field>
-  <field name="dynamic" type="literal_value">1</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">javascript</field>

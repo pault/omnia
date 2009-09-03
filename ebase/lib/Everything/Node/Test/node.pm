@@ -824,14 +824,16 @@ sub test_nuke :Test( 26 )
 	$node->set_true( 'hasAccess' )
 		->set_series( -isa => 0, 'table1', 'table2' )
 		->set_series( -get_grouptable => 'table1', 'table2')
-	    ->set_always( getTableArray => [ 'deltable' ] )
+	    ->set_always( retrieve_nodetype_tables => [ 'deltable' ] )
 		->set_always( -getId => 'id' )
+		->set_always( -get_type_nodetype => 999 )
 		->set_always( -type => $node );
 	$db->set_true(qw( getRef finish removeNode incrementGlobalVersion ))
 	   ->set_always( getNode => $db )
 	   ->set_series( sqlSelectMany => 0, $db )
 	   ->set_series( fetchrow => 'group' )
-	   ->set_series( sqlDelete => (1) x 4 );
+	   ->set_series( sqlDelete => (1) x 4 )
+           ->set_always( -get_storage => $node );
 
 	my $result;
 	{
@@ -880,7 +882,7 @@ sub test_nuke :Test( 26 )
 	is( $db->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
 
 	( $method, $args ) = $node->next_call( );
-	is( "$method @$args", "getTableArray $node 1",
+	is( "$method @$args", "retrieve_nodetype_tables $node 999 1",
 		'... should fetch all tables for node' );
 
 	( $method, $args ) = $db->next_call();

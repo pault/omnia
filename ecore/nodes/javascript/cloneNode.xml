@@ -1,16 +1,13 @@
 <NODE export_version="0.5" nodetype="javascript" title="cloneNode">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">function cloneNode()
+  <field name="code" type="literal_value">function cloneNode( nodeTitle, cloneNodeUrl )
 {
-  var newname = prompt(&quot;Cloning node '[% $this-&gt;jsescape($this-&gt;get_node-&gt;get_title) %]'\nEnter a new name:&quot;, &quot;&quot;);
+  var newname = prompt(&quot;Cloning node '&quot;+nodeTitle+&quot;'\nEnter a new name:&quot;, &quot;&quot;);
 
   if(newname)
   {
-    var url = [% 
-        my $CLONER = $DB-&gt;getNode('Node Cloner', 'restricted_superdoc');
-        $this-&gt;url_gen({'srcnode_id' =&gt; $this-&gt;get_node-&gt;get_node_id, 'newname' =&gt; 'NEWNAME',
-          'node_id' =&gt; $$CLONER{node_id} }); %];
+    var url = cloneNodeUrl;
     
     url = url.replace(/NEWNAME/, newname);
     url = url.replace(/ /g, &quot;%20&quot;);
@@ -19,7 +16,11 @@
 }</field>
   <field name="comment" type="literal_value">This sets up the javascript prompt that asks the user what they would
 like to name the cloned node.</field>
-  <field name="dynamic" type="literal_value">1</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">javascript</field>

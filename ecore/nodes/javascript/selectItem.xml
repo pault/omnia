@@ -45,7 +45,6 @@
 the &quot;source&quot; list and the &quot;destination&quot;.  It also depends on the
 moveSelectItem() javascript as it uses both the moveSelectItem() and
 the maintainValues() functions.</field>
-  <field name="dynamic" type="literal_value">0</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">javascript</field>

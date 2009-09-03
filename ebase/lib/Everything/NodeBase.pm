@@ -849,7 +849,7 @@ sub delete_stored_node {
 	$this->remove_from_groups( $node );
 
 	# Actually remove this node from the database.
-	my $tableArray = $node->type->getTableArray(1);
+	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
 	foreach my $table (@$tableArray)
 	{
 		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );

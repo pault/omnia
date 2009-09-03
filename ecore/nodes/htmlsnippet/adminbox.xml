@@ -61,9 +61,14 @@ $GLOBAL{adminboxLinks}{permissions}
     &lt;/td&gt;
   &lt;/tr&gt;|;
 
+my $node_title = $NODE-&gt;get_title;
+
+my $CLONER = $DB-&gt;getNode('Node Cloner', 'restricted_superdoc');
+my $clone_url = $this-&gt;url_gen({'srcnode_id' =&gt; $this-&gt;get_node-&gt;get_node_id, 'newname' =&gt; 'NEWNAME', 'node_id' =&gt; $$CLONER{node_id} }, 'no quotes');
+
 $str.=qq|  &lt;tr&gt;
     &lt;td style=&quot;background-color: $GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
-      &lt;a href=&quot;javascript: cloneNode();&quot;&gt;
+      &lt;a href=&quot;javascript: cloneNode('$node_title','$clone_url');&quot;&gt;
        &lt;img src=&quot;images/icon_clone.gif&quot; alt=&quot;clone&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;&lt;/a&gt;
     &lt;/td&gt;
     &lt;td style=&quot;background-color: $GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;|;
@@ -73,7 +78,9 @@ $str.=qq|   &lt;td style=&quot;background-color: $GLOBAL{adminboxDark}&quot; ali
 
 if($NODE-&gt;hasAccess($USER, &quot;d&quot;))
 {
-  $str .= qq{&lt;a href=&quot;javascript: confirmDelete();&quot;&gt;};
+ my $title = $this-&gt;jsescape($NODE-&gt;get_title); 
+ my $goto = $this-&gt;url_gen({node_id =&gt; $NODE-&gt;get_node_id, op =&gt; &quot;nuke&quot;}, 'no quotes');
+  $str .= qq{&lt;a href=&quot;javascript: confirmDelete('$title','$goto');&quot;&gt;};
   $str .= qq{&lt;img src=&quot;images/icon_delete.gif&quot; alt=&quot;delete&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;&lt;/a&gt;};
 }
 else
@@ -122,6 +129,11 @@ if ($$NODE{type}{maxrevisions})
 
 $str .= q|&lt;/table&gt;|;
 %]</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>

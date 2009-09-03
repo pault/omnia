@@ -6,6 +6,7 @@ A package to turn nodes into XML for exporting to Nodeballs and revisions.
 
 package Everything::XML::Node;
 
+use Everything ();
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 extends 'Everything::Object';
@@ -230,7 +231,7 @@ sub genBasicTag
 		# This field references a node
 		my $REF = $db->getNode($content);
 
-		unless ( $REF->isOfType( $type, 1 ) )
+		unless ( $REF->isa( "Everything::Node::$type" ) )
 		{
 			Everything::logErrors( "$doc Field '$fieldname' needs a node of type "
 					. "'$type',\nbut it is pointing to a node of type "
@@ -376,6 +377,9 @@ sub toXML
 		$NODE->appendChild( new XML::DOM::Text( $DOC, "\n  " ) );
 
 		$tag = $this->fieldToXML( $DOC, $field, "  " );
+
+		next unless $tag;
+
 		$NODE->appendChild($tag);
 	}
 

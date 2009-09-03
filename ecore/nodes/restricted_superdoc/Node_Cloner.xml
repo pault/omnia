@@ -19,23 +19,23 @@ my $str;
 
 if((defined $src_id) &amp;&amp; (defined $newname))
 {
-  my $SRCNODE = getNodeById($src_id);
+  my $SRCNODE = $DB-&gt;getNode($src_id);
   return &quot;Bad clone source!&quot; unless $SRCNODE;
-  my $CLONE = $SRCNODE-&gt;getClone($newname, $USER);
+  my $CLONE = $SRCNODE-&gt;getClone($newname, $USER, undef, $DB );
 
   if($$CLONE{node_id} != -1 or $CLONE-&gt;insert($USER))
   {
     $str = &quot;&lt;h3&gt;&lt;font color=#00cc00&gt;Clone successful&lt;/font&gt;&lt;/h3&gt;\n&quot;; 
-    $str .= &quot;&lt;p&gt;Node &quot; . linkNode($SRCNODE) .
-      &quot; has been cloned as &quot; . linkNode($CLONE);
+    $str .= &quot;&lt;p&gt;Node &quot; . $this-&gt;link_node($SRCNODE) .
+      &quot; has been cloned as &quot; . $this-&gt;link_node($CLONE);
   }
   else
   {
-     my $EXISTS = getNode($newname, $$SRCNODE{type});
+     my $EXISTS = $DB-&gt;getNode($newname, $$SRCNODE{type});
 
      if($EXISTS)
      {
-       $str .= linkNode($EXISTS) . &quot; already exists and nodes of this type&quot;;
+       $str .= $this-&gt;link_node($EXISTS) . &quot; already exists and nodes of this type&quot;;
        $str .= &quot; does not allow duplicate names.&quot;;
      }
      else
@@ -54,6 +54,11 @@ else
 $str;
 
 %]</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">restricted_superdoc</field>

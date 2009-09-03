@@ -248,14 +248,14 @@ Returns the newly cloned node, if successful.  undef otherwise.
 
 sub getClone
 {
-	my ( $this, $title, $USER, $workspace ) = @_;
+	my ( $this, $title, $USER, $workspace, $nodebase) = @_;
 	my $CLONE;
 	my $create;
 
-	$create = "create" if ( $this->type->{restrictdupes} );
+	$create = "create" if ( $nodebase->storage_settings( $this )->{restrictdupes} );
 	$create ||= "create force";
 
-	$CLONE = $this->{DB}->getNode( $title, $this->type, $create );
+	$CLONE = $nodebase->getNode( $title, $this->type_title, $create );
 
 	# if the id is not zero, the getNode found a node that already exists
 	# and the type does not allow duplicate names.
