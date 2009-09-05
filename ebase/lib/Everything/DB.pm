@@ -1064,7 +1064,7 @@ sub getNodetypeTables
 	else
 	{
 		$this->{nb}->getRef($TYPE);
-		my $tables = $TYPE->getTableArray();
+		my $tables = $this->retrieve_nodetype_tables( $$TYPE{node_id} );
 		push @tablelist, @$tables if $tables;
 	}
 

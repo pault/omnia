@@ -182,6 +182,8 @@ sub getTableArray {
     my ( $this, $nodeTable ) = @_;
     my @tables;
 
+    Everything->deprecate("Use Everything::DB::retrieve_nodetype_table instead.");
+
     push @tables, @{ $this->{tableArray} } if defined $this->{tableArray};
     push @tables, 'node' if $nodeTable;
 

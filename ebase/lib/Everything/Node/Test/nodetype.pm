@@ -236,22 +236,6 @@ sub test_nuke :Test( 3 )
 	is( $result, 'SUPER', '... otherwise calls parent and returns result' );
 }
 
-sub test_get_table_array :Test( 4 )
-{
-	my $self            = shift;
-	my $node            = $self->{node};
-	$node->{tableArray} = [ 1 .. 4 ];
-
-	my $result = $node->getTableArray();
-	is( ref $result, 'ARRAY',
-		'getTableArray() should return array ref to "tableArray" field' );
-	is( @$result, 4, '... and should contain all items' );
-	ok( !grep( { $_ eq 'node' } @$result ),
-		'... should not provide "node" table with no arguments' );
-	is( $node->getTableArray( 1 )->[-1], 'node',
-		'... but should happily provide it with $nodeTable set to true' );
-}
-
 sub test_get_default_type_permissions :Test( 3 )
 {
 	my $self = shift;

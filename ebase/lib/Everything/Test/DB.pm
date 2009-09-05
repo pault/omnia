@@ -627,9 +627,16 @@ sub test_get_node_cursor : Test(4) {
     my $self  = shift;
     my $value = 'a value';
     $self->add_expected_sql( q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
+
+    local *Everything::DB::retrieve_nodetype_tables;
+    *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
+
     @tablearray = (qw{serpents lions});
+
     my @args = ( 'fieldname', { foo => 'bar' }, 'sometype', 'title', 1, 2 );
+
     $self->{instance}->{dbh}->clear;
+
     my $cursor = $self->{instance}->getNodeCursor(@args);
     my ($method, $args) =  $self->{instance}->{dbh}->next_call(2);
  
@@ -649,6 +656,10 @@ sub test_select_node_where : Test(6) {
     my $self  = shift;
 
     $self->add_expected_sql(q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
+
+
+    local *Everything::DB::retrieve_nodetype_tables;
+    *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
 
     my $value = 'a value';
     @tablearray = (qw{dryad sylph});
@@ -684,6 +695,9 @@ sub test_select_node_where : Test(6) {
 sub test_count_node_matches : Test(4) {
     my $self  = shift;
     $self->add_expected_sql (q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 |)  unless $self->isset_expected_sql;
+
+    local *Everything::DB::retrieve_nodetype_tables;
+    *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
 
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
@@ -832,6 +846,9 @@ sub test_get_nodetype_tables : Test( 7 ) {
     my $instance = $self->{instance};
     my $storage  = $instance->{storage};
 
+    local *Everything::DB::retrieve_nodetype_tables;
+    *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
+
     ok( !$instance->getNodetypeTables(),
         'getNodetypeTables() should return false without type' );
 
@@ -852,7 +869,7 @@ sub test_get_nodetype_tables : Test( 7 ) {
     
     my $nb = $instance->{nb};
     $nb->mock('getRef' => sub { $_[1] = $nb } );
-    $nb->mock( getTableArray => sub { [ @tablearray ] });
+    $nb->mock( retrieve_nodetype_tables => sub { [ @tablearray ] });
 
     is_deeply( $instance->getNodetypeTables('bar'),
         [qw( foo bar )], '... or calling getTableArray() on promoted node' );
