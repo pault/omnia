@@ -7,7 +7,10 @@
 &lt;title&gt;[%
 $this-&gt;get_node-&gt;get_title;
 %]&lt;/title&gt;
-[&lt;stdstylesheet&gt;][{insertJavascript}]
+&lt;link rel=&quot;StyleSheet&quot; href=&quot;/stylesheets/[% $this-&gt;get_nodebase-&gt;getNode('stdstylesheet', 'htmlsnippet')-&gt;getId; %],1111.css&quot; type=&quot;text/css&quot; media=&quot;screen,print&quot; /&gt;
+
+&lt;script type=&quot;text/javascript&quot; src=&quot;/javascript/[% $this-&gt;get_nodebase-&gt;getNode('all_javascript', 'htmlsnippet')-&gt;getId %].js&quot; &gt;&lt;/script&gt;
+
 &lt;/head&gt;
 &lt;body&gt;
 [&lt;BacksideErrors&gt;]

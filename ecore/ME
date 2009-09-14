@@ -1,6 +1,10 @@
 <NODE export_version="0.5" nodetype="nodeball" title="core system">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
   <group>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">nodetype</member>
     <member name="group_node" type="noderef" type_nodetype="nodetype,nodetype">node</member>
@@ -274,7 +278,11 @@
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">stdstylesheet</member>
     <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">nodelet_block</member>
     <member name="group_node" type="noderef" type_nodetype="htmlcode,nodetype">insertNodelet</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">display text_css</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlpage,nodetype">display text_javascript</member>
+    <member name="group_node" type="noderef" type_nodetype="htmlsnippet,nodetype">all_javascript</member>
   </group>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodeball</field>

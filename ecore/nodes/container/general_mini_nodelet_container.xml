@@ -1,29 +1,7 @@
 <NODE export_version="0.5" nodetype="container" title="general mini nodelet container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">[%
-
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $CURRENTNODE = $this-&gt;get_current_node;
-
-
-  if (defined($$THEME{miniNodeletParent_container}))
-  {
-    $$CURRENTNODE{parent_container} = $$THEME{miniNodeletParent_container};
-  }
-  else
-  {
-    my $parent;
-    if (defined($parent = $HTMLVARS{generalMiniNodelet_container}) &amp;&amp;
-      $parent != $$CURRENTNODE{parent_container})
-    {
-      $$CURRENTNODE{parent_container} = $parent;
-    }
-}
-&quot;&quot;;
-
-%]CONTAINED_STUFF</field>
+  <field name="context" type="literal_value">CONTAINED_STUFF</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">container</field>

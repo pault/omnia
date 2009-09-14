@@ -8,7 +8,7 @@ my $DB = $this-&gt;get_nodebase;
 my $TYPE = $DB-&gt;getType($type);
 return &quot;&quot; unless($TYPE);
 
-my $tables = $TYPE-&gt;getTableArray(1);
+my $tables = $DB-&gt;get_storage-&gt;retrieve_nodetype_tables($TYPE-&gt;get_node_id, 1);
 my $str;
 foreach my $table (@$tables)
 {

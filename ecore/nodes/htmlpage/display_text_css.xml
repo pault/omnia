@@ -1,0 +1,22 @@
+<NODE export_version="0.5" nodetype="htmlpage" title="display text_css">
+  <field name="MIMEtype" type="literal_value">text/css</field>
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="displaytype" type="literal_value">stylesheet</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" null="yes" type="literal_value"></field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="ownedby_theme" type="literal_value">0</field>
+  <field name="page" type="literal_value">[% $this-&gt;get_requested_node-&gt;run( { ehtml =&gt; $this }); %]</field>
+  <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</field>
+  <field name="parent_container" type="literal_value">0</field>
+  <field name="permissionneeded" type="literal_value">x</field>
+  <field name="title" type="literal_value">display text_css</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlpage</field>
+</NODE>

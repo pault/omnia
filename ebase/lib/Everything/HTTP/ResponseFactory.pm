@@ -8,6 +8,8 @@ use base 'Class::Factory';
 
 __PACKAGE__->add_factory_type('htmlpage' => 'Everything::HTTP::Response::Htmlpage');
 __PACKAGE__->add_factory_type('nodeball' => 'Everything::HTTP::Response::Nodeball');
+__PACKAGE__->add_factory_type('stylesheet' => 'Everything::HTTP::Response::stylesheet');
+__PACKAGE__->add_factory_type('javascript' => 'Everything::HTTP::Response::javascript');
 
 =head1 Everything::HTTP::ResponseFactory
 

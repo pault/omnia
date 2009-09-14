@@ -1,0 +1,27 @@
+<NODE export_version="0.5" nodetype="htmlsnippet" title="all_javascript">
+  <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
+  <field name="authoraccess" type="literal_value">iiii</field>
+  <field name="code" type="literal_value">[%
+my $scripts = $this-&gt;get_nodebase-&gt;getNodeWhere( '', 'javascript' );
+return unless @$scripts;
+
+my $str = '';
+foreach my $js ( @$scripts )
+{
+  $str .= $js-&gt;get_code;
+  $str .= &quot;\n&quot;;   
+}
+$str;
+%]</field>
+  <field name="dynamicauthor_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicgroup_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicguest_permission" null="yes" type="literal_value"></field>
+  <field name="dynamicother_permission" null="yes" type="literal_value"></field>
+  <field name="group_usergroup" null="yes" type="literal_value"></field>
+  <field name="groupaccess" type="literal_value">iiiii</field>
+  <field name="guestaccess" type="literal_value">iiiii</field>
+  <field name="loc_location" null="yes" type="literal_value"></field>
+  <field name="otheraccess" type="literal_value">iiiii</field>
+  <field name="title" type="literal_value">all_javascript</field>
+  <field name="type_nodetype" type="noderef" type_nodetype="nodetype,nodetype">htmlsnippet</field>
+</NODE>

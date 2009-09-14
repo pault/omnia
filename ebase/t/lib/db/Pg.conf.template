@@ -19,3 +19,6 @@ database_type = Pg
 
 ## to test url schemae
 location_schema_nodetype = /node/:node_id node
+
+request_modifier_standard = css
+request_modifier_standard = javascript

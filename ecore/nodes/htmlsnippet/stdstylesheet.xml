@@ -1,9 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlsnippet" title="stdstylesheet">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">&lt;style type=&quot;text/css&quot;&gt;
-
-body {
+  <field name="code" type="literal_value">body {
 background-color: [% $this-&gt;get_theme-&gt;{bodyBgcolor} || '#FFFFFF' %];
 color: [% $this-&gt;get_theme-&gt;{bodyTextcolor} || &quot;#000000&quot; %];
 margin-top: [% $this-&gt;get_theme-&gt;{bodyTMargin} || &quot;5px&quot; %];
@@ -194,8 +192,7 @@ margin: 10px auto;
 
 line-height: 130%;
 
-}
-&lt;/style&gt;</field>
+}</field>
   <field name="groupaccess" type="literal_value">iiiii</field>
   <field name="guestaccess" type="literal_value">iiiii</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlsnippet</field>
