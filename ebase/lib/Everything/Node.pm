@@ -135,6 +135,7 @@ nodemethod node, and 'pm' indicates that it found the function implemented in a
 
 sub getNodeMethod
 {
+        Everything->deprecate( "Don't call node methods from inside a node" );
 	my ( $this, $func, $TYPE ) = @_;
 	my $METHODTYPE;
 	my $METHOD;
@@ -308,7 +309,7 @@ Returns result of cacheNode call (pretty much guaranteed to be 1)
 sub cache
 {
 	my ($this) = @_;
-
+	Everything->deprecate('Call cacheNode on the object stored in nodebase');
 	return unless ( defined $$this{DB}->{cache} );
 	$$this{DB}->{cache}->cacheNode($this);
 }
@@ -327,7 +328,7 @@ Returns result of removeNode call (pretty much guaranteed to be 1)
 sub removeFromCache
 {
 	my ($this) = @_;
-
+	Everything->deprecate('Call removeNode on the object stored in nodebase');
 	return unless ( defined $$this{DB}->{cache} );
 	$$this{DB}->{cache}->removeNode($this);
 }
@@ -356,6 +357,8 @@ Returns the field in a quoted string form.
 
 sub quoteField
 {
+
+    Everything->deprecate('Use Everything::DB');
 	my ( $this, $field ) = @_;
 	return ( $$this{DB}->{dbh}->quote( $$this{$field} ) );
 }
@@ -537,6 +540,7 @@ Returns the new number of hits
 sub updateHits
 {
 	my ($this) = @_;
+	Everything->deprecate( "Nodes don't know about their hits, call from frontend");
 	my $id = $$this{node_id};
 
 	$$this{DB}->sqlUpdate( 'node', { -hits => 'hits+1' }, "node_id=$id" );
@@ -567,7 +571,7 @@ Returns a reference to an array that contains the links
 sub selectLinks
 {
 	my ( $this, $orderby ) = @_;
-
+	Everything->deprecate( "Nodes can't get their own links, select from frontend");
 	my $obstr = $orderby ? " ORDER BY $orderby" : '';
 
 	my $cursor =
@@ -613,7 +617,7 @@ what ever you need to do.
 sub getTables
 {
 	my ( $this, $nodetable ) = @_;
-
+	Everything->deprecate( "Nodes don't know about the tables they are stored in use the methods in Everything::DB" );
 	return $this->type->getTableArray($nodetable);
 }
 
@@ -819,6 +823,8 @@ Returns the node in the database if one exists that matches this one (matching
 is based on the getIdentifyingFields() method) undef if no match was found.
 
 =cut
+
+# XXXXXXXXXXXXXXX To be deprecated should be a nodebase method
 
 sub existingNodeMatches
 {

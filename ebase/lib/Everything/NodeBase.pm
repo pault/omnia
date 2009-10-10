@@ -710,7 +710,7 @@ sub store_new_node {
 
 	# Cache this node since it has been inserted.  This way the cached
 	# version will be the same as the node in the db.
-	$node->cache();
+	$this->{cache}->cacheNode( $node );
 
 	return $node_id;
 }
@@ -767,7 +767,7 @@ sub update_stored_node {
 	# Cache this node since it has been updated.  This way the cached
 	# version will be the same as the node in the db.
 	$this->{cache}->incrementGlobalVersion($node);
-	$node->cache();
+	$this->{cache}->cacheNode( $node );
 	$node->{modified} = $this->sqlSelect( $this->now() )
 		unless $nomodified;
 
@@ -1221,7 +1221,7 @@ sub getNode
 	if ( my $class = blessed( $NODE ) ) {
 	    my $nodetype_for_class =  $this->nodetype( $class );
 #	    $NODE->_type( $nodetype_for_class);
-	    $NODE->cache unless $cache;
+	    $this->{cache}->cacheNode( $NODE ) unless $cache;
 	    return $NODE;
 	}
 

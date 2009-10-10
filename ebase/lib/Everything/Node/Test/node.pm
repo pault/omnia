@@ -200,19 +200,20 @@ sub test_insert_restrict_dupes :Test( 4 )
 	my $node               = $self->{node};
 	my $db                 = $self->{mock_db};
 
+	$db->{cache} = $db;
 	$node->{node_id}       = 0;
 	$node->{type}          = $node;
 	$node->{restrictdupes} = 1;
 	$node->{type_nodetype} = 2;
 	$node->set_always( get_nodebase => $db );
 	$node->set_always( type => $node );
-	$node->set_true(qw( -hasAccess -restrictTitle -getId -cache));
+	$node->set_true(qw( -hasAccess -restrictTitle -getId ));
 
 	$db->set_series( sqlSelect => 1, 0 )
 	   ->set_always( -getFields => 'none' )
 	   ->set_always( -now => '' )
 	   ->set_series( -getNode => undef, { DB => $db } )
-	   ->set_true( 'sqlInsert' )
+	   ->set_true( 'sqlInsert', '-cacheNode' )
 	   ->set_always( -lastValue => 100 )
 	   ->set_always( -nodetype => $node )
 	   ->set_always( -get_storage => $db )
@@ -320,17 +321,16 @@ sub test_update :Test( 10 )
 	$db->{storage} = $db;
 
 	$node->set_true( -hasAccess )
-		 ->set_always( -type => $node )
-		 ->set_true( 'cache' );
+		 ->set_always( -type => $node );
 
-	$db->set_true(qw( incrementGlobalVersion sqlUpdate now sqlSelect update_or_insert))
+	$db->set_true(qw( cacheNode incrementGlobalVersion sqlUpdate now sqlSelect update_or_insert))
 	   ->set_series( getFields => 'boom', 'foom' )
            ->set_always( -retrieve_nodetype_tables  => [ 'table', 'table2' ] );
 
 	$node->update( 'user' );
 	is( $db->next_call(), 'incrementGlobalVersion',
 		'... incrementing global version in cache' );
-	is( $node->next_call(), 'cache', '... caching node' );
+	is( $db->next_call(), 'cacheNode', '... caching node' );
 
 	my $method = $db->next_call();
 	is( $db->next_call(), 'sqlSelect',

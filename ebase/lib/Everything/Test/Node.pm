@@ -1,5 +1,6 @@
 package Everything::Test::Node;
 
+use Everything;
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
@@ -8,10 +9,7 @@ use base 'Test::Class';
 use strict;
 use warnings;
 
-BEGIN {
-    Test::MockObject->fake_module('Everything::Util');
-    Test::MockObject->fake_module('XML::Dom');
-}
+
 
 sub module_class {
     my $self = shift;
@@ -147,35 +145,37 @@ sub test_update_hits : Test(1) {
 
 }
 
-sub test_select_links : Test(6) {
-    my $self     = shift;
-    my $instance = $self->{instance};
-    can_ok( $self->{class}, 'selectLinks' ) or return;
+# deprecated method - call from front end
+#
+# sub test_select_links : Test(6) {
+#     my $self     = shift;
+#     my $instance = $self->{instance};
+#     can_ok( $self->{class}, 'selectLinks' ) or return;
 
-    $instance->{node_id} = 11;
-    my $DB = $instance->{DB};
+#     $instance->{node_id} = 11;
+#     my $DB = $instance->{DB};
 
-    $DB->set_series( sqlSelectMany => undef, $DB )
-      ->set_series( fetchrow_hashref => 'bar', 'baz' )->set_true('finish')
-      ->clear();
+#     $DB->set_series( sqlSelectMany => undef, $DB )
+#       ->set_series( fetchrow_hashref => 'bar', 'baz' )->set_true('finish')
+#       ->clear();
 
-    my $result = $instance->selectLinks();
-    my ( $method, $args ) = $DB->next_call();
-    is( $method, 'sqlSelectMany',
-        'selectLinks() should select from the database' );
-    is( join( '-', ( @$args[ 1 .. 4 ], @{ $args->[5] } ) ),
-        "*-links-from_node=?--11", '... from links table for node_id' );
-    is( $result, undef, '... returning if that fails' );
+#     my $result = $instance->selectLinks();
+#     my ( $method, $args ) = $DB->next_call();
+#     is( $method, 'sqlSelectMany',
+#         'selectLinks() should select from the database' );
+#     is( join( '-', ( @$args[ 1 .. 4 ], @{ $args->[5] } ) ),
+#         "*-links-from_node=?--11", '... from links table for node_id' );
+#     is( $result, undef, '... returning if that fails' );
 
-    is_deeply(
-        $instance->selectLinks('order'),
-        [ 'bar', 'baz' ],
-        '... returning an array reference of results'
-    );
-    ( $method, $args ) = $DB->next_call();
-    like( $args->[4], qr/ORDER BY order/, '... respecting order parameter' );
+#     is_deeply(
+#         $instance->selectLinks('order'),
+#         [ 'bar', 'baz' ],
+#         '... returning an array reference of results'
+#     );
+#     ( $method, $args ) = $DB->next_call();
+#     like( $args->[4], qr/ORDER BY order/, '... respecting order parameter' );
 
-}
+# }
 
 sub test_get_tables : Test(1) {
     my $self = shift;
