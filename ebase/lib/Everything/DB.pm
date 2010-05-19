@@ -12,7 +12,6 @@ package Everything::DB;
 use strict;
 use warnings;
 
-use Everything::Node;
 use DBI;
 use Scalar::Util 'weaken';
 use Everything::DB::Node;

@@ -16,6 +16,7 @@ use File::Spec::Functions;
 use Scalar::Util qw( reftype blessed );
 
 use Everything::NodeBase::Cached;
+
 use Everything::DB::sqlite;
 
 sub node_class {
@@ -625,8 +626,6 @@ sub test_undo_access :Test()
 
 sub test_undo :Test( 27 )
 {
-	local *Everything::Node::node::ISA;
-	*Everything::Node::node::ISA = [];
 
 	my $self         = shift;
 	my $node         = $self->{node};

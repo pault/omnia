@@ -11,11 +11,13 @@ package Everything::NodeBase;
 use strict;
 use warnings;
 use Carp qw/cluck carp/;
+use Everything::Node::nodetype;
+use Everything::Node::node;
+use Everything::Node;
 
 use File::Spec;
 use Everything ();
 use Everything::DB;
-use Everything::Node;
 use Everything::NodeBase::Workspace;
 use Everything::NodeAccess;
 
@@ -51,6 +53,7 @@ BEGIN
 		*{ $method } = $sub;
 	}
 }
+
 
 =head2 C<new>
 

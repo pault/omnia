@@ -2,8 +2,7 @@ package Everything::Node::Parseable;
 
 use Moose::Role;
 
-with 'Everything::Node::Runnable' =>
-  { alias => { compile => '_super_compile' } };
+with 'Everything::Node::Runnable';
 
 =head1 <tokens_to_perl>
 
@@ -45,12 +44,12 @@ the parser before being compiled.
 
 =cut
 
-sub compile {
-    my ( $self, $text ) = @_;
+around  compile => sub {
+    my ($orig,  $self, $text ) = @_;
 
     my $code = $self->parse($text);
-    return $self->_super_compile($code);
-}
+    return $self->$orig($code);
+};
 
 sub basic_handler {
     my ($specific_cb) = @_;

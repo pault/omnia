@@ -14,7 +14,7 @@ has default_permissions => ( accessor => 'default_permissions', isa => 'HashRef'
 has usergroup => ( accessor => 'usergroup' );
 
 has nb => ( accessor => 'nb', isa => 'Everything::NodeBase' );
-has node => ( is =>'rw', weaken => 1  );
+has node => ( is =>'rw', weak_ref => 1  );
 
 sub has_access {
 

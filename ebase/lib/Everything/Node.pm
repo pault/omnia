@@ -23,6 +23,7 @@ use Everything ();
 use Everything::Util ();
 use XML::DOM;
 use Scalar::Util qw/blessed/;
+use Everything::Node::nodetype;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -846,10 +847,6 @@ sub existingNodeMatches
 	my $NODE = $nodebase->getNode( \%WHERE, $this->type );
 
 	return $NODE;
-}
-
-sub get_nodebase {
-    $_[0]->{DB};
 }
 
 sub type {
