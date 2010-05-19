@@ -53,7 +53,7 @@ sub BUILD {
         my $db_type     = $self->get_db_type || 'mysql';
         my $db_host     = $self->get_db_host || 'localhost';
         my $nb =
-          Everything::NodeBase->new( "$db_name:$db_user:$db_password:$db_host",
+          Everything::NodeBase::Cached->new( "$db_name:$db_user:$db_password:$db_host",
             1, $db_type )
           || Everything::Exception::NoNodeBase->throw(
 "Can't open a nodebase of type $db_type, called $db_name. User: $db_user, Password: $db_password"
@@ -94,7 +94,7 @@ use File::Path ();
 use File::Temp ();
 use Everything::XML qw/readTag xmlfile2node xml2node fixNodes/;
 use Everything::XML::Node;
-use Everything::NodeBase;
+use Everything::NodeBase::Cached;
 use SQL::Statement;
 use strict;
 use warnings;

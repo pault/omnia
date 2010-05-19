@@ -4,7 +4,6 @@ use AppConfig qw/ :argcount /;
 use File::Spec;
 use File::Basename;
 use Everything '$DB';
-use Everything::NodeBase;
 use Cwd qw/abs_path/;
 use Everything::Config::URLDeconstruct;
 use strict;

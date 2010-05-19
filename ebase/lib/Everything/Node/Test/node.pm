@@ -15,7 +15,7 @@ use File::Temp;
 use File::Spec::Functions;
 use Scalar::Util qw( reftype blessed );
 
-use Everything::NodeBase;
+use Everything::NodeBase::Cached;
 use Everything::DB::sqlite;
 
 sub node_class {
@@ -124,7 +124,7 @@ sub make_fixture :Test(setup)
 	my $self      = shift;
 	$self->make_test_db();
 
-	my $nb        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
+	my $nb        = Everything::NodeBase::Cached->new( $self->{test_db}, 1, 'sqlite' );
 	my $db        = Test::MockObject::Extends->new( $nb );
 	$self->reset_mock_node();
 
@@ -308,7 +308,7 @@ sub test_update_access :Test( 3 )
 	is( join( '-', @$args ), "$node-user-w", '... write access for user'  );
 }
 
-sub test_update :Test( 10 )
+sub test_update :Test( 8 )
 {
 	my $self = shift;
 	my $node = $self->{node};
@@ -317,7 +317,7 @@ sub test_update :Test( 10 )
 	$node->{type} = $node;
 	$node->{boom} = 88;
 	$node->{foom} = 99;
-	$db->{cache}  = $db;
+#	$db->{cache}  = $db;
 	$db->{storage} = $db;
 
 	$node->set_true( -hasAccess )
@@ -328,9 +328,10 @@ sub test_update :Test( 10 )
            ->set_always( -retrieve_nodetype_tables  => [ 'table', 'table2' ] );
 
 	$node->update( 'user' );
-	is( $db->next_call(), 'incrementGlobalVersion',
-		'... incrementing global version in cache' );
-	is( $db->next_call(), 'cacheNode', '... caching node' );
+## delete if cache change works
+#	is( $db->next_call(), 'incrementGlobalVersion',
+#		'... incrementing global version in cache' );
+#	is( $db->next_call(), 'cacheNode', '... caching node' );
 
 	my $method = $db->next_call();
 	is( $db->next_call(), 'sqlSelect',
@@ -856,6 +857,7 @@ sub test_nuke :Test( 26 )
 
 	( $method, $args ) = $db->next_call();
 	is( $method, 'sqlDelete', '... and deleting node revisions' );
+
 	is( join( '-', @$args[ 1, 2 ] ), 'revision-node_id = ?',
 		'... by id from revision' );
 	is_deeply( $args->[3], [89], '... with node_id' );
@@ -881,22 +883,23 @@ sub test_nuke :Test( 26 )
 	is( $method, 'getNode', '... fetching node' );
 	is( join( '-', @$args ), "$db-group", '... for containing group' );
 
-	is( $db->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
-
 	( $method, $args ) = $node->next_call( );
 	is( "$method @$args", "retrieve_nodetype_tables $node 999 1",
 		'... should fetch all tables for node' );
 
+	is( $db->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
 	( $method, $args ) = $db->next_call();
 	is( $method, 'sqlDelete', '... deleting node' );
 	is( join( '-', @$args[ 1, 2 ] ), 'deltable-deltable_id = ?',
 		'... from tables' );
 	is_deeply( $args->[3], ['id'], '... by node_id' );
-	is( $db->next_call(), 'incrementGlobalVersion',
+
+	is( $db->{cache}->next_call(), 'incrementGlobalVersion',
 		'... should mark node as updated in cache' );
 
 	( $method, $args ) = $db->next_call();
 	is( "$method @$args", "removeNode $db $node", '... uncaching it' );
+
 	is( $node->{node_id}, 0, '... should reset node_id' );
 	ok( $result, '... and return true' );
 }

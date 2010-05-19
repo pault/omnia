@@ -6,6 +6,7 @@ use warnings;
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
+use Everything::NodeBase::Cached;
 use Data::Dumper;
 use Scalar::Util qw/blessed/;
 use base 'Test::Class';

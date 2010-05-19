@@ -16,7 +16,6 @@ use File::Spec;
 use Everything ();
 use Everything::DB;
 use Everything::Node;
-use Everything::NodeCache;
 use Everything::NodeBase::Workspace;
 use Everything::NodeAccess;
 
@@ -24,6 +23,8 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 has storage => ( is => 'rw' );
+has dbname => ( is => 'rw' );
+has staticNodetypes => ( is => 'rw' );
 
 use Scalar::Util 'reftype', 'blessed';
 
@@ -75,8 +76,8 @@ the change to take.
 Returns a new NodeBase object
 
 =cut
-my $cache;
-sub new
+
+sub BUILDARGS
 {
 	my ( $class, $db, $staticNodetypes, $storage ) = @_;
 
@@ -85,15 +86,7 @@ sub new
 	$pass ||= '';
 	$host ||= 'localhost';
 
-	my $this                 = bless {}, $class;
-
-	if ( ! $cache ) {
-	    $cache = Everything::NodeCache->new( $this, 300 );
-	}
-
-	$this->{cache}           = $cache;
-	$this->{dbname}          = $dbname;
-	$this->{staticNodetypes} = $staticNodetypes ? 1 : 0;
+	$staticNodetypes = $staticNodetypes ? 1 : 0;
 
 	my $storage_class = 'Everything::DB::' . $storage;
 
@@ -101,30 +94,24 @@ sub new
 	$file .= '.pm';
 	require $file;
 
-	$this->{storage}  = $storage_class->new(
+	my $storage_object  = $storage_class->new(
 		dbname => $dbname,
-		nb    => $this,
 	);
 
-	$this->{storage}->databaseConnect( $dbname, $host, $user, $pass );
+	$storage_object->databaseConnect( $dbname, $host, $user, $pass );
+
+	return +{ storage => $storage_object, dbname => $dbname, staticNodetypes=> $staticNodetypes }
+    
+    }
+
+sub BUILD {
+
+        my $this = shift;
+
+	$this->get_storage->{nb} = $this;
+
 	$this->buildNodetypeModules();
 
-	if ( $this->getType('setting') )
-	{
-		my $CACHE     = $this->getNode( 'cache settings', 'setting' );
-		my $cacheSize = 300;
-
-		# Get the settings from the system
-		if ( defined $CACHE && $CACHE->isa( 'Everything::Node' ) )
-		{
-			my $vars = $CACHE->getVars();
-			$cacheSize = $vars->{maxSize} if exists $vars->{maxSize};
-		}
-
-		$this->{cache}->setCacheSize($cacheSize);
-	}
-
-	return $this;
 }
 
 
@@ -159,9 +146,6 @@ sub update_workspaced_node {
     $this->{workspace}{nodes}{ $node->{node_id} } = $revision;
     $this->{workspace}->setVars( $this->{workspace}{nodes} );
     $this->{workspace}->update($node, $USER);
-
-    # however, this does pollute the cache
-    $this->{cache}->removeNode($node);
 
     return $node->{node_id};
 }
@@ -541,40 +525,6 @@ sub loadNodetypeModule
 	return exists $INC{$modpath};
 }
 
-=head2 C<resetNodeCache>
-
-The node cache holds onto nodes after they have been loaded from the database.
-When a node is requested, it checks to see if it has the node in its cache.  If
-it does, the cache will see if the version of the node is the same as what is
-in the database.  This version check is done *once* to save hits to the
-database.  If you want the cache to recheck the versions, call this function.
-
-=cut
-
-sub resetNodeCache
-{
-	my ($this) = @_;
-
-	$this->{cache}->resetCache();
-}
-
-=head2 C<getCache>
-
-This returns the NodeCache object that we are using to cache nodes.  In
-general, you should never need to access the cache directly.  This is more for
-maintenance type stuff (you want to check the cache size, etc).
-
-Returns a reference to the NodeCache object
-
-=cut
-
-sub getCache
-{
-	my ($this) = @_;
-
-	return $this->{cache};
-}
-
 sub getNodeById
 {
 	my ( $this, $node_id, $selectop ) = @_;
@@ -708,10 +658,6 @@ sub store_new_node {
 	undef %$node;
 	@$node{ keys %$newNode } = values %$newNode;
 
-	# Cache this node since it has been inserted.  This way the cached
-	# version will be the same as the node in the db.
-	$this->{cache}->cacheNode( $node );
-
 	return $node_id;
 }
 
@@ -764,10 +710,6 @@ sub update_stored_node {
 		return $id if $id;
 	}
 
-	# Cache this node since it has been updated.  This way the cached
-	# version will be the same as the node in the db.
-	$this->{cache}->incrementGlobalVersion($node);
-	$this->{cache}->cacheNode( $node );
 	$node->{modified} = $this->sqlSelect( $this->now() )
 		unless $nomodified;
 
@@ -854,12 +796,6 @@ sub delete_stored_node {
 	{
 		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
 	}
-
-	# Now we can remove the nuked node from the cache so we don't get
-	# stale data.
-	$this->{cache}->incrementGlobalVersion($node);
-	$this->{cache}->removeNode($node);
-
 	# Clear out the node id so that we can tell this is a "non-existant" node.
 	$node->{node_id} = 0;
 
@@ -918,23 +854,6 @@ sub remove_from_groups {
 
 }
 
-sub retrieve_node_using_id_with_cache {
-
-    my ( $this, $node_id ) = @_;
-
-    my $node;
-
-    $node = $this->{cache}->getCachedNodeById($node_id);
-
-    return $node if $node;
-
-    $node = $this->retrieve_node_using_id( $node_id  );
-
-    return unless $node;
-
-    return $node;
-}
-
 sub retrieve_node_using_id {
 
     my ( $this, $node_id, $ext ) = @_;
@@ -950,15 +869,9 @@ sub retrieve_node_using_id {
 
 }
 
-sub retrieve_node_using_name_type_cache {
+sub retrieve_node_using_name_type {
 
     my ( $this, $name, $nodetype_title ) = @_;
-
-    my $node;
-
-    $node = $this->{cache}->getCachedNodeByName( $name, $nodetype_title );
-
-    return $node if $node;
 
     my $node_data = $this->get_storage->getNodeByName( $name, $nodetype_title );
 
@@ -1144,8 +1057,6 @@ sub getNode
 	my $NODE;
 
 	$ext2 ||= q{};
-	my $cache = q{};
-	$cache = "nocache" if ( defined $ext && $ext eq 'light' );
 
 	if ( ref $node eq 'HASH' )
 	{
@@ -1156,13 +1067,7 @@ sub getNode
 	}
 	elsif ( $node =~ /^\d+$/ )
 	{
-	    if ( ! $ext or $ext ne "force" )
-	      {
-		  $NODE = $this->retrieve_node_using_id_with_cache( $node );
-	      } else {
-		  $NODE = $this->retrieve_node_using_id( $node );
-	      }
-
+	    return $NODE = $this->retrieve_node_using_id( $node, $ext );
 	}
 	else
 	{
@@ -1178,54 +1083,54 @@ sub getNode
 		$type_node = $this->getNode( $ext );
 		$type_name = $type_node->get_title;
 	    } else {
-
 		$type_name = $ext;
 		$type_node = $this->getType( $ext );
 	    }
 
-
-	    if ( $ext2 ne 'create force' ) {
-
-		$NODE = $this->retrieve_node_using_name_type_cache( $node, $type_name );
-	    }
-
-	    if (   ( $ext2 eq "create force" )
-		   or ( $ext2 eq "create" && ( not defined $NODE ) ) )
+	    if (  $ext2 eq "create force"  )
 	      {
-
-		  my $class = "Everything::Node::$type_name";
-		  my $type_hash = $this->get_storage->nodetype_data_by_name( $type_name );
-		  my $type_id = $type_hash->{ node_id };
-		  # We need to create a dummy node for possible insertion!
-		  # Give the dummy node pemssions to inherit everything
-		  my $data = {
-			   node_id                  => -1,
-			   title                    => $node,
-			   type_nodetype            => $type_id,
-			   authoraccess             => 'iiii',
-			   groupaccess              => 'iiiii',
-			   otheraccess              => 'iiiii',
-			   guestaccess              => 'iiiii',
-			  };
-
-		  # We do not want to cache dummy nodes
-		  $NODE = $class->new( %$data, DB => $this, nodebase => $this );
-		  $NODE->set_access( $this->make_access( $NODE ) );
-		  $cache = "nocache";
+		  return $this->create_dummy_node( $node, $type_name );
 	      }
 
-	}
+	    $NODE = $this->retrieve_node_using_name_type( $node, $type_name );
 
-	return unless $NODE;
+	    if ( (not defined $NODE) && ( $ext2 eq 'create') ) {
+		$NODE = $this->create_dummy_node( $node, $type_name );
 
-	if ( my $class = blessed( $NODE ) ) {
-	    my $nodetype_for_class =  $this->nodetype( $class );
-#	    $NODE->_type( $nodetype_for_class);
-	    $this->{cache}->cacheNode( $NODE ) unless $cache;
+		return $NODE;
+
+	    }
+
 	    return $NODE;
-	}
 
-	return;
+	}
+    }
+
+sub create_dummy_node {
+    my ( $this, $node, $type_name ) = @_;
+
+    my $class     = "Everything::Node::$type_name";
+    my $type_hash = $this->get_storage->nodetype_data_by_name($type_name);
+    my $type_id   = $type_hash->{node_id};
+    my $NODE;
+
+    # We need to create a dummy node for possible insertion!
+    # Give the dummy node pemssions to inherit everything
+    my $data = {
+        node_id       => -1,
+        title         => $node,
+        type_nodetype => $type_id,
+        authoraccess  => 'iiii',
+        groupaccess   => 'iiiii',
+        otheraccess   => 'iiiii',
+        guestaccess   => 'iiiii',
+    };
+
+    $NODE = $class->new( %$data, DB => $this, nodebase => $this );
+    $NODE->set_access( $this->make_access($NODE) );
+
+    return $NODE;
+
 }
 
 =head2 C<getNodeZero>

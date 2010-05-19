@@ -14,7 +14,7 @@ my $exited;
 
 BEGIN {
     *CORE::GLOBAL::exit = sub { $exited++ };
-    Test::MockObject->fake_module('Everything::NodeBase');
+    Test::MockObject->fake_module('Everything::NodeBase::Cached');
 
 }
 
@@ -108,8 +108,8 @@ sub test_make_nodebase : Test(5) {
 
     my @new_args;
     my $new_returns = $mock;
-    local *Everything::NodeBase::new;
-    *Everything::NodeBase::new = sub { @new_args = @_; return $new_returns };
+    local *Everything::NodeBase::Cached::new;
+    *Everything::NodeBase::Cached::new = sub { @new_args = @_; return $new_returns };
 
     my $test_code = \&{ $self->{class} . '::make_nodebase' };
     my $opts      = {
@@ -124,7 +124,7 @@ sub test_make_nodebase : Test(5) {
     is_deeply(
         \@new_args,
         [
-            'Everything::NodeBase', "dbname:dbuser:dbpassword:dbhost",
+            'Everything::NodeBase::Cached', "dbname:dbuser:dbpassword:dbhost",
             1,                      'dbtype'
         ],
         '...args are handled properly.'
@@ -135,7 +135,7 @@ sub test_make_nodebase : Test(5) {
     $rv = $test_code->($opts);
     is_deeply(
         \@new_args,
-        [ 'Everything::NodeBase', "dbname:$ENV{USER}::localhost", 1, 'sqlite' ],
+        [ 'Everything::NodeBase::Cached', "dbname:$ENV{USER}::localhost", 1, 'sqlite' ],
         '...defaults are set.'
     );
 

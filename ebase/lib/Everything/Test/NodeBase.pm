@@ -61,7 +61,7 @@ sub reset_mock_nb
 	local *Everything::NodeBase::getType;
 	*Everything::NodeBase::getType = sub {}; # so we don't load settings
 
-	my $nb      = $module->new( '', 0, 'fake_db' );
+	my $nb      = $module->new( 'fake_db_name:', 0, 'fake_db' );
 
 	$self->{nb} = Test::MockObject::Extends->new( $nb );
 }
@@ -366,29 +366,6 @@ sub test_load_nodetype_module :Test( 3 )
 		'... but false if it cannot' );
 }
 
-sub test_reset_node_cache :Test( 1 )
-{
-	my $self    = shift;
-	my $nb      = $self->{nb};
-	my $storage = $self->{storage};
-
-	$storage->set_true( 'resetCache' );
-	$nb->{cache} = $storage;
-
-	$nb->resetNodeCache();
-	is( $storage->next_call(), 'resetCache',
-		'resetNodeCache() should call resetCache() on cache' );
-}
-
-sub test_get_cache :Test( 1 )
-{
-	my $self     = shift;
-	my $nb       = $self->{nb};
-	$nb->{cache} = 'cache';
-
-	is( $nb->getCache(), 'cache', 'getCache() should return cache' );
-}
-
 sub test_get_node_by_id :Test( 2 )
 {
 	my $self     = shift;
@@ -431,7 +408,7 @@ sub test_new_node :Test( 6 )
 		'... using a dummy title without one provided' );
 }
 
-sub test_get_node :Test( 6 )
+sub test_get_node :Test( 12 )
 {
 	my $self = shift;
 	my $nb   = $self->{nb};
@@ -473,6 +450,27 @@ sub test_get_node :Test( 6 )
 	$s->clear;
 	$s->set_always( getNodeByName => { node => 1, node_id => 77 } );
 	is ( $nb->getNode( 'a node' ), undef, '...returns undef if nodetype not defined.');
+
+	## Test create force
+
+	$s->set_always( nodetype_data_by_name => { node_id => 99 } );
+
+	ok( my $nn = $nb->getNode('new node', 'nodetype', 'create force' ), 'Create a node with create force.' );
+
+	is ($$nn{type_nodetype}, 99, '...correct nodetype.');
+
+	is ($$nn{title}, 'new node', '...correct title.');
+
+	## Test create
+
+	$s->set_always( nodetype_data_by_name => { node_id => 101 } );
+	$nb->set_always( retrieve_node_using_name_type => undef );
+
+	ok( $nn = $nb->getNode('new node if not already exist', 'nodetype', 'create' ), 'Create a non-existing node with create.' );
+
+	is ($$nn{type_nodetype}, 101, '...correct nodetype.');
+
+	is ($$nn{title}, 'new node if not already exist', '...correct title.')
 
 	# XXX: improve coverage here
 }
@@ -1012,7 +1010,7 @@ sub test_log_revision :Test( 13 )
 	is( $node->next_call(), 'toXML', '... XMLifying node for workspace' );
 }
 
-sub test_update_workspaced :Test( 8 )
+sub test_update_workspaced :Test( 7 )
 {
 	my $self = shift;
 	my $node = Test::MockObject->new;
@@ -1027,7 +1025,7 @@ sub test_update_workspaced :Test( 8 )
 		'update_workspaced_node() should return false unless node can workspace' );
 
 	$db->{workspace} = $node;
-	$db->{cache}     = $node;
+#	$db->{cache}     = $node;
 	$node->{node_id} = 41;
 	my $result       = $db->update_workspaced_node( $node, 'user' );
 
@@ -1042,9 +1040,6 @@ sub test_update_workspaced :Test( 8 )
 	( $method, $args ) = $node->next_call();
 	is( "$method @$args", "update $node $node user", '... updating workspace node' );
 
-	( $method, $args ) = $node->next_call();
-	is( "$method $args->[1]", "removeNode $node",
-		'... removing node from cache' );
 	is( $result, 41, '... and should return node_id' );
 }
 

@@ -1,7 +1,7 @@
 package Everything::Install;
 
 use Everything::CmdLine qw/abs_path/;
-use Everything::NodeBase;
+use Everything::NodeBase::Cached;
 use Template;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
@@ -31,7 +31,7 @@ sub create_storage {
 
     $storage->install_base_nodes;
 
-    my $nb = Everything::NodeBase->new(
+    my $nb = Everything::NodeBase::Cached->new(
         join( ':',
             $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host} ),
         1,

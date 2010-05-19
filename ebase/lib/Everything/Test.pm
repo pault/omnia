@@ -11,6 +11,7 @@ use IO::File;
 use SUPER;
 use strict;
 use warnings;
+require Everything;
 
 BEGIN {
 

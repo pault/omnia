@@ -132,7 +132,7 @@ sub test_insert :Test( +4 )
 	$self->SUPER::test_insert();
 	delete $node->{extends_nodetype};
 	$node->{DB} = $db;
-	$node->set_true( 'SUPER' );
+	$node->set_true( 'SUPER', 'cacheNode' );
 
 	$db->set_series( getType => map { { node_id => $_ } } ( 11, 12, 11 ) );
 

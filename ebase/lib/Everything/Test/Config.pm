@@ -15,7 +15,7 @@ my @args;
 sub startup :Test(startup => +0) {
     my $self = shift;
     my $mock = Test::MockObject->new;
-    $mock->fake_module('Everything::NodeBase', new => sub { @args = @_ } );
+    $mock->fake_module('Everything::NodeBase::Cached', new => sub { @args = @_ } );
     $self->{mock}=$mock;
     $self->SUPER;
 

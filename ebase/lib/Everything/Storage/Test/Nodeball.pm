@@ -186,7 +186,7 @@ sub test_new_params : Test(9) {
     is(
         $args,
         join( ' ',
-            'Everything::NodeBase', join( ':', @db_args[ 0 .. 3 ] ),
+            'Everything::NodeBase::Cached', join( ':', @db_args[ 0 .. 3 ] ),
             1,                      $db_args[4] ),
         '...nodebase is instantiated with the correct arguments.'
     );

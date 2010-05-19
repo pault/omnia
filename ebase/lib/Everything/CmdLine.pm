@@ -1,6 +1,7 @@
 package Everything::CmdLine;
 
 use Everything::Config;
+use Everything::NodeBase::Cached;
 use Getopt::Long;
 use Term::ReadKey;
 use Cwd;
@@ -95,7 +96,7 @@ sub make_nodebase {
     $$opts{host} ||= 'localhost';
 
     my $nb =
-      Everything::NodeBase->new(
+      Everything::NodeBase::Cached->new(
         "$$opts{database}:$$opts{user}:$$opts{password}:$$opts{host}",
         1, $$opts{type} );
     croak

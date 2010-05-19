@@ -278,7 +278,7 @@ sub sqlSelectMany
 	$sql .= "WHERE $where "                             if $where;
 	$sql .= $other                                      if $other;
 
-	my $cursor = $this->{dbh}->prepare($sql) or return;
+	my $cursor = $this->{dbh}->prepare($sql) or do { warn "WARNING SQL FAILED: $sql"; return; };
 
 	return $cursor if $cursor->execute(@$bound);
 	return;

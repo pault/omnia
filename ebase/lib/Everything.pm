@@ -18,6 +18,7 @@ use strict;
 use DBI;
 use Scalar::Util 'reftype';
 use Everything::NodeBase;
+use Everything::NodeBase::Cached;
 use IO::Interactive qw/is_interactive/;
 use Carp;
 
@@ -294,7 +295,7 @@ sub initEverything
 	eval
 	{
 		require $module;
-		$DB = Everything::NodeBase->new(
+		$DB = Everything::NodeBase::Cached->new(
 			$db, $options->{staticNodetypes}, $dbtype
 		);
 	};

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Everything::NodeBase;
+use Everything::NodeBase::Cached;
 use Everything::Storage::Nodeball;
 use Everything::XML::Node;
 use Everything::CmdLine qw/get_options usage_options/;
@@ -17,7 +17,7 @@ usage_options("\nUsage:\n\n\t$0 [options] <nodeball title> [filepath]\n\nThe <no
 
 $$opts{type} ||= 'sqlite';
 my $nodebase_string =  join ':', $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host};
-my $nb = Everything::NodeBase->new(
+my $nb = Everything::NodeBase::Cached->new(
     $nodebase_string,
     1, $$opts{type}
 );

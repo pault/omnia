@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 
-use Everything::NodeBase;
 use Everything::Storage::Nodeball;
 use Everything::XML::Node;
 use Everything::CmdLine qw/get_options usage_options make_nodebase/;

@@ -46,7 +46,7 @@ sub make_fixture :Test(setup => 7)
 	my $self      = shift;
 	$self->make_test_db();
 
-	my $nb        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
+	my $nb        = Everything::NodeBase::Cached->new( $self->{test_db}, 1, 'sqlite' );
 	my $db        = Test::MockObject::Extends->new( $nb );
 
 
@@ -81,7 +81,7 @@ sub reset_mock_node
 
 	## reset nb and force it to do another 'new'
 
-	$db        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
+	$db        = Everything::NodeBase::Cached->new( $self->{test_db}, 1, 'sqlite' );
 
 	ok (my $nodeinstance =  $db->getNode('dbnode', 'extendednode', 'create force'));
 	isa_ok($nodeinstance, 'Everything::Node::node');
@@ -95,7 +95,7 @@ sub reset_mock_node
 
 	## teardown $db again.
 
-	$db        = Everything::NodeBase->new( $self->{test_db}, 1, 'sqlite' );
+	$db        = Everything::NodeBase::Cached->new( $self->{test_db}, 1, 'sqlite' );
 
 	### can we create a moreextendednode instance?
 	my $newnewnode  = $db->getNode('blahblahblah', 'moreextendednode', 'create force');
