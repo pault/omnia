@@ -9,6 +9,7 @@ use Apache::TestUtil;
 use Test::WWW::Mechanize;
 use File::Temp;
 use File::Copy;
+use List::Util qw/max/;
 use Apache2::Const ':common';
 use IO::File;
 use DBTestUtil qw(config_file nodebase skip_cond);
@@ -68,7 +69,7 @@ APACHECONF
       grep { /.*apache.*$conf_file/ } map { $_->cmndline } @{ $table->table };
 
     plan
-      tests => 27,
+      tests => 29,
       need {
         "Correct apache process must be running." => sub { $flag }
       };
@@ -89,6 +90,13 @@ APACHECONF
 
     $response = GET '/?node_id=1';
     ok( $response->is_success, '...if we ask for node 1, get OK response.' );
+
+    my $ids = $nb->get_storage->selectNodeWhere();
+    my $top_id = max @$ids;
+    $top_id++;
+
+    $mech->get_ok(  "/?node_id=$top_id", "Even a node that doesn't exist returns OK." );
+    $mech->title_is ( 'Not found', "...and sends us to the 'Not found' node.");
 
 ## XXX: Hmmm, should return NOT AUTHORISED
     $response = GET '/node/1';

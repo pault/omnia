@@ -572,6 +572,8 @@ sub getNodeByIdNew
 	$NODE = $cursor->fetchrow_hashref();
 	$cursor->finish();
 
+	return unless $NODE;
+
 	if ( $selectop ne "light" )
 	  {
 
@@ -701,6 +703,9 @@ passed in will now be a complete node.
 sub constructNode
 {
     my ( $this, $NODE ) = @_;
+
+    return unless $NODE;
+
     my $constructor;
 
     $constructor = Everything::DB::Node->instantiate( db => $this, data =>  $NODE );

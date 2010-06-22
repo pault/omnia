@@ -514,7 +514,7 @@ sub test_sql_execute : Test(2) {
 
 }
 
-sub test_get_node_by_id_new : Test(5) {
+sub test_get_node_by_id_new : Test(6) {
     my $self = shift;
 
     $self->fake_nodecache_reset();
@@ -544,9 +544,13 @@ sub test_get_node_by_id_new : Test(5) {
     ## here it calls fetchrow_hashref directly on the cursor, is this
     ## the best way to do it?
     is( $rv->{title}, 'wow', '... and gets a node (we hope)' );
+
+    $dbh->mock( fetchrow_hashref => sub {} );
+
+    is( $db->getNodeByIdNew(2), undef, '...returns undefined when no db matches.');
 }
 
-sub test_construct_node : Test(5) {
+sub test_construct_node : Test(6) {
 
     ## The purpose of this is to fill out a node object that is a mere
     ## skeleton having been constructed from the node table. Hence, it
@@ -561,6 +565,9 @@ sub test_construct_node : Test(5) {
 
     my $node = { type_nodetype => 99, node_id => 100 };
     @tablearray = ();
+
+    is( $db->constructNode( undef ), undef, '...returns undef if argument is undef');
+
     is( $db->constructNode($node),
         undef, 'constructNode returns undef if no tables are available' );
     $self->{instance}->{dbh}->clear;
