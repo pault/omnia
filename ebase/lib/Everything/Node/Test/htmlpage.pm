@@ -63,8 +63,8 @@ sub test_make_html : Test(3) {
   $mock->set_series('isGod', 0, 1);
 
   $mock->mock( formatGodsBacksideErrors => sub { "some errors" } );
-  local *Everything::HTML::printBacksideToLogFile;
-  *Everything::HTML::printBacksideToLogFile = sub { 1 };
+  local *Everything::printBacksideToLogFile;
+  *Everything::printBacksideToLogFile = sub { 1 };
 
 
   is($instance->make_html( $mock, $mock ), 'some htmlpage html ', '...creates html with no errors' );

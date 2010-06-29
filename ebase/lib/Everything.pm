@@ -196,6 +196,62 @@ sub clearLog
 
 =cut
 
+=head2 C<format_errors>
+
+Takes an array of errors as supplied by Everything::backsideErrors and
+formats them for printing.
+
+=cut
+
+sub format_errors{
+
+    my ($errors) = @_;
+
+    my $str = q{};
+
+    foreach my $error (@$errors) {
+        $str .= "-=-=-=-=-=-=-=-=-=-=-=-\n";
+        $str .= "Warning:   $$error{warning}\n";
+        $str .= "Error:     $$error{error}\n";
+        $str .= "From node: $$error{context}{title} ";
+        $str .= "$$error{context}{node_id}\n";
+        $str .= "Code:\n";
+        $str .= "$$error{code}\n";
+    }
+
+    $str .= "-=-=-=-=-=-=-=-=-=-=-=-\n";
+
+    return $str;
+}
+
+
+=head2 C<printBacksideToLogFile>
+
+This formats any errors that we may have in our "cache" so that they'll appear
+nicely in the log.  Normal users can't see them.
+
+Returns nothing of value.
+
+=cut
+
+sub printBacksideToLogFile {
+    my $self = shift;
+    Everything::flushErrorsToBackside();
+
+    my $errors = Everything::getBacksideErrors();
+    my $str;
+
+    return "" unless ( @$errors > 0 );
+
+    $str = "\n>>> Backside Errors!\n";
+
+    $str .= format_errors( $errors );
+
+    Everything::printLog($str);
+}
+
+=cut
+
 
 
 =head2 C<cleanLinks>

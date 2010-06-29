@@ -52,7 +52,7 @@ sub make_html {
         $errors = $ehtml->formatGodsBacksideErrors();
     }
     else {
-        Everything::HTML::printBacksideToLogFile();
+        Everything::printBacksideToLogFile();
     }
     $page =~ s/<BacksideErrors>/$errors/;
 

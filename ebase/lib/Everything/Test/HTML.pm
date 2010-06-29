@@ -471,14 +471,6 @@ sub test_format_gods_backside_errors : Test(1) {
 
 }
 
-sub test_print_backside_tologfile : Test(1) {
-    my $self    = shift;
-    my $package = $self->{class};
-
-    can_ok( $package, 'printBacksideToLogFile' );
-
-}
-
 sub test_htmlsnippet : Test(3) {
     my $self    = shift;
     my $package = $self->{class};

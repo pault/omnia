@@ -323,6 +323,14 @@ sub test_logErrors : Test(7) {
     );
 }
 
+sub test_print_backside_tologfile : Test(1) {
+    my $self    = shift;
+    my $package = $self->{class};
+
+    can_ok( $package, 'printBacksideToLogFile' );
+
+}
+
 sub test_flushErrorsToBackside : Test(4) {
     my $self = shift;
     no strict 'refs';

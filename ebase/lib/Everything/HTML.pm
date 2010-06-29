@@ -959,17 +959,11 @@ sub execute_coderef {
     my ( $code_ref, $field, $CURRENTNODE, $args ) = @_;
     my $warn;
 
-     local $SIG{__WARN__} = sub {
-         $warn .= $_[0] unless $_[0] =~ /^Use of uninitialized value/;
-     };
-
     Everything::flushErrorsToBackside();
 
     my ($ehtml) = @$args; #E::H object should be first one on array
     $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
     my $result = eval { $code_ref->( @$args ) } || '';
-
-    local $SIG{__WARN__} = sub { };
 
     Everything::logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
       if $warn or $@;
@@ -977,7 +971,13 @@ sub execute_coderef {
     my $errors = Everything::getFrontsideErrors();
 
     if ( int(@$errors) > 0 ) {
-        $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
+	if ( $ehtml ) {
+	    $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
+	} else {
+	    my $formatted = Everything::format_errors( $errors );
+	    Everything::printLog( $formatted );
+	}
+
     }
     Everything::clearFrontside();
 
@@ -1461,43 +1461,6 @@ sub formatGodsBacksideErrors {
     $str .= "</table>\n";
 
     return $str;
-}
-
-=cut
-
-
-=head2 C<printBacksideToLogFile>
-
-This formats any errors that we may have in our "cache" so that they'll appear
-nicely in the log.  Normal users can't see them.
-
-Returns nothing of value.
-
-=cut
-
-sub printBacksideToLogFile {
-    my $self = shift;
-    Everything::flushErrorsToBackside();
-
-    my $errors = Everything::getBacksideErrors();
-    my $str;
-
-    return "" unless ( @$errors > 0 );
-
-    $str = "\n>>> Backside Errors!\n";
-    foreach my $error (@$errors) {
-        $str .= "-=-=-=-=-=-=-=-=-=-=-=-\n";
-        $str .= "Warning:   $$error{warning}\n";
-        $str .= "Error:     $$error{error}\n";
-        $str .= "From node: $$error{context}{title} ";
-        $str .= "$$error{context}{node_id}\n";
-        $str .= "Code:\n";
-        $str .= "$$error{code}\n";
-    }
-
-    $str .= "-=-=-=-=-=-=-=-=-=-=-=-\n";
-
-    Everything::printLog($str);
 }
 
 =cut
