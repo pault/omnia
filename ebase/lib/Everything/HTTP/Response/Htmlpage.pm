@@ -8,7 +8,7 @@ use warnings;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->follow_best_practice;
 __PACKAGE__->mk_accessors(
-    qw/http_header http_body request htmlpage theme allowed redirect config/);
+    qw/headers http_body request htmlpage theme allowed redirect config/);
 
 ### because this is called from a Class::Factory object new is not
 ### called except by us.
@@ -21,8 +21,16 @@ sub new {
 
 sub init {
     my ( $self, $args ) = @_;
-    $self->set_request( $args->{request} );
+    my $request = $self->set_request( $args->{request} );
     $self->set_config( $args->{config} );
+    $self->set_headers( {} );
+    my $cache_control = 'private';
+    if ( $request->get_user->get_node_id ==
+        $request->get_system_vars->{guest_user} )
+    {
+        $cache_control = 'public';
+    }
+    $self->add_header( 'Cache-Control', $cache_control );
     $self->select_htmlpage;
     return $self;
 
@@ -68,7 +76,14 @@ The headers other than Content-Type
 
 sub headers {
 
-    ();
+    %{ $_[0]->get_headers };
+
+}
+
+sub add_header {
+
+    my ( $self, $header, $value ) = @_;
+    $self->get_headers->{$header} = $value;
 
 }
 

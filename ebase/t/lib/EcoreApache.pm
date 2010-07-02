@@ -69,7 +69,7 @@ APACHECONF
       grep { /.*apache.*$conf_file/ } map { $_->cmndline } @{ $table->table };
 
     plan
-      tests => 29,
+      tests => 31,
       need {
         "Correct apache process must be running." => sub { $flag }
       };
@@ -84,6 +84,9 @@ APACHECONF
     my $response = GET '/';
 
     $mech->get_ok( $base . '/', 'Root directory should return OK.' );
+    $response = $mech->response;
+    is( $response->header('Cache-Control'),
+        'public', '...with Cache-Control set to "public"' );
 
     $response = GET '/nonsense/url';
     ok( $response->code == NOT_FOUND, "We can't go to a non-existing url." );
@@ -119,7 +122,11 @@ APACHECONF
         '... reports we are logged in.' )
       || diag $mech->content;
 
-### Now we're roont let's go to a forbidden
+    $response = $mech->response;
+    is( $response->header('Cache-Control'),
+        'private', '...and that Cache-Control is set to "private"' );
+
+### Now we're root let's go to a forbidden node
 
     $mech->get_ok( "$base/node/1", 'Now, we go to node 1.' );
     $mech->title_is( 'nodetype', '...which reports the correct title. ' );

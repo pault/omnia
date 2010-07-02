@@ -27,14 +27,18 @@ sub startup : Test(startup=>2) {
     $mock->set_always( getNode => $mock );
     $mock->set_true( 'set_theme', 'param', 'get_type_nodetype' );
     $mock->set_always( 'get_user_vars' => {} );
+    $mock->set_always( 'get_system_vars' => { guest_user => 1 } );
     $mock->set_always( '-get_theme',    $mock );
     $mock->set_always( '-get_node',     $mock );
+    $mock->set_always( '-get_user',     $mock );
     $mock->set_always( '-get_nodebase', $mock );
     $mock->set_always( '-get_cgi',      $mock );
     $mock->set_always( 'getType',       $mock );
+    $mock->set_always( 'get_node_id',   2 );
     $mock->{title} = 'a title';
     $self->{mock}  = $mock;
-    isa_ok( $self->{instance} = $self->{class}->new( { request => $mock } ), $self->{class} );
+    isa_ok( $self->{instance} = $self->{class}->new( { request => $mock } ),
+        $self->{class} );
 
 }
 
