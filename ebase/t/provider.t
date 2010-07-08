@@ -1,5 +1,5 @@
 use Everything::Template::Provider;
-use Everything::NodeBase;
+use Everything::NodeBase::Cached;
 use Carp;
 use Data::Dumper;
 
