@@ -759,9 +759,7 @@ sub base_tables {
   "author_user" bigint,
   "createtime" timestamp NOT NULL,
   "modified" timestamp,
-  "hits" bigint,
   "loc_location" bigint,
-  "reputation" bigint,
   "lockedby_user" bigint,
   "locktime" timestamp,
   "authoraccess" character(4) DEFAULT 'iiii' NOT NULL,
@@ -774,6 +772,18 @@ sub base_tables {
   "dynamicguest_permission" bigint,
   "group_usergroup" bigint,
   PRIMARY KEY ("node_id")
+)},
+        q{ CREATE TABLE "node_statistics_type" (
+           "type_name" varchar(255) NOT NULL,
+           "description" text,
+           "node_statistics_type_pk" bigserial UNIQUE NOT NULL,
+          PRIMARY KEY ("node_statistics_type_pk")
+)},
+	q{ CREATE TABLE "node_statistics" (
+           type bigint REFERENCES node_statistics_type(node_statistics_type_pk) ON DELETE RESTRICT,
+           node bigint REFERENCES node(node_id) ON DELETE CASCADE,
+           value bigint NOT NULL,
+           PRIMARY KEY( type, node )
 )},
         q{CREATE INDEX "title" on node ("title", "type_nodetype")},
         q{CREATE INDEX "author" on node ("author_user")},
@@ -801,20 +811,44 @@ sub base_tables {
         q{CREATE TABLE version (
   version_id INTEGER  PRIMARY KEY DEFAULT '0' NOT NULL,
   version INTEGER DEFAULT '1' NOT NULL
-)}
+)},
+q{CREATE TABLE "revision" (
+  "node_id" bigint NOT NULL REFERENCES node(node_id) ON DELETE CASCADE,
+  "inside_workspace" bigint DEFAULT '0' NOT NULL,
+  "revision_id" bigint DEFAULT '0' NOT NULL,
+  "xml" text NOT NULL,
+  "tstamp" timestamp(6),
+  PRIMARY KEY ("node_id", "inside_workspace", "revision_id")
+)
+},
+q{CREATE TABLE "links" (
+  "from_node" bigint NOT NULL REFERENCES node(node_id) ON DELETE RESTRICT,
+  "to_node" bigint NOT NULL REFERENCES node(node_id) ON DELETE RESTRICT,
+  "linktype" bigint DEFAULT '0' NOT NULL,
+  "hits" bigint DEFAULT '0',
+  "food" bigint DEFAULT '0',
+  PRIMARY KEY ("from_node", "to_node", "linktype")
+)
+},
+q{CREATE TABLE "typeversion" (
+  "typeversion_id" bigint DEFAULT '0' NOT NULL,
+  "version" bigint DEFAULT '0' NOT NULL,
+  PRIMARY KEY ("typeversion_id")
+)},
     );
 }
 
 sub base_nodes {
 
     return (
-q{INSERT INTO node VALUES (1,1,'nodetype',-1,'-infinity','-infinity',0,0,0,0, '-infinity','iiii','rwxdc','-----','-----',0,0,0,0,0)},
-q{INSERT INTO node VALUES (2,1,'node',-1,'-infinity','-infinity',0,0,0,0,'-infinity','rwxd','-----','-----','-----',-1,-1,-1,-1,0)},
-q{INSERT INTO node VALUES (3,1,'setting',-1,'-infinity','-infinity',0,0,0,0,'-infinity','rwxd','-----','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node VALUES (1,1,'nodetype',-1,'-infinity','-infinity',0,0, '-infinity','iiii','rwxdc','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node VALUES (2,1,'node',-1,'-infinity','-infinity',0,0,'-infinity','rwxd','-----','-----','-----',-1,-1,-1,-1,0)},
+q{INSERT INTO node VALUES (3,1,'setting',-1,'-infinity','-infinity',0,0,'-infinity','rwxd','-----','-----','-----',0,0,0,0,0)},
 q{INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','rwxdc','-----','-----',0,0,0,0,0,-1,0)},
 q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,0,0,0,1000,1)},
 q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,-1,-1)},
-
+q{INSERT INTO node_statistics_type VALUES ('hits', 'A value that represents how many times a node has been accessed.')},
+q{INSERT INTO node_statistics_type VALUES ('reputation', 'A value that represents the value of a node to the users.')},
       )
 
 }

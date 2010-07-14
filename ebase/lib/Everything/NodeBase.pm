@@ -624,7 +624,6 @@ sub store_new_node {
 	# Assign the author_user to whoever is trying to insert this.
 	# Unless, an author has already been specified.
 	$tableData{author_user} ||= $user_id;
-	$tableData{hits} = 0;
 
 	$this->sqlInsert( 'node', \%tableData );
 
@@ -794,11 +793,9 @@ sub delete_stored_node {
 	$this->remove_from_groups( $node );
 
 	# Actually remove this node from the database.
-	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
-	foreach my $table (@$tableArray)
-	{
-		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
-	}
+
+	$result = $this->get_storage->purge_node_data( $node );
+
 	# Clear out the node id so that we can tell this is a "non-existant" node.
 	$node->{node_id} = 0;
 

@@ -548,9 +548,7 @@ sub base_tables {
   author_user int(11),
   createtime datetime,
   modified datetime,
-  hits int(11),
   loc_location int(11),
-  reputation int(11),
   lockedby_user int(11),
   locktime datetime,
   authoraccess char(4) DEFAULT 'iiii' NOT NULL,
@@ -597,7 +595,47 @@ sub base_tables {
   version_id int(11) DEFAULT '0' NOT NULL,
   version int(11) DEFAULT '1' NOT NULL,
   PRIMARY KEY (version_id)
-) ENGINE=INNODB}
+) ENGINE=INNODB},
+        q{ CREATE TABLE node_statistics_type (
+           type_name varchar(255) NOT NULL,
+           description text,
+           node_statistics_type_pk INT NOT NULL AUTO_INCREMENT,
+          PRIMARY KEY (node_statistics_type_pk)
+)  ENGINE=INNODB},
+	q{ CREATE TABLE node_statistics (
+           type INT NOT NULL,
+           node int(11) NOT NULL,
+           value bigint NOT NULL,
+           FOREIGN KEY (type) REFERENCES node_statistics_type(node_statistics_type_pk) ON DELETE RESTRICT,
+           FOREIGN KEY(node) REFERENCES node(node_id) ON DELETE CASCADE,
+           PRIMARY KEY( type, node )
+) ENGINE=INNODB},
+q{ CREATE TABLE revision (
+  node_id int(11) NOT NULL,
+  inside_workspace int(11) DEFAULT '0' NOT NULL,
+  revision_id int(11) DEFAULT '0' NOT NULL,
+  xml text NOT NULL,
+  tstamp timestamp(14),
+  FOREIGN KEY (node_id) REFERENCES node(node_id) ON DELETE CASCADE, 
+  PRIMARY KEY (node_id,inside_workspace,revision_id)
+) ENGINE=INNODB},
+
+q{CREATE TABLE links (
+  from_node int(11) NOT NULL,
+  to_node int(11) NOT NULL,
+  linktype int(11),
+  hits int(11),
+  food int(11),
+  FOREIGN KEY (from_node) REFERENCES node(node_id) ON DELETE RESTRICT,
+  FOREIGN KEY (to_node) REFERENCES node(node_id) ON DELETE RESTRICT,
+  PRIMARY KEY (from_node,to_node,linktype)
+)},
+q{CREATE TABLE typeversion (
+  typeversion_id int(11) DEFAULT '0' NOT NULL,
+  version int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (typeversion_id)
+)},
+
       )
 
 }

@@ -76,7 +76,7 @@ sub test_10_sql_tables : Test(1) {
 
     my %expected_tables =
       map { $_ => 1 }
-      qw/version mail image container node symlink nodemethod nodetype typeversion nodelet revision workspace htmlcode themesetting htmlpage nodegroup javascript setting document user links/;
+      qw/version mail image container node symlink nodemethod nodetype typeversion nodelet revision workspace htmlcode themesetting htmlpage nodegroup javascript setting document user links node_statistics node_statistics_type/;
 
     $self->{installer}->install_sql_tables;
     my %actual_tables = map { $_ => 1 } $self->{nb}->{storage}->list_tables;

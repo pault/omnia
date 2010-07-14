@@ -52,6 +52,22 @@ sub databaseConnect
 
 }
 
+=head2 purge_node_data
+
+Removes all the data related to a node.  Passed a node object as its argument.
+
+=cut
+
+sub purge_node_data {
+
+    my ( $self, $node ) = @_;
+
+    $self->sqlDelete( 'node_statistics', 'node = ?', [ $node->getId ] );
+
+    return $self->SUPER::purge_node_data( $node );
+
+}
+
 =head2 C<getFieldsHash>
 
 Given a table name, returns the names of fields.  If C<$getHash> is true, it
@@ -519,9 +535,7 @@ sub base_tables {
   author_user integer(20),
   createtime timestamp NOT NULL,
   modified timestamp,
-  hits integer(20),
   loc_location integer(20),
-  reputation integer(20),
   lockedby_user integer(20),
   locktime timestamp,
   authoraccess char(4) NOT NULL DEFAULT 'iiii',
@@ -556,7 +570,38 @@ canworkspace integer(20)
         q{CREATE TABLE version (
   version_id INTEGER  PRIMARY KEY DEFAULT '0' NOT NULL,
   version INTEGER DEFAULT '1' NOT NULL
-)}
+)},
+        q{ CREATE TABLE node_statistics_type (
+           type_name varchar(255) NOT NULL,
+           description text,
+           node_statistics_type_pk INTEGER PRIMARY KEY NOT NULL
+)},
+	q{ CREATE TABLE node_statistics (
+           type INT REFERENCES node_statistics_type(node_statistics_type_pk) ON DELETE RESTRICT,
+           node int(11) NOT NULL REFERENCES node(node_id) ON DELETE CASCADE,
+           value bigint NOT NULL,
+           PRIMARY KEY( type, node )
+)},
+q{CREATE TABLE revision (
+  node_id integer(20) NOT NULL REFERENCES node(node_id) ON DELETE CASCADE,
+  inside_workspace integer(20) NOT NULL DEFAULT '0',
+  revision_id integer(20) NOT NULL DEFAULT '0',
+  xml text NOT NULL,
+  tstamp timestamp,
+  PRIMARY KEY (node_id, inside_workspace, revision_id)
+)},
+q{CREATE TABLE links (
+  from_node integer(20) NOT NULL REFERENCES node(node_id) ON DELETE RESTRICT,
+  to_node integer(20) NOT NULL  REFERENCES node(node_id) ON DELETE RESTRICT,
+  linktype integer(20) NOT NULL DEFAULT '0',
+  hits integer(20) DEFAULT '0',
+  food integer(20) DEFAULT '0',
+  PRIMARY KEY (from_node, to_node, linktype)
+)},
+q{CREATE TABLE typeversion (
+  typeversion_id INTEGER PRIMARY KEY NOT NULL DEFAULT '0',
+  version integer(20) NOT NULL DEFAULT '0'
+)},
     );
 
 }
