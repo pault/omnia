@@ -15,6 +15,8 @@ use strict;
     package Node::Parseable;
 
     use Moose;
+use MooseX::FollowPBP; 
+
     with 'Everything::Node::Parseable';
 }
 

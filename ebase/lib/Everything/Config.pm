@@ -9,8 +9,9 @@ use Everything::Config::URLDeconstruct;
 use strict;
 use warnings;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has $_ => ( is => 'rw' ) foreach qw/config file settings_node apache_request deconstruct_modifiers deconstruct_locations nb/;

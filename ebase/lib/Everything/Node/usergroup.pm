@@ -9,8 +9,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::usergroup;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Node::nodegroup';
 
 sub conflictsWith { 0 }

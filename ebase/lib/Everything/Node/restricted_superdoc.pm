@@ -9,8 +9,9 @@ Copyright 2006 Everything Development Inc.
 
 package Everything::Node::restricted_superdoc;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 extends 'Everything::Node::superdoc';
 

@@ -24,6 +24,8 @@ BEGIN {
     package Node::Runnable;
 
     use Moose;
+use MooseX::FollowPBP; 
+
     with 'Everything::Node::Runnable';
 
 }

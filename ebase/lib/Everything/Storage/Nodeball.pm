@@ -7,8 +7,9 @@ A module that manages the import and export of nodeballs to/from a nodebase.
 
 package Everything::Storage::Nodeball;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has $_ => ( is => 'rw' ) foreach qw/nodebase file nodeball_dir all_files/;
@@ -1431,8 +1432,9 @@ sub CREATE {
 package Everything::Storage::Nodeball::Diff;
 
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has nodebase => ( is => 'rw' );

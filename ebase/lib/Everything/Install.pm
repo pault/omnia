@@ -4,8 +4,9 @@ use Everything::CmdLine qw/abs_path/;
 use Everything::NodeBase::Cached;
 use Template;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has $_ => ( is => 'rw' ) foreach qw/nodebase nodeball db_name db_rootuser db_rootpass db_user db_pass db_host db_port apache_user data_dir web_dir web_user web_group install_core modify_apache_conf/;

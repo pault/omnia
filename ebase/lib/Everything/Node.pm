@@ -25,8 +25,9 @@ use XML::DOM;
 use Scalar::Util qw/blessed/;
 use Everything::Node::nodetype;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has _type => ( accessor => '_type' );

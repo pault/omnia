@@ -79,7 +79,7 @@ sub test_startup_3_initialise_nodebase : Test(startup => 6) {
     );
     isa_ok( $nb, 'Everything::NodeBase', '... nodebase object is valid.' );
 
-    is( my @nodes = @{ $nb->getNodeWhere() },
+    is( my @nodes = @{ $nb->getNodeWhere( undef, undef, 'node_id' ) },
         3, '... nodebase contains three nodes.' );
 
     is( $nodes[0]->get_title . $nodes[0]->get_type_nodetype,
@@ -326,7 +326,7 @@ sub test_select_node_where :Test(3) {
     my $self = shift;
     my $s = $self->{ storage };
 
-    is_deeply( $s->selectNodeWhere, [1,2,3], '...gets ids of all nodes.');
+    is_deeply( $s->selectNodeWhere( undef, undef, 'node_id' ), [1,2,3], '...gets ids of all nodes.');
 
     my $totalrows;
     $s->selectNodeWhere( undef, undef, undef, undef, undef, \$totalrows);

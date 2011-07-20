@@ -21,8 +21,9 @@ use Everything::DB;
 use Everything::NodeBase::Workspace;
 use Everything::NodeAccess;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 has storage => ( is => 'rw' );
 has dbname => ( is => 'rw' );
@@ -1712,6 +1713,8 @@ sub register_type_module {
 package Everything::NodetypeMetaData;
 
 use Moose;
+use MooseX::FollowPBP; 
+
 
 has $_ => ( is => 'rw' )
   foreach qw( sqltable grouptable defaultgroup_usergroup
