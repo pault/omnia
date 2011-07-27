@@ -263,7 +263,7 @@ sub checkNamedTables {
             my $stmt = SQL::Statement->new( $sql, $parser );
 
             my @tables  = map { $_->name } $stmt->tables;
-            my @columns = map { $_->name } $stmt->columns;
+            my @columns = keys %{ $stmt->column_defs };
 
             $tables{ $tables[0] } = \@columns;
 
@@ -273,6 +273,7 @@ sub checkNamedTables {
 
     my %new_fields;
     foreach my $table (@$tables_ref) {
+
         my @existing_fields =
           $DB->{storage}->getFieldsHash( $table, 0 )
           ;    # second arg means get an array of fields.
@@ -287,6 +288,7 @@ sub checkNamedTables {
         $new_fields{$table} = \@keys if @keys;
 
     }
+
     return \%new_fields if %new_fields;
     return;
 }
