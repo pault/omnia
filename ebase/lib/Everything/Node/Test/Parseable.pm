@@ -10,12 +10,13 @@ use Scalar::Util 'blessed';
 use SUPER;
 
 use strict;
+use warnings;
 
 {
     package Node::Parseable;
 
     use Moose;
-use MooseX::FollowPBP; 
+    use MooseX::FollowPBP; 
 
     with 'Everything::Node::Parseable';
 }
@@ -272,11 +273,60 @@ qr/\s*Everything::logErrors\('',\s+ \$@,\s+ '',\s+ \{\s+ title\s+ =>\s* 'Fake\\\
 
 }
 
+sub test_run_perl_section : Test(1) {
+    my $self = shift;
+
+    
+
+}
+
 sub trial_text {
 
     q/<some text> [{htmlcode:one}]
 some more text [% &then some @perl %] finally
  [<asnippet>] and Title:[{morehtmlcode}]/
+
+}
+
+
+sub test_compile : Test( 3 ) {
+    my $self = shift;
+
+    my $test_instance = $self->{ instance };
+
+    my $test_code = '[% my $x = 1; my $y = 2; $x + $y %]';
+
+    ok ( my $rv = $test_instance->compile( $test_code ), '...code compiles.' ) || diag $@;
+
+    is ( ref $rv, 'CODE', '...returns a code ref.' );
+
+    my $mock = Test::MockObject->new;
+
+    is ( $rv->( $mock ), 3, '...that executes.' );
+
+}
+
+
+sub test_compile_errors : Test( 3 ) {
+    my $self = shift;
+
+    my $test_instance = $self->{ instance };
+
+    # haven't used 'my'!! So shouldn't compile
+    my $test_code = '[% $x = 1; $y = 2; $x + $y %]';
+
+    $test_instance->{title} = 'Test Mock Node';
+    $test_instance->{node_id} = '999999';
+
+    is ( $test_instance->compile( $test_code ), undef, '...code does not compile.' );
+
+    ok ( @Everything::fsErrors, '...errors have been logged.' );
+
+    like ( $Everything::fsErrors[0]->{error}, qr/Global symbol/, '...the error is expected.') ;
+}
+
+sub test_run_errors : Test(3) {
+    return "Very very important tests to ensure that code fails correctly and erors are properly reported.";
 
 }
 
