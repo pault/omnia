@@ -89,10 +89,10 @@ sub execute_cached_code {
 }
 
 sub compile {
-    my ( $self, $code ) = @_;
+    my ( $self, $code, $args ) = @_;
 
     my $anon = Everything::HTML::createAnonSub($code);
-    return Everything::HTML::make_coderef( $anon, $self );
+    return Everything::HTML::make_coderef( $anon, $self, $args );
 
 }
 
@@ -104,7 +104,7 @@ sub get_compilable_field {
 
 sub eval_code {
     my $self  = shift;
-    my $sub   = shift;
+    my $sub   = shift || sub{ '' };
     my $field = shift;
     $field ||= $self->get_compilable_field;
     my @args = @_;

@@ -13,21 +13,17 @@ use Scalar::Util 'blessed';
 
 BEGIN {
   Test::MockObject->fake_module('Everything::Auth', import => sub {} );
-  Test::MockObject->fake_module('Everything',
-				import => sub {},
-		     flushErrorsToBackside => sub {1},
-
-				getBacksideErrors => sub {1});
 }
 
 {
     package Node::Runnable;
 
     use Moose;
-use MooseX::FollowPBP; 
+    use MooseX::FollowPBP;
 
     with 'Everything::Node::Runnable';
 
+    sub get_compilable_field { 'a_field_with_perl' }
 }
 
 
@@ -83,7 +79,7 @@ sub test_cleanup : Test(teardown) {
     my $self = shift;
 
     Everything::clearFrontside();
-
+    Everything::clearBackside();
 }
 
 sub test_compile : Test( 3 ) {
@@ -113,11 +109,34 @@ sub test_compile_errors : Test( 3 ) {
 
     is ( $test_instance->compile( $test_code ), undef, '...code does not compile.' );
 
-    ok ( @Everything::fsErrors, '...errors have been logged.' );
+    ok ( @Everything::bsErrors, '...errors have been logged.' );
 
-    like ( $Everything::fsErrors[0]->{error}, qr/Global symbol/, '...the error is expected.') ;
+    like ( $Everything::bsErrors[0]->{error}, qr/Global symbol/, '...the error is expected.') ;
 }
 
+sub test_run_errors : Test( 5 ) {
+
+    my $self = shift;
+
+    my $test_instance = $self->{ instance };
+
+    # haven't used 'my'!! So shouldn't compile
+    my $test_code = 'my $x;  $x->nonExistantSubroutine()';
+
+    ok ( my $code = $test_instance->compile( $test_code ), '...code compiles.' );
+
+    is ( ref $code, 'CODE', '...returns a code ref.' );
+
+    ## Code returns a false value because we have not passed Everything::HTML object
+    ok( ! $test_instance->eval_code( $code, 'TEST CODE FIELD' ), '...code runs, and returns a false value.' );
+
+    ## errors tested on backside because we haven't passed an Everything::HTML object.
+
+    ok ( @Everything::bsErrors, '...but errors have been logged.' ) ;
+
+    like ( $Everything::bsErrors[0]->{error}, qr/Can't call method/, '...the error is expected.') ;
+
+}
 
 ### A utility sub for eval
 sub test_createAnonSub : Test(2) {

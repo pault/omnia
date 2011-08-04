@@ -15,26 +15,17 @@ use warnings;
 ## error handling - until error handling is made more flexible
 
 my $err;
-no warnings 'redefine';
-*Everything::getFrontsideErrors =sub {
-
-    my @temp = @Everything::fsErrors;
-    $err = \@temp;
-    return \@Everything::fsErrors;
-};
-use warnings 'redefine';
 
 sub report_error {
 
-    diag join( "\n", map { join "\n", $_->{context}->get_title, $_->{context}->get_node_id, $_->{error}  } @$err);
-
+    diag join( "\n", map { join "\n", $_->{context}->get_title, $_->{context}->get_node_id, $_->{error}  } @{ Everything::getFrontsideErrors() });
 }
 
 
 sub test_node_error {
     my $node = shift;
 
-    my $error = join "\n", map { $_->{error} } @$err;
+    my $error = join "\n", map { $_->{error} } @{ Everything::getFrontsideErrors() };
     is( $error, '',
 "...execute node $$node{title}, type" . $node->type_title .", id, $$node{node_id}"
 	     ) || report_error();

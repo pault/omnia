@@ -55,6 +55,7 @@ sub make_html {
     else {
         Everything::printBacksideToLogFile();
     }
+
     $page =~ s/<BacksideErrors>/$errors/;
 
     return $page;

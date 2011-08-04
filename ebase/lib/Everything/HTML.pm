@@ -957,31 +957,8 @@ This, as the name implies executes a code ref.
 sub execute_coderef {
 
     my ( $code_ref, $field, $CURRENTNODE, $args ) = @_;
-    my $warn;
 
-    Everything::flushErrorsToBackside();
-
-    my ($ehtml) = @$args; #E::H object should be first one on array
-    $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
-    my $result = eval { $code_ref->( @$args ) } || '';
-
-    Everything::logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
-      if $warn or $@;
-
-    my $errors = Everything::getFrontsideErrors();
-
-    if ( int(@$errors) > 0 ) {
-	if ( $ehtml ) {
-	    $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
-	} else {
-	    my $formatted = Everything::format_errors( $errors );
-	    Everything::printLog( $formatted );
-	}
-
-    }
-    Everything::clearFrontside();
-
-    return $result;
+    return trap_errors( sub { eval { $code_ref->(@_) } || '' }, $field, $CURRENTNODE, $args );
 
 }
 
@@ -1119,10 +1096,11 @@ sub evalX {
     my $result = eval($EVALX_CODE);    ## no critic
 
     # Log any errors that we get so that we may display them later.
-    logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
+    Everything::logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
 
     return $result;
 }
+
 
 =cut
 
@@ -1133,8 +1111,87 @@ Takes some text. Returns a code ref.
 =cut
 
 sub make_coderef {
-    my ( $code, $NODE ) = @_;
-    return evalX $code, $NODE;
+    my ( $code, $NODE, $args ) = @_;
+
+    $args ||= [];
+    return trap_errors( sub { eval $code }, $NODE->get_compilable_field, $NODE, $args );
+
+}
+
+=cut
+
+=head2 C<trap_errors>
+
+This takes a call back containing an 'eval'.  It runs the call back
+and handles the errors.
+
+If the it is being called with a valid Everything::HTML object it will
+return the errors formatted for display on a web page.
+
+If there is no valid Everything::HTML object, it will shift the errors
+to the backside for later processing and print them to the log.
+
+
+It takes the following arguments:
+
+=over 4
+
+=item * the callback function
+
+=item * the name of the node field being 'evaled'.
+
+=item * the node object being 'evaled'.
+
+=item * any arguments being passed to the eval
+
+=back
+
+=cut
+
+sub trap_errors {
+
+    my ( $code_cb, $field, $CURRENTNODE, $args ) = @_;
+    my $warn = q{};
+
+    Everything::flushErrorsToBackside();
+
+    $args ||= [];
+
+    my ($ehtml) = @$args; #E::H object should be first one on array
+    $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
+
+    my $result = $code_cb->( @$args );
+
+    Everything::logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
+      if $warn or $@;
+
+    my $errors = Everything::getFrontsideErrors();
+
+    if ( @$errors ) {
+
+	## XXXXXXXXXXXXXX Here we're testing if there is a
+	## Everything::HTML object.  If there is then we would like
+	## the errors reported in context on the web page.  If there
+	## isn't it means either we have trapped errors from an opcode
+	## and the Everything::HTML error doesn't yet exist OR that we
+	## are running on the command line or something. This seems to
+	## be a clumsy way of doing this.
+
+	## Better if we just throw all our errors at the Error
+	## routines, who then report them appropriately in context.
+
+	if ( $ehtml ) {
+	    $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
+	    Everything::clearFrontside();
+	} else {
+	    my $formatted = Everything::format_errors( $errors );
+	    Everything::printLog( $formatted );
+	    Everything->flushErrorsToBackside;
+	}
+
+    }
+
+    return $result;
 
 }
 

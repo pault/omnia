@@ -19,6 +19,8 @@ use warnings;
     use MooseX::FollowPBP; 
 
     with 'Everything::Node::Parseable';
+
+    sub get_compilable_field { 'a_parseable_field' };
 }
 
 
@@ -26,6 +28,15 @@ sub startup_parseable : Test(startup) {
     my $self = shift;
     $self->{class} = 'Node::Parseable';
     $self->{instance} = $self->{class}->new;
+}
+
+
+sub test_cleanup : Test(teardown) {
+
+    my $self = shift;
+
+    Everything::clearFrontside();
+    Everything::clearBackside();
 }
 
 
@@ -289,7 +300,11 @@ some more text [% &then some @perl %] finally
 }
 
 
-sub test_compile : Test( 3 ) {
+## When we run these parseable subroutines, the first argument passed
+## must be an Everything::HTML object. Unlike for runnable nodes. This
+## is one of the many reasons why Runnable nodes are not a superclass
+## of Parseable ones.
+sub test_compile : Test( 6 ) {
     my $self = shift;
 
     my $test_instance = $self->{ instance };
@@ -303,6 +318,16 @@ sub test_compile : Test( 3 ) {
     my $mock = Test::MockObject->new;
 
     is ( $rv->( $mock ), 3, '...that executes.' );
+
+    $test_code = '[{ htmlcodecode }]';
+
+    ok ( $rv = $test_instance->compile( $test_code ), '...code containing htmlcode compiles.' ) || diag $@;
+
+    is ( ref $rv, 'CODE', '...returns a code ref.' );
+
+    $mock->set_always( htmlcodecode => 'htmlcodereturn' );
+
+    is ( $rv->( $mock ), 'htmlcodereturn', '...and executes.' );
 
 }
 
@@ -320,13 +345,31 @@ sub test_compile_errors : Test( 3 ) {
 
     is ( $test_instance->compile( $test_code ), undef, '...code does not compile.' );
 
-    ok ( @Everything::fsErrors, '...errors have been logged.' );
+    ok ( @Everything::bsErrors, '...errors have been logged.' );
 
-    like ( $Everything::fsErrors[0]->{error}, qr/Global symbol/, '...the error is expected.') ;
+    like ( $Everything::bsErrors[0]->{error}, qr/Global symbol/, '...the error is expected.') ;
 }
 
 sub test_run_errors : Test(3) {
-    return "Very very important tests to ensure that code fails correctly and erors are properly reported.";
+
+    my $self = shift;
+
+    my $test_instance = $self->{ instance };
+
+    # haven't used 'my'!! So shouldn't compile
+    $test_instance->{field} = '[{ $undeclared_variable }]';
+
+    my $mock_ehtml = Test::MockObject->new;
+    $mock_ehtml->set_true( 'set_current_node' );
+    $mock_ehtml->set_always( 'htmlFormatErr' => 'return of htmlFormatErr' );
+
+    is( my $rv = $test_instance->run( { ehtml => $mock_ehtml, field => 'field', no_cache => 1 } ), '',  '...bad code returns an empty string.' );
+
+     ## errors tested on backside because we haven't passed an Everything::HTML object.
+
+    ok ( @Everything::bsErrors, '...but errors have been logged.' ) ;
+
+    like ( $Everything::bsErrors[0]->{error}, qr/Global symbol "\$undeclared_variable"/, '...the error is expected.') ;
 
 }
 
