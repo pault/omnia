@@ -8,7 +8,7 @@ $title||=$$NODE{title};
 $width||=300;
 $height||=400;
 
-&quot;&lt;SCRIPT language=\&quot;javascript\&quot;&gt;
+&quot;&lt;SCRIPT type=\&quot;text/javascript\&quot; language=\&quot;javascript\&quot;&gt;
 	function launchTheWinda() {
 	window.open('&quot; .
 		$this-&gt;url_gen({node_id =&gt; $NODE-&gt;get_node_id,

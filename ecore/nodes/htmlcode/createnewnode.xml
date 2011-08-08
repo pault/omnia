@@ -25,9 +25,11 @@ $MENU = $SET-&gt;getVars() if $SET;
 
   @aprtypes = sort {$a cmp $b} keys(%approvedtypes);
 if (not $MENU) {
+  $str .= &quot;&lt;ul&gt;&quot;;
   foreach my $type (@aprtypes) {
-	$str .= &quot;&lt;LI&gt;&lt;A href=&quot; . $this-&gt;url_gen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) .&quot;&gt;$type&lt;/A&gt;\n&quot;;
+	$str .= &quot;&lt;li&gt;&lt;a href=&quot; . $this-&gt;url_gen ({node =&gt; $title, type =&gt; $type, op =&gt; 'new'}) .&quot;&gt;$type&lt;/a&gt;&lt;li&gt;\n&quot;;
   }
+  $str .= &quot;&lt;/ul&gt;&quot;;
   return $str;
 } 
 
@@ -69,18 +71,18 @@ $cols = 3 if ($numsections &gt; 5 or not $numsections%3);
 $cols = 1 if keys %aprmenu == 1;
 
 my $count = 0;
-$str.=&quot;&lt;table width=100% border=1 cellpadding=2 cellspacing=0&gt;&quot;;
+$str.=&quot;&lt;table width=100% border=1 cellpadding=2 cellspacing=0 summary=\&quot;Create Node Layout\&quot; &gt;&quot;;
 
 my $width = int(100/$cols) . &quot;%&quot;;
 foreach (sort keys %aprmenu) {
-  $str.=&quot;&lt;TR&gt;&quot; unless $count % $cols;
+  $str.=&quot;&lt;tr&gt;&quot; unless $count % $cols;
 
-  $str.=&quot;&lt;td valign=top width=$width&gt;&lt;b&gt;$_&lt;/b&gt;&quot;;
+  $str.=&quot;&lt;td valign=top width=$width&gt;&lt;b&gt;$_&lt;/b&gt;&lt;ul&gt;&quot;;
   foreach (sort @{ $aprmenu{$_} }) {
-    $str.=&quot;&lt;li&gt;&lt;A href=&quot; . $this-&gt;url_gen ({node =&gt; $title, type =&gt; $$_{title} , op =&gt; 'new'}) .&quot;&gt;$$_{title}&lt;/A&gt;\n&quot;;
+    $str.=&quot;&lt;li&gt;&lt;a href=&quot; . $this-&gt;url_gen ({node =&gt; $title, type =&gt; $$_{title} , op =&gt; 'new'}) .&quot;&gt;$$_{title}&lt;/a&gt;&lt;/li&gt;\n&quot;;
   }
-  $str.=&quot;&lt;/td&gt;&quot;;
-  $str.=&quot;&lt;/TR&gt;&quot; unless ($count % $cols) + 1 - $cols;
+  $str.=&quot;&lt;/ul&gt;&lt;/td&gt;&quot;;
+  $str.=&quot;&lt;/tr&gt;&quot; unless ($count % $cols) + 1 - $cols;
   $count++;
 }
 $str.=&quot;&lt;/table&gt;&quot;;

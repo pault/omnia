@@ -36,7 +36,7 @@ my $isLoc = $NODE-&gt;isOfType(&quot;location&quot;);
 my $isGroup = $NODE-&gt;isGroup();
 my $str;
 
-return &quot;Empty&lt;br/&gt;\n&quot; unless(@bnodes);
+return &quot;Empty&lt;br/&gt;\n&quot; . $query->end_form unless(@bnodes);
 
 foreach $_ (@bnodes)
 {

@@ -47,7 +47,7 @@ foreach my $type (@displaytypes)
 
 
 
-$str.=qq{&lt;table width=&quot;100%&quot; cellpadding=&quot;3&quot; style=&quot;background-color: $GLOBAL{adminboxBG}&quot; cellspacing=&quot;1&quot;&gt;
+$str.=qq{&lt;table summary=&quot;AdminBox Layout&quot; width=&quot;100%&quot; cellpadding=&quot;3&quot; style=&quot;background-color: $GLOBAL{adminboxBG}&quot; cellspacing=&quot;1&quot;&gt;
   &lt;tr style=&quot;background-color: $GLOBAL{adminboxBG}&quot;&gt; 
     &lt;td align=&quot;center&quot; style=&quot;border-style: none; background-color: $GLOBAL{adminboxLite}&quot;&gt;
 $GLOBAL{adminboxLinks}{display}
@@ -66,9 +66,12 @@ my $node_title = $NODE-&gt;get_title;
 my $CLONER = $DB-&gt;getNode('Node Cloner', 'restricted_superdoc');
 my $clone_url = $this-&gt;url_gen({'srcnode_id' =&gt; $this-&gt;get_node-&gt;get_node_id, 'newname' =&gt; 'NEWNAME', 'node_id' =&gt; $$CLONER{node_id} }, 'no quotes');
 
+use URI::Escape;
+my $clone_url = uri_escape(&quot;javascript: cloneNode('$node_title','$clone_url')&quot;);
 $str.=qq|  &lt;tr&gt;
     &lt;td style=&quot;background-color: $GLOBAL{adminboxDark}&quot; align=&quot;center&quot;&gt;
-      &lt;a href=&quot;javascript: cloneNode('$node_title','$clone_url');&quot;&gt;
+
+      &lt;a href=&quot;$clone_url&quot;&gt;
        &lt;img src=&quot;images/icon_clone.gif&quot; alt=&quot;clone&quot; height=&quot;20&quot; width=&quot;48&quot; style=&quot;border-style: none&quot; /&gt;&lt;/a&gt;
     &lt;/td&gt;
     &lt;td style=&quot;background-color: $GLOBAL{adminboxLite}&quot; align=&quot;center&quot;&gt;|;

@@ -14,7 +14,7 @@ my $THEME = $this-&gt;get_theme || {};
 $varsfield ||= 'vars';
 $N         ||= $this-&gt;get_node;
 
-my $html = &quot;&lt;table border=0&gt;\n&quot;;
+my $html = &quot;&lt;table summary=\&quot;General Vars Display\&quot; border=\&quot;0\&quot; &gt;\n&quot;;
 my $vars = $N-&gt;getHash($varsfield);
 
 my @keys;

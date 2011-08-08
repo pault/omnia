@@ -15,8 +15,9 @@ if (@group) {
 $str .=&quot;&lt;ul&gt;\n&quot;;
 	foreach my $NODE (@group) {
 		$NODE = $DB-&gt;getNodeById($NODE, 'light');
-		$str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node($NODE) . '&lt;/li&gt;';
-		$str .= &quot;(type: $$NODE{type}{title})\n&quot;;
+		$str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node($NODE);
+		$str .= &quot;(type: $NODE->type_title )\n&quot;;
+                $str .= '&lt;/li&gt;';
 	}
 $str .=&quot;&lt;/ul&gt;\n&quot;;
 }

@@ -1,10 +1,10 @@
 <NODE export_version="0.5" nodetype="container" title="suit main container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table width=100% border=0 cellspacing=0 cellpadding=0&gt;
- &lt;tr bgcolor='#000000' nowrap&gt;
-  &lt;td valign=middle width=100%&gt;&lt;ul&gt;
-   [{searchform}]&lt;/ul&gt;
+  <field name="context" type="literal_value">&lt;table width=100% border=0 cellspacing=0 cellpadding=0 summary=&quot;Suit Main Container&quot;&gt;
+ &lt;tr bgcolor='#000000' &gt;
+  &lt;td valign=middle width=100%&gt;
+   [{searchform}]
   &lt;/td&gt;
   &lt;td align=right width=50&gt;
 [%
@@ -14,20 +14,22 @@ my $THEME = $this-&gt;get_theme;
 
 my $default = $DB-&gt;getNode($HTMLVARS{default_node});
 my $IMG = $DB-&gt;getNode( $$THEME{cornerIcon_image} );
-$this-&gt;link_node($default, &quot;&lt;img border=0 src=$$IMG{src} alt=\&quot;\&quot;&gt;&quot;);
-
+if ($IMG) {
+return $this-&gt;link_node($default, &quot;&lt;img border=\&quot;0\&quot; src=\&quot;$$IMG{src}\&quot; alt=\&quot;Suit Icon\&quot;&gt;&quot;);
+}
+return '';
 %]
    &lt;/td&gt;
  &lt;/tr&gt;
- &lt;tr&gt;&lt;td colspan=2 bgcolor='#999999'&gt;&lt;img src=&quot;&quot; width=1 height=3 alt=&quot;&quot;&gt;&lt;/td&gt;&lt;/tr&gt;
+ &lt;tr&gt;&lt;td colspan=2 bgcolor='#999999'&gt;&lt;/td&gt;&lt;/tr&gt;
  &lt;tr&gt;  
   &lt;td width=100% valign=top&gt;
-   &lt;table width=100% cellspacing=0 cellpadding=5&gt;&lt;tr&gt;&lt;td&gt;
-    &lt;h3&gt;[{showPath}][%
-my $NODE = $this-&gt;get_node;
-
-$$NODE{title}
-%]&lt;/h3&gt;
+   &lt;table width=&quot;100%&quot; summary=&quot;Showpath Layout&quot; cellspacing=&quot;0&quot; cellpadding=&quot;5&quot; &gt;&lt;tr&gt;&lt;td&gt;
+[%
+ my $p = $this-&gt;htmlcode('showPath');
+return unless $p;
+return &quot;&lt;h3&gt;&quot;.$p.this-&gt;get_requested_node->get_title.&quot;&lt;/h3&gt;&quot;;
+%]
     CONTAINED_STUFF
     &lt;/td&gt;&lt;/tr&gt;
    &lt;/table&gt;
@@ -37,7 +39,7 @@ $$NODE{title}
    [%
 my $USER = $this-&gt;get_user;
 
- $USER-&gt;isGod? &quot;&quot; : adminbar() 
+ $USER-&gt;isGod? &quot;&quot; : $this->adminbox() 
 %][{nodeletMetaContainer}]
   &lt;/td&gt;
  &lt;/tr&gt;

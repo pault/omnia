@@ -15,13 +15,13 @@ return &quot;none&quot; unless ref $G;
 my $str = $this-&gt;link_node($G) . &quot;($$G{type}{title})&quot;;
 return $str unless ($$G{group});
 
-$str .= &quot;\n&lt;ol&gt;\n&quot;;
+$str .= &quot;\n&lt;ol&gt;\n&quot; if @$groupref;
 my $groupref = $$G{group};
 foreach my $item (@$groupref) {
 	my $N = $DB-&gt;getNodeById($item, 'light');
 	$str .= &quot;&lt;li&gt;&quot; . $this-&gt;link_node ($N) . &quot;($$N{type}{title})\n&quot;;
 }
-$str .= &quot;&lt;/ol&gt;\n&quot;;
+$str .= &quot;&lt;/ol&gt;\n&quot; if @$groupref;
 
 $str;</field>
   <field name="groupaccess" type="literal_value">iiii-</field>

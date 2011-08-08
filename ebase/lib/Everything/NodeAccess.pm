@@ -2,7 +2,7 @@ package Everything::NodeAccess;
 
 
 use Moose;
-use MooseX::FollowPBP; 
+use MooseX::FollowPBP;
 
 
 extends 'Everything::Object';

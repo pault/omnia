@@ -10,7 +10,7 @@
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editTitleOwner&gt;]
 
-&lt;table border=0&gt;
+&lt;table border=&quot;0&quot; summary=&quot;Image Edit Layout&quot; &gt;
 &lt;tr&gt;
  &lt;td&gt;parent container:&lt;/td&gt;
  &lt;td&gt;[{nodeFormObject: TypeMenu, parent_container, parentContainer, container}]&lt;/td&gt;
@@ -28,7 +28,6 @@
 nodelet code:&lt;br&gt;
 [{nodeFormObject: TextArea, nlcode, nlcode, AUTO, 80, 20, off}]
 
-&lt;p&gt;
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodelet</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

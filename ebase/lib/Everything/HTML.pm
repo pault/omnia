@@ -404,7 +404,7 @@ sub htmlErrorUsers {
         $str = "Server Error (Error Id $errorId)!";
         $str = "<font color=\"#CC0000\"><b>$str</b></font>";
 
-        $str .= "<p>An error has occured.  Please contact the site";
+        $str .= "<br />An error has occured.  Please contact the site";
         $str .= " administrator with the Error Id.  Thank you.";
     }
 

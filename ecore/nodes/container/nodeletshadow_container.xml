@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="container" title="nodeletshadow container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table width=100% cellspacing=0 cellpadding=0 border=0&gt;
+  <field name="context" type="literal_value">&lt;table width=100% cellspacing=0 cellpadding=0 border=0 summary=&quot;Nodelet Shadow Container&quot;&gt;
 &lt;tr&gt;
  &lt;td width=100%&gt;
    CONTAINED_STUFF

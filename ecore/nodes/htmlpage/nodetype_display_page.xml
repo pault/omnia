@@ -9,7 +9,7 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">&lt;p&gt;&lt;b&gt;Default permissions for nodes of this type:&lt;/b&gt;&lt;/p&gt;
-&lt;table class=&quot;permissionDisplay&quot;&gt;
+&lt;table class=&quot;permissionDisplay&quot; summary=&quot;Nodetype Layout&quot; &gt;
  &lt;tr&gt;
   &lt;td class=&quot;permissionDisplayTitle&quot;&gt;&lt;b&gt;Class&lt;/b&gt;&lt;/td&gt;
   &lt;td class=&quot;permissionDisplayTitle&quot;&gt;&lt;b&gt;Permissions&lt;/b&gt;&lt;/td&gt;

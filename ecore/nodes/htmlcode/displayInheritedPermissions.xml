@@ -12,7 +12,7 @@ if($forType)
   if($$NODE{extends_nodetype} &gt; 0)
   {
     return &quot;Error. Not a nodetype.\n&quot;
-      unless($NODE-&gt;isNodetype());
+      unless( $NODE-&gt;isOfType( 'nodetype' ) );
     $parent = $DB-&gt;getType($$NODE{extends_nodetype});
   }
 }

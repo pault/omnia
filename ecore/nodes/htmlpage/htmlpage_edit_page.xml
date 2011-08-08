@@ -8,7 +8,7 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;table border=0&gt;
+  <field name="page" type="literal_value">&lt;table border=&quot;0&quot; summary=&quot;Htmlpage Edit Layout&quot; &gt;
  &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;Title:&lt;/b&gt;&lt;/td&gt;&lt;td align=left&gt;[{nodeFormObject: TextField, title}]&lt;/td&gt;
   &lt;td rowspan=9&gt;&lt;font size=2&gt;

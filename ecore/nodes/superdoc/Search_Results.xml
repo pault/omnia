@@ -14,7 +14,7 @@ my $DB = $this-&gt;get_nodebase;
 my $str;
 my $title = $query-&gt;param('node');
 return &quot;&quot; unless $title;
-$str.=&quot;&lt;table border=0 cellpadding=2&gt;&quot;;
+$str.=&quot;&lt;table summary=\&quot;Search Results Layout\&quot; border=\&quot;0\&quot; cellpadding=\&quot;2\&quot; &gt;&quot;;
 
 my $nodes = $this-&gt;get_request-&gt;get_message;
 unless ( ref $nodes &amp;&amp; ref $nodes eq 'ARRAY' ) {

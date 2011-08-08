@@ -6,7 +6,7 @@ my $NODE = $this-&gt;get_node;
 $limit ||= 90000;
 my $spill=50;
 my $maxlist=20;
-my $str = &quot;&lt;table&gt;&quot;;
+my $str = &quot;&lt;table summary=\&quot;Node Display Table\&quot; &gt;&quot;;
 my %noShow = map {$_ =&gt; 1} ('table','passwd');
 foreach my $key (sort keys %$NODE) {
   next if $noShow{$key} || $key =~ /^_/;
@@ -32,7 +32,7 @@ foreach my $key (sort keys %$NODE) {
   {
      my $len = scalar(@{$$NODE{$key}})-1;
      $len = $maxlist if $len &gt; $maxlist;
-     $str.=&quot;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;ul&gt;&quot;;
+     $str.=&quot;&lt;table summary=\&quot;Node Display Table\&quot; &gt;&lt;tr&gt;&lt;td&gt;&lt;ul&gt;&quot;;
      for(0..$len)
      {
        $str.=&quot;&lt;li&gt;&lt;small&gt;&quot;.$$NODE{$key}[$_].&quot;&lt;/small&gt;&lt;/li&gt;&quot;;
@@ -42,7 +42,7 @@ foreach my $key (sort keys %$NODE) {
 
   if($keyref eq &quot;HASH&quot;)
   {
-     $str.=&quot;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;ul&gt;&quot;;
+     $str.=&quot;&lt;table summary=\&quot;Keys Display Table\&quot; &gt;&lt;tr&gt;&lt;td&gt;&lt;ul&gt;&quot;;
      my $i=1;
      foreach(sort keys %{$$NODE{$key}})
      {

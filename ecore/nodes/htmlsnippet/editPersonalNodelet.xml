@@ -45,14 +45,16 @@ my $str = &quot;&lt;p&gt;
 Here's where you can edit your &lt;b&gt;Personal Nodelet&lt;/b&gt;:&lt;br&gt;
 &lt;ul&gt;&quot;;
 foreach (@nodes) {
+  $str .= '&lt;li&gt;';
   $query-&gt;param($name.$i, $_);
   $str.= $query-&gt;textfield($name.$i)
    .$query-&gt;checkbox($delname.$i,&quot;&quot;,1,&quot;remove?&quot;)
    .&quot;&lt;br&gt;&quot;;
   $i++;
+  $str .= '&lt;/li&gt;';
 }
-$str.=$query-&gt;textfield($name.$i, &quot;&quot;)
-    .&quot;&lt;br&gt;&quot; unless $i &gt;= $limit;
+$str.='&lt;li&gt;' . $query-&gt;textfield($name.$i, &quot;&quot;)
+    .&quot;&lt;br&gt;&quot; . '&lt;/li&gt;' unless $i &gt;= $limit;
 $str.=&quot;&lt;/ul&gt;&quot;;
 $str;
 

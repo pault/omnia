@@ -1,14 +1,16 @@
 <NODE export_version="0.5" nodetype="container" title="show container">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="context" type="literal_value">&lt;table border=0 width=100%&gt;&lt;tr&gt;&lt;td bgcolor=&quot;[% my $color = $this-&gt;get_theme-&gt;{showContainerColor};
+  <field name="context" type="literal_value">&lt;table summary=&quot;Show Container Layout&quot; border=0 width=100%&gt;&lt;tr&gt;&lt;td bgcolor=&quot;[% my $theme = $this-&gt;get_theme;
+
+my $color;
+$color = $theme-&gt;{showContainerColor} if $theme;
 $color ||= &quot;#cc99ff&quot;;
-$color;
 %]&quot;&gt;
-&amp;lt;[%
+&lt;[%
 
  $this-&gt;link_node($_[0]); 
-%]&amp;gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+%]&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 CONTAINED_STUFF</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>

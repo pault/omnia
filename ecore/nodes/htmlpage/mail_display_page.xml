@@ -11,7 +11,7 @@
   <field name="page" type="literal_value">[%
 
 my $template = q{
-&lt;table class=&quot;displayMail&quot;&gt;
+&lt;table class=&quot;displayMail&quot; summary=&quot;Mail Display Layout&quot; &gt;
 &lt;tr&gt;&lt;th&gt;To:&lt;/th&gt;&lt;td&gt;[[author_user]]
 &lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;th&gt;From:&lt;/th&gt;&lt;td&gt;[[from_address]]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;

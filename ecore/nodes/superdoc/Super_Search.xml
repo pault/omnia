@@ -156,7 +156,7 @@ return @st;
 
 $str.= $query-&gt;start_form;
 
-$str.=&quot;&lt;table&gt;&quot;;
+$str.=&quot;&lt;table summary=\&quot;Search Layout\&quot; &gt;&quot;;
 
 $str.=&quot;&lt;tr&gt;&lt;td&gt;Words in title:&lt;/td&gt;&lt;td&gt;&quot;.$query-&gt;textfield('wordsintitle').&quot;&lt;/td&gt;&lt;/tr&gt;&quot;;
 
@@ -166,19 +166,16 @@ $str.=&quot;&lt;tr&gt;&lt;td&gt;Words in text:&lt;/td&gt;&lt;td&gt;&quot;.$query
 
 $str.=&quot;&lt;/table&gt;&quot;.
 
-&quot;&lt;p&gt;&quot; . $query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates on search&quot;).&quot;&lt;/p&gt;&lt;p&gt;&quot;.
+&quot;&quot; . $query-&gt;checkbox(-name=&gt;'constraindates',-label=&gt;&quot;Constrain Dates on search&quot;) .
 
-&quot;Between&quot;.makeDateMenu('start','1999-09-01').&quot; and &quot;.makeDateMenu('end').&quot;&lt;/p&gt;&quot;;
+&quot;Between&quot;.makeDateMenu('start','1999-09-01').&quot; and &quot;.makeDateMenu('end');
 
 $str .= &quot;&lt;p&gt;Choose types to limit results to:&lt;/p&gt;&quot;.
 
 $query-&gt;checkbox_group(-name=&gt;'chosentypes', -rows=&gt;4,-cols=&gt;3, -values =&gt; \@nttitles) if @nttitles;
 
-$str.='&lt;p&gt;';
-
 $str.=$query-&gt;submit('formsubmit','search');
 
-$str.='&lt;/p&gt;';
 $str.=$query-&gt;end_form;
 
 
@@ -357,7 +354,7 @@ push @where, &quot;createtime between &quot;.$dbh-&gt;quote(paramToDate('start')
 
     $searchresults=&quot;&lt;p&gt;&lt;b&gt;Search Results:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;$searchresults&lt;/p&gt;&quot; if $searchresults;
 
-    $str=$errormsg.$searchresults.&quot;\n&lt;hr /&gt;&lt;p&gt;$str&lt;/p&gt;&quot;;
+    $str=$errormsg.$searchresults.&quot;\n&lt;hr /&gt;$str&quot;;
 
     $str.=&quot;&lt;p&gt;$debugstr&lt;/p&gt;&quot; if $DEBUG;
 
