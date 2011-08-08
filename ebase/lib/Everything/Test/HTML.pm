@@ -496,20 +496,20 @@ sub test_htmlsnippet : Test(3) {
 
 }
 
-sub test_evalx : Test(3) {
+sub test_trap_errors : Test(3) {
     my $self    = shift;
     my $package = $self->{class};
     my $mock    = $self->{mock};
 
-    can_ok( $package, 'evalX' );
-    local *evalX = \&{ $package . '::evalX' };
+    can_ok( $package, 'trap_errors' );
+    local *trap_errors = \&{ $package . '::trap_errors' };
 
     #evalX should just parse things sanely;
     my $code = '"string"';
-    is( evalX($code), 'string', 'evalX string' );
+    is( trap_errors( sub { eval $code } ), 'string', 'evalX string' );
     $code = 'my $x = 1 + 2; return $x';
 
-    is( evalX( $code, $mock ), 3, 'maths' );
+    is( trap_errors( sub { eval $code }, $mock ), 3, 'maths' );
 
 }
 
