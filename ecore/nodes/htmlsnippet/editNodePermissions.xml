@@ -2,6 +2,8 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">[%
+my $THEME = $this->get_theme;
+
 %Everything::HTML::GLOBAL = ();
 
 # Set up color stuff for this page
@@ -13,56 +15,56 @@ $Everything::HTML::GLOBAL{permColorDark} = $$THEME{permColorDark}
     if(exists $$THEME{permColorDark});
 
 %]
-&lt;table cellspacing=1 border=0&gt;
+&lt;table summary=&quot;All Node Permissions&quot; cellspacing=&quot;1&quot; border=&quot;0&quot;&gt;
  &lt;tr&gt;
   &lt;td&gt;&amp;nbsp;&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;Read&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;Read&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;Write&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;Write&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;Execute&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;Execute&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;Delete&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;Delete&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;Parent Settings&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;Parent Settings&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;Dynamic&lt;/td&gt;
+%]&quot;&gt;Dynamic&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;author&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;author&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authorr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authorw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authorx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authord, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:author}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;[{displayInheritedPermissions:author}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -88,9 +90,9 @@ $this-&gt;nodeFormObject('TypeMenu', 'dynamicauthor_permission', 'authorperm',
   &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td nowrap bgcolor='[%
+  &lt;td nowrap bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;group
+%]&quot;&gt;group
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -106,28 +108,28 @@ $menu-&gt;addType(&quot;usergroup&quot;, $USER, 'w', 'labels');
 $menu-&gt;genObject($query, $NODE, &quot;group_usergroup&quot;, &quot;usergroup&quot;);
 
 %]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupd, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:group,}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;[{displayInheritedPermissions:group,}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -154,31 +156,31 @@ $this-&gt;nodeFormObject('TypeMenu', 'dynamicgroup_permission', 'groupperm',
  &lt;/tr&gt;
 
  &lt;tr&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;other&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;other&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherd, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:other}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;[{displayInheritedPermissions:other}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -204,31 +206,31 @@ $this-&gt;nodeFormObject('TypeMenu', 'dynamicother_permission', 'otherperm',
   &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorLite}
-%]'&gt;guest&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;guest&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestd, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:guest}]&lt;/td&gt;
-  &lt;td bgcolor='[%
+%]&quot;&gt;[{displayInheritedPermissions:guest}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 $Everything::HTML::GLOBAL{permColorDark}
-%]'&gt;
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
