@@ -25,7 +25,7 @@ foreach (@{ $nodes }) {
   my $ND = $DB-&gt;getNode( $$_{node_id} );
   $str .=&quot;&lt;tr&gt;&quot;;
   $str .= &quot;&lt;td&gt;&quot; . linkNode ($ND) . &quot;&lt;/td&gt;&quot;;
-  $str .= &quot;&lt;td&gt;(&quot;.$$ND{type}{title}.&quot;)&lt;/td&gt;&quot;;
+  $str .= &quot;&lt;td&gt;(&quot;.$ND->type_title.&quot;)&lt;/td&gt;&quot;;
   my $keys = $ND-&gt;getIdentifyingFields();
   $keys ||= [];
   foreach (@$keys) {
