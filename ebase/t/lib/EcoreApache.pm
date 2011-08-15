@@ -14,6 +14,7 @@ use Apache2::Const ':common';
 use IO::File;
 use DBTestUtil qw(config_file nodebase skip_cond);
 use Proc::ProcessTable;
+use utf8;
 
 use strict;
 use warnings;
@@ -69,7 +70,7 @@ APACHECONF
       grep { /.*apache.*$conf_file/ } map { $_->cmndline } @{ $table->table };
 
     plan
-      tests => 31,
+      tests => 47,
       need {
         "Correct apache process must be running." => sub { $flag }
       };
@@ -154,6 +155,82 @@ APACHECONF
     $mech->content_contains( "Hey.  Glad you're back",
         '...and are presented with the welcome message.' )
       || diag $mech->content;
+
+## If we have nodes with UTF8 titles and contents should come out properly
+    my $utf8_title = "Český název";
+    my $utf8_contents = "Něco v češtině";
+
+    my $utf8_node = $nb->getNode( $utf8_title, 'document', 'create force' );
+
+    $utf8_node->set_doctext( $utf8_contents );
+
+    my $utf8_node_id = $nb->store_new_node( $utf8_node, -1 );
+
+    $mech->get_ok( "$base?node_id=$utf8_node_id", 'Can get utf8 node.' );
+
+    like( $mech->response->header('Content-Type'), qr/charset=utf-8/, '...charset is set to utf8');
+
+    ## mech doesn't decode pages properly, grrrr
+    #    So this doesn't work:
+    #    $mech->title_is( $utf8_title, '...title is correct.' );
+    #
+    #    HTML::HeadParser is pulled in by Mech anyway so it is here to use
+
+    my $p = HTML::HeadParser->new;
+    $p->parse(  $mech->response->decoded_content );
+
+    is ($p->header('Title'), $utf8_title, '...utf8 title is correct.');
+
+    like ( $mech->response->decoded_content, qr/$utf8_contents/, '...with correct utf8 encoded contents.') || diag $mech->content;
+
+    $nb->delete_stored_node( $utf8_node, -1 );
+
+## Now let's create a document node with a utf8 title
+    $mech->get_ok( "$base?node=create node", 'Go to create a new node page.' );
+    $mech->title_is( "create node", '...check the title is corrent.');
+
+    $utf8_title = "ščříéùâîèôîïâûùàêëüçě£";
+    $mech->submit_form_ok( {  with_fields => { node => $utf8_title, type => 'document' } }, '...submit create new node form.' );
+
+    $p = HTML::HeadParser->new;
+    $p->parse(  $mech->response->decoded_content );
+
+    is ($p->header('Title'), $utf8_title, '...and redirects to the newly created node with utf8 title.');
+
+    $mech->follow_link_ok( { text => 'edit' }, 'Go to the edit page for this node.' );
+
+    like( $mech->response->decoded_content, qr/value="$utf8_title"/, '...default form values set properly.');
+
+    my $utf8_content='£êéèôîïâûùàëçüěščřžýáíéůúßöääÜÖ';
+
+    $mech->submit_form_ok( { with_fields => { title => $utf8_title, author_user => 'root', doctext => $utf8_content } }, '...adds content to the document.' );
+
+    like ($mech->response->decoded_content, qr/>$utf8_content<\/textarea>/, '...with the text area displayed properly.' );
+
+    $mech->follow_link_ok( { text => 'display' }, '...go back to the display page.' );
+
+    like ($mech->response->decoded_content, qr/$utf8_content/, '...with the utf8 text displayed properly.' );
+
+    SKIP: {
+	# This we should test by following the 'delete' link, but that
+	# link uses javascript that Mech doesn't understand :(
+
+	eval 'use URI';
+
+	skip "These tests require URI module, which isn't installed, $@", 2 if $@;
+
+	my $uri = $mech->response->request->uri;
+	my $u = URI->new( $uri );
+
+	my $n = $nb->getNode($utf8_title, 'document');
+
+	$u->query_form( op => 'nuke', node_id => $n->get_node_id );
+
+	$mech->get_ok( $u->as_string, '...now try to delete it.');
+
+	like ($mech->response->decoded_content, qr/$utf8_title.+was successfully delete/, '...and we go to the node deleted page.');
+
+    }
 
 ## Now let's create another user
     my $user_type = $nb->getNode( 'user', 'nodetype' );

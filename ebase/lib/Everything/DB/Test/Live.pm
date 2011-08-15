@@ -566,4 +566,26 @@ qq|INSERT INTO node_statistics (value, node, type ) values (22, $id,  (SELECT no
     is($$rv[0], 0, '...node statistics table rows deleted on delete node.');
 }
 
+## will a node with a utf8 title be created properly.
+
+sub test_node_create_delete_utf8 : Test(5) {
+
+    my $self = shift;
+    my $nb = $self->{nodebase};
+    my $s = $self->{storage};
+    my $dbh = $s->{dbh};
+
+    my $utf8_title = "Ça apèôîïâûùà ščřžýáíŇ";
+
+    ok( my $node = $nb->getNode( $utf8_title, 'node', 'create force'), 'Creates a node with a UTF8 title');
+    ok( my $id = $nb->store_new_node($node, -1), '...is stored.' );
+
+    is( $dbh->errstr, undef, '...without errors.' );
+
+    ok( my $retrieved_node = $nb->getNode( $id ), 'Now gets node from the db.');
+
+    is( $retrieved_node->get_title, $utf8_title, '...with the correctly formed title.');
+    $nb->delete_stored_node( $node, -1 );
+}
+
 1;

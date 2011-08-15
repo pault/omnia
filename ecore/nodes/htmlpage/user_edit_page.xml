@@ -168,7 +168,7 @@ $GLOBAL{userFontAttr}
 %]&gt;&lt;b&gt;Nodelets&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=2&gt;
-[{includeJS: findFormObject, moveSelectItem, selectItem}][%
+[{insertJavascript: findFormObject, moveSelectItem, selectItem}][%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;

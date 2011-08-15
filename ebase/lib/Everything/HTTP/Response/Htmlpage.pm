@@ -63,8 +63,8 @@ sub content {
 
     }
 
-    return $self->set_http_body( encode( "utf8",
-        $self->get_htmlpage->make_html( $self->get_request, $ehtml ) ) );
+    return $self->set_http_body(
+        $self->get_htmlpage->make_html( $self->get_request, $ehtml ) );
 
 }
 

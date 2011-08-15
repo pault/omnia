@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Carp;
+use open qw/:std :utf8/;
 
 #BEGIN { $SIG{__WARN__} = \&Carp::cluck;}
 
