@@ -188,50 +188,55 @@ APACHECONF
 ## Now let's create a document node with a utf8 title
     $mech->get_ok( "$base?node=create node", 'Go to create a new node page.' );
     $mech->title_is( "create node", '...check the title is corrent.');
+  SKIP: {
+	my $v = $HTTP::Message::VERSION;
 
-    $utf8_title = "ščříéùâîèôîïâûùàêëüçě£";
-    $mech->submit_form_ok( {  with_fields => { node => $utf8_title, type => 'document' } }, '...submit create new node form.' );
+	skip "Incorrect HTTP::Message installed", 10 if $v < 6.02 ;
 
-    $p = HTML::HeadParser->new;
-    $p->parse(  $mech->response->decoded_content );
+	$utf8_title = "ščříéùâîèôîïâûùàêëüçě£";
+	$mech->submit_form_ok( {  with_fields => { node => $utf8_title, type => 'document' } }, '...submit create new node form.' );
 
-    is ($p->header('Title'), $utf8_title, '...and redirects to the newly created node with utf8 title.');
+	$p = HTML::HeadParser->new;
+	$p->parse(  $mech->response->decoded_content );
 
-    $mech->follow_link_ok( { text => 'edit' }, 'Go to the edit page for this node.' );
+	is ($p->header('Title'), $utf8_title, '...and redirects to the newly created node with utf8 title.');
 
-    like( $mech->response->decoded_content, qr/value="$utf8_title"/, '...default form values set properly.');
 
-    my $utf8_content='£êéèôîïâûùàëçüěščřžýáíéůúßöääÜÖ';
+	$mech->follow_link_ok( { text => 'edit' }, 'Go to the edit page for this node.' );
 
-    $mech->submit_form_ok( { with_fields => { title => $utf8_title, author_user => 'root', doctext => $utf8_content } }, '...adds content to the document.' );
+	like( $mech->response->decoded_content, qr/value="$utf8_title"/, '...default form values set properly.');
 
-    like ($mech->response->decoded_content, qr/>$utf8_content<\/textarea>/, '...with the text area displayed properly.' );
+	my $utf8_content='£êéèôîïâûùàëçüěščřžýáíéůúßöääÜÖ';
 
-    $mech->follow_link_ok( { text => 'display' }, '...go back to the display page.' );
+	$mech->submit_form_ok( { with_fields => { title => $utf8_title, author_user => 'root', doctext => $utf8_content } }, '...adds content to the document.' );
 
-    like ($mech->response->decoded_content, qr/$utf8_content/, '...with the utf8 text displayed properly.' );
+	like ($mech->response->decoded_content, qr/>$utf8_content<\/textarea>/, '...with the text area displayed properly.' );
 
-    SKIP: {
-	# This we should test by following the 'delete' link, but that
-	# link uses javascript that Mech doesn't understand :(
+	$mech->follow_link_ok( { text => 'display' }, '...go back to the display page.' );
 
-	eval 'use URI';
+	like ($mech->response->decoded_content, qr/$utf8_content/, '...with the utf8 text displayed properly.' );
 
-	skip "These tests require URI module, which isn't installed, $@", 2 if $@;
+      SKIP: {
+	    # This we should test by following the 'delete' link, but that
+	    # link uses javascript that Mech doesn't understand :(
 
-	my $uri = $mech->response->request->uri;
-	my $u = URI->new( $uri );
+	    eval 'use URI';
 
-	my $n = $nb->getNode($utf8_title, 'document');
+	    skip "These tests require URI module, which isn't installed, $@", 2 if $@;
 
-	$u->query_form( op => 'nuke', node_id => $n->get_node_id );
+	    my $uri = $mech->response->request->uri;
+	    my $u = URI->new( $uri );
 
-	$mech->get_ok( $u->as_string, '...now try to delete it.');
+	    my $n = $nb->getNode($utf8_title, 'document');
 
-	like ($mech->response->decoded_content, qr/$utf8_title.+was successfully delete/, '...and we go to the node deleted page.');
+	    $u->query_form( op => 'nuke', node_id => $n->get_node_id );
 
+	    $mech->get_ok( $u->as_string, '...now try to delete it.');
+
+	    like ($mech->response->decoded_content, qr/$utf8_title.+was successfully delete/, '...and we go to the node deleted page.');
+
+	}
     }
-
 ## Now let's create another user
     my $user_type = $nb->getNode( 'user', 'nodetype' );
     $mech->follow_link_ok(
