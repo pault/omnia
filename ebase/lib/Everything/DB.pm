@@ -528,13 +528,13 @@ sub sqlExecute
 
 	unless ( $sth = $this->{dbh}->prepare($sql) )
 	{
-		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" . DBI->errstr );
 		return;
 	}
 	$sth->execute(@$bound) or do
 	{
 		local $" = '][';
-		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" . DBI->errstr );
 		return;
 	};
 }

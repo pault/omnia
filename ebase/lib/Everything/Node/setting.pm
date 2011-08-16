@@ -77,7 +77,7 @@ sub hasVars { 1 }
 override getNodeKeepKeys => sub {
     my ($this) = @_;
 
-    my $nodekeys = $this->super();
+    my $nodekeys = super();
     $nodekeys->{vars} = 1;
 
     return $nodekeys;

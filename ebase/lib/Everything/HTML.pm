@@ -991,7 +991,7 @@ sub make_coderef {
     my ( $code, $NODE, $args ) = @_;
 
     $args ||= [];
-    return trap_errors( sub { eval $code }, $NODE->get_compilable_field, $NODE, $args );
+    return trap_errors( sub { eval $code }, $NODE->get_compilable_field, $NODE, $args ); ## no critic
 
 }
 

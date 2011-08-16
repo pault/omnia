@@ -72,7 +72,9 @@ sub test_get_node_keys :Test( +2 )
 
 	$self->SUPER();
 
-	$node->set_always( super => { node_id => 10, nltext => 'nltext' } );
+	no strict 'refs';
+	local *{ $self->node_class . '::super' } = sub { +{node_id => 10, nltext => 'nltext' } };
+	use strict 'refs';
 
 	my $result = $node->getNodeKeys( 0 );
 	is( $result->{nltext}, 'nltext',
@@ -80,6 +82,18 @@ sub test_get_node_keys :Test( +2 )
 
 	$result    = $node->getNodeKeys( 1 );
 	is( $result->{nltext}, undef, '... but should really remove it then' );
+}
+
+
+sub test_get_node_keep_keys : Test( +2 ) {
+    my $self = shift;
+    $self->SUPER::test_get_node_keep_keys;
+
+    my $node = $self->{node};
+
+    is ( $node->getNodeKeepKeys->{lastupdate}, 1, '...lastupdate is a key not to be changed.' );
+    is ( $node->getNodeKeepKeys->{nltext}, 1, '...nltext is a key not to be changed.' );
+
 }
 
 1;

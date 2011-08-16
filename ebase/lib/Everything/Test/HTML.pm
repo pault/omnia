@@ -504,6 +504,8 @@ sub test_trap_errors : Test(3) {
     can_ok( $package, 'trap_errors' );
     local *trap_errors = \&{ $package . '::trap_errors' };
 
+    ## no critic
+
     #evalX should just parse things sanely;
     my $code = '"string"';
     is( trap_errors( sub { eval $code } ), 'string', 'evalX string' );
@@ -511,6 +513,7 @@ sub test_trap_errors : Test(3) {
 
     is( trap_errors( sub { eval $code }, $mock ), 3, 'maths' );
 
+    ## use critic
 }
 
 sub test_update_nodelet : Test(2) {

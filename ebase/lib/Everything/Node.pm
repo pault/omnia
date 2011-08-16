@@ -845,7 +845,7 @@ sub existingNodeMatches
 	my %WHERE;
 
 	@WHERE{@ID} = @$this{@ID};
-	my $NODE = $nodebase->getNode( \%WHERE, $this->type );
+	my $NODE = $nodebase->getNode( \%WHERE, $this->type_title );
 
 	return $NODE;
 }
