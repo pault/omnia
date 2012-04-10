@@ -49,7 +49,7 @@ sub test_startup_1_create_database : Test(startup => 2) {
     ok( !DBI->err, '...creates a database.' ) || diag DBI->err;
 
     $storage->grant_privileges( $config->database_name, $config->database_user,
-        $config->database_password );
+        $config->database_password, $config->database_host, $config->database_port );
 
     ok( !DBI->err, '...grants privileges to user.' ) || diag DBI->err;
 
@@ -101,7 +101,9 @@ sub test_delete_test_database : Test(shutdown => 1) {
         $self->{storage}->drop_database(
             $self->{config}->database_name,
             $self->{config}->database_superuser,
-            $self->{config}->database_superpassword
+            $self->{config}->database_superpassword,
+	    $self->{config}->database_host,
+	    $self->{config}->database_port,
         ),
         '... deletes the test database.'
     );

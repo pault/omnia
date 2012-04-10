@@ -30,10 +30,13 @@ use base 'Everything::DB';
 #
 sub databaseConnect
 {
-	my ( $this, $dbname, $host, $user, $pass ) = @_;
+	my ( $this, $dbname, $host, $user, $pass, $port ) = @_;
+
+	my $connect_string = "DBI:Pg:dbname=$dbname;host=$host";
+	$connect_string .= ";port=$port" if $port;
 
 	$this->{dbh} =
-		DBI->connect( "DBI:Pg:dbname=$dbname;host=$host", $user, $pass )or die "Unable to get database connection!";
+		DBI->connect( $connect_string, $user, $pass )or die "Unable to get database connection!";
 	$this->{dbh}->{ChopBlanks} = 1;
 
 	

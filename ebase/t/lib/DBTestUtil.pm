@@ -42,7 +42,9 @@ sub drop_database {
     $storage_class->drop_database (
 	$config->database_name,
         $config->database_superuser,
-	$config->database_superpassword
+	$config->database_superpassword,
+	$config->database_host,
+	$config->database_port,
 				  );
 
 
@@ -290,10 +292,11 @@ NODEBALL
     my $db_user = $config->database_user;
     my $db_pass = $config->database_password;
     my $db_type = $config->database_type;
+    my $db_port = $config->database_port;
 
     my @args = (
         '-d', $db_name, '-u', $db_user, '-p', $db_pass,
-        '-t', $db_type, $ball_dir
+        '-t', $db_type, '-P', $db_port, $ball_dir
     );
 
     my @script = ( 'perl', '-Ilib', 'bin/insert_nodeball.pl' );

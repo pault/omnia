@@ -23,10 +23,10 @@ sub create_storage {
     my $storage = $storage_class->new();
 
     $storage->create_database( $$opts{database}, $$opts{db_rootuser},
-        $$opts{db_rootpass}, $$opts{host}, $$opts{Port} );
+        $$opts{db_rootpass}, $$opts{host}, $$opts{port} );
 
     $storage->grant_privileges( $$opts{database}, $$opts{user},
-        $$opts{password} );
+        $$opts{password}, $$opts{host}, $$opts{port} );
 
     $storage->install_base_tables;
 
@@ -34,7 +34,7 @@ sub create_storage {
 
     my $nb = Everything::NodeBase::Cached->new(
         join( ':',
-            $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host} ),
+            $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host}, $$opts{ port } ),
         1,
         $$opts{type}
     ) || die "Can't get Nodebase, $!";

@@ -85,7 +85,7 @@ sub BUILDARGS
 {
 	my ( $class, $db, $staticNodetypes, $storage ) = @_;
 
-	my ( $dbname, $user, $pass, $host ) = split /:/, $db;
+	my ( $dbname, $user, $pass, $host, $port ) = split /:/, $db;
 	$user ||= 'root';
 	$pass ||= '';
 	$host ||= 'localhost';
@@ -102,7 +102,7 @@ sub BUILDARGS
 		dbname => $dbname,
 	);
 
-	$storage_object->databaseConnect( $dbname, $host, $user, $pass );
+	$storage_object->databaseConnect( $dbname, $host, $user, $pass, $port );
 
 	return +{ storage => $storage_object, dbname => $dbname, staticNodetypes=> $staticNodetypes }
     

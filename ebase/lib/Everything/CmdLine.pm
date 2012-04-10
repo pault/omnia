@@ -22,7 +22,7 @@ sub get_options {
     GetOptions(
         \%opts,         'user|u=s', 'password|p=s', 'host|h=s',
         'database|d=s', 'port|P=s', 'type|t=s', @$other_options
-    ) or usage_options($usage_msg);
+	      ) or usage_options($usage_msg);
     return \%opts;
 
 }
@@ -95,9 +95,12 @@ sub make_nodebase {
     $$opts{user} ||= $ENV{USER};
     $$opts{host} ||= 'localhost';
 
+    my $nb_args =  join ':', $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host};
+    $nb_args .= ":$$opts{port}" if $$opts{port};
+
     my $nb =
       Everything::NodeBase::Cached->new(
-        "$$opts{database}:$$opts{user}:$$opts{password}:$$opts{host}",
+	$nb_args,
         1, $$opts{type} );
     croak
 "Can't connect to nodebase using database '$$opts{database}', user '$$opts{user}', password '$$opts{password}', host '$$opts{host}' and type '$$opts{type}'"

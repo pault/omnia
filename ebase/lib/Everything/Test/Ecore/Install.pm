@@ -41,11 +41,11 @@ sub startup :Test(startup => 2) {
 	$$opts{ user } = $config->database_user;
 	$$opts{ database } = $config->database_name;
 	$$opts{ password } = $config->database_password;
+	$$opts{ port } = $config->database_port;
 	$$opts{ db_rootuser } = $config->database_superuser;
 	$$opts{ db_rootpass } = $config->database_superpassword;
 
     }
-
 
     if ( "Everything::DB::$$opts{ type }"->databaseExists( map { defined $_ ? $_ : '' } @$opts{ qw/database  db_rootuser db_rootpass host port/ } ) ) {
 	diag "Database $$opts{ database } exists will try to drop....";

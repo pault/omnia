@@ -34,6 +34,15 @@ sub apache_tests {
 
     }
 
+### test for apache extension tool
+
+    my $apxs = 'apxs2';
+
+    if ( ! `which $apxs` ) {
+	plan skip_all => "Apache Extenstion Tool, $apxs, must be installed. Skipping all tests.";
+	return;
+    }
+
     my $nb = nodebase();
 
     mkdir('t/conf') unless -e 't/conf';
@@ -41,6 +50,7 @@ sub apache_tests {
       or die "Can't open file for writing, $!";
 
     print $fh <<APACHECONF;
+LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
 <Perl>
 use lib '\@SERVERROOT\@/../lib';
 </Perl>
@@ -59,8 +69,22 @@ APACHECONF
 
 ### start apache server
 
-    system( 't/TEST', '-clean' );
-    system( 't/TEST', '-start-httpd' );
+    # my $status = system( 't/TEST', '-clean' );
+    diag `t/TEST -clean 2>&1`;
+
+    if ( ($? >> 8) != 0 ) {
+        plan skip_all => "Failed to clean apache setup directory.  Skipping all tests.";
+	return;
+    }
+
+    #$status = system( 't/TEST', '-start-httpd' );
+    diag `t/TEST -start-httpd 2>&1`;
+
+    if ( ($? >> 8) != 0 ) {
+        plan skip_all => "Failed to start apache.  Skipping all tests.";
+	return;
+    }
+
 
 ### grab a copy of the same nodebase apache is using
 

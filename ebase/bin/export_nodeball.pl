@@ -16,7 +16,7 @@ usage_options("\nUsage:\n\n\t$0 [options] <nodeball title> [filepath]\n\nThe <no
 
 
 $$opts{type} ||= 'sqlite';
-my $nodebase_string =  join ':', $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host};
+my $nodebase_string =  join ':', $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host}, $$opts{port};
 my $nb = Everything::NodeBase::Cached->new(
     $nodebase_string,
     1, $$opts{type}
