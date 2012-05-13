@@ -124,7 +124,7 @@ sub test_make_nodebase : Test(5) {
     is_deeply(
         \@new_args,
         [
-            'Everything::NodeBase::Cached', "dbname:dbuser:dbpassword:dbhost",
+            'Everything::NodeBase::Cached', "dbname:dbuser:dbpassword:dbhost:dbport",
             1,                      'dbtype'
         ],
         '...args are handled properly.'

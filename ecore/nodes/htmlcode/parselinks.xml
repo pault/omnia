@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="parselinks">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">my $NODE = $this-&gt;get_node; 	
+  <field name="code" type="literal_value">my $NODE = $this-&gt;get_requested_node; 	
 my ($field) = @_;
 	my $text = $$NODE{$field};
 	$text =~ s/\[(.*?)\]/$this-&gt;link_node_title ($1, $NODE)/egs;

@@ -4,8 +4,9 @@ use Everything::CmdLine qw/abs_path/;
 use Everything::NodeBase::Cached;
 use Template;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has $_ => ( is => 'rw' ) foreach qw/nodebase nodeball db_name db_rootuser db_rootpass db_user db_pass db_host db_port apache_user data_dir web_dir web_user web_group install_core modify_apache_conf/;
@@ -22,10 +23,10 @@ sub create_storage {
     my $storage = $storage_class->new();
 
     $storage->create_database( $$opts{database}, $$opts{db_rootuser},
-        $$opts{db_rootpass}, $$opts{host}, $$opts{Port} );
+        $$opts{db_rootpass}, $$opts{host}, $$opts{port} );
 
     $storage->grant_privileges( $$opts{database}, $$opts{user},
-        $$opts{password} );
+        $$opts{password}, $$opts{host}, $$opts{port} );
 
     $storage->install_base_tables;
 
@@ -33,7 +34,7 @@ sub create_storage {
 
     my $nb = Everything::NodeBase::Cached->new(
         join( ':',
-            $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host} ),
+            $$opts{database}, $$opts{user}, $$opts{password}, $$opts{host}, $$opts{ port } ),
         1,
         $$opts{type}
     ) || die "Can't get Nodebase, $!";

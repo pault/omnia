@@ -1,8 +1,9 @@
 package Everything::NodeAccess;
 
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
+
 
 extends 'Everything::Object';
 

@@ -19,14 +19,6 @@ my $vlinkcolor = $$THEME{bodyVlinkcolor};
 $vlinkcolor ||= &quot;#333399&quot;;
 push @params, &quot;vlink='$vlinkcolor'&quot;;
 
-my $lmargin = $$THEME{bodyLMargin};
-$lmargin = 5 unless(defined $lmargin);
-push @params, &quot;leftmargin='$lmargin' marginwidth='$lmargin'&quot;;
-
-my $tmargin = $$THEME{bodyTMargin};
-$tmargin = 5 unless(defined $tmargin);
-push @params, &quot;topmargin='$tmargin' marginheight='$tmargin'&quot;;
-
 &quot;&lt;BODY &quot; . join(' ', @params). &quot;&gt;&quot;;</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>

@@ -8,9 +8,9 @@
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlpage</field>
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
-  <field name="page" type="literal_value">&lt;table border=0 width=100% cellspacing=5&gt;
+  <field name="page" type="literal_value">&lt;table border=&quot;0&quot; width=&quot;100%&quot; cellspacing=&quot;5&quot; summary=&quot;Node Method Edit Layout&quot; &gt;
 &lt;tr&gt;
- &lt;td width=100%&gt;
+ &lt;td width=&quot;100%&quot; &gt;
   [&lt;editTitleOwner&gt;]
   &lt;b&gt;Supports:&lt;/b&gt;
   [{nodeFormObject: NodetypeMenu, supports_nodetype, supportstype}]&lt;br&gt;
@@ -21,12 +21,12 @@
 &lt;/tr&gt;
 &lt;tr&gt;
  &lt;td valign=top&gt;
-  &lt;FONT SIZE=2&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/FONT&gt;&lt;br&gt;
+  &lt;font size=&quot;2&quot;&gt;&lt;b&gt;Edit the code:&lt;/b&gt;&lt;/font&gt;&lt;br&gt;
   [{nodeFormObject: TextArea, code, code, AUTO, 80, 20, off}]
  &lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
-&lt;p&gt;
+
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">nodemethod</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

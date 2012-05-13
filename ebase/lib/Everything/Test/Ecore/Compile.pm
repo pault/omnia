@@ -8,37 +8,39 @@ use HTML::Lint;
 use Test::More;
 use Test::MockObject;
 use Test::MockObject::Extends;
+use Scalar::Util qw/blessed/;
 use Carp;
 use strict;
 use warnings;
 
+eval 'use HTML::Tidy 1.54'; ## no critic
+
+my $html_tidy_error;
+$html_tidy_error = $@ if $@;
+
 ## error handling - until error handling is made more flexible
 
 my $err;
-no warnings 'redefine';
-*Everything::getFrontsideErrors =sub {
-
-    my @temp = @Everything::fsErrors;
-    $err = \@temp;
-    return \@Everything::fsErrors;
-};
-use warnings 'redefine';
 
 sub report_error {
 
-    diag join( "\n", map { join "\n", $_->{context}->get_title, $_->{context}->get_node_id, $_->{error}  } @$err);
+    diag join( "\n", map { join "\n", $_->{context}->get_title, $_->{context}->get_node_id, $_->{error}  } @{ Everything::getFrontsideErrors() });
 
 }
 
 
 sub test_node_error {
-    my $node = shift;
+    my ( $node, $parsetype ) =  @_;
 
-    my $error = join "\n", map { $_->{error} } @$err;
+    my $error = join "\n", map { $_->{error} } @{ Everything::getFrontsideErrors() };
     is( $error, '',
-"...execute node $$node{title}, type" . $node->type_title .", id, $$node{node_id}"
+"...execute $parsetype for node $$node{title}, type" . $node->type_title .", id, $$node{node_id}"
 	     ) || report_error();
 
+}
+
+sub clear_errors {
+   $err = [];
 }
 
 sub SKIP_CLASS {
@@ -87,23 +89,24 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( get_message  => 'a message' );
 
     # mocks for $query
-    $mock->set_always( hidden               => 'a string of html' );
+    $mock->set_always( hidden               => '<input type="hidden" value="a sting of html" />' );
     $mock->set_always( popup_menu           => 'a string of html' );
     $mock->set_always( radio_group          => 'a string of html' );
     $mock->set_always( password_field       => 'a string of html' );
     $mock->set_always( textarea             => 'a string of html' );
     $mock->set_always( textfield            => 'a string of html' );
-    $mock->set_always( start_form           => 'a string of html' );
-    $mock->set_always( end_form             => 'a string of html' );
+    $mock->set_always( start_form           => '<form action="/">' );
+    $mock->set_always( end_form             => '</form>' );
     $mock->set_always( script_name          => 'a script name' );
     $mock->set_always( scrolling_list       => 'a string of html' );
     $mock->set_always( checkbox             => 'a string of html' );
     $mock->set_always( button               => 'a string of html' );
     $mock->set_always( checkbox_group       => 'a string of html' );
-    $mock->set_always( start_multipart_form => 'a string of html' );
+    $mock->set_always( start_multipart_form => '<form action="/">' );
     $mock->set_always( h2                   => 'a string of html' );
     $mock->set_always( p                    => 'a string of html' );
     $mock->set_true('param');
+    $mock->set_always( user_agent => 'Ecore Test Suite' );
 
     # mocks for $DB
     $mock->set_always( getNodeWhere => [ $mock, $mock ] );
@@ -122,9 +125,12 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( getNodetypeTables => [qw/table1 table2/] );
     $mock->set_always( sqlSelectMany => undef );    # make workspace info pass
     $mock->set_list( fetchrow => undef );
+    $mock->set_series( fetchrow_hashref => { title => 1}, {title => 2 } );
     $mock->set_always( getDatabaseHandle => $mock );
     $mock->set_always( sqlSelect         => undef );
     $mock->mock( getRef => sub { $_[1] = $mock } );
+    $mock->set_always( get_storage => $mock );
+    $mock->set_always( retrieve_nodetype_tables => [ qw/table1 table2/ ] );
 
     # mocks for $dbh
     $mock->set_always( quote => 'a quoted string' );
@@ -155,6 +161,19 @@ sub pretest_setup : Test(setup) {
     $mock->set_always( 'get_doctext', 'text' );
     $mock->set_always( 'get_from_address', 'from@address' );
     $mock->set_always( 'type', $mock );
+    $mock->set_always( get_code => 'print' );
+    $mock->{group} = [1, 2, 3 ];
+    $mock->{src}= "/images/source/";
+    $mock->{defaultauthoraccess} = 'default author access';
+    $mock->{derived_defaultauthoraccess} = 'derived default author access';
+    $mock->{defaultgroupaccess} = 'default group access';
+    $mock->{derived_defaultgroupaccess} = 'derived default group access';
+    $mock->{defaultotheraccess} = 'default other access';
+    $mock->{derived_defaultotheraccess} = 'derived default other access';
+    $mock->{defaultguestaccess} = 'default guest access';
+    $mock->{derived_defaultguestaccess} = 'derived default guest access';
+    $mock->set_always( get_supports_nodetype => 1 );
+    $mock->{doctext}='some text';
 
     # others
     $mock->set_always( toXML => 'some xml' );
@@ -196,7 +215,10 @@ sub test_execute_htmlcode_nodes : Tests {
     my $test_nodes    = $self->{nodebase}->getNodeWhere( '', 'htmlcode' );
     my $compilable    = $self->{test_execute_nodes};
     my @nodes_to_test = grep { $$compilable{ $_->{node_id} } } @$test_nodes;
-    $self->num_tests( scalar(@nodes_to_test) * 2 );
+
+    # one test for execution, one test for html validity less two for
+    # openform and closeform and themeselectorwhich deliberately have mangled html
+    $self->num_tests( scalar(@nodes_to_test) * 2 - 3);
 
     $mock->{node_id} = 123;
     $mock->{to_node} = 456;
@@ -217,21 +239,26 @@ sub test_execute_htmlcode_nodes : Tests {
         my $ehtml = Everything::HTML->new( { request => $mock } );
         my $rv = $node->run( { args => \@args, ehtml => $ehtml } );
 
-	test_node_error( $node );
+	test_node_error( $node, 'PERL' );
 
-        my $linter = HTML::Lint->new;
-        $linter->only_types( 'HTML::Lint::Error::HELPER',
-            'HTML::Lint::Error::FLUFF' )
-          if $$node{title} eq 'closeform';
+	# these have mangled html and should probably be ditched.
+	next if $$node{title} eq 'openform' || $$node{title} eq 'closeform' || $$node{title} eq 'themeselector';
 
-        $linter->parse($rv);
+	return "Skipping test, install correct HTML::Tidy" if $html_tidy_error;
+
+        my $tidy = HTML::Tidy->new;
+
+       $tidy->parse( $$node{title}, $rv );
+
+	my @filtered_messages = filter_tidy_messages( $tidy );
+
         is(
-            scalar $linter->errors,
+            scalar @filtered_messages,
             0,
 "...the HTML produced for node '$$node{title}' of type '".$node->type_title."' has no errors."
           )
           || do {
-            diag $_->as_string . "\n" . $rv foreach $linter->errors;
+            diag $_->as_string . "\n" . $rv foreach @filtered_messages;
           };
 
     }
@@ -260,7 +287,7 @@ sub test_execute_opcode_nodes : Tests {
         # opcodes are only passed the request object as the only argument
         my $rv = $node->run( { args => [$mock] } );
 
-	test_node_error( $node );
+	test_node_error( $node, 'PERL' );
 
     }
 }
@@ -280,14 +307,6 @@ sub test_execute_htmlsnippet_nodes : Tests {
 
     $self->test_parse_eval_nodes(
         'htmlsnippet',
-        undef, undef,
-        sub {
-
-            my ( $linter, $node ) = @_;
-            $linter->only_types( 'HTML::Lint::Error::HELPER',
-                'HTML::Lint::Error::FLUFF' )
-              if $$node{title} eq 'backsideErrors';
-        }
     );
 
 }
@@ -296,16 +315,11 @@ sub test_execute_container_nodes : Tests {
 
     my $self = shift;
 
+    $self->test_parse_eval_nodes('container');
+    return;
     $self->test_parse_eval_nodes(
-        'container',
-        undef, undef,
-        sub {
-            my ( $linter, $node ) = @_;
-            $linter->only_types( 'HTML::Lint::Error::HELPER',
-                'HTML::Lint::Error::FLUFF' )
-              if $$node{title} eq 'stdcontainer';
-        }
-    );
+        'container'
+				);
 
 }
 
@@ -349,14 +363,16 @@ sub test_parse_eval_nodes {
     my $test_nodes    = $self->{nodebase}->getNodeWhere( '', $nodetype );
     my $compilable    = $self->{test_execute_nodes};
     my @nodes_to_test = grep { $$compilable{ $_->{node_id} } } @$test_nodes;
-    $self->num_tests( scalar(@nodes_to_test) * 10 );
+    $self->num_tests( scalar(@nodes_to_test) * 6 );
 
     my $setup_parser = setup_parser();
 
     foreach (@nodes_to_test) {
 
-
         my $node = $self->{nodebase}->getNode($_);
+
+#	next if $$node{title} eq 'editDefaultPermissions';
+#	next if $$node{title} eq 'editNodePermissions';
 
         foreach my $parsetype (qw/TEXT PERL HTMLCODE HTMLSNIPPET ALL/) {
 
@@ -367,23 +383,45 @@ sub test_parse_eval_nodes {
             my @args = ();
 
             my $ehtml = Everything::HTML->new( { request => $mock } );
-            my $rv = $node->run( { args => \@args, ehtml => $ehtml } );
+	    $ehtml->set_request_node( $mock );
 
-	    test_node_error( $node );
+            my $rv = $node->run( { args => \@args, ehtml => $ehtml} );
 
-            my $linter = HTML::Lint->new;
-            $filterlinter_cb->( $linter, $node ) if $filterlinter_cb;
-            $linter->parse($rv);
+	    test_node_error( $node, $parsetype );
+
+	    next unless $parsetype eq 'ALL'; #only do HTML tests when we have it all
+	    return "Skipping test, install correct HTML::Tidy" if $html_tidy_error;
+
+            $ehtml->get_request->set_always( get_query => CGI->new );
+
+	    ## rerun tests with valid html
+
+            $rv = $node->run( { args => \@args, ehtml => $ehtml, no_cache => 1} );
+
+            my $tidy = HTML::Tidy->new;
+            $filterlinter_cb->( $tidy, $node ) if $filterlinter_cb;
+            $tidy->parse($$node{title}, $rv);
+
+	    my @filtered_messages = filter_tidy_messages( $tidy );
+
             is(
-                scalar $linter->errors,
+                scalar @filtered_messages,
                 0,
 "...the HTML produced for node '$$node{title}' of type '" . $node->type_title ."' has no errors for parse type $parsetype."
               )
               || do {
-                diag $_->as_string . "\n" . $rv foreach $linter->errors;
+                diag $_ . "\n" . $rv foreach @filtered_messages;
               };
         }
     }
+
+}
+
+sub filter_tidy_messages {
+
+    my $tidy = shift;
+
+    return grep { ! (/<head>/ || /DOCTYPE/ || /inserting implicit <body>/ || /inserting missing 'title' element/ || /trimming empty/ || /backsideerrors/i ) } $tidy->messages;
 
 }
 

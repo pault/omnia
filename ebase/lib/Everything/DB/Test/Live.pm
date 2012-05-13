@@ -49,7 +49,7 @@ sub test_startup_1_create_database : Test(startup => 2) {
     ok( !DBI->err, '...creates a database.' ) || diag DBI->err;
 
     $storage->grant_privileges( $config->database_name, $config->database_user,
-        $config->database_password );
+        $config->database_password, $config->database_host, $config->database_port );
 
     ok( !DBI->err, '...grants privileges to user.' ) || diag DBI->err;
 
@@ -79,7 +79,7 @@ sub test_startup_3_initialise_nodebase : Test(startup => 6) {
     );
     isa_ok( $nb, 'Everything::NodeBase', '... nodebase object is valid.' );
 
-    is( my @nodes = @{ $nb->getNodeWhere() },
+    is( my @nodes = @{ $nb->getNodeWhere( undef, undef, 'node_id' ) },
         3, '... nodebase contains three nodes.' );
 
     is( $nodes[0]->get_title . $nodes[0]->get_type_nodetype,
@@ -101,7 +101,9 @@ sub test_delete_test_database : Test(shutdown => 1) {
         $self->{storage}->drop_database(
             $self->{config}->database_name,
             $self->{config}->database_superuser,
-            $self->{config}->database_superpassword
+            $self->{config}->database_superpassword,
+	    $self->{config}->database_host,
+	    $self->{config}->database_port,
         ),
         '... deletes the test database.'
     );
@@ -191,11 +193,12 @@ sub test_sql_insert_update_delete :Test(4) {
 
     my $self = shift;
     my $s = $self->{ storage };
+
     is( $s->sqlInsert( 'node', { title => 'testtitle', -createtime => $s->now } ), 1, '...insert one row.' );
 
-    is( $s->lastValue( 'node', 'node_id' ), 4, '...lastValue is valid.');
+    ok(my $new_id = $s->lastValue( 'node', 'node_id' ), '...lastValue is valid.');
 
-    is( $s->sqlUpdate( 'node', { title => 'testtitle1' }, ' node_id = 4 ' ), 1, '...updates one row.');
+    is( $s->sqlUpdate( 'node', { title => 'testtitle1' }, " node_id = $new_id " ), 1, '...updates one row.');
 
     is( $s->sqlDelete( 'node', ' title = ? ', [ 'testtitle1' ] ), 1, '...deletes one row.' ) || diag $DBI::errstr;
 }
@@ -325,7 +328,7 @@ sub test_select_node_where :Test(3) {
     my $self = shift;
     my $s = $self->{ storage };
 
-    is_deeply( $s->selectNodeWhere, [1,2,3], '...gets ids of all nodes.');
+    is_deeply( $s->selectNodeWhere( undef, undef, 'node_id' ), [1,2,3], '...gets ids of all nodes.');
 
     my $totalrows;
     $s->selectNodeWhere( undef, undef, undef, undef, undef, \$totalrows);
@@ -525,7 +528,7 @@ sub test_get_fields_hash :Test(2) {
     my @rv = $s->getFieldsHash( 'node', 0 );
     my %rv = map { $_ => 1 } @rv; # we don't care what order they come in
 
-    my @expected = qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
+    my @expected = qw/node_id type_nodetype title author_user createtime modified loc_location lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
     my %expected = map { $_ => 1 } @expected;
 
     is_deeply ( \%rv, \%expected, '...returns list of fields in table.' );
@@ -537,6 +540,54 @@ sub test_get_fields_hash :Test(2) {
 
     is_deeply ( \@rv, \@expected_hashes, '...returns list of hashes of fields in table.' );
 
+}
+
+sub test_node_create_delete :Test(2) {
+    my $self = shift;
+    my $nb = $self->{nodebase};
+    my $s = $self->{storage};
+
+    my $node = $nb->getNode('test node', 'setting', 'create force');
+    my $id = $nb->store_new_node($node, -1);
+    my $dbh = $s->{dbh};
+
+    my $rv =
+      $dbh->do(
+qq|INSERT INTO node_statistics (value, node, type ) values (22, $id,  (SELECT node_statistics_type_pk FROM node_statistics_type WHERE node_statistics_type.type_name ='hits'))|
+      );
+
+    return diag "$DBI::errstr" unless $rv;
+
+    $node = $nb->getNode( $id );
+    $nb->delete_stored_node( $node, -1 );
+
+    my $sth = $dbh->prepare(qq{ SELECT count(1) from node_statistics WHERE node = $id });
+    $sth->execute;
+    $rv = $sth->fetchrow_arrayref;
+    diag "$DBI::errstr" if $dbh->err;
+    is($$rv[0], 0, '...node statistics table rows deleted on delete node.');
+}
+
+## will a node with a utf8 title be created properly.
+
+sub test_node_create_delete_utf8 : Test(5) {
+
+    my $self = shift;
+    my $nb = $self->{nodebase};
+    my $s = $self->{storage};
+    my $dbh = $s->{dbh};
+
+    my $utf8_title = "Ça apèôîïâûùà ščřžýáíŇ";
+
+    ok( my $node = $nb->getNode( $utf8_title, 'node', 'create force'), 'Creates a node with a UTF8 title');
+    ok( my $id = $nb->store_new_node($node, -1), '...is stored.' );
+
+    is( $dbh->errstr, undef, '...without errors.' );
+
+    ok( my $retrieved_node = $nb->getNode( $id ), 'Now gets node from the db.');
+
+    is( $retrieved_node->get_title, $utf8_title, '...with the correctly formed title.');
+    $nb->delete_stored_node( $node, -1 );
 }
 
 1;

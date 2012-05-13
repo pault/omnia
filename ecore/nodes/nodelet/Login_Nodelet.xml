@@ -22,11 +22,12 @@ my $query = $this-&gt;get_query;
 my $nodebase = $this-&gt;get_nodebase;
 my $NODE = $this-&gt;get_requested_node;
 
-$query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
-'&lt;fieldset&gt;' .
-$query-&gt;hidden(&quot;node_id&quot;, $nodebase-&gt;getId($NODE)) . &quot;\n&quot; .
-$query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&quot;)) . &quot;\n&quot;;
+my $str = $query-&gt;start_form(&quot;POST&quot;, $ENV{SCRIPT_NAME}) .
+'&lt;fieldset&gt;';
+$str .= $query-&gt;hidden(&quot;node_id&quot;, $nodebase-&gt;getId($NODE)) . &quot;\n&quot;;
+$str .= $query-&gt;hidden(&quot;lastnode_id&quot;, $query-&gt;param(&quot;lastnode_id&quot;)) . &quot;\n&quot;;
 
+$str;
 %]
 &lt;input type=&quot;hidden&quot; name=&quot;op&quot; value=&quot;login&quot; /&gt;
 &lt;label for=&quot;loginnodeletlogin&quot; style=&quot;width: 5em&quot;&gt;Login:&lt;/label&gt;

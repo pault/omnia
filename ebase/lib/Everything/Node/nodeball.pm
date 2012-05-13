@@ -12,8 +12,9 @@ package Everything::Node::nodeball;
 use Carp;
 use Scalar::Util qw/blessed/;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Node::nodegroup';
 
 has vars => ( is => 'rw' );

@@ -9,8 +9,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::htmlpage;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 extends 'Everything::Node::node';
 
@@ -54,6 +55,7 @@ sub make_html {
     else {
         Everything::printBacksideToLogFile();
     }
+
     $page =~ s/<BacksideErrors>/$errors/;
 
     return $page;

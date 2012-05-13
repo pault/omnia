@@ -13,7 +13,7 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 
-  return &quot;&quot; unless $NODE-&gt;{type}{title} eq &quot;nodetype&quot;;
+  return &quot;&quot; unless $NODE-&gt;isOfType( 'nodetype' );
 
   my $getSymbolsForType = 
   sub {

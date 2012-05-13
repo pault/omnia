@@ -143,7 +143,7 @@ sub test_insert :Test( 3 )
 
 	my $dbh = $db->{storage}->getDatabaseHandle();
 	my $sth = $dbh->prepare(
-		'SELECT createtime, author_user, hits FROM node WHERE node_id=?'
+		'SELECT createtime, author_user FROM node WHERE node_id=?'
 	);
 	$sth->execute( $result );
 	my $node_ref = $sth->fetchrow_hashref();
@@ -151,7 +151,6 @@ sub test_insert :Test( 3 )
 		{
 			createtime  => $time,
 			author_user => 'user',
-			hits        => 0,
 		},
 		'... with the proper fields'
 	);

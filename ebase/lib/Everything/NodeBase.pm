@@ -21,8 +21,9 @@ use Everything::DB;
 use Everything::NodeBase::Workspace;
 use Everything::NodeAccess;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 has storage => ( is => 'rw' );
 has dbname => ( is => 'rw' );
@@ -84,7 +85,7 @@ sub BUILDARGS
 {
 	my ( $class, $db, $staticNodetypes, $storage ) = @_;
 
-	my ( $dbname, $user, $pass, $host ) = split /:/, $db;
+	my ( $dbname, $user, $pass, $host, $port ) = split /:/, $db;
 	$user ||= 'root';
 	$pass ||= '';
 	$host ||= 'localhost';
@@ -101,7 +102,7 @@ sub BUILDARGS
 		dbname => $dbname,
 	);
 
-	$storage_object->databaseConnect( $dbname, $host, $user, $pass );
+	$storage_object->databaseConnect( $dbname, $host, $user, $pass, $port );
 
 	return +{ storage => $storage_object, dbname => $dbname, staticNodetypes=> $staticNodetypes }
     
@@ -624,7 +625,6 @@ sub store_new_node {
 	# Assign the author_user to whoever is trying to insert this.
 	# Unless, an author has already been specified.
 	$tableData{author_user} ||= $user_id;
-	$tableData{hits} = 0;
 
 	$this->sqlInsert( 'node', \%tableData );
 
@@ -794,11 +794,9 @@ sub delete_stored_node {
 	$this->remove_from_groups( $node );
 
 	# Actually remove this node from the database.
-	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
-	foreach my $table (@$tableArray)
-	{
-		$result += $this->sqlDelete( $table, "${table}_id = ?", [$id] );
-	}
+
+	$result = $this->get_storage->purge_node_data( $node );
+
 	# Clear out the node id so that we can tell this is a "non-existant" node.
 	$node->{node_id} = 0;
 
@@ -1715,6 +1713,8 @@ sub register_type_module {
 package Everything::NodetypeMetaData;
 
 use Moose;
+use MooseX::FollowPBP; 
+
 
 has $_ => ( is => 'rw' )
   foreach qw( sqltable grouptable defaultgroup_usergroup

@@ -2,190 +2,69 @@
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
   <field name="code" type="literal_value">[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+my $THEME = $this->get_theme;
 
+%Everything::HTML::GLOBAL = ();
 
 # Set up color stuff for this page
-$GLOBAL{permColorLite} = &quot;#cccccc&quot;;
-$GLOBAL{permColorLite} = $$THEME{permColorLite}
+$Everything::HTML::GLOBAL{permColorLite} = &quot;#cccccc&quot;;
+$Everything::HTML::GLOBAL{permColorLite} = $$THEME{permColorLite}
     if(exists $$THEME{permColorLite});
-$GLOBAL{permColorDark} = &quot;#999999&quot;;
-$GLOBAL{permColorDark} = $$THEME{permColorDark}
+$Everything::HTML::GLOBAL{permColorDark} = &quot;#999999&quot;;
+$Everything::HTML::GLOBAL{permColorDark} = $$THEME{permColorDark}
     if(exists $$THEME{permColorDark});
 
 %]
-&lt;table cellspacing=1 border=0&gt;
+&lt;table summary=&quot;All Node Permissions&quot; cellspacing=&quot;1&quot; border=&quot;0&quot;&gt;
  &lt;tr&gt;
   &lt;td&gt;&amp;nbsp;&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+  &lt;td bgcolor=&quot;[%
 
-$GLOBAL{permColorLite}
-%]'&gt;Read&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;Read&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
 
-$GLOBAL{permColorLite}
-%]'&gt;Write&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;Execute&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;Delete&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;Parent Settings&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;Dynamic&lt;/td&gt;
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;Write&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;Execute&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;Delete&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;Parent Settings&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;Dynamic&lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;author&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;author&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authorr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authorw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authorx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, authoraccess, authord, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:author}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;[{displayInheritedPermissions:author}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -194,7 +73,7 @@ my $THEME = $this-&gt;get_theme;
 my %HTMLVARS = %{ $this-&gt;get_htmlvars };
 my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+
 
 
 my $inherit = $$NODE{type}{derived_defaultauthor_permission};
@@ -211,25 +90,14 @@ $this-&gt;nodeFormObject('TypeMenu', 'dynamicauthor_permission', 'authorperm',
   &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td nowrap bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;group
+  &lt;td nowrap bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;group
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
 
 my $defgroup = $DB-&gt;getNode($$NODE{type}{derived_defaultgroup_usergroup});
 my $menu = newFormObject(&quot;PopupMenu&quot;);
@@ -240,82 +108,28 @@ $menu-&gt;addType(&quot;usergroup&quot;, $USER, 'w', 'labels');
 $menu-&gt;genObject($query, $NODE, &quot;group_usergroup&quot;, &quot;usergroup&quot;);
 
 %]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, groupaccess, groupd, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:group,}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;[{displayInheritedPermissions:group,}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -324,7 +138,7 @@ my $THEME = $this-&gt;get_theme;
 my %HTMLVARS = %{ $this-&gt;get_htmlvars };
 my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+
 
 
 my $inherit = $$NODE{type}{derived_defaultgroup_permission};
@@ -342,94 +156,31 @@ $this-&gt;nodeFormObject('TypeMenu', 'dynamicgroup_permission', 'groupperm',
  &lt;/tr&gt;
 
  &lt;tr&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;other&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;other&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, otheraccess, otherd, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:other}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;[{displayInheritedPermissions:other}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -438,7 +189,7 @@ my $THEME = $this-&gt;get_theme;
 my %HTMLVARS = %{ $this-&gt;get_htmlvars };
 my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+
 
 
 my $inherit = $$NODE{type}{derived_defaultother_permission};
@@ -455,94 +206,31 @@ $this-&gt;nodeFormObject('TypeMenu', 'dynamicother_permission', 'otherperm',
   &lt;/td&gt;
  &lt;/tr&gt;
  &lt;tr&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorLite}
-%]'&gt;guest&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorLite}
+%]&quot;&gt;guest&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestr, r}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestw, w}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestx, x}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
     [{nodeFormObject: PermissionMenu, guestaccess, guestd, d}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;[{displayInheritedPermissions:guest}]&lt;/td&gt;
-  &lt;td bgcolor='[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
-$GLOBAL{permColorDark}
-%]'&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;[{displayInheritedPermissions:guest}]&lt;/td&gt;
+  &lt;td bgcolor=&quot;[%
+$Everything::HTML::GLOBAL{permColorDark}
+%]&quot;&gt;
 [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -551,7 +239,7 @@ my $THEME = $this-&gt;get_theme;
 my %HTMLVARS = %{ $this-&gt;get_htmlvars };
 my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
+
 
 
 my $inherit = $$NODE{type}{derived_defaultguest_permission};

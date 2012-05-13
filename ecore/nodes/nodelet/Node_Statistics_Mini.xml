@@ -5,32 +5,15 @@
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">nodelet</field>
   <field name="mini_nodelet" type="noderef" type_nodetype="nodelet,nodetype">Node Statistics</field>
-  <field name="nlcode" type="literal_value">&lt;font size = 1&gt;
+  <field name="nlcode" type="literal_value">&lt;font size=&quot;1&quot;&gt;
 Node ID:[%
-my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
- getId $NODE 
+$this->get_nodebase->getId( $this->get_requested_node( $NODE  ) ); 
 %]&lt;br&gt;
 Nodetype:
 [%
 my $NODE = $this-&gt;get_node;
-my $USER = $this-&gt;get_user;
-my $query = $this-&gt;get_query;
-my $THEME = $this-&gt;get_theme;
-my %HTMLVARS = %{ $this-&gt;get_htmlvars };
-my $VARS = $this-&gt;get_vars;
-my $DB = $this-&gt;get_nodebase;
-my %GLOBAL;
-
- linkNode ($$NODE{type_nodetype}, 
-    &quot;&lt;font color=#FFFFFF&gt;$$NODE{type_nodetype} &lt;/font&gt;&quot;); 
+$this->link_node($$NODE{type_nodetype ) . 
+    &quot;&lt;div style=\&quot;text-color=#FFFFFF\&quot;&gt;$$NODE{type_nodetype} &lt;/div&gt;&quot;); 
 %]&lt;br&gt;
 Display: &lt;font color=White&gt;
   [%

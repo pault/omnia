@@ -9,8 +9,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::node;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Node';
 
 use DBI;
@@ -23,7 +24,7 @@ use Scalar::Util 'reftype';
 
 has $_ => ( is => 'rw' )
   foreach
-  qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
+  qw/node_id type_nodetype title author_user createtime modified loc_location lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
 
 sub destruct { 1 }
 

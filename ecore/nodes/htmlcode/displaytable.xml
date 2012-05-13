@@ -16,7 +16,7 @@ my $str;
 use Template;
 my $t = Template-&gt;new  || die $Template::Error;
 
-my $template=q{&lt;table class=&quot;displayTable&quot; width=&quot;400&quot;&gt;
+my $template=q{&lt;table class=&quot;displayTable&quot; width=&quot;400&quot; Summary=&quot;General Layout Table&quot; &gt;
 &lt;tr&gt;&lt;td style=&quot;background-color: #cccccc&quot;&gt;Field name&lt;/td&gt;
 [% IF edit %]
 &lt;td  style=&quot;background-color: #cccccc&quot;&gt;Remove Field?&lt;/td&gt;

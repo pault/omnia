@@ -1,3 +1,18 @@
+
+
+* Give each updated ecore an ID - perhaps the git commit ID and
+   version number
+
+* On update of ecore, produce a report that is then put into a
+   document and added to the DB, so that admins have a record of what happened.
+
+* Ecore tests to ensure opcode and htmlcode errors are properly
+   reported - that is that Backside errors appeal on the output page
+   if the user isGod and is otherwise logged.  Also that runtime
+   errors are reported inline.  To do this, we can create opcode and
+   htmlcode with errors in and ensure that these errors are reported
+   as we expect.
+
 * Move parse/run code into separate classes under
    Everything/HTML/Something-or-other 
 

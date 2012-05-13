@@ -19,8 +19,8 @@ my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
 linkNode($NODE, &quot;Upload the image&quot;, {displaytype=&gt;'upload'});
-%]
-&lt;table border=0&gt;
+%]&lt;/b&gt;
+&lt;table border=&quot;0&quot; summary=&quot;Image Edit Layout&quot;&gt;
 &lt;tr&gt;
   &lt;td&gt;&lt;b&gt;&lt;font size=2&gt;source:&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;
   &lt;td&gt;[{nodeFormObject: TextField, src}]&lt;/td&gt;
@@ -38,7 +38,7 @@ linkNode($NODE, &quot;Upload the image&quot;, {displaytype=&gt;'upload'});
   &lt;td&gt;[{nodeFormObject: TextArea, description}]&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
-&lt;p&gt;
+
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">image</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

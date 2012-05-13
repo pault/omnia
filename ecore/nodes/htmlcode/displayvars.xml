@@ -13,7 +13,7 @@ my $THEME = $this-&gt;get_theme;
 my ($varsfield, $N) = @_;
 $varsfield ||= 'vars';
 $N ||= $this-&gt;get_node;
-my $html = &quot;&lt;table class=\&quot;displayVars\&quot;&gt;\n&quot;;
+my $html = &quot;&lt;table summary=\&quot;Vars Display Table\&quot; class=\&quot;displayVars\&quot;&gt;\n&quot;;
 my $vars = $N-&gt;getHash($varsfield);
 
 return &quot;&lt;i&gt;No settings&lt;/i&gt;\n&quot; unless($vars);

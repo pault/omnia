@@ -11,8 +11,9 @@ package Everything::Node::permission;
 
 use strict;
 use warnings;
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 extends 'Everything::Node::htmlcode';
 

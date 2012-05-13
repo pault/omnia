@@ -9,7 +9,7 @@
   <field name="otheraccess" type="literal_value">iiii-</field>
   <field name="ownedby_theme" type="literal_value">0</field>
   <field name="page" type="literal_value">[&lt;editDefaultPermissions&gt;]
-&lt;table&gt;
+&lt;table summary=&quot;Nodetype Edit Layout&quot; &gt;
  &lt;tr&gt;
   &lt;td&gt;sqltable&lt;/td&gt;&lt;td&gt;
    [{nodeFormObject: TextField, sqltable, sqltable, AUTO, 30, 255}][{displayInherited:sqltable}]&lt;/td&gt;

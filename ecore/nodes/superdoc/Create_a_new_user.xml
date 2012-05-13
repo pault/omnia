@@ -21,7 +21,7 @@ local *generateLogin = sub {
     .$query-&gt;hidden('node_id', $NODE-&gt;get_node_id)
     .'&lt;p&gt;Preferred User Name:
       &lt;input type=&quot;text&quot; name=&quot;nu_name&quot; value=&quot;&quot; maxlength=&quot;22&quot; /&gt;&lt;/p&gt;
-      &lt;p&gt;Real&amp;#153; Name:'
+      &lt;p&gt;Real&amp;trade; Name:'
     .$query-&gt;textfield(&quot;nu_realname&quot;, &quot;&quot;, 30)
     .'&lt;/p&gt;&lt;p&gt;Email Address:'
     .$query-&gt;textfield(&quot;nu_email&quot;, &quot;&quot;, 20)

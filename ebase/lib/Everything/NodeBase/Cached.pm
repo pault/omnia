@@ -5,8 +5,9 @@ use warnings;
 
 use Everything::NodeCache;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 extends 'Everything::NodeBase';
 

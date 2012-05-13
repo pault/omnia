@@ -12,6 +12,8 @@ package Everything::HTML::FormObject::TextArea;
 use strict;
 
 use Everything::HTML::FormObject;
+use Encode;
+
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
 
@@ -89,11 +91,16 @@ sub genObject
 		$default = $$bindNode{$field} if ( ref $bindNode );
 	}
 
+	## Use of decode is because of CGI.pm see comment in
+	## TextField.pm
+	## Here override is required to get it to work.
+
 	$html .= $query->textarea(
 		-name    => $name,
-		-default => $default,
+		-default   => Encode::decode( 'utf8', $default ),
 		-cols    => $cols,
 		-rows    => $rows,
+		-override => 1,
                 %$attributes,
 	);
 

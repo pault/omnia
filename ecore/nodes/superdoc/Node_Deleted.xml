@@ -13,11 +13,11 @@ my %GLOBAL;
 
 
 
-my $N = $GLOBAL{nodedeleted};
+my $N = $this-&gt;get_request-&gt;get_message();
 
 return &quot;Nothing to delete&quot; unless($N);
 
-my $str = &quot;Node '$$N{title}' ($$N{type}{title}) was successfully deleted.&quot;;
+my $str = &quot;Node '$$N{title}' (&quot; . $N-&gt;type_title . &quot;) was successfully deleted.&quot;;
 
 $str;
 

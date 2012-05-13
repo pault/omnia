@@ -9,8 +9,9 @@ use Everything::Config::URLDeconstruct;
 use strict;
 use warnings;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has $_ => ( is => 'rw' ) foreach qw/config file settings_node apache_request deconstruct_modifiers deconstruct_locations nb/;
@@ -27,7 +28,7 @@ sub BUILD {
         my $config = AppConfig->new;
 
         foreach (
-            qw/database_name|d database_user|u database_password|p database_host|h database_port|p database_type|t database_superuser database_superpassword/
+            qw/database_name|d database_user|u database_password|p database_host|h database_port|P database_type|t database_superuser database_superpassword/
           )
         {
             $config->define( $_, { DEFAULT => '', ARGCOUNT => ARGCOUNT_ONE } );
@@ -153,16 +154,19 @@ sub nodebase {
     my $db_password = $self->get_config->get('database_password');
     my $db_host     = $self->get_config->get('database_host');
     my $db_type     = $self->get_config->get('database_type');
+    my $db_port     = $self->get_config->get('database_port');
 
     my %options;
     $options{staticNodetypes} = $self->get_config->get('static_nodetypes');
     $options{dbtype}          = $db_type;
-    my $nb = Everything::initEverything(
-        join( ':',
+
+    my $db_string = join( ':',
             $self->database_name,     $self->database_user,
-            $self->database_password, $self->database_host ),
-        \%options
-    );
+            $self->database_password, $self->database_host || '');
+
+    $db_string .= ':' . $self->database_port if $self->database_port;
+
+    my $nb = Everything::initEverything( $db_string, \%options );
 
     $self->set_nb( $nb );
     return $nb;

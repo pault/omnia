@@ -7,8 +7,9 @@ A package to turn nodes into XML for exporting to Nodeballs and revisions.
 package Everything::XML::Node;
 
 use Everything ();
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has raw_xml => ( is => 'rw' );
@@ -536,8 +537,9 @@ sub get_var {
 
 package Everything::XML::Node::Attribute;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has name => ( is => 'rw' );

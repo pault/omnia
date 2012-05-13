@@ -41,11 +41,11 @@ sub startup :Test(startup => 2) {
 	$$opts{ user } = $config->database_user;
 	$$opts{ database } = $config->database_name;
 	$$opts{ password } = $config->database_password;
+	$$opts{ port } = $config->database_port;
 	$$opts{ db_rootuser } = $config->database_superuser;
 	$$opts{ db_rootpass } = $config->database_superpassword;
 
     }
-
 
     if ( "Everything::DB::$$opts{ type }"->databaseExists( map { defined $_ ? $_ : '' } @$opts{ qw/database  db_rootuser db_rootpass host port/ } ) ) {
 	diag "Database $$opts{ database } exists will try to drop....";
@@ -76,7 +76,7 @@ sub test_10_sql_tables : Test(1) {
 
     my %expected_tables =
       map { $_ => 1 }
-      qw/version mail image container node symlink nodemethod nodetype typeversion nodelet revision workspace htmlcode themesetting htmlpage nodegroup javascript setting document user links/;
+      qw/version mail image container node symlink nodemethod nodetype typeversion nodelet revision workspace htmlcode themesetting htmlpage nodegroup javascript setting document user links node_statistics node_statistics_type/;
 
     $self->{installer}->install_sql_tables;
     my %actual_tables = map { $_ => 1 } $self->{nb}->{storage}->list_tables;

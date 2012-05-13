@@ -404,7 +404,7 @@ sub htmlErrorUsers {
         $str = "Server Error (Error Id $errorId)!";
         $str = "<font color=\"#CC0000\"><b>$str</b></font>";
 
-        $str .= "<p>An error has occured.  Please contact the site";
+        $str .= "<br />An error has occured.  Please contact the site";
         $str .= " administrator with the Error Id.  Thank you.";
     }
 
@@ -783,64 +783,6 @@ sub link_node_title {
     return $str;
 }
 
-=cut
-
-
-=head2 C<evalXTrapErrors>
-
-This is a wrapper for the standard eval.  This way we can trap eval errors and
-warnings and do something appropriate with them.  The difference between this
-and evalX is that this function assumes that you want to report all eval errors
-right now.  If you wish to do multiple evals, then report all the errors, call
-evalX for each code and grab the errors yourself.
-
-=over 4
-
-=item * $code
-
-the code to be evaled
-
-=item * $CURRENTNODE
-
-the context in which this code is being evaled.  For example, if this code is
-coming from a nodelet, CURRENTNODE would be the nodelet.  This helps if we
-encounter an error.  That way we know which node the code is coming from. If
-you do not pass $CURRENTNODE, you *must* pass an undef in its place
-
-=item * @_
-
-the remaining items in @_ will be in context for the evaled code.
-
-=back
-
-Returns the result of the evaled code.  If there were any errors, the return
-string will be the error nicely HTML formatted for easy display.
-
-=cut
-
-sub evalXTrapErrors {
-    my ( $code, $CURRENTNODE ) = @_;
-
-    # if there are any logged errors when we get here, they have nothing
-    # to do with this.  So, push them to the backside error log for them to
-    # get displayed later.
-    flushErrorsToBackside();
-
-    my $str = evalX(@_);
-
-    my $errors = getFrontsideErrors();
-
-    if ( int(@$errors) > 0 ) {
-        $str .= htmlFormatErr( $errors, $CURRENTNODE );
-    }
-
-    clearFrontside();
-
-    return $str;
-}
-
-=cut
-
 
 =head2 C<AUTOLOAD>
 
@@ -957,31 +899,8 @@ This, as the name implies executes a code ref.
 sub execute_coderef {
 
     my ( $code_ref, $field, $CURRENTNODE, $args ) = @_;
-    my $warn;
 
-    Everything::flushErrorsToBackside();
-
-    my ($ehtml) = @$args; #E::H object should be first one on array
-    $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
-    my $result = eval { $code_ref->( @$args ) } || '';
-
-    Everything::logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
-      if $warn or $@;
-
-    my $errors = Everything::getFrontsideErrors();
-
-    if ( int(@$errors) > 0 ) {
-	if ( $ehtml ) {
-	    $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
-	} else {
-	    my $formatted = Everything::format_errors( $errors );
-	    Everything::printLog( $formatted );
-	}
-
-    }
-    Everything::clearFrontside();
-
-    return $result;
+    return trap_errors( sub { eval { $code_ref->(@_) } || '' }, $field, $CURRENTNODE, $args );
 
 }
 
@@ -1059,70 +978,6 @@ sub createAnonSub {
 	}\n";
 }
 
-=cut
-
-
-=head2 C<evalX>
-
-This function is a wrapper for the normal eval so that we can trap errors and
-log them.  This is intended to be called only from within this package
-(HTML.pm) as all the globals to this package will be accessable to any code
-that gets evaled.
-
-However, this does not mean that it can't be called from other packages.  Just
-be aware that HTML.pm globals will be in scope.
-
-Note all variables in scope when the eval() is called should be namespaced with
-$EVALX_ -- avoiding  "accidents" involving the same variable names in the
-evalled code.
-
-=over 4
-
-=item * $EVALX_CODE
-
-the string of code that is to be evaled.
-
-=item * $CURRENTNODE
-
-the node in which the code is coming from.  If you are unable to pass this (you
-don't know it or are evaling code that is not associated with a node), you must
-pass undef in its place as the rest of @_ are the parameters that will be in
-scope when the actual eval is done.
-
-=back
-
-Returns whatever the code returns.
-
-=cut
-
-sub evalX {
-    my $EVALX_CODE  = shift @_;
-    my $CURRENTNODE = shift @_;
-    my $EVALX_WARN;
-
-    local $SIG{__WARN__} = sub {
-        $EVALX_WARN .= $_[0]
-          unless $_[0] =~ /^Use of uninitialized value/;
-    };
-
-    # If the code was ever edited on Windows, the newlines are carriage
-    # return, line feed combos.  We only want \n.  We are removing the \r
-    # (line feed) here.  This should probably be done on the database
-    # insert/update routines so that this Windows crap never even gets
-    # into the database.  Oh well, we will just scrub it clean here...
-    $EVALX_CODE =~ s/\015//gs;
-
-    # If we define any subroutines in our code, this will prevent
-    # us from getting the "subroutine * redefined" warning.
-    local $^W = 0;
-
-    my $result = eval($EVALX_CODE);    ## no critic
-
-    # Log any errors that we get so that we may display them later.
-    logErrors( $EVALX_WARN, $@, $EVALX_CODE, $CURRENTNODE ) if $@;
-
-    return $result;
-}
 
 =cut
 
@@ -1133,8 +988,87 @@ Takes some text. Returns a code ref.
 =cut
 
 sub make_coderef {
-    my ( $code, $NODE ) = @_;
-    return evalX $code, $NODE;
+    my ( $code, $NODE, $args ) = @_;
+
+    $args ||= [];
+    return trap_errors( sub { eval $code }, $NODE->get_compilable_field, $NODE, $args ); ## no critic
+
+}
+
+=cut
+
+=head2 C<trap_errors>
+
+This takes a call back containing an 'eval'.  It runs the call back
+and handles the errors.
+
+If the it is being called with a valid Everything::HTML object it will
+return the errors formatted for display on a web page.
+
+If there is no valid Everything::HTML object, it will shift the errors
+to the backside for later processing and print them to the log.
+
+
+It takes the following arguments:
+
+=over 4
+
+=item * the callback function
+
+=item * the name of the node field being 'evaled'.
+
+=item * the node object being 'evaled'.
+
+=item * any arguments being passed to the eval
+
+=back
+
+=cut
+
+sub trap_errors {
+
+    my ( $code_cb, $field, $CURRENTNODE, $args ) = @_;
+    my $warn = q{};
+
+    Everything::flushErrorsToBackside();
+
+    $args ||= [];
+
+    my ($ehtml) = @$args; #E::H object should be first one on array
+    $ehtml->set_current_node( $CURRENTNODE ) if $ehtml;
+
+    my $result = $code_cb->( @$args );
+
+    Everything::logErrors( $warn, $@, $$CURRENTNODE{$field}, $CURRENTNODE )
+      if $warn or $@;
+
+    my $errors = Everything::getFrontsideErrors();
+
+    if ( @$errors ) {
+
+	## XXXXXXXXXXXXXX Here we're testing if there is a
+	## Everything::HTML object.  If there is then we would like
+	## the errors reported in context on the web page.  If there
+	## isn't it means either we have trapped errors from an opcode
+	## and the Everything::HTML error doesn't yet exist OR that we
+	## are running on the command line or something. This seems to
+	## be a clumsy way of doing this.
+
+	## Better if we just throw all our errors at the Error
+	## routines, who then report them appropriately in context.
+
+	if ( $ehtml ) {
+	    $result .= $ehtml->htmlFormatErr( $errors, $CURRENTNODE );
+	    Everything::clearFrontside();
+	} else {
+	    my $formatted = Everything::format_errors( $errors );
+	    Everything::printLog( $formatted );
+	    Everything->flushErrorsToBackside;
+	}
+
+    }
+
+    return $result;
 
 }
 

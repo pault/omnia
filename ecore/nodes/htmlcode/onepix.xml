@@ -1,7 +1,7 @@
 <NODE export_version="0.5" nodetype="htmlcode" title="onepix">
   <field name="author_user" type="noderef" type_nodetype="user,nodetype">root</field>
   <field name="authoraccess" type="literal_value">iiii</field>
-  <field name="code" type="literal_value">&quot;&lt;img width=1 height=2 alt=\&quot;\&quot;&gt;&quot;;</field>
+  <field name="code" type="literal_value">&quot;&lt;img src=\&quot;/images/onepix.jpg\&quot; width=\&quot;1\&quot; height=\&quot;2\&quot; alt=\&quot;\&quot;&gt;&quot;;</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
   <field name="loc_location" type="noderef" type_nodetype="location,nodetype">htmlcode</field>

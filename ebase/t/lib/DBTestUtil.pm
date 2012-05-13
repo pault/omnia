@@ -42,7 +42,9 @@ sub drop_database {
     $storage_class->drop_database (
 	$config->database_name,
         $config->database_superuser,
-	$config->database_superpassword
+	$config->database_superpassword,
+	$config->database_host,
+	$config->database_port,
 				  );
 
 
@@ -84,40 +86,60 @@ sub update_node_tests {
     my $skip = skip_cond();
     my ( $nodebase, $count );
 
+## For more sophisticated tests later.
+     my %test_fields = (
+     		 container => 'context',
+     		 htmlcode => 'code',
+     		 htmlpage => 'page',
+     		 htmlsnippet => 'code',
+     		 image => 'src',
+     		 javascript => 'code',
+     		 mail => 'doctext',
+     		 nodelet => 'nlcode',
+    		 nodemethod => 'code',
+     		 opcode => 'code',
+     		 restricted_superdoc => 'doctext',
+     		 superdoc => 'doctext'
+    );
+
     if ($skip) {
         plan skip_all => $skip;
     }
     else {
 
         $nodebase = nodebase();
-        $count = $nodebase->countNodeMatches( {} );
-        plan tests => $count * 2;
+	$count = 0;
+	for ( keys %test_fields ) {
+	    $count += ( $nodebase->countNodeMatches( {}, $_ ) ) * 2;
+	}
+
+        plan tests => $count;
 
     }
 
-## For more sophisticated tests later.
-    # my %test_fields = (
-    # 		 container => 'context',
-    # 		 htmlcode => 'code',
-    # 		 htmlpage => 'page',
-    # 		 htmlsnippet => 'code',
-    # 		 image => 'src',
-    # 		 javascript => 'code',
-    # 		 mail => 'doctext',
-    # 		 nodelet => 'nlcode',
-    # 		 nodemethod => 'code',
-    # 		 opcode => 'code',
-    # 		 restricted_supercode => 'doctext',
-    # 		 superdoc => 'doctext',
-    #);
-
     my $user = $nodebase->getNode( 'root', 'user' );
+    my $test_data = 'test data';
 
-    for ( 1 .. $count ) {
-        my $node = $nodebase->getNode($_);
-        $node->set_hits($_);
-        ok( $node->update($user), $node->get_title . ' id: '. $node->getId . ' updates ok.' );
-        is( $node->get_hits, $_, '..the updated field is set value.' );
+    for my $nodetype ( keys %test_fields ) {
+
+        my $nodes = $nodebase->getNodeWhere( undef, $nodetype );
+        for my $node (@$nodes) {
+
+	    my $field = $test_fields{$nodetype};
+            my $save = $node->{ $field };
+	    my $id = $node->getId;
+
+	    $node->{ $field } = $test_data;
+
+            ok( $node->update($user),
+                $node->get_title . ' id: ' . $node->getId . ' updates ok.' );
+            is( $nodebase->getNode($id)->{$field}, $test_data, '..the updated field is set value.' );
+
+	    # reset values
+	    $node = $nodebase->getNode($id);
+	    $node->{$field} = $save;
+	    $nodebase->update_stored_node( $node, $user );
+        }
     }
 
 }
@@ -270,10 +292,11 @@ NODEBALL
     my $db_user = $config->database_user;
     my $db_pass = $config->database_password;
     my $db_type = $config->database_type;
+    my $db_port = $config->database_port;
 
     my @args = (
         '-d', $db_name, '-u', $db_user, '-p', $db_pass,
-        '-t', $db_type, $ball_dir
+        '-t', $db_type, '-P', $db_port, $ball_dir
     );
 
     my @script = ( 'perl', '-Ilib', 'bin/insert_nodeball.pl' );

@@ -528,13 +528,13 @@ sub sqlExecute
 
 	unless ( $sth = $this->{dbh}->prepare($sql) )
 	{
-		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" . DBI->errstr );
 		return;
 	}
 	$sth->execute(@$bound) or do
 	{
 		local $" = '][';
-		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" );
+		Everything::logErrors( '', "SQL failed: $sql [@$bound]\n" . DBI->errstr );
 		return;
 	};
 }
@@ -614,6 +614,30 @@ sub getNodeByName
 	$this->constructNode($NODE);
 
 	return $NODE;
+}
+
+=head2 purge_node_data
+
+Removes all the data related to a node.  Passed a node object as its argument.
+
+=cut
+
+sub purge_node_data {
+
+    my ( $self, $node ) = @_;
+
+    my $result;
+
+    my $id = $node->getId;
+
+    my $tableArray = $self->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
+
+	foreach my $table (@$tableArray)
+	{
+		$result += $self->sqlDelete( $table, "${table}_id = ?", [$id] );
+	}
+
+    return $result;
 }
 
 sub nodetype_data_by_name {
@@ -1335,13 +1359,14 @@ Returns a list of SQL statements necessary to insert the base nodes into a datab
 sub base_nodes {
 
     return (
-q{INSERT INTO node VALUES (1,1,'nodetype',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','iiii','rwxdc','-----','-----',0,0,0,0,0)},
-q{INSERT INTO node VALUES (2,1,'node',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',NULL,NULL,NULL,NULL,0)},
-q{INSERT INTO node VALUES (3,1,'setting',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node VALUES (1,1,'nodetype',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,'0000-00-00 00:00:00','iiii','rwxdc','-----','-----',0,0,0,0,0)},
+q{INSERT INTO node VALUES (2,1,'node',-1,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',NULL,NULL,NULL,NULL,0)},
+q{INSERT INTO node VALUES (3,1,'setting',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,0,'0000-00-00 00:00:00','rwxd','-----','-----','-----',0,0,0,0,0)},
 q{INSERT INTO nodetype VALUES (1,0,2,1,'nodetype','','rwxd','rwxdc','-----','-----',0,0,0,0,0,NULL,0)},
 q{INSERT INTO nodetype VALUES (2,0,0,1,'','','rwxd','r----','-----','-----',0,0,0,0,0,1000,1)},
 q{INSERT INTO nodetype VALUES (3,0,2,1,'setting','','rwxd','-----','-----','-----',0,0,0,0,0,NULL,NULL)},
-
+q{INSERT INTO node_statistics_type (type_name, description) VALUES ('hits', 'A value that represents how many times a node has been accessed.')},
+q{INSERT INTO node_statistics_type (type_name, description) VALUES ('reputation', 'A value that represents the value of a node to the users.')},
       )
 
 }

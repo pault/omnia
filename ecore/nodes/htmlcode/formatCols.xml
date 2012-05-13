@@ -41,7 +41,7 @@ if($vert)
   push @stuff, @sorted;
 }
 
-my $str .= &quot;&lt;table $tableprops&gt;\n&quot;;
+my $str .= &quot;&lt;table summary=\&quot;General Column Display\&quot; $tableprops&gt;\n&quot;;
 for(my $i = 0; $i &lt; $num; $i += $numcols)
 {
   $str .= &quot;&lt;tr&gt;\n&quot;;

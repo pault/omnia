@@ -12,6 +12,8 @@ package Everything::HTML::FormObject::TextField;
 use strict;
 
 use Everything::HTML::FormObject;
+use Encode;
+
 use vars qw(@ISA);
 @ISA = ("Everything::HTML::FormObject");
 
@@ -83,13 +85,16 @@ sub genObject
 		$default = $$bindNode{$field} if ( ref $bindNode );
 	}
 
+	## web use 'decode' here because of the way CGI.pm handles
+	## form objects. Refer to perldoc CGI, in the section
+	## 'AUTOESCAPING HTML'
 	$html .= $query->textfield(
 		-name      => $name,
-		-default   => $default,
+		-default   => Encode::decode('utf-8', $default),
 		-size      => $size,
 		-maxlength => $maxlen,
 		-override  => 1,
- %$attributes,
+		%$attributes,
 	);
 
 	return $html;

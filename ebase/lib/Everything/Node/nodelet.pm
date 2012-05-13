@@ -9,8 +9,9 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::nodelet;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 extends 'Everything::Node::node';
 
@@ -57,8 +58,22 @@ when moving to another system or nodeball
 override getNodeKeys => sub {
     my ( $this, $forExport ) = @_;
 
-    my $keys = $this->super($forExport);
-    delete $keys->{nltext} if $forExport;
+    my $keys = super;
+
+    if ( $forExport ) {
+	delete $keys->{nltext};
+	delete $keys->{lastupdate};
+    }
+
+    return $keys;
+};
+
+
+override getNodeKeepKeys => sub {
+
+    my $keys = super();
+    $keys->{lastupdate} = 1;
+    $keys->{nltext} = 1;
 
     return $keys;
 };

@@ -24,7 +24,7 @@ $GLOBAL{userFontAttr} ||= &quot;color=white&quot;;&quot;&quot;;
 
 %]
 
-&lt;table border=0 cellspacing=10&gt;
+&lt;table summary=&quot;User Edit Layour&quot; border=0 cellspacing=10&gt;
  &lt;tr bgcolor=[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -35,7 +35,7 @@ my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
-$$THEME{nodeletTitleColor}
+$$THEME{nodeletTitleColor} || 'white';
 %]&gt;&lt;td colspan=2&gt;
   &lt;font [%
 my $NODE = $this-&gt;get_node;
@@ -99,7 +99,7 @@ my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
-$$THEME{nodeletTitleColor}
+$$THEME{nodeletTitleColor} || 'white'
 %]&gt;
    &lt;font [%
 my $NODE = $this-&gt;get_node;
@@ -123,7 +123,7 @@ my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
-$$THEME{nodeletTitleColor}
+$$THEME{nodeletTitleColor} || 'white';
 %]&gt;
    &lt;font [%
 my $NODE = $this-&gt;get_node;
@@ -142,7 +142,7 @@ $GLOBAL{userFontAttr}
   &lt;td&gt;[{nodeFormObject: PasswdField, passwd, passwd, 1, 1}]&lt;/td&gt;
   &lt;td&gt;Theme: [{themeselector}]&lt;/td&gt;
 &lt;/tr&gt;
-&lt;tr&gt;&lt;td bgcolor=[%
+&lt;tr&gt;&lt;td bgcolor=&quot;[%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -152,8 +152,8 @@ my $VARS = $this-&gt;get_vars;
 my $DB = $this-&gt;get_nodebase;
 my %GLOBAL;
 
-$$THEME{nodeletTitleColor}
-%] colspan=2&gt;
+$$THEME{nodeletTitleColor} || 'white';
+%]&quot; colspan=2&gt;
   &lt;font [%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
@@ -168,7 +168,7 @@ $GLOBAL{userFontAttr}
 %]&gt;&lt;b&gt;Nodelets&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;&lt;td colspan=2&gt;
-[{includeJS: findFormObject, moveSelectItem, selectItem}][%
+[{insertJavascript: findFormObject, moveSelectItem, selectItem}][%
 my $NODE = $this-&gt;get_node;
 my $USER = $this-&gt;get_user;
 my $query = $this-&gt;get_query;
@@ -230,7 +230,7 @@ my %GLOBAL;
 
 %]
 &lt;/table&gt;
-&lt;p&gt;
+
 [{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">user</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">updateFormContainer</field>

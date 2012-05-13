@@ -25,8 +25,9 @@ use XML::DOM;
 use Scalar::Util qw/blessed/;
 use Everything::Node::nodetype;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 extends 'Everything::Object';
 
 has _type => ( accessor => '_type' );
@@ -844,7 +845,7 @@ sub existingNodeMatches
 	my %WHERE;
 
 	@WHERE{@ID} = @$this{@ID};
-	my $NODE = $nodebase->getNode( \%WHERE, $this->type );
+	my $NODE = $nodebase->getNode( \%WHERE, $this->type_title );
 
 	return $NODE;
 }

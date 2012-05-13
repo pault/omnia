@@ -15,8 +15,8 @@ $this-&gt;updatetable($$NODE{title});
 %][%
 my $NODE = $this-&gt;get_node;
 $this-&gt;displaytable($$NODE{title},1); 
-%]&lt;p&gt;
-[{submit}]&lt;/p&gt;</field>
+%]
+[{submit}]</field>
   <field name="pagetype_nodetype" type="noderef" type_nodetype="nodetype,nodetype">dbtable</field>
   <field name="parent_container" type="noderef" type_nodetype="container,nodetype">formcontainer</field>
   <field name="permissionneeded" type="literal_value">w</field>

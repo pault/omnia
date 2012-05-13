@@ -69,7 +69,7 @@ sub test_get_fields_hash :Test(2) {
     my @rv = $s->getFieldsHash( 'node', 0 );
     my %rv = map { $_ => 1 } @rv; # we don't care what order they come in
 
-    my @expected = qw/node_id type_nodetype title author_user createtime modified hits loc_location reputation lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
+    my @expected = qw/node_id type_nodetype title author_user createtime modified loc_location lockedby_user locktime authoraccess groupaccess otheraccess guestaccess dynamicauthor_permission dynamicgroup_permission dynamicother_permission dynamicguest_permission group_usergroup/;
     my %expected = map { $_ => 1 } @expected;
 
     is_deeply ( \%rv, \%expected, '...returns list of fields in table.' );

@@ -256,10 +256,15 @@ sub test_get_parent_location : Test(1) {
 }
 
 
-sub test_existing_node_matches : Test(1) {
+sub test_existing_node_matches : Test(2) {
     my $self = shift;
     can_ok( $self->{class}, 'existingNodeMatches' ) || return;
 
+    my $node = $self->{instance};
+
+    $node->{node_id} = 3;
+
+    ok( $node->existingNodeMatches, $self->{instance}->{DB} );
 }
 
 1;

@@ -12,13 +12,15 @@ package Everything::Node::nodemethod;
 use strict;
 use warnings;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP; 
+
 
 extends 'Everything::Node::node';
 
 has code              => ( is => 'rw' );
 has supports_nodetype => ( is => 'rw' );
+has lastupdate => ( is => 'rw' );
 
 =head2 C<dbtables()>
 

@@ -217,7 +217,6 @@ sub test_insert_restrict_dupes :Test( 4 )
 	   ->set_true( 'sqlInsert', '-cacheNode' )
 	   ->set_always( -lastValue => 100 )
 	   ->set_always( -nodetype => $node )
-	   ->set_always( -get_storage => $db )
            ->set_always( retrieve_nodetype_tables => [] )
            ->set_list ( fetch_all_nodetype_names => 'node', 'nodetype' )
 	   ->set_always( -nodetype_hierarchy_by_id => [ {restrictdupes => -1 }, {restrictdupes => 1 } ] );
@@ -281,15 +280,14 @@ sub test_insert :Test( 3 )
 
 	my $dbh = $db->{storage}->getDatabaseHandle();
 	my $sth = $dbh->prepare(
-		'SELECT createtime, author_user, hits FROM node WHERE node_id=?'
+		'SELECT createtime, author_user  FROM node WHERE node_id=?'
 	);
 	$sth->execute( $result );
 	my $node_ref = $sth->fetchrow_hashref();
 	is_deeply( $node_ref,
 		{
 			createtime  => $time,
-			author_user => 'user',
-			hits        => 0,
+			author_user => 'user'
 		},
 		'... with the proper fields'
 	);
@@ -814,7 +812,7 @@ sub test_nuke_access :Test( 4 )
 	is( join( '-', @$args ), "$node-user-d", '... delete access for user' );
 }
 
-sub test_nuke :Test( 26 )
+sub test_nuke :Test( 22 )
 {
 	my $self         = shift;
 	my $node         = $self->{node};
@@ -834,8 +832,11 @@ sub test_nuke :Test( 26 )
 	   ->set_always( getNode => $db )
 	   ->set_series( sqlSelectMany => 0, $db )
 	   ->set_series( fetchrow => 'group' )
-	   ->set_series( sqlDelete => (1) x 4 )
-           ->set_always( -get_storage => $node );
+	   ->set_series( sqlDelete => (1) x 4 );
+
+	Test::MockObject::Extends->new( $db->{storage} );
+	my $storage = $db->{storage};
+	$storage->set_true('sqlDelete');
 
 	my $result;
 	{
@@ -882,17 +883,7 @@ sub test_nuke :Test( 26 )
 	is( $method, 'getNode', '... fetching node' );
 	is( join( '-', @$args ), "$db-group", '... for containing group' );
 
-	( $method, $args ) = $node->next_call( );
-	is( "$method @$args", "retrieve_nodetype_tables $node 999 1",
-		'... should fetch all tables for node' );
-
 	is( $db->next_call(), 'incrementGlobalVersion', '... forcing a reload' );
-	( $method, $args ) = $db->next_call();
-	is( $method, 'sqlDelete', '... deleting node' );
-	is( join( '-', @$args[ 1, 2 ] ), 'deltable-deltable_id = ?',
-		'... from tables' );
-	is_deeply( $args->[3], ['id'], '... by node_id' );
-
 	is( $db->{cache}->next_call(), 'incrementGlobalVersion',
 		'... should mark node as updated in cache' );
 

@@ -4,10 +4,11 @@
   <field name="code" type="literal_value">my $str;
 my $DB = $this-&gt;get_nodebase;
 my $NODE = $this-&gt;get_node;
-$str .= &quot;&lt;li&gt;&quot;;
+$str .= &quot;&lt;ul&gt;&lt;li&gt;&quot;;
 $str .= join &quot;\n&lt;li&gt;&quot;, $DB-&gt;getFields;
 $str .=&quot;\n&lt;li&gt;&quot;;
 $str .= join &quot;\n&lt;li&gt;&quot;, $DB-&gt;getFields($$NODE{table});
+$str .= &quot;&lt;/ul&gt;&quot;;
 $str;</field>
   <field name="groupaccess" type="literal_value">iiii-</field>
   <field name="guestaccess" type="literal_value">iiii-</field>
