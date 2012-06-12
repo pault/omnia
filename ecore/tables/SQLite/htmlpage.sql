@@ -7,4 +7,4 @@ CREATE TABLE htmlpage (
   ownedby_theme integer(20) NOT NULL DEFAULT '0',
   permissionneeded char(1) NOT NULL DEFAULT 'r',
   MIMEtype varchar(255) NOT NULL DEFAULT 'text/html'
-)
+);

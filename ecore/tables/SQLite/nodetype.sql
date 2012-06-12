@@ -16,4 +16,24 @@ defaultother_permission integer(20) NOT NULL DEFAULT '-1',
 defaultguest_permission integer(20) NOT NULL DEFAULT '-1',
 maxrevisions integer(20) NOT NULL DEFAULT '-1',
 canworkspace integer(20) NOT NULL DEFAULT '-1'
-)
+);
+
+CREATE TABLE database_statements (
+
+st_type varchar (10) REFERENCES st_types (st_name),
+nodetype varchar (10) REFERENCES nodetype (node_id),
+statement text,
+PRIMARY KEY (st_type, nodetype)
+
+);
+
+CREATE TABLE statement_type (
+
+name varchar(10) PRIMARY KEY,
+description text,
+
+);
+
+INSERT INTO statement_type VALUES ( 'select', 'Get a node from the database' );
+INSERT INTO statement_type VALUES ( 'insert', 'insert a node into the database' );
+INSERT INTO statement_type VALUES ( 'update', 'Update an existing node in the database' );

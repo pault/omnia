@@ -18,3 +18,4 @@ CREATE TABLE htmlpage (
   MIMEtype varchar(255) DEFAULT 'text/html' NOT NULL,
   PRIMARY KEY (htmlpage_id)
 );
+

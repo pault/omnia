@@ -105,6 +105,9 @@ sub reset_mock_node
 
 	can_ok( 'Everything::Node::moreextendednode', 'get_afield', 'set_afield' );
 
+	# after creating a new nodetype, we need to rebuild nodetype
+	# modules this is a weakness in the system
+	$self->{mock_db}->rebuildNodetypeModules;
 	$newnewnode = Test::MockObject::Extends::NoCheck->new($newnewnode);
 	$newnewnode->set_nodebase ( $self->{mock_db} );
 	$self->{node} = $newnewnode;

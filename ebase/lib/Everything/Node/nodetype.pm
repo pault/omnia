@@ -344,4 +344,58 @@ sub getNodeKeepKeys {
     \%nodekeys;
 }
 
+
+## these methods get nodes from the nodebase.  Each nodetype might be
+## constructed from the nodebase in its own unique way. Nodetypes
+## manage the relationship of a node to the nodebase/db, so this is an
+## ideal place for this SQL. Possibly spin this out into a Role.
+
+
+=head2 node
+
+Retrieves a node of this nodetype from the database.
+
+Arguments:
+
+=over 
+
+=item node id or name
+
+=item nodebase
+
+=back
+
+=cut
+
+sub node {
+
+
+
+}
+
+=head2 insert_node
+
+Takes a blessed node object and then inserts it into the nodebase
+
+=over
+
+=item node
+
+=item nodebase
+
+=back
+
+=cut
+
+=head2 update_node
+
+Takes a blessed node object and updates the existing node in the database.
+
+=cut
+
+sub update_node {
+
+
+}
+
 1;

@@ -2,8 +2,8 @@ package Everything::Node::template;
 
 use Template;
 use Everything::Template::Provider;
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 extends 'Everything::Node::document';
 

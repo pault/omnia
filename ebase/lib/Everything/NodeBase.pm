@@ -22,7 +22,10 @@ use Everything::NodeBase::Workspace;
 use Everything::NodeAccess;
 
 use Moose;
-use MooseX::FollowPBP; 
+
+with 'Everything::NodeBase::NodetypeRegister';
+
+use MooseX::FollowPBP;
 
 
 has storage => ( is => 'rw' );
@@ -115,7 +118,6 @@ sub BUILD {
 	$this->get_storage->{nb} = $this;
 
 	$this->buildNodetypeModules();
-
 }
 
 
@@ -313,7 +315,7 @@ sub buildNodetypeModules {
      }
     $self->load_nodemethods();
 
-    return $$self{nodetypeModules};
+    return $self->nodetype_modules;
 }
 
 sub setup_module {
@@ -414,28 +416,21 @@ sub set_module_nodetype {
 
     my $data;
     my $typenode;
-    if ( $name eq 'nodetype' ) {
-	$data = $self->get_storage->nodetype_data_by_name( 'node' );
-	$$data{ DB } = $self;
-	$$data{ node_id } = 1;
-	$$data{ sqltable } = 'nodetype';
-	$$data{ title } = 'nodetype';
-	$typenode = Everything::Node::nodetype->new( %$data );
-    } elsif ( $name eq 'node' ) {
-	$data = $self->get_storage->nodetype_data_by_name( 'nodetype' );
-	$$data{ title } = 'node';
-	$$data{ extends_nodetype } = 0;
-	$$data{ sqltable } = '';
-	$typenode = Everything::NodetypeMetaData->new( %$data );
-    } else {
-	$data = $self->get_storage->nodetype_data_by_name( $name );
-	$$data{ DB } = $self;
-	$typenode = Everything::Node::nodetype->new( %$data );
-    }
+
+    ## call the function in THIS package and bypass the cache.  Yes
+    ## this is a hack, but it works. It is necessary, because
+    ## 'buildNodetypeModules is called BEFORE the cache is ready,
+    ## which means direct calls to getNode and related methods
+    ## break. There might be better fixes than this which are more
+    ## transparent to any sub-classers.
+
+    $typenode = &retrieve_node_using_name_type ( $self, $name, 'nodetype' );
 
     return $typenode;
 
 }
+
+
 
 sub make_node_accessor {
 
@@ -498,7 +493,8 @@ sub rebuildNodetypeModules
 {
 	my ($this) = @_;
 
-	$this->{nodetypeModules} = $this->buildNodetypeModules();
+	$this->purge_register;
+	$this->buildNodetypeModules();
 
 	return;
 }
@@ -855,6 +851,8 @@ sub remove_from_groups {
 
 }
 
+
+# XXXXX: in this sub we need to get the node table data first and then once we have the node id we can  build the node.  Basically this means two calls to the DB
 sub retrieve_node_using_id {
 
     my ( $this, $node_id, $ext ) = @_;
@@ -864,17 +862,28 @@ sub retrieve_node_using_id {
     return unless $node_data;
 
     ## get nodetype
-    my $nodetype_name = $this->get_storage->sqlSelect( 'title', 'node', 'node_id = ?', undef, [ $$node_data{ type_nodetype } ] );
+#    my $nodetype_name = $this->get_storage->sqlSelect( 'title', 'node', 'node_id = ?', undef, [ $$node_data{ type_nodetype } ] );
 
+    my $nodetype_name = $this->nodetype_by_id( $node_data->{type_nodetype} )->get_title;
     return  $this->make_node( $node_data, $nodetype_name );
 
 }
 
+
+# XXX: in this sub we can dispatch straight to the node collecting routinte because we know the nodtype
 sub retrieve_node_using_name_type {
 
     my ( $this, $name, $nodetype_title ) = @_;
 
-    my $node_data = $this->get_storage->getNodeByName( $name, $nodetype_title );
+    my $node_data;
+
+
+    if ( $nodetype_title eq 'nodetype') {
+
+	$node_data = $this->get_storage->nodetype_data_by_name( $name );
+    } else {
+	$node_data = $this->get_storage->getNodeByName( $name, $nodetype_title );
+    }
 
     return unless $node_data;
 
@@ -1437,14 +1446,6 @@ sub search_node_name {
 
 }
 
-sub nodetype {
-
-    my ( $self, $class ) = @_;
-
-    return $self->{nodetypeModules}->{$class};
-
-}
-
 =head2 storage_settings
 
 Returns a hash reference of settings for the database.
@@ -1697,18 +1698,6 @@ sub delete_links {
     $self->sqlDelete( 'links', $where,  [ @$args{ @column_names } ]  );
 }
 
-
-sub register_type_module {
-
-    my ( $self, $key, $node ) = @_;
-
-    if ( not exists $$self{nodetypeModules} ) {
-	$$self{nodetypeModules} = {};
-    }
-
-    return $self->{nodetypeModules}->{ $key } = $node;
-
-}
 
 package Everything::NodetypeMetaData;
 

@@ -142,7 +142,8 @@ sub test_build_nodetype_modules :Test( 15 )
 	## if we have no nodes
 
 	$nb->set_always( create_module => undef );
-	$nb->set_true( 'load_nodemethods', 'set_module_nodetype' );
+	$nb->set_true( 'load_nodemethods' );
+	$nb->set_always( 'set_module_nodetype' => +{ title => 'nodetype' } );
 	$storage->set_list( fetch_all_nodetype_names => 'anodetypename' );
 	$storage->mock( nodetype_data_by_id => sub {} );
 	$storage->mock( nodetype_data_by_name => sub {} );
@@ -158,9 +159,9 @@ sub test_build_nodetype_modules :Test( 15 )
 	$nb->set_true( 'loadNodetypeModule' );
 
 	$storage->clear;
-	$storage->mock( nodetype_data_by_name => sub { +{ extends_nodetype=> 111 } } );
+	$storage->mock( nodetype_data_by_name => sub { +{ extends_nodetype=> 111, node_id => 999 } } );
 
-	$storage->mock( nodetype_data_by_id => sub { } );
+	$storage->mock( nodetype_data_by_id => sub {} );
 
 	$result =  $nb->buildNodetypeModules();
 	my ( $method, $args ) = $storage->next_call();
@@ -175,7 +176,8 @@ sub test_build_nodetype_modules :Test( 15 )
 	( $method, $args ) = $nb->next_call;
 	is( "$method @$args", "loadNodetypeModule $nb Everything::Node::anodetypename", '...calls loadNodetypeModules');
 
-	is_deeply ( $nb->{nodetypeModules}, { 'Everything::Node::anodetypename' => 1 }, '...sets the nodetypeModules attribute.');
+	## the nodetypeModules attribute is a hash ref of all nodetypes
+	is_deeply ( $nb->nodetype_modules, { 'Everything::Node::anodetypename' => $nb->set_module_nodetype }, '...sets the nodetype_modules attribute.');
 
 	## load one node type with one super class
 
@@ -183,7 +185,7 @@ sub test_build_nodetype_modules :Test( 15 )
 	$storage->clear;
 	$nb->set_always( -getType => $nb );
 	$storage->set_series( nodetype_data_by_id => { title => 'supernodetype', node_id => 222 } );
-	$nb->{nodetypeModules}={};
+	$nb->purge_register;
 	$result = $nb->buildNodetypeModules;
 	( $method, $args ) = $storage->next_call();
 
@@ -197,7 +199,7 @@ sub test_build_nodetype_modules :Test( 15 )
 	( $method, $args ) = $storage->next_call(2);
 	is ( "$method @$args", "nodetype_data_by_id $storage 111", '...retrieves superclass nodetype.');
 
-	is_deeply( $nb->{nodetypeModules},  { 'Everything::Node::anodetypename' => 1, 'Everything::Node::supernodetype' => 1 }, '...loads class and superclass.');
+	is_deeply( $nb->nodetype_modules,  { 'Everything::Node::anodetypename' => $nb->set_module_nodetype, 'Everything::Node::supernodetype' => $nb->set_module_nodetype }, '...loads class and superclass.');
 
 
 	$nb->set_true( 'loadNodetypeModule');
@@ -216,14 +218,14 @@ sub test_build_nodetype_modules :Test( 15 )
 	$storage->mock( nodetype_data_by_name => sub { return if $_[1] eq 'cow'; return +{ title => $_[1]} } );
 	$storage->set_always( getFieldsHash => '' );
 
-	$nb->{nodetypeModules} = {};
+	$nb->purge_register;
 	warning_like { $result = $nb->buildNodetypeModules() } qr/no such nodetype cow/i;
 	is( keys %$result, 3, 'buildNodetypeModules() should return a hash ref' );
 	is_deeply(
 		$result,
-		{ map { 'Everything::Node::' . $_ => 1 } qw( node nodetype dbtable ) },
+		{ map { 'Everything::Node::' . $_ => $nb->set_module_nodetype } qw( node nodetype dbtable ) },
 		'... for all loadable nodes fetched from storage engine'
-	) || diag Dumper $nb->{nodetypeModules};
+	) || diag Dumper $nb->nodetype_modules;
 }
 
 
@@ -237,7 +239,7 @@ sub test_build_nodetypedb_modules : Test( 10 ) {
     local *Everything::NodeBase::loadNodetypeModule;
     *Everything::NodeBase::loadNodetypeModule =
       sub { return 1 if $_[1] eq 'Everything::Node::node'; return };
-    $nb->set_true('set_module_nodetype');
+
     my %node_list = (
         'node', undef,
         qw(supernode node extendednode supernode superextendednode extendednode )
@@ -276,8 +278,10 @@ sub test_build_nodetypedb_modules : Test( 10 ) {
     );
     is( keys %$result, 4, 'buildNodetypeModules() should return a hash ref' );
 
+    # check  nodetypeModules all exist
+
     is_deeply(
-        $result,
+        { map { $_ => 1 } keys %$result},
         {
             map { 'Everything::Node::' . $_ => 1 }
               qw( node supernode extendednode superextendednode )
@@ -341,11 +345,10 @@ sub test_rebuild_nodetype_modules :Test( 1 )
 	my $nb   = $self->{nb};
 
 	$nb->set_always( 'buildNodetypeModules', 'bntm' );
-	$nb->{nodetypeModules} = '';
 
 	$nb->rebuildNodetypeModules();
-	is( $nb->{nodetypeModules}, 'bntm',
-		'buildNodetypeModules() should cache results of rebuild' );
+	is_deeply( $nb->nodetype_modules, {},
+		'buildNodetypeModules() resets nodetype register.' );
 }
 
 sub test_load_nodetype_module :Test( 3 )
@@ -1053,5 +1056,25 @@ sub test_log_revision_access :Test( 1 )
 		'log_node_revision() should return 0 if user lacks write access' );
 }
 
+sub test_nodetype_register: Test( 4 ) {
+
+    my $self = shift;
+    my $node = Test::MockObject->new;
+
+    $node->{node_id}=1;
+    $node->{title}='nodetype_title';
+
+    my $nb = $self->{nb};
+
+    my $package = 'PackageName';
+    is ( $nb->register_type_module( $package => $node ), $node, 'Registers a node type node.');
+
+    is ( $nb->nodetype( $package ), $node, '...given a package name returns the corresponding nodetype.');
+
+    is ( $nb->nodetype_by_title( 'nodetype_title' ), $node, '...given a node title returns the corresponding nodetype.');
+
+    is ( $nb->nodetype_by_id( 1 ), $node, '...given a node id returns the corresponding nodetype.');
+
+}
 
 1;

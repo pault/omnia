@@ -652,6 +652,8 @@ sub nodetype_data_by_name {
 
     my $data = $sth->fetchrow_hashref;
 
+
+
     $sth->finish;
 
     return $data;
@@ -792,6 +794,21 @@ sub selectNodeWhere
 	my ( $this, $WHERE, $TYPE, $orderby, $limit, $offset, $refTotalRows,
 		$nodeTableOnly )
 		= @_;
+
+# XXXXXXXXXXX: as documented only searches the node table unless
+# '$TYPE' is specified. If $TYPE is specified we can launch into
+# proper deep search of the nodes based on custom SELECT statement or
+# perl for each node.
+
+# How to dispatch each nodetype query...could each dispatch be
+# represented by a Everything::DB::Nodetype object that contains the
+# nodetype node, the title and dispatches the request to DB.pm.
+
+# Because nodetypes themselves are special, then how to get nodetypes
+# themselves would have to be hard-coded into DB.pm or
+# Nodebase.pm. It's a way of bootstrapping the node loading process.
+
+# SELECT * from node, nodetype where node.node_id = nodetype.nodetype_id.
 
 	$TYPE = undef if defined $TYPE && $TYPE eq '';
 
@@ -1273,6 +1290,7 @@ sub genWhereString
 
 	return $wherestr;
 }
+
 
 
 # override this to fix odd column names

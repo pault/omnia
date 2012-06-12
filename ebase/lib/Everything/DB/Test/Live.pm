@@ -90,6 +90,7 @@ sub test_startup_3_initialise_nodebase : Test(startup => 6) {
 
     is( $nodes[2]->get_title . $nodes[2]->get_type_nodetype,
         'setting1', '...the third node is a setting type.' );
+
     $self->{nodebase} = $nb;
 
     $self->{storage} = $nb->{storage};
@@ -579,7 +580,8 @@ sub test_node_create_delete_utf8 : Test(5) {
 
     my $utf8_title = "Ça apèôîïâûùà ščřžýáíŇ";
 
-    ok( my $node = $nb->getNode( $utf8_title, 'node', 'create force'), 'Creates a node with a UTF8 title');
+    ok( my $node = $nb->getNode( $utf8_title, 'node', 'create force'), 'Creates a node with a UTF8 title');$nb->rebuildNodetypeModules;
+
     ok( my $id = $nb->store_new_node($node, -1), '...is stored.' );
 
     is( $dbh->errstr, undef, '...without errors.' );

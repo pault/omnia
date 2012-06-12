@@ -36,7 +36,6 @@ sub BUILD {
 
 		$this->{cache}->setCacheSize($cacheSize);
 	}
-	use Data::Dumper;
 
 }
 

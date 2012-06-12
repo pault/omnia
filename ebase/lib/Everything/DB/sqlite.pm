@@ -567,6 +567,27 @@ defaultguest_permission integer(20),
 maxrevisions integer(20),
 canworkspace integer(20)
 )},
+q{CREATE TABLE sql_tables (
+  type varchar(20) NOT NULL REFERENCES sql_table_type(name) ON DELETE RESTRICT,
+  name char(40),
+  nodetype INTEGER NOT NULL REFERENCES nodetype(nodetype_id) ON DELETE CASCADE,
+  PRIMARY KEY (name, nodetype)
+
+)},
+q{CREATE TABLE sql_table_type (
+   name varchar(20) PRIMARY KEY NOT NULL,
+   description text
+)},
+q{CREATE TABLE sql_command_type (
+ name varchar(40) NOT NULL PRIMARY KEY,
+ description text
+)},
+q{CREATE TABLE sql_commands (
+  type varchar (40) NOT NULL REFERENCES sql_command_type(name) ON DELETE RESTRICT,
+    nodetype INTEGER NOT NULL REFERENCES nodetype(nodetype_id) ON DELETE CASCADE,
+  command text,
+  PRIMARY KEY (type, nodetype)
+)},
         q{CREATE TABLE version (
   version_id INTEGER  PRIMARY KEY DEFAULT '0' NOT NULL,
   version INTEGER DEFAULT '1' NOT NULL

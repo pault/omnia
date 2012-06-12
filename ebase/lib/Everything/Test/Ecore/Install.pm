@@ -79,9 +79,15 @@ sub test_10_sql_tables : Test(1) {
       qw/version mail image container node symlink nodemethod nodetype typeversion nodelet revision workspace htmlcode themesetting htmlpage nodegroup javascript setting document user links node_statistics node_statistics_type/;
 
     $self->{installer}->install_sql_tables;
-    my %actual_tables = map { $_ => 1 } $self->{nb}->{storage}->list_tables;
+    my %actual_tables =  map { $_ => 1 } $self->{nb}->{storage}->list_tables;
+    my %test_tables;
 
-    is_deeply( \%actual_tables, \%expected_tables,
+    for ( keys %expected_tables ) {
+
+	$test_tables{ $_ } = 1 if exists $actual_tables{ $_ };
+    }
+
+    is_deeply( \%test_tables, \%expected_tables,
         '...testing all tables we expected are there.' )
       || $self->BAILOUT("Can't proceed without tables installed");
 
