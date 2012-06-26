@@ -12,8 +12,10 @@ use strict;
 use warnings;
 
 use DBI;
-use SUPER;
-use base 'Everything::DB';
+
+use Moose;
+
+extends 'Everything::DB';
 
 #############################################################################
 #	Sub
@@ -41,6 +43,19 @@ sub databaseConnect
 
 	
 }
+
+around nodetype_data_by_id => sub {
+
+     my $orig = shift;
+     my $self = shift;
+     my $id = shift;
+
+     return if $id =~ /\D/;
+     return $self->$orig($id, @_);
+
+
+
+};
 
 #############################################################################
 #   Sub
@@ -453,14 +468,14 @@ sub now { return 'now()' }
 
 sub timediff { "$_[1] - $_[2]" }
 
-sub _quoteData {
+override _quoteData => sub {
 
     my $self = shift;
-    my ($names, $values, $bound) = $self->SUPER( @_ );
+    my ($names, $values, $bound) = super;
     my @quoted_names = map { '"' . $_ .'"' } @$names;
     return \@quoted_names, $values, $bound;
 
-}
+};
 
 
 =head2 C<get_create_table>
@@ -737,16 +752,14 @@ sub grant_privileges {
     $self->{dbh} = $dbh;
 }
 
-sub install_base_nodes {
+after 'install_base_nodes' => sub {
     my $self = shift;
-
-    $self->SUPER;
 
     ## ensure the node_id sequence is properly set
     $self->{dbh}->do("SELECT setval('node_node_id_seq', 3)")
 
 
-}
+};
 
 sub base_tables {
     return (

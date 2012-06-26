@@ -73,7 +73,7 @@ BEGIN
 		getDatabaseHandle sqlDelete sqlSelect
 		sqlSelectJoined sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert
 		_quoteData sqlExecute getNodeByIdNew getNodeByName constructNode
-		selectNodeWhere getNodeCursor countNodeMatches getAllTypes
+		selectNodeWhere getNodeCursor countNodeMatches
 		dropNodeTable quote genWhereString  now createGroupTable fetchrow timediff getNodetypeTables createNodeTable
 	))
 	{
@@ -510,9 +510,9 @@ sub test_get_node_where :Test( 5 )
 	my $nb   = $self->{nb};
 
 	$nb->set_series( 'selectNodeWhere', undef, 'foo', [ 1 .. 5 ] )
-	   ->set_series( 'getNode', 0, 2, 0, 4, 5 );
+	   ->mock( -getNode => sub { return +{ node_id => 0 } if $_[1] eq '0'; return +{ node_id => $_[1] } if $_[1] } );
 
-	my @expected = qw( where type orderby limit offset reftotalrows );
+	my @expected = qw( where 0 orderby limit offset reftotalrows );
 	my $result   = $nb->getNodeWhere( @expected );
 
 	my ( $method, $args ) = $nb->next_call();
@@ -525,9 +525,25 @@ sub test_get_node_where :Test( 5 )
 	is( $nb->getNodeWhere(), undef, '... or if it does not return a listref' );
 
 	$result = $nb->getNodeWhere( @expected );
-	is_deeply( $result, [ 2, 4, 5 ],
+	is_deeply( $result, [ map { +{node_id => $_ } } 1..5 ],
 		'... fetching and returning a list ref of nodes' );
 }
+
+
+sub test_get_all_types : Test(2) {
+
+    my $self = shift;
+    my $nb =$self->{nb};
+    can_ok ( $nb, 'getAllTypes');
+    $nb->mock( getNode => sub { +{node_id => 999} } );
+    $nb->{storage}->mock( selectNodeWhere => sub { [] } );
+
+    # getAllTypes MUST return a list.
+
+    is_deeply ( [ $nb->getAllTypes ], [], '...returns a list.');
+
+}
+
 
 sub test_get_type :Test( 9 )
 {

@@ -12,7 +12,10 @@ use strict;
 use warnings;
 
 use DBI;
-use base 'Everything::DB';
+
+use Moose;
+
+extends 'Everything::DB';
 
 =head2 C<databaseConnect>
 

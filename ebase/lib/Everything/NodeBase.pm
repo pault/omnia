@@ -40,7 +40,7 @@ BEGIN
 	getDatabaseHandle sqlDelete sqlSelect sqlSelectJoined getFieldsHash
 	sqlSelectMany sqlSelectHashref sqlUpdate sqlInsert _quoteData sqlExecute
 	getNodeByIdNew getNodeByName constructNode selectNodeWhere getNodeCursor
-	countNodeMatches getAllTypes dropNodeTable quote genWhereString lastValue
+	countNodeMatches dropNodeTable quote genWhereString lastValue
        now createGroupTable fetchrow timediff getNodetypeTables createNodeTable addFieldToTable
 	);
 
@@ -114,8 +114,6 @@ sub BUILDARGS
 sub BUILD {
 
         my $this = shift;
-
-	$this->get_storage->{nb} = $this;
 
 	$this->buildNodetypeModules();
 }
@@ -1219,8 +1217,10 @@ undef, if the operation fails
 sub getNodeWhere
 {
 	my $this = shift;
-
-	my $selectNodeWhere = $this->selectNodeWhere(@_);
+	my $WHERE = shift;
+	my $TYPE = shift;
+	my $node_type = $this->getNode( $TYPE, 'nodetype' );
+	my $selectNodeWhere = $this->selectNodeWhere($WHERE, $node_type->{node_id}, @_);
 
 	return
 		unless defined $selectNodeWhere
@@ -1259,6 +1259,23 @@ sub getType
 
 	return $this->getNode($idOrName) if $idOrName > 0;
 	return;
+}
+
+=head2 C<getAllTypes>
+
+This returns a list of the nodetypes in the system.  Useful
+for knowing what nodetypes exist.
+
+Returns an array of TYPE hashes of all the nodetypes in the system
+
+=cut
+
+sub getAllTypes
+{
+	my ($this) = @_;
+
+	return @{ $this->getNodeWhere( {}, 'nodetype' ) || [] };
+
 }
 
 =head2 C<getFields>

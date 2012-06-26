@@ -195,6 +195,9 @@ sub test_gen_where_string : Test(7) {
     my $self  = shift;
     my $class = $self->module_class;
 
+    local *Everything::DB::nodetype_data_by_name;
+    *Everything::DB::nodetype_data_by_name = sub {};
+
     can_ok( $class, 'genWhereString' );
 
     ## genWhereString takes two arguments first can be a string or hash
@@ -634,10 +637,16 @@ sub test_get_node_by_name : Test(4) {
 sub test_get_node_cursor : Test(4) {
     my $self  = shift;
     my $value = 'a value';
-    $self->add_expected_sql( q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
+    $self->add_expected_sql( q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=sometype ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
 
     local *Everything::DB::retrieve_nodetype_tables;
     *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
+
+    local *Everything::DB::nodetype_data_by_name;
+    *Everything::DB::nodetype_data_by_name = sub {};
+
+    local *Everything::logErrors;
+    *Everything::logErrors = sub { diag "@_" };
 
     @tablearray = (qw{serpents lions});
 
@@ -647,7 +656,7 @@ sub test_get_node_cursor : Test(4) {
 
     my $cursor = $self->{instance}->getNodeCursor(@args);
     my ($method, $args) =  $self->{instance}->{dbh}->next_call(2);
- 
+
     is(
         $args->[1],
         $self->shift_expected_sql(),
@@ -663,11 +672,14 @@ sub test_get_node_cursor : Test(4) {
 sub test_select_node_where : Test(6) {
     my $self  = shift;
 
-    $self->add_expected_sql(q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=8888 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
+    $self->add_expected_sql(q|SELECT node_id FROM node LEFT JOIN sylph ON node_id=sylph_id LEFT JOIN dryad ON node_id=dryad_id WHERE medusa='arachne' AND type_nodetype=111 ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
 
 
     local *Everything::DB::retrieve_nodetype_tables;
     *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
+
+    local *Everything::DB::nodetype_data_by_name;
+    *Everything::DB::nodetype_data_by_name = sub {};
 
     my $value = 'a value';
     @tablearray = (qw{dryad sylph});
@@ -702,10 +714,13 @@ sub test_select_node_where : Test(6) {
 
 sub test_count_node_matches : Test(4) {
     my $self  = shift;
-    $self->add_expected_sql (q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=8888 |)  unless $self->isset_expected_sql;
+    $self->add_expected_sql (q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=sometype |)  unless $self->isset_expected_sql;
 
     local *Everything::DB::retrieve_nodetype_tables;
     *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
+
+    local *Everything::DB::nodetype_data_by_name;
+    *Everything::DB::nodetype_data_by_name = sub {};
 
     my $value = 'a value';
     @tablearray = (qw{serpents lions});
@@ -726,48 +741,6 @@ sub test_count_node_matches : Test(4) {
     ($method, $args) =  $self->{instance}->{dbh}->next_call;
     is( $method, 'execute', '...it calls execute on the DBI' );
     is( $rv,            3,         '...and returns the correct number.' );
-
-}
-
-sub test_get_all_types : Test(10) {
-
-    ### This calls the Nodebase function getNode.  Arguably, it
-    ### shouldn't as this is a DB function. Naughty.
-    my $self  = shift;
-
-    $self->add_expected_sql (q|SELECT node_id FROM node WHERE type_nodetype=1 |)  unless $self->isset_expected_sql;
-
-    my $nb = $self->{instance}->{nb};
-    $nb->set_always( getNode => $self->fake_node );
-    my $value = 'a value';
-    @tablearray = (qw{serpents lions});
-    $self->{instance}->{dbh}->set_series( 'fetchrow', 1, 2, 3, 5, 8, 11 )
-      ->set_always( 'fetchrow_hashref', { title => 'wow', bright => 'sky' } );
-
-    ## tables a WHERE hash and a type
-    my @args = ( { foo => 'bar' }, 'sometype' );
-
-    $self->{instance}->{dbh}->clear;
-    my @rv = $self->{instance}->getAllTypes(@args);
-    my ($method, $args) =  $self->{instance}->{dbh}->next_call;
-    is(
-        $args->[1],
-       $self->shift_expected_sql,
-        'getAllTypes makes some sql'
-    );
-
-    is( $method, 'prepare', '...it calls prepare on the DBI' );
-    ($method, $args) =  $self->{instance}->{dbh}->next_call;
-    is( $method, 'execute', '...it calls execute on the DBI' );
-
-    # this returns stuff created by getNodeByIdNew and in the test
-    # environment returns hashes.
-    is( scalar @rv, 6, '...and returns the correct arguments.' );
-
-    # test that all returned items are proper nodes;
-    foreach (@rv) {
-	isa_ok($_, 'Everything::Node');
-    }
 
 }
 
@@ -857,6 +830,9 @@ sub test_get_nodetype_tables : Test( 7 ) {
     local *Everything::DB::retrieve_nodetype_tables;
     *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
 
+    local *Everything::DB::nodetype_data_by_name;
+    *Everything::DB::nodetype_data_by_name = sub { +{ node_id => 111} };
+
     ok( !$instance->getNodetypeTables(),
         'getNodetypeTables() should return false without type' );
 
@@ -873,11 +849,6 @@ sub test_get_nodetype_tables : Test( 7 ) {
     );
 
     @tablearray = qw( foo bar );
-
-    
-    my $nb = $instance->{nb};
-    $nb->mock('getRef' => sub { $_[1] = $nb } );
-    $nb->mock( retrieve_nodetype_tables => sub { [ @tablearray ] });
 
     is_deeply( $instance->getNodetypeTables('bar'),
         [qw( foo bar )], '... or calling getTableArray() on promoted node' );

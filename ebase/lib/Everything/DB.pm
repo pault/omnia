@@ -12,16 +12,13 @@ package Everything::DB;
 use strict;
 use warnings;
 
-use DBI;
-use Scalar::Util 'weaken';
-use Everything::DB::Node;
+use Moose;
 
-sub new
-{
-	my ($class, %args) = @_;
-	weaken( $args{nb} );
-	bless \%args, $class;
-}
+has dbname => ( is => 'rw' );
+
+use DBI;
+use Everything::DB::Node;
+use Scalar::Util qw/blessed reftype/;
 
 =head2 C<fetch_all_nodetype_names()>
 
@@ -592,10 +589,15 @@ sub getNodeByName
 	my $NODE;
 	my $cursor;
 
+
+	## I don't like this behaviour. If we fail to pass a required
+	## argument we should 'die'.
 	return unless ($nodetype_title);
 
 	my $type_data = $this->nodetype_data_by_name( $nodetype_title );
 
+	# Now we have the nodetype, we can start to construct the
+	# node, because we can call the nodetype sql/perl to make it.
 	$cursor = $this->sqlSelectMany( "*", "node",
 		      "title="
 			. $this->quote($node)
@@ -647,7 +649,7 @@ sub nodetype_data_by_name {
     my $dbh = $self->getDatabaseHandle;
 
     my $sth = $dbh->prepare_cached( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.title = ? ' );
-
+ 
     $sth->execute( $typename );
 
     my $data = $sth->fetchrow_hashref;
@@ -665,8 +667,9 @@ sub nodetype_data_by_id {
     my ( $self, $id ) = @_;
 
     my $dbh = $self->getDatabaseHandle;
+    my $sth;
 
-    my $sth = $dbh->prepare_cached( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
+    $sth = $dbh->prepare_cached( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
 
     $sth->execute( $id );
 
@@ -853,9 +856,10 @@ plain text WHERE string.
 
 =item * $TYPE
 
-the nodetype to search.  If this is not given, this will only search the fields
-on the "node" table since without a nodetype we don't know what other tables to
-join on.
+the identifier of nodetype to search, i.e. node_id or nodetype_id.  If
+this is not given, this will only search the fields on the "node"
+table since without a nodetype we don't know what other tables to join
+on.
 
 =item * $orderby
 
@@ -895,8 +899,9 @@ sub getNodeCursor
 
 	$nodeTableOnly ||= 0;
 
-	# Make sure we have a nodetype object
-	$TYPE = $this->{nb}->getType($TYPE);
+	# Because of the legacy, $TYPE might be a nodetype node, a
+	# node id, or a nodetype title.  Let's sort this out before we
+	# go any further.
 
 	my $wherestr = $this->genWhereString( $WHERE, $TYPE );
 
@@ -983,34 +988,6 @@ sub countNodeMatches
 	return $matches;
 }
 
-=head2 C<getAllTypes>
-
-This returns an array that contains all of the nodetypes in the system.  Useful
-for knowing what nodetypes exist.
-
-Returns an array of TYPE hashes of all the nodetypes in the system
-
-=cut
-
-sub getAllTypes
-{
-	my ($this) = @_;
-
-	my $cursor = $this->sqlSelectMany( 'node_id', 'node', 'type_nodetype=1' );
-	return unless $cursor;
-
-	my @allTypes;
-
-	while ( my ($node_id) = $cursor->fetchrow() )
-	{
-		push @allTypes, $this->{nb}->getNode($node_id);
-	}
-
-	$cursor->finish();
-
-	return @allTypes;
-}
-
 =head2 C<retrieve_nodetype_tables>
 
 Returns an array of all the tables that a given nodetype joins on.
@@ -1089,6 +1066,12 @@ sub derive_grouptable {
 
 }
 
+
+# XXXX: this method hasn't got a POD, and I'm not sure I want to give
+# it one. The problem is the $TYPE argument, which can be a nodetype,
+# a name or a node_id.  It is just awful to do this. We should know
+# what we have a call it appropriately.
+
 sub getNodetypeTables
 {
 	my ( $this, $TYPE, $addNode ) = @_;
@@ -1108,9 +1091,19 @@ sub getNodetypeTables
 	}
 	else
 	{
-		$this->{nb}->getRef($TYPE);
+
+	    if ( reftype $TYPE ) {
+
 		my $tables = $this->retrieve_nodetype_tables( $$TYPE{node_id} );
 		push @tablelist, @$tables if $tables;
+
+	    } else {
+		    my $tables = $this->retrieve_nodetype_tables( $TYPE );
+		    push @tablelist, @$tables if $tables;
+
+	    }
+
+
 	}
 
 	push @tablelist, 'node' if $addNode;
@@ -1232,7 +1225,7 @@ sub genWhereString
 			# want to compare the ID of the node, not the hash reference.
 			if ( eval { $WHERE->{$key}->isa('Everything::Node') } )
 			{
-				$$WHERE{$key} = $this->{nb}->getId( $WHERE->{$key} );
+				$$WHERE{$key} = $WHERE->{$key}->{node_id};
 			}
 
 			# If $key starts with a '-', it means it's a single value.
@@ -1253,7 +1246,10 @@ sub genWhereString
 					foreach my $item (@$LIST)
 					{
 						$orstr .= " or " if ( $orstr ne "" );
-						$item = $this->{nb}->getId($item);
+						if ( blessed( $item ) && $item->isa('Everything::Node') ) { 
+						    $item = $item->{node_id};
+						}
+
 						$orstr .= $key . '=' . $this->quote($item);
 					}
 
@@ -1285,7 +1281,14 @@ sub genWhereString
 	if ( defined $TYPE )
 	{
 		$wherestr .= " AND" if ( $wherestr ne "" );
-		$wherestr .= " type_nodetype=" . $this->{nb}->getId($TYPE);
+		if ( blessed( $TYPE ) && $TYPE->isa('Everything::Node') ) {
+		    $wherestr .= " type_nodetype=" . $TYPE->{node_id};
+		} elsif ( my $data = $this->nodetype_data_by_name( $TYPE ) ) {
+
+		    $wherestr .= " type_nodetype=" . $$data{nodetype_id};
+		} else {
+		    $wherestr .= " type_nodetype=" . $TYPE; # assume we have a node_id
+		}
 	}
 
 	return $wherestr;

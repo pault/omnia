@@ -348,11 +348,13 @@ sub test_count_node_matches :Test(2) {
 }
 
 
+# test is against nodebase.
+# XX: perhaps change to a NodeBase/Live test which doesn't currently exist.
 sub test_get_all_types :Test(2) {
 
     my $self = shift;
 
-    is( my @types = $self->{ storage }->getAllTypes, 3, '..returns all types.' );
+    is( my @types = $self->{ nodebase }->getAllTypes, 3, '..returns all types.' );
     is( join( ' ', sort map { $_->get_title } @types), 'node nodetype setting', '...returns only type nodes.');
 
 }
