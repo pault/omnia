@@ -95,6 +95,7 @@ sub test_insert :Test( +4 )
 
 sub test_update :Test( +3 )
 {
+    return "Test moved to Everything::Node::DB::Test";
 	my $self = shift;
 	my $node = $self->{node};
 

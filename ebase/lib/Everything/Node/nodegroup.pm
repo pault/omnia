@@ -95,7 +95,7 @@ override insert => sub {
 override update => sub {
     my ( $this, $USER ) = @_;
 
-    $this->updateGroup($USER);
+#    $this->updateGroup($USER);
     return $this->super($USER);
 };
 
@@ -476,10 +476,10 @@ sub insertIntoGroup {
 
     # converts to a list reference w/ 1 element if we get a scalar
     my $insertref;
-    $insertref = [$insert] unless ( reftype($insert) || '' eq 'ARRAY' );
+
+    $insertref = reftype($insert) eq 'ARRAY' ? $insert : [$insert];
 
     $insertref = $this->restrict_type($insertref);
-
     my $len = int(@$group);
     $orderby ||= $len;
     $orderby = ( $orderby > $len ? $len : $orderby );

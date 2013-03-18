@@ -30,13 +30,30 @@ use MooseX::FollowPBP;
 
 extends 'Everything::Object';
 
-has _type => ( accessor => '_type' );
+has _type => ( accessor => '_type', required => 1, isa => 'Everything::Node::nodetype', builder => 'determine_type', lazy => 1 );
 has access => ( is => 'rw', isa => 'Everything::NodeAccess', handles => { hasAccess => 'has_access' });
 has nodebase => ( is => 'rw' );
 has DB => ( is => 'rw' );
 has nocache => ( is => 'rw' );
 
-=cut
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $self = shift;
+    my $args = $self->$orig( @_ );
+    delete $$args{ _type } unless defined $$args{ _type };
+
+    return $args;
+
+};
+
+sub determine_type {
+
+    my $self = shift;
+    my $nodebase = $self->get_nodebase || die "No nodebase to get type.";
+    return $nodebase->getNode( $self->get_type_nodetype );
+
+}
+
 
 
 =head2 C<new>

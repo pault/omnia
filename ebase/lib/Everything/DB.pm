@@ -273,7 +273,7 @@ sub sqlSelectMany
 	$sql .= "FROM " . $this->genTableName($table) . " " if $table;
 	$sql .= "WHERE $where "                             if $where;
 	$sql .= $other                                      if $other;
-
+	use Carp; local $SIG{__WARN__}=\&Carp::cluck;
 	my $cursor = $this->{dbh}->prepare($sql) or do { warn "WARNING SQL FAILED: $sql"; return; };
 
 	return $cursor if $cursor->execute(@$bound);
@@ -400,6 +400,7 @@ sub sqlInsert
 
         my $rv = $this->sqlExecute( $sql, $bound );
 	Everything::logErrors( "$sql $DBI::errstr @$bound" )if $DBI::errstr;
+
 	return $rv;
 }
 
@@ -561,8 +562,7 @@ sub getNodeByIdNew
 	}
 	return unless $node_id;
 
-
-	$cursor = $this->sqlSelectMany( "*", "node", "node_id=$node_id" );
+	$cursor = $this->getNodeCursor( "*", { node_id => $node_id }, undef, undef, undef, undef, 1 );
 
 	return unless $cursor;
 
@@ -585,16 +585,13 @@ sub getNodeByIdNew
 
 sub getNodeByName
 {
-	my ( $this, $node, $nodetype_title ) = @_;
+	my ( $this, $node, $nodetype_id ) = @_;
 	my $NODE;
 	my $cursor;
 
+	die "Nodetype ID must be passed as second argument." unless ($nodetype_id);
 
-	## I don't like this behaviour. If we fail to pass a required
-	## argument we should 'die'.
-	return unless ($nodetype_title);
-
-	my $type_data = $this->nodetype_data_by_name( $nodetype_title );
+#	my $type_data = $this->nodetype_data_by_name( $nodetype_title );
 
 	# Now we have the nodetype, we can start to construct the
 	# node, because we can call the nodetype sql/perl to make it.
@@ -602,7 +599,7 @@ sub getNodeByName
 		      "title="
 			. $this->quote($node)
 			. " AND type_nodetype="
-			. $$type_data{node_id} );
+			. $nodetype_id );
 
 	return unless $cursor;
 
@@ -617,6 +614,21 @@ sub getNodeByName
 
 	return $NODE;
 }
+
+sub retrieve_node_data {
+
+    my ($self, $args) = @_;
+
+    my $type_node = delete $$args{ type };
+
+    my $cursor = $self->getNodeCursor( "*", $args, $type_node, undef, 1, undef, undef );
+
+    my $node_data = $cursor->fetchrow_hashref();
+    $cursor->finish;
+    return $node_data;
+
+}
+
 
 =head2 purge_node_data
 
@@ -669,7 +681,7 @@ sub nodetype_data_by_id {
     my $dbh = $self->getDatabaseHandle;
     my $sth;
 
-    $sth = $dbh->prepare_cached( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
+    $sth = $dbh->prepare( 'SELECT * FROM node LEFT JOIN nodetype ON node.node_id = nodetype.nodetype_id WHERE node.node_id = ? ' );
 
     $sth->execute( $id );
 
@@ -698,12 +710,15 @@ sub nodetype_hierarchy_by_id {
 
     my @nodetypes = ();
     my $type;
-
+    my $flag = 0;
     while ( $id && ( $type = $self->nodetype_data_by_id($id)) ) {
-	$id = $type->{extends_nodetype};
+	$flag++ if $$type{title} eq 'usergroup';
+#	use Data::Dumper; warn "NOW THIS TYPE " . Dumper( $type ) if $flag;
 	push @nodetypes, $type;
+	$id = $type->{extends_nodetype};
     }
 
+#warn "THIISSSS IS THE HIERARCHY FROM IX 0 : " . join ' ', map { $_->{node_id}  } @nodetypes if $flag;
     return \@nodetypes if @nodetypes;
     return;
 }
@@ -818,9 +833,26 @@ sub selectNodeWhere
 	# The caller wishes to know the total number of matches.
 	$$refTotalRows = $this->countNodeMatches( $WHERE, $TYPE ) if $refTotalRows;
 
-	my $cursor =
-		$this->getNodeCursor( 'node_id', $WHERE, $TYPE, $orderby, $limit,
-		$offset, $nodeTableOnly );
+
+	my $dbh = $this->getDatabaseHandle;
+
+	my $sql = $this->SELECT_node( 'node_id', $TYPE );
+
+
+	my $wherestr = $this->genWhereString( $WHERE, $TYPE );
+
+	$sql .= " WHERE $wherestr\n" if $wherestr;
+
+
+	my $extra = '';
+	$extra .= "ORDER BY $orderby" if $orderby;
+	$extra .= " " . $this->genLimitString( $offset, $limit ) if $limit;
+
+	$sql .= $extra;
+
+	my $cursor = $dbh->prepare( $sql );
+
+	die "SQL Error: $sql " . DBI->errstr if DBI->errstr;
 
 	return unless $cursor and $cursor->execute();
 
@@ -939,7 +971,6 @@ sub getNodeCursor
 			$extra );
 	};
 	$error = $@;
-	local $SIG{__WARN__} = sub { };
 
 	if ( $error ne "" or $warn ne "" )
 	{
@@ -949,6 +980,40 @@ sub getNodeCursor
 
 	return $cursor;
 }
+
+
+=head2 C<SELECT_node>
+
+Creates SQL statement selecting the node from the database.
+
+Returns a string
+
+=cut
+
+sub SELECT_node {
+    my ( $this, $select, $type ) =@_;
+
+    my $sql = "SELECT $select FROM node \n";
+
+    if ( $type ) {
+
+	my $tableArray = $this->getNodetypeTables($type);
+
+	if ($tableArray)
+	  {
+	      foreach my $table (@$tableArray)
+		{
+		    $sql .= "LEFT JOIN " . $this->genTableName( $table ) . " ON " . "node.node_id = $table.${table}_id ";
+		}
+	  }
+
+
+
+    }
+    return $sql;
+
+}
+
 
 =head2 C<countNodeMatches>
 

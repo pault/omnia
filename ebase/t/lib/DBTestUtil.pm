@@ -8,8 +8,9 @@ use IO::File;
 use File::Spec;
 use File::Temp;
 use Test::More;
+use Data::Dumper;
 
-our @EXPORT_OK = qw/config_file drop_database skip_cond nodebase update_node_tests delete_node_tests nodeball_script_tests/;
+our @EXPORT_OK = qw/config_file drop_database skip_cond nodebase update_node_tests delete_node_tests nodeball_script_tests nodegroup_tests/;
 
 
 sub config_file {
@@ -142,6 +143,49 @@ sub update_node_tests {
         }
     }
 
+}
+
+sub nodegroup_tests {
+
+   my $skip = skip_cond();
+    my ( $nodebase, $count, $nodes );
+
+    if ($skip) {
+        plan skip_all => $skip;
+    }
+    else {
+
+	plan tests => 5;
+
+    }
+
+   $nodebase = nodebase();
+
+   my $group = $nodebase->getNode( 'test group', 'nodegroup', 'create force' );
+
+   diag $nodebase->store_new_node( $group, -1 );
+   use Data::Dumper;
+   my $type = $group->type;
+   diag $type;
+   diag $group;
+   diag $group->get_node_id;
+   diag $type->get_title;
+
+   is_deeply ( $group->selectNodegroupFlat, [], 'No nodes in group.' );
+   ok( $group->insertIntoGroup( -1,  [ map { $nodebase->getNode($_) } 1,2 ] ), '..inserts into node two nodes');$group->update( -1 );
+   ok ($nodebase->update_stored_node( $group, -1 ), '...updates group node.');
+
+   is ( my $group_table = $type->isGroupType, 'nodegroup', '...gets group table.') ;
+
+   my @result;
+
+   my $cursor = $nodebase->get_storage->sqlSelectMany( 'node_id', $group_table, "nodegroup_id = $$group{node_id}" );
+
+   while ( my $row = $cursor->fetchrow ) {
+       push @result, $row;
+   }
+
+   is_deeply (\@result, [1,2], '...table contains ids of nodes in the group.');
 }
 
 sub delete_node_tests {
@@ -437,7 +481,7 @@ NODE
         [ $in_ball, $in_base, $diffs ],
         [ [], [], [], ],
         '...the exported nodes are identifcal to the ones in the nodebase.'
-    ) || diag Dumper $in_ball, $in_base, $diffs;
+    ) || diag @$in_ball, @$in_base, @$diffs;
 
 }
 

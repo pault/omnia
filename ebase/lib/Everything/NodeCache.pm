@@ -496,7 +496,7 @@ sub getGlobalVersion
 
 	my $ver =
 		$this->{nodeBase}
-		->sqlSelect( "version", "version", "version_id=$$NODE{node_id}" );
+		->sqlSelect( "version", "version", "version_id=" . $NODE->get_node_id );
 
 	if ( ( not defined $ver ) || ( not $ver ) )
 	{

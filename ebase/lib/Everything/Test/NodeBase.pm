@@ -509,10 +509,11 @@ sub test_get_node_where :Test( 5 )
 	my $self = shift;
 	my $nb   = $self->{nb};
 
+	my $node_zero = { node_id => 0 };
 	$nb->set_series( 'selectNodeWhere', undef, 'foo', [ 1 .. 5 ] )
-	   ->mock( -getNode => sub { return +{ node_id => 0 } if $_[1] eq '0'; return +{ node_id => $_[1] } if $_[1] } );
+	   ->mock( -getNode => sub { return $node_zero if $_[1] eq $node_zero; return +{ node_id => $_[1] } if $_[1] } );
 
-	my @expected = qw( where 0 orderby limit offset reftotalrows );
+	my @expected = ( 'where', $node_zero, qw/ orderby limit offset reftotalrows / );
 	my $result   = $nb->getNodeWhere( @expected );
 
 	my ( $method, $args ) = $nb->next_call();
@@ -566,7 +567,7 @@ sub test_get_type :Test( 9 )
 		'... returning fetched node, if named' );
 
 	my ( $method, $args ) = $nb->next_call();
-	is( join( '-', @$args ), "$nb-name-1", '... by name for nodetype' );
+	is( join( '-', @$args ), "$nb-name-nodetype", '... by name for nodetype' );
 
 	is( $nb->getType( 12345 ), 'id',
 		'... returning node for positive node_id' );

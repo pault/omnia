@@ -202,7 +202,7 @@ APACHECONF
 
     my $p = HTML::HeadParser->new;
     $p->parse(  $mech->response->decoded_content );
-
+    use Carp; local $SIG{__DIE__} = \&Carp::confess;
     is ($p->header('Title'), $utf8_title, '...utf8 title is correct.');
 
     like ( $mech->response->decoded_content, qr/$utf8_contents/, '...with correct utf8 encoded contents.') || diag $mech->content;

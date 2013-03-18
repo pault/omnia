@@ -724,7 +724,8 @@ sub xmlnode2node_basic {
 #     }
 
 
-    my $id = $node->insert( -1 );
+#    my $id = $node->insert( -1 );
+    my $id = $nodebase->store_new_node( $node, -1 );
     $installed_nodes->{ $nodetype }->{ $title } = $id;
 
     return;
@@ -732,6 +733,7 @@ sub xmlnode2node_basic {
 
 sub xmlnode2node_complete {
     my ( $nodebase, $xmlnode ) = @_;
+
     my $title =  $xmlnode->get_title;
     my $nodetype = $xmlnode->get_nodetype;
     my $node = $nodebase->getNode( $title, $nodetype );
@@ -742,7 +744,7 @@ sub xmlnode2node_complete {
 	} else {
 	    my ( $att_nodetype ) = split /,/, $_->get_type_nodetype;
 	    my $noderef = $nodebase->getNode( $_->get_content, $att_nodetype );
-	    warn "For '$title' of '$nodetype' couldn't get " . $_->get_content . "of type '$att_nodetype'" unless $noderef;
+	    warn "For '$title' of '$nodetype' couldn't get " . $_->get_content . " of type '$att_nodetype'" unless $noderef;
 	    $node->{ $_->get_name } = $noderef->getId;
 	}
 
@@ -762,7 +764,6 @@ sub xmlnode2node_complete {
 
     $node->setVars( \%vars ) if %vars;
 
-
     my @group = ();
     foreach ( @{ $xmlnode->get_group_members }) {
 
@@ -772,8 +773,11 @@ sub xmlnode2node_complete {
  
     }
     $node->{group} = \@group if @group;
-    $node->update( -1, 'nomodified' );
-#    $nodebase->update_stored_node( $node, -1, { NOMODIFIED => 'nomodified' } );
+#    $node->update( -1, 'nomodified' );
+    # We need to remove the NodeBase's nodetype cache, because it is now bogus
+    $nodebase->update_stored_node( $node, -1, { NOMODIFIED => 'nomodified' } );
+#    $nodebase->rebuildNodetypeModules;
+    $nodebase->{cache}->flushCache;
 
 }
 

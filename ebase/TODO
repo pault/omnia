@@ -6,13 +6,6 @@
 * On update of ecore, produce a report that is then put into a
    document and added to the DB, so that admins have a record of what happened.
 
-* Ecore tests to ensure opcode and htmlcode errors are properly
-   reported - that is that Backside errors appeal on the output page
-   if the user isGod and is otherwise logged.  Also that runtime
-   errors are reported inline.  To do this, we can create opcode and
-   htmlcode with errors in and ensure that these errors are reported
-   as we expect.
-
 * Move parse/run code into separate classes under
    Everything/HTML/Something-or-other 
 
@@ -29,12 +22,6 @@
 
 * Documentation - allow POD of Everything::HTML to be accessed from
    Ecore to assist front-end developers
-
-* Write tests for t/TEST to test for:
-** login/logout
-** cookie setting,
-** node editing
-** well-formed XHTML.
 
 * Move Perl out of containers into htmlcode nodes to ease frontend
    development

@@ -50,7 +50,7 @@ around nodetype_data_by_id => sub {
      my $self = shift;
      my $id = shift;
 
-     return if $id =~ /\D/;
+     return if not defined $id or $id =~ /\D/;
      return $self->$orig($id, @_);
 
 

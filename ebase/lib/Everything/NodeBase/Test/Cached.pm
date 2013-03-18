@@ -47,4 +47,5 @@ sub test_get_cache :Test( 1 )
 	is( $nb->getCache(), 'cache', 'getCache() should return cache' );
 }
 
+
 1;

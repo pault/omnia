@@ -107,6 +107,7 @@ sub location_creator {
                 push @url, $attribute_sanitizer->( $node, $var->[0] );
             }
         }
+
         my $url = $location . '/' . join '/', @url;
         return $url;
     };

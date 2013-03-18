@@ -25,6 +25,7 @@ sub BUILD {
 	if ( $this->getType('setting') )
 	{
 		my $CACHE     = $this->getNode( 'cache settings', 'setting' );
+
 		my $cacheSize = 300;
 
 		# Get the settings from the system

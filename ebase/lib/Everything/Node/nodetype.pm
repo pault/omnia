@@ -9,9 +9,12 @@ Copyright 2000 - 2006 Everything Development Inc.
 
 package Everything::Node::nodetype;
 
+
 use Moose;
 use MooseX::FollowPBP; 
 
+#use Everything::Node::NodeTypeMetaType;
+use Everything::DB::Node::node;
 
 extends 'Everything::Node::node';
 
@@ -20,7 +23,11 @@ has $_ => ( is => 'rw' )
     qw/nodetype_id restrict_nodetype extends_nodetype restrictdupes sqltable grouptable defaultauthoraccess defaultgroupaccess defaultotheraccess defaultguestaccess defaultgroup_usergroup defaultauthor_permission defaultgroup_permission defaultother_permission defaultguest_permission maxrevisions canworkspace/
   );
 
-has nodetype_hierarchy => ( is => 'rw' );
+has nodetype_hierarchy => ( is => 'rw', required => 1 );
+
+has db_package => ( is => 'rw', accessor => 'db_package', default => 'Everything::DB::Node::node'  );
+
+has db_node =>  ( is => 'rw', accessor => 'db_node', isa => 'Everything::DB::Node::node'  );
 
 use Everything::Security;
 
@@ -42,6 +49,34 @@ it is constructed.  If a nodetype up the chain changes, the cache needs to be
 flushed so that the nodetype gets re-constructed with the new data.
 
 =cut
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $self = shift;
+    my $args = $self->$orig( @_ );
+    my $nodebase = $$args{nodebase};
+    my $hierarchy = $nodebase->get_storage->nodetype_hierarchy_by_id( $$args{node_id} );
+
+    $$args{nodetype_hierarchy} = $hierarchy;
+
+    return $args;
+
+
+};
+
+override determine_type => sub {
+    my $self = shift;
+    my $nb = $self->get_nodebase;
+
+    if ( $self->get_title eq 'nodetype' && $self->get_type_nodetype == 1 ) {
+
+	# then return the special nodetype thing
+	require Everything::Node::NodeTypeMetaType;
+	return Everything::Node::NodeTypeMetaType->new( nodebase => $nb );
+    }
+
+    return $self->super;
+};
 
 sub BUILD {
     my ($this) = @_;
@@ -88,7 +123,44 @@ sub BUILD {
 
     $this->{tableArray} = Everything::DB->derive_sqltables( $hierarchy );
 
+    # Choose Package for DB negotiation
+
+    # nb: $hierarchy contains node variables.
+    $this->db_package ( $this->determine_db_package( $hierarchy ) );
+
+    $this->db_node( $this->db_package->new( storage => $this->get_nodebase->get_storage ) );
+
     return 1;
+}
+
+sub determine_db_package {
+    my ($self, $hierarchy) = @_;
+
+
+    my @err;
+    my $db_package;
+
+    foreach ( @$hierarchy ) {
+
+	next unless $$_{title};
+	my $db_node = "Everything::DB::Node::$$_{title}";
+	eval "require $db_node";
+	unless ( $@ ) {
+	    undef @err;
+	    $db_package = $db_node ;
+	    last;
+	} else {
+	    push @err, $@;
+	}
+
+    }
+
+    ## If no particular nodetype file is provided.  Assume extends node.
+    if ( ! $db_package ) {
+	$db_package = 'Everything::DB::Node::node';
+    }
+
+    return $db_package;
 }
 
 sub destruct {
@@ -110,18 +182,6 @@ Returns the inserted node id
 
 =cut
 
-before insert => sub {
-    my $this = shift;
-
-    if (   not defined $this->{extends_nodetype}
-        or $this->{extends_nodetype} == 0
-        or $this->{extends_nodetype} == $this->{type_nodetype} )
-    {
-        $this->{extends_nodetype} = $this->{DB}->getType('node')->{node_id};
-    }
-
-};
-
 =head2 C<update>
 
 This allows the default "node" to actually update our node, but we need to
@@ -133,6 +193,7 @@ would need to be reloaded and reinitialized, otherwise we may get weird data.
 
 override update => sub {
     my $this   = shift;
+
     my $result = $this->super;
 
     # If the nodetype was successfully updated, we need to flush the
@@ -310,7 +371,7 @@ Returns true if the this derives from the given nodetype, false otherwise.
 sub derivesFrom {
     my ( $this, $type ) = @_;
 
-    $type = $this->{DB}->getType($type);
+    $type = $this->{DB}->getNode($type, 'nodetype');
     return 0 unless $type and $type->{type_nodetype} == 1;
 
     my $check = $this;
@@ -369,7 +430,14 @@ Arguments:
 
 sub node {
 
+    my ( $self, $args ) = @_;
+    $$args{type} = $self;
 
+    my $nodebase = $$args{nodebase};
+
+    my $node_data = $self->db_node->retrieve_node( $args );
+    return unless $node_data;
+    return $nodebase->make_node( $node_data, $self->get_title );
 
 }
 
@@ -387,6 +455,14 @@ Takes a blessed node object and then inserts it into the nodebase
 
 =cut
 
+sub insert_node {
+
+    my ($self, $node ) = @_;
+
+    return $self->db_node->insert_node( $node );
+
+}
+
 =head2 update_node
 
 Takes a blessed node object and updates the existing node in the database.
@@ -394,6 +470,49 @@ Takes a blessed node object and updates the existing node in the database.
 =cut
 
 sub update_node {
+
+    my ( $this, $node ) = @_;
+
+    if ( ! $this->db_node ) {
+	$this->db_node( $this->db_node( $this->db_package->new( storage => $this->get_nodebase->get_storage )));
+    }
+
+    $this->db_node->update_node( $node );
+
+}
+
+# gets tableArray and join columns and returns a Join clause
+
+sub JOIN_clause {
+
+
+}
+
+sub SELECT_statement {
+
+
+
+# select fields
+# Joins
+# WHERE
+# ORDER BY
+# OFFSET
+# Limit
+
+
+
+}
+
+sub INSERT_statement {
+
+}
+
+sub UPDATE_statement {
+
+
+}
+
+sub DELETE_statement {
 
 
 }

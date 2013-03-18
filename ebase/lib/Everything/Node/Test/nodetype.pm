@@ -8,12 +8,28 @@ use base 'Everything::Node::Test::node';
 use Test::More;
 use SUPER;
 
-sub startup :Test( +1 )
-{
-	my $self = shift;
-	$self->SUPER::startup();
-	isa_ok( $self->node_class()->new(), 'Everything::Node::node' );
+
+
+# override subclass;
+sub test_instantiate {
+
+    my ( $self, $module ) = @_;
+    my $mock =  Test::MockObject->new;
+    $mock->set_always( get_storage => $mock );
+    isa_ok( $module->new( nodebase => $mock ), $module );
+
+
 }
+
+# override this because nodetypes must be passed a nodebase to work properly
+sub reset_mock_node {
+
+	my $self      = shift;
+	my $node      = $self->node_class()->new( nodebase => $self->{mock_db} );
+	$self->{node} = Test::MockObject::Extends->new( $node );
+
+}
+
 
 sub test_dbtables :Test( 2 )
 {
@@ -36,7 +52,7 @@ sub test_construct :Test( 6 )
 
 	$node->{node_id}  = $node->{extends_nodetype} = 0;
 	$node->{sqltable} = 'foo,bar,baz';
-	$node->{nodetype_hierarchy} = [{grouptable => 'grouptable', defaultauthoraccess => 'iiii', defaultgroupaccess => 'iiiii', defaultotheraccess => 'iiiii', defaultguestaccess => 'iiiii'}, { defaultauthoraccess => '----', defaultgroupaccess => '-----', defaultotheraccess => '-----', defaultguestaccess => '-----'} ];
+	$node->{nodetype_hierarchy} = [{grouptable => 'grouptable', defaultauthoraccess => 'iiii', defaultgroupaccess => 'iiiii', defaultotheraccess => 'iiiii', defaultguestaccess => 'iiiii'}, { defaultauthoraccess => '----', defaultgroupaccess => '-----', defaultotheraccess => '-----', defaultguestaccess => '-----', title => 'node' } ];
 	$node->set_always ( -get_title => 'node' );
 
 	ok( $node->BUILD(),
@@ -114,46 +130,6 @@ sub test_destruct :Test()
 	$node->destruct();
 	ok( !exists $node->{tableArray},
 		'destruct() should remove "tableArray" field' );
-}
-
-sub test_insert :Test( +4 )
-{
-	my $self = shift;
-	my $node = $self->{node};
-	my $db   = $self->{mock_db};
-
-	$node->{extends_nodetype} = 2;
-	$node->{type_nodetype}    = 200;
-	$node->{ title } = 'testnodetype';
-
-	Test::MockObject->fake_module( 'Everything::Node::testnodetype', meta => sub { $node } );
-
-	$node->set_list ( superclasses => 'Everything::Node::node' );
-	$self->SUPER::test_insert();
-	delete $node->{extends_nodetype};
-	$node->{DB} = $db;
-	$node->set_true( 'SUPER', 'cacheNode' );
-
-	$db->set_series( getType => map { { node_id => $_ } } ( 11, 12, 11 ) );
-
-	$db->clear;
-	$node->insert( 'user' );
-	my ( $method, $args ) = $db->next_call();
-	is( $method, 'getType', 'insert() with no parent should extend a type' );
-	is( $args->[1], 'node', '... the node type, by default' );
-
-	$node->{extends_nodetype} = 0;
-
-	$node->insert( 'user' );
-	is( $node->{extends_nodetype}, 12, '... or if the parent is 0' );
-
-	# make it extend itself, should not work
-	$node->{type_nodetype} = 12;
-	$db->{cache}           = $node;
-
-	$node->insert( 'user' );
-	isnt( $node->{extends_nodetype}, 12,
-		'... and should not be allowed to extend itself' );
 }
 
 sub test_insert_access
@@ -310,7 +286,7 @@ sub test_derives_from :Test( 6 )
 	my $node = $self->{node};
 	my $db   = $self->{mock_db};
 	$db->set_series(
-		getType => 0,
+		getNode => 0,
 		{ type_nodetype => 2 },
 		{ type_nodetype => 1, node_id => 88 },
 		{ type_nodetype => 1, node_id => 99 }
@@ -319,7 +295,7 @@ sub test_derives_from :Test( 6 )
 	$node->set_always( getParentType => $node );
 
 	my $result = $node->derivesFrom( 'foo' );
-	is( $db->next_call(), 'getType',
+	is( $db->next_call(), 'getNode',
 		'derivesFrom() should find the type of the first parameter' );
 	is( $result, 0, '... returning 0 unless it exists' );
 

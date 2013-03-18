@@ -115,6 +115,7 @@ sub handle_location_schemas {
      my @linknode_rules = ();
 
      my @schemas =  @{ $self->get_config->get('location_schema_nodetype') };
+     return unless @schemas;
 
      foreach ( @schemas) {
          my $schema = Everything::Config::URLDeconstruct->new();
@@ -125,6 +126,7 @@ sub handle_location_schemas {
            $schema->create_nodetype_rule( $schema->location_creator,
              $nodetype_name );
      }
+
      $self->set_deconstruct_modifiers( \@request_modifiers );
      $self->set_deconstruct_locations( \@linknode_rules );
 }

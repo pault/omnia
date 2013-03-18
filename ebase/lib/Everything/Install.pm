@@ -125,6 +125,7 @@ sub install_nodes {
     );
 
     $self->get_nodebase->{cache}->flushCache;
+
     $ball->install_xml_nodes_final(        sub {
             my $xmlnode = shift;
             if ( $xmlnode->get_nodetype eq 'nodetype' ) {

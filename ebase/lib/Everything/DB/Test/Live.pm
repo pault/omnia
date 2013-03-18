@@ -320,7 +320,8 @@ sub test_get_node_by_name :Test(2) {
     my $self = shift;
     my $s = $self->{ storage };
 
-    isa_ok( my $node = $s->getNodeByName( 'setting', 'nodetype' ), 'HASH', '...returns hash ref.');
+    ## Nodetype_id = 1
+    isa_ok( my $node = $s->getNodeByName( 'setting', 1 ), 'HASH', '...returns hash ref.');
     is ( $node->{ title } . $node->{ type_nodetype }, 'setting1', '..of the correct title and type.');
 }
 

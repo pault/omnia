@@ -134,7 +134,8 @@ sub test_insert :Test( 3 )
 
 	my $time = time();
 
-	$db->set_always( -now => $time );
+	local *Everything::DB::sqlite::now;
+	*Everything::DB::sqlite::now = sub { $time };
 
 	$node->set_true( 'cache' );
 	$node->{node_id} = 0;

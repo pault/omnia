@@ -32,7 +32,7 @@ has storage => ( is => 'rw' );
 has dbname => ( is => 'rw' );
 has staticNodetypes => ( is => 'rw' );
 
-use Scalar::Util 'reftype', 'blessed';
+use Scalar::Util 'reftype', 'blessed', 'looks_like_number';
 
 BEGIN
 {
@@ -590,6 +590,7 @@ sub store_new_node {
 	# If the node_id greater than zero, this has already been inserted and
 	# we are not forcing it.
 	return $node_id if $node_id > 0;
+	## XXXX: if types know about storage should be here
 
 	if ( $this->storage_settings( $node )->{restrictdupes} )
 	{
@@ -606,42 +607,13 @@ sub store_new_node {
 		return 0 if $DUPELIST;
 	}
 
-	# First, we need to insert the node table row.  This will give us
-	# the node id that we need to use.  We need to set up the data
-	# that is going to be inserted into the node table.
-	foreach ( $this->getFields('node') )
-	{
-		$tableData{$_} = $node->{$_} if exists $node->{$_};
-	}
-	delete $tableData{node_id};
-	$tableData{-createtime} = $this->now();
+	# Clean up some data;
 
 	# Assign the author_user to whoever is trying to insert this.
 	# Unless, an author has already been specified.
-	$tableData{author_user} ||= $user_id;
+	$node->{author_user} ||= $user_id;
 
-	$this->sqlInsert( 'node', \%tableData );
-
-	# Get the id of the node that we just inserted!
-	$node_id = $this->lastValue( 'node', 'node_id' );
-
-	# Now go and insert the appropriate rows in the other tables that
-	# make up this nodetype;
-	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype);
-
-	foreach my $table (@$tableArray)
-	{
-		my @fields = $this->getFields($table);
-
-		my %tableData;
-		$tableData{ $table . "_id" } = $node_id;
-		foreach (@fields)
-		{
-			$tableData{$_} = $node->{$_} if exists $node->{$_};
-		}
-
-		$this->sqlInsert( $table, \%tableData );
-	}
+	$node_id = $node->type->insert_node( $node );
 
 	# Now that it is inserted, we need to force get it.  This way we
 	# get all the fields.  We then clear the $this hash and copy in
@@ -654,7 +626,6 @@ sub store_new_node {
 	my $newNode = $this->getNode( $node_id, 'force' );
 	undef %$node;
 	@$node{ keys %$newNode } = values %$newNode;
-
 	return $node_id;
 }
 
@@ -710,36 +681,14 @@ sub update_stored_node {
 	$node->{modified} = $this->sqlSelect( $this->now() )
 		unless $nomodified;
 
-	# We extract the values from the node for each table that it joins
-	# on and update each table individually.
-	my $tableArray = $this->get_storage->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
+	my $id = $node->type->update_node( $node );
 
-	foreach my $table (@$tableArray)
-	{
-		my %VALUES;
-
-		my @fields = $this->getFields($table);
-		foreach my $field (@fields)
-		{
-			$VALUES{$field} = $node->{$field} if exists $node->{$field};
-		}
-
-		$this->{storage}->update_or_insert(
-						   {
-			table => $table,
-                        data => \%VALUES,
-			where => "${table}_id = ?",
-			bound => [ $node->{node_id} ],
-			node_id => $node->getId,
-						   }
-		);
-	}
 	if ( blessed( $node ) eq 'Everything::Node::nodetype' ) {
 	    $this->rebuildNodetypeModules;
-#my $class = 'Everything::Node::' . $node->get_title;
-#	    $class->set_class_nodetype( $node );
+
 	}
-	return $node->{node_id};
+	return $id;
+
 }
 
 =head2 delete_stored_node
@@ -850,42 +799,82 @@ sub remove_from_groups {
 }
 
 
-# XXXXX: in this sub we need to get the node table data first and then once we have the node id we can  build the node.  Basically this means two calls to the DB
+
 sub retrieve_node_using_id {
 
     my ( $this, $node_id, $ext ) = @_;
 
-    my $node_data = $this->get_storage->getNodeByIdNew( $node_id );
+    # first get basic data and Nodetype
+
+    my $cursor = $this->getNodeCursor( "*", { node_id => $node_id }, undef, undef, undef, undef, 1 );
+
+    return unless $cursor;
+
+    my $node_data = $cursor->fetchrow_hashref();
+    $cursor->finish();
 
     return unless $node_data;
 
-    ## get nodetype
-#    my $nodetype_name = $this->get_storage->sqlSelect( 'title', 'node', 'node_id = ?', undef, [ $$node_data{ type_nodetype } ] );
+    my $type = $this->nodetype_for_node( { id => $node_data->{type_nodetype} } );
 
-    my $nodetype_name = $this->nodetype_by_id( $node_data->{type_nodetype} )->get_title;
-    return  $this->make_node( $node_data, $nodetype_name );
+    return $type->node( { nodebase => $this, node_id => $node_id } );
 
 }
 
 
-# XXX: in this sub we can dispatch straight to the node collecting routinte because we know the nodtype
 sub retrieve_node_using_name_type {
 
     my ( $this, $name, $nodetype_title ) = @_;
 
     my $node_data;
 
-
     if ( $nodetype_title eq 'nodetype') {
 
-	$node_data = $this->get_storage->nodetype_data_by_name( $name );
+	return $this->nodetype_for_node ( { title => $name } );
+
     } else {
-	$node_data = $this->get_storage->getNodeByName( $name, $nodetype_title );
+
+	my $type = $this->nodetype_for_node( { title => $nodetype_title } );
+
+	return $type->node( { nodebase => $this, title => $name } );
+
     }
 
-    return unless $node_data;
+    die "Can't get node by title and nodetype."
 
-    return $this->make_node( $node_data, $nodetype_title );
+}
+
+sub nodetype_for_node {
+    my ( $this, $args ) = @_;
+
+    my $type;
+
+    if ( $args->{id} ) {
+
+	$type = $this->nodetype_by_id( $args->{id} );
+
+	# bootstrap getting nodetypes
+
+	if ( ! $type ) {
+	    my $data = $this->get_storage->nodetype_data_by_id( $args->{id} );
+	    die "No nodetype data for id $$args{id}" unless $data;
+	    $type = $this->make_node( $data, 'nodetype');
+	}
+
+    } elsif ( $args->{title} ) {
+	  $type = $this->nodetype_by_title( $args->{title} );
+
+	if ( ! $type ) {
+	    my $data = $this->get_storage->nodetype_data_by_name( $args->{title} );
+	    return unless $data;
+	    $type = $this->make_node( $data, 'nodetype');
+	}
+
+
+    } else {
+	die "Can't get nodetype.";
+    }
+    return $type;
 
 }
 
@@ -1073,7 +1062,7 @@ sub getNode
 		return $nodeArray->[0] if @$nodeArray;
 		return;
 	}
-	elsif ( $node =~ /^\d+$/ )
+	elsif ( looks_like_number( $node ) )
 	{
 	    return $NODE = $this->retrieve_node_using_id( $node, $ext );
 	}
@@ -1092,7 +1081,7 @@ sub getNode
 		$type_name = $type_node->get_title;
 	    } else {
 		$type_name = $ext;
-		$type_node = $this->getType( $ext );
+		$type_node = $this->retrieve_node_using_name_type( $ext, 'nodetype' );
 	    }
 
 	    if (  $ext2 eq "create force"  )
@@ -1134,7 +1123,7 @@ sub create_dummy_node {
         guestaccess   => 'iiiii',
     };
 
-    $NODE = $class->new( %$data, DB => $this, nodebase => $this );
+    $NODE = $class->new( %$data, DB => $this, nodebase => $this, _type => $this->nodetype_by_id( $$data{type_nodetype} ) );
     $NODE->set_access( $this->make_access($NODE) );
 
     return $NODE;
@@ -1220,7 +1209,7 @@ sub getNodeWhere
 	my $WHERE = shift;
 	my $TYPE = shift;
 	my $node_type = $this->getNode( $TYPE, 'nodetype' );
-	my $selectNodeWhere = $this->selectNodeWhere($WHERE, $node_type->{node_id}, @_);
+	my $selectNodeWhere = $this->selectNodeWhere($WHERE, $node_type, @_);
 
 	return
 		unless defined $selectNodeWhere
@@ -1255,7 +1244,7 @@ sub getType
 	# The thing they passed in is good to go.
 	return $idOrName if eval { $idOrName->isa( 'Everything::Node' ) };
 
-	return $this->getNode( $idOrName, 1 ) if $idOrName =~ /\D/;
+	return $this->getNode( $idOrName, 'nodetype' ) if $idOrName =~ /\D/;
 
 	return $this->getNode($idOrName) if $idOrName > 0;
 	return;

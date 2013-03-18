@@ -617,7 +617,7 @@ q{ CREATE TABLE revision (
   inside_workspace int(11) DEFAULT '0' NOT NULL,
   revision_id int(11) DEFAULT '0' NOT NULL,
   xml text NOT NULL,
-  tstamp timestamp(14),
+  tstamp timestamp,
   FOREIGN KEY (node_id) REFERENCES node(node_id) ON DELETE CASCADE, 
   PRIMARY KEY (node_id,inside_workspace,revision_id)
 ) ENGINE=INNODB},

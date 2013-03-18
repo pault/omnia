@@ -114,11 +114,8 @@ HERE
     my $inst = $self->{class}->new( file => "$fh" );
 
    my $rv = $inst->get_deconstruct_locations;
-   my $mock = Test::MockObject->new;
-   $mock->set_true ( qw/isa/ );
-   $mock->set_always( get_node_id => 777 );
-   $mock->{node_id} = 777;
-   is ( $$rv[0]->( $mock ), '/node/777', '...creates location properly.');
+   my $n = Everything::Node::node->new({ node_id => 777});
+   is ( $$rv[0]->( $n ), '/node/777', '...creates location properly.');
 
    $fh->truncate(0);
     print $fh <<HERE;
@@ -131,7 +128,7 @@ HERE
 
    $rv = $inst->get_deconstruct_locations;
 
-   is ( $$rv[1]->( $mock ), '/paper/777', '...can handle several location creators.');
+   is ( $$rv[1]->( $n ), '/paper/777', '...can handle several location creators.');
 }
 
 sub test_request_modifiers :Test(4) {
