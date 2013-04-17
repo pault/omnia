@@ -265,6 +265,8 @@ sub test_build_nodetypedb_modules : Test( 10 ) {
             return { title => $name, extends_nodetype => $name };
         }
     );
+
+    $storage->set_always( nodetype_hierarchy_by_id => [] );
     $nb->set_true('isa');    # to get around attribute class constraints
     $nb->set_always( get_sqltable => '' );
     $nb->set_true('load_nodemethods');
@@ -294,7 +296,7 @@ sub test_build_nodetypedb_modules : Test( 10 ) {
     # ensure that each of these are in the symbol table
     foreach my $type (qw/ supernode extendednode superextendednode /) {
         ok(
-            defined %{ "Everything::Node::" . $type . "::" },
+            %{ "Everything::Node::" . $type . "::" },
             "... \%Everything::Node::${type}:: should be in the symbol table."
         );
     }
@@ -425,6 +427,12 @@ sub test_get_node :Test( 12 )
 		'... and should return node if it is a node already' );
 
 	my $s =  Test::MockObject->new;
+
+	$s->set_always(nodetype_data_by_name => {} );
+	$s->set_always( getNodeCursor => $s );
+	$s->set_always( fetchrow_hashref => { node_id => 222 } );
+	$s->set_true( qw/finish/ );
+	$s->set_always( nodetype_hierarchy_by_id => [] );
 	$nb->set_storage( $s );
 
 	$nb->{cache} = $nb;
@@ -438,6 +446,7 @@ sub test_get_node :Test( 12 )
 	use Everything::Node::nodetype;
 	$s->mock( getNodeByName => sub {} );
 
+	$s->set_always ( fetchrow_hashref => undef ); # if no entry in DB>
 	is ( $nb->getNode( 77 ), undef, "...if passed a non existent ID returns undef.");
 
 	$s->mock( getNodeByIdNew => sub { +{node_id => 1, type_nodetype => 2 } } );
@@ -445,7 +454,12 @@ sub test_get_node :Test( 12 )
 	$nb->set_always( getType => $nb );
 	$nb->set_always( get_title => 'a title' );
 
-	is ( $nb->getNode( 'non-existent', 'nodetype' ), undef, "...if passed a non existent name returns undef.");
+
+	## XXXX: here we're mocking so much, I don't know that we're
+	## really testing anything
+	$nb->set_always ( nodetype_for_node => Test::MockObject->new->set_always( node => undef ));
+	is ( $nb->getNode( 'non-existent', 'node' ), undef, "...if passed a non existent name returns undef.");
+	$nb->unmock( 'nodetype_for_node');
 
 	$nb->set_true( qw/isa/ );
 	$nb->set_always( get_title => 'node');

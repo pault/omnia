@@ -840,7 +840,7 @@ sub test_nuke :Test( 22 )
 	$db->{cache}     = $db;
 	$node->{node_id} = 89;
 
-	$node->set_true( 'hasAccess' )
+	$node->set_true( 'hasAccess', 'delete_node' )
 		->set_series( -isa => 0, 'table1', 'table2' )
 		->set_series( -get_grouptable => 'table1', 'table2')
 	    ->set_always( retrieve_nodetype_tables => [ 'deltable' ] )

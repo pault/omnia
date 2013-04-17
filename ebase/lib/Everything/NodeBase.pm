@@ -738,7 +738,8 @@ sub delete_stored_node {
 
 	# Actually remove this node from the database.
 
-	$result = $this->get_storage->purge_node_data( $node );
+	$result = $node->type->delete_node( $node );
+#	$result = $this->get_storage->purge_node_data( $node );
 
 	# Clear out the node id so that we can tell this is a "non-existant" node.
 	$node->{node_id} = 0;

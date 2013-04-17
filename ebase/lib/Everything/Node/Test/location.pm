@@ -17,6 +17,7 @@ sub test_nuke :Test( +8 )
 	$db->set_true( 'sqlUpdate' );
 	$self->SUPER();
 
+	return "Code moved to DB/Node/location.pm";
 	$node->set_series( super => -1, 0, 1 );
 	$db->clear();
 

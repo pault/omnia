@@ -480,40 +480,11 @@ sub update_node {
     $this->db_node->update_node( $node );
 
 }
+sub delete_node {
 
-# gets tableArray and join columns and returns a Join clause
+    my ( $self, $node ) = @_;
 
-sub JOIN_clause {
-
-
-}
-
-sub SELECT_statement {
-
-
-
-# select fields
-# Joins
-# WHERE
-# ORDER BY
-# OFFSET
-# Limit
-
-
-
-}
-
-sub INSERT_statement {
-
-}
-
-sub UPDATE_statement {
-
-
-}
-
-sub DELETE_statement {
-
+    $self->db_node->delete_node ( $node );
 
 }
 

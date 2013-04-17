@@ -113,6 +113,29 @@ sub update_node {
     return $node->{node_id};
 }
 
+sub delete_node {
+
+    my ( $self, $node ) = @_;
+
+    my $storage = $self->storage;
+
+    return $storage->purge_node_data( $node );
+
+    my $result;
+
+    my $id = $node->getId;
+
+    my $tableArray = $storage->retrieve_nodetype_tables( $node->get_type_nodetype, 1);
+
+	foreach my $table (@$tableArray)
+	{
+		$result += $storage->sqlDelete( $table, "${table}_id = ?", [$id] );
+	}
+
+    return $result;
+
+}
+
 1;
 
 __END__

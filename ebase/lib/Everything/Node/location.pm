@@ -14,31 +14,6 @@ use MooseX::FollowPBP;
 
 extends 'Everything::Node::node';
 
-=head2 C<nuke>
-
-Overrides the base node::nuke so we can move all the nodes that exist in this
-location to the parent location.
-
-=cut
-
-override nuke => sub {
-    my ( $this, $USER ) = @_;
-    my $id        = $this->{node_id};
-    my $parentLoc = $this->{loc_location};
-    my $result    = $this->super($USER);
-
-    if ( $result > 0 ) {
-
-        # Set all the nodes that were in this location to be in the
-        # parent location... deleting a location does not delete all
-        # the nodes inside of it.
-        $this->{DB}->sqlUpdate( "node", { loc_location => $parentLoc },
-            "loc_location=$id" );
-    }
-
-    return $result;
-};
-
 =head2 C<listNodes>
 
 Get a list of all the nodes in this location, just like an 'ls'.  The nodes are
