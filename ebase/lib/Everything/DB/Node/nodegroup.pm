@@ -42,7 +42,7 @@ around update_node => sub {
 
 
     my $node_id = $self->$orig( $node );
-    my $storage = $self->storage; 		use Data::Dumper; warn Dumper $node->{group} if $$node{title} eq 'gods';
+    my $storage = $self->storage;
     my $group = $node->restrict_type( $node->{group} );
 
     my %DIFF;

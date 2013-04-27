@@ -9,6 +9,16 @@ use Data::Dumper;
 
 use base 'Everything::DB::Node::Test::node';
 
+sub setup_mock_node {
+
+    my $self = shift;
+
+    $self->SUPER::setup_mock_node;
+    $self->{node}->{extends_nodetype} = 22;
+    $self->{node}->{type_nodetype} = 21;
+
+}
+
 sub test_insert_node :Test( +4 ) {
 
     my $self = shift;

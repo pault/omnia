@@ -73,7 +73,9 @@ sub test_get_node_keys :Test( +2 )
 	$self->SUPER();
 
 	no strict 'refs';
-	local *{ $self->node_class . '::super' } = sub { +{node_id => 10, nltext => 'nltext' } };
+
+	local *{ $self->node_class . '::super' };
+	*{ $self->node_class . '::super' } = sub { +{node_id => 10, nltext => 'nltext' } };
 	use strict 'refs';
 
 	my $result = $node->getNodeKeys( 0 );

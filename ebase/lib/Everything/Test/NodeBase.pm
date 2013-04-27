@@ -525,7 +525,7 @@ sub test_get_node_where :Test( 5 )
 
 	my $node_zero = { node_id => 0 };
 	$nb->set_series( 'selectNodeWhere', undef, 'foo', [ 1 .. 5 ] )
-	   ->mock( -getNode => sub { return $node_zero if $_[1] eq $node_zero; return +{ node_id => $_[1] } if $_[1] } );
+	   ->mock( -getNode => sub { return $node_zero if $_[1] && $_[1] eq $node_zero; return +{ node_id => $_[1] } if $_[1] } );
 
 	my @expected = ( 'where', $node_zero, qw/ orderby limit offset reftotalrows / );
 	my $result   = $nb->getNodeWhere( @expected );

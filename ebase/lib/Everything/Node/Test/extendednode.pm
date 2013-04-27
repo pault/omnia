@@ -91,6 +91,7 @@ sub reset_mock_node
 	$newtype = $db->getType( 'extendednode' );
 
 	$newnewtype->{extends_nodetype} = $newtype->{node_id};
+#	$db->store_new_node( $newnewtype, -1 );
 	$newnewtype->insert(-1);
 
 	## teardown $db again.
@@ -99,6 +100,7 @@ sub reset_mock_node
 
 	### can we create a moreextendednode instance?
 	my $newnewnode  = $db->getNode('blahblahblah', 'moreextendednode', 'create force');
+
 	isa_ok($newnewnode, 'Everything::Node::node');
 	isa_ok($newnewnode, 'Everything::Node::extendednode');
 	isa_ok($newnewnode, 'Everything::Node::moreextendednode');
@@ -166,6 +168,12 @@ sub test_check_accessors : Test(8) {
     my $self = shift;
     my $node = $self->{node};
 
+    local *Everything::DB::sqlite::now;
+    *Everything::DB::sqlite::now = sub { time() };
+
+    local *Everything::logErrors;
+    *Everything::logErrors = sub { diag "@_" };
+
 
     ## XXX: we need to mock the cache whihch is called from
     ## NodeBase.pm- caching should be only turned on when we ask for
@@ -177,6 +185,13 @@ sub test_check_accessors : Test(8) {
     my $meta = $node->meta;
     my @methods = $meta->get_all_methods;
     ## accessors set in setup
+
+    ## node not in db, need to insert before we can update
+
+    ## XXXX: should we test that we cannot 'update' a node if it
+    ## doesn't already exist in the nodebase.
+
+    $node->insert( -1 );
 
     can_ok( blessed( $node ), 'get_extendednodetable_id', 'get_afield' ) || do { diag $_->name foreach @methods };
 

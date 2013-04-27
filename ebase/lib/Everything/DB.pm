@@ -399,7 +399,14 @@ sub sqlInsert
 		. join( ', ', @$values ) . ")";
 
         my $rv = $this->sqlExecute( $sql, $bound );
-	Everything::logErrors( "$sql $DBI::errstr @$bound" )if $DBI::errstr;
+use Carp;
+	Everything::logErrors( "$sql $DBI::errstr @$bound" . Carp::cluck .
+			       join (' ', 
+				     map { "$_ => $$data{$_}" }
+				     keys %$data
+				    )
+			     )
+	    if $DBI::errstr;
 
 	return $rv;
 }
@@ -712,13 +719,10 @@ sub nodetype_hierarchy_by_id {
     my $type;
     my $flag = 0;
     while ( $id && ( $type = $self->nodetype_data_by_id($id)) ) {
-	$flag++ if $$type{title} eq 'usergroup';
-#	use Data::Dumper; warn "NOW THIS TYPE " . Dumper( $type ) if $flag;
 	push @nodetypes, $type;
 	$id = $type->{extends_nodetype};
     }
 
-#warn "THIISSSS IS THE HIERARCHY FROM IX 0 : " . join ' ', map { $_->{node_id}  } @nodetypes if $flag;
     return \@nodetypes if @nodetypes;
     return;
 }

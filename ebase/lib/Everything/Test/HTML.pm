@@ -603,7 +603,7 @@ sub mock_everything_request {
      $list_flag = 0;
      $form_object_return = $mock;
      $mock->set_always(-cgiVerify => {node => 222} );
-     $mock->set_true( qw/cgiUpdate -logRevision -update/ );
+     $mock->set_true( qw/cgiUpdate -logRevision -update -log_node_revision/ );
      $mock->clear;
      $rv = opUpdate( $mock );
      my( $method, $args ) = $mock->next_call;

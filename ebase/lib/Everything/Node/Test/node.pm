@@ -75,7 +75,7 @@ sub startup : Test( startup => 3 ) {
 
 sub test_instantiate {
     my ( $self, $module ) = @_;
-    isa_ok( $module->new(), $module );
+     isa_ok( $module->new(), $module );
 
 }
 

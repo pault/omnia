@@ -16,6 +16,7 @@ sub test_instantiate {
     my ( $self, $module ) = @_;
     my $mock =  Test::MockObject->new;
     $mock->set_always( get_storage => $mock );
+    $mock->set_always( nodetype_hierarchy_by_id => [] );
     isa_ok( $module->new( nodebase => $mock ), $module );
 
 

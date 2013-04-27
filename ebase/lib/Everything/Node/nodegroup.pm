@@ -477,7 +477,7 @@ sub insertIntoGroup {
     # converts to a list reference w/ 1 element if we get a scalar
     my $insertref;
 
-    $insertref = reftype($insert) eq 'ARRAY' ? $insert : [$insert];
+    $insertref = reftype($insert) && ( reftype($insert) eq 'ARRAY' ) ? $insert : [$insert];
 
     $insertref = $this->restrict_type($insertref);
     my $len = int(@$group);

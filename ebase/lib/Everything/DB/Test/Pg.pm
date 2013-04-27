@@ -407,8 +407,8 @@ sub test_add_field_to_table : Test(25) {
       ->addFieldToTable( 't', 'f', 'something else', 1, 'default' );
     $method = $self->{instance}->{dbh}->call_pos(-2);
     $args = $self->{instance}->{dbh}->call_args_pos(-2, 2);
-    isnt( $method, 'do', '... but we do not drop a primary key' ); 
-    unlike( $args, qr/drop primary key/, '... because there isn\'t one' );
+    isnt( $method, 'do', '... but we do not drop a primary key' );
+    unlike( $args || '', qr/drop primary key/, '... because there isn\'t one' );
     $method = $self->{instance}->{dbh}->call_pos(-1);
     $args = $self->{instance}->{dbh}->call_args_pos(-1, 2);
     is( $method, 'do', '... but we call the sequel to add one.' );

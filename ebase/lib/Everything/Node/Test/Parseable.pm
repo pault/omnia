@@ -309,6 +309,11 @@ sub test_compile : Test( 6 ) {
 
     my $test_instance = $self->{ instance };
 
+    ## Give id and title so that warnings about uninit. values are suppressed.
+
+    $test_instance->{node_id} = 777;
+    $test_instance->{title} = 'Temp title';
+
     my $test_code = '[% my $x = 1; my $y = 2; $x + $y %]';
 
     ok ( my $rv = $test_instance->compile( $test_code ), '...code compiles.' ) || diag $@;

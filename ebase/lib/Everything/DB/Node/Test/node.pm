@@ -102,6 +102,8 @@ sub test_insert_node :Test(10) {
 
     $storage->set_true('sqlInsert');
 
+    $storage->set_always( -now => '0000-00-00' );
+
     is( $db_node->insert_node( $node), 999, 'insert_node returns node_id.');
 
     my ($method, $args ) = $storage->next_call;

@@ -69,7 +69,12 @@ sub module_class
 
 sub fixture_environment : Test(setup) {
     my $self=shift;
-    $self->{instance} = $self->{class}->new;
+    my $instance = $self->{class}->new;
+
+    $instance->{node_id} = 777;
+    $instance->{title} = 'Temp title';
+
+    $self->{instance} = $instance;
 
 
 }
@@ -107,6 +112,8 @@ sub test_compile_errors : Test( 3 ) {
     # haven't used 'my'!! So shouldn't compile
     my $test_code = '$x = 1; $y = 2; $x + $y';
 
+    $test_instance->{a_field_with_perl} = $test_code;
+
     is ( $test_instance->compile( $test_code ), undef, '...code does not compile.' );
 
     ok ( @Everything::bsErrors, '...errors have been logged.' );
@@ -123,8 +130,9 @@ sub test_run_errors : Test( 5 ) {
     # haven't used 'my'!! So shouldn't compile
     my $test_code = 'my $x;  $x->nonExistantSubroutine()';
 
-    ok ( my $code = $test_instance->compile( $test_code ), '...code compiles.' );
+    $test_instance->{'TEST CODE FIELD'} = $test_code;
 
+    ok ( my $code = $test_instance->compile( $test_code ), '...code compiles.' );
     is ( ref $code, 'CODE', '...returns a code ref.' );
 
     ## Code returns a false value because we have not passed Everything::HTML object
