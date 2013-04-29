@@ -832,6 +832,8 @@ sub selectNodeWhere
 
 # SELECT * from node, nodetype where node.node_id = nodetype.nodetype_id.
 
+	use Scalar::Util qw/blessed/;
+	die "Need to pass type; $TYPE" if $TYPE && blessed($TYPE) ne 'Everything::Node::nodetype';
 	$TYPE = undef if defined $TYPE && $TYPE eq '';
 
 	# The caller wishes to know the total number of matches.
@@ -859,6 +861,8 @@ sub selectNodeWhere
 	die "SQL Error: $sql " . DBI->errstr if DBI->errstr;
 
 	return unless $cursor and $cursor->execute();
+
+	die "SQL Execute Error: $sql " . DBI->errstr if DBI->errstr;
 
 	my @nodelist;
 	while ( my $node_id = $cursor->fetchrow() )
@@ -1007,7 +1011,7 @@ sub SELECT_node {
 	  {
 	      foreach my $table (@$tableArray)
 		{
-		    $sql .= "LEFT JOIN " . $this->genTableName( $table ) . " ON " . "node.node_id = $table.${table}_id ";
+		    $sql .= "LEFT JOIN " . $this->genTableName( $table ) . " ON " . "node.node_id = " . $this->genTableName( $table) . ".${table}_id ";
 		}
 	  }
 

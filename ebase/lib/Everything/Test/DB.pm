@@ -693,7 +693,9 @@ sub test_select_node_where : Test(5) {
     $self->{instance}->{dbh}
       ->mock( 'fetchrow', sub { return shift @other_rows } );
 
-    my @args = ( { medusa => 'arachne' }, 111, 'title', 1, 2 );
+    my $type = bless { node_id => 2, title => 'testtype' }, 'Everything::Node::nodetype';
+
+    my @args = ( { medusa => 'arachne' }, $type, 'title', 1, 2 );
 
     $self->{instance}->{dbh}->clear;
     my $nodelist = $self->{instance}->selectNodeWhere(@args);
