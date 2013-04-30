@@ -638,7 +638,7 @@ sub test_get_node_by_name : Test(4) {
 sub test_get_node_cursor : Test(4) {
     my $self  = shift;
     my $value = 'a value';
-    $self->add_expected_sql( q|SELECT fieldname FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=sometype ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
+    $self->add_expected_sql( q|SELECT fieldname FROM node LEFT JOIN lions ON node.node_id = lions.lions_id LEFT JOIN serpents ON node.node_id = serpents.serpents_id WHERE foo='bar' AND type_nodetype=sometype ORDER BY title LIMIT 2, 1|)  unless $self->isset_expected_sql;
 
     local *Everything::DB::retrieve_nodetype_tables;
     *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
@@ -649,7 +649,7 @@ sub test_get_node_cursor : Test(4) {
     local *Everything::logErrors;
     *Everything::logErrors = sub { diag "@_" };
 
-    @tablearray = (qw{serpents lions});
+    @tablearray = (qw{lions serpents});
 
     my @args = ( 'fieldname', { foo => 'bar' }, 'sometype', 'title', 1, 2 );
 
@@ -717,7 +717,7 @@ sub test_select_node_where : Test(5) {
 
 sub test_count_node_matches : Test(4) {
     my $self  = shift;
-    $self->add_expected_sql (q|SELECT count(*) FROM node LEFT JOIN lions ON node_id=lions_id LEFT JOIN serpents ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=sometype |)  unless $self->isset_expected_sql;
+    $self->add_expected_sql (q|SELECT count(*) FROM node LEFT JOIN lions ON node.node_id = lions.lions_id LEFT JOIN serpents ON node.node_id = serpents.serpents_id WHERE foo='bar' AND type_nodetype=sometype |)  unless $self->isset_expected_sql;
 
     local *Everything::DB::retrieve_nodetype_tables;
     *Everything::DB::retrieve_nodetype_tables = sub { \@tablearray };
@@ -726,7 +726,7 @@ sub test_count_node_matches : Test(4) {
     *Everything::DB::nodetype_data_by_name = sub {};
 
     my $value = 'a value';
-    @tablearray = (qw{serpents lions});
+    @tablearray = (qw{lions serpents});
     $self->{instance}->{dbh}->set_always( 'fetchrow', 3 );
 
     ## tables a WHERE hash and a type

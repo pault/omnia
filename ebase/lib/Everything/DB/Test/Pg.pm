@@ -444,7 +444,7 @@ sub test_start_transaction : Test(4) {
 sub test_count_node_matches : Test(+0) {
     my $self = shift;
     $self->add_expected_sql(
-q|SELECT count(*) FROM "node" LEFT JOIN "lions" ON node_id=lions_id LEFT JOIN "serpents" ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=sometype |
+q|SELECT count(*) FROM "node" LEFT JOIN "lions" ON "node".node_id = "lions".lions_id LEFT JOIN "serpents" ON "node".node_id = "serpents".serpents_id WHERE foo='bar' AND type_nodetype=sometype |
     );
     $self->SUPER;
 }
@@ -596,7 +596,7 @@ sub test_database_exists : Test(1) {
 
 sub test_get_node_cursor : Test(+0) {
     my $self = shift;
-    $self->add_expected_sql( q|SELECT fieldname FROM "node" LEFT JOIN "lions" ON node_id=lions_id LEFT JOIN "serpents" ON node_id=serpents_id WHERE foo='bar' AND type_nodetype=sometype ORDER BY title LIMIT 1 OFFSET 2|);
+    $self->add_expected_sql( q|SELECT fieldname FROM "node" LEFT JOIN "lions" ON "node".node_id = "lions".lions_id LEFT JOIN "serpents" ON "node".node_id = "serpents".serpents_id WHERE foo='bar' AND type_nodetype=sometype ORDER BY title LIMIT 1 OFFSET 2|);
     $self->SUPER;
 
 }

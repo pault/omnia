@@ -29,6 +29,19 @@ sub retrieve_node {
 
 }
 
+sub retrieve_nodes {
+
+
+##NB: DB::getNodeCursor wants select, WHERE, TYPE, ORDERBY, LIMIT, OFFSET, nodeTableOnly
+
+## what we want to do is pass it sql, so it does not have to make the sql itselffrom node tables, but the DB/Node tree makes it
+
+    my ( $self, $args ) = @_;
+
+   
+
+}
+
 sub insert_node {
 
     my ( $this, $node ) = @_;

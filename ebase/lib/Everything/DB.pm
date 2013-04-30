@@ -958,7 +958,7 @@ sub getNodeCursor
 		{
 			foreach my $table (@$tableArray)
 			{
-				$$tablehash{$table} = "node_id=" . $table . "_id";
+				$$tablehash{$table} = $this->genTableName('node') . ".node_id=" . $this->genTableName ( $table ) . '.' . $table . "_id";
 			}
 		}
 	}
@@ -968,21 +968,32 @@ sub getNodeCursor
 	$extra .= " " . $this->genLimitString( $offset, $limit ) if $limit;
 
 	# Trap for SQL errors!
-	my $warn;
-	my $error;
-	local $SIG{__WARN__} = sub {
-		$warn .= $_[0];
-	};
+	my $warn = q{};
+	my $error = q{};
+#	local $SIG{__WARN__} = sub {
+#		$warn .= $_[0];
+#	};
+
+	my $sql = $this->SELECT_node( $select, $TYPE );
+
+	$sql .= "WHERE $wherestr " if $wherestr;
+	$sql .= $extra          if $extra;
+
 	eval {
-		$cursor =
-			$this->sqlSelectJoined( $select, "node", $tablehash, $wherestr,
-			$extra );
+	    $cursor = $this->{dbh}->prepare($sql);
+	    die "$DBI::errstr, $sql" if $DBI::errstr;
+
+#	    $cursor->execute(@$bound); ## where string should used bound values
+	    $cursor->execute();
+	    die "$DBI::errstr, $sql" if $DBI::errstr;
+
 	};
+
 	$error = $@;
 
 	if ( $error ne "" or $warn ne "" )
 	{
-		Everything::logErrors( $warn, $error, "$select\n($TYPE)" );
+		Everything::logErrors( $warn, $error, "$select\n($TYPE) $sql" );
 		return;
 	}
 
@@ -1001,7 +1012,7 @@ Returns a string
 sub SELECT_node {
     my ( $this, $select, $type ) =@_;
 
-    my $sql = "SELECT $select FROM node \n";
+    my $sql = "SELECT $select FROM " . $this->genTableName( 'node' ) . ' ';
 
     if ( $type ) {
 
@@ -1011,7 +1022,7 @@ sub SELECT_node {
 	  {
 	      foreach my $table (@$tableArray)
 		{
-		    $sql .= "LEFT JOIN " . $this->genTableName( $table ) . " ON " . "node.node_id = " . $this->genTableName( $table) . ".${table}_id ";
+		    $sql .= "LEFT JOIN " . $this->genTableName( $table ) . " ON " . $this->genTableName('node') . ".node_id = " . $this->genTableName( $table) . ".${table}_id ";
 		}
 	  }
 

@@ -441,6 +441,51 @@ sub node {
 
 }
 
+
+=head2 nodes
+
+Retrieves an array ref of nodes of this nodetype from the database.
+
+Arguments:
+
+=over 
+
+=item * WHERE
+
+A has reference of fieldname/value pairs on which to restrict the select of a plain text WHERE string
+
+
+=item * $orderby
+
+the field in which to order the results.
+
+=item * $limit
+
+the maximum number of rows to return
+
+=item * $offset
+
+(only if limit is provided) offset from the start of the matched rows.  By
+using this an limit, you can retrieve a specific range of rows.
+
+=item * $refTotalRows
+
+if you want to know the total number of rows that match the query, pass in a
+ref to a scalar (ie: \$totalrows) and it will be set to the total rows that
+match the query.  This is really only useful when specifying a limit.
+
+=item nodebase
+
+=back
+
+=cut
+
+
+sub nodes {
+
+
+}
+
 =head2 insert_node
 
 Takes a blessed node object and then inserts it into the nodebase
